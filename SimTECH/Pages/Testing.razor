@@ -1,0 +1,75 @@
+﻿@page "/testing"
+@inject ThingState ThingState
+@using SimTECH.ViewModels
+
+@layout MainLayout
+
+<PageTitle>Testing</PageTitle>
+
+<h2>Testing page! [Global value: @GlobalNumber]</h2>
+
+<span @onclick="@(() => ShowBasicDialog())">Click me if you want to see</span>
+
+@if (showingThangs)
+{
+    <ul>
+        @foreach (var thing in testConfig.Things)
+        {
+            <li>@thing</li>
+        }
+    </ul>
+}
+
+@if (showingDialog)
+{
+    <BasicDialog 
+        Test="testConfig" 
+        OnCancel="CancelDialogEvent"
+        OnConfirm="ConfirmDialogEvent"/>
+
+    /* NOTE: Implementation by state makes the information accessible between multiple views
+     <BasicDialog
+        Test="ConfiguringThing"
+        OnCancel="ThingState.CancelThingDialog"
+        OnConfirm="ThingState.ConfirmThingDialog"/>
+     */
+}
+
+@code {
+    [CascadingParameter(Name = "NumberForEveryInternalComponent")]
+    protected int GlobalNumber { get; set; }
+    
+    TestingModel testConfig;
+    bool showingDialog;
+    bool showingThangs;
+
+    void ShowBasicDialog()
+    {
+        if (testConfig == null)
+        {
+            testConfig = new TestingModel()
+            {
+                Title = "This is a title",
+                Content = "And I am the content of this dialog",
+                Things = new List<string> { "a thing" }
+            };
+        }
+        
+        showingDialog = true;
+    }
+
+    void CancelDialogEvent()
+    {
+        testConfig = null;
+        showingDialog = false;
+    }
+
+    void ConfirmDialogEvent()
+    {
+        if (!string.IsNullOrEmpty(testConfig.Thang))
+            testConfig.Things.Add(testConfig.Thang);
+
+        showingDialog = false;
+        showingThangs = true;
+    }
+}

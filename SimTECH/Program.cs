@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using SimTECH;
 using SimTECH.Areas.Identity;
 using SimTECH.Data;
 using SimTECH.Services;
@@ -26,6 +27,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
+builder.Services.AddScoped<ThingState>();
 //builder.Services.AddHttpClient(); // Hebben we niet nodig tenzij je data uit een API voor je frontend op gaat halen
 
 // Alle services zijn hieronder gedefineerd
