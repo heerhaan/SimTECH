@@ -1,0 +1,16 @@
+﻿@page "/login"
+@inject SimAuthenticationStateProvider SimAuthenticationStateProvider
+@attribute [AllowAnonymous]
+
+<h3>Login</h3>
+<button type="button" class="btn btn-primary" @onclick=LoginAsync>Login</button>
+
+@code {
+    public async Task LoginAsync()
+    {
+        var exampleName = "belial";
+        var examplePass = "theredking";
+
+        await SimAuthenticationStateProvider.LoginAsync(exampleName, examplePass);
+    }
+}
