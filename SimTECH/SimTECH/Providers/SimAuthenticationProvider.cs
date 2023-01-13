@@ -39,7 +39,8 @@ namespace SimTECH.Providers
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new())));
         }
 
-        // NOTE: Don't call this method inside a component, it will create a new function-call to GetAuthenticationStateAsync() every time the component is added
+        // NOTE: Don't call this method inside a component, it will create a new function-call to GetAuthenticationStateAsync()
+        // every time the component is added
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             var principal = new ClaimsPrincipal();
@@ -56,7 +57,7 @@ namespace SimTECH.Providers
                 }
             }
 
-            return new(principal);
+            return new AuthenticationState(principal);
         }
 
         private async void OnAuthenticationStateChangedAsync(Task<AuthenticationState> task)

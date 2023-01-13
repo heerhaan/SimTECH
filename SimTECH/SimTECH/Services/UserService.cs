@@ -21,7 +21,7 @@ namespace SimTECH.Services
         {
             var testUsers = new List<User>()
             {
-                new()
+                new User()
                 {
                     Username = "belial",
                     Password = "theredking",
@@ -29,7 +29,7 @@ namespace SimTECH.Services
                     CoolGrade = 9,
                     Roles = new List<string> { "admin" }
                 },
-                new()
+                new User()
                 {
                     Username = "beldr",
                     Password = "unbreakableone",
