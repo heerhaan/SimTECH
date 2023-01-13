@@ -4,6 +4,7 @@ namespace SimTECH.Data.Models
 {
     public class User
     {
+        public int UserId { get; set; }
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
@@ -13,17 +14,19 @@ namespace SimTECH.Data.Models
 
         public ClaimsPrincipal ToClaimsPrincipal()
         {
-            return new(
-            new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, Username),
-                    new Claim(ClaimTypes.Hash, Password),
-                    new Claim(nameof(FullName), FullName),
-                    new Claim(nameof(CoolGrade), CoolGrade.ToString())
-                }
-                .Concat(
-                    Roles.Select(r => new Claim(ClaimTypes.Role, r)).ToArray()),
-                "SimTech"));
+            return new ClaimsPrincipal(
+                new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.Name, Username),
+                        new Claim(ClaimTypes.Hash, Password),
+                        new Claim(nameof(FullName), FullName),
+                        new Claim(nameof(CoolGrade), CoolGrade.ToString())
+                    }
+                    .Concat(
+                        Roles.Select(r => new Claim(ClaimTypes.Role, r)).ToArray()),
+                    "SimTech"
+                )
+            );
         }
 
         public static User FromClaimsPrincipal(ClaimsPrincipal principal) => new()
