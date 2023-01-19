@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using SimTECH.Data.Models;
-using SimTECH.Services;
+using SimTECH.Data.Services;
 using System.Security.Claims;
 
 namespace SimTECH.Providers
 {
-    public class SimAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
+    public sealed class SimAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
     {
         private readonly UserService userService;
 
