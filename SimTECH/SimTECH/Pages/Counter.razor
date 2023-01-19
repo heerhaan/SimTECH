@@ -1,4 +1,6 @@
 ﻿@page "/counter"
+@page "/counter/{OpeningNumber:int}"
+@inject NavigationManager Nav
 
 <PageTitle>Counter</PageTitle>
 
@@ -8,11 +10,28 @@
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
+<br />
+
+<button class="btn btn-secondary" @onclick="NavigateHome">Wanna see my drivers?</button>
+
+@if (OpeningNumber != 0)
+{
+    <p>Whoa there, cowboy. Did you think that you could start with @(OpeningNumber)? Think again.</p>
+}
+
 @code {
+    [Parameter]
+    public int OpeningNumber { get; set; } = 0;
+
     private int currentCount = 0;
 
     private void IncrementCount()
     {
         currentCount++;
+    }
+
+    private void NavigateHome()
+    {
+        Nav.NavigateTo("/drivers");
     }
 }

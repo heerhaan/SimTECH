@@ -8,10 +8,14 @@
 
 Welcome to your new app.
 
-@if (AuthenticationProvider.CurrentUser != null)
-{
-    <p>Damn @(AuthenticationProvider.CurrentUser.FullName), good to see you logged in.</p>
-}
+<AuthorizeView>
+    <Authorized>
+        <p>Damn @(AuthenticationProvider.CurrentUser?.FullName ?? "wtf who"), good to see you logged in.</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>What are you doing here, mate. You aren't even logged in!</p>
+    </NotAuthorized>
+</AuthorizeView>
 
 <AuthorizeView Roles="admin">
     <Authorized>

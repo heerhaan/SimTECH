@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject SimAuthenticationStateProvider SimAuthenticationStateProvider
 
 <PageTitle>SimTECH</PageTitle>
 
@@ -9,7 +10,12 @@
 
     <main>
         <div class="top-row px-4">
+            <span style="color:red;">@notification</span>
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            <a href="" @onclick="LogoutAsync">Logout</a>
+            <NavLink class="nav-link" href="login">
+                <span class="oi oi-account-login" aria-hidden="true"></span> Login
+            </NavLink>
         </div>
 
         <article class="content px-4">
@@ -17,3 +23,14 @@
         </article>
     </main>
 </div>
+
+@code {
+    private string notification = string.Empty;
+
+    public async Task LogoutAsync()
+    {
+        await SimAuthenticationStateProvider.LogoutAsync();
+
+        notification = "Logged out!";
+    }
+}

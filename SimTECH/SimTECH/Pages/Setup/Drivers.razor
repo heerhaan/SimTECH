@@ -1,4 +1,16 @@
-﻿<h3>Drivers</h3>
+﻿@page "/drivers"
+@inject DriverService DriverService
+
+<PageTitle>Drivers</PageTitle>
+
+<h3>Drivers</h3>
+
+<ul>
+    @foreach(var driver in DriverService.GetTestNames())
+    {
+        <li>@driver</li>
+    }
+</ul>
 
 @code {
 
