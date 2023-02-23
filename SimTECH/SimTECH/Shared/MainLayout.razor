@@ -7,13 +7,8 @@
 
 <PageTitle>SimTECH</PageTitle>
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
+@*
+    <div class="top-row px-4">
             <span style="color:red;">@notification</span>
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
             <a href="" @onclick="LogoutAsync">Logout</a>
@@ -21,20 +16,37 @@
                 <span class="oi oi-account-login" aria-hidden="true"></span> Login
             </NavLink>
         </div>
+*@
 
-        <article class="content px-4">
+<MudLayout>
+    <MudDrawerContainer Class="mud-height-full">
+        <MudDrawer @bind-Open="@_drawerOpen" Fixed="false" Variant="DrawerVariant.Mini" OpenMiniOnHover="true">
+            <NavMenu />
+        </MudDrawer>
+        <div class="d-flex justify-center align-center mud-height-full">
+            <MudButton OnClick="@DrawerToggle" Color="Color.Primary">Toggle</MudButton>
+        </div>
+    </MudDrawerContainer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Medium">
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
 
 @code {
     private string notification = string.Empty;
+    bool _drawerOpen = true;
 
-    public async Task LogoutAsync()
+    async Task LogoutAsync()
     {
         await SimAuthenticationStateProvider.LogoutAsync();
 
         notification = "Logged out!";
+    }
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
     }
 }
