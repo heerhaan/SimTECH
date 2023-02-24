@@ -1,14 +1,31 @@
-﻿namespace SimTECH.Data.Services
+﻿using SimTECH.Data.Models;
+
+namespace SimTECH.Data.Services
 {
     public class DriverService
     {
-        public string[] GetTestNames()
+        public IEnumerable<Driver> GetTestNames()
         {
-            return new string[]
+            return new List<Driver>
             {
-                "Max V.",
-                "Nyck de V.",
-                "Nico H."
+                new Driver()
+                {
+                    Name = "Max Verstappen",
+                    Age = 25,
+                    Role = "Chad"
+                },
+                new Driver()
+                {
+                    Name = "Sharl Eclair",
+                    Age = 24,
+                    Role = "Virgin"
+                },
+                new Driver()
+                {
+                    Name = "Nico Hulkenberg",
+                    Age = 85,
+                    Role = "Eternal"
+                }
             };
         }
     }

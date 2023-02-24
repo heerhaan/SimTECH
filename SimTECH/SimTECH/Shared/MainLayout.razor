@@ -1,42 +1,62 @@
 ﻿@inherits LayoutComponentBase
 @inject SimAuthenticationStateProvider SimAuthenticationStateProvider
 
-<MudThemeProvider />
+<MudThemeProvider @bind-IsDarkMode="@_isDarkTheme" Theme="_theme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <PageTitle>SimTECH</PageTitle>
 
-@*
-    <div class="top-row px-4">
-            <span style="color:red;">@notification</span>
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-            <a href="" @onclick="LogoutAsync">Logout</a>
-            <NavLink class="nav-link" href="login">
-                <span class="oi oi-account-login" aria-hidden="true"></span> Login
-            </NavLink>
-        </div>
-*@
-
 <MudLayout>
-    <MudDrawerContainer Class="mud-height-full">
-        <MudDrawer @bind-Open="@_drawerOpen" Fixed="false" Variant="DrawerVariant.Mini" OpenMiniOnHover="true">
-            <NavMenu />
-        </MudDrawer>
-        <div class="d-flex justify-center align-center mud-height-full">
-            <MudButton OnClick="@DrawerToggle" Color="Color.Primary">Toggle</MudButton>
-        </div>
-    </MudDrawerContainer>
+    <MudAppBar Elevation="1">
+        <MudText Typo="Typo.h5" Class="ml-2">SimTECH</MudText>
+        <MudBreadcrumbs></MudBreadcrumbs>
+        <MudSpacer />
+        <MudSwitch @bind-Checked="@_isDarkTheme" Color="Color.Primary" T="bool" Label="Light/Dark"></MudSwitch>
+        <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <ActivatorContent>
+                <MudAvatar Color="Color.Secondary">A</MudAvatar>
+            </ActivatorContent>
+            <ChildContent>
+                <AuthorizeView>
+                    <Authorized>
+                        <MudMenuItem OnClick="LogoutAsync">Logout</MudMenuItem>
+                    </Authorized>
+                    <NotAuthorized>
+                        <MudMenuItem>
+                            <MudNavLink Href="/login" Match="NavLinkMatch.Prefix">Login</MudNavLink>
+                        </MudMenuItem>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </ChildContent>
+        </MudMenu>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Mini">
+        <NavMenu />
+        <MudSpacer />
+        <MudIconButton Icon="@_drawerIcon" Color="Color.Tertiary" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+    </MudDrawer>
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Medium">
+        <MudContainer MaxWidth="MaxWidth.Large">
             @Body
         </MudContainer>
     </MudMainContent>
 </MudLayout>
 
 @code {
+    private MudTheme _theme = new();
+
     private string notification = string.Empty;
-    bool _drawerOpen = true;
+    private bool _drawerOpen = true;
+    private bool _isDarkTheme = true;
+    private string _drawerIcon = Icons.Material.Filled.KeyboardDoubleArrowLeft;
+
+    private List<BreadcrumbItem> _breadcrumbItems = new()
+    {
+        new BreadcrumbItem("Home", href: "#"),
+        new BreadcrumbItem("Example", href: "#"),
+        new BreadcrumbItem("Example2", href: null, disabled: true)
+    };
 
     async Task LogoutAsync()
     {
@@ -48,5 +68,8 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+        _drawerIcon = _drawerOpen 
+            ? Icons.Material.Filled.KeyboardDoubleArrowLeft
+            : Icons.Material.Filled.KeyboardDoubleArrowRight;
     }
 }

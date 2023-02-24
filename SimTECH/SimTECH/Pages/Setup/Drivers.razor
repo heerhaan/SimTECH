@@ -5,13 +5,19 @@
 
 <h3>Drivers</h3>
 
-<ul>
-    @foreach(var driver in DriverService.GetTestNames())
-    {
-        <li>@driver</li>
-    }
-</ul>
+<MudDataGrid Items="@DriverNames">
+    <Columns>
+        <Column T="Driver" Field="Name" />
+        <Column T="Driver" Field="Age" />
+        <Column T="Driver" Field="Role" />
+    </Columns>
+</MudDataGrid>
 
 @code {
+    private IEnumerable<Driver> DriverNames = new List<Driver>();
 
+    protected override void OnInitialized()
+    {
+        DriverNames = DriverService.GetTestNames();
+    }
 }
