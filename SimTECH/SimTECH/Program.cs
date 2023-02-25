@@ -38,9 +38,10 @@ namespace SimTECH
             // Authentication requirement services
             builder.Services.AddScoped<IAuthorizationHandler, CoolRequirementHandler>();
             builder.Services.AddScoped<IAuthorizationHandler, ChoiceRequirementHandler>();
-            
+
             // Data services
             builder.Services.AddScoped<DriverService>();
+            builder.Services.AddScoped<TeamService>();
             builder.Services.AddScoped<UserService>();
 
             // Add authorization policies

@@ -3,7 +3,6 @@
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkTheme" Theme="_theme" />
 <MudDialogProvider />
-<MudSnackbarProvider />
 
 <PageTitle>SimTECH</PageTitle>
 
@@ -33,8 +32,6 @@
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Mini" OpenMiniOnHover="true">
         <NavMenu />
-        <MudSpacer />
-        <MudIconButton Icon="@_drawerIcon" Color="Color.Tertiary" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
     </MudDrawer>
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.Large">
@@ -47,9 +44,8 @@
     private MudTheme _theme = new();
 
     private string notification = string.Empty;
-    private bool _drawerOpen = true;
+    private bool _drawerOpen = false;
     private bool _isDarkTheme = true;
-    private string _drawerIcon = Icons.Material.Filled.KeyboardDoubleArrowLeft;
 
     async Task LogoutAsync()
     {
@@ -57,19 +53,4 @@
 
         notification = "Logged out!";
     }
-
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-        _drawerIcon = _drawerOpen 
-            ? Icons.Material.Filled.KeyboardDoubleArrowLeft
-            : Icons.Material.Filled.KeyboardDoubleArrowRight;
-    }
-
-    //private List<BreadcrumbItem> _breadcrumbItems = new()
-    //{
-    //    new BreadcrumbItem("Home", href: "#"),
-    //    new BreadcrumbItem("Example", href: "#"),
-    //    new BreadcrumbItem("Example2", href: null, disabled: true)
-    //};
 }

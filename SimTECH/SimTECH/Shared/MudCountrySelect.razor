@@ -16,22 +16,14 @@
             {
                 Code = e.ToString(),
                 Name = e.GetDescription(),
-                Flag = IsoCountryCodeToFlagEmoji(e.ToString())
+                Flag = e.ToString().CountryCodeToEmoji(),
             })
         .ToList();
 
-    private string IsoCountryCodeToFlagEmoji(string countryCode)
-    {
-        if (string.IsNullOrEmpty(countryCode))
-            return "[Not found]";
-
-        return string.Concat(countryCode.ToUpper().Select(e => char.ConvertFromUtf32(e + 0x1F1A5)));
-    }
-
     public class CountrySelectItem
     {
-        public string Code { get; set; }
-        public string Name { get; set; }
-        public string Flag { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Flag { get; set; } = string.Empty;
     }
 }

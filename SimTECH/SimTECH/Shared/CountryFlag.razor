@@ -1,22 +1,4 @@
-﻿<style type="text/css">
-    .flag {
-        font-family: 'NotoColorEmojiLimited', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    }
-    
-    .flag-sm {
-        font-size: 1em;
-    }
-
-    .flag-md {
-        font-size: 2em;
-    }
-
-    .flag-lg {
-        font-size: 4em;
-    }
-</style>
-
-<span class="@flagIconClass">@flagLabel</span>
+﻿<span class="@flagIconClass">@flagLabel</span>
 
 @code {
     [Parameter]
@@ -59,7 +41,7 @@
     {
         get
         {
-            var flagString = IsoCountryCodeToFlagEmoji(Code);
+            var flagString = Code.CountryCodeToEmoji();
 
             if (this.IncludeName)
             {
@@ -72,13 +54,5 @@
 
             return flagString;
         }
-    }
-
-    private string IsoCountryCodeToFlagEmoji(string countryCode)
-    {
-        if (string.IsNullOrEmpty(countryCode))
-            return "[Not found]";
-
-        return string.Concat(countryCode.ToUpper().Select(e => char.ConvertFromUtf32(e + 0x1F1A5)));
     }
 }
