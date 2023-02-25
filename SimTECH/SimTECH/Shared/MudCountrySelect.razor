@@ -1,0 +1,37 @@
+﻿<MudSelect @bind-Value="@_selectedCountry" Label="Select a country" Variant="Variant.Outlined">
+    @foreach (var country in CountrySelectItems)
+    {
+        <MudSelectItem Value="@country.Code">
+            <span>@country.Flag @country.Name</span>
+        </MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    private string _selectedCountry { get; set; } = string.Empty;
+    private Country[] Countries = (Country[])Enum.GetValues(typeof(Country));
+
+    private List<CountrySelectItem> CountrySelectItems => Countries
+        .Select(e => new CountrySelectItem
+            {
+                Code = e.ToString(),
+                Name = e.GetDescription(),
+                Flag = IsoCountryCodeToFlagEmoji(e.ToString())
+            })
+        .ToList();
+
+    private string IsoCountryCodeToFlagEmoji(string countryCode)
+    {
+        if (string.IsNullOrEmpty(countryCode))
+            return "[Not found]";
+
+        return string.Concat(countryCode.ToUpper().Select(e => char.ConvertFromUtf32(e + 0x1F1A5)));
+    }
+
+    public class CountrySelectItem
+    {
+        public string Code { get; set; }
+        public string Name { get; set; }
+        public string Flag { get; set; }
+    }
+}
