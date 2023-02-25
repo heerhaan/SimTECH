@@ -7,6 +7,9 @@ namespace SimTECH.Extensions
     {
         public static string GetDescription<T>(this T source)
         {
+            if (source == null)
+                return string.Empty;
+
             FieldInfo field = source.GetType().GetField(source.ToString());
 
             var attributes = (DescriptionAttribute[])field.GetCustomAttributes(typeof(DescriptionAttribute), false);
