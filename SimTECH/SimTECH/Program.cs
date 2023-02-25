@@ -31,13 +31,14 @@ namespace SimTECH
             builder.Services.AddServerSideBlazor();
             builder.Services.AddMudServices();
 
-            // Add custom services
             // Provider services
             builder.Services.AddScoped<SimAuthenticationStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(e => e.GetRequiredService<SimAuthenticationStateProvider>());
+            
             // Authentication requirement services
             builder.Services.AddScoped<IAuthorizationHandler, CoolRequirementHandler>();
             builder.Services.AddScoped<IAuthorizationHandler, ChoiceRequirementHandler>();
+            
             // Data services
             builder.Services.AddScoped<DriverService>();
             builder.Services.AddScoped<UserService>();

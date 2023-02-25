@@ -10,12 +10,12 @@
 <MudLayout>
     <MudAppBar Elevation="1">
         <MudText Typo="Typo.h5" Class="ml-2">SimTECH</MudText>
-        <MudBreadcrumbs></MudBreadcrumbs>
         <MudSpacer />
         <MudSwitch @bind-Checked="@_isDarkTheme" Color="Color.Primary" T="bool" Label="Light/Dark"></MudSwitch>
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <!-- HINT: Following menu is good for user settings -->
             <ActivatorContent>
-                <MudAvatar Color="Color.Secondary">A</MudAvatar>
+                <MudAvatar Color="Color.Secondary">AB</MudAvatar>
             </ActivatorContent>
             <ChildContent>
                 <AuthorizeView>
@@ -31,7 +31,7 @@
             </ChildContent>
         </MudMenu>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Mini">
+    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Mini" OpenMiniOnHover="true">
         <NavMenu />
         <MudSpacer />
         <MudIconButton Icon="@_drawerIcon" Color="Color.Tertiary" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
@@ -51,13 +51,6 @@
     private bool _isDarkTheme = true;
     private string _drawerIcon = Icons.Material.Filled.KeyboardDoubleArrowLeft;
 
-    private List<BreadcrumbItem> _breadcrumbItems = new()
-    {
-        new BreadcrumbItem("Home", href: "#"),
-        new BreadcrumbItem("Example", href: "#"),
-        new BreadcrumbItem("Example2", href: null, disabled: true)
-    };
-
     async Task LogoutAsync()
     {
         await SimAuthenticationStateProvider.LogoutAsync();
@@ -72,4 +65,11 @@
             ? Icons.Material.Filled.KeyboardDoubleArrowLeft
             : Icons.Material.Filled.KeyboardDoubleArrowRight;
     }
+
+    //private List<BreadcrumbItem> _breadcrumbItems = new()
+    //{
+    //    new BreadcrumbItem("Home", href: "#"),
+    //    new BreadcrumbItem("Example", href: "#"),
+    //    new BreadcrumbItem("Example2", href: null, disabled: true)
+    //};
 }

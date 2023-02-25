@@ -1,0 +1,70 @@
+﻿@*<select @bind="_selectedCountryCode">
+    <option disabled>Select country code</option>
+    @foreach (var country in (Country[]) Enum.GetValues(typeof(Country)))
+    {
+        <option value="@country.ToString()">@IsoCountryCodeToFlagEmoji(country.ToString()) @country.GetDescription()</option>
+    }
+</select>*@
+
+<style type="text/css">
+    .flag {
+        font-family: 'NotoColorEmojiLimited', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    }
+    
+    .flag-sm {
+        font-size: 1em;
+    }
+
+    .flag-md {
+        font-size: 2em;
+    }
+
+    .flag-lg {
+        font-size: 4em;
+    }
+</style>
+
+<span class="@flagIconClass">@IsoCountryCodeToFlagEmoji(Code)</span>
+
+@code {
+    [Parameter]
+    public string Code { get; set; } = string.Empty;
+
+    [Parameter]
+    public FlagSize Size { get; set; } = FlagSize.Normal;
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    private string flagSize
+    {
+        get
+        {
+            switch (this.Size)
+            {
+                case FlagSize.Small:
+                    return "flag-sm";
+                case FlagSize.Large:
+                    return "flag-lg";
+                default:
+                    return "flag-md";
+            }
+        }
+    }
+
+    private string flagIconClass
+    {
+        get
+        {
+            return $"flag {flagSize}";
+        }
+    }
+
+    private string IsoCountryCodeToFlagEmoji(string countryCode)
+    {
+        if (string.IsNullOrEmpty(countryCode))
+            return string.Empty;
+
+        return string.Concat(countryCode.ToUpper().Select(e => char.ConvertFromUtf32(e + 0x1F1A5)));
+    }
+}
