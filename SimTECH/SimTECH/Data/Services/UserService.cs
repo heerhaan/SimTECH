@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using SimTECH.Data.Models;
 
-namespace SimTECH.Services
+namespace SimTECH.Data.Services
 {
     public class UserService
     {

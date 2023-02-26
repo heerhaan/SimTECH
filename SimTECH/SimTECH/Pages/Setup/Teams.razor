@@ -1,0 +1,45 @@
+﻿@page "/teams"
+@layout SetupLayout
+@inject TeamService TeamService
+
+<PageTitle>Teams</PageTitle>
+
+<MudContainer>
+    <h2>Teams</h2>
+
+    <MudDataGrid Items="@TeamNames">
+        <Columns>
+            <HierarchyColumn T="Team" />
+            <Column T="Team" Field="Name">
+                <CellTemplate>
+                    <span>@context.Item.Country.CountryCodeToEmoji() @context.Item.Name</span>
+                </CellTemplate>
+            </Column>
+        </Columns>
+        <ChildRowContent>
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">@context.Item.Name</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText>Woah, check this flag out!</MudText>
+                    <span class="flag flag-lg">@context.Item.Country.CountryCodeToEmoji()</span>
+                </MudCardContent>
+            </MudCard>
+        </ChildRowContent>
+        <PagerContent>
+            <MudDataGridPager T="Team" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    private IEnumerable<Team> TeamNames = new List<Team>();
+
+    protected override void OnInitialized()
+    {
+        TeamNames = TeamService.GetTestNames();
+    }
+}

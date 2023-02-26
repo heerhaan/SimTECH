@@ -1,19 +1,56 @@
 ﻿@inherits LayoutComponentBase
+@inject SimAuthenticationStateProvider SimAuthenticationStateProvider
+
+<MudThemeProvider @bind-IsDarkMode="@_isDarkTheme" Theme="_theme" />
+<MudDialogProvider />
 
 <PageTitle>SimTECH</PageTitle>
 
-<div class="page">
-    <div class="sidebar">
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudText Typo="Typo.h5" Class="ml-2">SimTECH</MudText>
+        <MudSpacer />
+        <MudSwitch @bind-Checked="@_isDarkTheme" Color="Color.Primary" T="bool" Label="Light/Dark"></MudSwitch>
+        <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <!-- HINT: Following menu is good for user settings -->
+            <ActivatorContent>
+                <MudAvatar Color="Color.Secondary">AB</MudAvatar>
+            </ActivatorContent>
+            <ChildContent>
+                <AuthorizeView>
+                    <Authorized>
+                        <MudMenuItem OnClick="LogoutAsync">Logout</MudMenuItem>
+                    </Authorized>
+                    <NotAuthorized>
+                        <MudMenuItem>
+                            <MudNavLink Href="/login" Match="NavLinkMatch.Prefix">Login</MudNavLink>
+                        </MudMenuItem>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </ChildContent>
+        </MudMenu>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Mini" OpenMiniOnHover="true">
         <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large">
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private MudTheme _theme = new();
+
+    private string notification = string.Empty;
+    private bool _drawerOpen = false;
+    private bool _isDarkTheme = true;
+
+    async Task LogoutAsync()
+    {
+        await SimAuthenticationStateProvider.LogoutAsync();
+
+        notification = "Logged out!";
+    }
+}

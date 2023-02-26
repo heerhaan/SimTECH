@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using SimTECH.Data.Models;
-using SimTECH.Services;
+using SimTECH.Data.Services;
 using System.Security.Claims;
 
 namespace SimTECH.Providers
 {
-    public class SimAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
+    public sealed class SimAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
     {
         private readonly UserService userService;
 
@@ -36,7 +36,7 @@ namespace SimTECH.Providers
         {
             await userService.ClearLocalUserAsync();
 
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new())));
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal())));
         }
 
         // NOTE: Don't call this method inside a component, it will create a new function-call to GetAuthenticationStateAsync()

@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using MudBlazor.Services;
 using SimTECH.Data;
 using SimTECH.Data.Requirements;
+using SimTECH.Data.Services;
 using SimTECH.Providers;
-using SimTECH.Services;
 
 namespace SimTECH
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
@@ -30,14 +29,20 @@ namespace SimTECH
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
+            builder.Services.AddMudServices();
 
-            // Add custom services
+            // Provider services
             builder.Services.AddScoped<SimAuthenticationStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(e => e.GetRequiredService<SimAuthenticationStateProvider>());
-            builder.Services.AddScoped<UserService>();
+            
+            // Authentication requirement services
             builder.Services.AddScoped<IAuthorizationHandler, CoolRequirementHandler>();
             builder.Services.AddScoped<IAuthorizationHandler, ChoiceRequirementHandler>();
-            //builder.Services.AddSingleton<ExampleService>();
+
+            // Data services
+            builder.Services.AddScoped<DriverService>();
+            builder.Services.AddScoped<TeamService>();
+            builder.Services.AddScoped<UserService>();
 
             // Add authorization policies
             builder.Services.AddAuthorizationCore(config =>
