@@ -1,11 +1,17 @@
 ﻿@page "/drivers"
 @layout SetupLayout
+
 @inject DriverService DriverService
+@inject IDialogService DialogService
 
 <PageTitle>Drivers</PageTitle>
 
 <MudContainer>
     <h2>Drivers</h2>
+
+    <MudPaper Class="d-flex align-center pa-2 mx-2 my-2">
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="@((e) => AddDriver())">New</MudButton>
+    </MudPaper>
 
     <MudDataGrid T="Driver" Items="@DriverNames" ReadOnly="@_readOnly" EditMode="@(_editMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
         CommittedItemChanges="ModifyDriver" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
@@ -60,5 +66,17 @@
     void ModifyDriver(Driver item)
     {
         _modifications.Insert(0, $"Changed object: {System.Text.Json.JsonSerializer.Serialize(item)}");
+    }
+
+    async Task AddDriver()
+    {
+        var dialog = await DialogService.ShowAsync<DriverNewDialog>("Add new driver");
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            // TODO: Handle any changes that should occur when done with the dialog, like refreshing retrieved Drivers
+            //DriverNames = DriverService.GetTestNames();
+        }
     }
 }
