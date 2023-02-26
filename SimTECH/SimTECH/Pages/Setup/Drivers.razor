@@ -7,20 +7,58 @@
 <MudContainer>
     <h2>Drivers</h2>
 
-    <MudDataGrid Items="@DriverNames">
+    <MudDataGrid T="Driver" Items="@DriverNames" ReadOnly="@_readOnly" EditMode="@(_editMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
+        CommittedItemChanges="ModifyDriver" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
         <Columns>
-            <Column T="Driver" Field="Name" />
+            <Column T="Driver" Field="Name" /> 
             <Column T="Driver" Field="Age" />
             <Column T="Driver" Field="Role" />
+            <Column T="Driver" Hidden="@(_editMode || _readOnly)" CellClass="d-flex justify-end">
+                <CellTemplate>
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
+                </CellTemplate>
+            </Column>
         </Columns>
     </MudDataGrid>
+
+    <div class="d-flex flex-wrap mt-4">
+        <MudSwitch @bind-Checked="@_readOnly" Color="Color.Primary">Read Only</MudSwitch>
+        <div class="d-flex justify-start align-center">
+            <p class="mud-typography mud-typography-body1 mud-inherit-text mr-2">Form</p>
+            <MudSwitch @bind-Checked="@_editMode">Cell</MudSwitch>
+        </div>
+    </div>
+
+    <MudExpansionPanels Style="flex:1">
+        <MudExpansionPanel Text="Show Modifications">
+            @foreach (var message in _modifications)
+            {
+                <MudText Typo="@Typo.body2">@message</MudText>
+            }
+            @if (_modifications.Count > 0)
+            {
+                <div class="d-flex">
+                    <MudSpacer />
+                    <MudButton Class="mt-3" ButtonType="ButtonType.Button" Variant="Variant.Filled" OnClick="@(() => _modifications.Clear())">Clear</MudButton>
+                </div>
+            }
+        </MudExpansionPanel>
+    </MudExpansionPanels>
 </MudContainer>
 
 @code {
     private IEnumerable<Driver> DriverNames = new List<Driver>();
+    private bool _readOnly;
+    private bool _editMode;
+    private List<string> _modifications = new();
 
     protected override void OnInitialized()
     {
         DriverNames = DriverService.GetTestNames();
+    }
+
+    void ModifyDriver(Driver item)
+    {
+        _modifications.Insert(0, $"Changed object: {System.Text.Json.JsonSerializer.Serialize(item)}");
     }
 }
