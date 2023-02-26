@@ -1,0 +1,58 @@
+﻿<span class="@flagIconClass">@flagLabel</span>
+
+@code {
+    [Parameter]
+    public string Code { get; set; } = string.Empty;
+
+    [Parameter]
+    public FlagSize Size { get; set; } = FlagSize.Normal;
+
+    [Parameter]
+    public bool IncludeName { get; set; } = false;
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    private string flagSize
+    {
+        get
+        {
+            switch (this.Size)
+            {
+                case FlagSize.Small:
+                    return "flag-sm";
+                case FlagSize.Large:
+                    return "flag-lg";
+                default:
+                    return "flag-md";
+            }
+        }
+    }
+
+    private string flagIconClass
+    {
+        get
+        {
+            return $"flag {flagSize}";
+        }
+    }
+
+    private string flagLabel
+    {
+        get
+        {
+            var flagString = Code.CountryCodeToEmoji();
+
+            if (this.IncludeName)
+            {
+                // Not the cleanest solution for this, altough generally there isnt a need to print a list of country names
+                var countryValues = (Country[])Enum.GetValues(typeof(Country));
+                var countryEnum = Array.Find(countryValues, e => e.ToString() == this.Code);
+
+                flagString += $" {countryEnum.GetDescription()}";
+            }
+
+            return flagString;
+        }
+    }
+}
