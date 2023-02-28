@@ -9,7 +9,7 @@ namespace SimTECH.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.HasKey(e => e.UserId);
+            builder.HasKey(e => e.Id);
 
             builder.Property(e => e.Username).HasColumnType("nvarchar(256)").IsRequired();
 

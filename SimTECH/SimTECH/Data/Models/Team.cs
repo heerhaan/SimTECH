@@ -2,7 +2,14 @@
 {
     public class Team
     {
-        public string Name { get; set; } = string.Empty;
-        public string Country { get; set; } = string.Empty;
+        public long Id { get; set; }
+        public string Name { get; set; } = default!;
+        public string Country { get; set; } = default!;
+        public string Biography { get; set; } = default!;
+        public State State { get; set; }
+
+        //public IList<Contract> Contracts { get; set; }
+        public IList<SeasonTeam> SeasonTeams { get; set; } = null!;
+        public IList<TeamTrait> TeamTraits { get; set; } = null!;
     }
 }

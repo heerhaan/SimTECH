@@ -7,8 +7,9 @@
 <PageTitle>SimTECH</PageTitle>
 
 <MudLayout>
-    <MudAppBar Elevation="1">
-        <MudText Typo="Typo.h5" Class="ml-2">SimTECH</MudText>
+    <MudAppBar Elevation="1" Dense="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Tertiary" Edge="Edge.Start" OnClick="@ToggleSidebar" />
+        <MudText>> [Current league]</MudText>
         <MudSpacer />
         <MudSwitch @bind-Checked="@_isDarkTheme" Color="Color.Primary" T="bool" Label="Light/Dark"></MudSwitch>
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
@@ -33,7 +34,10 @@
             </ChildContent>
         </MudMenu>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Mini" OpenMiniOnHover="true">
+    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Responsive">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h5">SimTECH</MudText>
+        </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
     <MudMainContent>
@@ -49,6 +53,11 @@
     private string notification = string.Empty;
     private bool _drawerOpen = false;
     private bool _isDarkTheme = true;
+
+    void ToggleSidebar()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
 
     async Task LogoutAsync()
     {

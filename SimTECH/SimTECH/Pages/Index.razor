@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject SimAuthenticationStateProvider AuthenticationProvider
+@inject NavigationManager Nav
 @attribute [AllowAnonymous]
 
 <PageTitle>Index</PageTitle>
@@ -83,3 +84,10 @@
         </MudItem>
     </MudGrid>
 </MudContainer>
+
+@code {
+    private void NavigateHome()
+    {
+        Nav.NavigateTo("/drivers");
+    }
+}

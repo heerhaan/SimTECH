@@ -2,6 +2,24 @@
 
 namespace SimTECH
 {
+    public enum State
+    {
+        None = 0,
+        Concept = 1,
+        Active = 2,
+        Closed = 3,
+        Archived = 4
+    }
+
+    public enum Participant
+    {
+        Unknown = 0,
+        Driver = 1,
+        Team = 2,
+        Track = 3
+    }
+
+    #region countries
     public enum FlagSize
     {
         Normal = 0,
@@ -266,4 +284,5 @@ namespace SimTECH
         [Description("Kosovo")] XK = 251,
         [Description("United Nations")] UN = 252,
     }
+    #endregion
 }
