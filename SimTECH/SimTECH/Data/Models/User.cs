@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using SimTECH.Extensions;
+using System.Security.Claims;
 
 namespace SimTECH.Data.Models
 {
@@ -23,6 +24,7 @@ namespace SimTECH.Data.Models
                         new Claim(ClaimTypes.Name, Username),
                         new Claim(ClaimTypes.Hash, Password),
                         new Claim(nameof(FullName), FullName),
+                        new Claim(nameof(Country), Country.ToString()),
                         new Claim(nameof(CoolGrade), CoolGrade.ToString())
                     }.Concat(Roles.Select(r => new Claim(ClaimTypes.Role, r)).ToArray()),
                     "SimTech"
@@ -35,7 +37,9 @@ namespace SimTECH.Data.Models
             Username = principal.FindFirstValue(ClaimTypes.Name) ?? string.Empty,
             Password = principal.FindFirstValue(ClaimTypes.Hash) ?? string.Empty,
             FullName = principal.FindFirstValue(nameof(FullName)) ?? string.Empty,
-            Country = Enum.Parse<Country>(principal.FindFirstValue(nameof(Country)) ?? "XX"),
+            Country = Enum.TryParse(principal.FindFirstValue(nameof(Country)), out Country parsedCountry)
+                ? parsedCountry
+                : EnumHelper.GetDefaultCountry(),
             CoolGrade = Convert.ToInt32(principal.FindFirstValue(nameof(CoolGrade))),
             Roles = principal
                 .FindAll(ClaimTypes.Role)

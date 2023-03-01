@@ -1,0 +1,42 @@
+﻿@inject TeamService TeamService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>
+            Create new team
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@team">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField T="string" @bind-Value="@team.Name" Label="Name" />
+                    <MudCountrySelect @bind-Value="team.Country" />
+                    <MudTextField T="string" @bind-Value="@team.Biography" Label="Biography" />
+                </MudCardContent>
+            </MudCard>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected MudDialogInstance? TeamDialog { get; set; }
+
+    [Parameter]
+    public Team team { get; set; } = new();
+
+    private void Submit()
+    {
+        // TODO: Function call just adds it here, but we want to actually store it!
+        TeamService.CreateTeam(team);
+
+        TeamDialog?.Close(DialogResult.Ok(team));
+    }
+
+    private void Cancel() => TeamDialog?.Cancel();
+}

@@ -11,12 +11,9 @@
 </MudSelect>
 
 @code {
-    //public Country _selectedCountry { get; set; } = Country.XX;
-    private Country[] Countries = (Country[])Enum.GetValues(typeof(Country));
-
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
-
+    public RenderFragment? ChildContent { get; set; }
+    
     public Country HandleSelection
     {
         get { return CurrentValue; }
@@ -31,6 +28,8 @@
                 Flag = e.ToString().CountryCodeToEmoji(),
             })
         .ToList();
+
+    private Country[] Countries = (Country[])Enum.GetValues(typeof(Country));
 
     protected override bool TryParseValueFromString(string? value, out Country result, out string validationErrorMessage)
     {
@@ -48,7 +47,7 @@
         return false;
     }
 
-    public class CountrySelectItem
+    protected class CountrySelectItem
     {
         public Country Code { get; set; }
         public string Name { get; set; } = string.Empty;

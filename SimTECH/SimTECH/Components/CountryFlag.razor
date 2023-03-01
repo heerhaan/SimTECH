@@ -2,7 +2,7 @@
 
 @code {
     [Parameter]
-    public string Code { get; set; } = string.Empty;
+    public Country Code { get; set; }
 
     [Parameter]
     public FlagSize Size { get; set; } = FlagSize.Normal;
@@ -43,9 +43,9 @@
         {
             var flagString = Code.CountryCodeToEmoji();
 
-            if (this.IncludeName && Enum.TryParse(this.Code, out Country countryEnum))
+            if (this.IncludeName)
             {
-                flagString += $" {countryEnum.GetDescription()}";
+                flagString += $" {Code.GetDescription()}";
             }
 
             return flagString;

@@ -2,7 +2,13 @@
 @inject SimAuthenticationStateProvider SimAuthenticationStateProvider
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkTheme" Theme="_theme" />
-<MudDialogProvider />
+<MudDialogProvider
+    FullWidth="true"
+    MaxWidth="MaxWidth.Large"
+    CloseButton="true"
+    DisableBackdropClick="true"
+    Position="DialogPosition.Center"
+/>
 
 <PageTitle>SimTECH</PageTitle>
 
@@ -51,7 +57,7 @@
     private MudTheme _theme = new();
 
     private string notification = string.Empty;
-    private bool _drawerOpen = false;
+    private bool _drawerOpen = true;
     private bool _isDarkTheme = true;
 
     void ToggleSidebar()

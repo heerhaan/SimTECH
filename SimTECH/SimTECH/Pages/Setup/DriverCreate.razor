@@ -14,7 +14,7 @@
                     <MudTextField T="string" @bind-Value="@driver.FirstName" Label="FirstName" />
                     <MudTextField T="string" @bind-Value="@driver.LastName" Label="LastName" />
                     <MudTextField T="string" @bind-Value="@driver.Abbreviation" Label="Abbreviation" />
-                    <MudTextField @bind-Value="@driver.DateOfBirth" Label="DateOfBirth" />
+                    <MudDatePicker @bind-Date="@DateSetter" Label="Date of birth" />
                     <MudCountrySelect @bind-Value="driver.Country" />
                     <MudTextField T="string" @bind-Value="@driver.Biography" Label="Biography" />
                 </MudCardContent>
@@ -28,15 +28,27 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance DriverDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? DriverDialog { get; set; }
 
-    [Parameter] public Driver driver { get; set; } = new Driver();
+    [Parameter]
+    public Driver driver { get; set; } = new Driver();
+
+    private DateTime? DateSetter { get; set; }
+
+    protected override void OnInitialized()
+    {
+        DateSetter = driver.DateOfBirth;
+    }
 
     private void Submit()
     {
-        // TODO: Normally the service would be injected here to add the new driver
-        DriverService.AddDriver(driver);
-        DriverDialog.Close(DialogResult.Ok(driver));
+        // TODO: Function call just adds it here, but we want to actually store it!
+        driver.DateOfBirth = DateSetter.GetValueOrDefault();
+        DriverService.CreateDriver(driver);
+
+        DriverDialog?.Close(DialogResult.Ok(driver));
     }
-    private void Cancel() => DriverDialog.Cancel();
+
+    private void Cancel() => DriverDialog?.Cancel();
 }

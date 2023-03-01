@@ -18,11 +18,17 @@
             <Column T="Driver" Field="LastName" />
             <Column T="Driver" Field="Abbreviation" />
             <Column T="Driver" Field="DateOfBirth" />
-            <Column T="Driver" Field="Country" />
+            <Column T="Driver" Field="Country">
+                <CellTemplate>
+                    <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
+                </CellTemplate>
+            </Column>
             <Column T="Driver" Field="State" />
             <Column T="Driver" Hidden="@(_editMode || _readOnly)" CellClass="d-flex justify-end">
                 <CellTemplate>
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
+                    <MudButtonGroup>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
+                    </MudButtonGroup>
                 </CellTemplate>
             </Column>
         </Columns>
@@ -55,9 +61,10 @@
 </MudContainer>
 
 @code {
-    private IList<Driver> DriverNames = new List<Driver>();
-    private bool _readOnly;
-    private bool _editMode;
+    private bool _readOnly; // NOTE: Useful if/when app goes public
+    private bool _editMode; // NOTE: Need to decide whether editing in-cell is easily possible
+    
+    private List<Driver> DriverNames = new();
     private List<string> _modifications = new();
 
     protected override void OnInitialized()
@@ -79,9 +86,10 @@
         {
             DriverNames = DriverService.GetTestNames();
             DriverNames.Add(newDriver);
+
             _modifications.Insert(0, $"Created object: {System.Text.Json.JsonSerializer.Serialize(newDriver)}");
+
             // TODO: Handle any changes that should occur when done with the dialog, like refreshing retrieved Drivers
-            //DriverNames = DriverService.GetTestNames();
         }
     }
 }
