@@ -9,7 +9,7 @@
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-                <MudCountrySelect />
+                <MudCountrySelect @bind-Value="_selectedCountry" />
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
@@ -20,7 +20,7 @@
         </MudItem>
         <MudItem xs="12" sm="12" md="4">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-                ahum
+                <span class="flag flag-md">@_selectedCountry.CountryCodeToEmoji()</span> @_selectedCountry.GetDescription()
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6">
@@ -86,6 +86,8 @@
 </MudContainer>
 
 @code {
+    public Country _selectedCountry { get; set; } = Country.XX;
+
     private void NavigateHome()
     {
         Nav.NavigateTo("/drivers");

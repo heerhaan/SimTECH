@@ -10,18 +10,25 @@ namespace SimTECH.Data.Services
             {
                 new Team()
                 {
+                    Id = 1,
                     Name = "Ferrari",
-                    Country = "IT"
+                    Country = Country.IT,
+                    Biography = "grande!",
+                    State = State.Active
                 },
                 new Team()
                 {
+                    Id = 2,
                     Name = "Williams",
-                    Country = "GB"
+                    Country = Country.GB,
+                    State = State.Active
                 },
                 new Team()
                 {
+                    Id = 3,
                     Name = "Jerigo",
-                    Country = "IL"
+                    Country = Country.IL,
+                    State = State.Active
                 },
             };
         }

@@ -4,9 +4,7 @@ namespace SimTECH.Data.Services
 {
     public class DriverService
     {
-        public IEnumerable<Driver> GetTestNames()
-        {
-            return new List<Driver>
+        private IList<Driver> _drivers = new List<Driver>
             {
                 new Driver()
                 {
@@ -15,7 +13,7 @@ namespace SimTECH.Data.Services
                     LastName = "Verstappen",
                     Abbreviation = "VER",
                     DateOfBirth = new DateTime(),
-                    Country = "NL",
+                    Country = Country.NL,
                     Biography = "Super",
                     State = State.Active
                 },
@@ -26,7 +24,7 @@ namespace SimTECH.Data.Services
                     LastName = "Eclair",
                     Abbreviation = "LEG",
                     DateOfBirth = new DateTime(),
-                    Country = "MO",
+                    Country = Country.MO,
                     Biography = "Stoopid",
                     State = State.Active
                 },
@@ -37,11 +35,20 @@ namespace SimTECH.Data.Services
                     LastName = "Vet",
                     Abbreviation = "VET",
                     DateOfBirth = new DateTime(),
-                    Country = "DE",
+                    Country = Country.DE,
                     Biography = "Blush",
                     State = State.Archived
                 },
             };
+
+        public IList<Driver> GetTestNames()
+        {
+            return _drivers;
+        }
+
+        public void AddDriver(Driver driver)
+        {
+            _drivers.Add(driver);
         }
     }
 }

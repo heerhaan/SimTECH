@@ -1,0 +1,42 @@
+﻿@inject DriverService DriverService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>
+            <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+            Add new driver
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@driver">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField T="string" @bind-Value="@driver.FirstName" Label="FirstName" />
+                    <MudTextField T="string" @bind-Value="@driver.LastName" Label="LastName" />
+                    <MudTextField T="string" @bind-Value="@driver.Abbreviation" Label="Abbreviation" />
+                    <MudTextField @bind-Value="@driver.DateOfBirth" Label="DateOfBirth" />
+                    <MudCountrySelect @bind-Value="driver.Country" />
+                    <MudTextField T="string" @bind-Value="@driver.Biography" Label="Biography" />
+                </MudCardContent>
+            </MudCard>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance DriverDialog { get; set; }
+
+    [Parameter] public Driver driver { get; set; } = new Driver();
+
+    private void Submit()
+    {
+        // TODO: Normally the service would be injected here to add the new driver
+        DriverService.AddDriver(driver);
+        DriverDialog.Close(DialogResult.Ok(driver));
+    }
+    private void Cancel() => DriverDialog.Cancel();
+}

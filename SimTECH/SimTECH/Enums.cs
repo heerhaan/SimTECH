@@ -84,6 +84,7 @@ namespace SimTECH
 
     public enum Country
     {
+        [Description("Unknown")] XX = 0,
         [Description("Afghanistan")] AF = 1,
         [Description("Åland Islands")] AX = 2,
         [Description("Albania")] AL = 3,

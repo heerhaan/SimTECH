@@ -8,7 +8,7 @@ namespace SimTECH.Data.Models
         public string Username { get; set; } = default!;
         public string Password { get; set; } = default!;
         public string FullName { get; set; } = default!;
-        public string Country { get; set; } = default!;
+        public Country Country { get; set; }
 
         // CoolGrade is an example meant to show how policy authorization works
         public int CoolGrade { get; set; }
@@ -35,7 +35,7 @@ namespace SimTECH.Data.Models
             Username = principal.FindFirstValue(ClaimTypes.Name) ?? string.Empty,
             Password = principal.FindFirstValue(ClaimTypes.Hash) ?? string.Empty,
             FullName = principal.FindFirstValue(nameof(FullName)) ?? string.Empty,
-            Country = principal.FindFirstValue(nameof(Country)) ?? string.Empty,
+            Country = Enum.Parse<Country>(principal.FindFirstValue(nameof(Country)) ?? "XX"),
             CoolGrade = Convert.ToInt32(principal.FindFirstValue(nameof(CoolGrade))),
             Roles = principal
                 .FindAll(ClaimTypes.Role)

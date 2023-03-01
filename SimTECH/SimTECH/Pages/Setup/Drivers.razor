@@ -14,15 +14,21 @@
     <MudDataGrid T="Driver" Items="@DriverNames" ReadOnly="@_readOnly" EditMode="@(_editMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
         CommittedItemChanges="ModifyDriver" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
         <Columns>
-            <Column T="Driver" Field="Name" /> 
-            <Column T="Driver" Field="Age" />
-            <Column T="Driver" Field="Role" />
+            <Column T="Driver" Field="FirstName" />
+            <Column T="Driver" Field="LastName" />
+            <Column T="Driver" Field="Abbreviation" />
+            <Column T="Driver" Field="DateOfBirth" />
+            <Column T="Driver" Field="Country" />
+            <Column T="Driver" Field="State" />
             <Column T="Driver" Hidden="@(_editMode || _readOnly)" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
                 </CellTemplate>
             </Column>
         </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Driver" />
+        </PagerContent>
     </MudDataGrid>
     <div class="d-flex flex-wrap mt-4">
         <MudSwitch @bind-Checked="@_readOnly" Color="Color.Primary">Read Only</MudSwitch>
@@ -49,7 +55,7 @@
 </MudContainer>
 
 @code {
-    private IEnumerable<Driver> DriverNames = new List<Driver>();
+    private IList<Driver> DriverNames = new List<Driver>();
     private bool _readOnly;
     private bool _editMode;
     private List<string> _modifications = new();
@@ -66,11 +72,14 @@
 
     async Task AddDriver()
     {
-        var dialog = await DialogService.ShowAsync<DriverNewDialog>("Add new driver");
+        var dialog = await DialogService.ShowAsync<DriverCreate>("Create a new driver");
         var result = await dialog.Result;
 
-        if (!result.Canceled)
+        if (!result.Canceled && result.Data != null && result.Data is Driver newDriver)
         {
+            DriverNames = DriverService.GetTestNames();
+            DriverNames.Add(newDriver);
+            _modifications.Insert(0, $"Created object: {System.Text.Json.JsonSerializer.Serialize(newDriver)}");
             // TODO: Handle any changes that should occur when done with the dialog, like refreshing retrieved Drivers
             //DriverNames = DriverService.GetTestNames();
         }
