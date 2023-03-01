@@ -9,7 +9,7 @@
 
         // TODO: Consider adding minimum and maximum values for skill, reliability, team, etc...
 
-        public IList<Range> DevelopmentRanges { get; set; }
-        public IList<Season> Seasons { get; set; }
+        public IList<Range> DevelopmentRanges { get; set; } = default!;
+        public IList<Season> Seasons { get; set; } = default!;
     }
 }

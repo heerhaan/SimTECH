@@ -19,7 +19,7 @@
 
         //public int StandingsGoal { get; set; }
 
-        public IList<SeasonDriver> SeasonDrivers { get; set; }
+        public IList<SeasonDriver> SeasonDrivers { get; set; } = default!;
 
         public long TeamId { get; set; }
         public Team Team { get; set; } = default!;

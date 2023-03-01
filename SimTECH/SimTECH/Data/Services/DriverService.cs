@@ -10,22 +10,37 @@ namespace SimTECH.Data.Services
             {
                 new Driver()
                 {
-                    Name = "Max Verstappen",
-                    Age = 25,
-                    Role = "Chad"
+                    Id = 1,
+                    FirstName = "Max",
+                    LastName = "Verstappen",
+                    Abbreviation = "VER",
+                    DateOfBirth = new DateTime(),
+                    Country = "NL",
+                    Biography = "Super",
+                    State = State.Active
                 },
                 new Driver()
                 {
-                    Name = "Sharl Eclair",
-                    Age = 25,
-                    Role = "Virgin"
+                    Id = 2,
+                    FirstName = "Sharl",
+                    LastName = "Eclair",
+                    Abbreviation = "LEG",
+                    DateOfBirth = new DateTime(),
+                    Country = "MO",
+                    Biography = "Stoopid",
+                    State = State.Active
                 },
                 new Driver()
                 {
-                    Name = "Nico Hulkenberg",
-                    Age = 85,
-                    Role = "Eternal"
-                }
+                    Id = 3,
+                    FirstName = "Seb",
+                    LastName = "Vet",
+                    Abbreviation = "VET",
+                    DateOfBirth = new DateTime(),
+                    Country = "DE",
+                    Biography = "Blush",
+                    State = State.Archived
+                },
             };
         }
     }

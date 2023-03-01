@@ -8,9 +8,9 @@
         public Weather Weather { get; set; }
         public State State { get; set; }
 
-        public IList<Stint> Stints { get; set; }
-        public IList<Penalty> Penalties { get; set; }
-        public IList<Result> Results { get; set; }
+        public IList<Stint> Stints { get; set; } = default!;
+        public IList<Penalty> Penalties { get; set; } = default!;
+        public IList<Result> Results { get; set; } = default!;
 
         public long SeasonId { get; set; }
         public Season Season { get; set; } = default!;

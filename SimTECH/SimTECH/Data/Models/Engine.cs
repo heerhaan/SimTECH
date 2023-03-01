@@ -6,6 +6,6 @@
         public string Name { get; set; } = default!;
         public State State { get; set; }
 
-        public IList<SeasonEngine> SeasonEngines { get; set; }
+        public IList<SeasonEngine> SeasonEngines { get; set; } = default!;
     }
 }

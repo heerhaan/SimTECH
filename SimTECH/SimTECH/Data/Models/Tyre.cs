@@ -12,6 +12,6 @@
         public int WearMax { get; set; }
         public int WearMin { get; set; }
 
-        public IList<StrategyTyre> StrategyTyres { get; set; }
+        public IList<StrategyTyre> StrategyTyres { get; set; } = default!;
     }
 }

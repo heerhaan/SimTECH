@@ -3,8 +3,8 @@
     public class TeamTrait
     {
         public long TraitId { get; set; }
-        public Trait Trait { get; set; } = null!;
+        public Trait Trait { get; set; } = default!;
         public long TeamId { get; set; }
-        public Team Team { get; set; } = null!;
+        public Team Team { get; set; } = default!;
     }
 }

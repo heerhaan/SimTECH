@@ -11,7 +11,7 @@
         public Incident Incident { get; set; }
         public int TyreLife { get; set; }
 
-        public IList<StintResult> StintResults { get; set; }
+        public IList<StintResult> StintResults { get; set; } = default!;
 
         public long SeasonDriverId { get; set; }
         public SeasonDriver SeasonDriver { get; set; } = default!;

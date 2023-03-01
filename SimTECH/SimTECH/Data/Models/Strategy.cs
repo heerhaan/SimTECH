@@ -6,6 +6,6 @@
         public int StintLength { get; set; }
         public State State { get; set; }
 
-        public IList<StrategyTyre> StrategyTyres { get; set; }
+        public IList<StrategyTyre> StrategyTyres { get; set; } = default!;
     }
 }
