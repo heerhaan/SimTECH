@@ -42,6 +42,10 @@ namespace SimTECH
             // Data services
             builder.Services.AddScoped<DriverService>();
             builder.Services.AddScoped<EngineService>();
+            builder.Services.AddScoped<LeagueService>();
+            builder.Services.AddScoped<ManufacturerService>();
+            builder.Services.AddScoped<SeasonService>();
+            builder.Services.AddScoped<StrategyService>();
             builder.Services.AddScoped<TeamService>();
             builder.Services.AddScoped<TrackService>();
             builder.Services.AddScoped<TraitService>();

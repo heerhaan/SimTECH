@@ -1,0 +1,40 @@
+﻿@inject StrategyService StrategyService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>
+            Add new strategy
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@strategy">
+            <MudCard>
+                <MudCardContent>
+                    <MudNumericField T="int" @bind-Value="strategy.StintLength" Label="Amount stints" />
+                </MudCardContent>
+            </MudCard>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected MudDialogInstance? StrategyDialog { get; set; }
+
+    [Parameter]
+    public Strategy strategy { get; set; } = new();
+
+    private void Submit()
+    {
+        // TODO: Function call just adds it here, but we want to actually store it!
+        StrategyService.CreateStrategy(strategy);
+
+        StrategyDialog?.Close(DialogResult.Ok(strategy));
+    }
+
+    private void Cancel() => StrategyDialog?.Cancel();
+}

@@ -1,0 +1,40 @@
+﻿@inject ManufacturerService ManufacturerService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>
+            Add new manufacturer
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@manufacturer">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField T="string" @bind-Value="manufacturer.Name" Label="Name" />
+                </MudCardContent>
+            </MudCard>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected MudDialogInstance? ManufacturerDialog { get; set; }
+
+    [Parameter]
+    public Manufacturer manufacturer { get; set; } = new();
+
+    private void Submit()
+    {
+        // TODO: Function call just adds it here, but we want to actually store it!
+        ManufacturerService.CreateManufacturer(manufacturer);
+
+        ManufacturerDialog?.Close(DialogResult.Ok(manufacturer));
+    }
+
+    private void Cancel() => ManufacturerDialog?.Cancel();
+}

@@ -1,0 +1,54 @@
+﻿@page "/leagues"Engine
+@layout SetupLayout
+
+@inject LeagueService LeagueService
+@inject IDialogService DialogService
+
+<PageTitle>Leagues</PageTitle>
+
+<MudContainer>
+    <h2>Leagues</h2>
+    <MudPaper Class="d-flex align-center pa-2 mx-2 my-2">
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="@((e) => AddLeague())">New</MudButton>
+    </MudPaper>
+    <MudDataGrid T="League" Items="@LeagueNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyLeague" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+        <Columns>
+            <Column T="League" Field="Name" />
+            <Column T="League" CellClass="d-flex justify-end">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </Column>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="League" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    private List<League> LeagueNames = new();
+
+    protected override void OnInitialized()
+    {
+        LeagueNames = LeagueService.GetTestNames();
+    }
+
+    void ModifyLeague(League item)
+    {
+        // TODO: Store edited values
+    }
+
+    async Task AddLeague()
+    {
+        var dialog = await DialogService.ShowAsync<LeagueCreate>("Create a new league");
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is League newLeague)
+        {
+            LeagueNames.Add(newLeague);
+        }
+    }
+}

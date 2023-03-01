@@ -1,5 +1,54 @@
-﻿<h3>Manufacturers</h3>
+﻿@page "/manufacturers"
+@layout SetupLayout
+
+@inject ManufacturerService ManufacturerService
+@inject IDialogService DialogService
+
+<PageTitle>Manufacturers</PageTitle>
+
+<MudContainer>
+    <h2>Manufacturers</h2>
+    <MudPaper Class="d-flex align-center pa-2 mx-2 my-2">
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="@((e) => AddManufacturer())">New</MudButton>
+    </MudPaper>
+    <MudDataGrid T="Manufacturer" Items="@ManufacturerNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyManufacturer" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+        <Columns>
+            <Column T="Manufacturer" Field="Name" />
+            <Column T="Manufacturer" CellClass="d-flex justify-end">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </Column>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Manufacturer" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
 
 @code {
+    private List<Manufacturer> ManufacturerNames = new();
 
+    protected override void OnInitialized()
+    {
+        ManufacturerNames = ManufacturerService.GetTestData();
+    }
+
+    void ModifyManufacturer(Manufacturer item)
+    {
+        // TODO: Store edited values
+    }
+
+    async Task AddManufacturer()
+    {
+        var dialog = await DialogService.ShowAsync<ManufacturerCreate>("Create a new manufacturer");
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Manufacturer newManufacturer)
+        {
+            ManufacturerNames.Add(newManufacturer);
+        }
+    }
 }

@@ -1,0 +1,40 @@
+﻿@inject LeagueService LeagueService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>
+            Add new league
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@league">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField T="string" @bind-Value="league.Name" Label="Name" />
+                </MudCardContent>
+            </MudCard>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected MudDialogInstance? LeagueDialog { get; set; }
+
+    [Parameter]
+    public League league { get; set; } = new();
+
+    private void Submit()
+    {
+        // TODO: Function call just adds it here, but we want to actually store it!
+        LeagueService.CreateLeague(league);
+
+        LeagueDialog?.Close(DialogResult.Ok(league));
+    }
+
+    private void Cancel() => LeagueDialog?.Cancel();
+}
