@@ -1,6 +1,15 @@
-﻿namespace SimTECH.Data.Configurations
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SimTECH.Data.Models;
+
+namespace SimTECH.Data.Configurations
 {
-    public class SeasonConfiguration
+    public class SeasonConfiguration : IEntityTypeConfiguration<Season>
     {
+        public void Configure(EntityTypeBuilder<Season> builder)
+        {
+            builder.HasKey(e => e.Id);
+            builder.Property(e => e.State).HasColumnType("varchar(50)");
+        }
     }
 }

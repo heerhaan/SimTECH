@@ -10,5 +10,8 @@
         public string Country { get; set; } = default!;
         public string Biography { get; set; } = default!;
         public State State { get; set; }
+
+        public IList<SeasonDriver> SeasonDrivers { get; set; }
+        public IList<DriverTrait> DriverTraits { get; set; }
     }
 }

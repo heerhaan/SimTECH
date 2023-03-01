@@ -3,10 +3,9 @@
     public class Strategy
     {
         public long Id { get; set; }
+        public int StintLength { get; set; }
         public State State { get; set; }
 
-        public int AmountStints { get; set; }
-
-        public IList<StrategyTyre> StrategyTyres { get; set; } = null!;
+        public IList<StrategyTyre> StrategyTyres { get; set; }
     }
 }

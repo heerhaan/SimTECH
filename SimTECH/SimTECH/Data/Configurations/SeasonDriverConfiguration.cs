@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Configurations
 {
-    public class SeasonDriver
+    public class SeasonDriverConfiguration
     {
     }
 }

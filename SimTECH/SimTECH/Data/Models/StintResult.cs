@@ -7,12 +7,11 @@
         public int StintScore { get; set; }
         public int TotalScore { get; set; }
         public int Position { get; set; }
-        public string Status { get; set; }
-        public bool Pitstop { get; set; }
+        public RacerEvent RacerEvents { get; set; }
 
-        public int StintId { get; set; }
-        public Stint Stint { get; set; }
-        public int RaceResultId { get; set; }
-        public Result RaceResult { get; set; }
+        public long StintId { get; set; }
+        public Stint Stint { get; set; } = default!;
+        public long ResultId { get; set; }
+        public Result Result { get; set; } = default!;
     }
 }

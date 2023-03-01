@@ -4,17 +4,14 @@
     {
         public long Id { get; set; }
         public int Order { get; set; }
-        public bool ApplyDriver { get; set; }
-        public bool ApplyTeam { get; set; }
-        public bool ApplyEngine { get; set; }
-        public bool ApplyQualifying { get; set; }
-        public bool CheckReliability { get; set; }
-        public int RNGMaximum { get; set; }
-        public int RNGMinimum { get; set; }
+
+        public StintEvent StintEvents { get; set; }
+        public int RngMin { get; set; }
+        public int RngMax { get; set; }
 
         public IList<StintResult> StintResults { get; set; }
 
         public long RaceId { get; set; }
-        public Race Race { get; set; } = null!;
+        public Race Race { get; set; } = default!;
     }
 }
