@@ -1,26 +1,20 @@
-﻿@page "/drivers"
+﻿@page "/engines"
 @layout SetupLayout
 
-@inject DriverService DriverService
+@inject EngineService EngineService
 @inject IDialogService DialogService
 
-<PageTitle>Drivers</PageTitle>
+<PageTitle>Engines</PageTitle>
 
 <MudContainer>
-    <h2>Drivers</h2>
+    <h2>Engines</h2>
     <MudPaper Class="d-flex align-center pa-2 mx-2 my-2">
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="@((e) => AddDriver())">New</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="@((e) => AddEngine())">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="Driver" Items="@DriverNames" ReadOnly="@_readOnly" EditMode="@(_editMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
-                 CommittedItemChanges="ModifyDriver" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+    <MudDataGrid T="Engine" Items="@EngineNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyEngine" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
         <Columns>
-            <Column T="Driver" Field="FirstName" />
-            <Column T="Driver" Field="LastName" />
-            <Column T="Driver" Field="Abbreviation" />
-            <Column T="Driver" Field="DateOfBirth" />
-            <Column T="Driver" Field="Country" />
-            <Column T="Driver" Field="State" />
-            <Column T="Driver" Hidden="@(_editMode || _readOnly)" CellClass="d-flex justify-end">
+            <Column T="Engine" Field="Name" />
+            <Column T="Engine" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
@@ -29,63 +23,32 @@
             </Column>
         </Columns>
         <PagerContent>
-            <MudDataGridPager T="Driver" />
+            <MudDataGridPager T="Engine" />
         </PagerContent>
     </MudDataGrid>
-    <div class="d-flex flex-wrap mt-4">
-        <MudSwitch @bind-Checked="@_readOnly" Color="Color.Primary">Read Only</MudSwitch>
-        <div class="d-flex justify-start align-center">
-            <p class="mud-typography mud-typography-body1 mud-inherit-text mr-2">Form</p>
-            <MudSwitch @bind-Checked="@_editMode">Cell</MudSwitch>
-        </div>
-    </div>
-    <MudExpansionPanels Style="flex:1">
-        <MudExpansionPanel Text="Show Modifications">
-            @foreach (var message in _modifications)
-            {
-                <MudText Typo="@Typo.body2">@message</MudText>
-            }
-            @if (_modifications.Count > 0)
-            {
-                <div class="d-flex">
-                    <MudSpacer />
-                    <MudButton Class="mt-3" ButtonType="ButtonType.Button" Variant="Variant.Filled" OnClick="@(() => _modifications.Clear())">Clear</MudButton>
-                </div>
-            }
-        </MudExpansionPanel>
-    </MudExpansionPanels>
 </MudContainer>
 
 @code {
-    private bool _readOnly; // NOTE: Useful if/when app goes public
-    private bool _editMode; // NOTE: Need to decide whether editing in-cell is easily possible
-
-    private List<Driver> DriverNames = new();
-    private List<string> _modifications = new();
+    private List<Engine> EngineNames = new();
 
     protected override void OnInitialized()
     {
-        DriverNames = DriverService.GetTestNames();
+        EngineNames = EngineService.GetTestNames();
     }
 
-    void ModifyDriver(Driver item)
+    void ModifyEngine(Engine item)
     {
-        _modifications.Insert(0, $"Changed object: {System.Text.Json.JsonSerializer.Serialize(item)}");
+        // TODO: Store edited values
     }
 
-    async Task AddDriver()
+    async Task AddEngine()
     {
-        var dialog = await DialogService.ShowAsync<DriverCreate>("Create a new driver");
+        var dialog = await DialogService.ShowAsync<EngineCreate>("Create a new engine");
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Driver newDriver)
+        if (!result.Canceled && result.Data != null && result.Data is Engine newEngine)
         {
-            DriverNames = DriverService.GetTestNames();
-            DriverNames.Add(newDriver);
-
-            _modifications.Insert(0, $"Created object: {System.Text.Json.JsonSerializer.Serialize(newDriver)}");
-
-            // TODO: Handle any changes that should occur when done with the dialog, like refreshing retrieved Drivers
+            EngineNames.Add(newEngine);
         }
     }
 }

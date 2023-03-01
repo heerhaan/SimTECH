@@ -14,6 +14,7 @@
     <MudDataGrid T="Driver" Items="@DriverNames" ReadOnly="@_readOnly" EditMode="@(_editMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
         CommittedItemChanges="ModifyDriver" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
         <Columns>
+            <HierarchyColumn T="Driver" />
             <Column T="Driver" Field="FirstName" />
             <Column T="Driver" Field="LastName" />
             <Column T="Driver" Field="Abbreviation" />
@@ -32,6 +33,19 @@
                 </CellTemplate>
             </Column>
         </Columns>
+        <ChildRowContent>
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">TODO: This detail page lol haha</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText>Woah, check this flag out!</MudText>
+                    <CountryFlag Code="@context.Item.Country" Size="FlagSize.Large" />
+                </MudCardContent>
+            </MudCard>
+        </ChildRowContent>
         <PagerContent>
             <MudDataGridPager T="Driver" />
         </PagerContent>
@@ -85,7 +99,6 @@
         if (!result.Canceled && result.Data != null && result.Data is Driver newDriver)
         {
             DriverNames = DriverService.GetTestNames();
-            DriverNames.Add(newDriver);
 
             _modifications.Insert(0, $"Created object: {System.Text.Json.JsonSerializer.Serialize(newDriver)}");
 

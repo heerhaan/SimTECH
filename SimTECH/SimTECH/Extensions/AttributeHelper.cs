@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Reflection;
 
 namespace SimTECH.Extensions
 {
@@ -10,14 +9,19 @@ namespace SimTECH.Extensions
             if (source == null)
                 return string.Empty;
 
-            FieldInfo field = source.GetType().GetField(source.ToString());
+            var sourceString = source?.ToString() ?? string.Empty;
+
+            var field = source?.GetType().GetField(sourceString);
+
+            if (field == null)
+                return string.Empty;
 
             var attributes = (DescriptionAttribute[])field.GetCustomAttributes(typeof(DescriptionAttribute), false);
 
-            if (attributes != null && attributes.Length > 0)
+            if (attributes?.Length > 0)
                 return attributes[0].Description;
 
-            return source.ToString();
+            return sourceString;
         }
     }
 }

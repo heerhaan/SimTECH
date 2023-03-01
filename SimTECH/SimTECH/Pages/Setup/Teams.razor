@@ -12,9 +12,10 @@
     <MudDataGrid Items="@TeamNames">
         <Columns>
             <HierarchyColumn T="Team" />
-            <Column T="Team" Field="Name">
+            <Column T="Team" Field="Name" />
+            <Column T="Team" Field="Country">
                 <CellTemplate>
-                    <span class="flag flag-sm">@context.Item.Country.CountryCodeToEmoji()</span> @context.Item.Name
+                    <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
             </Column>
         </Columns>
@@ -27,7 +28,7 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <MudText>Woah, check this flag out!</MudText>
-                    <span class="flag flag-lg">@context.Item.Country.CountryCodeToEmoji()</span>
+                    <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" />
                 </MudCardContent>
             </MudCard>
         </ChildRowContent>
@@ -38,10 +39,26 @@
 </MudContainer>
 
 @code {
-    private IEnumerable<Team> TeamNames = new List<Team>();
+    private List<Team> TeamNames = new();
 
     protected override void OnInitialized()
     {
         TeamNames = TeamService.GetTestNames();
+    }
+
+    void ModifyTeam(Team item)
+    {
+        // TODO: Store changes that have been made
+    }
+
+    async Task AddDriver()
+    {
+        var dialog = await DialogService.ShowAsync<TeamCreate>("Create a new team");
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Team newTeam)
+        {
+            TeamNames.Add(newTeam); // Alternatively, re-retrieve TeamNames
+        }
     }
 }

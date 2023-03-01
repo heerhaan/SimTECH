@@ -4,8 +4,8 @@
     {
         public long Id { get; set; }
         public string Name { get; set; } = default!;
-        public double Length { get; set; }
         public Country Country { get; set; }
+        public double Length { get; set; }
         public State State { get; set; }
 
         public double AeroMod { get; set; }

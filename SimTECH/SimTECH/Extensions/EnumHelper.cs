@@ -8,5 +8,18 @@
         }
 
         public static Country GetDefaultCountry() => Country.FM;
+
+        public static Dictionary<Entrant, string> RetrieveEntrantDict() => EntrantDict;
+
+        #region global values
+
+        private static readonly Dictionary<Entrant, string> EntrantDict = new()
+        {
+            { Entrant.Driver, "Driver" },
+            { Entrant.Team, "Team" },
+            { Entrant.Track, "Track" },
+        };
+
+        #endregion
     }
 }

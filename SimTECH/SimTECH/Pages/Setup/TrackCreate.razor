@@ -1,5 +1,46 @@
-﻿<h3>TrackCreate</h3>
+﻿@inject TrackService TrackService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>
+            Add new track
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@track">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField T="string" @bind-Value="track.Name" Label="Name" />
+                    <MudCountrySelect @bind-Value="track.Country" />
+                    <MudNumericField T="double" @bind-Value="track.Length" Label="Length" Format="N2" />
+                    <MudNumericField T="double" @bind-Value="track.AeroMod" Label="AeroMod" Format="N2" />
+                    <MudNumericField T="double" @bind-Value="track.ChassisMod" Label="ChassisMod" Format="N2" />
+                    <MudNumericField T="double" @bind-Value="track.PowerMod" Label="PowerMod" Format="N2" />
+                    <MudNumericField T="double" @bind-Value="track.QualifyingMod" Label="QualifyingMod" Format="N2" />
+                </MudCardContent>
+            </MudCard>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
 
 @code {
+    [CascadingParameter]
+    protected MudDialogInstance? TrackDialog { get; set; }
 
+    [Parameter]
+    public Track track { get; set; } = new();
+
+    private void Submit()
+    {
+        // TODO: Function call just adds it here, but we want to actually store it!
+        TrackService.CreateTrack(track);
+
+        TrackDialog?.Close(DialogResult.Ok(track));
+    }
+
+    private void Cancel() => TrackDialog?.Cancel();
 }

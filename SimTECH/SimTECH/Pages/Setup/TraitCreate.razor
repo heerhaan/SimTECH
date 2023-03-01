@@ -1,5 +1,61 @@
-﻿<h3>TraitCreate</h3>
+﻿@inject TraitService TraitService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>
+            Add new trait
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@trait">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField T="string" @bind-Value="trait.Name" Label="Name" />
+                    <MudTextField T="string" @bind-Value="trait.Description" Label="Description" />
+                    <MudSelect T="Entrant" @bind-Value="trait.Type" Label="Entrant type" Variant="Variant.Outlined">
+                        @foreach (var entrant in EnumHelper.RetrieveEntrantDict())
+                        {
+                            <MudSelectItem Value="@entrant.Key">@entrant.Value</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudNumericField T="int" @bind-Value="trait.QualifyingPace" Label="QualifyingPace" />
+                    <MudNumericField T="int" @bind-Value="trait.DriverPace" Label="DriverPace" />
+                    <MudNumericField T="int" @bind-Value="trait.CarPace" Label="CarPace" />
+                    <MudNumericField T="int" @bind-Value="trait.EnginePace" Label="EnginePace" />
+                    <MudNumericField T="int" @bind-Value="trait.DriverReliability" Label="DriverReliability" />
+                    <MudNumericField T="int" @bind-Value="trait.CarReliability" Label="CarReliability" />
+                    <MudNumericField T="int" @bind-Value="trait.EngineReliability" Label="EngineReliability" />
+                    <MudNumericField T="int" @bind-Value="trait.WearMax" Label="WearMax" />
+                    <MudNumericField T="int" @bind-Value="trait.WearMin" Label="WearMin" />
+                    <MudNumericField T="int" @bind-Value="trait.RngMin" Label="RngMin" />
+                    <MudNumericField T="int" @bind-Value="trait.RngMax" Label="RngMax" />
+
+                    <MudCheckBox @bind-Checked="trait.ForWetConditions" Label="Only during wet conditions" Color="Color.Tertiary" />
+                </MudCardContent>
+            </MudCard>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
 
 @code {
+    [CascadingParameter]
+    protected MudDialogInstance? TraitDialog { get; set; }
 
+    [Parameter]
+    public Trait trait { get; set; } = new();
+
+    private void Submit()
+    {
+        // TODO: Function call just adds it here, but we want to actually store it!
+        TraitService.CreateTrait(trait);
+
+        TraitDialog?.Close(DialogResult.Ok(trait));
+    }
+
+    private void Cancel() => TraitDialog?.Cancel();
 }
