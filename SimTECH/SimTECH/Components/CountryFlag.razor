@@ -1,4 +1,7 @@
-﻿<span class="@flagIconClass">@flagLabel</span>
+﻿<span>
+    <span class="@flagIconClass">@flagIcon</span>
+    @flagNationName
+</span>
 
 @code {
     [Parameter]
@@ -39,18 +42,24 @@
         }
     }
 
-    private string flagLabel
+    private string flagIcon
     {
         get
         {
-            var flagString = Code.CountryCodeToEmoji();
+            return Code.CountryCodeToEmoji();
+        }
+    }
 
+    private string flagNationName
+    {
+        get
+        {
             if (this.IncludeName)
             {
-                flagString += $" {Code.GetDescription()}";
+                return Code.GetDescription();
             }
 
-            return flagString;
+            return string.Empty;
         }
     }
 }
