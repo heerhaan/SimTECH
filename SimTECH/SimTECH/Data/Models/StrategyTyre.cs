@@ -1,10 +1,13 @@
-﻿namespace SimTECH.Data.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SimTECH.Data.Models
 {
     public class StrategyTyre
     {
         public long Id { get; set; }
         public int NumberStint { get; set; }
 
+        [NotMapped]
         public int Order { get; set; } //temp
 
         public long StrategyId { get; set; }

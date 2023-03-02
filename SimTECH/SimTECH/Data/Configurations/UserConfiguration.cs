@@ -11,7 +11,13 @@ namespace SimTECH.Data.Configurations
         {
             builder.HasKey(e => e.Id);
 
-            builder.Property(e => e.Username).HasColumnType("nvarchar(256)").IsRequired();
+            builder.Property(e => e.Username)
+                .HasColumnType("nvarchar(256)")
+                .IsRequired();
+
+            builder.Property(e => e.Password)
+                .HasColumnType("nvarchar(max)")
+                .IsRequired();
 
             builder.Ignore(e => e.ToClaimsPrincipal());
         }

@@ -1,4 +1,5 @@
 ﻿using SimTECH.Extensions;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Claims;
 
 namespace SimTECH.Data.Models
@@ -11,10 +12,11 @@ namespace SimTECH.Data.Models
         public string FullName { get; set; } = default!;
         public Country Country { get; set; }
 
-        // CoolGrade is an example meant to show how policy authorization works
-        public int CoolGrade { get; set; }
-
         public List<string> Roles { get; set; } = new();
+
+        // CoolGrade is an example meant to show how policy authorization works
+        [NotMapped]
+        public int CoolGrade { get; set; }
 
         public ClaimsPrincipal ToClaimsPrincipal()
         {

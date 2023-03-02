@@ -4,9 +4,9 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Configurations
 {
-    public class SeasonConfiguration : IEntityTypeConfiguration<Season>
+    public class StrategyTyreConfiguration : IEntityTypeConfiguration<StrategyTyre>
     {
-        public void Configure(EntityTypeBuilder<Season> builder)
+        public void Configure(EntityTypeBuilder<StrategyTyre> builder)
         {
             builder.HasKey(e => e.Id);
         }

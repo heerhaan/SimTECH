@@ -13,5 +13,6 @@
 
         public IList<SeasonDriver> SeasonDrivers { get; set; } = default!;
         public IList<DriverTrait> DriverTraits { get; set; } = default!;
+        public IList<Contract> Contracts { get; set; } = default!;
     }
 }

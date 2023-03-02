@@ -12,7 +12,7 @@
         // Thus far sponsors each season are a swell idea, (so part of SeasonTeam). But how will the money be used, contracts?
         //public int Balance { get; set; }//the fuck is balance, dat is geld mika
 
-        //public IList<Contract> Contracts { get; set; } = default!;
+        public IList<Contract> Contracts { get; set; } = default!;
         public IList<SeasonTeam> SeasonTeams { get; set; } = default!;
         public IList<TeamTrait> TeamTraits { get; set; } = default!;
     }

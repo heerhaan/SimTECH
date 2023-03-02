@@ -4,9 +4,9 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Configurations
 {
-    public class SeasonDriverConfiguration : IEntityTypeConfiguration<SeasonDriver>
+    public class StintResultConfiguration : IEntityTypeConfiguration<StintResult>
     {
-        public void Configure(EntityTypeBuilder<SeasonDriver> builder)
+        public void Configure(EntityTypeBuilder<StintResult> builder)
         {
             builder.HasKey(e => e.Id);
         }

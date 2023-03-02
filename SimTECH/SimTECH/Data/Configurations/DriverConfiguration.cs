@@ -9,12 +9,31 @@ namespace SimTECH.Data.Configurations
         public void Configure(EntityTypeBuilder<Driver> builder)
         {
             builder.HasKey(e => e.Id);
-            builder.Property(e => e.FirstName).HasColumnType("nvarchar(100)");
-            builder.Property(e => e.LastName).HasColumnType("nvarchar(150)");
-            builder.Property(e => e.Abbreviation).HasColumnType("nvarchar(20)");
-            builder.Property(e => e.DateOfBirth).HasColumnType("date");
-            builder.Property(e => e.Country).HasColumnType("varchar(10)");
-            builder.Property(e => e.Biography).HasColumnType("nvarchar(max)");
+
+            builder.Property(e => e.FirstName)
+                .HasColumnType("nvarchar(100)")
+                .IsRequired();
+
+            builder.Property(e => e.LastName)
+                .HasColumnType("nvarchar(150)")
+                .IsRequired();
+
+            builder.Property(e => e.Abbreviation)
+                .HasColumnType("nvarchar(20)")
+                .IsRequired();
+
+            builder.Property(e => e.DateOfBirth)
+                .HasColumnType("date")
+                .IsRequired();
+
+            builder.Property(e => e.Country)
+                .HasColumnType("varchar(2)")
+                .IsRequired()
+                .HasMaxLength(2);
+
+            builder.Property(e => e.Biography)
+                .HasColumnType("nvarchar(max)")
+                .IsRequired();
         }
     }
 }
