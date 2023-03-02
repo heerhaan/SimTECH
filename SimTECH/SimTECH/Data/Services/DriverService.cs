@@ -12,7 +12,7 @@ namespace SimTECH.Data.Services
                 FirstName = "Max",
                 LastName = "Verstappen",
                 Abbreviation = "VER",
-                DateOfBirth = new DateTime(),
+                DateOfBirth = DateTime.Today,
                 Country = Country.NL,
                 Biography = "Super",
                 State = State.Active
@@ -23,7 +23,7 @@ namespace SimTECH.Data.Services
                 FirstName = "Sharl",
                 LastName = "Eclair",
                 Abbreviation = "LEG",
-                DateOfBirth = new DateTime(),
+                DateOfBirth = DateTime.Today,
                 Country = Country.MO,
                 Biography = "Stoopid",
                 State = State.Active
@@ -34,14 +34,14 @@ namespace SimTECH.Data.Services
                 FirstName = "Seb",
                 LastName = "Vet",
                 Abbreviation = "VET",
-                DateOfBirth = new DateTime(),
+                DateOfBirth = DateTime.Today,
                 Country = Country.DE,
                 Biography = "Blush",
                 State = State.Archived
             },
         };
 
-        public List<Driver> GetTestNames()
+        public List<Driver> GetTestData()
         {
             return _drivers;
         }

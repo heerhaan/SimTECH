@@ -83,7 +83,7 @@
 
     protected override void OnInitialized()
     {
-        DriverNames = DriverService.GetTestNames();
+        DriverNames = DriverService.GetTestData();
     }
 
     void ModifyDriver(Driver item)
@@ -98,7 +98,7 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Driver newDriver)
         {
-            DriverNames = DriverService.GetTestNames();
+            DriverNames = DriverService.GetTestData();
 
             _modifications.Insert(0, $"Created object: {System.Text.Json.JsonSerializer.Serialize(newDriver)}");
 

@@ -32,7 +32,7 @@ namespace SimTECH.Data.Services
             },
         };
 
-        public List<Trait> GetTestNames()
+        public List<Trait> GetTestData()
         {
             return _traits;
         }

@@ -7,9 +7,9 @@
 <PageTitle>Traits</PageTitle>
 
 <MudContainer>
-    <h2>Traits</h2>
-    <MudPaper Class="d-flex align-center pa-2 mx-2 my-2">
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="@((e) => AddTrait())">New</MudButton>
+    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+        <MudText Typo="Typo.h4">Traits</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrait">New</MudButton>
     </MudPaper>
     <MudDataGrid T="Trait" Items="TraitNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyTrait" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
         <Columns>
@@ -34,62 +34,62 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <MudGrid>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.QualifyingPace" Label="Qualifying pace" Disabled="true" />
+                                <MudText>Qualifying pace: @(context.Item.QualifyingPace)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.DriverPace" Label="Driver pace" Disabled="true" />
+                                <MudText>Driver pace: @(context.Item.DriverPace)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.CarPace" Label="Car pace" Disabled="true" />
+                                <MudText>Car pace: @(context.Item.CarPace)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.EnginePace" Label="Engine pace" Disabled="true" />
+                                <MudText>Engine pace: @(context.Item.EnginePace)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.DriverReliability" Label="Driver reliability" Disabled="true" />
+                                <MudText>Driver reliability: @(context.Item.DriverReliability)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.CarReliability" Label="Driver reliability" Disabled="true" />
+                                <MudText>Car reliability: @(context.Item.CarReliability)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.EngineReliability" Label="Driver reliability" Disabled="true" />
+                                <MudText>Engine reliability: @(context.Item.EngineReliability)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.WearMax" Label="Maximum wear" Disabled="true" />
+                                <MudText>Wear max: @(context.Item.WearMax)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.WearMin" Label="Minimum wear" Disabled="true" />
+                                <MudText>Wear min: @(context.Item.WearMin)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.RngMin" Label="Minimum RNG" Disabled="true" />
+                                <MudText>RNG min: @(context.Item.RngMin)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudNumericField Value="context.Item.RngMax" Label="Maximum RNG" Disabled="true" />
+                                <MudText>RNG max: @(context.Item.RngMax)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="2">
+                        <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
                                 <MudText>
                                     @(context.Item.ForWetConditions ? "Only" : "Doesn't") apply during moist/wet conditions.
@@ -111,7 +111,7 @@
 
     protected override void OnInitialized()
     {
-        TraitNames = TraitService.GetTestNames();
+        TraitNames = TraitService.GetTestData();
     }
 
     void ModifyTrait(Trait item)
