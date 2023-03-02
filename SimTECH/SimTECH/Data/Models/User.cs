@@ -12,6 +12,7 @@ namespace SimTECH.Data.Models
         public string FullName { get; set; } = default!;
         public Country Country { get; set; }
 
+        [NotMapped]
         public List<string> Roles { get; set; } = new();
 
         // CoolGrade is an example meant to show how policy authorization works

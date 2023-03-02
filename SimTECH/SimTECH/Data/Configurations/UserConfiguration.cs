@@ -18,8 +18,6 @@ namespace SimTECH.Data.Configurations
             builder.Property(e => e.Password)
                 .HasColumnType("nvarchar(max)")
                 .IsRequired();
-
-            builder.Ignore(e => e.ToClaimsPrincipal());
         }
     }
 }
