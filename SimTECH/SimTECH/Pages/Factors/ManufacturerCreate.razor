@@ -9,7 +9,18 @@
     <DialogContent>
         <MudForm Model="@manufacturer">
             <MudTextField T="string" @bind-Value="manufacturer.Name" Label="Name" />
+            <MudColorPicker @bind-Text="manufacturer.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" />
+            <MudColorPicker @bind-Text="manufacturer.Accent" Label="Accent" Placeholder="Select accent" DisableAlpha="true" />
+            <MudNumericField T="int" @bind-Value="manufacturer.Pace" Label="Pace" />
+            <MudNumericField T="int" @bind-Value="manufacturer.WearMax" Label="WearMax" />
+            <MudNumericField T="int" @bind-Value="manufacturer.WearMin" Label="WearMin" />
         </MudForm>
+        <MudPaper Height="100px">
+            <MudText Typo="Typo.h6">Preview</MudText>
+            <div style="background-color:@(manufacturer.Colour); color:@(manufacturer.Accent)">
+                @manufacturer.Name
+            </div>
+        </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>

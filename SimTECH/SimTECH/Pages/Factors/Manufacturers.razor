@@ -1,5 +1,5 @@
 ﻿@page "/manufacturers"
-@layout SetupLayout
+@layout FactorLayout
 
 @inject ManufacturerService ManufacturerService
 @inject IDialogService DialogService
@@ -7,13 +7,17 @@
 <PageTitle>Manufacturers</PageTitle>
 
 <MudContainer>
-    <h2>Manufacturers</h2>
-    <MudPaper Class="d-flex align-center pa-2 mx-2 my-2">
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="@((e) => AddManufacturer())">New</MudButton>
+    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+        <MudText Typo="Typo.h4">Tyre manufacturers</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddManufacturer">New</MudButton>
     </MudPaper>
     <MudDataGrid T="Manufacturer" Items="@ManufacturerNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyManufacturer" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
         <Columns>
-            <Column T="Manufacturer" Field="Name" />
+            <Column T="Manufacturer" Field="Name" CellStyleFunc="_applyColouring" />
+            <Column T="Manufacturer" Field="State" />
+            <Column T="Manufacturer" Field="Pace" />
+            <Column T="Manufacturer" Field="WearMax" />
+            <Column T="Manufacturer" Field="WearMin" />
             <Column T="Manufacturer" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup>
@@ -35,6 +39,11 @@
     {
         ManufacturerNames = ManufacturerService.GetTestData();
     }
+
+    private Func<Manufacturer, string> _applyColouring => e =>
+    {
+        return $"background-color: {e.Colour}; color: {e.Accent}";
+    };
 
     void ModifyManufacturer(Manufacturer item)
     {

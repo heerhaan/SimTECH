@@ -1,4 +1,6 @@
-﻿@inject StrategyService StrategyService
+﻿@using MudBlazor.Utilities
+
+@inject StrategyService StrategyService
 
 <MudDialog>
     <TitleContent>
@@ -7,9 +9,35 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@strategy">
-            <MudNumericField T="int" @bind-Value="strategy.StintLength" Label="Amount stints" />
-        </MudForm>
+        <MudGrid Spacing="1">
+            <MudItem xs="9">
+                <MudPaper>
+                    <MudDropContainer T="StrategyTyre" Items="_tyresInStrategy" ItemDropped="TyreOrderUpdate">
+                        <ChildContent>
+                            <MudPaper Class="ma-4 flex-grow-1">
+                                <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                                    <MudListSubheader>Drop Zone strats</MudListSubheader>
+                                    <MudDropZone T="StrategyTyre" Class="flex-grow-1" AllowReorder="true" />
+                                </MudList>
+                            </MudPaper>
+                        </ChildContent>
+                        <ItemRenderer>
+                            <MudListItem Text="@($"{context.Tyre.Name} ({context.NumberStint})({context.Order})")"></MudListItem>
+                        </ItemRenderer>
+                    </MudDropContainer>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="3">
+                <MudPaper>
+                    <MudList Clickable="true" Color="Color.Success">
+                        @foreach (var tyre in Tyres)
+                        {
+                            <MudListItem Text="@tyre.Name" Value="tyre" OnClick="@((e) => AppendTyreToStrategy(tyre))"></MudListItem>
+                        }
+                    </MudList>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -23,6 +51,50 @@
 
     [Parameter]
     public Strategy strategy { get; set; } = new();
+
+    [Parameter]
+    public List<Tyre> Tyres { get; set; } = new();
+
+    private List<StrategyTyre> _tyresInStrategy = new();
+    private int lastStintNumber = 0;
+
+    protected override void OnInitialized()
+    {
+        if (strategy?.StrategyTyres?.Count > 0)
+        {
+            foreach (var stratTyre in strategy.StrategyTyres)
+            {
+                if (stratTyre.NumberStint > lastStintNumber)
+                    lastStintNumber = stratTyre.NumberStint;
+
+                var tyreMatch = Tyres.Find(e => e.Id == stratTyre.TyreId);
+
+                if (tyreMatch != null)
+                {
+                    stratTyre.Tyre = tyreMatch;
+
+                    _tyresInStrategy.Add(stratTyre);
+                }
+            }
+        }
+    }
+
+    private void AppendTyreToStrategy(Tyre tyre)
+    {
+        var appendedStrategyTyre = new StrategyTyre
+        {
+            NumberStint = lastStintNumber + tyre.Length,
+            TyreId = tyre.Id,
+            Tyre = tyre
+        };
+
+        _tyresInStrategy.Add(appendedStrategyTyre);
+    }
+
+    private void TyreOrderUpdate(MudItemDropInfo<StrategyTyre> droppedTyre)
+    {
+        _tyresInStrategy.UpdateOrder(droppedTyre, e => e.Order);
+    }
 
     private void Submit()
     {

@@ -1,39 +1,92 @@
-﻿@page "/strategys"
-@layout SetupLayout
+﻿@page "/strategies"
+@layout FactorLayout
 
 @inject StrategyService StrategyService
 @inject IDialogService DialogService
 
-<PageTitle>Strategys</PageTitle>
+<PageTitle>Strategies</PageTitle>
 
 <MudContainer>
-    <h2>Strategys</h2>
-    <MudPaper Class="d-flex align-center pa-2 mx-2 my-2">
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="@((e) => AddStrategy())">New</MudButton>
-    </MudPaper>
-    <MudDataGrid T="Strategy" Items="@StrategyNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyStrategy" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
-        <Columns>
-            <Column T="Strategy" CellClass="d-flex justify-end">
-                <CellTemplate>
-                    <MudButtonGroup>
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
-                    </MudButtonGroup>
-                </CellTemplate>
-            </Column>
-        </Columns>
-        <PagerContent>
-            <MudDataGridPager T="Strategy" />
-        </PagerContent>
-    </MudDataGrid>
+    <MudTabs>
+        <MudTabPanel Text="Strategies">
+            <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+                <MudText Typo="Typo.h4">Strategies</MudText>
+                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddStrategy">New</MudButton>
+            </MudPaper>
+            <MudDataGrid T="Strategy" Items="@StrategyNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyStrategy" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+                <Columns>
+                    <Column T="Strategy" Field="StintLength" />
+                    <Column T="Strategy" Title="Tyres">
+                        <CellTemplate>
+                            @if (context.Item.StrategyTyres?.Count > 0)
+                            {
+                                foreach (var strategyTyre in context.Item.StrategyTyres)
+                                {
+                                    <MudElement Class="tyre" Style="border-color:palegreen">A</MudElement>
+                                }
+                            }
+                            else
+                            {
+                                <MudText>No tyres in strategy found!</MudText>
+                            }
+                        </CellTemplate>
+                    </Column>
+                    <Column T="Strategy" CellClass="d-flex justify-end">
+                        <CellTemplate>
+                            <MudButtonGroup>
+                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
+                            </MudButtonGroup>
+                        </CellTemplate>
+                    </Column>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="Strategy" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudTabPanel>
+
+        <MudTabPanel Text="Tyres">
+            <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+                <MudText Typo="Typo.h4">Tyres</MudText>
+                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTyre">New</MudButton>
+            </MudPaper>
+            <MudDataGrid T="Tyre" Items="@TyreElements" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyTyre" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+                <Columns>
+                    <Column T="Tyre" Field="Name" CellStyleFunc="_applyTyreColouring" />
+                    <Column T="Tyre" Field="State" />
+                    <Column T="Tyre" Field="Pace" />
+                    <Column T="Tyre" Field="WearMax" />
+                    <Column T="Tyre" Field="WearMin" />
+                    <Column T="Tyre" CellClass="d-flex justify-end">
+                        <CellTemplate>
+                            <MudButtonGroup>
+                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
+                            </MudButtonGroup>
+                        </CellTemplate>
+                    </Column>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="Tyre" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudTabPanel>
+    </MudTabs>
 </MudContainer>
 
 @code {
     private List<Strategy> StrategyNames = new();
+    private List<Tyre> TyreElements = new();
 
     protected override void OnInitialized()
     {
         StrategyNames = StrategyService.GetTestData();
+        TyreElements = StrategyService.GetTyres();
     }
+
+    private Func<Tyre, string> _applyTyreColouring => e =>
+    {
+        return $"border-color: {e.Colour}";
+    };
 
     void ModifyStrategy(Strategy item)
     {
@@ -42,12 +95,33 @@
 
     async Task AddStrategy()
     {
-        var dialog = await DialogService.ShowAsync<StrategyCreate>("Create a new strategy");
+        var parameters = new DialogParameters
+        {
+            ["Tyres"] = TyreElements
+        };
+
+        var dialog = await DialogService.ShowAsync<StrategyCreate>("Create a new strategy", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Strategy newStrategy)
         {
             StrategyNames.Add(newStrategy);
+        }
+    }
+
+    void ModifyTyre(Tyre item)
+    {
+        // TODO: Store edited values
+    }
+
+    async Task AddTyre()
+    {
+        var dialog = await DialogService.ShowAsync<TyreCreate>("Create a new tyre");
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Tyre newTyre)
+        {
+            TyreElements.Add(newTyre);
         }
     }
 }

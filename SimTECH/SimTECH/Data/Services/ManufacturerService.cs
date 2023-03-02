@@ -10,8 +10,8 @@ namespace SimTECH.Data.Services
             {
                 Id = 1,
                 Name = "Hankook",
-                Colour = "black",
-                Accent = "orange",
+                Colour = "#000000ff",
+                Accent = "#f5e20eff",
                 State = State.Active,
 
                 Pace = 10,

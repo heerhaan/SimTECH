@@ -7,8 +7,10 @@
 <PageTitle>Teams</PageTitle>
 
 <MudContainer>
-    <h2>Teams</h2>
-
+    <MudContainer Class="d-flex justify-space-between pa-2 mx-2 my-2">
+        <MudText Typo="Typo.h4">Teams</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTeam">New</MudButton>
+    </MudContainer>
     <MudDataGrid Items="@TeamNames">
         <Columns>
             <HierarchyColumn T="Team" />
@@ -51,7 +53,7 @@
         // TODO: Store changes that have been made
     }
 
-    async Task AddDriver()
+    async Task AddTeam()
     {
         var dialog = await DialogService.ShowAsync<TeamCreate>("Create a new team");
         var result = await dialog.Result;

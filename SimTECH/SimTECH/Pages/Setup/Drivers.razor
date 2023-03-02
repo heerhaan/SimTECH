@@ -7,9 +7,9 @@
 <PageTitle>Drivers</PageTitle>
 
 <MudContainer>
-    <h2>Drivers</h2>
-    <MudPaper Class="d-flex align-center pa-2 mx-2 my-2">
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="@((e) => AddDriver())">New</MudButton>
+    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+        <MudText Typo="Typo.h4">Drivers</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddDriver">New</MudButton>
     </MudPaper>
     <MudDataGrid T="Driver" Items="@DriverNames" ReadOnly="@_readOnly" EditMode="@(_editMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
         CommittedItemChanges="ModifyDriver" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
