@@ -22,7 +22,8 @@ namespace SimTECH
     public enum RangeType
     {
         Unknown = 0,
-        Skill, Age,
+        Skill,
+        Age,
         Team,
         Engine
     }
@@ -81,6 +82,7 @@ namespace SimTECH
         Tiny, Small, Large
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1154:Sort enum members.", Justification = "I don't care")]
     public enum Country
     {
         [Description("Afghanistan")] AF = 1,
@@ -154,6 +156,7 @@ namespace SimTECH
         [Description("Eritrea")] ER = 69,
         [Description("Estonia")] EE = 70,
         [Description("Ethiopia")] ET = 71,
+        [Description("European Union")] EU = 250,
         [Description("Falkland Islands")] FK = 72,
         [Description("Faroe Islands")] FO = 73,
         [Description("Fiji")] FJ = 74,
@@ -200,6 +203,7 @@ namespace SimTECH
         [Description("Kazakhstan")] KZ = 115,
         [Description("Kenya")] KE = 116,
         [Description("Kiribati")] KI = 117,
+        [Description("Kosovo")] XK = 251,
         [Description("North-Korea")] KP = 118,
         [Description("South-Korea")] KR = 119,
         [Description("Kuwait")] KW = 120,
@@ -318,6 +322,7 @@ namespace SimTECH
         [Description("Ukraine")] UA = 233,
         [Description("United Arab Emirates")] AE = 234,
         [Description("United Kingdom")] GB = 235,
+        [Description("United Nations")] UN = 252,
         [Description("United States of America")] US = 236,
         [Description("United States Minor Outlying Islands")] UM = 237,
         [Description("Uruguay")] UY = 238,
@@ -333,11 +338,7 @@ namespace SimTECH
         [Description("Zambia")] ZM = 248,
         [Description("Zimbabwe")] ZW = 249,
 
-        // Additional flags
-        [Description("European Union")] EU = 250,
-
-        [Description("Kosovo")] XK = 251,
-        [Description("United Nations")] UN = 252,
+        // Last index is 252 (European Union)
     }
 
     #endregion countries

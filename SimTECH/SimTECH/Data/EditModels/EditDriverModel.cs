@@ -16,10 +16,6 @@ namespace SimTECH.Data.EditModels
         public string? Biography { get; set; }
         public State State { get; set; }
 
-        //public IList<SeasonDriver> SeasonDrivers { get; set; }
-        //public IList<DriverTrait> DriverTraits { get; set; }
-        //public IList<Contract> Contracts { get; set; }
-
         public EditDriverModel()
         {
             DateOfBirth = DateTime.Today;
@@ -28,7 +24,6 @@ namespace SimTECH.Data.EditModels
 
             _driver = new Driver();
         }
-
         public EditDriverModel(Driver driver)
         {
             Id = driver.Id;
