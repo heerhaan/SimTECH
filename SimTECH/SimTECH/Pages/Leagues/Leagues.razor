@@ -8,9 +8,9 @@
 <MudContainer>
     <MudPaper Class="d-flex align-center pa-2 mx-2 my-2">
         <MudText Typo="Typo.h4">Leagues</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddLeague">New</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EditLeague">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="League" Items="@LeagueNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyLeague" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+    <MudDataGrid T="League" Items="@leagueData" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyLeague" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
         <Columns>
             <Column T="League" Field="Name" />
             <Column T="League" CellClass="d-flex justify-end">
@@ -28,26 +28,27 @@
 </MudContainer>
 
 @code {
-    private List<League> LeagueNames = new();
+    private List<League> leagueData = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        LeagueNames = LeagueService.GetTestData();
+        leagueData = await LeagueService.GetLeagues();
     }
 
+    // TODO: If you want this modify to work, then use the edit model to display values and output them too
     void ModifyLeague(League item)
     {
         // TODO: Store edited values
     }
 
-    async Task AddLeague()
+    async Task EditLeague()
     {
-        var dialog = await DialogService.ShowAsync<LeagueCreate>("Create a new league");
+        var dialog = await DialogService.ShowAsync<LeagueEditor>("Create a new league");
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is League newLeague)
         {
-            LeagueNames.Add(newLeague);
+            //LeagueNames.Add(newLeague);
         }
     }
 }

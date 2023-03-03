@@ -31,9 +31,9 @@
 @code {
     private List<Engine> EngineNames = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        EngineNames = EngineService.GetTestNames();
+        EngineNames = await EngineService.GetEngines();
     }
 
     void ModifyEngine(Engine item)
@@ -43,12 +43,12 @@
 
     async Task AddEngine()
     {
-        var dialog = await DialogService.ShowAsync<EngineCreate>("Create a new engine");
+        var dialog = await DialogService.ShowAsync<EngineEditor>("Create a new engine");
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Engine newEngine)
         {
-            EngineNames.Add(newEngine);
+            //EngineNames.Add(newEngine);
         }
     }
 }

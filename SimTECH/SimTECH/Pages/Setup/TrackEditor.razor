@@ -30,10 +30,10 @@
     [Parameter]
     public Track track { get; set; } = new();
 
-    private void Submit()
+    private async Task Submit()
     {
         // TODO: Function call just adds it here, but we want to actually store it!
-        TrackService.CreateTrack(track);
+        await TrackService.CreateTrack(track);
 
         TrackDialog?.Close(DialogResult.Ok(track));
     }

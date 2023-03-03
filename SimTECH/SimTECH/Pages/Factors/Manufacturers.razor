@@ -35,9 +35,9 @@
 @code {
     private List<Manufacturer> ManufacturerNames = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        ManufacturerNames = ManufacturerService.GetTestData();
+        ManufacturerNames = await ManufacturerService.GetManufacturers();
     }
 
     private Func<Manufacturer, string> _applyColouring => e =>
@@ -52,12 +52,12 @@
 
     async Task AddManufacturer()
     {
-        var dialog = await DialogService.ShowAsync<ManufacturerCreate>("Create a new manufacturer");
+        var dialog = await DialogService.ShowAsync<ManufacturerEditor>("Create a new manufacturer");
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Manufacturer newManufacturer)
         {
-            ManufacturerNames.Add(newManufacturer);
+            //ManufacturerNames.Add(newManufacturer);
         }
     }
 }

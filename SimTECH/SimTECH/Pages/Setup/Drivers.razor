@@ -81,9 +81,9 @@
     private List<Driver> DriverNames = new();
     private List<string> _modifications = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        DriverNames = DriverService.GetTestData();
+        DriverNames = await DriverService.GetDrivers();
     }
 
     void ModifyDriver(Driver item)
@@ -93,13 +93,11 @@
 
     async Task AddDriver()
     {
-        var dialog = await DialogService.ShowAsync<DriverCreate>("Create a new driver");
+        var dialog = await DialogService.ShowAsync<DriverEditor>("Create a new driver");
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Driver newDriver)
         {
-            DriverNames = DriverService.GetTestData();
-
             _modifications.Insert(0, $"Created object: {System.Text.Json.JsonSerializer.Serialize(newDriver)}");
 
             // TODO: Handle any changes that should occur when done with the dialog, like refreshing retrieved Drivers

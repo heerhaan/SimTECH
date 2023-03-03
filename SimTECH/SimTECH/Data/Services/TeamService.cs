@@ -1,29 +1,30 @@
-﻿using SimTECH.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
     public class TeamService
     {
-        private readonly List<Team> _teams = new()
-        {
-            new Team()
-            {
-                Id = 1,
-                Name = "Test",
-                Country = Country.BB,
-                Biography = "I barely exist",
-                State = State.Concept
-            }
-        };
+        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
 
-        public List<Team> GetTestNames()
+        public TeamService(IDbContextFactory<SimTechDbContext> factory)
         {
-            return _teams;
+            _dbFactory = factory;
         }
 
-        public void CreateTeam(Team team)
+        public async Task<List<Team>> GetTeams()
         {
-            _teams.Add(team);
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Team.ToListAsync();
+        }
+
+        public async Task CreateTeam(Team team)
+        {
+            using var context = _dbFactory.CreateDbContext();
+            context.Add(team);
+
+            await context.SaveChangesAsync();
         }
     }
 }

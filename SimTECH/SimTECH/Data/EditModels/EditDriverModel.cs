@@ -2,7 +2,7 @@
 
 namespace SimTECH.Data.EditModels
 {
-    public class EditDriver
+    public class EditDriverModel
     {
         private Driver _driver;
     }

@@ -35,10 +35,10 @@
     [Parameter]
     public Manufacturer manufacturer { get; set; } = new();
 
-    private void Submit()
+    private async Task Submit()
     {
         // TODO: Function call just adds it here, but we want to actually store it!
-        ManufacturerService.CreateManufacturer(manufacturer);
+        await ManufacturerService.CreateManufacturer(manufacturer);
 
         ManufacturerDialog?.Close(DialogResult.Ok(manufacturer));
     }

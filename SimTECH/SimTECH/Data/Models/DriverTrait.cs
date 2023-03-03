@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class DriverTrait
+    public record DriverTrait
     {
         public long TraitId { get; set; }
         public Trait Trait { get; set; } = null!;

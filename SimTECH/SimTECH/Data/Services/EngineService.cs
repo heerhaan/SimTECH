@@ -1,29 +1,32 @@
-﻿using SimTECH.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
     public class EngineService
     {
-        private readonly List<Engine> _engines = new()
-        {
-            new Engine()
-            {
-                Id = 1,
-                Name = "Honda",
-                State = State.Active,
-            },
-        };
+        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
 
-        public List<Engine> GetTestNames()
+        public EngineService(IDbContextFactory<SimTechDbContext> factory)
         {
-            return _engines;
+            _dbFactory = factory;
         }
 
-        public void CreateEngine(Engine engine)
+        public async Task<List<Engine>> GetEngines()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Engine.ToListAsync();
+        }
+
+        public async Task CreateEngine(Engine engine)
         {
             ValidateEngine(engine);
 
-            _engines.Add(engine);
+            using var context = _dbFactory.CreateDbContext();
+            context.Add(engine);
+
+            await context.SaveChangesAsync();
         }
 
         #region validation

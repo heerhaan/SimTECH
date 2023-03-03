@@ -36,10 +36,10 @@
     [Parameter]
     public Tyre tyre { get; set; } = new();
 
-    private void Submit()
+    private async Task Submit()
     {
         // TODO: Function call just adds it here, but we want to actually store it!
-        StrategyService.CreateTyre(tyre);
+        await StrategyService.CreateTyre(tyre);
 
         TyreDialog?.Close(DialogResult.Ok(tyre));
     }

@@ -2,28 +2,31 @@
 
 namespace SimTECH.Data.EditModels
 {
-    public class EditLeague
+    public class EditLeagueModel
     {
-        private League _league;
+        private readonly League _league;
 
         public long Id { get; set; }
         public string? Name { get; set; }
         public State State { get; set; }
-        public IList<EditDevelopmentRange> DevelopmentRanges { get; set; }
+        public IList<EditDevRangeModel> DevelopmentRanges { get; set; }
 
-        public EditLeague()
+        public EditLeagueModel()
         {
-            DevelopmentRanges = new List<EditDevelopmentRange>();
+            State = State.Concept;
+            DevelopmentRanges = new List<EditDevRangeModel>();
+
             _league = new League();
         }
-        public EditLeague(League league)
+        public EditLeagueModel(League league)
         {
             Id = league.Id;
             Name = league.Name;
             State = league.State;
             DevelopmentRanges = league.DevelopmentRanges
-                .Select(range => new EditDevelopmentRange(range))
+                .Select(range => new EditDevRangeModel(range))
                 .ToList();
+
             _league = league;
         }
 
@@ -38,6 +41,7 @@ namespace SimTECH.Data.EditModels
                     .ToList()
             };
 
+        // Checks if the league record has any changes
         public bool IsDirty => _league != this.Record;
     }
 }

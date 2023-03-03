@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class Penalty
+    public record Penalty
     {
         public long Id { get; set; }
         public string Reason { get; set; } = default!;

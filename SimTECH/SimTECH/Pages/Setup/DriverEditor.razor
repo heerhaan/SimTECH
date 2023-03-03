@@ -37,11 +37,11 @@
         DateSetter = driver.DateOfBirth;
     }
 
-    private void Submit()
+    private async Task Submit()
     {
         // TODO: Function call just adds it here, but we want to actually store it!
         driver.DateOfBirth = DateSetter.GetValueOrDefault();
-        DriverService.CreateDriver(driver);
+        await DriverService.CreateDriver(driver);
 
         DriverDialog?.Close(DialogResult.Ok(driver));
     }

@@ -1,33 +1,31 @@
-﻿using SimTECH.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
     public class ManufacturerService
     {
-        private readonly List<Manufacturer> _manufacturers = new()
-        {
-            new Manufacturer()
-            {
-                Id = 1,
-                Name = "Hankook",
-                Colour = "#000000ff",
-                Accent = "#f5e20eff",
-                State = State.Active,
+        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
 
-                Pace = 10,
-                WearMax = -4,
-                WearMin = -2
-            }
-        };
-
-        public List<Manufacturer> GetTestData()
+        public ManufacturerService(IDbContextFactory<SimTechDbContext> factory)
         {
-            return _manufacturers;
+            _dbFactory = factory;
         }
 
-        public void CreateManufacturer(Manufacturer manufacturer)
+        public async Task<List<Manufacturer>> GetManufacturers()
         {
-            _manufacturers.Add(manufacturer);
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Manufacturer.ToListAsync();
+        }
+
+        public async Task CreateManufacturer(Manufacturer manufacturer)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.Add(manufacturer);
+
+            await context.SaveChangesAsync();
         }
     }
 }

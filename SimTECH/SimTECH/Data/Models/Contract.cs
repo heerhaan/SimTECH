@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class Contract
+    public record Contract
     {
         public long Id { get; set; }
         public int Duration { get; set; }

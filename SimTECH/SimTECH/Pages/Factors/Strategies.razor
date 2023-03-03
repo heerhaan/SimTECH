@@ -77,10 +77,10 @@
     private List<Strategy> StrategyNames = new();
     private List<Tyre> TyreElements = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        StrategyNames = StrategyService.GetTestData();
-        TyreElements = StrategyService.GetTyres();
+        StrategyNames = await StrategyService.GetStrategies();
+        TyreElements = await StrategyService.GetTyres();
     }
 
     private Func<Tyre, string> _applyTyreColouring => e =>
@@ -100,12 +100,12 @@
             ["Tyres"] = TyreElements
         };
 
-        var dialog = await DialogService.ShowAsync<StrategyCreate>("Create a new strategy", parameters);
+        var dialog = await DialogService.ShowAsync<StrategyEditor>("Create a new strategy", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Strategy newStrategy)
         {
-            StrategyNames.Add(newStrategy);
+            //StrategyNames.Add(newStrategy);
         }
     }
 
@@ -116,12 +116,12 @@
 
     async Task AddTyre()
     {
-        var dialog = await DialogService.ShowAsync<TyreCreate>("Create a new tyre");
+        var dialog = await DialogService.ShowAsync<TyreEditor>("Create a new tyre");
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Tyre newTyre)
         {
-            TyreElements.Add(newTyre);
+            //TyreElements.Add(newTyre);
         }
     }
 }

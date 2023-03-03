@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class TeamTrait
+    public record TeamTrait
     {
         public long TraitId { get; set; }
         public Trait Trait { get; set; } = default!;

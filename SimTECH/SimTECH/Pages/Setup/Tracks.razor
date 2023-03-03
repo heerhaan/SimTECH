@@ -41,9 +41,9 @@
 @code {
     private List<Track> TrackNames = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        TrackNames = TrackService.GetTestNames();
+        TrackNames = await TrackService.GetTracks();
     }
 
     void ModifyTrack(Track item)
@@ -53,12 +53,12 @@
 
     async Task AddTrack()
     {
-        var dialog = await DialogService.ShowAsync<TrackCreate>("Create a new track");
+        var dialog = await DialogService.ShowAsync<TrackEditor>("Create a new track");
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Track newTrack)
         {
-            TrackNames.Add(newTrack);
+            //TrackNames.Add(newTrack);
         }
     }
 }

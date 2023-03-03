@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class Stint
+    public record Stint
     {
         public long Id { get; set; }
         public int Order { get; set; }

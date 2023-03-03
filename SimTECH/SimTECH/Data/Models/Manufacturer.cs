@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class Manufacturer
+    public record Manufacturer
     {
         public long Id { get; set; }
         public string Name { get; set; } = default!;

@@ -24,10 +24,10 @@
     [Parameter]
     public Engine engine { get; set; } = new();
 
-    private void Submit()
+    private async Task Submit()
     {
         // TODO: Function call just adds it here, but we want to actually store it!
-        EngineService.CreateEngine(engine);
+        await EngineService.CreateEngine(engine);
 
         EngineDialog?.Close(DialogResult.Ok(engine));
     }

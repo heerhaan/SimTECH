@@ -1,39 +1,38 @@
-﻿using SimTECH.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
     public class SeasonService
     {
-        private readonly List<Season> _seasons = new()
+        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
+
+        public SeasonService(IDbContextFactory<SimTechDbContext> factory)
         {
-            new Season()
-            {
-                Id = 1,
-                State = State.Active,
-                Year = 2023,
-
-                MaximumDriversInRace = 20,
-                QualifyingAmountQ2 = 16,
-                QualifyingAmountQ3 = 10,
-                QualifyingRNG = 20,
-                RunAmountSession = 2,
-                GridBonus = 3,
-                PitMinimum = -50,
-                PitMaximum = -20,
-
-                PointsPole = 1,
-                PointsFastestLap = 1,
-            }
-        };
-
-        public List<Season> GetTestData()
-        {
-            return _seasons;
+            _dbFactory = factory;
         }
 
-        public void CreateSeason(Season season)
+        public async Task<List<Season>> GetSeasons()
         {
-            _seasons.Add(season);
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Season.ToListAsync();
+        }
+
+        public async Task CreateSeason(Season season)
+        {
+            using var context = _dbFactory.CreateDbContext();
+            context.Add(season);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateSeason(Season season)
+        {
+            using var context = _dbFactory.CreateDbContext();
+            context.Update(season);
+
+            await context.SaveChangesAsync();
         }
     }
 }

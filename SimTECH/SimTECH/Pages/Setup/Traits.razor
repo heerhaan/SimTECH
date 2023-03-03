@@ -109,9 +109,9 @@
 @code {
     private List<Trait> TraitNames = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        TraitNames = TraitService.GetTestData();
+        TraitNames = await TraitService.GetTraits();
     }
 
     void ModifyTrait(Trait item)
@@ -121,12 +121,12 @@
 
     async Task AddTrait()
     {
-        var dialog = await DialogService.ShowAsync<TraitCreate>("Create a new trait");
+        var dialog = await DialogService.ShowAsync<TraitEditor>("Create a new trait");
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Trait newTrait)
         {
-            TraitNames.Add(newTrait);
+            //TraitNames.Add(newTrait);
         }
     }
 }

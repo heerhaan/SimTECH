@@ -2,7 +2,7 @@
 
 namespace SimTECH.Data.Models
 {
-    public class StrategyTyre
+    public record StrategyTyre
     {
         public long Id { get; set; }
         public int NumberStint { get; set; }

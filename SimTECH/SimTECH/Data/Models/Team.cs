@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class Team
+    public record Team
     {
         public long Id { get; set; }
         public string Name { get; set; } = default!;

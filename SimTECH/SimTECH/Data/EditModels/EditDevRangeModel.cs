@@ -2,9 +2,9 @@
 
 namespace SimTECH.Data.EditModels
 {
-    public class EditDevelopmentRange
+    public class EditDevRangeModel
     {
-        private DevelopmentRange _range;
+        private readonly DevelopmentRange _range;
 
         public long Id { get; set; }
         public RangeType Type { get; set; }
@@ -13,15 +13,20 @@ namespace SimTECH.Data.EditModels
         public int Maximum { get; set; }
         public long LeagueId { get; set; }
 
-        public EditDevelopmentRange(DevelopmentRange range)
+        public EditDevRangeModel()
         {
-            _range = range;
+            _range = new DevelopmentRange();
+        }
+        public EditDevRangeModel(DevelopmentRange range)
+        {
             Id = range.Id;
             Type = range.Type;
             Comparer = range.Comparer;
             Minimum = range.Minimum;
             Maximum = range.Maximum;
             LeagueId = range.LeagueId;
+
+            _range = range;
         }
 
         public DevelopmentRange Record =>

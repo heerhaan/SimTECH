@@ -96,10 +96,10 @@
         _tyresInStrategy.UpdateOrder(droppedTyre, e => e.Order);
     }
 
-    private void Submit()
+    private async Task Submit()
     {
         // TODO: Function call just adds it here, but we want to actually store it!
-        StrategyService.CreateStrategy(strategy);
+        await StrategyService.CreateStrategy(strategy);
 
         StrategyDialog?.Close(DialogResult.Ok(strategy));
     }

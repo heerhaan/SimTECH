@@ -1,47 +1,32 @@
-﻿using SimTECH.Data.Models;
-using SimTECH.Extensions;
+﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
     public class TraitService
     {
-        private readonly List<Trait> _traits = new()
+        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
+
+        public TraitService(IDbContextFactory<SimTechDbContext> factory)
         {
-            new Trait()
-            {
-                Id = 1,
-                Name = "Foo",
-                Description = "Fighter",
-                Type = Entrant.Driver,
-                State = State.Active,
-
-                QualifyingPace = NumberHelper.RandomInt(-2, 2),
-                DriverPace = NumberHelper.RandomInt(-2, 2),
-                CarPace = NumberHelper.RandomInt(-2, 2),
-                EnginePace = NumberHelper.RandomInt(-2, 2),
-                DriverReliability = NumberHelper.RandomInt(-2, 2),
-                CarReliability = NumberHelper.RandomInt(-2, 2),
-                EngineReliability = NumberHelper.RandomInt(-2, 2),
-                WearMax = NumberHelper.RandomInt(-2, 2),
-                WearMin = NumberHelper.RandomInt(-2, 2),
-
-                RngMin = NumberHelper.RandomInt(-2, 2),
-                RngMax = NumberHelper.RandomInt(-2, 2),
-
-                ForWetConditions = false,
-            },
-        };
-
-        public List<Trait> GetTestData()
-        {
-            return _traits;
+            _dbFactory = factory;
         }
 
-        public void CreateTrait(Trait trait)
+        public async Task<List<Trait>> GetTraits()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Trait.ToListAsync();
+        }
+
+        public async Task CreateTrait(Trait trait)
         {
             ValidateTrait(trait);
 
-            _traits.Add(trait);
+            using var context = _dbFactory.CreateDbContext();
+            context.Add(trait);
+
+            await context.SaveChangesAsync();
         }
 
         #region validation

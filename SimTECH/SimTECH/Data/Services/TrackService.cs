@@ -1,36 +1,32 @@
-﻿using SimTECH.Data.Models;
-using SimTECH.Extensions;
+﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
     public class TrackService
     {
-        private readonly List<Track> _tracks = new()
-        {
-            new Track()
-            {
-                Id = 1,
-                Name = "Test",
-                Country = EnumHelper.GetDefaultCountry(),
-                Length = NumberHelper.RandomDouble(2.00, 5.00),
-                State = State.Active,
-                AeroMod = NumberHelper.RandomDouble(0.5, 1.5),
-                ChassisMod = NumberHelper.RandomDouble(0.5, 1.5),
-                PowerMod = NumberHelper.RandomDouble(0.5, 1.5),
-                QualifyingMod = NumberHelper.RandomDouble(0.5, 1.5),
-            },
-        };
+        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
 
-        public List<Track> GetTestNames()
+        public TrackService(IDbContextFactory<SimTechDbContext> factory)
         {
-            return _tracks;
+            _dbFactory = factory;
         }
 
-        public void CreateTrack(Track track)
+        public async Task<List<Track>> GetTracks()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Track.ToListAsync();
+        }
+
+        public async Task CreateTrack(Track track)
         {
             ValidateTrack(track);
 
-            _tracks.Add(track);
+            using var context = _dbFactory.CreateDbContext();
+            context.Add(track);
+
+            await context.SaveChangesAsync();
         }
 
         #region validation

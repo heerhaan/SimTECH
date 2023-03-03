@@ -7,10 +7,10 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@editLeague">
+        <MudForm Model="@model">
             <MudCard>
                 <MudCardContent>
-                    <MudTextField T="string" @bind-Value="editLeague.Name" Label="Name" />
+                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
                 </MudCardContent>
             </MudCard>
         </MudForm>
@@ -28,7 +28,7 @@
     [Parameter]
     public long leagueId { get; set; }
 
-    private EditLeague editLeague = new();
+    private EditLeagueModel model = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -37,17 +37,20 @@
             var leagueObject = await LeagueService.GetLeagueById(leagueId);
 
             if (leagueObject != null)
-                editLeague = new EditLeague(leagueObject);
+                model = new EditLeagueModel(leagueObject);
         }
     }
 
     private async Task Submit()
     {
-        if (editLeague?.IsDirty ?? false)
+        if (model.IsDirty)
         {
-            var modLeague = editLeague.Record;
+            var modLeague = model.Record;
 
-            await LeagueService.CreateLeague(modLeague);
+            if (model.Id == 0)
+                await LeagueService.CreateLeague(modLeague);
+            else
+                await LeagueService.UpdateLeague(modLeague);
 
             LeagueDialog?.Close(DialogResult.Ok(modLeague));
         }

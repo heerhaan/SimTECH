@@ -43,9 +43,9 @@
 @code {
     private List<Team> TeamNames = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        TeamNames = TeamService.GetTestNames();
+        TeamNames = await TeamService.GetTeams();
     }
 
     void ModifyTeam(Team item)
@@ -55,12 +55,12 @@
 
     async Task AddTeam()
     {
-        var dialog = await DialogService.ShowAsync<TeamCreate>("Create a new team");
+        var dialog = await DialogService.ShowAsync<TeamEditor>("Create a new team");
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Team newTeam)
         {
-            TeamNames.Add(newTeam); // Alternatively, re-retrieve TeamNames
+            //TeamNames.Add(newTeam); // Alternatively, re-retrieve TeamNames
         }
     }
 }

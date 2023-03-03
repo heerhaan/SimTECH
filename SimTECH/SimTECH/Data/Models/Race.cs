@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class Race
+    public record Race
     {
         public long Id { get; set; }
         public int Round { get; set; }
