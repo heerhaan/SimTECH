@@ -1,6 +1,4 @@
-﻿@using MudBlazor.Utilities
-
-@inject StrategyService StrategyService
+﻿@inject StrategyService StrategyService
 
 <MudDialog>
     <TitleContent>
@@ -9,32 +7,37 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudGrid Spacing="1">
-            <MudItem xs="9">
+        <MudGrid Spacing="2">
+            <MudItem xs="6">
                 <MudPaper>
-                    <MudDropContainer T="StrategyTyre" Items="_tyresInStrategy" ItemDropped="TyreOrderUpdate">
-                        <ChildContent>
-                            <MudPaper Class="ma-4 flex-grow-1">
-                                <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
-                                    <MudListSubheader>Drop Zone strats</MudListSubheader>
-                                    <MudDropZone T="StrategyTyre" Class="flex-grow-1" AllowReorder="true" />
-                                </MudList>
-                            </MudPaper>
-                        </ChildContent>
-                        <ItemRenderer>
-                            <MudListItem Text="@($"{context.Tyre.Name} ({context.NumberStint})({context.Order})")"></MudListItem>
-                        </ItemRenderer>
-                    </MudDropContainer>
+                    <MudTable Items="@_tyresInStrategy" T="StrategyTyre">
+                        <HeaderContent>
+                            <MudTh>NumberStint</MudTh>
+                            <MudTh>Order</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="NumberStint">@context.NumberStint</MudTd>
+                            <MudTd DataLabel="Order">@context.Order</MudTd>
+                        </RowTemplate>
+                    </MudTable>
                 </MudPaper>
             </MudItem>
-            <MudItem xs="3">
+            <MudItem xs="6">
                 <MudPaper>
-                    <MudList Clickable="true" Color="Color.Success">
-                        @foreach (var tyre in Tyres)
-                        {
-                            <MudListItem Text="@tyre.Name" Value="tyre" OnClick="@((e) => AppendTyreToStrategy(tyre))"></MudListItem>
-                        }
-                    </MudList>
+                    <MudTable Items="Tyres" OnRowClick="AppendTyreToStrategy" T="Tyre">
+                        <HeaderContent>
+                            <MudTh>Tyre</MudTh>
+                            <MudTh>Length</MudTh>
+                            <MudTh>Pace</MudTh>
+                            <MudTh>Wear</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Tyre"><span class="tyre">@context.Name.ElementAt(0)</span></MudTd>
+                            <MudTd DataLabel="Length">@context.Length</MudTd>
+                            <MudTd DataLabel="Pace">@context.Pace</MudTd>
+                            <MudTd DataLabel="Wear">@context.WearMax ↔ @context.WearMin</MudTd>
+                        </RowTemplate>
+                    </MudTable>
                 </MudPaper>
             </MudItem>
         </MudGrid>
@@ -79,11 +82,15 @@
         }
     }
 
-    private void AppendTyreToStrategy(Tyre tyre)
+    private void AppendTyreToStrategy(TableRowClickEventArgs<Tyre> rowClickEvent)
     {
+        Tyre tyre = rowClickEvent.Item;
+
+        lastStintNumber += tyre.Length;
+
         var appendedStrategyTyre = new StrategyTyre
         {
-            NumberStint = lastStintNumber + tyre.Length,
+            NumberStint = lastStintNumber,
             TyreId = tyre.Id,
             Tyre = tyre
         };
@@ -91,9 +98,9 @@
         _tyresInStrategy.Add(appendedStrategyTyre);
     }
 
-    private void TyreOrderUpdate(MudItemDropInfo<StrategyTyre> droppedTyre)
+    private void RemoveTyreFromStrategy()
     {
-        _tyresInStrategy.UpdateOrder(droppedTyre, e => e.Order);
+        throw new NotImplementedException();
     }
 
     private async Task Submit()
