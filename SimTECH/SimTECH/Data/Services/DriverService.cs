@@ -1,9 +1,17 @@
-﻿using SimTECH.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
     public class DriverService
     {
+        private IDbContextFactory<SimTechDbContext> _dbFactory;
+
+        public DriverService(IDbContextFactory<SimTechDbContext> factory)
+        {
+            _dbFactory = factory;
+        }
+
         private readonly List<Driver> _drivers = new()
         {
             new Driver()
@@ -46,8 +54,13 @@ namespace SimTECH.Data.Services
             return _drivers;
         }
 
-        public void CreateDriver(Driver driver)
+        public async ValueTask CreateDriver(Driver driver)
         {
+            using var context = _dbFactory.CreateDbContext();
+            context.Add(driver);
+
+            await context.SaveChangesAsync();
+
             _drivers.Add(driver);
         }
     }

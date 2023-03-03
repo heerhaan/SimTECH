@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class Driver
+    public record Driver
     {
         public long Id { get; set; }
         public string FirstName { get; set; } = default!;

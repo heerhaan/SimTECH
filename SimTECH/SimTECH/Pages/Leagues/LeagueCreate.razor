@@ -7,10 +7,10 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@league">
+        <MudForm Model="@editLeague">
             <MudCard>
                 <MudCardContent>
-                    <MudTextField T="string" @bind-Value="league.Name" Label="Name" />
+                    <MudTextField T="string" @bind-Value="editLeague.Name" Label="Name" />
                 </MudCardContent>
             </MudCard>
         </MudForm>
@@ -26,14 +26,31 @@
     protected MudDialogInstance? LeagueDialog { get; set; }
 
     [Parameter]
-    public League league { get; set; } = new();
+    public long leagueId { get; set; }
 
-    private void Submit()
+    private EditLeague editLeague = new();
+
+    protected override async Task OnInitializedAsync()
     {
-        // TODO: Function call just adds it here, but we want to actually store it!
-        LeagueService.CreateLeague(league);
+        if (leagueId != 0)
+        {
+            var leagueObject = await LeagueService.GetLeagueById(leagueId);
 
-        LeagueDialog?.Close(DialogResult.Ok(league));
+            if (leagueObject != null)
+                editLeague = new EditLeague(leagueObject);
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (editLeague?.IsDirty ?? false)
+        {
+            var modLeague = editLeague.Record;
+
+            await LeagueService.CreateLeague(modLeague);
+
+            LeagueDialog?.Close(DialogResult.Ok(modLeague));
+        }
     }
 
     private void Cancel() => LeagueDialog?.Cancel();

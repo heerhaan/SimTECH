@@ -1,9 +1,17 @@
-﻿using SimTECH.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
     public class LeagueService
     {
+        private IDbContextFactory<SimTechDbContext> _dbFactory;
+
+        public LeagueService(IDbContextFactory<SimTechDbContext> factory)
+        {
+            _dbFactory = factory;
+        }
+
         private readonly List<League> _leagues = new()
         {
             new League
@@ -19,8 +27,20 @@ namespace SimTECH.Data.Services
             return _leagues;
         }
 
-        public void CreateLeague(League league)
+        public async Task<League?> GetLeagueById(long leagueId)
         {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.League.FirstOrDefaultAsync(e => e.Id == leagueId);
+        }
+
+        public async ValueTask CreateLeague(League league)
+        {
+            using var context = _dbFactory.CreateDbContext();
+            context.Add(league);
+
+            await context.SaveChangesAsync();
+
             _leagues.Add(league);
         }
     }

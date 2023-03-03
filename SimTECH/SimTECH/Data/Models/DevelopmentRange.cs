@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class DevelopmentRange
+    public record DevelopmentRange
     {
         public long Id { get; set; }
         public RangeType Type { get; set; }
