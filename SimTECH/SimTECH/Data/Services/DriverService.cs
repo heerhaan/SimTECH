@@ -19,6 +19,13 @@ namespace SimTECH.Data.Services
             return await context.Driver.ToListAsync();
         }
 
+        public async Task<Driver?> GetDriverById(long driverId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Driver.FirstOrDefaultAsync(e => e.Id == driverId);
+        }
+
         public async Task CreateDriver(Driver driver)
         {
             using var context = _dbFactory.CreateDbContext();

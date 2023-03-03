@@ -26,15 +26,15 @@
     protected MudDialogInstance? LeagueDialog { get; set; }
 
     [Parameter]
-    public long leagueId { get; set; }
+    public long? leagueId { get; set; }
 
     private EditLeagueModel model = new();
 
     protected override async Task OnInitializedAsync()
     {
-        if (leagueId != 0)
+        if (leagueId.HasValue)
         {
-            var leagueObject = await LeagueService.GetLeagueById(leagueId);
+            var leagueObject = await LeagueService.GetLeagueById(leagueId.Value);
 
             if (leagueObject != null)
                 model = new EditLeagueModel(leagueObject);

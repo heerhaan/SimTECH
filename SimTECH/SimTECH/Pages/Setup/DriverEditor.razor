@@ -8,13 +8,13 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@driver">
-            <MudTextField T="string" @bind-Value="@driver.FirstName" Label="FirstName" />
-            <MudTextField T="string" @bind-Value="@driver.LastName" Label="LastName" />
-            <MudTextField T="string" @bind-Value="@driver.Abbreviation" Label="Abbreviation" />
+        <MudForm Model="@model">
+            <MudTextField T="string" @bind-Value="model.FirstName" Label="FirstName" />
+            <MudTextField T="string" @bind-Value="model.LastName" Label="LastName" />
+            <MudTextField T="string" @bind-Value="model.Abbreviation" Label="Abbreviation" />
             <MudDatePicker @bind-Date="@DateSetter" Label="Date of birth" />
-            <MudCountrySelect @bind-Value="driver.Country" />
-            <MudTextField T="string" @bind-Value="@driver.Biography" Label="Biography" />
+            <MudCountrySelect @bind-Value="model.Country" />
+            <MudTextField T="string" @bind-Value="model.Biography" Label="Biography" />
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -28,22 +28,43 @@
     protected MudDialogInstance? DriverDialog { get; set; }
 
     [Parameter]
-    public Driver driver { get; set; } = new Driver();
+    public long? driverId { get; set; }
+
+    private EditDriverModel model = new();
 
     private DateTime? DateSetter { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        DateSetter = driver.DateOfBirth;
+        if (driverId.HasValue)
+        {
+            var driverObj = await DriverService.GetDriverById(driverId.Value);
+
+            if (driverObj != null)
+            {
+                model = new EditDriverModel(driverObj);
+
+                DateSetter = driverObj.DateOfBirth;
+            }
+        }
     }
 
     private async Task Submit()
     {
         // TODO: Function call just adds it here, but we want to actually store it!
-        driver.DateOfBirth = DateSetter.GetValueOrDefault();
-        await DriverService.CreateDriver(driver);
+        model.DateOfBirth = DateSetter.GetValueOrDefault();
 
-        DriverDialog?.Close(DialogResult.Ok(driver));
+        if (model.IsDirty)
+        {
+            var modDriver = model.Record;
+
+            if (model.Id == 0)
+                await DriverService.CreateDriver(modDriver);
+            else
+                await DriverService.UpdateDriver(modDriver);
+
+            DriverDialog?.Close(DialogResult.Ok(modDriver));
+        }
     }
 
     private void Cancel() => DriverDialog?.Cancel();
