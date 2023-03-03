@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SimTECH.Migrations
 {
     /// <inheritdoc />
-    public partial class initialmigration : Migration
+    public partial class Initial_Migration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -468,7 +468,7 @@ namespace SimTECH.Migrations
                         column: x => x.SeasonId,
                         principalTable: "Season",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -536,7 +536,7 @@ namespace SimTECH.Migrations
                         column: x => x.SeasonId,
                         principalTable: "Season",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_SeasonTeam_Team_TeamId",
                         column: x => x.TeamId,
@@ -581,7 +581,7 @@ namespace SimTECH.Migrations
                         column: x => x.SeasonId,
                         principalTable: "Season",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -680,7 +680,7 @@ namespace SimTECH.Migrations
                         column: x => x.StintId,
                         principalTable: "Stint",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(

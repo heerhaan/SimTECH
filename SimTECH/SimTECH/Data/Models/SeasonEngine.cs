@@ -3,7 +3,7 @@
     public class SeasonEngine
     {
         public long Id { get; set; }
-        public string Name { get; set; } = null!;
+        public string Name { get; set; } = default!;
         public int Power { get; set; }
         public int Reliability { get; set; }
         public bool Rebadged { get; set; }

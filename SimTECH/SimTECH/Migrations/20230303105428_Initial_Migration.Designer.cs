@@ -12,8 +12,8 @@ using SimTECH.Data;
 namespace SimTECH.Migrations
 {
     [DbContext(typeof(SimTechDbContext))]
-    [Migration("20230302171146_initial-migration")]
-    partial class initialmigration
+    [Migration("20230303105428_Initial_Migration")]
+    partial class Initial_Migration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1081,7 +1081,7 @@ namespace SimTECH.Migrations
                     b.HasOne("SimTECH.Data.Models.Season", "Season")
                         .WithMany("SeasonDrivers")
                         .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SimTECH.Data.Models.SeasonTeam", "SeasonTeam")
@@ -1108,7 +1108,7 @@ namespace SimTECH.Migrations
                     b.HasOne("SimTECH.Data.Models.Season", "Season")
                         .WithMany("SeasonEngines")
                         .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Engine");
@@ -1133,7 +1133,7 @@ namespace SimTECH.Migrations
                     b.HasOne("SimTECH.Data.Models.Season", "Season")
                         .WithMany("SeasonTeams")
                         .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SimTECH.Data.Models.Team", "Team")
@@ -1173,7 +1173,7 @@ namespace SimTECH.Migrations
                     b.HasOne("SimTECH.Data.Models.Stint", "Stint")
                         .WithMany("StintResults")
                         .HasForeignKey("StintId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Result");

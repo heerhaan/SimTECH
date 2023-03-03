@@ -13,6 +13,10 @@ namespace SimTECH.Data.Configurations
             builder.Property(e => e.Name)
                 .HasColumnType("nvarchar(200)")
                 .IsRequired();
+
+            builder.HasOne(e => e.Season)
+                .WithMany(e => e.SeasonEngines)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

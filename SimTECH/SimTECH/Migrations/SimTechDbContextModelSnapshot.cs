@@ -1078,7 +1078,7 @@ namespace SimTECH.Migrations
                     b.HasOne("SimTECH.Data.Models.Season", "Season")
                         .WithMany("SeasonDrivers")
                         .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SimTECH.Data.Models.SeasonTeam", "SeasonTeam")
@@ -1105,7 +1105,7 @@ namespace SimTECH.Migrations
                     b.HasOne("SimTECH.Data.Models.Season", "Season")
                         .WithMany("SeasonEngines")
                         .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Engine");
@@ -1130,7 +1130,7 @@ namespace SimTECH.Migrations
                     b.HasOne("SimTECH.Data.Models.Season", "Season")
                         .WithMany("SeasonTeams")
                         .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SimTECH.Data.Models.Team", "Team")
@@ -1170,7 +1170,7 @@ namespace SimTECH.Migrations
                     b.HasOne("SimTECH.Data.Models.Stint", "Stint")
                         .WithMany("StintResults")
                         .HasForeignKey("StintId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Result");

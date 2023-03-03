@@ -27,6 +27,10 @@ namespace SimTECH.Data.Configurations
                 .HasMaxLength(9)
                 .IsFixedLength()
                 .IsRequired();
+
+            builder.HasOne(e => e.Season)
+                .WithMany(e => e.SeasonTeams)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
