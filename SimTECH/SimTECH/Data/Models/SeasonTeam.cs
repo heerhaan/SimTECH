@@ -19,15 +19,16 @@
 
         //public int StandingsGoal { get; set; }
 
-        public IList<SeasonDriver> SeasonDrivers { get; set; } = default!;
-
         public long TeamId { get; set; }
         public Team Team { get; set; } = default!;
+        public long SeasonId { get; set; }
+        public Season Season { get; set; } = default!;
         public long SeasonEngineId { get; set; }
         public SeasonEngine SeasonEngine { get; set; } = default!;
         public long ManufacturerId { get; set; }
         public Manufacturer Manufacturer { get; set; } = default!;
-        public long SeasonId { get; set; }
-        public Season Season { get; set; } = default!;
+
+        public IList<SeasonDriver> SeasonDrivers { get; set; } = default!;
+        public IList<Result> Results { get; set; } = default!;
     }
 }

@@ -9,9 +9,9 @@
         public int RngMin { get; set; }
         public int RngMax { get; set; }
 
-        public IList<StintResult> StintResults { get; set; } = default!;
-
         public long RaceId { get; set; }
         public Race Race { get; set; } = default!;
+
+        public IList<StintResult> StintResults { get; set; } = default!;
     }
 }

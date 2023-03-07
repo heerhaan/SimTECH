@@ -8,11 +8,11 @@
         public int Reliability { get; set; }
         public bool Rebadged { get; set; }
 
-        public IList<SeasonTeam> SeasonTeams { get; set; } = default!;
-
         public long EngineId { get; set; }
         public Engine Engine { get; set; } = default!;
         public long SeasonId { get; set; }
         public Season Season { get; set; } = default!;
+
+        public IList<SeasonTeam> SeasonTeams { get; set; } = default!;
     }
 }

@@ -39,7 +39,7 @@ namespace SimTECH
     public enum TeamRole
     {
         None = 0,
-        Main, Support, Dropped
+        Main, Support
     }
 
     public enum RaceStatus
@@ -53,7 +53,8 @@ namespace SimTECH
     {
         None = 0,
         Damage, Collision, Accident, Puncture,
-        Engine, Electrics, Exhaust, Clutch, Hydraulics, Wheel, Brakes,
+        Engine,
+        Electrics, Exhaust, Clutch, Hydraulics, Wheel, Brakes,
         Illegal, Fuel, Dangerous
     }
 
@@ -68,7 +69,8 @@ namespace SimTECH
     public enum RacerEvent
     {
         Unknown = 0,
-        Racing = 1, DriverDnf = 2, CarDnf = 4, EngineDnf = 8,
+        Racing = 1,
+        DriverDnf = 2, CarDnf = 4, EngineDnf = 8,
         Mistake = 16, Pitstop = 32, Swap = 64
     }
 
