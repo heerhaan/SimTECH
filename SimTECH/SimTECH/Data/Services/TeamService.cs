@@ -26,5 +26,13 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+
+        public async Task UpdateTeam(Team team)
+        {
+            using var context = _dbFactory.CreateDbContext();
+            context.Update(team);
+
+            await context.SaveChangesAsync();
+        }
     }
 }

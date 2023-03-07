@@ -24,7 +24,7 @@
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
             </Column>
-            <Column T="Driver" Field="State" />
+            <Column T="Driver" Field="State" IsEditable="false" />
             <Column T="Driver" Hidden="@(_editMode || _readOnly)" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup>
@@ -77,7 +77,7 @@
 @code {
     private bool _readOnly; // NOTE: Useful if/when app goes public
     private bool _editMode; // NOTE: Need to decide whether editing in-cell is easily possible
-    
+
     private List<Driver> DriverNames = new();
     private List<string> _modifications = new();
 
@@ -98,9 +98,7 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Driver newDriver)
         {
-            _modifications.Insert(0, $"Created object: {System.Text.Json.JsonSerializer.Serialize(newDriver)}");
-
-            // TODO: Handle any changes that should occur when done with the dialog, like refreshing retrieved Drivers
+            DriverNames.Add(newDriver);
         }
     }
 }

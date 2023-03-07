@@ -22,8 +22,15 @@ namespace SimTECH.Data.Services
         public async Task CreateManufacturer(Manufacturer manufacturer)
         {
             using var context = _dbFactory.CreateDbContext();
-
             context.Add(manufacturer);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateManufacturer(Manufacturer manufacturer)
+        {
+            using var context = _dbFactory.CreateDbContext();
+            context.Update(manufacturer);
 
             await context.SaveChangesAsync();
         }

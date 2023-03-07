@@ -29,6 +29,16 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task UpdateTrack(Track track)
+        {
+            ValidateTrack(track);
+
+            using var context = _dbFactory.CreateDbContext();
+            context.Update(track);
+
+            await context.SaveChangesAsync();
+        }
+
         #region validation
 
         private static void ValidateTrack(Track track)

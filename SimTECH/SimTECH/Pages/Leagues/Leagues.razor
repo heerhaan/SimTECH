@@ -10,16 +10,18 @@
         <MudText Typo="Typo.h4">Leagues</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EditLeague">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="League" Items="@leagueData" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyLeague" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+    <MudDataGrid T="League" Items="@leagueData" ReadOnly="@_readOnly" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyLeague"
+        Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.OnRowClick">
         <Columns>
             <Column T="League" Field="Name" />
-            <Column T="League" CellClass="d-flex justify-end">
+            <Column T="League" Field="State" IsEditable="false" />
+            @*<Column T="League" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
                     </MudButtonGroup>
                 </CellTemplate>
-            </Column>
+            </Column>*@
         </Columns>
         <PagerContent>
             <MudDataGridPager T="League" />
@@ -28,6 +30,8 @@
 </MudContainer>
 
 @code {
+    private bool _readOnly = false;
+    
     private List<League> leagueData = new();
 
     protected override async Task OnInitializedAsync()
@@ -36,9 +40,9 @@
     }
 
     // TODO: If you want this modify to work, then use the edit model to display values and output them too
-    void ModifyLeague(League item)
+    async Task ModifyLeague(League item)
     {
-        // TODO: Store edited values
+        await LeagueService.UpdateLeague(item);
     }
 
     async Task EditLeague()
@@ -48,7 +52,7 @@
 
         if (!result.Canceled && result.Data != null && result.Data is League newLeague)
         {
-            //LeagueNames.Add(newLeague);
+            leagueData.Add(newLeague);
         }
     }
 }

@@ -29,6 +29,16 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task UpdateTrait(Trait trait)
+        {
+            ValidateTrait(trait);
+
+            using var context = _dbFactory.CreateDbContext();
+            context.Update(trait);
+
+            await context.SaveChangesAsync();
+        }
+
         #region validation
 
         private static void ValidateTrait(Trait trait)

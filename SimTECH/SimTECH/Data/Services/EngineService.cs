@@ -29,6 +29,14 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task UpdateEngine(Engine engine)
+        {
+            using var context = _dbFactory.CreateDbContext();
+            context.Update(engine);
+
+            await context.SaveChangesAsync();
+        }
+
         #region validation
 
         private static void ValidateEngine(Engine engine)

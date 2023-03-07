@@ -42,11 +42,6 @@ namespace SimTECH.Data
         {
             base.OnModelCreating(builder);
 
-            foreach (var key in builder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
-            {
-                key.DeleteBehavior = DeleteBehavior.Restrict;
-            }
-
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
