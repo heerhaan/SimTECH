@@ -1,6 +1,4 @@
 ﻿@page "/tracks"
-@layout SetupLayout
-
 @inject TrackService TrackService
 @inject IDialogService DialogService
 
@@ -11,26 +9,23 @@
         <MudText Typo="Typo.h4">Tracks</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrack">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="Track" Items="@TrackNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyTrack" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+    <MudDataGrid T="Track" Items="@trackData" ReadOnly="@_readOnly" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyTrack"
+                 Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.OnRowClick">
         <Columns>
             <Column T="Track" Field="Name" />
             <Column T="Track" Field="Country">
                 <CellTemplate>
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
+                <EditTemplate>
+                    <MudCountrySelect @bind-Value="context.Item.Country" />
+                </EditTemplate>
             </Column>
             <Column T="Track" Field="Length" />
             <Column T="Track" Field="AeroMod" />
             <Column T="Track" Field="ChassisMod" />
             <Column T="Track" Field="PowerMod" />
             <Column T="Track" Field="QualifyingMod" />
-            <Column T="Track" CellClass="d-flex justify-end">
-                <CellTemplate>
-                    <MudButtonGroup>
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
-                    </MudButtonGroup>
-                </CellTemplate>
-            </Column>
         </Columns>
         <PagerContent>
             <MudDataGridPager T="Track" />
@@ -39,16 +34,17 @@
 </MudContainer>
 
 @code {
-    private List<Track> TrackNames = new();
+    private bool _readOnly = false;
+    private List<Track> trackData = new();
 
     protected override async Task OnInitializedAsync()
     {
-        TrackNames = await TrackService.GetTracks();
+        trackData = await TrackService.GetTracks();
     }
 
-    void ModifyTrack(Track item)
+    async Task ModifyTrack(Track item)
     {
-        // TODO: Store edited values
+        await TrackService.UpdateTrack(item);
     }
 
     async Task AddTrack()
@@ -58,7 +54,7 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Track newTrack)
         {
-            //TrackNames.Add(newTrack);
+            trackData.Add(newTrack);
         }
     }
 }

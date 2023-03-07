@@ -53,7 +53,11 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Strategy.ToListAsync();
+            // WARNING: Underneath could have a big performance impact, if that seems to be the case then refactor pls
+            return await context.Strategy
+                .Include(e => e.StrategyTyres)
+                .ThenInclude(e => e.Tyre)
+                .ToListAsync();
         }
 
         public async Task CreateStrategy(Strategy strategy)

@@ -10,7 +10,7 @@
         <MudGrid Spacing="2">
             <MudItem xs="6">
                 <MudPaper>
-                    <MudTable Items="@_tyresInStrategy" T="StrategyTyre">
+                    <MudTable T="StrategyTyre" Items="@strategy.StrategyTyres" OnRowClick="RemoveTyreFromStrategy" Hover="true">
                         <HeaderContent>
                             <MudTh>NumberStint</MudTh>
                             <MudTh>Order</MudTh>
@@ -24,7 +24,7 @@
             </MudItem>
             <MudItem xs="6">
                 <MudPaper>
-                    <MudTable Items="Tyres" OnRowClick="AppendTyreToStrategy" T="Tyre">
+                    <MudTable T="Tyre" Items="@Tyres" OnRowClick="AppendTyreToStrategy" Hover="true">
                         <HeaderContent>
                             <MudTh>Tyre</MudTh>
                             <MudTh>Length</MudTh>
@@ -58,27 +58,16 @@
     [Parameter]
     public List<Tyre> Tyres { get; set; } = new();
 
-    private List<StrategyTyre> _tyresInStrategy = new();
     private int lastStintNumber = 0;
 
     protected override void OnInitialized()
     {
-        if (strategy?.StrategyTyres?.Count > 0)
+        if (strategy.StrategyTyres == null)
+            strategy.StrategyTyres = new List<StrategyTyre>();
+
+        if (strategy.StrategyTyres.Count > 0)
         {
-            foreach (var stratTyre in strategy.StrategyTyres)
-            {
-                if (stratTyre.NumberStint > lastStintNumber)
-                    lastStintNumber = stratTyre.NumberStint;
-
-                var tyreMatch = Tyres.Find(e => e.Id == stratTyre.TyreId);
-
-                if (tyreMatch != null)
-                {
-                    stratTyre.Tyre = tyreMatch;
-
-                    _tyresInStrategy.Add(stratTyre);
-                }
-            }
+            lastStintNumber = strategy.StrategyTyres.Max(e => e.NumberStint);
         }
     }
 
@@ -95,16 +84,17 @@
             Tyre = tyre
         };
 
-        _tyresInStrategy.Add(appendedStrategyTyre);
+        strategy.StrategyTyres.Add(appendedStrategyTyre);
     }
 
-    private void RemoveTyreFromStrategy()
+    private void RemoveTyreFromStrategy(TableRowClickEventArgs<StrategyTyre> rowClickEvent)
     {
         throw new NotImplementedException();
     }
 
     private async Task Submit()
     {
+        strategy.StintLength = strategy.StrategyTyres.Sum(e => e.Tyre.Length);
         // TODO: Function call just adds it here, but we want to actually store it!
         await StrategyService.CreateStrategy(strategy);
 
