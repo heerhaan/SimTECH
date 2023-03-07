@@ -1,0 +1,58 @@
+﻿@page "/seasons"
+
+@inject SeasonService SeasonService
+@inject IDialogService DialogService
+
+<PageTitle>Seasons</PageTitle>
+
+<MudContainer>
+    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+        <MudText Typo="Typo.h4">Seasons</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddSeason">New</MudButton>
+    </MudPaper>
+    <MudDataGrid T="Season" Items="@_seasonData" ReadOnly="@_readOnly" EditMode="DataGridEditMode.Form" CommittedItemChanges="ModifySeason"
+                Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.OnRowClick">
+        <Columns>
+            <Column T="Season" Field="Year" />
+            <Column T="Season" Field="State" IsEditable="false" />
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Season" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    private bool _readOnly = false;
+    private List<Season> _seasonData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _seasonData = await SeasonService.GetSeasons();
+    }
+
+    // TODO: If you want this modify to work, then use the edit model to display values and output them too
+    async Task ModifySeason(Season item)
+    {
+        await SeasonService.UpdateSeason(item);
+    }
+
+    async Task AddSeason()
+    {
+        var dialog = await DialogService.ShowAsync<SeasonEditor>("Create a new season");
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Season newSeason)
+        {
+            _seasonData.Add(newSeason);
+        }
+    }
+
+    private class SeasonOverview
+    {
+        public int Year { get; set; }
+
+        // Leading driver
+        // Leading team
+    }
+}

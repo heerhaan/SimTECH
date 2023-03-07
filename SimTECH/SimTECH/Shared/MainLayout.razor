@@ -55,8 +55,7 @@
 
 @code {
     private MudTheme _theme = new();
-
-    private string notification = string.Empty;
+    private string _notification = string.Empty;
     private bool _drawerOpen = true;
     private bool _isDarkTheme = true;
 
@@ -69,6 +68,27 @@
     {
         await SimAuthenticationStateProvider.LogoutAsync();
 
-        notification = "Logged out!";
+        _notification = "Logged out!";
     }
+
+    // TODO: Synth theme is not worked out yet, this exists as a showcase for which theme we're using here
+    private MudTheme defaultTheme = new();
+    private MudTheme synthTheme = new()
+    {
+        Palette = new()
+        {
+            Primary = Colors.DeepPurple.Lighten2,
+            Secondary = Colors.Cyan.Accent2,
+        },
+        PaletteDark = new()
+        {
+            Primary = Colors.DeepPurple.Default,
+            Secondary = Colors.Cyan.Accent2,
+        },
+        LayoutProperties = new()
+        {
+            DrawerWidthLeft = "260px",
+            DrawerWidthRight = "300px"
+        }
+    };
 }

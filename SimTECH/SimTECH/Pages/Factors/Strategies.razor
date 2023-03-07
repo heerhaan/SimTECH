@@ -11,7 +11,7 @@
                 <MudText Typo="Typo.h4">Strategies</MudText>
                 <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddStrategy">New</MudButton>
             </MudPaper>
-            <MudDataGrid T="Strategy" Items="@StrategyNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyStrategy" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+            <MudDataGrid T="Strategy" Items="@strategyNames" EditMode="DataGridEditMode.Form" CommittedItemChanges="ModifyStrategy" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
                 <Columns>
                     <Column T="Strategy" Field="StintLength" />
                     <Column T="Strategy" Title="Tyres">
@@ -20,7 +20,9 @@
                             {
                                 foreach (var strategyTyre in context.Item.StrategyTyres)
                                 {
-                                    <MudElement Class="tyre" Style="border-color:palegreen">A</MudElement>
+                                    <span class="tyre" style="border-color:@(strategyTyre.Tyre.Colour)">
+                                        @strategyTyre.Tyre.Name.ElementAt(0)
+                                    </span>
                                 }
                             }
                             else
@@ -48,10 +50,10 @@
                 <MudText Typo="Typo.h4">Tyres</MudText>
                 <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTyre">New</MudButton>
             </MudPaper>
-            <MudDataGrid T="Tyre" Items="@TyreElements" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyTyre" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+            <MudDataGrid T="Tyre" Items="@tyreItems" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyTyre" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
                 <Columns>
                     <Column T="Tyre" Field="Name" CellStyleFunc="_applyTyreColouring" />
-                    <Column T="Tyre" Field="State" />
+                    <Column T="Tyre" Field="State" IsEditable="false" />
                     <Column T="Tyre" Field="Pace" />
                     <Column T="Tyre" Field="WearMax" />
                     <Column T="Tyre" Field="WearMin" />
@@ -72,13 +74,13 @@
 </MudContainer>
 
 @code {
-    private List<Strategy> StrategyNames = new();
-    private List<Tyre> TyreElements = new();
+    private List<Strategy> strategyNames = new();
+    private List<Tyre> tyreItems = new();
 
     protected override async Task OnInitializedAsync()
     {
-        StrategyNames = await StrategyService.GetStrategies();
-        TyreElements = await StrategyService.GetTyres();
+        strategyNames = await StrategyService.GetStrategies();
+        tyreItems = await StrategyService.GetTyres();
     }
 
     private Func<Tyre, string> _applyTyreColouring => e =>
@@ -95,7 +97,7 @@
     {
         var parameters = new DialogParameters
         {
-            ["Tyres"] = TyreElements
+            ["Tyres"] = tyreItems
         };
 
         var dialog = await DialogService.ShowAsync<StrategyEditor>("Create a new strategy", parameters);
@@ -103,7 +105,7 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Strategy newStrategy)
         {
-            StrategyNames.Add(newStrategy);
+            strategyNames.Add(newStrategy);
         }
     }
 

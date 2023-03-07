@@ -72,9 +72,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            var tyres = await context.Tyre.ToListAsync();
-
-            return _tyres;
+            return await context.Tyre.ToListAsync();
         }
 
         public async Task CreateTyre(Tyre tyre)

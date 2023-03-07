@@ -12,12 +12,16 @@
                 <MudPaper>
                     <MudTable T="StrategyTyre" Items="@strategy.StrategyTyres" OnRowClick="RemoveTyreFromStrategy" Hover="true">
                         <HeaderContent>
-                            <MudTh>NumberStint</MudTh>
-                            <MudTh>Order</MudTh>
+                            <MudTh>Tyre</MudTh>
+                            <MudTh>Apply in Stint Nr.</MudTh>
                         </HeaderContent>
                         <RowTemplate>
+                            <MudTd DataLabel="Tyre">
+                                <span class="tyre" style="border-color:@(context.Tyre.Colour)">
+                                    @context.Tyre.Name.ElementAt(0)
+                                </span>
+                                </MudTd>
                             <MudTd DataLabel="NumberStint">@context.NumberStint</MudTd>
-                            <MudTd DataLabel="Order">@context.Order</MudTd>
                         </RowTemplate>
                     </MudTable>
                 </MudPaper>
@@ -32,7 +36,9 @@
                             <MudTh>Wear</MudTh>
                         </HeaderContent>
                         <RowTemplate>
-                            <MudTd DataLabel="Tyre"><span class="tyre">@context.Name.ElementAt(0)</span></MudTd>
+                            <MudTd DataLabel="Tyre">
+                                <span class="tyre" style="border-color:@(context.Colour)">@context.Name.ElementAt(0)</span>
+                            </MudTd>
                             <MudTd DataLabel="Length">@context.Length</MudTd>
                             <MudTd DataLabel="Pace">@context.Pace</MudTd>
                             <MudTd DataLabel="Wear">@context.WearMax ↔ @context.WearMin</MudTd>
@@ -75,8 +81,6 @@
     {
         Tyre tyre = rowClickEvent.Item;
 
-        lastStintNumber += tyre.Length;
-
         var appendedStrategyTyre = new StrategyTyre
         {
             NumberStint = lastStintNumber,
@@ -84,12 +88,18 @@
             Tyre = tyre
         };
 
+        lastStintNumber += tyre.Length;
+
         strategy.StrategyTyres.Add(appendedStrategyTyre);
     }
 
     private void RemoveTyreFromStrategy(TableRowClickEventArgs<StrategyTyre> rowClickEvent)
     {
-        throw new NotImplementedException();
+        StrategyTyre strategyTyre = rowClickEvent.Item;
+
+        lastStintNumber -= strategyTyre.Tyre.Length;
+
+        strategy.StrategyTyres.Remove(strategyTyre);
     }
 
     private async Task Submit()
