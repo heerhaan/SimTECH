@@ -1,5 +1,5 @@
 ﻿@page "/seasons"
-
+@inject NavigationManager Nav
 @inject SeasonService SeasonService
 @inject IDialogService DialogService
 
@@ -8,13 +8,19 @@
 <MudContainer>
     <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
         <MudText Typo="Typo.h4">Seasons</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddSeason">New</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="NewSeason">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="Season" Items="@_seasonData" ReadOnly="@_readOnly" EditMode="DataGridEditMode.Form" CommittedItemChanges="ModifySeason"
-                Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.OnRowClick">
+    <MudDataGrid T="Season" Items="@_seasonData" Bordered="true" Dense="true">
         <Columns>
             <Column T="Season" Field="Year" />
             <Column T="Season" Field="State" IsEditable="false" />
+            <Column T="Season" CellClass="d-flex justify end">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.ContentCopy" @* OnClick="CopySeason(context.Item)" *@ />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </Column>
         </Columns>
         <PagerContent>
             <MudDataGridPager T="Season" />
@@ -31,21 +37,20 @@
         _seasonData = await SeasonService.GetSeasons();
     }
 
-    // TODO: If you want this modify to work, then use the edit model to display values and output them too
-    async Task ModifySeason(Season item)
+    async Task NewSeason()
     {
-        await SeasonService.UpdateSeason(item);
-    }
-
-    async Task AddSeason()
-    {
-        var dialog = await DialogService.ShowAsync<SeasonEditor>("Create a new season");
+        var dialog = await DialogService.ShowAsync<SeasonConfirm>("Create a new season");
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Season newSeason)
         {
-            _seasonData.Add(newSeason);
+            Nav.NavigateTo($"/overview/{newSeason.Id}");
         }
+    }
+
+    void CopySeason(Season season)
+    {
+        // NOTE: same as new but then with the settings copied
     }
 
     private class SeasonOverview

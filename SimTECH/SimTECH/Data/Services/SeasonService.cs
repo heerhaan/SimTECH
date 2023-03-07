@@ -16,7 +16,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Season.ToListAsync();
+            return await context.Season.Include(e => e.PointAllotments).ToListAsync();
         }
 
         public async Task CreateSeason(Season season)

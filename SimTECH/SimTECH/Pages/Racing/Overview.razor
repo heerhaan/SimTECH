@@ -1,0 +1,18 @@
+﻿@page "/overview/{SeasonId:long}"
+
+<PageTitle>Overview</PageTitle>
+
+<MudButtonGroup Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Large" Class="ma-10">
+    <MudButton Href="/drivers">Drivers</MudButton>
+</MudButtonGroup>
+
+<MudTabs Outlined="true">
+    <MudTabPanel>
+        <Calendar SeasonId="SeasonId" />
+    </MudTabPanel>
+</MudTabs>
+
+@code {
+    [Parameter]
+    public long SeasonId { get; set; } = 0;
+}

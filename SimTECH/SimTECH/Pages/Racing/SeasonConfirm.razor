@@ -1,0 +1,29 @@
+﻿@inject SeasonService SeasonService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>Are you sure you want to create a new season with these settings?</MudText>
+    </TitleContent>
+    <DialogContent>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected MudDialogInstance? SeasonDialog { get; set; }
+
+    [Parameter]
+    public Season? Season { get; set; }
+
+    private async Task Submit()
+    {
+        SeasonDialog?.Close(DialogResult.Ok(Season));
+    }
+
+    private void Cancel() => SeasonDialog?.Cancel();
+}
