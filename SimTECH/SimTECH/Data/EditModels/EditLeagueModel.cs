@@ -24,9 +24,10 @@ namespace SimTECH.Data.EditModels
             Id = league.Id;
             Name = league.Name;
             State = league.State;
-            DevelopmentRanges = league.DevelopmentRanges
+            DevelopmentRanges = league.DevelopmentRanges?
                 .Select(range => new EditDevRangeModel(range))
-                .ToList();
+                .ToList()
+                ?? new List<EditDevRangeModel>();
 
             _league = league;
         }

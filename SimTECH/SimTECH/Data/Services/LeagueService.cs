@@ -26,18 +26,14 @@ namespace SimTECH.Data.Services
             return await context.League.FirstOrDefaultAsync(e => e.Id == leagueId);
         }
 
-        public async Task CreateLeague(League league)
-        {
-            using var context = _dbFactory.CreateDbContext();
-            context.Add(league);
-
-            await context.SaveChangesAsync();
-        }
-
         public async Task UpdateLeague(League league)
         {
             using var context = _dbFactory.CreateDbContext();
-            context.Update(league);
+
+            if (league.Id == 0)
+                context.Add(league);
+            else
+                context.Update(league);
 
             await context.SaveChangesAsync();
         }

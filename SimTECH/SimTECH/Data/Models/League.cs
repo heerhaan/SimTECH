@@ -11,8 +11,8 @@
 
         // TODO: Consider adding minimum and maximum values for skill, reliability, team, etc...
 
-        public IList<DevelopmentRange> DevelopmentRanges { get; set; } = default!;
-        public IList<Season> Seasons { get; set; } = default!;
-        public IList<Contract> Contracts { get; set; } = default!;
+        public IList<DevelopmentRange>? DevelopmentRanges { get; set; }
+        public IList<Season>? Seasons { get; set; }
+        public IList<Contract>? Contracts { get; set; }
     }
 }

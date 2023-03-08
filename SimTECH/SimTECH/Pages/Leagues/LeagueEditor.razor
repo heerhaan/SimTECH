@@ -1,6 +1,4 @@
-﻿@inject LeagueService LeagueService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>Add new league</MudText>
     </TitleContent>
@@ -8,39 +6,10 @@
         <MudForm Model="@model">
             <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
             @* NOTE: Editable range table could deserve it's own file *@
-            <MudTable Items="@model.DevelopmentRanges">
-                <HeaderContent>
-                    <MudTh>Type</MudTh>
-                    <MudTh>Comparer</MudTh>
-                    <MudTh>Minimum</MudTh>
-                    <MudTh>Maximum</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Type">@context.Type</MudTd>
-                    <MudTd DataLabel="Comparer">@context.Comparer</MudTd>
-                    <MudTd DataLabel="Minimum">@context.Minimum</MudTd>
-                    <MudTd DataLabel="Maximum">@context.Maximum</MudTd>
-                </RowTemplate>
-                <RowEditingTemplate>
-                    <MudTd DataLabel="Type">Type</MudTd>
-                    <MudTd DataLabel="Comparer">
-                        <MudNumericField @bind-Value="@context.Comparer" Required />
-                    </MudTd>
-                    <MudTd DataLabel="Minimum">
-                        <MudNumericField @bind-Value="@context.Minimum" Required />
-                    </MudTd>
-                    <MudTd DataLabel="Maximum">
-                        <MudNumericField @bind-Value="@context.Maximum" Required />
-                    </MudTd>
-                </RowEditingTemplate>
-                <FooterContent>
-                    <MudTFootRow>
-                        <MudTd>
-                            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendSkillRangeRow"></MudIconButton>
-                        </MudTd>
-                    </MudTFootRow>
-                </FooterContent>
-            </MudTable>
+            <RangeInput Items="_skillRanges" RangeType="RangeType.Skill">Skill</RangeInput>
+            <RangeInput Items="_ageRanges" RangeType="RangeType.Age">Age</RangeInput>
+            <RangeInput Items="_teamRanges" RangeType="RangeType.Team">Team</RangeInput>
+            <RangeInput Items="_engineRanges" RangeType="RangeType.Engine">Engine</RangeInput>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -54,22 +23,25 @@
     protected MudDialogInstance? LeagueDialog { get; set; }
 
     [Parameter]
-    public long? leagueId { get; set; }
+    public League? League { get; set; }
 
     private EditLeagueModel model = new();
+    private List<EditDevRangeModel> _skillRanges = new();
+    private List<EditDevRangeModel> _ageRanges = new();
+    private List<EditDevRangeModel> _teamRanges = new();
+    private List<EditDevRangeModel> _engineRanges = new();
 
     //private string[] dropZones = new[] { "Skill", "Age", "Team", "Engine" };
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        if (leagueId.HasValue)
+        if (League != null)
         {
-            var leagueObject = await LeagueService.GetLeagueById(leagueId.Value);
-
-            if (leagueObject != null)
-            {
-                model = new EditLeagueModel(leagueObject);
-            }
+            model = new EditLeagueModel(League);
+            _skillRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Skill).ToList();
+            _ageRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Age).ToList();
+            _teamRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Team).ToList();
+            _engineRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Engine).ToList();
         }
     }
 
@@ -81,22 +53,25 @@
                 Comparer = 1,
                 Minimum = -2,
                 Maximum = 2,
-                LeagueId = leagueId.GetValueOrDefault()
+                LeagueId = model.Id
             };
 
         model.DevelopmentRanges.Add(newRange);
     }
 
-    private async Task Submit()
+    private void Submit()
     {
+        var allRanges = new List<EditDevRangeModel>();
+        allRanges.AddRange(_skillRanges);
+        allRanges.AddRange(_ageRanges);
+        allRanges.AddRange(_teamRanges);
+        allRanges.AddRange(_engineRanges);
+
+        model.DevelopmentRanges = allRanges;
+
         if (model.IsDirty)
         {
             var modLeague = model.Record;
-
-            if (model.Id == 0)
-                await LeagueService.CreateLeague(modLeague);
-            else
-                await LeagueService.UpdateLeague(modLeague);
 
             LeagueDialog?.Close(DialogResult.Ok(modLeague));
         }
