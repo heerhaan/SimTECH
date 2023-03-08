@@ -2,17 +2,45 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText>
-            Add new league
-        </MudText>
+        <MudText>Add new league</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm Model="@model">
-            <MudCard>
-                <MudCardContent>
-                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
-                </MudCardContent>
-            </MudCard>
+            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+            @* NOTE: Editable range table could deserve it's own file *@
+            <MudTable Items="@model.DevelopmentRanges">
+                <HeaderContent>
+                    <MudTh>Type</MudTh>
+                    <MudTh>Comparer</MudTh>
+                    <MudTh>Minimum</MudTh>
+                    <MudTh>Maximum</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Type">@context.Type</MudTd>
+                    <MudTd DataLabel="Comparer">@context.Comparer</MudTd>
+                    <MudTd DataLabel="Minimum">@context.Minimum</MudTd>
+                    <MudTd DataLabel="Maximum">@context.Maximum</MudTd>
+                </RowTemplate>
+                <RowEditingTemplate>
+                    <MudTd DataLabel="Type">Type</MudTd>
+                    <MudTd DataLabel="Comparer">
+                        <MudNumericField @bind-Value="@context.Comparer" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Minimum">
+                        <MudNumericField @bind-Value="@context.Minimum" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Maximum">
+                        <MudNumericField @bind-Value="@context.Maximum" Required />
+                    </MudTd>
+                </RowEditingTemplate>
+                <FooterContent>
+                    <MudTFootRow>
+                        <MudTd>
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendSkillRangeRow"></MudIconButton>
+                        </MudTd>
+                    </MudTFootRow>
+                </FooterContent>
+            </MudTable>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -30,6 +58,8 @@
 
     private EditLeagueModel model = new();
 
+    //private string[] dropZones = new[] { "Skill", "Age", "Team", "Engine" };
+
     protected override async Task OnInitializedAsync()
     {
         if (leagueId.HasValue)
@@ -37,8 +67,24 @@
             var leagueObject = await LeagueService.GetLeagueById(leagueId.Value);
 
             if (leagueObject != null)
+            {
                 model = new EditLeagueModel(leagueObject);
+            }
         }
+    }
+
+    private void AppendSkillRangeRow()
+    {
+        var newRange = new EditDevRangeModel
+            {
+                Type = RangeType.Skill,
+                Comparer = 1,
+                Minimum = -2,
+                Maximum = 2,
+                LeagueId = leagueId.GetValueOrDefault()
+            };
+
+        model.DevelopmentRanges.Add(newRange);
     }
 
     private async Task Submit()
