@@ -14,10 +14,12 @@
 
 <MudLayout>
     <MudAppBar Elevation="1" Dense="true">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Tertiary" Edge="Edge.Start" OnClick="@ToggleSidebar" />
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Primary" Edge="Edge.Start" OnClick="ToggleSidebar" />
         <MudText>> [Current league]</MudText>
         <MudSpacer />
-        <MudSwitch @bind-Checked="@_isDarkTheme" Color="Color.Primary" T="bool" Label="Light/Dark"></MudSwitch>
+        <MudToggleIconButton @bind-Toggled="@_isDarkTheme"
+            Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
+            ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Tertiary" ToggledTitle="Dark" />
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <!-- HINT: Following menu is good for user settings -->
             <ActivatorContent>
