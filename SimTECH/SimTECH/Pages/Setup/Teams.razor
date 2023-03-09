@@ -9,13 +9,21 @@
         <MudText Typo="Typo.h4">Teams</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTeam">New</MudButton>
     </MudContainer>
-    <MudDataGrid Items="@TeamNames">
+    <MudDataGrid T="Team" Items="@TeamNames">
         <Columns>
             <HierarchyColumn T="Team" />
             <Column T="Team" Field="Name" />
             <Column T="Team" Field="Country">
                 <CellTemplate>
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
+                </CellTemplate>
+            </Column>
+            <Column T="Team" Field="State"></Column>
+            <Column T="Team" CellClass="d-flex justify-end">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeam(context.Item))" />
+                    </MudButtonGroup>
                 </CellTemplate>
             </Column>
         </Columns>
@@ -46,19 +54,18 @@
         TeamNames = await TeamService.GetTeams();
     }
 
-    void ModifyTeam(Team item)
+    async Task AddTeam() => await UpdateTeam(new Team());
+    async Task UpdateTeam(Team item)
     {
-        // TODO: Store changes that have been made
-    }
+        var parameters = new DialogParameters { ["Team"] = item };
 
-    async Task AddTeam()
-    {
-        var dialog = await DialogService.ShowAsync<TeamEditor>("Create a new team");
+        var dialog = await DialogService.ShowAsync<TeamEditor>("Modify team", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Team newTeam)
+        if (!result.Canceled && result.Data != null && result.Data is Team updatedItem)
         {
-            //TeamNames.Add(newTeam); // Alternatively, re-retrieve TeamNames
+            await TeamService.UpdateTeam(updatedItem);
+            TeamNames = await TeamService.GetTeams();
         }
     }
 }

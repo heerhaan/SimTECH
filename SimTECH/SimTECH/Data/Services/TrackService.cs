@@ -19,22 +19,16 @@ namespace SimTECH.Data.Services
             return await context.Track.ToListAsync();
         }
 
-        public async Task CreateTrack(Track track)
-        {
-            ValidateTrack(track);
-
-            using var context = _dbFactory.CreateDbContext();
-            context.Add(track);
-
-            await context.SaveChangesAsync();
-        }
-
         public async Task UpdateTrack(Track track)
         {
             ValidateTrack(track);
 
             using var context = _dbFactory.CreateDbContext();
-            context.Update(track);
+
+            if (track.Id == 0)
+                context.Add(track);
+            else
+                context.Update(track);
 
             await context.SaveChangesAsync();
         }

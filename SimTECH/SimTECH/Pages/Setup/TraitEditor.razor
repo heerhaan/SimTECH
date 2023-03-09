@@ -1,35 +1,32 @@
-﻿@inject TraitService TraitService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
-        <MudText>
-            Add new trait
-        </MudText>
+        <MudText>Modify</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@trait">
-            <MudTextField T="string" @bind-Value="trait.Name" Label="Name" />
-            <MudTextField T="string" @bind-Value="trait.Description" Label="Description" />
-            <MudSelect T="Entrant" @bind-Value="trait.Type" Label="Entrant type" Variant="Variant.Outlined">
+        <MudForm Model="@model">
+            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+            <MudTextField T="string" @bind-Value="model.Description" Label="Description" />
+
+            <MudSelect T="Entrant" @bind-Value="model.Type" Label="Entrant type" Variant="Variant.Outlined">
                 @foreach (var entrant in EnumHelper.RetrieveEntrantDict())
                 {
                     <MudSelectItem Value="@entrant.Key">@entrant.Value</MudSelectItem>
                 }
             </MudSelect>
 
-            <MudNumericField T="int" @bind-Value="trait.QualifyingPace" Label="QualifyingPace" />
-            <MudNumericField T="int" @bind-Value="trait.DriverPace" Label="DriverPace" />
-            <MudNumericField T="int" @bind-Value="trait.CarPace" Label="CarPace" />
-            <MudNumericField T="int" @bind-Value="trait.EnginePace" Label="EnginePace" />
-            <MudNumericField T="int" @bind-Value="trait.DriverReliability" Label="DriverReliability" />
-            <MudNumericField T="int" @bind-Value="trait.CarReliability" Label="CarReliability" />
-            <MudNumericField T="int" @bind-Value="trait.EngineReliability" Label="EngineReliability" />
-            <MudNumericField T="int" @bind-Value="trait.WearMax" Label="WearMax" />
-            <MudNumericField T="int" @bind-Value="trait.WearMin" Label="WearMin" />
-            <MudNumericField T="int" @bind-Value="trait.RngMin" Label="RngMin" />
-            <MudNumericField T="int" @bind-Value="trait.RngMax" Label="RngMax" />
+            <MudNumericField T="int" @bind-Value="model.QualifyingPace" Label="QualifyingPace" />
+            <MudNumericField T="int" @bind-Value="model.DriverPace" Label="DriverPace" />
+            <MudNumericField T="int" @bind-Value="model.CarPace" Label="CarPace" />
+            <MudNumericField T="int" @bind-Value="model.EnginePace" Label="EnginePace" />
+            <MudNumericField T="int" @bind-Value="model.DriverReliability" Label="DriverReliability" />
+            <MudNumericField T="int" @bind-Value="model.CarReliability" Label="CarReliability" />
+            <MudNumericField T="int" @bind-Value="model.EngineReliability" Label="EngineReliability" />
+            <MudNumericField T="int" @bind-Value="model.WearMax" Label="WearMax" />
+            <MudNumericField T="int" @bind-Value="model.WearMin" Label="WearMin" />
+            <MudNumericField T="int" @bind-Value="model.RngMin" Label="RngMin" />
+            <MudNumericField T="int" @bind-Value="model.RngMax" Label="RngMax" />
 
-            <MudCheckBox @bind-Checked="trait.ForWetConditions" Label="Only during wet conditions" Color="Color.Tertiary" />
+            <MudCheckBox @bind-Checked="model.ForWetConditions" Label="Only during wet conditions" Color="Color.Tertiary" />
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -43,14 +40,23 @@
     protected MudDialogInstance? TraitDialog { get; set; }
 
     [Parameter]
-    public Trait trait { get; set; } = new();
+    public Trait? Trait { get; set; }
 
-    private async Task Submit()
+    private EditTraitModel model = new();
+
+    protected override void OnInitialized()
     {
-        // TODO: Function call just adds it here, but we want to actually store it!
-        await TraitService.CreateTrait(trait);
+        if (Trait != null)
+            model = new EditTraitModel(Trait);
+    }
 
-        TraitDialog?.Close(DialogResult.Ok(trait));
+    private void Submit()
+    {
+        if (model.IsDirty)
+        {
+            var modTrait = model.Record;
+            TraitDialog?.Close(DialogResult.Ok(modTrait));
+        }
     }
 
     private void Cancel() => TraitDialog?.Cancel();

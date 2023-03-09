@@ -1,16 +1,14 @@
-﻿@inject TeamService TeamService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>
             Create new team
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@team">
-            <MudTextField T="string" @bind-Value="@team.Name" Label="Name" />
-            <MudCountrySelect @bind-Value="team.Country" />
-            <MudTextField T="string" @bind-Value="@team.Biography" Label="Biography" />
+        <MudForm Model="@model">
+            <MudTextField T="string" @bind-Value="@model.Name" Label="Name" />
+            <MudCountrySelect @bind-Value="model.Country" />
+            <MudTextField T="string" @bind-Value="@model.Biography" Label="Biography" />
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -24,14 +22,23 @@
     protected MudDialogInstance? TeamDialog { get; set; }
 
     [Parameter]
-    public Team team { get; set; } = new();
+    public Team? Team { get; set; }
 
-    private async Task Submit()
+    private EditTeamModel model = new();
+
+    protected override void OnInitialized()
     {
-        // TODO: Function call just adds it here, but we want to actually store it!
-        await TeamService.CreateTeam(team);
+        if (Team != null)
+            model = new EditTeamModel(Team);
+    }
 
-        TeamDialog?.Close(DialogResult.Ok(team));
+    private void Submit()
+    {
+        if (model.IsDirty)
+        {
+            var modTeam = model.Record;
+            TeamDialog?.Close(DialogResult.Ok(modTeam));
+        }
     }
 
     private void Cancel() => TeamDialog?.Cancel();

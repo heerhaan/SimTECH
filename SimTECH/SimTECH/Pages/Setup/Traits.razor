@@ -9,16 +9,18 @@
         <MudText Typo="Typo.h4">Traits</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrait">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="Trait" Items="TraitNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyTrait" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
+    <MudDataGrid T="Trait" Items="TraitNames" Bordered="true" Dense="true">
         <Columns>
             <HierarchyColumn T="Trait" />
             <Column T="Trait" Field="Name" />
+            <Column T="Trait" Field="Description" />
             <Column T="Trait" Field="Type" />
             <Column T="Trait" Field="ForWetConditions" />
+            <Column T="Trait" Field="State" />
             <Column T="Trait" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup>
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="context.Actions.StartEditingItem" />
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrait(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </Column>
@@ -112,19 +114,18 @@
         TraitNames = await TraitService.GetTraits();
     }
 
-    void ModifyTrait(Trait item)
+    async Task AddTrait() => await UpdateTrait(new Trait());
+    async Task UpdateTrait(Trait item)
     {
-        // TODO: Store edited values
-    }
+        var parameters = new DialogParameters { ["Trait"] = item };
 
-    async Task AddTrait()
-    {
-        var dialog = await DialogService.ShowAsync<TraitEditor>("Create a new trait");
+        var dialog = await DialogService.ShowAsync<TraitEditor>("Modify trait", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Trait newTrait)
+        if (!result.Canceled && result.Data != null && result.Data is Trait updatedItem)
         {
-            //TraitNames.Add(newTrait);
+            await TraitService.UpdateTrait(updatedItem);
+            TraitNames = await TraitService.GetTraits();
         }
     }
 }

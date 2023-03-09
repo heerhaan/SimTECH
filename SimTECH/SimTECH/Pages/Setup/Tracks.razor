@@ -9,28 +9,39 @@
         <MudText Typo="Typo.h4">Tracks</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrack">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="Track" Items="@trackData" ReadOnly="@_readOnly" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyTrack"
-                 Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.OnRowClick">
-        <Columns>
-            <Column T="Track" Field="Name" />
-            <Column T="Track" Field="Country">
-                <CellTemplate>
-                    <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
-                </CellTemplate>
-                <EditTemplate>
-                    <MudCountrySelect @bind-Value="context.Item.Country" />
-                </EditTemplate>
-            </Column>
-            <Column T="Track" Field="Length" />
-            <Column T="Track" Field="AeroMod" />
-            <Column T="Track" Field="ChassisMod" />
-            <Column T="Track" Field="PowerMod" />
-            <Column T="Track" Field="QualifyingMod" />
-        </Columns>
+    <MudTable Items="@trackData" ReadOnly="@_readOnly" Bordered="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Country</MudTh>
+            <MudTh>Length</MudTh>
+            <MudTh>AeroMod</MudTh>
+            <MudTh>ChassisMod</MudTh>
+            <MudTh>PowerMod</MudTh>
+            <MudTh>QualifyingMod</MudTh>
+            <MudTh>State</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>
+                <CountryFlag Code="@context.Country" Size="FlagSize.Small" IncludeName="true" />
+            </MudTd>
+            <MudTd>@context.Length</MudTd>
+            <MudTd>@context.AeroMod</MudTd>
+            <MudTd>@context.ChassisMod</MudTd>
+            <MudTd>@context.PowerMod</MudTd>
+            <MudTd>@context.QualifyingMod</MudTd>
+            <MudTd>@context.State</MudTd>
+            <MudTd Class="d-flex justify-end">
+                <MudButtonGroup>
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrack(context))" />
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
         <PagerContent>
             <MudDataGridPager T="Track" />
         </PagerContent>
-    </MudDataGrid>
+    </MudTable>
 </MudContainer>
 
 @code {
@@ -42,19 +53,18 @@
         trackData = await TrackService.GetTracks();
     }
 
-    async Task ModifyTrack(Track item)
+    async Task AddTrack() => await UpdateTrack(new Track());
+    async Task UpdateTrack(Track item)
     {
-        await TrackService.UpdateTrack(item);
-    }
+        var parameters = new DialogParameters { ["Track"] = item };
 
-    async Task AddTrack()
-    {
-        var dialog = await DialogService.ShowAsync<TrackEditor>("Create a new track");
+        var dialog = await DialogService.ShowAsync<TrackEditor>("Modify track", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Track newTrack)
+        if (!result.Canceled && result.Data != null && result.Data is Track updatedItem)
         {
-            trackData.Add(newTrack);
+            await TrackService.UpdateTrack(updatedItem);
+            trackData = await TrackService.GetTracks();
         }
     }
 }

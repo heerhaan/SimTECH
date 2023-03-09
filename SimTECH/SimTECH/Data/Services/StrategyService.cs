@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
@@ -6,43 +7,6 @@ namespace SimTECH.Data.Services
     public class StrategyService
     {
         private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-
-        private readonly List<Tyre> _tyres = new()
-        {
-            new Tyre()
-            {
-                Id = 1,
-                Name = "Hard",
-                Colour = "#e4e2e2ff",
-                State = State.Active,
-                Length = 9,
-                Pace = 10,
-                WearMax = -2,
-                WearMin = -1,
-            },
-            new Tyre()
-            {
-                Id = 2,
-                Name = "Medium",
-                Colour = "#e2a83eff",
-                State = State.Active,
-                Length = 6,
-                Pace = 15,
-                WearMax = -6,
-                WearMin = -3,
-            },
-            new Tyre()
-            {
-                Id = 3,
-                Name = "Soft",
-                Colour = "#d61616ff",
-                State = State.Active,
-                Length = 3,
-                Pace = 30,
-                WearMax = -15,
-                WearMin = -10,
-            },
-        };
 
         public StrategyService(IDbContextFactory<SimTechDbContext> factory)
         {
@@ -60,12 +24,30 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
+        // Doesnt work
         public async Task CreateStrategy(Strategy strategy)
         {
             using var context = _dbFactory.CreateDbContext();
+
             context.Add(strategy);
 
             await context.SaveChangesAsync();
+        }
+
+        public async Task TempWorkingCreate(EditStrategyModel model)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            Strategy strategy = new();
+            if (model.Id == 0)
+            {
+            }
+            else
+            {
+                var removeables = await context.StrategyTyre.Where(e => e.StrategyId == model.Id).ToListAsync();
+                if (removeables.Any())
+                    context.RemoveRange(removeables);
+            }
         }
 
         public async Task<List<Tyre>> GetTyres()

@@ -1,20 +1,18 @@
-﻿@inject TrackService TrackService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>
             Add new track
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@track">
-            <MudTextField T="string" @bind-Value="track.Name" Label="Name" />
-            <MudCountrySelect @bind-Value="track.Country" />
-            <MudNumericField T="double" @bind-Value="track.Length" Label="Length" Format="N2" />
-            <MudNumericField T="double" @bind-Value="track.AeroMod" Label="AeroMod" Format="N2" />
-            <MudNumericField T="double" @bind-Value="track.ChassisMod" Label="ChassisMod" Format="N2" />
-            <MudNumericField T="double" @bind-Value="track.PowerMod" Label="PowerMod" Format="N2" />
-            <MudNumericField T="double" @bind-Value="track.QualifyingMod" Label="QualifyingMod" Format="N2" />
+        <MudForm Model="@model">
+            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+            <MudCountrySelect @bind-Value="model.Country" />
+            <MudNumericField T="double" @bind-Value="model.Length" Label="Length" Format="N2" />
+            <MudNumericField T="double" @bind-Value="model.AeroMod" Label="AeroMod" Format="N2" />
+            <MudNumericField T="double" @bind-Value="model.ChassisMod" Label="ChassisMod" Format="N2" />
+            <MudNumericField T="double" @bind-Value="model.PowerMod" Label="PowerMod" Format="N2" />
+            <MudNumericField T="double" @bind-Value="model.QualifyingMod" Label="QualifyingMod" Format="N2" />
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -28,14 +26,23 @@
     protected MudDialogInstance? TrackDialog { get; set; }
 
     [Parameter]
-    public Track track { get; set; } = new();
+    public Track? Track { get; set; }
 
-    private async Task Submit()
+    private EditTrackModel model = new();
+
+    protected override void OnInitialized()
     {
-        // TODO: Function call just adds it here, but we want to actually store it!
-        await TrackService.CreateTrack(track);
+        if (Track != null)
+            model = new EditTrackModel(Track);
+    }
 
-        TrackDialog?.Close(DialogResult.Ok(track));
+    private void Submit()
+    {
+        if (model.IsDirty)
+        {
+            var modTrack = model.Record;
+            TrackDialog?.Close(DialogResult.Ok(modTrack));
+        }
     }
 
     private void Cancel() => TrackDialog?.Cancel();

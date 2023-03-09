@@ -19,22 +19,16 @@ namespace SimTECH.Data.Services
             return await context.Trait.ToListAsync();
         }
 
-        public async Task CreateTrait(Trait trait)
-        {
-            ValidateTrait(trait);
-
-            using var context = _dbFactory.CreateDbContext();
-            context.Add(trait);
-
-            await context.SaveChangesAsync();
-        }
-
         public async Task UpdateTrait(Trait trait)
         {
             ValidateTrait(trait);
 
             using var context = _dbFactory.CreateDbContext();
-            context.Update(trait);
+
+            if (trait.Id == 0)
+                context.Add(trait);
+            else
+                context.Update(trait);
 
             await context.SaveChangesAsync();
         }
