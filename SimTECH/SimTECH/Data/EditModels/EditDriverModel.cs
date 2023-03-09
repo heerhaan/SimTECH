@@ -16,6 +16,8 @@ namespace SimTECH.Data.EditModels
         public string? Biography { get; set; }
         public State State { get; set; }
 
+        public List<long> TraitIds { get; set; } = new();
+
         public EditDriverModel()
         {
             DateOfBirth = DateTime.Today;
@@ -35,6 +37,9 @@ namespace SimTECH.Data.EditModels
             Biography = driver.Biography;
             State = driver.State;
 
+            if (driver.DriverTraits != null)
+                TraitIds = driver.DriverTraits.Select(e => e.TraitId).ToList();
+
             _driver = driver;
         }
 
@@ -49,6 +54,8 @@ namespace SimTECH.Data.EditModels
                 Country = Country,
                 Biography = Biography ?? string.Empty,
                 State = State,
+
+                DriverTraits = TraitIds.ConvertAll(e => new DriverTrait { TraitId = e, DriverId = Id })
             };
 
         public bool IsDirty => _driver != Record;

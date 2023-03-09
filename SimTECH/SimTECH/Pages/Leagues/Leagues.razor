@@ -49,7 +49,9 @@
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is League updatedLeague)
+        {
             await LeagueService.UpdateLeague(updatedLeague);
-
+            LeagueData = await LeagueService.GetLeagues();
+        }
     }
 }

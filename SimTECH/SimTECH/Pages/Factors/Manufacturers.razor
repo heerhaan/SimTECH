@@ -39,11 +39,6 @@
         ManufacturerNames = await ManufacturerService.GetManufacturers();
     }
 
-    private Func<Manufacturer, string> _applyColouring => e =>
-    {
-        return $"background-color: {e.Colour}; color: {e.Accent}";
-    };
-
     async Task AddManufacturer() => await UpdateManufacturer(new Manufacturer());
     async Task UpdateManufacturer(Manufacturer manufacturer)
     {

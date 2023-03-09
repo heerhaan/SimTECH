@@ -1,14 +1,12 @@
-﻿@inject EngineService EngineService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>
             Add new engine
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@engine">
-            <MudTextField T="string" @bind-Value="engine.Name" Label="Name" />
+        <MudForm Model="@model">
+            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -22,14 +20,23 @@
     protected MudDialogInstance? EngineDialog { get; set; }
 
     [Parameter]
-    public Engine engine { get; set; } = new();
+    public Engine? Engine { get; set; }
 
-    private async Task Submit()
+    private EditEngineModel model = new();
+
+    protected override void OnInitialized()
     {
-        // TODO: Function call just adds it here, but we want to actually store it!
-        await EngineService.CreateEngine(engine);
+        if (Engine != null)
+            model = new EditEngineModel(Engine);
+    }
 
-        EngineDialog?.Close(DialogResult.Ok(engine));
+    private void Submit()
+    {
+        if (model.IsDirty)
+        {
+            var modEngine = model.Record;
+            EngineDialog?.Close(DialogResult.Ok(modEngine));
+        }
     }
 
     private void Cancel() => EngineDialog?.Cancel();

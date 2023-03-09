@@ -19,20 +19,16 @@ namespace SimTECH.Data.Services
             return await context.Engine.ToListAsync();
         }
 
-        public async Task CreateEngine(Engine engine)
+        public async Task UpdateEngine(Engine engine)
         {
             ValidateEngine(engine);
 
             using var context = _dbFactory.CreateDbContext();
-            context.Add(engine);
 
-            await context.SaveChangesAsync();
-        }
-
-        public async Task UpdateEngine(Engine engine)
-        {
-            using var context = _dbFactory.CreateDbContext();
-            context.Update(engine);
+            if (engine.Id == 0)
+                context.Add(engine);
+            else
+                context.Update(engine);
 
             await context.SaveChangesAsync();
         }

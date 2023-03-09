@@ -9,21 +9,24 @@
         <MudText Typo="Typo.h4">Engines</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddEngine">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="Engine" Items="@EngineNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyEngine" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
-        <Columns>
-            <Column T="Engine" Field="Name" />
-            <Column T="Engine" CellClass="d-flex justify-end">
-                <CellTemplate>
-                    <MudButtonGroup>
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
-                    </MudButtonGroup>
-                </CellTemplate>
-            </Column>
-        </Columns>
+    <MudTable Items="@EngineNames" Bordered="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>State</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.State</MudTd>
+            <MudTd>
+                <MudButtonGroup>
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context))" />
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
         <PagerContent>
             <MudDataGridPager T="Engine" />
         </PagerContent>
-    </MudDataGrid>
+    </MudTable>
 </MudContainer>
 
 @code {
@@ -34,19 +37,18 @@
         EngineNames = await EngineService.GetEngines();
     }
 
-    void ModifyEngine(Engine item)
+    async Task AddEngine() => await UpdateEngine(new Engine());
+    async Task UpdateEngine(Engine item)
     {
-        // TODO: Store edited values
-    }
+        var parameters = new DialogParameters { ["Engine"] = (item) };
 
-    async Task AddEngine()
-    {
-        var dialog = await DialogService.ShowAsync<EngineEditor>("Create a new engine");
+        var dialog = await DialogService.ShowAsync<EngineEditor>("Modify engine", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Engine newEngine)
+        if (!result.Canceled && result.Data != null && result.Data is Engine updatedItem)
         {
-            //EngineNames.Add(newEngine);
+            await EngineService.UpdateEngine(updatedItem);
+            EngineNames = await EngineService.GetEngines();
         }
     }
 }
