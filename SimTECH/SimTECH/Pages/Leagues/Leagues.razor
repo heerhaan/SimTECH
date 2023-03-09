@@ -1,5 +1,4 @@
 ﻿@page "/leagues"
-
 @inject LeagueService LeagueService
 @inject IDialogService DialogService
 
@@ -10,7 +9,7 @@
         <MudText Typo="Typo.h4">Leagues</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddLeague">New</MudButton>
     </MudPaper>
-    <MudTable Items="@leagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true">
+    <MudTable Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>State</MudTh>
@@ -25,16 +24,19 @@
                 </MudButtonGroup>
             </MudTd>
         </RowTemplate>
+        <ChildRowContent>
+
+        </ChildRowContent>
     </MudTable>
 </MudContainer>
 
 @code {
     private bool _loading = true;
-    private IEnumerable<League> leagueData = new List<League>();
+    private IEnumerable<League> LeagueData = new List<League>();
 
     protected override async Task OnInitializedAsync()
     {
-        leagueData = await LeagueService.GetLeagues();
+        LeagueData = await LeagueService.GetLeagues();
         _loading = false;
     }
 

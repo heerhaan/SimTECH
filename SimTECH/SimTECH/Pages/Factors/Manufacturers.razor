@@ -9,29 +9,30 @@
         <MudText Typo="Typo.h4">Tyre manufacturers</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddManufacturer">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="Manufacturer" Items="@ManufacturerNames" EditMode="DataGridEditMode.Cell" CommittedItemChanges="ModifyManufacturer" Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
-        <Columns>
-            <Column T="Manufacturer" Field="Name" CellStyleFunc="_applyColouring" />
-            <Column T="Manufacturer" Field="State" />
-            <Column T="Manufacturer" Field="Pace" />
-            <Column T="Manufacturer" Field="WearMax" />
-            <Column T="Manufacturer" Field="WearMin" />
-            <Column T="Manufacturer" CellClass="d-flex justify-end">
-                <CellTemplate>
-                    <MudButtonGroup>
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItem" />
-                    </MudButtonGroup>
-                </CellTemplate>
-            </Column>
-        </Columns>
-        <PagerContent>
-            <MudDataGridPager T="Manufacturer" />
-        </PagerContent>
-    </MudDataGrid>
+    <MudTable Items="@ManufacturerNames" Bordered="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Pace</MudTh>
+            <MudTh>Wear</MudTh>
+            <MudTh>State</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd Style="@($"background-color: {context.Colour}; color: {context.Accent}")">@context.Name</MudTd>
+            <MudTd>@context.Pace</MudTd>
+            <MudTd>@context.WearMax ↔ @context.WearMin</MudTd>
+            <MudTd>@context.State</MudTd>
+            <MudTd Class="d-flex justify-end">
+                <MudButtonGroup>
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateManufacturer(context))" />
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
 </MudContainer>
 
 @code {
-    private List<Manufacturer> ManufacturerNames = new();
+    private IEnumerable<Manufacturer> ManufacturerNames = new List<Manufacturer>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -43,19 +44,16 @@
         return $"background-color: {e.Colour}; color: {e.Accent}";
     };
 
-    void ModifyManufacturer(Manufacturer item)
-    {
-        // TODO: Store edited values
-    }
-
-    async Task AddManufacturer()
+    async Task AddManufacturer() => await UpdateManufacturer(new Manufacturer());
+    async Task UpdateManufacturer(Manufacturer manufacturer)
     {
         var dialog = await DialogService.ShowAsync<ManufacturerEditor>("Create a new manufacturer");
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Manufacturer newManufacturer)
+        if (!result.Canceled && result.Data != null && result.Data is Manufacturer item)
         {
-            //ManufacturerNames.Add(newManufacturer);
+            await ManufacturerService.UpdateManufacturer(item);
+            ManufacturerNames = await ManufacturerService.GetManufacturers();
         }
     }
 }

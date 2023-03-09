@@ -1,24 +1,21 @@
-﻿@inject ManufacturerService ManufacturerService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
-        <MudText>
-            Add new manufacturer
-        </MudText>
+        <MudText>Add new manufacturer</MudText>
+        <MudText Color="Color.Warning">@_validation</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@manufacturer">
-            <MudTextField T="string" @bind-Value="manufacturer.Name" Label="Name" />
-            <MudColorPicker @bind-Text="manufacturer.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" />
-            <MudColorPicker @bind-Text="manufacturer.Accent" Label="Accent" Placeholder="Select accent" DisableAlpha="true" />
-            <MudNumericField T="int" @bind-Value="manufacturer.Pace" Label="Pace" />
-            <MudNumericField T="int" @bind-Value="manufacturer.WearMax" Label="WearMax" />
-            <MudNumericField T="int" @bind-Value="manufacturer.WearMin" Label="WearMin" />
+        <MudForm Model="@model">
+            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+            <MudColorPicker @bind-Text="model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" />
+            <MudColorPicker @bind-Text="model.Accent" Label="Accent" Placeholder="Select accent" DisableAlpha="true" />
+            <MudNumericField T="int" @bind-Value="model.Pace" Label="Pace" />
+            <MudNumericField T="int" @bind-Value="model.WearMax" Label="WearMax" />
+            <MudNumericField T="int" @bind-Value="model.WearMin" Label="WearMin" />
         </MudForm>
         <MudPaper Height="100px">
             <MudText Typo="Typo.h6">Preview</MudText>
-            <div style="background-color:@(manufacturer.Colour); color:@(manufacturer.Accent)">
-                @manufacturer.Name
+            <div style="background-color:@(model.Colour); color:@(model.Accent)">
+                @model.Name
             </div>
         </MudPaper>
     </DialogContent>
@@ -33,14 +30,29 @@
     protected MudDialogInstance? ManufacturerDialog { get; set; }
 
     [Parameter]
-    public Manufacturer manufacturer { get; set; } = new();
+    public Manufacturer? Manufacturer { get; set; }
 
-    private async Task Submit()
+    private EditManufacturerModel model = new();
+    private string _validation = string.Empty;
+
+    protected override void OnInitialized()
     {
-        // TODO: Function call just adds it here, but we want to actually store it!
-        await ManufacturerService.CreateManufacturer(manufacturer);
+        if (Manufacturer != null)
+            model = new EditManufacturerModel(Manufacturer);
+    }
 
-        ManufacturerDialog?.Close(DialogResult.Ok(manufacturer));
+    private void Submit()
+    {
+        if (model.IsDirty)
+        {
+            var modItem = model.Record;
+
+            ManufacturerDialog?.Close(DialogResult.Ok(modItem));
+        }
+        else
+        {
+            _validation = "No changes detected!";
+        }
     }
 
     private void Cancel() => ManufacturerDialog?.Cancel();

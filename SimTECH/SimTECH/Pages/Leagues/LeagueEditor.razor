@@ -4,12 +4,23 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@model">
-            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
-            @* NOTE: Editable range table could deserve it's own file *@
-            <RangeInput Items="_skillRanges" RangeType="RangeType.Skill">Skill</RangeInput>
-            <RangeInput Items="_ageRanges" RangeType="RangeType.Age">Age</RangeInput>
-            <RangeInput Items="_teamRanges" RangeType="RangeType.Team">Team</RangeInput>
-            <RangeInput Items="_engineRanges" RangeType="RangeType.Engine">Engine</RangeInput>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+                </MudItem>
+                <MudItem xs="6">
+                    <RangeInput Items="_skillRanges" RangeType="RangeType.Skill">Skill</RangeInput>
+                </MudItem>
+                <MudItem xs="6">
+                    <RangeInput Items="_ageRanges" RangeType="RangeType.Age">Age</RangeInput>
+                </MudItem>
+                <MudItem xs="6">
+                    <RangeInput Items="_teamRanges" RangeType="RangeType.Team">Team</RangeInput>
+                </MudItem>
+                <MudItem xs="6">
+                    <RangeInput Items="_engineRanges" RangeType="RangeType.Engine">Engine</RangeInput>
+                </MudItem>
+            </MudGrid>
         </MudForm>
     </DialogContent>
     <DialogActions>
