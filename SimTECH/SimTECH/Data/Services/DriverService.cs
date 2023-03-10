@@ -26,18 +26,14 @@ namespace SimTECH.Data.Services
             return await context.Driver.FirstOrDefaultAsync(e => e.Id == driverId);
         }
 
-        public async Task CreateDriver(Driver driver)
-        {
-            using var context = _dbFactory.CreateDbContext();
-            context.Add(driver);
-
-            await context.SaveChangesAsync();
-        }
-
         public async Task UpdateDriver(Driver driver)
         {
             using var context = _dbFactory.CreateDbContext();
-            context.Update(driver);
+
+            if (driver.Id == 0)
+                context.Add(driver);
+            else
+                context.Update(driver);
 
             await context.SaveChangesAsync();
         }

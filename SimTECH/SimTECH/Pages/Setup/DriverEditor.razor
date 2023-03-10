@@ -1,6 +1,4 @@
-﻿@inject DriverService DriverService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>
             <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
@@ -9,12 +7,25 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@model">
-            <MudTextField T="string" @bind-Value="model.FirstName" Label="FirstName" />
-            <MudTextField T="string" @bind-Value="model.LastName" Label="LastName" />
-            <MudTextField T="string" @bind-Value="model.Abbreviation" Label="Abbreviation" />
-            <MudDatePicker @bind-Date="@DateSetter" Label="Date of birth" />
-            <MudCountrySelect @bind-Value="model.Country" />
-            <MudTextField T="string" @bind-Value="model.Biography" Label="Biography" />
+            <MudGrid>
+                <MudItem xs="8">
+                    <MudTextField T="string" @bind-Value="model.FirstName" Label="FirstName" />
+                    <MudTextField T="string" @bind-Value="model.LastName" Label="LastName" />
+                    <MudTextField T="string" @bind-Value="model.Abbreviation" Label="Abbreviation" />
+                    <MudDatePicker @bind-Date="@DateSetter" Label="Date of birth" />
+                    <MudCountrySelect @bind-Value="model.Country" />
+                    <MudTextField T="string" @bind-Value="model.Biography" Label="Biography" />
+                </MudItem>
+                <MudItem xs="4">
+                    Traits bla bla
+                    <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true">
+                        @foreach (var trait in Traits)
+                        {
+                            <MudChip Text="@trait.Name" Value="@trait"></MudChip>
+                        }
+                    </MudChipSet>
+                </MudItem>
+            </MudGrid>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -28,44 +39,64 @@
     protected MudDialogInstance? DriverDialog { get; set; }
 
     [Parameter]
-    public long? driverId { get; set; }
+    public Driver? Driver { get; set; }
+
+    [Parameter]
+    public List<Trait> Traits { get; set; } = new();
 
     private EditDriverModel model = new();
+    //private MudChip[] selectedChips;
+
+    private ICollection<object>? selectedTraits { get; set; }
 
     private DateTime? DateSetter { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        if (driverId.HasValue)
+        if (Driver != null)
         {
-            var driverObj = await DriverService.GetDriverById(driverId.Value);
+            model = new EditDriverModel(Driver);
 
-            if (driverObj != null)
-            {
-                model = new EditDriverModel(driverObj);
+            selectedTraits = Traits.Where(e => model.TraitIds.Contains(e.Id)).ToList() as ICollection<object>;
 
-                DateSetter = driverObj.DateOfBirth;
-            }
+            DateSetter = model.DateOfBirth;
+        }
+        else
+        {
+            DateSetter = DateTime.Today;
+            selectedTraits = new List<Trait>() as ICollection<object>;
         }
     }
 
-    private async Task Submit()
+    private void Submit()
     {
-        // TODO: Function call just adds it here, but we want to actually store it!
         model.DateOfBirth = DateSetter.GetValueOrDefault();
+
+        if (selectedTraits != null)
+            model.TraitIds = selectedTraits.Cast<Trait>().Select(e => e.Id).ToList();
 
         if (model.IsDirty)
         {
             var modDriver = model.Record;
-
-            if (model.Id == 0)
-                await DriverService.CreateDriver(modDriver);
-            else
-                await DriverService.UpdateDriver(modDriver);
 
             DriverDialog?.Close(DialogResult.Ok(modDriver));
         }
     }
 
     private void Cancel() => DriverDialog?.Cancel();
+
+    public class ItemSelection
+    {
+        public long ItemId { get; set; }
+        public string Text { get; set; } = string.Empty;
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as ItemSelection;
+            return other?.ItemId == ItemId;
+        }
+
+        public override int GetHashCode() => ItemId.GetHashCode();
+        public override string ToString() => Text;
+    }
 }
