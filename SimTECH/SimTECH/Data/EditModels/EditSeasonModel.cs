@@ -51,10 +51,39 @@ namespace SimTECH.Data.EditModels
             _season = season;
         }
 
+        public Season Record =>
+            new()
+            {
+                Id = Id,
+                State = State,
+                Year = Year,
+                MaximumDriversInRace = MaximumDriversInRace,
+                QualifyingAmountQ2 = QualifyingAmountQ2,
+                QualifyingAmountQ3 = QualifyingAmountQ3,
+                QualifyingRNG = QualifyingRNG,
+                RunAmountSession = RunAmountSession,
+                GridBonus = GridBonus,
+                PitMinimum = PitMinimum,
+                PitMaximum = PitMaximum,
+                PointsPole = PointsPole,
+                PointsFastestLap = PointsFastestLap,
+                LeagueId = LeagueId,
+
+                PointAllotments = PointAllotments.Select(e => e.Record).ToList(),
+                Races = Races.Select(e => e.Record).ToList()
+            };
+
+        public bool IsDirty => _season != Record || PointAllotments.Any(e => e.IsDirty) || Races.Any(e => e.IsDirty);
+
         public void ResetIdentifierFields()
         {
             Id = default;
             State = State.Concept;
+
+            foreach (var point in PointAllotments)
+                point.ResetIdentifierFields();
+            foreach (var race in Races)
+                race.ResetIdentifierFields();
         }
     }
 
@@ -85,5 +114,10 @@ namespace SimTECH.Data.EditModels
             };
 
         public bool IsDirty => _pointAllotment != Record;
+
+        public void ResetIdentifierFields()
+        {
+            Id = default;
+        }
     }
 }

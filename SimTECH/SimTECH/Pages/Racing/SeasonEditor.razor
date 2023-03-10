@@ -1,6 +1,4 @@
-﻿@inject SeasonService SeasonService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>Are you sure you want to create a new season with these settings?</MudText>
     </TitleContent>
@@ -30,7 +28,11 @@
         if (Copied.GetValueOrDefault())
             model.ResetIdentifierFields();
 
-        SeasonDialog?.Close(DialogResult.Ok(Season));
+        if (model.IsDirty)
+        {
+            var modSeason = model.Record;
+            SeasonDialog?.Close(DialogResult.Ok(modSeason));
+        }
     }
 
     private void Cancel() => SeasonDialog?.Cancel();
