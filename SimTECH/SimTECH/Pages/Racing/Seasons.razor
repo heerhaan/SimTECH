@@ -10,14 +10,14 @@
         <MudText Typo="Typo.h4">Seasons</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="NewSeason">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="Season" Items="@_seasonData" Bordered="true" Dense="true">
+    <MudDataGrid T="Season" Items="@SeasonData" Bordered="true" Dense="true">
         <Columns>
             <Column T="Season" Field="Year" />
             <Column T="Season" Field="State" IsEditable="false" />
             <Column T="Season" CellClass="d-flex justify end">
                 <CellTemplate>
                     <MudButtonGroup>
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.ContentCopy" @* OnClick="CopySeason(context.Item)" *@ />
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(async () => await UpdateSeason(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </Column>
@@ -30,27 +30,26 @@
 
 @code {
     private bool _readOnly = false;
-    private List<Season> _seasonData = new();
+    private List<Season> SeasonData = new();
 
     protected override async Task OnInitializedAsync()
     {
-        _seasonData = await SeasonService.GetSeasons();
+        SeasonData = await SeasonService.GetSeasons();
     }
 
-    async Task NewSeason()
+    private async Task NewSeason() => await UpdateSeason(new Season());
+    private async Task CopySeason(Season season) => await UpdateSeason(season, true);
+    private async Task UpdateSeason(Season item, bool isCopied = false)
     {
-        var dialog = await DialogService.ShowAsync<SeasonConfirm>("Create a new season");
+        var parameters = new DialogParameters { ["Season"] = item, ["Copied"] = isCopied };
+
+        var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Season newSeason)
+        if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
         {
-            Nav.NavigateTo($"/overview/{newSeason.Id}");
+            Nav.NavigateTo($"/overview/{updatedItem.Id}");
         }
-    }
-
-    void CopySeason(Season season)
-    {
-        // NOTE: same as new but then with the settings copied
     }
 
     private class SeasonOverview

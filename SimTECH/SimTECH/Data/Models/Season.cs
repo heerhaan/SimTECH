@@ -18,11 +18,11 @@
         public int PointsPole { get; set; }
         public int PointsFastestLap { get; set; }
 
-        public IList<PointAllotment> PointAllotments { get; set; } = default!;
-        public IList<Race> Races { get; set; } = default!;
-        public IList<SeasonDriver> SeasonDrivers { get; set; } = default!;
-        public IList<SeasonTeam> SeasonTeams { get; set; } = default!;
-        public IList<SeasonEngine> SeasonEngines { get; set; } = default!;
+        public IList<PointAllotment>? PointAllotments { get; set; }
+        public IList<Race>? Races { get; set; }
+        public IList<SeasonDriver>? SeasonDrivers { get; set; }
+        public IList<SeasonTeam>? SeasonTeams { get; set; }
+        public IList<SeasonEngine>? SeasonEngines { get; set; }
 
         public long LeagueId { get; set; }
         public League League { get; set; } = default!;

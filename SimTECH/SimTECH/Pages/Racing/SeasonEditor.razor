@@ -20,8 +20,16 @@
     [Parameter]
     public Season? Season { get; set; }
 
+    [Parameter]
+    public bool? Copied { get; set; }
+
+    private EditSeasonModel model = new();
+
     private void Submit()
     {
+        if (Copied.GetValueOrDefault())
+            model.ResetIdentifierFields();
+
         SeasonDialog?.Close(DialogResult.Ok(Season));
     }
 
