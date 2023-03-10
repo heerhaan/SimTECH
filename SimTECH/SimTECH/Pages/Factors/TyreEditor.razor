@@ -1,25 +1,23 @@
-﻿@inject StrategyService StrategyService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>
             Add new tyre
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@tyre">
-            <MudTextField T="string" @bind-Value="tyre.Name" Label="Name" />
-            <MudColorPicker @bind-Text="tyre.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" />
-            <MudNumericField T="int" @bind-Value="tyre.Length" Label="Length" />
-            <MudNumericField T="int" @bind-Value="tyre.Pace" Label="Pace" />
-            <MudNumericField T="int" @bind-Value="tyre.WearMax" Label="WearMax" />
-            <MudNumericField T="int" @bind-Value="tyre.WearMin" Label="WearMin" />
+        <MudForm Model="@model">
+            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+            <MudColorPicker @bind-Text="model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" />
+            <MudNumericField T="int" @bind-Value="model.Length" Label="Length" />
+            <MudNumericField T="int" @bind-Value="model.Pace" Label="Pace" />
+            <MudNumericField T="int" @bind-Value="model.WearMax" Label="WearMax" />
+            <MudNumericField T="int" @bind-Value="model.WearMin" Label="WearMin" />
         </MudForm>
         <MudPaper Height="75px">
             <MudText Typo="Typo.h6">Preview</MudText>
-            @if (!string.IsNullOrEmpty(tyre.Name))
+            @if (!string.IsNullOrEmpty(model.Name))
             {
-                <span class="tyre" style="border-color:@(tyre.Colour)">@tyre.Name.ElementAt(0)</span>
+                <span class="tyre" style="border-color:@(model.Colour)">@model.Name.ElementAt(0)</span>
             }
         </MudPaper>
     </DialogContent>
@@ -34,14 +32,23 @@
     protected MudDialogInstance? TyreDialog { get; set; }
 
     [Parameter]
-    public Tyre tyre { get; set; } = new();
+    public Tyre? Tyre { get; set; } = new();
 
-    private async Task Submit()
+    private EditTyreModel model = new();
+
+    protected override void OnInitialized()
     {
-        // TODO: Function call just adds it here, but we want to actually store it!
-        await StrategyService.CreateTyre(tyre);
+        if (Tyre != null)
+            model = new EditTyreModel(Tyre);
+    }
 
-        TyreDialog?.Close(DialogResult.Ok(tyre));
+    private void Submit()
+    {
+        if (model.IsDirty)
+        {
+            var modTyre = model.Record;
+            TyreDialog?.Close(DialogResult.Ok(modTyre));
+        }
     }
 
     private void Cancel() => TyreDialog?.Cancel();

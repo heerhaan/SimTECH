@@ -12,7 +12,18 @@ namespace SimTECH.Data.EditModels
         public IList<EditStrategyTyreModel> StrategyTyres { get; set; } = new List<EditStrategyTyreModel>();
 
         public EditStrategyModel() { _strategy = new Strategy(); }
-        //public EditStrategyModel(Strategy strategy) {  }
+        public EditStrategyModel(Strategy strategy)
+        {
+            Id = strategy.Id;
+            StintLength = strategy.StintLength;
+            State = strategy.State;
+            StrategyTyres = strategy.StrategyTyres?
+                .Select(e => new EditStrategyTyreModel(e))
+                .ToList()
+                ?? new List<EditStrategyTyreModel>();
+
+            _strategy = strategy;
+        }
 
         public Strategy Record =>
             new()
@@ -22,23 +33,44 @@ namespace SimTECH.Data.EditModels
                 State = State,
 
                 StrategyTyres = StrategyTyres
-                    .Select(e => new StrategyTyre { NumberStint = e.NumberStint, TyreId = e.TyreId, StrategyId = Id })
+                    .Select(e => e.Record)
                     .ToList()
             };
 
-        public bool IsDirty => _strategy != Record;
+        public bool IsDirty => _strategy != Record || StrategyTyres.Any(e => e.IsDirty);
     }
 
     public class EditStrategyTyreModel
     {
         private readonly StrategyTyre _strategyTyre;
 
-        //public long Id { get; set; }
+        public long Id { get; set; }
         public int NumberStint { get; set; }
-        //public long StrategyId { get; set; }
+        public long StrategyId { get; set; }
         public long TyreId { get; set; }
+        public Tyre? Tyre { get; set; }
 
         public EditStrategyTyreModel() { _strategyTyre = new StrategyTyre(); }
-        //public EditStrategyTyreModel(StrategyTyre strategyTyre) { }
+        public EditStrategyTyreModel(StrategyTyre strategyTyre)
+        {
+            Id = strategyTyre.Id;
+            NumberStint = strategyTyre.NumberStint;
+            StrategyId = strategyTyre.StrategyId;
+            TyreId = strategyTyre.TyreId;
+            Tyre = strategyTyre.Tyre;
+
+            _strategyTyre = strategyTyre;
+        }
+
+        public StrategyTyre Record =>
+            new()
+            {
+                Id = Id,
+                NumberStint = NumberStint,
+                StrategyId = StrategyId,
+                TyreId = TyreId
+            };
+
+        public bool IsDirty => _strategyTyre != Record;
     }
 }

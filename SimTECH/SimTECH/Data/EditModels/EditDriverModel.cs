@@ -46,7 +46,7 @@ namespace SimTECH.Data.EditModels
         public Driver Record =>
             new()
             {
-                Id = this.Id,
+                Id = Id,
                 FirstName = FirstName ?? string.Empty,
                 LastName = LastName ?? string.Empty,
                 Abbreviation = Abbreviation ?? string.Empty,

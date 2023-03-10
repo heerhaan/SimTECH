@@ -1,6 +1,4 @@
-﻿@inject StrategyService StrategyService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>
             Add new strategy
@@ -10,7 +8,7 @@
         <MudGrid Spacing="2">
             <MudItem xs="6">
                 <MudPaper>
-                    <MudTable T="StrategyTyre" Items="@strategy.StrategyTyres" OnRowClick="RemoveTyreFromStrategy" Hover="true">
+                    <MudTable T="EditStrategyTyreModel" Items="@model.StrategyTyres" OnRowClick="RemoveTyreFromStrategy" Hover="true">
                         <HeaderContent>
                             <MudTh>Tyre</MudTh>
                             <MudTh>Apply in Stint Nr.</MudTh>
@@ -21,7 +19,9 @@
                                     @context.Tyre.Name.ElementAt(0)
                                 </span>
                                 </MudTd>
-                            <MudTd DataLabel="NumberStint">@context.NumberStint</MudTd>
+                            <MudTd DataLabel="NumberStint">
+                                <MudNumericField T="int" @bind-Value="context.NumberStint" />
+                            </MudTd>
                         </RowTemplate>
                     </MudTable>
                 </MudPaper>
@@ -59,21 +59,23 @@
     protected MudDialogInstance? StrategyDialog { get; set; }
 
     [Parameter]
-    public Strategy strategy { get; set; } = new();
+    public Strategy? Strategy { get; set; } = new();
 
     [Parameter]
     public List<Tyre> Tyres { get; set; } = new();
+
+    private EditStrategyModel model = new();
 
     private int lastStintNumber = 0;
 
     protected override void OnInitialized()
     {
-        if (strategy.StrategyTyres == null)
-            strategy.StrategyTyres = new List<StrategyTyre>();
-
-        if (strategy.StrategyTyres.Count > 0)
+        if (Strategy != null)
         {
-            lastStintNumber = strategy.StrategyTyres.Max(e => e.NumberStint);
+            model = new EditStrategyModel(Strategy);
+
+            if(model.StrategyTyres.Any())
+                lastStintNumber = model.StrategyTyres.Max(e => e.NumberStint);
         }
     }
 
@@ -81,34 +83,37 @@
     {
         Tyre tyre = rowClickEvent.Item;
 
-        var appendedStrategyTyre = new StrategyTyre
+        var appendedStrategyTyre = new EditStrategyTyreModel
         {
             NumberStint = lastStintNumber,
             TyreId = tyre.Id,
-            Tyre = tyre
+            Tyre = tyre,
+            StrategyId = model.Id
         };
 
         lastStintNumber += tyre.Length;
 
-        strategy.StrategyTyres.Add(appendedStrategyTyre);
+        model.StrategyTyres.Add(appendedStrategyTyre);
     }
 
-    private void RemoveTyreFromStrategy(TableRowClickEventArgs<StrategyTyre> rowClickEvent)
+    private void RemoveTyreFromStrategy(TableRowClickEventArgs<EditStrategyTyreModel> rowClickEvent)
     {
-        StrategyTyre strategyTyre = rowClickEvent.Item;
+        EditStrategyTyreModel strategyTyre = rowClickEvent.Item;
 
         lastStintNumber -= strategyTyre.Tyre.Length;
 
-        strategy.StrategyTyres.Remove(strategyTyre);
+        model.StrategyTyres.Remove(strategyTyre);
     }
 
-    private async Task Submit()
+    private void Submit()
     {
-        strategy.StintLength = strategy.StrategyTyres.Sum(e => e.Tyre.Length);
-        // TODO: Function call just adds it here, but we want to actually store it!
-        await StrategyService.CreateStrategy(strategy);
+        model.StintLength = model.StrategyTyres.Sum(e => e.Tyre.Length);
 
-        StrategyDialog?.Close(DialogResult.Ok(strategy));
+        if (model.IsDirty)
+        {
+            var modStrategy = model.Record;
+            StrategyDialog?.Close(DialogResult.Ok(modStrategy));
+        }
     }
 
     private void Cancel() => StrategyDialog?.Cancel();

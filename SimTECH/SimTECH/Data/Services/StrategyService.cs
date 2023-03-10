@@ -17,37 +17,32 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            // WARNING: Underneath could have a big performance impact, if that seems to be the case then refactor pls
+            // WARNING: Underneath could have a noteable performance impact, if so then refactor
             return await context.Strategy
                 .Include(e => e.StrategyTyres)
-                .ThenInclude(e => e.Tyre)
+                    .ThenInclude(e => e.Tyre)
                 .ToListAsync();
         }
 
-        // Doesnt work
-        public async Task CreateStrategy(Strategy strategy)
+        public async Task UpdateStrategy(Strategy strategy)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            context.Add(strategy);
-
-            await context.SaveChangesAsync();
-        }
-
-        public async Task TempWorkingCreate(EditStrategyModel model)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            Strategy strategy = new();
-            if (model.Id == 0)
-            {
-            }
+            if (strategy.Id == 0)
+                context.Add(strategy);
             else
             {
-                var removeables = await context.StrategyTyre.Where(e => e.StrategyId == model.Id).ToListAsync();
+                var removeables = await context.StrategyTyre
+                    .Where(e => e.StrategyId == strategy.Id 
+                        && !strategy.StrategyTyres.Select(st => st.Id).Contains(e.Id))
+                    .ToListAsync();
                 if (removeables.Any())
                     context.RemoveRange(removeables);
+
+                context.Update(strategy);
             }
+
+            await context.SaveChangesAsync();
         }
 
         public async Task<List<Tyre>> GetTyres()
@@ -57,10 +52,14 @@ namespace SimTECH.Data.Services
             return await context.Tyre.ToListAsync();
         }
 
-        public async Task CreateTyre(Tyre tyre)
+        public async Task UpdateTyre(Tyre tyre)
         {
             using var context = _dbFactory.CreateDbContext();
-            context.Add(tyre);
+
+            if (tyre.Id == 0)
+                context.Add(tyre);
+            else
+                context.Update(tyre);
 
             await context.SaveChangesAsync();
         }
