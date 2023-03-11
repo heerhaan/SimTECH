@@ -26,9 +26,23 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             if (track.Id == 0)
+            {
                 context.Add(track);
+            }
             else
+            {
+                var removeables = await context.TrackTrait
+                        .Where(e => e.TrackId == track.Id)
+                        .ToListAsync();
+
+                if (removeables.Any())
+                    context.RemoveRange(removeables);
+
+                if (track.TrackTraits?.Any() ?? false)
+                    context.AddRange(track.TrackTraits);
+
                 context.Update(track);
+            }
 
             await context.SaveChangesAsync();
         }

@@ -6,9 +6,26 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@model">
-            <MudTextField T="string" @bind-Value="@model.Name" Label="Name" />
-            <MudCountrySelect @bind-Value="model.Country" />
-            <MudTextField T="string" @bind-Value="@model.Biography" Label="Biography" />
+            <MudGrid>
+                <MudItem xs="8">
+                    <MudPaper Elevation="15">
+                        <MudTextField T="string" @bind-Value="@model.Name" Label="Name" />
+                        <MudCountrySelect @bind-Value="model.Country" />
+                        <MudTextField T="string" @bind-Value="@model.Biography" Label="Biography" />
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="4">
+                    <MudPaper Elevation="10">
+                        Traits bla bla
+                        <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
+                            @foreach (var trait in Traits)
+                            {
+                                <MudChip Text="@trait.Name" Value="@trait.Id"></MudChip>
+                            }
+                        </MudChipSet>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -18,22 +35,37 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? TeamDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? TeamDialog { get; set; }
 
-    [Parameter]
-    public Team? Team { get; set; }
+    [Parameter] public Team? Team { get; set; }
+    [Parameter] public List<Trait> Traits { get; set; } = new();
 
     private EditTeamModel model = new();
+    private ICollection<object>? selectedTraits { get; set; }
 
     protected override void OnInitialized()
     {
         if (Team != null)
+        {
             model = new EditTeamModel(Team);
+            selectedTraits = model.TeamTraits.Select(e => e.TraitId).Cast<object>().ToList();
+        }
+        else
+        {
+            selectedTraits = new List<long>() as ICollection<object>;
+        }
     }
 
     private void Submit()
     {
+        if (selectedTraits != null)
+        {
+            model.TeamTraits = selectedTraits
+                .Cast<long>()
+                .Select(e => new EditTeamTraitModel { TeamId = model.Id, TraitId = e })
+                .ToList();
+        }
+
         if (model.IsDirty)
         {
             var modTeam = model.Record;

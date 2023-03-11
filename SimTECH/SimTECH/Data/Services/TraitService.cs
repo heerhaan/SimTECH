@@ -19,6 +19,13 @@ namespace SimTECH.Data.Services
             return await context.Trait.ToListAsync();
         }
 
+        public async Task<List<Trait>> GetTraitsOfType(Entrant type)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Trait.Where(e => e.Type == type).ToListAsync();
+        }
+
         public async Task UpdateTrait(Trait trait)
         {
             ValidateTrait(trait);

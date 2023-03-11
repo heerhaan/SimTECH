@@ -10,7 +10,7 @@
         <MudText Typo="Typo.h4">Drivers</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddDriver">New</MudButton>
     </MudPaper>
-    <MudDataGrid T="Driver" Items="@DriverNames" ReadOnly="@_readOnly" Bordered="true" Dense="true">
+    <MudDataGrid T="Driver" Items="@DriverData" ReadOnly="@_readOnly" Bordered="true" Dense="true">
         <Columns>
             <HierarchyColumn T="Driver" />
             <Column T="Driver" Field="FirstName" />
@@ -53,17 +53,17 @@
 @code {
     private bool _readOnly = false; // NOTE: Useful if/when app goes public
 
-    private List<Driver> DriverNames = new();
+    private List<Driver> DriverData = new();
 
     protected override async Task OnInitializedAsync()
     {
-        DriverNames = await DriverService.GetDrivers();
+        DriverData = await DriverService.GetDrivers();
     }
 
     async Task AddDriver() => await UpdateDriver(new Driver());
     async Task UpdateDriver(Driver item)
     {
-        var driverTraits = await TraitService.GetTraits();
+        var driverTraits = await TraitService.GetTraitsOfType(Entrant.Driver);
 
         var parameters = new DialogParameters
         {
@@ -76,7 +76,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Driver updatedItem)
         {
             await DriverService.UpdateDriver(updatedItem);
-            DriverNames = await DriverService.GetDrivers();
+            DriverData = await DriverService.GetDrivers();
         }
     }
 }

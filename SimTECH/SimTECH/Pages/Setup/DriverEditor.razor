@@ -12,21 +12,27 @@
                     <MudTextField T="string" @bind-Value="model.FirstName" Label="FirstName" />
                     <MudTextField T="string" @bind-Value="model.LastName" Label="LastName" />
                     <MudTextField T="string" @bind-Value="model.Abbreviation" Label="Abbreviation" />
-                    <MudDatePicker @bind-Date="@DateSetter" Label="Date of birth" />
+                    <MudDatePicker @bind-Date="@dateSetter" Label="Date of birth" />
                     <MudCountrySelect @bind-Value="model.Country" />
                     <MudTextField T="string" @bind-Value="model.Biography" Label="Biography" />
                 </MudItem>
                 <MudItem xs="4">
                     Traits bla bla
-                    <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true">
+                    <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
                         @foreach (var trait in Traits)
                         {
-                            <MudChip Text="@trait.Name" Value="@trait"></MudChip>
+                            <MudChip Text="@trait.Name" Value="@trait.Id"></MudChip>
                         }
                     </MudChipSet>
                 </MudItem>
             </MudGrid>
         </MudForm>
+        <MudText>
+            @if (selectedTraits != null)
+            {
+                <span>@selectedTraits.Count.ToString()</span>
+            }
+        </MudText>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -35,21 +41,14 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? DriverDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
 
-    [Parameter]
-    public Driver? Driver { get; set; }
-
-    [Parameter]
-    public List<Trait> Traits { get; set; } = new();
+    [Parameter] public Driver? Driver { get; set; }
+    [Parameter] public List<Trait> Traits { get; set; } = new();
 
     private EditDriverModel model = new();
-    //private MudChip[] selectedChips;
-
+    private DateTime? dateSetter { get; set; }
     private ICollection<object>? selectedTraits { get; set; }
-
-    private DateTime? DateSetter { get; set; }
 
     protected override void OnInitialized()
     {
@@ -57,46 +56,35 @@
         {
             model = new EditDriverModel(Driver);
 
-            selectedTraits = Traits.Where(e => model.TraitIds.Contains(e.Id)).ToList() as ICollection<object>;
+            selectedTraits = model.DriverTraits.Select(e => e.TraitId).Cast<object>().ToList();
 
-            DateSetter = model.DateOfBirth;
+            dateSetter = model.DateOfBirth;
         }
         else
         {
-            DateSetter = DateTime.Today;
-            selectedTraits = new List<Trait>() as ICollection<object>;
+            dateSetter = DateTime.Today;
+            selectedTraits = new List<long>() as ICollection<object>;
         }
     }
 
     private void Submit()
     {
-        model.DateOfBirth = DateSetter.GetValueOrDefault();
+        model.DateOfBirth = dateSetter.GetValueOrDefault();
 
         if (selectedTraits != null)
-            model.TraitIds = selectedTraits.Cast<Trait>().Select(e => e.Id).ToList();
+        {
+            model.DriverTraits = selectedTraits
+                .Cast<long>()
+                .Select(e => new EditDriverTraitModel { DriverId = model.Id, TraitId = e })
+                .ToList();
+        }
 
         if (model.IsDirty)
         {
             var modDriver = model.Record;
-
             DriverDialog?.Close(DialogResult.Ok(modDriver));
         }
     }
 
     private void Cancel() => DriverDialog?.Cancel();
-
-    public class ItemSelection
-    {
-        public long ItemId { get; set; }
-        public string Text { get; set; } = string.Empty;
-
-        public override bool Equals(object obj)
-        {
-            var other = obj as ItemSelection;
-            return other?.ItemId == ItemId;
-        }
-
-        public override int GetHashCode() => ItemId.GetHashCode();
-        public override string ToString() => Text;
-    }
 }

@@ -16,7 +16,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Driver.ToListAsync();
+            return await context.Driver.Include(e => e.DriverTraits).ToListAsync();
         }
 
         public async Task<Driver?> GetDriverById(long driverId)
@@ -31,9 +31,23 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             if (driver.Id == 0)
+            {
                 context.Add(driver);
+            }
             else
+            {
+                var removeables = await context.DriverTrait
+                        .Where(e => e.DriverId == driver.Id)
+                        .ToListAsync();
+
+                if (removeables.Any())
+                    context.RemoveRange(removeables);
+
+                if (driver.DriverTraits?.Any() ?? false)
+                    context.AddRange(driver.DriverTraits);
+
                 context.Update(driver);
+            }
 
             await context.SaveChangesAsync();
         }

@@ -16,7 +16,7 @@ namespace SimTECH.Data.EditModels
         public string? Biography { get; set; }
         public State State { get; set; }
 
-        public List<long> TraitIds { get; set; } = new();
+        public IList<EditDriverTraitModel> DriverTraits { get; set; } = new List<EditDriverTraitModel>();
 
         public EditDriverModel()
         {
@@ -38,7 +38,7 @@ namespace SimTECH.Data.EditModels
             State = driver.State;
 
             if (driver.DriverTraits != null)
-                TraitIds = driver.DriverTraits.Select(e => e.TraitId).ToList();
+                DriverTraits = driver.DriverTraits.Select(e => new EditDriverTraitModel(e)).ToList();
 
             _driver = driver;
         }
@@ -55,9 +55,35 @@ namespace SimTECH.Data.EditModels
                 Biography = Biography ?? string.Empty,
                 State = State,
 
-                DriverTraits = TraitIds.ConvertAll(e => new DriverTrait { TraitId = e, DriverId = Id })
+                DriverTraits = DriverTraits.Select(e => e.Record).ToList()
             };
 
-        public bool IsDirty => _driver != Record;
+        public bool IsDirty => _driver != Record || DriverTraits.Any(e => e.IsDirty);
+    }
+
+    public class EditDriverTraitModel
+    {
+        private readonly DriverTrait _driverTrait;
+
+        public long DriverId { get; set; }
+        public long TraitId { get; set; }
+
+        public EditDriverTraitModel() { _driverTrait = new DriverTrait(); }
+        public EditDriverTraitModel(DriverTrait driverTrait)
+        {
+            DriverId = driverTrait.DriverId;
+            TraitId = driverTrait.TraitId;
+
+            _driverTrait = driverTrait;
+        }
+
+        public DriverTrait Record =>
+            new()
+            {
+                DriverId = DriverId,
+                TraitId = TraitId
+            };
+
+        public bool IsDirty => _driverTrait != Record;
     }
 }

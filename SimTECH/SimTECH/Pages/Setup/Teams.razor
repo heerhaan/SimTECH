@@ -1,5 +1,6 @@
 ﻿@page "/teams"
 @inject TeamService TeamService
+@inject TraitService TraitService
 @inject IDialogService DialogService
 
 <PageTitle>Teams</PageTitle>
@@ -9,7 +10,7 @@
         <MudText Typo="Typo.h4">Teams</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTeam">New</MudButton>
     </MudContainer>
-    <MudDataGrid T="Team" Items="@TeamNames">
+    <MudDataGrid T="Team" Items="@TeamData">
         <Columns>
             <HierarchyColumn T="Team" />
             <Column T="Team" Field="Name" />
@@ -47,17 +48,21 @@
 </MudContainer>
 
 @code {
-    private List<Team> TeamNames = new();
+    private List<Team> TeamData = new();
 
     protected override async Task OnInitializedAsync()
     {
-        TeamNames = await TeamService.GetTeams();
+        TeamData = await TeamService.GetTeams();
     }
 
     async Task AddTeam() => await UpdateTeam(new Team());
     async Task UpdateTeam(Team item)
     {
-        var parameters = new DialogParameters { ["Team"] = item };
+        var parameters = new DialogParameters 
+        { 
+            ["Team"] = item,
+            ["Traits"] = await TraitService.GetTraitsOfType(Entrant.Team)
+        };
 
         var dialog = await DialogService.ShowAsync<TeamEditor>("Modify team", parameters);
         var result = await dialog.Result;
@@ -65,7 +70,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Team updatedItem)
         {
             await TeamService.UpdateTeam(updatedItem);
-            TeamNames = await TeamService.GetTeams();
+            TeamData = await TeamService.GetTeams();
         }
     }
 }

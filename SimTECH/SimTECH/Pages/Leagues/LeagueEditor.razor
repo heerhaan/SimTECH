@@ -37,10 +37,10 @@
     public League? League { get; set; }
 
     private EditLeagueModel model = new();
-    private List<EditDevRangeModel> _skillRanges = new();
-    private List<EditDevRangeModel> _ageRanges = new();
-    private List<EditDevRangeModel> _teamRanges = new();
-    private List<EditDevRangeModel> _engineRanges = new();
+    private List<EditRangeModel> _skillRanges = new();
+    private List<EditRangeModel> _ageRanges = new();
+    private List<EditRangeModel> _teamRanges = new();
+    private List<EditRangeModel> _engineRanges = new();
 
     //private string[] dropZones = new[] { "Skill", "Age", "Team", "Engine" };
 
@@ -58,7 +58,7 @@
 
     private void AppendSkillRangeRow()
     {
-        var newRange = new EditDevRangeModel
+        var newRange = new EditRangeModel
             {
                 Type = RangeType.Skill,
                 Comparer = 1,
@@ -72,7 +72,7 @@
 
     private void Submit()
     {
-        var allRanges = new List<EditDevRangeModel>();
+        var allRanges = new List<EditRangeModel>();
         allRanges.AddRange(_skillRanges);
         allRanges.AddRange(_ageRanges);
         allRanges.AddRange(_teamRanges);

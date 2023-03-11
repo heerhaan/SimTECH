@@ -13,7 +13,7 @@
         public double PowerMod { get; set; }
         public double QualifyingMod { get; set; }
 
-        public IList<Race>? Races { get; set; }
-        public IList<TrackTrait>? TrackTraits { get; set; }
+        public IEnumerable<Race>? Races { get; set; }
+        public IEnumerable<TrackTrait>? TrackTraits { get; set; }
     }
 }

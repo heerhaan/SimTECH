@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
@@ -29,13 +28,16 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             if (strategy.Id == 0)
+            {
                 context.Add(strategy);
+            }
             else
             {
                 var removeables = await context.StrategyTyre
-                    .Where(e => e.StrategyId == strategy.Id 
+                    .Where(e => e.StrategyId == strategy.Id
                         && !strategy.StrategyTyres.Select(st => st.Id).Contains(e.Id))
                     .ToListAsync();
+
                 if (removeables.Any())
                     context.RemoveRange(removeables);
 

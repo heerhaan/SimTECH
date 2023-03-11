@@ -11,8 +11,8 @@
         public string Biography { get; set; } = default!;
         public State State { get; set; }
 
-        public IList<SeasonDriver> SeasonDrivers { get; set; } = default!;
-        public IList<DriverTrait> DriverTraits { get; set; } = default!;
-        public IList<Contract> Contracts { get; set; } = default!;
+        public IList<SeasonDriver>? SeasonDrivers { get; set; }
+        public IList<DriverTrait>? DriverTraits { get; set; }
+        public IList<Contract>? Contracts { get; set; }
     }
 }

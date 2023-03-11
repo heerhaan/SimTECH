@@ -91,9 +91,15 @@
                         </MudItem>
                         <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText>
-                                    @(context.Item.ForWetConditions ? "Only" : "Doesn't") apply during moist/wet conditions.
-                                </MudText>
+                                <MudText>For wet conditions:</MudText>
+                                @if (context.Item.ForWetConditions)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success"></MudIcon>
+                                }
+                                else
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Block" Color="Color.Error"></MudIcon>
+                                }
                             </MudPaper>
                         </MudItem>
                     </MudGrid>

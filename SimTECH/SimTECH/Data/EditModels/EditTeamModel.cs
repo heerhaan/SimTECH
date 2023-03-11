@@ -12,7 +12,7 @@ namespace SimTECH.Data.EditModels
         public string? Biography { get; set; }
         public State State { get; set; }
 
-        public List<long> TraitIds { get; set; } = new();
+        public IList<EditTeamTraitModel> TeamTraits { get; set; } = new List<EditTeamTraitModel>();
 
         public EditTeamModel() { _team = new Team(); }
         public EditTeamModel(Team team)
@@ -22,6 +22,9 @@ namespace SimTECH.Data.EditModels
             Country = team.Country;
             Biography = team.Biography;
             State = team.State;
+
+            if (team.TeamTraits != null)
+                TeamTraits = team.TeamTraits.Select(e => new EditTeamTraitModel(e)).ToList();
 
             _team = team;
         }
@@ -35,9 +38,35 @@ namespace SimTECH.Data.EditModels
                 Biography = Biography,
                 State = State,
 
-                TeamTraits = TraitIds.ConvertAll(e => new TeamTrait { TraitId = e, TeamId = Id })
+                TeamTraits = TeamTraits.Select(e => e.Record).ToList()
             };
 
-        public bool IsDirty => _team != Record;
+        public bool IsDirty => _team != Record || TeamTraits.Any(e => e.IsDirty);
+    }
+
+    public class EditTeamTraitModel
+    {
+        private readonly TeamTrait _teamTrait;
+
+        public long TeamId { get; set; }
+        public long TraitId { get; set; }
+
+        public EditTeamTraitModel() { _teamTrait = new TeamTrait(); }
+        public EditTeamTraitModel(TeamTrait teamTrait)
+        {
+            TeamId = teamTrait.TeamId;
+            TraitId = teamTrait.TraitId;
+
+            _teamTrait = teamTrait;
+        }
+
+        public TeamTrait Record =>
+            new()
+            {
+                TeamId = TeamId,
+                TraitId = TraitId
+            };
+
+        public bool IsDirty => _teamTrait != Record;
     }
 }

@@ -9,7 +9,7 @@ namespace SimTECH.Data.EditModels
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public State State { get; set; }
-        public IList<EditDevRangeModel> DevelopmentRanges { get; set; } = new List<EditDevRangeModel>();
+        public IList<EditRangeModel> DevelopmentRanges { get; set; } = new List<EditRangeModel>();
 
         public EditLeagueModel() { _league = new League(); }
         public EditLeagueModel(League league)
@@ -18,9 +18,9 @@ namespace SimTECH.Data.EditModels
             Name = league.Name;
             State = league.State;
             DevelopmentRanges = league.DevelopmentRanges?
-                .Select(range => new EditDevRangeModel(range))
+                .Select(range => new EditRangeModel(range))
                 .ToList()
-                ?? new List<EditDevRangeModel>();
+                ?? new List<EditRangeModel>();
 
             _league = league;
         }
@@ -40,7 +40,7 @@ namespace SimTECH.Data.EditModels
         public bool IsDirty => _league != Record || DevelopmentRanges.Any(e => e.IsDirty);
     }
 
-    public class EditDevRangeModel
+    public class EditRangeModel
     {
         private readonly DevelopmentRange _range;
 
@@ -51,8 +51,8 @@ namespace SimTECH.Data.EditModels
         public int Maximum { get; set; }
         public long LeagueId { get; set; }
 
-        public EditDevRangeModel() { _range = new DevelopmentRange(); }
-        public EditDevRangeModel(DevelopmentRange range)
+        public EditRangeModel() { _range = new DevelopmentRange(); }
+        public EditRangeModel(DevelopmentRange range)
         {
             Id = range.Id;
             Type = range.Type;

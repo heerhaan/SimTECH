@@ -1,5 +1,6 @@
 ﻿@page "/tracks"
 @inject TrackService TrackService
+@inject TraitService TraitService
 @inject IDialogService DialogService
 
 <PageTitle>Tracks</PageTitle>
@@ -9,7 +10,7 @@
         <MudText Typo="Typo.h4">Tracks</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrack">New</MudButton>
     </MudPaper>
-    <MudTable Items="@trackData" ReadOnly="@_readOnly" Bordered="true">
+    <MudTable Items="@TrackData" ReadOnly="@_readOnly" Bordered="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Country</MudTh>
@@ -46,17 +47,21 @@
 
 @code {
     private bool _readOnly = false;
-    private List<Track> trackData = new();
+    private List<Track> TrackData = new();
 
     protected override async Task OnInitializedAsync()
     {
-        trackData = await TrackService.GetTracks();
+        TrackData = await TrackService.GetTracks();
     }
 
     async Task AddTrack() => await UpdateTrack(new Track());
     async Task UpdateTrack(Track item)
     {
-        var parameters = new DialogParameters { ["Track"] = item };
+        var parameters = new DialogParameters 
+        { 
+            ["Track"] = item,
+            ["Traits"] = await TraitService.GetTraitsOfType(Entrant.Track)
+        };
 
         var dialog = await DialogService.ShowAsync<TrackEditor>("Modify track", parameters);
         var result = await dialog.Result;
@@ -64,7 +69,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Track updatedItem)
         {
             await TrackService.UpdateTrack(updatedItem);
-            trackData = await TrackService.GetTracks();
+            TrackData = await TrackService.GetTracks();
         }
     }
 }

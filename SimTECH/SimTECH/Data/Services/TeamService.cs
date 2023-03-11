@@ -19,18 +19,28 @@ namespace SimTECH.Data.Services
             return await context.Team.ToListAsync();
         }
 
-        public async Task CreateTeam(Team team)
-        {
-            using var context = _dbFactory.CreateDbContext();
-            context.Add(team);
-
-            await context.SaveChangesAsync();
-        }
-
         public async Task UpdateTeam(Team team)
         {
             using var context = _dbFactory.CreateDbContext();
-            context.Update(team);
+
+            if (team.Id == 0)
+            {
+                context.Add(team);
+            }
+            else
+            {
+                var removeables = await context.TeamTrait
+                        .Where(e => e.TeamId == team.Id)
+                        .ToListAsync();
+
+                if (removeables.Any())
+                    context.RemoveRange(removeables);
+
+                if (team.TeamTraits?.Any() ?? false)
+                    context.AddRange(team.TeamTraits);
+
+                context.Update(team);
+            }
 
             await context.SaveChangesAsync();
         }

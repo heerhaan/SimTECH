@@ -16,7 +16,7 @@ namespace SimTECH.Data.EditModels
         public double PowerMod { get; set; }
         public double QualifyingMod { get; set; }
 
-        public List<long> TraitIds { get; set; } = new();
+        public IList<EditTrackTraitModel> TrackTraits { get; set; } = new List<EditTrackTraitModel>();
 
         public EditTrackModel() { _track= new Track(); }
         public EditTrackModel(Track track)
@@ -32,7 +32,7 @@ namespace SimTECH.Data.EditModels
             QualifyingMod = track.QualifyingMod;
 
             if (track.TrackTraits != null)
-                TraitIds = track.TrackTraits.Select(e => e.TraitId).ToList();
+                TrackTraits = track.TrackTraits.Select(e => new EditTrackTraitModel(e)).ToList();
 
             _track = track;
         }
@@ -50,9 +50,35 @@ namespace SimTECH.Data.EditModels
                 PowerMod = PowerMod,
                 QualifyingMod = QualifyingMod,
 
-                TrackTraits = TraitIds.ConvertAll(e => new TrackTrait { TraitId = e, TrackId = Id })
+                TrackTraits = TrackTraits.Select(e => e.Record)
             };
 
-        public bool IsDirty => _track != Record;
+        public bool IsDirty => _track != Record || TrackTraits.Any(e => e.IsDirty);
+    }
+
+    public class EditTrackTraitModel
+    {
+        private readonly TrackTrait _trackTrait;
+
+        public long TrackId { get; set; }
+        public long TraitId { get; set; }
+
+        public EditTrackTraitModel() { _trackTrait = new TrackTrait(); }
+        public EditTrackTraitModel(TrackTrait trackTrait)
+        {
+            TrackId = trackTrait.TrackId;
+            TraitId = trackTrait.TraitId;
+
+            _trackTrait = trackTrait;
+        }
+
+        public TrackTrait Record =>
+            new()
+            {
+                TrackId = TrackId,
+                TraitId = TraitId
+            };
+
+        public bool IsDirty => _trackTrait != Record;
     }
 }
