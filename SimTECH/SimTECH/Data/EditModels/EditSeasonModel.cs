@@ -30,8 +30,8 @@ namespace SimTECH.Data.EditModels
             Id = season.Id;
             State = season.State;
             Year = season.Year;
-            MaximumDriversInRace= season.MaximumDriversInRace;
-            QualifyingAmountQ2= season.QualifyingAmountQ2;
+            MaximumDriversInRace = season.MaximumDriversInRace;
+            QualifyingAmountQ2 = season.QualifyingAmountQ2;
             QualifyingAmountQ3 = season.QualifyingAmountQ3;
             QualifyingRNG = season.QualifyingRNG;
             RunAmountSession = season.RunAmountSession;

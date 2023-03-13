@@ -16,7 +16,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Track.ToListAsync();
+            return await context.Track.Include(e => e.TrackTraits).ToListAsync();
         }
 
         public async Task UpdateTrack(Track track)

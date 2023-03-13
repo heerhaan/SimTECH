@@ -3,7 +3,31 @@
         <MudText>Are you sure you want to create a new season with these settings?</MudText>
     </TitleContent>
     <DialogContent>
+        <MudForm Model="@model">
+            <MudGrid>
+                <MudItem xs="8">
+                    <MudPaper>
+                        <MudNumericField T="int" @bind-Value="model.Year" Label="Year" />
+                        <MudNumericField T="int" @bind-Value="model.MaximumDriversInRace" Label="MaximumDriversInRace" />
+                        <MudNumericField T="int" @bind-Value="model.QualifyingAmountQ2" Label="Q2.Count" />
+                        <MudNumericField T="int" @bind-Value="model.QualifyingAmountQ3" Label="Q3.Count" />
+                        <MudNumericField T="int" @bind-Value="model.QualifyingRNG" Label="Q.RNG" />
+                        <MudNumericField T="int" @bind-Value="model.RunAmountSession" Label="Amount runs Q.session" />
+                        <MudNumericField T="int" @bind-Value="model.GridBonus" Label="Bonus per grid position" />
+                        <MudNumericField T="int" @bind-Value="model.PitMinimum" Label="Pit min. RNG" />
+                        <MudNumericField T="int" @bind-Value="model.PitMaximum" Label="Pit max. RNG" />
+                        <MudNumericField T="int" @bind-Value="model.PointsPole" Label="Awarded pts. POLE" />
+                        <MudNumericField T="int" @bind-Value="model.PointsFastestLap" Label="Awarded pts. FL" />
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="4">
+                    <MudPaper>
+                        <MudText>Points per position</MudText>
 
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>

@@ -50,7 +50,7 @@ namespace SimTECH.Data.EditModels
                 PowerMod = PowerMod,
                 QualifyingMod = QualifyingMod,
 
-                TrackTraits = TrackTraits.Select(e => e.Record)
+                TrackTraits = TrackTraits.Select(e => e.Record).ToList()
             };
 
         public bool IsDirty => _track != Record || TrackTraits.Any(e => e.IsDirty);
