@@ -9,25 +9,25 @@
         <MudText Typo="Typo.h4">Leagues</MudText>
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddLeague">New</MudButton>
     </MudPaper>
-    <MudTable Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true">
-        <HeaderContent>
-            <MudTh>Name</MudTh>
-            <MudTh>State</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>@context.Name</MudTd>
-            <MudTd>@context.State</MudTd>
-            <MudTd Class="d-flex justify-end">
-                <MudButtonGroup>
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context))" />
-                </MudButtonGroup>
-            </MudTd>
-        </RowTemplate>
+    <MudDataGrid T="League" Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true">
+        <Columns>
+            <HierarchyColumn T="League" />
+            <Column T="League" Field="Name" />
+            <Column T="League" Field="State" />
+            <Column T="League" CellClass="d-flex justify-end">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </Column>
+        </Columns>
         <ChildRowContent>
+            <MudGrid>
 
+            </MudGrid>
         </ChildRowContent>
-    </MudTable>
+    </MudDataGrid>
 </MudContainer>
 
 @code {
