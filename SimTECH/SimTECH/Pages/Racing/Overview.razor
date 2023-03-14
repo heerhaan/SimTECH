@@ -2,12 +2,26 @@
 
 <PageTitle>Overview</PageTitle>
 
-<MudButtonGroup Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Large" Class="ma-10">
-    <MudButton Href="/drivers">Drivers</MudButton>
-</MudButtonGroup>
-
-<MudTabs Outlined="true">
-    <MudTabPanel>
+<MudTabs Outlined="true" Centered="true">
+    <MudTabPanel Text="Standings">
+        <Calendar SeasonId="SeasonId" />
+    </MudTabPanel>
+    <MudTabPanel Text="Calendar">
+        <Calendar SeasonId="SeasonId" />
+    </MudTabPanel>
+    <MudTabPanel Text="Entrants">
+        <MudStack Row="true">
+            @for (int i = 0; i < 10; i++)
+            {
+                <MudPaper Width="250px">
+                    <MudText>Ayy lmao: @(i)x</MudText>
+                    <MudText>Ayy lmao: @(i)x</MudText>
+                    <MudText>Ayy lmao: @(i)x</MudText>
+                </MudPaper>
+            }
+        </MudStack>
+    </MudTabPanel>
+    <MudTabPanel Text="Settings">
         <Calendar SeasonId="SeasonId" />
     </MudTabPanel>
 </MudTabs>

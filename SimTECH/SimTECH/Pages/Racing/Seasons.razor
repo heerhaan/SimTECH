@@ -14,10 +14,12 @@
         <Columns>
             <Column T="Season" Field="Year" />
             <Column T="Season" Field="State" IsEditable="false" />
+            <Column T="Season" Field="LeagueId" IsEditable="false" />
             <Column T="Season" CellClass="d-flex justify end">
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(async () => await UpdateSeason(context.Item))" />
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </Column>
@@ -51,6 +53,11 @@
             await SeasonService.UpdateSeason(updatedItem);
             Nav.NavigateTo($"/overview/{updatedItem.Id}");
         }
+    }
+
+    private void GoToOverview(long seasonId)
+    {
+        Nav.NavigateTo($"/overview/{seasonId}");
     }
 
     private class SeasonOverview

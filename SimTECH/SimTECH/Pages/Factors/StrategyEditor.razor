@@ -8,10 +8,11 @@
         <MudGrid Spacing="2">
             <MudItem xs="6">
                 <MudPaper>
-                    <MudTable T="EditStrategyTyreModel" Items="@model.StrategyTyres" OnRowClick="RemoveTyreFromStrategy" Hover="true">
+                    <MudTable T="EditStrategyTyreModel" Items="@model.StrategyTyres">
                         <HeaderContent>
                             <MudTh>Tyre</MudTh>
                             <MudTh>Apply in Stint Nr.</MudTh>
+                            <MudTh></MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd DataLabel="Tyre">
@@ -21,6 +22,9 @@
                                 </MudTd>
                             <MudTd DataLabel="NumberStint">
                                 <MudNumericField T="int" @bind-Value="context.NumberStint" />
+                            </MudTd>
+                            <MudTd>
+                                <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveTyreFromStrategy(context))" />
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -96,18 +100,17 @@
         model.StrategyTyres.Add(appendedStrategyTyre);
     }
 
-    private void RemoveTyreFromStrategy(TableRowClickEventArgs<EditStrategyTyreModel> rowClickEvent)
+    private void RemoveTyreFromStrategy(EditStrategyTyreModel strategyTyre)
     {
-        EditStrategyTyreModel strategyTyre = rowClickEvent.Item;
-
-        lastStintNumber -= strategyTyre.Tyre.Length;
+        if (strategyTyre.Tyre != null)
+            lastStintNumber -= strategyTyre.Tyre.Length;
 
         model.StrategyTyres.Remove(strategyTyre);
     }
 
     private void Submit()
     {
-        model.StintLength = model.StrategyTyres.Sum(e => e.Tyre.Length);
+        model.StintLength = model.StrategyTyres.Sum(e => e.Tyre?.Length ?? 0);
 
         if (model.IsDirty)
         {
