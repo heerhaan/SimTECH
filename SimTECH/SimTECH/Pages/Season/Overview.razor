@@ -1,0 +1,44 @@
+﻿@page "/overview/{SeasonId:long}"
+@inject SeasonService SeasonService
+
+<PageTitle>Overview</PageTitle>
+
+<CascadingValue Value="Season">
+    <MudTabs Outlined="true" Centered="true">
+        <MudTabPanel Text="Intro">
+            @if (Season != null)
+            {
+                <MudText>Hello, the season year is @Season.Year</MudText>
+            }
+        </MudTabPanel>
+        <MudTabPanel Text="Calendar">
+            <Calendar />
+        </MudTabPanel>
+        <MudTabPanel Text="Standings">
+            <Calendar />
+        </MudTabPanel>
+        <MudTabPanel Text="Drivers">
+            <Calendar />
+        </MudTabPanel>
+        <MudTabPanel Text="Teams">
+            <Calendar />
+        </MudTabPanel>
+        <MudTabPanel Text="Engines">
+            <Calendar />
+        </MudTabPanel>
+        <MudTabPanel Text="Settings">
+            <Calendar />
+        </MudTabPanel>
+    </MudTabs>
+</CascadingValue>
+
+@code {
+    [Parameter] public long SeasonId { get; set; }
+
+    public Season? Season { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Season = await SeasonService.GetSeasonById(SeasonId);
+    }
+}

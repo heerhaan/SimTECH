@@ -1,0 +1,35 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>Add race</MudText>
+    </TitleContent>
+    <DialogContent>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? RaceDialog { get; set; }
+
+    [Parameter] public Race? Race { get; set; }
+
+    private EditRaceModel model = new();
+
+    protected override void OnInitialized()
+    {
+        if (Race != null)
+        {
+            model = new EditRaceModel(Race);
+        }
+    }
+
+    private void Submit()
+    {
+        RaceDialog?.Close(DialogResult.Ok(Race));
+    }
+
+    private void Cancel() => RaceDialog?.Cancel();
+}

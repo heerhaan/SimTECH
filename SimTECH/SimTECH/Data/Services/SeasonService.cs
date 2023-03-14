@@ -19,6 +19,15 @@ namespace SimTECH.Data.Services
             return await context.Season.Include(e => e.PointAllotments).ToListAsync();
         }
 
+        public async Task<Season> GetSeasonById(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Season
+                .Include(e => e.PointAllotments)
+                .SingleAsync(e => e.Id == seasonId);
+        }
+
         public async Task UpdateSeason(Season season)
         {
             using var context = _dbFactory.CreateDbContext();

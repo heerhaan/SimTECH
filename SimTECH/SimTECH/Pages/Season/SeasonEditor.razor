@@ -35,20 +35,16 @@
                                 <MudTh></MudTh>
                             </HeaderContent>
                             <RowTemplate>
-                                <MudTd DataLabel="Position">@context.Position</MudTd>
-                                <MudTd DataLabel="Points">@context.Points</MudTd>
-                                <MudTd>
-                                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveAllotment(context))" />
-                                </MudTd>
-                            </RowTemplate>
-                            <RowEditingTemplate>
                                 <MudTd DataLabel="Position">
                                     <MudNumericField @bind-Value="@context.Position" Required />
                                 </MudTd>
                                 <MudTd DataLabel="Points">
                                     <MudNumericField @bind-Value="@context.Points" Required />
                                 </MudTd>
-                            </RowEditingTemplate>
+                                <MudTd>
+                                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveAllotment(context))" />
+                                </MudTd>
+                            </RowTemplate>
                             <FooterContent>
                                 <MudTFootRow>
                                     <MudTd>

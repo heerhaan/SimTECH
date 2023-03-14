@@ -1,0 +1,73 @@
+﻿@inject RaceService RaceService
+@inject IDialogService DialogService
+
+<MudContainer>
+    <MudText Typo="Typo.h2">YEAR LEAGUE season</MudText>
+
+    @if (_notification != null)
+    {
+        <MudAlert Severity="Severity.Error">@_notification</MudAlert>
+    }
+
+    <MudButton OnClick="AlertMoment">Start season</MudButton>
+
+    <MudText Typo="Typo.h3">Races</MudText>
+    <MudText>[Temp] The seasonId is @Season.Id</MudText>
+
+    @* None should actually be ignored in the future *@
+    @if (Season.State == State.Concept || Season.State == State.None)
+    {
+        <MudButtonGroup Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large">
+            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AlertMoment">Add race</MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AlertMoment">Copy race</MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AlertMoment">Copy all races in season</MudButton>
+        </MudButtonGroup>
+    }
+
+    <MudTable Items="RaceData">
+        <HeaderContent>
+            <MudTh>Round</MudTh>
+            <MudTh></MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Weather</MudTh>
+            <MudTh>Winning driver</MudTh>
+            <MudTh>Winning team</MudTh>
+            <MudTh>State</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Round</MudTd>
+            <MudTd>
+                <CountryFlag Code="context.Track.Country" />
+            </MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.Weather</MudTd>
+            <MudTd>TODO</MudTd>
+            <MudTd>TODO</MudTd>
+            <MudTd>@context.State</MudTd>
+            <MudTd>
+                butt(on)(s)
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    [CascadingParameter] public Season? Season { get; set; }
+
+    private IList<Race> RaceData = new List<Race>();
+    private string? _notification;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Season != null)
+        {
+            RaceData = await RaceService.GetRacesBySeason(Season.Id);
+        }
+    }
+
+    private void AlertMoment()
+    {
+        _notification = "Functionality has not been implemented yet!!!";
+    }
+}

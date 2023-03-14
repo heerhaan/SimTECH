@@ -39,6 +39,7 @@
         SeasonData = await SeasonService.GetSeasons();
     }
 
+    // Arguably delete the copy, use by default the last season as a base
     private async Task NewSeason() => await UpdateSeason(new Season());
     private async Task CopySeason(Season season) => await UpdateSeason(season, true);
     private async Task UpdateSeason(Season item, bool isCopied = false)
