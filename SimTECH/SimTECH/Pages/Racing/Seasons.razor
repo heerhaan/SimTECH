@@ -48,6 +48,7 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
         {
+            await SeasonService.UpdateSeason(updatedItem);
             Nav.NavigateTo($"/overview/{updatedItem.Id}");
         }
     }

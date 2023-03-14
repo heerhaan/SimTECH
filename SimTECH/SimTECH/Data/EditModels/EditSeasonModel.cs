@@ -22,7 +22,6 @@ namespace SimTECH.Data.EditModels
         public int PointsFastestLap { get; set; }
         public long LeagueId { get; set; }
         public IList<EditPointAllotmentModel> PointAllotments { get; set; } = new List<EditPointAllotmentModel>();
-        public IList<EditRaceModel> Races { get; set; } = new List<EditRaceModel>();
 
         public EditSeasonModel() { _season = new Season(); }
         public EditSeasonModel(Season season)
@@ -44,9 +43,6 @@ namespace SimTECH.Data.EditModels
 
             if (season.PointAllotments != null)
                 PointAllotments = season.PointAllotments.Select(e => new EditPointAllotmentModel(e)).ToList();
-
-            if (season.Races != null)
-                Races = season.Races.Select(e => new EditRaceModel(e)).ToList();
 
             _season = season;
         }
@@ -70,10 +66,9 @@ namespace SimTECH.Data.EditModels
                 LeagueId = LeagueId,
 
                 PointAllotments = PointAllotments.Select(e => e.Record).ToList(),
-                Races = Races.Select(e => e.Record).ToList()
             };
 
-        public bool IsDirty => _season != Record || PointAllotments.Any(e => e.IsDirty) || Races.Any(e => e.IsDirty);
+        public bool IsDirty => _season != Record || PointAllotments.Any(e => e.IsDirty);
 
         public void ResetIdentifierFields()
         {
@@ -82,8 +77,6 @@ namespace SimTECH.Data.EditModels
 
             foreach (var point in PointAllotments)
                 point.ResetIdentifierFields();
-            foreach (var race in Races)
-                race.ResetIdentifierFields();
         }
     }
 
