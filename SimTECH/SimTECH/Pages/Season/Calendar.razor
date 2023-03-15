@@ -18,7 +18,7 @@
     @if (Season.State == State.Concept || Season.State == State.None)
     {
         <MudButtonGroup Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large">
-            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AlertMoment">Add race</MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRace">Add race</MudButton>
             <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AlertMoment">Copy race</MudButton>
             <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AlertMoment">Copy all races in season</MudButton>
         </MudButtonGroup>
@@ -63,6 +63,20 @@
         if (Season != null)
         {
             RaceData = await RaceService.GetRacesBySeason(Season.Id);
+        }
+    }
+
+    async Task AddRace()
+    {
+        var parameters = new DialogParameters { ["Race"] = (new Race()) };
+
+        var dialog = await DialogService.ShowAsync<RaceEditor>("Modify Race", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
+        {
+            //await LeagueService.UpdateLeague(updatedRace);
+            //LeagueData = await LeagueService.GetLeagues();
         }
     }
 

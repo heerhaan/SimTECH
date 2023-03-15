@@ -70,7 +70,10 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public int Order { get; set; }
-        public StintEvent StintEvents { get; set; }
+        public bool UseDriver { get; set; }
+        public bool UseCar { get; set; }
+        public bool UseEngine { get; set; }
+        public bool UseReliability { get; set; }
         public int RngMin { get; set; }
         public int RngMax { get; set; }
         public long RaceId { get; set; }
@@ -80,7 +83,10 @@ namespace SimTECH.Data.EditModels
         {
             Id = stint.Id;
             Order = stint.Order;
-            StintEvents = stint.StintEvents;
+            UseDriver = stint.StintEvents.HasFlag(StintEvent.Driver);
+            UseCar = stint.StintEvents.HasFlag(StintEvent.Car);
+            UseEngine = stint.StintEvents.HasFlag(StintEvent.Engine);
+            UseReliability = stint.StintEvents.HasFlag(StintEvent.Reliability);
             RngMin = stint.RngMin;
             RngMax = stint.RngMax;
             RaceId = stint.RaceId;
@@ -88,15 +94,14 @@ namespace SimTECH.Data.EditModels
             _stint = stint;
         }
 
-        public Stint Record =>
-            new()
+        public Stint Record => new ()
             {
                 Id = Id,
-                Order= Order,
-                StintEvents= StintEvents,
-                RngMin= RngMin,
-                RngMax= RngMax,
-                RaceId= RaceId
+                Order = Order,
+                StintEvents = DetermineStintEvents(),
+                RngMin = RngMin,
+                RngMax = RngMax,
+                RaceId = RaceId
             };
 
         public bool IsDirty => _stint != Record;
@@ -105,6 +110,22 @@ namespace SimTECH.Data.EditModels
         {
             Id = default;
             RaceId = default;
+        }
+
+        private StintEvent DetermineStintEvents()
+        {
+            var baseStint = StintEvent.None;
+
+            if (UseDriver)
+                baseStint |= StintEvent.Driver;
+            if (UseCar)
+                baseStint |= StintEvent.Car;
+            if (UseEngine)
+                baseStint |= StintEvent.Engine;
+            if (UseReliability)
+                baseStint |= StintEvent.Reliability;
+
+            return baseStint;
         }
     }
 }

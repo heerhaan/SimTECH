@@ -7,15 +7,27 @@
     <DialogContent>
         <MudGrid>
             <MudItem>
-                @* Alternatively use a custom list resorter *@
-                <MudDropContainer T="EditStintModel" Items="model.Stints" ItemDropped="ReorderStint">
+                @* Alternatively use a custom list resorter if the one underneath doesnt work *@
+                @* Ok, fuck the drop container. We're doing this differently: https://stackoverflow.com/questions/59302823/blazor-re-ordering-a-list-with-drag-and-drop *@
+                <MudDropContainer T="EditStintModel" Items="@_dropZoneItems" ItemDropped="ReorderStint">
                     <ChildContent>
-
+                        <MudPaper>
+                            <MudList>
+                                <MudListSubheader>Humongous W</MudListSubheader>
+                                <MudDropZone T="EditStintModel" AllowReorder="true" />
+                            </MudList>
+                        </MudPaper>
                     </ChildContent>
                     <ItemRenderer>
                         <MudListItem>
                             <MudStack Row="true">
-                                <MudText></MudText>
+                                <MudText>@context.Order</MudText>
+                                <MudCheckBox @bind-Checked="context.UseDriver" Color="Color.Tertiary" />
+                                <MudCheckBox @bind-Checked="context.UseCar" Color="Color.Tertiary" />
+                                <MudCheckBox @bind-Checked="context.UseEngine" Color="Color.Tertiary" />
+                                <MudCheckBox @bind-Checked="context.UseReliability" Color="Color.Tertiary" />
+                                <MudNumericField @bind-Value="context.RngMin" Label="RngMin" />
+                                <MudNumericField @bind-Value="context.RngMax" Label="RngMax" />
                             </MudStack>
                         </MudListItem>
                     </ItemRenderer>
@@ -24,6 +36,7 @@
         </MudGrid>
     </DialogContent>
     <DialogActions>
+        <MudButton OnClick="AddStint">Add</MudButton>
         <MudButton OnClick="Cancel">Cancel</MudButton>
         <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
     </DialogActions>
@@ -34,6 +47,25 @@
 
     [Parameter] public Race? Race { get; set; }
 
+    private MudDropContainer<EditStintModel> _container = new();
+    private List<EditStintModel> _dropZoneItems = new()
+    {
+        new EditStintModel()
+        {
+            Order = 1,
+            RaceId = 0
+        },
+        new EditStintModel()
+        {
+            Order = 2,
+            RaceId = 0
+        },
+        new EditStintModel()
+        {
+            Order = 3,
+            RaceId = 0
+        },
+    };
     private EditRaceModel model = new();
 
     protected override void OnInitialized()
@@ -41,12 +73,27 @@
         if (Race != null)
         {
             model = new EditRaceModel(Race);
+
+            RefreshContainer();
         }
+    }
+
+    private void AddStint()
+    {
+        model.Stints.Add(new EditStintModel());
+
+        RefreshContainer();
     }
 
     private void ReorderStint(MudItemDropInfo<EditStintModel> dropItem)
     {
         model.Stints.UpdateOrder(dropItem, e => e.Order);
+    }
+
+    private void RefreshContainer()
+    {
+        StateHasChanged();
+        //_container.Refresh();
     }
 
     private void Submit()
