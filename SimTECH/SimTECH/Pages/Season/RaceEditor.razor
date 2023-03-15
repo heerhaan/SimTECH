@@ -1,9 +1,27 @@
-﻿<MudDialog>
+﻿@using MudBlazor.Utilities
+
+<MudDialog>
     <TitleContent>
         <MudText>Add race</MudText>
     </TitleContent>
     <DialogContent>
+        <MudGrid>
+            <MudItem>
+                @* Alternatively use a custom list resorter *@
+                <MudDropContainer T="EditStintModel" Items="model.Stints" ItemDropped="ReorderStint">
+                    <ChildContent>
 
+                    </ChildContent>
+                    <ItemRenderer>
+                        <MudListItem>
+                            <MudStack Row="true">
+                                <MudText></MudText>
+                            </MudStack>
+                        </MudListItem>
+                    </ItemRenderer>
+                </MudDropContainer>
+            </MudItem>
+        </MudGrid>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -24,6 +42,11 @@
         {
             model = new EditRaceModel(Race);
         }
+    }
+
+    private void ReorderStint(MudItemDropInfo<EditStintModel> dropItem)
+    {
+        model.Stints.UpdateOrder(dropItem, e => e.Order);
     }
 
     private void Submit()

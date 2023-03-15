@@ -67,14 +67,14 @@ namespace SimTECH.Data.EditModels
         public DevelopmentRange Record =>
             new()
             {
-                Id = this.Id,
-                Type = this.Type,
-                Comparer = this.Comparer,
-                Minimum = this.Minimum,
-                Maximum = this.Maximum,
-                LeagueId = this.LeagueId
+                Id = Id,
+                Type = Type,
+                Comparer = Comparer,
+                Minimum = Minimum,
+                Maximum = Maximum,
+                LeagueId = LeagueId
             };
 
-        public bool IsDirty => _range != this.Record;
+        public bool IsDirty => _range != Record;
     }
 }

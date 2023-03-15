@@ -27,6 +27,10 @@ namespace SimTECH.Data.EditModels
             State= race.State;
             SeasonId = race.SeasonId;
             TrackId = race.TrackId;
+            Stints = race.Stints?
+                .Select(stint => new EditStintModel(stint))
+                .ToList()
+                ?? new List<EditStintModel>();
 
             _race = race;
         }
@@ -40,7 +44,10 @@ namespace SimTECH.Data.EditModels
                 Weather = Weather,
                 State = State,
                 SeasonId = SeasonId,
-                TrackId = TrackId
+                TrackId = TrackId,
+                Stints = Stints
+                    .Select(stint => stint.Record)
+                    .ToList()
             };
 
         public bool IsDirty => _race != Record || Stints.Any(e => e.IsDirty);
@@ -74,8 +81,8 @@ namespace SimTECH.Data.EditModels
             Id = stint.Id;
             Order = stint.Order;
             StintEvents = stint.StintEvents;
-            RngMin= stint.RngMin;
-            RngMax= stint.RngMax;
+            RngMin = stint.RngMin;
+            RngMax = stint.RngMax;
             RaceId = stint.RaceId;
 
             _stint = stint;
