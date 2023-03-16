@@ -4,8 +4,27 @@
     </TitleContent>
     <DialogContent>
         <MudGrid>
+            <MudItem xs="6">
+                <MudTextField @bind-Value="model.Name" Label="Name" />
+                <MudSelect T="Weather" @bind-Value="model.Weather" Label="Weather">
+                    @foreach (var select in EnumHelper.GetWeatherSelection())
+                    {
+                        <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="6">
+                <MudNumericField T="int" @bind-Value="model.Round" Label="Round" />
+                <MudSelect T="Weather" @bind-Value="model.Weather" Label="Weather">
+                    @foreach (var select in EnumHelper.GetWeatherSelection())
+                    {
+                        <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
             <MudItem xs="12">
                 <div>
+                    <MudText>Stint setup for the race</MudText>
                     <table>
                         <thead>
                             <tr>
@@ -19,12 +38,13 @@
                             </tr>
                         </thead>
                         <tbody ondragover="event.preventDefault();" ondragstart="event.dataTransfer.setData('', event.target.id);">
+                            <!-- NOTE: underneath works but it isn't pretty nor easy to use -->
                             @foreach (var item in model.Stints.OrderBy(x => x.Order))
                             {
                                 <tr @ondrop="() => HandleDrop(item)" @key="item"
                                     @ondragleave="@(() => { item.IsDragOver = false; })"
                                     @ondragenter="@(() => { item.IsDragOver = true; })"
-                                    style="@(item.IsDragOver ? "border: solid 2px red; background-color:red !important;" : "")"
+                                    style="@(item.IsDragOver ? "border: solid 2px red; background-color:red;" : "")"
                                     @ondragstart="() => draggingItem = item"
                                     @ondragend="() => draggingItem = null"
                                     draggable="true">
@@ -74,6 +94,7 @@
     [CascadingParameter] protected MudDialogInstance? RaceDialog { get; set; }
 
     [Parameter] public Race? Race { get; set; }
+    [Parameter] public List<Track>? Tracks { get; set; }
 
     private EditRaceModel model = new();
     private EditStintModel? draggingItem; // model object which is being dragged
@@ -83,12 +104,11 @@
         if (Race != null)
         {
             model = new EditRaceModel(Race);
+            orderNum = model.Stints.Count;
         }
-
-        orderNum = model.Stints.Count;
     }
 
-    private int orderNum;
+    private int orderNum = 0;
 
     private void AddStint()
     {

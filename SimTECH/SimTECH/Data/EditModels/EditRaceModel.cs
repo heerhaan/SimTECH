@@ -21,10 +21,10 @@ namespace SimTECH.Data.EditModels
         public EditRaceModel(Race race)
         {
             Id = race.Id;
-            Round= race.Round;
+            Round = race.Round;
             Name = race.Name;
             Weather = race.Weather;
-            State= race.State;
+            State = race.State;
             SeasonId = race.SeasonId;
             TrackId = race.TrackId;
             Stints = race.Stints?

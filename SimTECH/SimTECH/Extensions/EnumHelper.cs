@@ -23,17 +23,20 @@
             };
         }
 
-        public static Dictionary<Entrant, string> RetrieveEntrantDict() => EntrantDict;
-
-        #region global values
-
-        private static readonly Dictionary<Entrant, string> EntrantDict = new()
+        // Dictionary selectors underneath
+        public static Dictionary<Entrant, string> GetEntrantSelection() => new()
         {
             { Entrant.Driver, "Driver" },
             { Entrant.Team, "Team" },
             { Entrant.Track, "Track" },
         };
 
-        #endregion
+        public static Dictionary<Weather, string> GetWeatherSelection() => new()
+        {
+            { Weather.Sunny, "Sunny" },
+            { Weather.Overcast, "Overcast" },
+            { Weather.Rain, "Rain" },
+            { Weather.Storm, "Storm" },
+        };
     }
 }

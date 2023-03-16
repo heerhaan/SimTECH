@@ -1,35 +1,85 @@
 ﻿@page "/overview/{SeasonId:long}"
 @inject SeasonService SeasonService
+@inject IDialogService DialogService
 
 <PageTitle>Overview</PageTitle>
 
 <CascadingValue Value="Season">
-    <MudTabs Outlined="true" Centered="true">
-        <MudTabPanel Text="Intro">
-            @if (Season != null)
-            {
-                <MudText>Hello, the season year is @Season.Year</MudText>
-            }
-        </MudTabPanel>
-        <MudTabPanel Text="Calendar">
-            <Calendar />
-        </MudTabPanel>
-        <MudTabPanel Text="Standings">
-            <Calendar />
-        </MudTabPanel>
-        <MudTabPanel Text="Drivers">
-            <Calendar />
-        </MudTabPanel>
-        <MudTabPanel Text="Teams">
-            <Calendar />
-        </MudTabPanel>
-        <MudTabPanel Text="Engines">
-            <Calendar />
-        </MudTabPanel>
-        <MudTabPanel Text="Settings">
-            <Calendar />
-        </MudTabPanel>
-    </MudTabs>
+    @if (Season != null)
+    {
+        <MudTabs Outlined="true" Centered="true">
+            <MudTabPanel Text="Intro">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudText>Hello, the season year is @Season.Year</MudText>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudText>This is a good place to share some info about the state of setting this all up</MudText>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+            <MudTabPanel Text="Calendar">
+                <Calendar />
+            </MudTabPanel>
+            <MudTabPanel Text="Standings">
+                <MudText>Not implemented yet</MudText>
+            </MudTabPanel>
+            <MudTabPanel Text="Drivers">
+                <SeasonDrivers />
+            </MudTabPanel>
+            <MudTabPanel Text="Teams">
+                <SeasonTeams />
+            </MudTabPanel>
+            <MudTabPanel Text="Engines">
+                <SeasonEngines />
+            </MudTabPanel>
+            <MudTabPanel Text="Settings">
+                <MudGrid>
+                    <MudItem xs="3">
+                        <MudPaper>
+                            <MudTextField @bind-Value="Season.Year" Label="Year" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.MaximumDriversInRace" Label="MaximumDriversInRace" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.QualifyingAmountQ2" Label="QualifyingAmountQ2" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.QualifyingAmountQ3" Label="QualifyingAmountQ3" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.QualifyingRNG" Label="QualifyingRNG" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.RunAmountSession" Label="RunAmountSession" ReadOnly="true"></MudTextField>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="3">
+                        <MudPaper>
+                            <MudTextField @bind-Value="Season.GridBonus" Label="GridBonus" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.PitMinimum" Label="PitMinimum" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.PitMaximum" Label="PitMaximum" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.PointsPole" Label="PointsPole" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.PointsFastestLap" Label="PointsFastestLap" ReadOnly="true"></MudTextField>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper>
+                            @if (Season.PointAllotments != null)
+                            {
+                                @foreach (var allotment in Season.PointAllotments)
+                                {
+                                    <MudText>Pos.@allotment.Position -- @allotment.Points pts.</MudText>
+                                }
+                            }
+                            else
+                            {
+                                <MudText>Where is the friggin point allotments</MudText>
+                            }
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row="true">
+                            <MudText>H</MudText>
+                            <MudSpacer />
+                            <MudButton StartIcon="@Icons.Material.Outlined.Edit" OnClick="UpdateSeason">Edit settings</MudButton>
+                        </MudStack>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+        </MudTabs>
+    }
 </CascadingValue>
 
 @code {
@@ -40,5 +90,19 @@
     protected override async Task OnInitializedAsync()
     {
         Season = await SeasonService.GetSeasonById(SeasonId);
+    }
+
+    async Task UpdateSeason()
+    {
+        var parameters = new DialogParameters { ["Season"] = Season, ["Copied"] = false };
+
+        var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
+        {
+            await SeasonService.UpdateSeason(updatedItem);
+            Season = updatedItem;
+        }
     }
 }

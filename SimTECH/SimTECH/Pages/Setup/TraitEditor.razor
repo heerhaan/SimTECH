@@ -8,7 +8,7 @@
                 <MudItem xs="6">
                     <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
                     <MudSelect T="Entrant" @bind-Value="model.Type" Label="Entrant type" Variant="Variant.Outlined">
-                        @foreach (var entrant in EnumHelper.RetrieveEntrantDict())
+                        @foreach (var entrant in EnumHelper.GetEntrantSelection())
                         {
                             <MudSelectItem Value="@entrant.Key">@entrant.Value</MudSelectItem>
                         }

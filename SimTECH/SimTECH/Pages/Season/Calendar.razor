@@ -1,4 +1,5 @@
 ﻿@inject RaceService RaceService
+@inject TrackService TrackService
 @inject IDialogService DialogService
 
 <MudContainer>
@@ -9,7 +10,7 @@
         <MudAlert Severity="Severity.Error">@_notification</MudAlert>
     }
 
-    <MudButton OnClick="AlertMoment">Start season</MudButton>
+    <MudButton OnClick="NotImplementedMoment">Start season</MudButton>
 
     <MudText Typo="Typo.h3">Races</MudText>
     <MudText>[Temp] The seasonId is @Season.Id</MudText>
@@ -19,8 +20,8 @@
     {
         <MudButtonGroup Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large">
             <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRace">Add race</MudButton>
-            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AlertMoment">Copy race</MudButton>
-            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AlertMoment">Copy all races in season</MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="NotImplementedMoment">Copy race</MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="NotImplementedMoment">Copy all races in season</MudButton>
         </MudButtonGroup>
     }
 
@@ -53,35 +54,48 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public Season? Season { get; set; }
+    [CascadingParameter] public Season Season { get; set; }
 
     private IList<Race> RaceData = new List<Race>();
     private string? _notification;
 
     protected override async Task OnInitializedAsync()
     {
-        if (Season != null)
-        {
-            RaceData = await RaceService.GetRacesBySeason(Season.Id);
-        }
+        RaceData = await RaceService.GetRacesBySeason(Season.Id);
     }
 
-    async Task AddRace()
+    async Task AddRace() => await UpdateRace(new Race());
+    async Task UpdateRace(Race item)
     {
-        var parameters = new DialogParameters { ["Race"] = (new Race()) };
+        var availableTracks = (await TrackService.GetTracks())
+            .Where(e => !RaceData.Select(r => r.TrackId).Contains(e.Id))
+            .ToList();
+
+        if (!availableTracks.Any())
+        {
+            AlertMoment("No accessible tracks are available to create a race from");
+            return;
+        }
+
+        var parameters = new DialogParameters 
+            {
+                ["Race"] = item,
+                ["Tracks"] = availableTracks
+            };
 
         var dialog = await DialogService.ShowAsync<RaceEditor>("Modify Race", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
         {
-            //await LeagueService.UpdateLeague(updatedRace);
-            //LeagueData = await LeagueService.GetLeagues();
+            await RaceService.UpdateRace(updatedRace);
+            RaceData = await RaceService.GetRacesBySeason(Season.Id);
         }
     }
 
-    private void AlertMoment()
+    private void NotImplementedMoment() => AlertMoment("Functionality has not been implemented yet!!!");
+    private void AlertMoment(string text)
     {
-        _notification = "Functionality has not been implemented yet!!!";
+        _notification = text;
     }
 }
