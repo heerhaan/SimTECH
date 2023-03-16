@@ -1,14 +1,13 @@
-﻿@using MudBlazor.Utilities
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>Add race</MudText>
     </TitleContent>
     <DialogContent>
         <MudGrid>
+            @*
             <MudItem>
-                @* Alternatively use a custom list resorter if the one underneath doesnt work *@
-                @* Ok, fuck the drop container. We're doing this differently: https://stackoverflow.com/questions/59302823/blazor-re-ordering-a-list-with-drag-and-drop *@
+                Alternatively use a custom list resorter if the one underneath doesnt work
+                Ok, fuck the drop container. We're doing this differently: https://stackoverflow.com/questions/59302823/blazor-re-ordering-a-list-with-drag-and-drop
                 <MudDropContainer T="EditStintModel" Items="@_dropZoneItems" ItemDropped="ReorderStint">
                     <ChildContent>
                         <MudPaper>
@@ -32,6 +31,24 @@
                         </MudListItem>
                     </ItemRenderer>
                 </MudDropContainer>
+            </MudItem> *@
+            <MudItem>
+                <div>
+                    <ul ondragover="event.preventDefault();" ondragstart="event.dataTransfer.setData('', event.target.id);">
+	                    @foreach (var item in model.Stints.OrderBy(x => x.Order))
+	                    {
+		                    <li @ondrop="()=>HandleDrop(item)" @key="item">
+			                    <div @ondragleave="@(()=> {item.IsDragOver = false;})"
+				                    @ondragenter="@(()=>{item.IsDragOver = true;})"
+				                    style="@(item.IsDragOver?"border-style: solid none none none; border-color:red;":"")"
+                                    @ondragstart="() => draggingItem = item"
+				                    @ondragend="()=> draggingItem = null" draggable="true">
+                                    stint: @item.Order
+                                </div>
+		                    </li>
+	                    }
+                    </ul>
+                </div>
             </MudItem>
         </MudGrid>
     </DialogContent>
@@ -47,58 +64,52 @@
 
     [Parameter] public Race? Race { get; set; }
 
-    private MudDropContainer<EditStintModel> _container = new();
-    private List<EditStintModel> _dropZoneItems = new()
-    {
-        new EditStintModel()
-        {
-            Order = 1,
-            RaceId = 0
-        },
-        new EditStintModel()
-        {
-            Order = 2,
-            RaceId = 0
-        },
-        new EditStintModel()
-        {
-            Order = 3,
-            RaceId = 0
-        },
-    };
     private EditRaceModel model = new();
+    private EditStintModel? draggingItem; // model object which is being dragged
 
     protected override void OnInitialized()
     {
         if (Race != null)
         {
             model = new EditRaceModel(Race);
-
-            RefreshContainer();
         }
     }
 
     private void AddStint()
     {
         model.Stints.Add(new EditStintModel());
-
-        RefreshContainer();
     }
 
-    private void ReorderStint(MudItemDropInfo<EditStintModel> dropItem)
+    private void HandleDrop(EditStintModel dropItem)
     {
-        model.Stints.UpdateOrder(dropItem, e => e.Order);
-    }
+        // draggingitem -> where the drop occurred
+        if (draggingItem is null)
+            return;
 
-    private void RefreshContainer()
-    {
-        StateHasChanged();
-        //_container.Refresh();
+        // retain the original order for later
+        var initialOrder = dropItem.Order;
+
+        // increate all the orders beneath model with 1
+        model.Stints.Where(e => e.Order >= initialOrder).ToList().ForEach(e => e.Order++);
+
+        draggingItem.Order = initialOrder;
+
+        int reorder = 0;
+        foreach (var model in model.Stints.OrderBy(e => e.Order).ToList())
+        {
+            model.Order = reorder++; // keeps numbers from 0 to size-1
+            model.IsDragOver = false; // removes the drag over
+        }
     }
 
     private void Submit()
     {
-        RaceDialog?.Close(DialogResult.Ok(Race));
+        if (model.IsDirty)
+        {
+            var modRace = model.Record;
+
+            RaceDialog?.Close(DialogResult.Ok(modRace));
+        }
     }
 
     private void Cancel() => RaceDialog?.Cancel();

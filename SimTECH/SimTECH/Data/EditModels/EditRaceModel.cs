@@ -78,6 +78,9 @@ namespace SimTECH.Data.EditModels
         public int RngMax { get; set; }
         public long RaceId { get; set; }
 
+        // Helpers for the editable view
+        public bool IsDragOver { get; set; }
+
         public EditStintModel() { _stint = new Stint(); }
         public EditStintModel(Stint stint)
         {
