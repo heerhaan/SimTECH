@@ -1,5 +1,18 @@
-﻿<h3>SeasonDrivers</h3>
+﻿@inject SeasonEntrantService EntrantService
+
+<MudDataGrid T="SeasonDriver" Items="DriverData">
+    <Columns>
+        <Column T="SeasonDriver" Field="Number" />
+    </Columns>
+</MudDataGrid>
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
+
+    private List<SeasonDriver> DriverData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        DriverData = await EntrantService.GetSeasonDrivers(Season.Id);
+    }
 }

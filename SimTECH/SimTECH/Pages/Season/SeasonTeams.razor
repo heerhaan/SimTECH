@@ -1,5 +1,20 @@
-﻿<h3>SeasonTeams</h3>
+﻿@inject SeasonEntrantService EntrantService
+
+<h3>SeasonTeams</h3>
+
+<MudDataGrid T="SeasonTeam" Items="TeamData">
+    <Columns>
+        <Column T="SeasonTeam" Field="Name" />
+    </Columns>
+</MudDataGrid>
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
+
+    private List<SeasonTeam> TeamData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        TeamData = await EntrantService.GetSeasonTeams(Season.Id);
+    }
 }

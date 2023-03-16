@@ -24,7 +24,17 @@
         </Columns>
         <ChildRowContent>
             <MudGrid>
-
+                @if (context.Item.DevelopmentRanges != null)
+                {
+                    <MudItem xs="12">
+                        <MudStack>
+                            @foreach (var range in context.Item.DevelopmentRanges)
+                            {
+                                <MudText>@range.Type - @range.Comparer - @range.Minimum - @range.Maximum</MudText>
+                            }
+                        </MudStack>
+                    </MudItem>
+                }
             </MudGrid>
         </ChildRowContent>
     </MudDataGrid>
