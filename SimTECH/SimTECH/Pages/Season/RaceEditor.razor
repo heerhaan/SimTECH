@@ -4,56 +4,67 @@
     </TitleContent>
     <DialogContent>
         <MudGrid>
-            @*
-            <MudItem>
-                Alternatively use a custom list resorter if the one underneath doesnt work
-                Ok, fuck the drop container. We're doing this differently: https://stackoverflow.com/questions/59302823/blazor-re-ordering-a-list-with-drag-and-drop
-                <MudDropContainer T="EditStintModel" Items="@_dropZoneItems" ItemDropped="ReorderStint">
-                    <ChildContent>
-                        <MudPaper>
-                            <MudList>
-                                <MudListSubheader>Humongous W</MudListSubheader>
-                                <MudDropZone T="EditStintModel" AllowReorder="true" />
-                            </MudList>
-                        </MudPaper>
-                    </ChildContent>
-                    <ItemRenderer>
-                        <MudListItem>
-                            <MudStack Row="true">
-                                <MudText>@context.Order</MudText>
-                                <MudCheckBox @bind-Checked="context.UseDriver" Color="Color.Tertiary" />
-                                <MudCheckBox @bind-Checked="context.UseCar" Color="Color.Tertiary" />
-                                <MudCheckBox @bind-Checked="context.UseEngine" Color="Color.Tertiary" />
-                                <MudCheckBox @bind-Checked="context.UseReliability" Color="Color.Tertiary" />
-                                <MudNumericField @bind-Value="context.RngMin" Label="RngMin" />
-                                <MudNumericField @bind-Value="context.RngMax" Label="RngMax" />
-                            </MudStack>
-                        </MudListItem>
-                    </ItemRenderer>
-                </MudDropContainer>
-            </MudItem> *@
-            <MudItem>
+            <MudItem xs="12">
                 <div>
-                    <ul ondragover="event.preventDefault();" ondragstart="event.dataTransfer.setData('', event.target.id);">
-	                    @foreach (var item in model.Stints.OrderBy(x => x.Order))
-	                    {
-		                    <li @ondrop="()=>HandleDrop(item)" @key="item">
-			                    <div @ondragleave="@(()=> {item.IsDragOver = false;})"
-				                    @ondragenter="@(()=>{item.IsDragOver = true;})"
-				                    style="@(item.IsDragOver?"border-style: solid none none none; border-color:red;":"")"
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>UseDriver</th>
+                                <th>UseCar</th>
+                                <th>UseEngine</th>
+                                <th>UseReliability</th>
+                                <th>RngMin</th>
+                                <th>RngMax</th>
+                            </tr>
+                        </thead>
+                        <tbody ondragover="event.preventDefault();" ondragstart="event.dataTransfer.setData('', event.target.id);">
+                            @foreach (var item in model.Stints.OrderBy(x => x.Order))
+                            {
+                                <tr @ondrop="() => HandleDrop(item)" @key="item"
+                                    @ondragleave="@(() => { item.IsDragOver = false; })"
+                                    @ondragenter="@(() => { item.IsDragOver = true; })"
+                                    style="@(item.IsDragOver ? "border: solid 2px red; background-color:red !important;" : "")"
                                     @ondragstart="() => draggingItem = item"
-				                    @ondragend="()=> draggingItem = null" draggable="true">
-                                    stint: @item.Order
-                                </div>
-		                    </li>
-	                    }
-                    </ul>
+                                    @ondragend="() => draggingItem = null"
+                                    draggable="true">
+                                    <td>
+                                        <MudText>@item.Order</MudText>
+                                    </td>
+                                    <td>
+                                        <MudCheckBox @bind-Checked="item.UseDriver" Color="Color.Tertiary" />
+                                    </td>
+                                    <td>
+                                        <MudCheckBox @bind-Checked="item.UseCar" Color="Color.Tertiary" />
+                                    </td>
+                                    <td>
+                                        <MudCheckBox @bind-Checked="item.UseEngine" Color="Color.Tertiary" />
+                                    </td>
+                                    <td>
+                                        <MudCheckBox @bind-Checked="item.UseReliability" Color="Color.Tertiary" />
+                                    </td>
+                                    <td>
+                                        <MudNumericField T="int" @bind-Value="item.RngMin" />
+                                    </td>
+                                    <td>
+                                        <MudNumericField T="int" @bind-Value="item.RngMax" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="d-flex justify end">
+                                    <MudButton StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Secondary" OnClick="AddStint">Add stint</MudButton>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </MudItem>
         </MudGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="AddStint">Add</MudButton>
         <MudButton OnClick="Cancel">Cancel</MudButton>
         <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
     </DialogActions>
@@ -73,11 +84,20 @@
         {
             model = new EditRaceModel(Race);
         }
+
+        orderNum = model.Stints.Count;
     }
+
+    private int orderNum;
 
     private void AddStint()
     {
-        model.Stints.Add(new EditStintModel());
+        model.Stints.Add(new EditStintModel
+        {
+            Order = ++orderNum,
+            RngMin = 20,
+            RngMax = 40
+        });
     }
 
     private void HandleDrop(EditStintModel dropItem)
