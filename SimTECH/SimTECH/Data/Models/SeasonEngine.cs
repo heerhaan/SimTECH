@@ -13,6 +13,6 @@
         public long SeasonId { get; set; }
         public Season Season { get; set; } = default!;
 
-        public IList<SeasonTeam> SeasonTeams { get; set; } = default!;
+        public IList<SeasonTeam>? SeasonTeams { get; set; }
     }
 }
