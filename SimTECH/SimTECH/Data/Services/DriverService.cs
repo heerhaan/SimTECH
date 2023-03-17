@@ -51,5 +51,10 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+
+        public static void ValidateDriver(Driver driver)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

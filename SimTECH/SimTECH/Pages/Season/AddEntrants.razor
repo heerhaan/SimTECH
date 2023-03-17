@@ -1,168 +1,392 @@
-﻿@inject EngineService EngineService
-@inject TeamService TeamService
-@inject DriverService DriverService
-@inject SeasonEntrantService EntrantService
+﻿@inject SeasonEntrantService EntrantService
 
-<MudForm Model="@model">
-    <MudContainer Class="@(stepNumber == 1 ? "" : "d-none")">
-        <MudGrid>
-            <MudItem xs="6">
-                <MudPaper>
-                    <MudText>Entered engines</MudText>
-                    <MudTable T="Engine" Items="@model.BaseEngines" OnRowClick="RemoveEngine" Hover="true">
-                        <RowTemplate>
-                            <MudTd DataLabel="Name">@context.Name</MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="6">
-                <MudPaper>
-                    <MudText>Available engines</MudText>
-                    <MudTable T="Engine" Items="@Engines" OnRowClick="EnterEngine" Hover="true">
-                        <RowTemplate>
-                            <MudTd DataLabel="Name">@context.Name</MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
+<MudForm Model="@Model">
+    <MudContainer Class="@(_currentStep == 1 ? "" : "d-none")">
+        <EntrantPicker Model="@Model"/>
     </MudContainer>
-    <MudContainer>
-        <MudGrid>
-            <MudItem xs="6">
-                <MudPaper>
-                    <MudText>Entered teams</MudText>
-                    <MudTable T="Team" Items="@model.BaseTeams" OnRowClick="RemoveTeam" Hover="true">
-                        <RowTemplate>
-                            <MudTd DataLabel="Name">
-                                <CountryFlag Code="@context.Country" />
-                                @context.Name
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="6">
-                <MudPaper>
-                    <MudText>Available teams</MudText>
-                    <MudTable T="Team" Items="@Teams" OnRowClick="EnterTeam" Hover="true">
-                        <RowTemplate>
-                            <MudTd DataLabel="Name">
-                                <CountryFlag Code="@context.Country" />
-                                @context.Name
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
+    <MudPaper Elevation="25" Class="ma-10">
+        <MudToolBar>
+            @if (_informative != null)
+            {
+                <MudAlert Severity="Severity.Info" ShowCloseIcon="true" CloseIconClicked="HideInformative">@_informative</MudAlert>
+            }
+            @if (_loading)
+            {
+                <MudSpacer />
+                <MudProgressCircular Color="Color.Secondary" Size="Size.Large" Indeterminate="true" />
+            }
+            <MudSpacer />
+            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.NavigateNext" IconColor="Color.Tertiary" OnClick="AdvanceStep">Next step</MudButton>
+        </MudToolBar>
+    </MudPaper>
+    <MudContainer Class="@(_currentStep == 2 ? "" : "d-none")">
+        <MudTable T="EditSeasonEngineModel" Items="@Model.SeasonEngines" Hover="true">
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Power</MudTh>
+                <MudTh>Reliability</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Power">@context.Power</MudTd>
+                <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
+            </RowTemplate>
+            <RowEditingTemplate>
+                <MudTd DataLabel="Name">
+                    <MudTextField @bind-Value="@context.Name" Required />
+                </MudTd>
+                <MudTd DataLabel="Power">
+                    <MudNumericField @bind-Value="@context.Power" />
+                </MudTd>
+                <MudTd DataLabel="Reliability">
+                    <MudNumericField @bind-Value="@context.Reliability" />
+                </MudTd>
+            </RowEditingTemplate>
+            <EditButtonContent Context="button">
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+            </EditButtonContent>
+        </MudTable>
     </MudContainer>
-    <MudContainer>
-        <MudGrid>
-            <MudItem xs="6">
-                <MudPaper>
-                    <MudText>Entered drivers</MudText>
-                    <MudTable T="Driver" Items="@model.BaseDrivers" OnRowClick="RemoveDriver" Hover="true">
-                        <RowTemplate>
-                            <MudTd DataLabel="Name">
-                                <CountryFlag Code="@context.Country" />
-                                @context.FullName
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
+    <MudContainer Class="@(_currentStep == 3 ? "" : "d-none")">
+        <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true">
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Principal</MudTh>
+                <MudTh>Colour</MudTh>
+                <MudTh>Accent</MudTh>
+                <MudTh>BaseValue</MudTh>
+                <MudTh>Aero</MudTh>
+                <MudTh>Chassis</MudTh>
+                <MudTh>Powertrain</MudTh>
+                <MudTh>Reliability</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">
+                    @if (context.Team != null)
+                    {
+                        <CountryFlag Code="context.Team.Country" Size="FlagSize.Small" />
+                    }
+                    @context.Name
+                </MudTd>
+                <MudTd DataLabel="Principal">@context.Principal</MudTd>
+                <MudTd DataLabel="Colour">@context.Colour</MudTd>
+                <MudTd DataLabel="Accent">@context.Accent</MudTd>
+                <MudTd DataLabel="BaseValue">@context.BaseValue</MudTd>
+                <MudTd DataLabel="Aero">@context.Aero</MudTd>
+                <MudTd DataLabel="Chassis">@context.Chassis</MudTd>
+                <MudTd DataLabel="Powertrain">@context.Powertrain</MudTd>
+                <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
+            </RowTemplate>
+            <RowEditingTemplate>
+                <MudTd DataLabel="Name">
+                    <MudTextField @bind-Value="@context.Name" Required />
+                </MudTd>
+                <MudTd DataLabel="Principal">
+                    <MudTextField @bind-Value="@context.Principal" Required />
+                </MudTd>
+                <MudTd DataLabel="Colour">
+                    <MudColorPicker @bind-Text="@context.Colour" DisableAlpha="true" />
+                </MudTd>
+                <MudTd DataLabel="Accent">
+                    <MudColorPicker @bind-Text="@context.Accent" DisableAlpha="true" />
+                </MudTd>
+                <MudTd DataLabel="BaseValue">
+                    <MudNumericField @bind-Value="@context.BaseValue" />
+                </MudTd>
+                <MudTd DataLabel="Aero">
+                    <MudNumericField @bind-Value="@context.Aero" />
+                </MudTd>
+                <MudTd DataLabel="Chassis">
+                    <MudNumericField @bind-Value="@context.Chassis" />
+                </MudTd>
+                <MudTd DataLabel="Powertrain">
+                    <MudNumericField @bind-Value="@context.Powertrain" />
+                </MudTd>
+                <MudTd DataLabel="Reliability">
+                    <MudNumericField @bind-Value="@context.Reliability" />
+                </MudTd>
+            </RowEditingTemplate>
+            <EditButtonContent Context="button">
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+            </EditButtonContent>
+        </MudTable>
+        <div>
+            <MudText>Preview is in the works here!</MudText>
+        </div>
+    </MudContainer>
+    <MudContainer Class="@(_currentStep == 4 ? "" : "d-none")">
+        <MudTable T="EditSeasonDriverModel" Items="@Model.SeasonDrivers" Hover="true">
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Number</MudTh>
+                <MudTh>Skill</MudTh>
+                <MudTh>Reliability</MudTh>
+                <MudTh>TeamRole</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">
+                    @if (context.Driver != null)
+                    {
+                        <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                        @context.Driver.FullName
+                    }
+                    else
+                    {
+                        <span>Unknown (wtf how did you do this?)</span>
+                    }
+                </MudTd>
+                <MudTd DataLabel="Number">@context.Number</MudTd>
+                <MudTd DataLabel="Skill">@context.Skill</MudTd>
+                <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
+                <MudTd DataLabel="TeamRole">@context.TeamRole</MudTd>
+            </RowTemplate>
+            <RowEditingTemplate>
+                <MudTd DataLabel="Name">
+                    @if (context.Driver != null)
+                    {
+                        <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                        @context.Driver.FullName
+                    }
+                    else
+                    {
+                        <span>Unknown (wtf how did you do this?)</span>
+                    }
+                </MudTd>
+                <MudTd DataLabel="Number">
+                    <MudNumericField @bind-Value="@context.Number" />
+                </MudTd>
+                <MudTd DataLabel="Skill">
+                    <MudNumericField @bind-Value="@context.Skill" />
+                </MudTd>
+                <MudTd DataLabel="Reliability">
+                    <MudNumericField @bind-Value="@context.Reliability" />
+                </MudTd>
+                <MudTd DataLabel="TeamRole">
+                    <MudSelect T="TeamRole" @bind-Value="@context.TeamRole">
+                        @foreach (var select in EnumHelper.GetTeamRoleSelection())
+                        {
+                            <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudTd>
+            </RowEditingTemplate>
+            <EditButtonContent Context="button">
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+            </EditButtonContent>
+        </MudTable>
+    </MudContainer>
+    <MudContainer Class="@(_currentStep == 5 ? "" : "d-none")">
+        <MudDropContainer T="EditSeasonTeamModel" Items="Model.SeasonTeams" ItemsSelector="@((item,dropzone) => item.Identified == dropzone)" ItemDropped="TeamEngineDropped" Class="d-flex flex-wrap flex-grow-1">
+            <ChildContent>
+                <MudPaper Class="ma-4 flex-grow-1">
+                    <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                        <MudListSubheader>Drop Zone: NO ENGINE</MudListSubheader>
+                        <MudDropZone T="EditSeasonTeamModel" Identifier="@_emptyGuid" Class="flex-grow-1" />
+                    </MudList>
                 </MudPaper>
-            </MudItem>
-            <MudItem xs="6">
-                <MudPaper>
-                    <MudText>Available drivers</MudText>
-                    <MudTable T="Driver" Items="@Drivers" OnRowClick="EnterDriver" Hover="true">
-                        <RowTemplate>
-                            <MudTd DataLabel="Name">
-                                <CountryFlag Code="@context.Country" />
-                                @context.FullName
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
+                @foreach (var seasonEngine in Model.SeasonEngines)
+                {
+                    var dropzone = seasonEngine.Identifier;
+                    <MudPaper Class="ma-4 flex-grow-1">
+                        <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                            <MudListSubheader>Drop Zone for @seasonEngine.Name</MudListSubheader>
+                            <MudDropZone T="EditSeasonTeamModel" Identifier="@dropzone" Class="flex-grow-1" />
+                        </MudList>
+                    </MudPaper>
+                }
+            </ChildContent>
+            <ItemRenderer>
+                <MudListItem Text="@context.Name" />
+            </ItemRenderer>
+        </MudDropContainer>
+    </MudContainer>
+    <MudContainer Class="@(_currentStep == 6 ? "" : "d-none")">
+        <MudDropContainer T="EditSeasonDriverModel" Items="Model.SeasonDrivers" ItemsSelector="@((item,dropzone) => item.Identified == dropzone)" ItemDropped="DriverTeamDropped" Class="d-flex flex-wrap flex-grow-1">
+            <ChildContent>
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudPaper Class="ma-4 flex-grow-1">
+                            <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                                <MudListSubheader>Drop Zone: NO TEAM</MudListSubheader>
+                                <MudDropZone T="EditSeasonDriverModel" Identifier="@_emptyGuid" Class="flex-grow-1" />
+                            </MudList>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        @foreach (var seasonTeam in Model.SeasonTeams)
+                        {
+                            var dropzone = seasonTeam.Identifier;
+                            <MudPaper Class="ma-4 flex-grow-1">
+                                <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                                    <MudListSubheader>Drop Zone <CountryFlag Code="@seasonTeam.Team.Country" /> @seasonTeam.Name</MudListSubheader>
+                                    <MudDropZone T="EditSeasonDriverModel" Identifier="@dropzone" Class="flex-grow-1" />
+                                </MudList>
+                            </MudPaper>
+                        }
+                    </MudItem>
+                </MudGrid>
+            </ChildContent>
+            <ItemRenderer>
+                <MudListItem>
+                    <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Tiny" />
+                    <MudText>@context.Driver.FullName</MudText>
+                </MudListItem>
+            </ItemRenderer>
+        </MudDropContainer>
+    </MudContainer>
+    <MudContainer Class="@(_currentStep == 7 ? "" : "d-none")">
+        <MudStack Row="true">
+            <MudTable Items="Model.SeasonEngines">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Participating engines</MudText>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Power</MudTh>
+                    <MudTh>Reliability</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Power">@context.Power</MudTd>
+                    <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
+                </RowTemplate>
+            </MudTable>
+            <MudTable Items="Model.SeasonTeams">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Participating teams</MudText>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Principal</MudTh>
+                    <MudTh>Colour</MudTh>
+                    <MudTh>Accent</MudTh>
+                    <MudTh>BaseValue</MudTh>
+                    <MudTh>Aero</MudTh>
+                    <MudTh>Chassis</MudTh>
+                    <MudTh>Powertrain</MudTh>
+                    <MudTh>Reliability</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">
+                        @if (context.Team != null)
+                        {
+                            <CountryFlag Code="context.Team.Country" Size="FlagSize.Small" />
+                        }
+                        @context.Name
+                    </MudTd>
+                    <MudTd DataLabel="Principal">@context.Principal</MudTd>
+                    <MudTd DataLabel="Colour">@context.Colour</MudTd>
+                    <MudTd DataLabel="Accent">@context.Accent</MudTd>
+                    <MudTd DataLabel="BaseValue">@context.BaseValue</MudTd>
+                    <MudTd DataLabel="Aero">@context.Aero</MudTd>
+                    <MudTd DataLabel="Chassis">@context.Chassis</MudTd>
+                    <MudTd DataLabel="Powertrain">@context.Powertrain</MudTd>
+                    <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
+                </RowTemplate>
+            </MudTable>
+            <MudTable Items="Model.SeasonDrivers">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Participating drivers</MudText>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Number</MudTh>
+                    <MudTh>Skill</MudTh>
+                    <MudTh>Reliability</MudTh>
+                    <MudTh>TeamRole</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">
+                        @if (context.Driver != null)
+                        {
+                            <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                            @context.Driver.FullName
+                        }
+                        else
+                        {
+                            <span>Unknown (wtf how did you do this?)</span>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Number">@context.Number</MudTd>
+                    <MudTd DataLabel="Skill">@context.Skill</MudTd>
+                    <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
+                    <MudTd DataLabel="TeamRole">@context.TeamRole</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudStack>
     </MudContainer>
 </MudForm>
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
-    private AddEntrantsModel model = new();
-    private List<Engine> Engines = new();
-    private List<Team> Teams = new();
-    private List<Driver> Drivers = new();
+    public AddEntrantsModel Model = new();
 
-    private int stepNumber = 1;
+    private bool _loading = false;
+    private string? _informative;
+    private int _currentStep = 0;
+    private string _emptyGuid = Guid.Empty.ToString();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Engines = await EngineService.GetEngines();
-        Teams = await TeamService.GetTeams();
-        Drivers = await DriverService.GetDrivers();
+        _currentStep++;
     }
 
-    #region event handlers
+    private void HideInformative() => _informative = null;
 
-    private void EnterEngine(TableRowClickEventArgs<Engine> rowClickEvent)
+    private void ToggleLoader() => _loading = !_loading;
+
+    private void AdvanceStep()
     {
-        var selectedEngine = rowClickEvent.Item;
+        ToggleLoader();
 
-        model.BaseEngines.Add(selectedEngine);
-        Engines.Remove(selectedEngine);
+        switch (_currentStep)
+        {
+            case 1:
+                {
+                    foreach (var engine in Model.BaseEngines)
+                    {
+                        // TODO: Retrieve stats from previous season engine
+                        Model.SeasonEngines.Add(new EditSeasonEngineModel() { EngineId = engine.Id, Name = engine.Name, SeasonId = Season.Id });
+                    }
+                    _informative = "The following engines are selected for the upcoming season, if you wish so then the info can edited in-line";
+                }
+                break;
+            case 2:
+                {
+                    foreach (var team in Model.BaseTeams)
+                    {
+                        // TODO: Retrieve stats from previous season team
+                        Model.SeasonTeams.Add(new EditSeasonTeamModel() { TeamId = team.Id, SeasonId = Season.Id, Team = team });
+                    }
+                    _informative = "The following teams are selected for the upcoming season, if you wish so then the info can edited in-line";
+                }
+                break;
+            case 3:
+                {
+                    foreach (var driver in Model.BaseDrivers)
+                    {
+                        // TODO: Retrieve stats from previous season driver
+                        Model.SeasonDrivers.Add(new EditSeasonDriverModel() { DriverId = driver.Id, SeasonId = Season.Id, Driver = driver });
+                    }
+                    _informative = "The following drivers are selected for the upcoming season, if you wish so then the info can edited in-line";
+                }
+                break;
+            default:
+                break;
+        }
+
+        _currentStep++;
+        ToggleLoader();
     }
 
-    private void RemoveEngine(TableRowClickEventArgs<Engine> rowClickEvent)
+    private void TeamEngineDropped(MudItemDropInfo<EditSeasonTeamModel> dropItem)
     {
-        var selectedEngine = rowClickEvent.Item;
-
-        Engines.Add(selectedEngine);
-        model.BaseEngines.Remove(selectedEngine);
+        dropItem.Item.SeasonEngineId = long.Parse(dropItem.DropzoneIdentifier);
     }
 
-    private void EnterTeam(TableRowClickEventArgs<Team> rowClickEvent)
+    private void DriverTeamDropped(MudItemDropInfo<EditSeasonDriverModel> dropItem)
     {
-        var selectedTeam = rowClickEvent.Item;
-
-        model.BaseTeams.Add(selectedTeam);
-        Teams.Remove(selectedTeam);
-    }
-
-    private void RemoveTeam(TableRowClickEventArgs<Team> rowClickEvent)
-    {
-        var selectedTeam = rowClickEvent.Item;
-
-        Teams.Add(selectedTeam);
-        model.BaseTeams.Remove(selectedTeam);
-    }
-
-    private void EnterDriver(TableRowClickEventArgs<Driver> rowClickEvent)
-    {
-        var selectedDriver = rowClickEvent.Item;
-
-        model.BaseDrivers.Add(selectedDriver);
-        Drivers.Remove(selectedDriver);
-    }
-
-    private void RemoveDriver(TableRowClickEventArgs<Driver> rowClickEvent)
-    {
-        var selectedDriver = rowClickEvent.Item;
-
-        Drivers.Add(selectedDriver);
-        model.BaseDrivers.Remove(selectedDriver);
-    }
-
-    #endregion
-
-    public class AddEntrantsModel
-    {
-        public List<Engine> BaseEngines { get; set; } = new();
-        public List<Team> BaseTeams { get; set; } = new();
-        public List<Driver> BaseDrivers { get; set; } = new();
+        dropItem.Item.SeasonTeamId = long.Parse(dropItem.DropzoneIdentifier);
     }
 }

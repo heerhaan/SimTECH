@@ -31,6 +31,13 @@
             { Entrant.Track, "Track" },
         };
 
+        public static Dictionary<TeamRole, string> GetTeamRoleSelection() => new()
+        {
+            { TeamRole.None, "None" },
+            { TeamRole.Main, "Main" },
+            { TeamRole.Support, "Support" },
+        };
+
         public static Dictionary<Weather, string> GetWeatherSelection() => new()
         {
             { Weather.Sunny, "Sunny" },

@@ -22,7 +22,7 @@ namespace SimTECH.Data.EditModels
         {
             DateOfBirth = DateTime.Today;
             Country = EnumHelper.GetDefaultCountry();
-            State = State.Concept;
+            State = State.Active;
 
             _driver = new Driver();
         }

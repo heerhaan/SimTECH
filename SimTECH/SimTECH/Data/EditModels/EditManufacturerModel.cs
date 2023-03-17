@@ -38,7 +38,7 @@ namespace SimTECH.Data.EditModels
                 Name = Name,
                 Colour = Colour,
                 Accent = Accent,
-                State = State,
+                State = State.HasFlag(State.Concept) ? State.Active : State,
                 Pace = Pace,
                 WearMax = WearMax,
                 WearMin = WearMin

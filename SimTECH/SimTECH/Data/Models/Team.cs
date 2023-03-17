@@ -5,7 +5,7 @@
         public long Id { get; set; }
         public string Name { get; set; } = default!;
         public Country Country { get; set; }
-        public string? Biography { get; set; }
+        public string Biography { get; set; } = default!;
         public State State { get; set; }
 
         // We need a very worked out design for how finances will be used and how to implement it in such a way that it can work automatically too

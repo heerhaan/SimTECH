@@ -4,8 +4,7 @@ namespace SimTECH
 {
     public enum State
     {
-        None = 0,
-        Concept,
+        Concept = 0,
         Active,
         Closed,
         Archived

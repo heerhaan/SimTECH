@@ -40,14 +40,16 @@
     }
 
     async Task AddManufacturer() => await UpdateManufacturer(new Manufacturer());
-    async Task UpdateManufacturer(Manufacturer manufacturer)
+    async Task UpdateManufacturer(Manufacturer item)
     {
-        var dialog = await DialogService.ShowAsync<ManufacturerEditor>("Create a new manufacturer");
+        var parameters = new DialogParameters { ["Manufacturer"] = item };
+
+        var dialog = await DialogService.ShowAsync<ManufacturerEditor>("Modify manufacturer", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Manufacturer item)
+        if (!result.Canceled && result.Data != null && result.Data is Manufacturer updatedItem)
         {
-            await ManufacturerService.UpdateManufacturer(item);
+            await ManufacturerService.UpdateManufacturer(updatedItem);
             ManufacturerNames = await ManufacturerService.GetManufacturers();
         }
     }

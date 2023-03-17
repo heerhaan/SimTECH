@@ -9,7 +9,7 @@ namespace SimTECH.Data.EditModels
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public Country Country { get; set; }
-        public string? Biography { get; set; }
+        public string Biography { get; set; } = string.Empty;
         public State State { get; set; }
 
         public IList<EditTeamTraitModel> TeamTraits { get; set; } = new List<EditTeamTraitModel>();

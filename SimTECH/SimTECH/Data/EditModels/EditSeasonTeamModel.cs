@@ -21,6 +21,11 @@ namespace SimTECH.Data.EditModels
         public long SeasonEngineId { get; set; }
         public long ManufacturerId { get; set; }
 
+        // Supportive properties
+        public string Identifier { get; set; } = new Guid().ToString();
+        public string Identified { get; set; } = Guid.Empty.ToString();
+        public Team? Team { get; set; }
+
         public EditSeasonTeamModel() { _seasonTeam = new SeasonTeam(); }
         public EditSeasonTeamModel(SeasonTeam seasonTeam)
         {
@@ -35,11 +40,34 @@ namespace SimTECH.Data.EditModels
             Powertrain = seasonTeam.Powertrain;
             Reliability = seasonTeam.Reliability;
             TeamId = seasonTeam.TeamId;
+            SeasonId = seasonTeam.SeasonId;
             SeasonEngineId = seasonTeam.SeasonEngineId;
             ManufacturerId = seasonTeam.ManufacturerId;
+            Team = seasonTeam.Team;
 
             _seasonTeam = seasonTeam;
         }
+
+        public SeasonTeam Record =>
+            new()
+            {
+                Id = Id,
+                Name = Name,
+                Principal = Principal,
+                Colour = Colour,
+                Accent = Accent,
+                BaseValue = BaseValue,
+                Aero = Aero,
+                Chassis = Chassis,
+                Powertrain = Powertrain,
+                Reliability = Reliability,
+                TeamId = TeamId,
+                SeasonId = SeasonId,
+                SeasonEngineId = SeasonEngineId,
+                ManufacturerId = ManufacturerId,
+            };
+
+        public bool IsDirty => _seasonTeam != Record;
 
         public void ResetIdentifierFields()
         {

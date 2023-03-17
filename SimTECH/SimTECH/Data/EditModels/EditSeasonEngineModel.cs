@@ -10,9 +10,11 @@ namespace SimTECH.Data.EditModels
         public string Name { get; set; } = string.Empty;
         public int Power { get; set; }
         public int Reliability { get; set; }
-        public bool Rebadged { get; set; }
         public long EngineId { get; set; }
         public long SeasonId { get; set; }
+
+        // Supportive properties
+        public string Identifier { get; set; } = string.Empty;
 
         public EditSeasonEngineModel() { _seasonEngine = new SeasonEngine(); }
         public EditSeasonEngineModel(SeasonEngine seasonEngine)
@@ -21,7 +23,6 @@ namespace SimTECH.Data.EditModels
             Name = seasonEngine.Name;
             Power = seasonEngine.Power;
             Reliability = seasonEngine.Reliability;
-            Rebadged = seasonEngine.Rebadged;
             EngineId = seasonEngine.EngineId;
             SeasonId = seasonEngine.SeasonId;
 
@@ -35,7 +36,6 @@ namespace SimTECH.Data.EditModels
                 Name = Name,
                 Power = Power,
                 Reliability = Reliability,
-                Rebadged = Rebadged,
                 EngineId = EngineId,
                 SeasonId = SeasonId
             };

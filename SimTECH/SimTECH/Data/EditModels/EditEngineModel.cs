@@ -25,7 +25,7 @@ namespace SimTECH.Data.EditModels
             {
                 Id = Id,
                 Name = Name,
-                State = State
+                State = State.HasFlag(State.Concept) ? State.Active : State,
             };
 
         public bool IsDirty => _engine != Record;
