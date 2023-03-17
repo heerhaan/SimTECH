@@ -28,7 +28,7 @@
         public long ManufacturerId { get; set; }
         public Manufacturer Manufacturer { get; set; } = default!;
 
-        public IList<SeasonDriver> SeasonDrivers { get; set; } = default!;
-        public IList<Result> Results { get; set; } = default!;
+        public IList<SeasonDriver>? SeasonDrivers { get; set; }
+        public IList<Result>? Results { get; set; }
     }
 }
