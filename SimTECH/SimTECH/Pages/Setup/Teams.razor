@@ -13,20 +13,20 @@
     <MudDataGrid T="Team" Items="@TeamData">
         <Columns>
             <HierarchyColumn T="Team" />
-            <Column T="Team" Field="Name" />
-            <Column T="Team" Field="Country">
+            <PropertyColumn Property="e => e.Name" />
+            <TemplateColumn>
                 <CellTemplate>
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
-            </Column>
-            <Column T="Team" Field="State"></Column>
-            <Column T="Team" CellClass="d-flex justify-end">
+            </TemplateColumn>
+            <PropertyColumn Property="e => e.State" />
+            <TemplateColumn CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup>
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeam(context.Item))" />
-                    </MudButtonGroup>
+@*                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeam(context.Item))" />
+*@                    </MudButtonGroup>
                 </CellTemplate>
-            </Column>
+            </TemplateColumn>
         </Columns>
         <ChildRowContent>
             <MudCard>

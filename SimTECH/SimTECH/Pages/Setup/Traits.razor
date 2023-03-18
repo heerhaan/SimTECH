@@ -12,18 +12,18 @@
     <MudDataGrid T="Trait" Items="TraitNames" Bordered="true" Dense="true">
         <Columns>
             <HierarchyColumn T="Trait" />
-            <Column T="Trait" Field="Name" />
-            <Column T="Trait" Field="Description" />
-            <Column T="Trait" Field="Type" />
-            <Column T="Trait" Field="ForWetConditions" />
-            <Column T="Trait" Field="State" />
-            <Column T="Trait" CellClass="d-flex justify-end">
+            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.Description" />
+            <PropertyColumn Property="e => e.Type" />
+            <PropertyColumn Property="e => e.ForWetConditions" />
+            <PropertyColumn Property="e => e.State" />
+            <TemplateColumn CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrait(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
-            </Column>
+            </TemplateColumn>
         </Columns>
         <ChildRowContent>
             <MudCard>

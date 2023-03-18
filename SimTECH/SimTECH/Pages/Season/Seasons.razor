@@ -12,17 +12,17 @@
     </MudPaper>
     <MudDataGrid T="Season" Items="@SeasonData" Bordered="true" Dense="true">
         <Columns>
-            <Column T="Season" Field="Year" />
-            <Column T="Season" Field="State" IsEditable="false" />
-            <Column T="Season" Field="LeagueId" IsEditable="false" />
-            <Column T="Season" CellClass="d-flex justify end">
+            <PropertyColumn Property="e => e.Year" />
+            <PropertyColumn Property="e => e.State" />
+            <PropertyColumn Property="e => e.LeagueId" />
+            <TemplateColumn CellClass="d-flex justify end">
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(async () => await UpdateSeason(context.Item))" />
                         <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
                     </MudButtonGroup>
                 </CellTemplate>
-            </Column>
+            </TemplateColumn>
         </Columns>
         <PagerContent>
             <MudDataGridPager T="Season" />

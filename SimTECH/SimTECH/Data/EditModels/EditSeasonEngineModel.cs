@@ -14,7 +14,7 @@ namespace SimTECH.Data.EditModels
         public long SeasonId { get; set; }
 
         // Supportive properties
-        public string Identifier { get; set; } = string.Empty;
+        public string Identifier { get; set; } = new Guid().ToString();
 
         public EditSeasonEngineModel() { _seasonEngine = new SeasonEngine(); }
         public EditSeasonEngineModel(SeasonEngine seasonEngine)

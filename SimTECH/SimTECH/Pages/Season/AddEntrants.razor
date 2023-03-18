@@ -201,7 +201,7 @@
         </MudDropContainer>
     </MudContainer>
     <MudContainer Class="@(_currentStep == 6 ? "" : "d-none")">
-        <MudDropContainer T="EditSeasonDriverModel" Items="Model.SeasonDrivers" ItemsSelector="@((item,dropzone) => item.Identified == dropzone)" ItemDropped="DriverTeamDropped" Class="d-flex flex-wrap flex-grow-1">
+        <MudDropContainer T="EditSeasonDriverModel" Items="Model.SeasonDrivers" ItemsSelector="@((item,dropzone) => true)" ItemDropped="DriverTeamDropped" Class="d-flex flex-wrap flex-grow-1">
             <ChildContent>
                 <MudGrid>
                     <MudItem xs="6">
@@ -212,7 +212,7 @@
                             </MudList>
                         </MudPaper>
                     </MudItem>
-                    <MudItem xs="6">
+@*                    <MudItem xs="6">
                         @foreach (var seasonTeam in Model.SeasonTeams)
                         {
                             var dropzone = seasonTeam.Identifier;
@@ -223,7 +223,7 @@
                                 </MudList>
                             </MudPaper>
                         }
-                    </MudItem>
+                    </MudItem>*@
                 </MudGrid>
             </ChildContent>
             <ItemRenderer>

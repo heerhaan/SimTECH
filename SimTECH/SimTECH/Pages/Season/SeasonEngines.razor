@@ -8,17 +8,16 @@
 </MudContainer>
 <MudDataGrid T="SeasonEngine" Items="SeasonEngineData">
     <Columns>
-        <Column T="SeasonEngine" Field="Name" />
-        <Column T="SeasonEngine" Field="Power" />
-        <Column T="SeasonEngine" Field="Reliability" />
-        <Column T="SeasonEngine" Field="Rebadged" />
-        <Column T="SeasonEngine" CellClass="d-flex justify-end">
+        <PropertyColumn Property="e => e.Name" />
+        <PropertyColumn Property="e => e.Power" />
+        <PropertyColumn Property="e => e.Reliability" />
+        <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudButtonGroup>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context.Item))" />
                 </MudButtonGroup>
             </CellTemplate>
-        </Column>
+        </TemplateColumn>
     </Columns>
 </MudDataGrid>
 

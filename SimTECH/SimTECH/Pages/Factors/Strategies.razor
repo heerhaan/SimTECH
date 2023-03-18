@@ -13,8 +13,8 @@
             </MudPaper>
             <MudDataGrid T="Strategy" Items="@StrategyData" Bordered="true" Dense="true">
                 <Columns>
-                    <Column T="Strategy" Field="StintLength" />
-                    <Column T="Strategy" Title="Tyres">
+                    <PropertyColumn Property="e => e.StintLength" />
+                    <TemplateColumn>
                         <CellTemplate>
                             @if (context.Item.StrategyTyres?.Count > 0)
                             {
@@ -30,14 +30,14 @@
                                 <MudText>No tyres in strategy found!</MudText>
                             }
                         </CellTemplate>
-                    </Column>
-                    <Column T="Strategy" CellClass="d-flex justify-end">
+                    </TemplateColumn>
+                    <TemplateColumn CellClass="d-flex justify-end">
                         <CellTemplate>
                             <MudButtonGroup>
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateStrategy(context.Item))" />
                             </MudButtonGroup>
                         </CellTemplate>
-                    </Column>
+                    </TemplateColumn>
                 </Columns>
                 <PagerContent>
                     <MudDataGridPager T="Strategy" />
@@ -52,18 +52,18 @@
             </MudPaper>
             <MudDataGrid T="Tyre" Items="@TyreData" Bordered="true" Dense="true">
                 <Columns>
-                    <Column T="Tyre" Field="Name" CellStyleFunc="_applyTyreColouring" />
-                    <Column T="Tyre" Field="State" IsEditable="false" />
-                    <Column T="Tyre" Field="Pace" />
-                    <Column T="Tyre" Field="WearMax" />
-                    <Column T="Tyre" Field="WearMin" />
-                    <Column T="Tyre" CellClass="d-flex justify-end">
+                    <PropertyColumn Property="e => e.Name" CellStyleFunc="_applyTyreColouring" />
+                    <PropertyColumn Property="e => e.State" IsEditable="false" />
+                    <PropertyColumn Property="e => e.Pace" />
+                    <PropertyColumn Property="e => e.WearMax" />
+                    <PropertyColumn Property="e => e.WearMin" />
+                    <TemplateColumn CellClass="d-flex justify-end">
                         <CellTemplate>
                             <MudButtonGroup>
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTyre(context.Item))" />
                             </MudButtonGroup>
                         </CellTemplate>
-                    </Column>
+                    </TemplateColumn>
                 </Columns>
                 <PagerContent>
                     <MudDataGridPager T="Tyre" />

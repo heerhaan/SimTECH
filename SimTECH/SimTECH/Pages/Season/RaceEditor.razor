@@ -1,4 +1,6 @@
-﻿<MudDialog>
+﻿@using MudBlazor.Utilities
+
+<MudDialog>
     <TitleContent>
         <MudText>Add race</MudText>
     </TitleContent>
@@ -82,6 +84,30 @@
                     </table>
                 </div>
             </MudItem>
+            <MudItem xs="12">
+                does this work?
+                <MudButton OnClick="RefreshContainer">Refresh</MudButton>
+                <MudDropContainer T="EditStintModel" Items="model.Stints" @ref="_container" ItemsSelector="(item, zone) => true" ItemDropped="ItemDropped">
+                    <ChildContent>
+                        <MudPaper Class="ma-4">
+                            <MudList>
+                                <MudDropZone T="EditStintModel" Identifier="temp" AllowReorder="true" />
+                            </MudList>
+                        </MudPaper>
+                    </ChildContent>
+                    <ItemRenderer>
+                        <MudListItem Class="d-flex gap-2">
+                            <MudText>@context.Order</MudText>
+                            <MudCheckBox @bind-Checked="context.UseDriver" Color="Color.Tertiary" />
+                            <MudCheckBox @bind-Checked="context.UseCar" Color="Color.Tertiary" />
+                            <MudCheckBox @bind-Checked="context.UseEngine" Color="Color.Tertiary" />
+                            <MudCheckBox @bind-Checked="context.UseReliability" Color="Color.Tertiary" />
+                            <MudNumericField T="int" @bind-Value="context.RngMin" />
+                            <MudNumericField T="int" @bind-Value="context.RngMax" />
+                        </MudListItem>
+                    </ItemRenderer>
+                </MudDropContainer>
+            </MudItem>
         </MudGrid>
     </DialogContent>
     <DialogActions>
@@ -98,6 +124,7 @@
 
     private EditRaceModel model = new();
     private EditStintModel? draggingItem; // model object which is being dragged
+    private MudDropContainer<EditStintModel> _container;
 
     protected override void OnInitialized()
     {
@@ -120,6 +147,15 @@
         });
     }
 
+    private void RefreshContainer()
+    {
+        //update the binding to the container
+        StateHasChanged();
+
+        //the container refreshes the internal state
+        _container.Refresh();
+    }
+
     private void HandleDrop(EditStintModel dropItem)
     {
         // draggingitem -> where the drop occurred
@@ -140,6 +176,11 @@
             model.Order = reorder++; // keeps numbers from 0 to size-1
             model.IsDragOver = false; // removes the drag over
         }
+    }
+
+    private void ItemDropped(MudItemDropInfo<EditStintModel> dropItem)
+    {
+        model.Stints.UpdateOrder(dropItem, item => item.Order);
     }
 
     private void Submit()

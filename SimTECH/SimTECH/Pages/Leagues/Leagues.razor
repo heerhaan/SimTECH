@@ -12,15 +12,15 @@
     <MudDataGrid T="League" Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true">
         <Columns>
             <HierarchyColumn T="League" />
-            <Column T="League" Field="Name" />
-            <Column T="League" Field="State" />
-            <Column T="League" CellClass="d-flex justify-end">
+            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.State" />
+            <TemplateColumn CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
-            </Column>
+            </TemplateColumn>
         </Columns>
         <ChildRowContent>
             <MudGrid>
