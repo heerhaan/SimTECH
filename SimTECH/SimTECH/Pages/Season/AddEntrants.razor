@@ -1,24 +1,28 @@
 ﻿@inject SeasonEntrantService EntrantService
 
 <MudForm Model="@Model">
-    <MudContainer Class="@(_currentStep == 1 ? "" : "d-none")">
-        <EntrantPicker Model="@Model"/>
+    <MudContainer>
+        @if (_informative != null)
+        {
+            <MudAlert Severity="Severity.Info" ShowCloseIcon="true" CloseIconClicked="HideInformative">@_informative</MudAlert>
+        }
     </MudContainer>
+    
     <MudPaper Elevation="25" Class="ma-10">
         <MudToolBar>
-            @if (_informative != null)
-            {
-                <MudAlert Severity="Severity.Info" ShowCloseIcon="true" CloseIconClicked="HideInformative">@_informative</MudAlert>
-            }
             @if (_loading)
             {
-                <MudSpacer />
                 <MudProgressCircular Color="Color.Secondary" Size="Size.Large" Indeterminate="true" />
             }
             <MudSpacer />
-            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.NavigateNext" IconColor="Color.Tertiary" OnClick="AdvanceStep">Next step</MudButton>
+            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.NavigateNext" IconColor="Color.Tertiary" OnClick="AdvanceStep" Disabled="_disableNext">Next step</MudButton>
         </MudToolBar>
     </MudPaper>
+
+    <MudContainer Class="@(_currentStep == 1 ? "" : "d-none")">
+        <EntrantPicker Model="@Model"/>
+    </MudContainer>
+
     <MudContainer Class="@(_currentStep == 2 ? "" : "d-none")">
         <MudTable T="EditSeasonEngineModel" Items="@Model.SeasonEngines" Hover="true">
             <HeaderContent>
@@ -47,6 +51,7 @@
             </EditButtonContent>
         </MudTable>
     </MudContainer>
+
     <MudContainer Class="@(_currentStep == 3 ? "" : "d-none")">
         <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true">
             <HeaderContent>
@@ -114,6 +119,7 @@
             <MudText>Preview is in the works here!</MudText>
         </div>
     </MudContainer>
+
     <MudContainer Class="@(_currentStep == 4 ? "" : "d-none")">
         <MudTable T="EditSeasonDriverModel" Items="@Model.SeasonDrivers" Hover="true">
             <HeaderContent>
@@ -175,21 +181,24 @@
             </EditButtonContent>
         </MudTable>
     </MudContainer>
+
     <MudContainer Class="@(_currentStep == 5 ? "" : "d-none")">
-        <MudDropContainer T="EditSeasonTeamModel" Items="Model.SeasonTeams" ItemsSelector="@((item,dropzone) => item.Identified == dropzone)" ItemDropped="TeamEngineDropped" Class="d-flex flex-wrap flex-grow-1">
+        <MudDropContainer T="EditSeasonTeamModel" Items="Model.SeasonTeams" @ref="_dropperTeams" ItemsSelector="@((item,dropzone) => item.BaseEngineId.ToString() == dropzone)" ItemDropped="TeamEngineDropped" Class="d-flex flex-wrap flex-grow-1">
             <ChildContent>
                 <MudPaper Class="ma-4 flex-grow-1">
                     <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
-                        <MudListSubheader>Drop Zone: NO ENGINE</MudListSubheader>
-                        <MudDropZone T="EditSeasonTeamModel" Identifier="@_emptyGuid" Class="flex-grow-1" />
+                        <MudListSubheader>Unassigned teams</MudListSubheader>
+                        <MudDropZone T="EditSeasonTeamModel" Identifier="0" Class="flex-grow-1" />
                     </MudList>
                 </MudPaper>
                 @foreach (var seasonEngine in Model.SeasonEngines)
                 {
-                    var dropzone = seasonEngine.Identifier;
+                    var dropzone = seasonEngine.EngineId.ToString();
                     <MudPaper Class="ma-4 flex-grow-1">
                         <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
-                            <MudListSubheader>Drop Zone for @seasonEngine.Name</MudListSubheader>
+                            <MudListSubheader>
+                                Engine: @seasonEngine.Name
+                            </MudListSubheader>
                             <MudDropZone T="EditSeasonTeamModel" Identifier="@dropzone" Class="flex-grow-1" />
                         </MudList>
                     </MudPaper>
@@ -200,31 +209,28 @@
             </ItemRenderer>
         </MudDropContainer>
     </MudContainer>
+
     <MudContainer Class="@(_currentStep == 6 ? "" : "d-none")">
-        <MudDropContainer T="EditSeasonDriverModel" Items="Model.SeasonDrivers" ItemsSelector="@((item,dropzone) => true)" ItemDropped="DriverTeamDropped" Class="d-flex flex-wrap flex-grow-1">
+        <MudDropContainer T="EditSeasonDriverModel" Items="Model.SeasonDrivers" @ref="_dropperDrivers" ItemsSelector="@((item,dropzone) => item.BaseTeamId.ToString() == dropzone)" ItemDropped="DriverTeamDropped" Class="d-flex flex-wrap flex-grow-1">
             <ChildContent>
-                <MudGrid>
-                    <MudItem xs="6">
-                        <MudPaper Class="ma-4 flex-grow-1">
-                            <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
-                                <MudListSubheader>Drop Zone: NO TEAM</MudListSubheader>
-                                <MudDropZone T="EditSeasonDriverModel" Identifier="@_emptyGuid" Class="flex-grow-1" />
-                            </MudList>
-                        </MudPaper>
-                    </MudItem>
-@*                    <MudItem xs="6">
-                        @foreach (var seasonTeam in Model.SeasonTeams)
-                        {
-                            var dropzone = seasonTeam.Identifier;
-                            <MudPaper Class="ma-4 flex-grow-1">
-                                <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
-                                    <MudListSubheader>Drop Zone <CountryFlag Code="@seasonTeam.Team.Country" /> @seasonTeam.Name</MudListSubheader>
-                                    <MudDropZone T="EditSeasonDriverModel" Identifier="@dropzone" Class="flex-grow-1" />
-                                </MudList>
-                            </MudPaper>
-                        }
-                    </MudItem>*@
-                </MudGrid>
+                <MudPaper Class="ma-4 flex-grow-1">
+                    <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                        <MudListSubheader>Unassigned drivers</MudListSubheader>
+                        <MudDropZone T="EditSeasonDriverModel" Identifier="0" Class="flex-grow-1" />
+                    </MudList>
+                </MudPaper>
+                @foreach (var seasonTeam in Model.SeasonTeams)
+                {
+                    var dropzone = seasonTeam.TeamId.ToString();
+                    <MudPaper Class="ma-4 flex-grow-1">
+                        <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                            <MudListSubheader>
+                                <CountryFlag Code="@seasonTeam.Team.Country" /> @seasonTeam.Name
+                            </MudListSubheader>
+                            <MudDropZone T="EditSeasonDriverModel" Identifier="@dropzone" Class="flex-grow-1" />
+                        </MudList>
+                    </MudPaper>
+                }
             </ChildContent>
             <ItemRenderer>
                 <MudListItem>
@@ -234,6 +240,7 @@
             </ItemRenderer>
         </MudDropContainer>
     </MudContainer>
+
     <MudContainer Class="@(_currentStep == 7 ? "" : "d-none")">
         <MudStack Row="true">
             <MudTable Items="Model.SeasonEngines">
@@ -321,11 +328,13 @@
     [CascadingParameter] public Season Season { get; set; }
 
     public AddEntrantsModel Model = new();
+    private MudDropContainer<EditSeasonTeamModel> _dropperTeams;
+    private MudDropContainer<EditSeasonDriverModel> _dropperDrivers;
 
     private bool _loading = false;
+    private bool _disableNext = false;
     private string? _informative;
     private int _currentStep = 0;
-    private string _emptyGuid = Guid.Empty.ToString();
 
     protected override void OnInitialized()
     {
@@ -372,6 +381,12 @@
                     _informative = "The following drivers are selected for the upcoming season, if you wish so then the info can edited in-line";
                 }
                 break;
+            case 4:
+                RefreshTeamEngine();
+                break;
+            case 5:
+                RefreshDriverTeam();
+                break;
             default:
                 break;
         }
@@ -382,11 +397,29 @@
 
     private void TeamEngineDropped(MudItemDropInfo<EditSeasonTeamModel> dropItem)
     {
-        dropItem.Item.SeasonEngineId = long.Parse(dropItem.DropzoneIdentifier);
+        dropItem.Item.BaseEngineId = long.Parse(dropItem.DropzoneIdentifier);
+    }
+
+    private void RefreshTeamEngine()
+    {
+        //update the binding to the container
+        StateHasChanged();
+
+        //the container refreshes the internal state
+        _dropperTeams.Refresh();
     }
 
     private void DriverTeamDropped(MudItemDropInfo<EditSeasonDriverModel> dropItem)
     {
         dropItem.Item.SeasonTeamId = long.Parse(dropItem.DropzoneIdentifier);
+    }
+
+    private void RefreshDriverTeam()
+    {
+        //update the binding to the container
+        StateHasChanged();
+
+        //the container refreshes the internal state
+        _dropperDrivers.Refresh();
     }
 }

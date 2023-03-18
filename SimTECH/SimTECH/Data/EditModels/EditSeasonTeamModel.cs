@@ -22,8 +22,7 @@ namespace SimTECH.Data.EditModels
         public long ManufacturerId { get; set; }
 
         // Supportive properties
-        public string Identifier { get; set; } = new Guid().ToString();
-        public string Identified { get; set; } = Guid.Empty.ToString();
+        public long BaseEngineId { get; set; }
         public Team? Team { get; set; }
 
         public EditSeasonTeamModel() { _seasonTeam = new SeasonTeam(); }

@@ -16,7 +16,7 @@ namespace SimTECH.Data.EditModels
         public long? SeasonTeamId { get; set; }
 
         // Supportive properties
-        public string Identified { get; set; } = Guid.Empty.ToString();
+        public long BaseTeamId { get; set; }
         public Driver? Driver { get; set; }
 
         public EditSeasonDriverModel() { _seasonDriver = new SeasonDriver(); }

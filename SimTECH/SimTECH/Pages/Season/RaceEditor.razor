@@ -8,7 +8,7 @@
         <MudGrid>
             <MudItem xs="6">
                 <MudTextField @bind-Value="model.Name" Label="Name" />
-                <MudSelect T="Weather" @bind-Value="model.Weather" Label="Weather">
+                <MudSelect T="Weather" @bind-Value="model.Weather" Label="Should be track">
                     @foreach (var select in EnumHelper.GetWeatherSelection())
                     {
                         <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
@@ -25,6 +25,14 @@
                 </MudSelect>
             </MudItem>
             <MudItem xs="12">
+                <MudStack Row="true">
+                    <MudNumericField T="int" @bind-Value="_amountStints" Label="Amount of stints" ReadOnly="_amountReadonly" />
+                    <MudButton OnClick="SetStintAmount" Variant="Variant.Filled" Color="Color.Primary" Disabled="_amountReadonly">
+                        Set amount and edit stints
+                    </MudButton>
+                </MudStack>
+            </MudItem>
+@*            <MudItem xs="12">
                 <div>
                     <MudText>Stint setup for the race</MudText>
                     <table>
@@ -83,10 +91,18 @@
                         </tfoot>
                     </table>
                 </div>
-            </MudItem>
-            <MudItem xs="12">
-                does this work?
-                <MudButton OnClick="RefreshContainer">Refresh</MudButton>
+            </MudItem>*@
+            <MudItem xs="12" Class="@(_amountReadonly ? "" : "d-none")">
+                <MudText>Stint setup for the race</MudText>
+                <MudStack Spacing="3" Row="true">
+                    <MudText>Order</MudText>
+                    <MudText>Driver</MudText>
+                    <MudText>Car</MudText>
+                    <MudText>Engine</MudText>
+                    <MudText>Reliability</MudText>
+                    <MudText>RngMin</MudText>
+                    <MudText>RngMax</MudText>
+                </MudStack>
                 <MudDropContainer T="EditStintModel" Items="model.Stints" @ref="_container" ItemsSelector="(item, zone) => true" ItemDropped="ItemDropped">
                     <ChildContent>
                         <MudPaper Class="ma-4">
@@ -96,14 +112,16 @@
                         </MudPaper>
                     </ChildContent>
                     <ItemRenderer>
-                        <MudListItem Class="d-flex gap-2">
-                            <MudText>@context.Order</MudText>
-                            <MudCheckBox @bind-Checked="context.UseDriver" Color="Color.Tertiary" />
-                            <MudCheckBox @bind-Checked="context.UseCar" Color="Color.Tertiary" />
-                            <MudCheckBox @bind-Checked="context.UseEngine" Color="Color.Tertiary" />
-                            <MudCheckBox @bind-Checked="context.UseReliability" Color="Color.Tertiary" />
-                            <MudNumericField T="int" @bind-Value="context.RngMin" />
-                            <MudNumericField T="int" @bind-Value="context.RngMax" />
+                        <MudListItem>
+                            <MudStack Spacing="3" Row="true">
+                                <MudText>@(1 + context.Order)</MudText>
+                                <MudCheckBox @bind-Checked="context.UseDriver" Color="Color.Tertiary" Label="Driver" />
+                                <MudCheckBox @bind-Checked="context.UseCar" Color="Color.Tertiary" Label="Car" />
+                                <MudCheckBox @bind-Checked="context.UseEngine" Color="Color.Tertiary" Label="Engine" />
+                                <MudCheckBox @bind-Checked="context.UseReliability" Color="Color.Tertiary" Label="Reliability" />
+                                <MudNumericField T="int" @bind-Value="context.RngMin" Label="RngMin" />
+                                <MudNumericField T="int" @bind-Value="context.RngMax" Label="RngMax" />
+                            </MudStack>
                         </MudListItem>
                     </ItemRenderer>
                 </MudDropContainer>
@@ -125,6 +143,9 @@
     private EditRaceModel model = new();
     private EditStintModel? draggingItem; // model object which is being dragged
     private MudDropContainer<EditStintModel> _container;
+    private int _amountStints { get; set; }
+    private bool _amountReadonly = false;
+    private int orderNum = 0;
 
     protected override void OnInitialized()
     {
@@ -135,13 +156,22 @@
         }
     }
 
-    private int orderNum = 0;
+    private void SetStintAmount()
+    {
+        for (int i = 1; i <= _amountStints; i++)
+        {
+            AddStint();
+        }
+
+        RefreshContainer();
+        _amountReadonly = !_amountReadonly;
+    }
 
     private void AddStint()
     {
         model.Stints.Add(new EditStintModel
         {
-            Order = ++orderNum,
+            Order = orderNum++,
             RngMin = 20,
             RngMax = 40
         });
@@ -156,27 +186,27 @@
         _container.Refresh();
     }
 
-    private void HandleDrop(EditStintModel dropItem)
-    {
-        // draggingitem -> where the drop occurred
-        if (draggingItem is null)
-            return;
+    //private void HandleDrop(EditStintModel dropItem)
+    //{
+    //    // draggingitem -> where the drop occurred
+    //    if (draggingItem is null)
+    //        return;
 
-        // retain the original order for later
-        var initialOrder = dropItem.Order;
+    //    // retain the original order for later
+    //    var initialOrder = dropItem.Order;
 
-        // increate all the orders beneath model with 1
-        model.Stints.Where(e => e.Order >= initialOrder).ToList().ForEach(e => e.Order++);
+    //    // increate all the orders beneath model with 1
+    //    model.Stints.Where(e => e.Order >= initialOrder).ToList().ForEach(e => e.Order++);
 
-        draggingItem.Order = initialOrder;
+    //    draggingItem.Order = initialOrder;
 
-        int reorder = 0;
-        foreach (var model in model.Stints.OrderBy(e => e.Order).ToList())
-        {
-            model.Order = reorder++; // keeps numbers from 0 to size-1
-            model.IsDragOver = false; // removes the drag over
-        }
-    }
+    //    int reorder = 0;
+    //    foreach (var model in model.Stints.OrderBy(e => e.Order).ToList())
+    //    {
+    //        model.Order = reorder++; // keeps numbers from 0 to size-1
+    //        model.IsDragOver = false; // removes the drag over
+    //    }
+    //}
 
     private void ItemDropped(MudItemDropInfo<EditStintModel> dropItem)
     {
