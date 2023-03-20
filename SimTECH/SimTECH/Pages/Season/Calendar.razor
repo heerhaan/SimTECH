@@ -1,17 +1,9 @@
 ﻿@inject RaceService RaceService
 @inject TrackService TrackService
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <MudContainer>
-    <MudText Typo="Typo.h2">YEAR LEAGUE season</MudText>
-
-    @if (_notification != null)
-    {
-        <MudAlert Severity="Severity.Error">@_notification</MudAlert>
-    }
-
-    <MudButton OnClick="NotImplementedMoment">Start season</MudButton>
-
     <MudText Typo="Typo.h3">Races</MudText>
     <MudText>[Temp] The seasonId is @Season.Id</MudText>
 
@@ -95,6 +87,6 @@
     private void NotImplementedMoment() => AlertMoment("Functionality has not been implemented yet!!!");
     private void AlertMoment(string text)
     {
-        _notification = text;
+        Snackbar.Add(text, Severity.Error);
     }
 }

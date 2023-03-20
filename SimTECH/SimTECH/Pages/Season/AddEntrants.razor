@@ -1,21 +1,27 @@
 ﻿@inject SeasonEntrantService EntrantService
 
+@* TODO: I believe this wizard deserves it's own page, can only be used for fresh seasons without engines, teams or drivers *@
+
 <MudForm Model="@Model">
-    <MudContainer>
-        @if (_informative != null)
-        {
-            <MudAlert Severity="Severity.Info" ShowCloseIcon="true" CloseIconClicked="HideInformative">@_informative</MudAlert>
-        }
-    </MudContainer>
-    
     <MudPaper Elevation="25" Class="ma-10">
         <MudToolBar>
+            @if (_currentStep == 7)
+            {
+                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Save" IconColor="Color.Tertiary" OnClick="AdvanceStep">Finish adding entrants</MudButton>
+            }
+            else
+            {
+                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.NavigateNext" IconColor="Color.Tertiary" OnClick="AdvanceStep" Disabled="@_disableNext">Next step</MudButton>
+            }
+            <MudSpacer />
             @if (_loading)
             {
                 <MudProgressCircular Color="Color.Secondary" Size="Size.Large" Indeterminate="true" />
             }
-            <MudSpacer />
-            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.NavigateNext" IconColor="Color.Tertiary" OnClick="AdvanceStep" Disabled="_disableNext">Next step</MudButton>
+            @if (_informative != null)
+            {
+                <MudAlert Severity="Severity.Info" ShowCloseIcon="true" CloseIconClicked="HideInformative">@_informative</MudAlert>
+            }
         </MudToolBar>
     </MudPaper>
 
@@ -358,7 +364,7 @@
                         // TODO: Retrieve stats from previous season engine
                         Model.SeasonEngines.Add(new EditSeasonEngineModel() { EngineId = engine.Id, Name = engine.Name, SeasonId = Season.Id });
                     }
-                    _informative = "The following engines are selected for the upcoming season, if you wish so then the info can edited in-line";
+                    _informative = "The following engines are selected for the upcoming season, if you wish so then the info can be edited in-line";
                 }
                 break;
             case 2:
@@ -368,7 +374,7 @@
                         // TODO: Retrieve stats from previous season team
                         Model.SeasonTeams.Add(new EditSeasonTeamModel() { TeamId = team.Id, SeasonId = Season.Id, Team = team });
                     }
-                    _informative = "The following teams are selected for the upcoming season, if you wish so then the info can edited in-line";
+                    _informative = "The following teams are selected for the upcoming season, if you wish so then the info can be edited in-line";
                 }
                 break;
             case 3:
@@ -378,7 +384,7 @@
                         // TODO: Retrieve stats from previous season driver
                         Model.SeasonDrivers.Add(new EditSeasonDriverModel() { DriverId = driver.Id, SeasonId = Season.Id, Driver = driver });
                     }
-                    _informative = "The following drivers are selected for the upcoming season, if you wish so then the info can edited in-line";
+                    _informative = "The following drivers are selected for the upcoming season, if you wish so then the info can be edited in-line";
                 }
                 break;
             case 4:
@@ -411,7 +417,7 @@
 
     private void DriverTeamDropped(MudItemDropInfo<EditSeasonDriverModel> dropItem)
     {
-        dropItem.Item.SeasonTeamId = long.Parse(dropItem.DropzoneIdentifier);
+        dropItem.Item.BaseTeamId = long.Parse(dropItem.DropzoneIdentifier);
     }
 
     private void RefreshDriverTeam()
@@ -421,5 +427,10 @@
 
         //the container refreshes the internal state
         _dropperDrivers.Refresh();
+    }
+
+    async Task AddAllEntrants()
+    {
+        
     }
 }

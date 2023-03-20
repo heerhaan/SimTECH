@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using MudBlazor;
 using MudBlazor.Services;
 using SimTECH.Data;
 using SimTECH.Data.Requirements;
@@ -29,7 +30,12 @@ namespace SimTECH
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddMudServices();
+            builder.Services.AddMudServices(config =>
+            {
+                config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
+                config.SnackbarConfiguration.ShowCloseIcon = true;
+                config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
+            });
 
             // Provider services
             builder.Services.AddScoped<SimAuthenticationStateProvider>();

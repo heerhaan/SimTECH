@@ -21,6 +21,8 @@ namespace SimTECH.Data.EditModels
         public long SeasonEngineId { get; set; }
         public long ManufacturerId { get; set; }
 
+        public IList<EditSeasonDriverModel>? SeasonDrivers { get; set; }
+
         // Supportive properties
         public long BaseEngineId { get; set; }
         public Team? Team { get; set; }
@@ -64,6 +66,7 @@ namespace SimTECH.Data.EditModels
                 SeasonId = SeasonId,
                 SeasonEngineId = SeasonEngineId,
                 ManufacturerId = ManufacturerId,
+                SeasonDrivers = SeasonDrivers?.Select(e => e.Record).ToList()
             };
 
         public bool IsDirty => _seasonTeam != Record;

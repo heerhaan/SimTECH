@@ -3,11 +3,12 @@
 @inject DriverService DriverService
 
 <MudContainer>
+    <MudText Typo="Typo.h4">Engines</MudText>
     <MudGrid>
         <MudItem xs="6">
             <MudPaper>
                 <MudText Typo="Typo.h5">Entered engines</MudText>
-                <MudTable T="Engine" Items="@Model.BaseEngines" OnRowClick="RemoveEngine" Hover="true">
+                <MudTable T="Engine" Items="@Model.BaseEngines" OnRowClick="RemoveEngine" Hover="true" Dense="true">
                     <RowTemplate>
                         <MudTd DataLabel="Name">@context.Name</MudTd>
                     </RowTemplate>
@@ -17,7 +18,7 @@
         <MudItem xs="6">
             <MudPaper>
                 <MudText Typo="Typo.h5">Available engines</MudText>
-                <MudTable T="Engine" Items="@Engines" OnRowClick="EnterEngine" Hover="true">
+                <MudTable T="Engine" Items="@Engines" OnRowClick="EnterEngine" Hover="true" Dense="true">
                     <RowTemplate>
                         <MudTd DataLabel="Name">@context.Name</MudTd>
                     </RowTemplate>
@@ -27,11 +28,12 @@
     </MudGrid>
 </MudContainer>
 <MudContainer>
+    <MudText Typo="Typo.h4">Teams</MudText>
     <MudGrid>
         <MudItem xs="6">
             <MudPaper>
                 <MudText Typo="Typo.h5">Entered teams</MudText>
-                <MudTable T="Team" Items="@Model.BaseTeams" OnRowClick="RemoveTeam" Hover="true">
+                <MudTable T="Team" Items="@Model.BaseTeams" OnRowClick="RemoveTeam" Hover="true" Dense="true">
                     <RowTemplate>
                         <MudTd DataLabel="Name">
                             <CountryFlag Code="@context.Country" />
@@ -44,7 +46,7 @@
         <MudItem xs="6">
             <MudPaper>
                 <MudText Typo="Typo.h5">Available teams</MudText>
-                <MudTable T="Team" Items="@Teams" OnRowClick="EnterTeam" Hover="true">
+                <MudTable T="Team" Items="@Teams" OnRowClick="EnterTeam" Hover="true" Dense="true">
                     <RowTemplate>
                         <MudTd DataLabel="Name">
                             <CountryFlag Code="@context.Country" />
@@ -57,11 +59,12 @@
     </MudGrid>
 </MudContainer>
 <MudContainer>
+    <MudText Typo="Typo.h4">Drivers</MudText>
     <MudGrid>
         <MudItem xs="6">
             <MudPaper>
                 <MudText Typo="Typo.h5">Entered drivers</MudText>
-                <MudTable T="Driver" Items="@Model.BaseDrivers" OnRowClick="RemoveDriver" Hover="true">
+                <MudTable T="Driver" Items="@Model.BaseDrivers" OnRowClick="RemoveDriver" Hover="true" Dense="true">
                     <RowTemplate>
                         <MudTd DataLabel="Name">
                             <CountryFlag Code="@context.Country" />
@@ -74,7 +77,7 @@
         <MudItem xs="6">
             <MudPaper>
                 <MudText Typo="Typo.h5">Available drivers</MudText>
-                <MudTable T="Driver" Items="@Drivers" OnRowClick="EnterDriver" Hover="true">
+                <MudTable T="Driver" Items="@Drivers" OnRowClick="EnterDriver" Hover="true" Dense="true">
                     <RowTemplate>
                         <MudTd DataLabel="Name">
                             <CountryFlag Code="@context.Country" />
@@ -86,6 +89,7 @@
         </MudItem>
     </MudGrid>
 </MudContainer>
+
 @code {
     [Parameter] public AddEntrantsModel Model { get; set; } = new();
 

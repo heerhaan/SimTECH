@@ -13,5 +13,20 @@ namespace SimTECH.Data.EditModels
         public List<Engine> BaseEngines { get; set; } = new();
         public List<Team> BaseTeams { get; set; } = new();
         public List<Driver> BaseDrivers { get; set; } = new();
+
+        public List<EditSeasonEngineModel> CombineEntrantModels()
+        {
+            foreach (var engine in SeasonEngines)
+            {
+                engine.SeasonTeams = SeasonTeams.Where(e => e.BaseEngineId == engine.EngineId).ToList();
+
+                foreach (var team in engine.SeasonTeams)
+                {
+                    team.SeasonDrivers = SeasonDrivers.Where(e => e.BaseTeamId == team.TeamId).ToList();
+                }
+            }
+
+            return SeasonEngines;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@page "/overview/{SeasonId:long}"
 @inject SeasonService SeasonService
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <PageTitle>Overview</PageTitle>
 
@@ -15,6 +16,7 @@
                     </MudItem>
                     <MudItem xs="6">
                         <MudText>This is a good place to share some info about the state of setting this all up</MudText>
+                        <MudButton OnClick="StartSeason">Start season</MudButton>
                     </MudItem>
                 </MudGrid>
             </MudTabPanel>
@@ -36,8 +38,9 @@
             <MudTabPanel Text="Engines">
                 <SeasonEngines />
             </MudTabPanel>
-            <MudTabPanel Text="Settings">
+            <MudTabPanel Text="Settings" BadgeData='"!"' BadgeColor="Color.Error">
                 <MudGrid>
+                    @* NOTE: This panel is incredibly ugly FYI *@
                     <MudItem xs="3">
                         <MudPaper>
                             <MudTextField @bind-Value="Season.Year" Label="Year" ReadOnly="true"></MudTextField>
@@ -96,9 +99,14 @@
     }
 
     /*
-     * Idea: add entrants wizard, select the engines, teams and drivers to use; store selections in a list.
-     * then make dropzones for every engine -> drop teams underneath them. Same page after for teams with drivers.
+    * Idea: add entrants wizard, select the engines, teams and drivers to use; store selections in a list.
+    * then make dropzones for every engine -> drop teams underneath them. Same page after for teams with drivers.
      */
+
+    private void StartSeason()
+    {
+        Snackbar.Add("Starting the season has not been implemented yet!", Severity.Warning);
+    }
 
     async Task UpdateSeason()
     {
