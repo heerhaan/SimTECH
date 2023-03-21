@@ -2,7 +2,7 @@
 
 namespace SimTECH.Data.EditModels
 {
-    public class EditTeamModel
+    public sealed class EditTeamModel
     {
         private readonly Team _team;
 
@@ -44,7 +44,7 @@ namespace SimTECH.Data.EditModels
         public bool IsDirty => _team != Record || TeamTraits.Any(e => e.IsDirty);
     }
 
-    public class EditTeamTraitModel
+    public sealed class EditTeamTraitModel
     {
         private readonly TeamTrait _teamTrait;
 

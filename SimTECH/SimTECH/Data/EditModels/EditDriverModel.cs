@@ -3,7 +3,7 @@ using SimTECH.Extensions;
 
 namespace SimTECH.Data.EditModels
 {
-    public class EditDriverModel
+    public sealed class EditDriverModel
     {
         private readonly Driver _driver;
 
@@ -61,7 +61,7 @@ namespace SimTECH.Data.EditModels
         public bool IsDirty => _driver != Record || DriverTraits.Any(e => e.IsDirty);
     }
 
-    public class EditDriverTraitModel
+    public sealed class EditDriverTraitModel
     {
         private readonly DriverTrait _driverTrait;
 

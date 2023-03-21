@@ -276,6 +276,7 @@
                     <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
                 </RowTemplate>
             </MudTable>
+
             <MudTable Items="Model.SeasonTeams">
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">Participating teams</MudText>
@@ -309,6 +310,7 @@
                     <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
                 </RowTemplate>
             </MudTable>
+
             <MudTable Items="Model.SeasonDrivers">
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">Participating drivers</MudText>
@@ -447,11 +449,11 @@
         _dropperDrivers.Refresh();
     }
 
-    async Task AddAllEntrants()
+    private async Task AddAllEntrants()
     {
-        var allEntrants = Model.CombineEntrantModels();
+        Model.CombineEntrantModels();
 
-        var rootEntrants = allEntrants.Select(e => e.Record).ToList();
+        var rootEntrants = Model.SeasonEngines.Select(e => e.Record).ToList();
 
         await EntrantService.PersistSeasonEntrants(rootEntrants);
 

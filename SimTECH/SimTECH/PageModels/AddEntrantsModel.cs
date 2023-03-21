@@ -1,8 +1,9 @@
-﻿using SimTECH.Data.Models;
+﻿using SimTECH.Data.EditModels;
+using SimTECH.Data.Models;
 
-namespace SimTECH.Data.EditModels
+namespace SimTECH.PageModels
 {
-    public class AddEntrantsModel
+    public sealed class AddEntrantsModel
     {
         // Entrant data properties
         public List<EditSeasonEngineModel> SeasonEngines { get; set; } = new();
@@ -14,7 +15,7 @@ namespace SimTECH.Data.EditModels
         public List<Team> BaseTeams { get; set; } = new();
         public List<Driver> BaseDrivers { get; set; } = new();
 
-        public List<EditSeasonEngineModel> CombineEntrantModels()
+        public void CombineEntrantModels()
         {
             foreach (var engine in SeasonEngines)
             {
@@ -25,8 +26,6 @@ namespace SimTECH.Data.EditModels
                     team.SeasonDrivers = SeasonDrivers.Where(e => e.BaseTeamId == team.TeamId).ToList();
                 }
             }
-
-            return SeasonEngines;
         }
     }
 }
