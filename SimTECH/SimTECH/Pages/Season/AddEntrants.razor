@@ -1,13 +1,15 @@
-﻿@inject SeasonEntrantService EntrantService
-
-@* TODO: I believe this wizard deserves it's own page, can only be used for fresh seasons without engines, teams or drivers *@
+﻿@page "/addentrants/{SeasonId:long}"
+@inject SeasonService SeasonService
+@inject SeasonEntrantService EntrantService
+@inject ManufacturerService ManufacturerService
+@inject NavigationManager Nav
 
 <MudForm Model="@Model">
     <MudPaper Elevation="25" Class="ma-10">
         <MudToolBar>
             @if (_currentStep == 7)
             {
-                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Save" IconColor="Color.Tertiary" OnClick="AdvanceStep">Finish adding entrants</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Save" IconColor="Color.Tertiary" OnClick="AddAllEntrants">Finish adding entrants</MudButton>
             }
             else
             {
@@ -70,6 +72,7 @@
                 <MudTh>Chassis</MudTh>
                 <MudTh>Powertrain</MudTh>
                 <MudTh>Reliability</MudTh>
+                <MudTh>Manufacturer</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Name">
@@ -87,6 +90,7 @@
                 <MudTd DataLabel="Chassis">@context.Chassis</MudTd>
                 <MudTd DataLabel="Powertrain">@context.Powertrain</MudTd>
                 <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
+                <MudTd DataLabel="Manufacturer">@context.ManufacturerId</MudTd>
             </RowTemplate>
             <RowEditingTemplate>
                 <MudTd DataLabel="Name">
@@ -115,6 +119,14 @@
                 </MudTd>
                 <MudTd DataLabel="Reliability">
                     <MudNumericField @bind-Value="@context.Reliability" />
+                </MudTd>
+                <MudTd DataLabel="Manufacturer">
+                    <MudSelect T="long" @bind-Value="@context.ManufacturerId">
+                        @foreach (var manufacturer in manufacturers)
+                        {
+                            <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
+                        }
+                    </MudSelect>
                 </MudTd>
             </RowEditingTemplate>
             <EditButtonContent Context="button">
@@ -331,9 +343,12 @@
 </MudForm>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [Parameter] public long SeasonId { get; set; }
 
+    public Season Season = new();
     public AddEntrantsModel Model = new();
+
+    private List<Manufacturer> manufacturers = new();
     private MudDropContainer<EditSeasonTeamModel> _dropperTeams;
     private MudDropContainer<EditSeasonDriverModel> _dropperDrivers;
 
@@ -342,8 +357,11 @@
     private string? _informative;
     private int _currentStep = 0;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        Season = await SeasonService.GetSeasonById(SeasonId);
+        manufacturers = await ManufacturerService.GetManufacturers();
+
         _currentStep++;
     }
 
@@ -431,6 +449,12 @@
 
     async Task AddAllEntrants()
     {
-        
+        var allEntrants = Model.CombineEntrantModels();
+
+        var rootEntrants = allEntrants.Select(e => e.Record).ToList();
+
+        await EntrantService.PersistSeasonEntrants(rootEntrants);
+
+        Nav.NavigateTo($"/overview/{SeasonId}");
     }
 }

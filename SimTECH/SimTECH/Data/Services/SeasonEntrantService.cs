@@ -12,6 +12,15 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
+        public async Task PersistSeasonEntrants(List<SeasonEngine> rootEngines)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            await context.AddRangeAsync(rootEngines);
+
+            await context.SaveChangesAsync();
+        }
+
         // Engines
         public async Task<List<SeasonEngine>> GetSeasonEngines(long seasonId)
         {

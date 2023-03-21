@@ -1,5 +1,6 @@
 ﻿@page "/overview/{SeasonId:long}"
 @inject SeasonService SeasonService
+@inject NavigationManager Nav
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
@@ -18,13 +19,13 @@
                         <MudText>This is a good place to share some info about the state of setting this all up</MudText>
                         <MudButton OnClick="StartSeason">Start season</MudButton>
                     </MudItem>
+                    <MudItem xs="6">
+                        <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddAllEntrants">Add all entrants</MudButton>
+                    </MudItem>
                 </MudGrid>
             </MudTabPanel>
             <MudTabPanel Text="Calendar">
                 <Calendar />
-            </MudTabPanel>
-            <MudTabPanel Text="Adding ALL entrants :))">
-                <AddEntrants />
             </MudTabPanel>
             <MudTabPanel Text="Standings">
                 <MudText>Not implemented yet</MudText>
@@ -106,6 +107,11 @@
     private void StartSeason()
     {
         Snackbar.Add("Starting the season has not been implemented yet!", Severity.Warning);
+    }
+
+    private void AddAllEntrants()
+    {
+        Nav.NavigateTo($"/addentrants/{SeasonId}");
     }
 
     async Task UpdateSeason()
