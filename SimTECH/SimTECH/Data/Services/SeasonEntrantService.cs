@@ -38,7 +38,9 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.SeasonTeam.Where(e => e.SeasonId == seasonId).ToListAsync();
+            return await context.SeasonTeam
+                .Where(e => e.SeasonId == seasonId)
+                .ToListAsync();
         }
 
         public async Task UpdateSeasonTeam(SeasonTeam team)
@@ -59,7 +61,10 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.SeasonDriver.Where(e => e.SeasonId == seasonId).ToListAsync();
+            return await context.SeasonDriver
+                .Include(e => e.Driver)
+                .Where(e => e.SeasonId == seasonId)
+                .ToListAsync();
         }
 
         public async Task UpdateSeasonDriver(SeasonDriver driver)

@@ -34,13 +34,14 @@
         EngineData = await EngineService.GetEngines();
     }
 
-    async Task EnterEngine() => await UpdateEngine(new SeasonEngine() { SeasonId = Season.Id });
+    async Task EnterEngine() => await UpdateEngine(new SeasonEngine());
     async Task UpdateEngine(SeasonEngine item)
     {
         var parameters = new DialogParameters 
             { 
+                ["SeasonId"] = Season.Id,
+                ["Engines"] = EngineData,
                 ["SeasonEngine"] = item,
-                ["Engines"] = EngineData
             };
 
         var dialog = await DialogService.ShowAsync<SeasonEngineEditor>("Modify in-season engine", parameters);

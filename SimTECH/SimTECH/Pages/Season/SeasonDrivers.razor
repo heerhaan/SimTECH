@@ -1,18 +1,61 @@
-﻿@inject SeasonEntrantService EntrantService
+﻿@inject DriverService DriverService
+@inject SeasonEntrantService EntrantService
+@inject IDialogService DialogService
 
-<MudDataGrid T="SeasonDriver" Items="DriverData">
+<MudContainer Class="d-flex justify-space-between pa-2 mx-2 my-2">
+    <MudText Typo="Typo.h4">In-season drivers</MudText>
+    <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterDriver">New</MudButton>
+</MudContainer>
+<MudDataGrid T="SeasonDriver" Items="SeasonDriverEntrants">
     <Columns>
+        <PropertyColumn Property="e => e.Driver.FullName" />
         <PropertyColumn Property="e => e.Number" />
+        <PropertyColumn Property="e => e.Skill" />
+        <PropertyColumn Property="e => e.Reliability" />
+        <PropertyColumn Property="e => e.TeamRole" />
+        <PropertyColumn Property="e => e.SeasonTeamId" />
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudButtonGroup>
+                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriverEntrant(context.Item))" />
+                </MudButtonGroup>
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
 </MudDataGrid>
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
-    private List<SeasonDriver> DriverData = new();
+    private List<SeasonDriver> SeasonDriverEntrants = new();
+    private List<SeasonTeam> TeamEntrants = new();
+    private List<Driver> DriverData = new();
 
     protected override async Task OnInitializedAsync()
     {
-        DriverData = await EntrantService.GetSeasonDrivers(Season.Id);
+        SeasonDriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
+        TeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
+        DriverData = await DriverService.GetDrivers();
+    }
+
+    async Task EnterDriver() => await UpdateDriverEntrant(new SeasonDriver());
+    async Task UpdateDriverEntrant(SeasonDriver item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["SeasonId"] = Season.Id,
+                ["Drivers"] = DriverData,
+                ["SeasonTeams"] = TeamEntrants,
+                ["SeasonDriver"] = item,
+            };
+
+        var dialog = await DialogService.ShowAsync<SeasonDriverEditor>("Modify in-season driver", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is SeasonDriver updatedDriver)
+        {
+            await EntrantService.UpdateSeasonDriver(updatedDriver);
+            SeasonDriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
+        }
     }
 }

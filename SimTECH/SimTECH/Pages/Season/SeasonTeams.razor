@@ -1,23 +1,81 @@
-﻿@inject SeasonEntrantService EntrantService
+﻿@inject ManufacturerService ManufacturerService
+@inject SeasonEntrantService EntrantService
+@inject TeamService TeamService
 @inject IDialogService DialogService
 
-<h3>SeasonTeams</h3>
-
-<MudDataGrid T="SeasonTeam" Items="TeamData">
+<MudContainer Class="d-flex justify-space-between pa-2 mx-2 my-2">
+    <MudText Typo="Typo.h4">Teams in season</MudText>
+    <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterTeam">New</MudButton>
+</MudContainer>
+<MudDataGrid T="SeasonTeam" Items="SeasonTeamEntrants">
     <Columns>
+        <PropertyColumn Property="e => e.Name" CellStyleFunc="@_teamStyleFunc" />
+        <TemplateColumn Title="Cuntry">
+            <CellTemplate>
+                <MudText>@(context.Item.Team?.Country.CountryCodeToEmoji() ?? "lol dunno, man")</MudText>
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="e => e.Principal" />
-        <PropertyColumn Property="e => e.Name" />
-        <PropertyColumn Property="e => e.Points" />
+        <PropertyColumn Property="e => e.BaseValue" />
+        <TemplateColumn Title="A/C/P">
+            <CellTemplate>
+                    <MudText>@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="e => e.Reliability" />
+        <TemplateColumn Title="Manufacturer">
+            <CellTemplate>
+                <MudText>@(ManufacturerData.Find(e => e.Id == context.Item.ManufacturerId)?.Name ?? "[ERR: DIDN'T DETECT MANUFACTURER]")</MudText>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudButtonGroup>
+                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeamEntrant(context.Item))" />
+                </MudButtonGroup>
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
 </MudDataGrid>
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
-    private List<SeasonTeam> TeamData = new();
+    private List<SeasonTeam> SeasonTeamEntrants = new();
+    private List<Team> TeamData = new();
+    private List<Manufacturer> ManufacturerData = new();
 
     protected override async Task OnInitializedAsync()
     {
-        TeamData = await EntrantService.GetSeasonTeams(Season.Id);
+        SeasonTeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
+        TeamData = await TeamService.GetTeams();
+        ManufacturerData = await ManufacturerService.GetManufacturers();
+    }
+
+    private Func<SeasonTeam, string> _teamStyleFunc => e =>
+    {
+        return $"background-color:{e.Colour}; color:{e.Accent}";
+    };
+
+    async Task EnterTeam() => await UpdateTeamEntrant(new SeasonTeam());
+    async Task UpdateTeamEntrant(SeasonTeam item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["SeasonId"] = Season.Id,
+                ["Teams"] = TeamData,
+                ["Manufacturers"] = ManufacturerData,
+                ["SeasonEngines"] = await EntrantService.GetSeasonEngines(Season.Id),
+                ["SeasonTeam"] = item,
+            };
+
+        var dialog = await DialogService.ShowAsync<SeasonTeamEditor>("Modify in-season team", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is SeasonTeam updatedTeam)
+        {
+            await EntrantService.UpdateSeasonTeam(updatedTeam);
+            SeasonTeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
+        }
     }
 }
