@@ -11,6 +11,7 @@
         <PropertyColumn Property="e => e.Name" />
         <PropertyColumn Property="e => e.Power" />
         <PropertyColumn Property="e => e.Reliability" />
+        <PropertyColumn Property="e => e.Rebadged" />
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudButtonGroup>
@@ -33,7 +34,7 @@
         EngineData = await EngineService.GetEngines();
     }
 
-    async Task EnterEngine() => await UpdateEngine(new SeasonEngine());
+    async Task EnterEngine() => await UpdateEngine(new SeasonEngine() { SeasonId = Season.Id });
     async Task UpdateEngine(SeasonEngine item)
     {
         var parameters = new DialogParameters 

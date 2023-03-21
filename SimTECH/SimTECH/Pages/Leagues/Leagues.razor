@@ -23,26 +23,34 @@
             </TemplateColumn>
         </Columns>
         <ChildRowContent>
-            <MudGrid>
-                @if (context.Item.DevelopmentRanges != null)
-                {
-                    <MudItem xs="12">
-                        <MudStack>
-                            @foreach (var range in context.Item.DevelopmentRanges)
-                            {
-                                <MudText>@range.Type - @range.Comparer - @range.Minimum - @range.Maximum</MudText>
-                            }
-                        </MudStack>
-                    </MudItem>
-                }
-            </MudGrid>
+            @if (context.Item.DevelopmentRanges != null)
+            {
+                <MudStack Spacing="2" Row="true">
+                    @foreach (var rangeGroup in context.Item.DevelopmentRanges.GroupBy(e => e.Type))
+                    {
+                        <MudPaper Elevation="15">
+                            <MudList>
+                                <MudListSubheader>Development ranges for @rangeGroup.Key.ToString()</MudListSubheader>
+                                @foreach (var range in rangeGroup)
+                                {
+                                    <MudListItem>@range.Comparer - @range.Minimum - @range.Maximum</MudListItem>
+                                }
+                            </MudList>
+                        </MudPaper>
+                    }
+                </MudStack>
+            }
+            else
+            {
+                <MudText>There aren't any development ranges set at all!</MudText>
+            }
         </ChildRowContent>
     </MudDataGrid>
 </MudContainer>
 
 @code {
     private bool _loading = true;
-    private readonly DialogOptions dialogOptions = new()
+    private DialogOptions dialogOptions = new()
     {
         MaxWidth = MaxWidth.ExtraLarge,
     };

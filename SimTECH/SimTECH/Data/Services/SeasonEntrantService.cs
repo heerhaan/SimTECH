@@ -12,16 +12,7 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
-        public async Task PersistSeasonEntrants(List<SeasonEngine> rootEngines)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            await context.AddRangeAsync(rootEngines);
-
-            await context.SaveChangesAsync();
-        }
-
-        // Engines
+        #region methods exclusively for season engines
         public async Task<List<SeasonEngine>> GetSeasonEngines(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -40,8 +31,9 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+        #endregion
 
-        // Teams
+        #region methods exclusively for season teams
         public async Task<List<SeasonTeam>> GetSeasonTeams(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -60,8 +52,9 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+        #endregion
 
-        // Drivers
+        #region methods exclusively for season drivers
         public async Task<List<SeasonDriver>> GetSeasonDrivers(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -80,5 +73,18 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+        #endregion
+
+        #region single-use methods
+        // List of season engines contains (or is expected to) have all related data
+        public async Task PersistSeasonEntrants(List<SeasonEngine> rootEngines)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            await context.AddRangeAsync(rootEngines);
+
+            await context.SaveChangesAsync();
+        }
+        #endregion
     }
 }
