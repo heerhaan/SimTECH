@@ -43,6 +43,17 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
+        public async Task<SeasonTeam> GetSeasonTeamById(long seasonTeamId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonTeam
+                .Include(e => e.Team)
+                .Include(e => e.SeasonEngine)
+                .Include(e => e.Manufacturer)
+                .SingleAsync(e => e.Id == seasonTeamId);
+        }
+
         public async Task UpdateSeasonTeam(SeasonTeam team)
         {
             using var context = _dbFactory.CreateDbContext();

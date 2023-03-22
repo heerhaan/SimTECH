@@ -16,7 +16,9 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Team.Include(e => e.TeamTraits).ToListAsync();
+            return await context.Team
+                .Include(e => e.TeamTraits)
+                .ToListAsync();
         }
 
         public async Task UpdateTeam(Team team)

@@ -16,7 +16,7 @@
             <PropertyColumn Property="e => e.FullName" />
             <PropertyColumn Property="e => e.Abbreviation" />
             <PropertyColumn Property="e => e.DateOfBirth" />
-            <TemplateColumn T="Driver" Field="Country">
+            <TemplateColumn T="Driver" Title="Country">
                 <CellTemplate>
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
@@ -24,8 +24,9 @@
             <PropertyColumn Property="e => e.State" />
             <TemplateColumn T="Driver" CellClass="d-flex justify-end">
                 <CellTemplate>
-                    <MudButtonGroup>
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
+                    <MudButtonGroup Size="@Size.Small">
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteDriver(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -50,7 +51,7 @@
 </MudContainer>
 
 @code {
-    private bool _readOnly = false; // NOTE: Useful if/when app goes public
+    private bool _readOnly = false; // NOTE: Useful when app goes public
 
     private List<Driver> DriverData = new();
 
@@ -78,4 +79,6 @@
             DriverData = await DriverService.GetDrivers();
         }
     }
+
+    async Task DeleteDriver(Driver driver) => await DriverService.DeleteDriver(driver);
 }

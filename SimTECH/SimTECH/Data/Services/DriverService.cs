@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
-    public class DriverService
+    public sealed class DriverService
     {
         private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
 
@@ -16,14 +17,18 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Driver.Include(e => e.DriverTraits).ToListAsync();
+            return await context.Driver
+                .Include(e => e.DriverTraits)
+                .ToListAsync();
         }
 
-        public async Task<Driver?> GetDriverById(long driverId)
+        public async Task<Driver> GetDriverById(long driverId)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Driver.FirstOrDefaultAsync(e => e.Id == driverId);
+            return await context.Driver
+                .Include(e => e.DriverTraits)
+                .SingleAsync(e => e.Id == driverId);
         }
 
         public async Task UpdateDriver(Driver driver)
@@ -47,6 +52,29 @@ namespace SimTECH.Data.Services
                     context.AddRange(driver.DriverTraits);
 
                 context.Update(driver);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteDriver(Driver driver)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            if (context.SeasonDriver.Any(e => e.DriverId == driver.Id))
+            {
+                // Looks a bit clumsy, but the model behind driver is record which are immutable
+                var editModel = new EditDriverModel(driver)
+                {
+                    State = State.Archived
+                };
+                var modified = editModel.Record;
+
+                context.Update(modified);
+            }
+            else
+            {
+                context.Remove(driver);
             }
 
             await context.SaveChangesAsync();

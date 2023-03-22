@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
+using SimTECH.PageModels;
 
 namespace SimTECH.Data.Services
 {
@@ -33,5 +34,24 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+
+        #region single-purpose calls
+        // TODO: LeagueID parameter
+        public async Task<List<CopyRaceModel>> GetRacesToCopy()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Race
+                .Where(e => e.Season.LeagueId == 1)
+                .Select(e => new CopyRaceModel
+                {
+                    RaceId = e.Id,
+                    Name = e.Name,
+                    Country = e.Track.Country,
+                    SeasonYear = e.Season.Year
+                })
+                .ToListAsync();
+        }
+        #endregion
     }
 }

@@ -18,7 +18,17 @@
                         <MudNumericField T="int" @bind-Value="model.PitMaximum" Label="Pit max. RNG" />
                         <MudNumericField T="int" @bind-Value="model.PointsPole" Label="Awarded pts. POLE" />
                         <MudNumericField T="int" @bind-Value="model.PointsFastestLap" Label="Awarded pts. FL" />
+
                         <MudNumericField T="long" @bind-Value="model.LeagueId" Label="League ID" />
+
+                        @if (Copied ?? false)
+                        {
+                            <MudCheckBox @bind-Checked="_copyRaces" Color="Color.Tertiary" Label="Copy all races from season" />
+                            @if (_copyRaces)
+                            {
+                                <MudAlert Severity="Severity.Warning">Sorry! Feature isn't implemented yet.</MudAlert>
+                            }
+                        }
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
@@ -68,17 +78,16 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? SeasonDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? SeasonDialog { get; set; }
 
-    [Parameter]
-    public Season? Season { get; set; }
-
-    [Parameter]
-    public bool? Copied { get; set; }
+    [Parameter] public Season? Season { get; set; }
+    [Parameter] public bool? Copied { get; set; }
 
     private EditSeasonModel model = new();
     private EditPointAllotmentModel allotmentBackup;
+
+    private bool _copyRaces { get; set; }
+    private int _lowestPosition { get; set; }
 
     protected override void OnInitialized()
     {
@@ -86,9 +95,16 @@
         {
             model = new EditSeasonModel(Season);
 
+            if (model.PointAllotments.Any())
+                _lowestPosition = model.PointAllotments.Max(e => e.Position);
+
             if (Copied.GetValueOrDefault())
                 model.ResetIdentifierFields();
         }
+
+        // TODO: Following is temp until this is set by default
+        if (model.LeagueId == 0)
+            model.LeagueId = 1;
     }
 
     private void BackupAllotment(object allotment) //alternatively use EditPointAllotmentModel if this doesnt work
@@ -112,18 +128,24 @@
     {
         model.PointAllotments.Add(new EditPointAllotmentModel
             {
-                Position = 0,
+                Position = ++_lowestPosition,
                 Points = 0
             });
     }
 
     private void RemoveAllotment(EditPointAllotmentModel allotment)
     {
+        --_lowestPosition;
         model.PointAllotments.Remove(allotment);
     }
 
     private void Submit()
     {
+        if (_copyRaces)
+        {
+            // TODO: handle what to do here
+        }
+
         if (model.IsDirty)
         {
             var modSeason = model.Record;
