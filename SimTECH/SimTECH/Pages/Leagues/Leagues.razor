@@ -16,8 +16,9 @@
             <PropertyColumn Property="e => e.State" />
             <TemplateColumn CellClass="d-flex justify-end">
                 <CellTemplate>
-                    <MudButtonGroup>
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context.Item))" />
+                    <MudButtonGroup Size="Size.Small">
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context.Item))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteLeague(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -54,7 +55,7 @@
     {
         MaxWidth = MaxWidth.ExtraLarge,
     };
-    private IEnumerable<League> LeagueData = new List<League>();
+    private List<League> LeagueData = new List<League>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,5 +76,11 @@
             await LeagueService.UpdateLeague(updatedLeague);
             LeagueData = await LeagueService.GetLeagues();
         }
+    }
+
+    async Task DeleteLeague(League league)
+    {
+        await LeagueService.DeleteLeague(league);
+        LeagueData.Remove(league);
     }
 }

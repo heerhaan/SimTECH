@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
@@ -29,6 +30,28 @@ namespace SimTECH.Data.Services
                 context.Add(engine);
             else
                 context.Update(engine);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteEngine(Engine engine)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            if (context.SeasonEngine.Any(e => e.EngineId == engine.Id))
+            {
+                var editModel = new EditEngineModel(engine)
+                {
+                    State = State.Archived
+                };
+
+                var modified = editModel.Record;
+                context.Update(modified);
+            }
+            else
+            {
+                context.Remove(engine);
+            }
 
             await context.SaveChangesAsync();
         }

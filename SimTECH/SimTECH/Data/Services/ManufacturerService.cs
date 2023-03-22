@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
-    public class ManufacturerService
+    public sealed class ManufacturerService
     {
         private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
 
@@ -27,6 +28,28 @@ namespace SimTECH.Data.Services
                 context.Add(manufacturer);
             else
                 context.Update(manufacturer);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteManufacturer(Manufacturer manufacturer)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            if (context.SeasonTeam.Any(e => e.ManufacturerId == manufacturer.Id))
+            {
+                var editModel = new EditManufacturerModel(manufacturer)
+                {
+                    State = State.Archived
+                };
+
+                var modified = editModel.Record;
+                context.Update(modified);
+            }
+            else
+            {
+                context.Remove(manufacturer);
+            }
 
             await context.SaveChangesAsync();
         }

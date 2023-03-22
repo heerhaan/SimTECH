@@ -19,8 +19,9 @@
             <MudTd>@context.Name</MudTd>
             <MudTd>@context.State</MudTd>
             <MudTd>
-                <MudButtonGroup>
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context))" />
+                <MudButtonGroup Size="@Size.Small">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteEngine(context))" />
                 </MudButtonGroup>
             </MudTd>
         </RowTemplate>
@@ -48,5 +49,11 @@
             await EngineService.UpdateEngine(updatedItem);
             EngineNames = await EngineService.GetEngines();
         }
+    }
+
+    async Task DeleteEngine(Engine engine)
+    {
+        await EngineService.DeleteEngine(engine);
+        EngineNames.Remove(engine);
     }
 }

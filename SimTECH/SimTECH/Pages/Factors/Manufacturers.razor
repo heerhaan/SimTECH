@@ -23,8 +23,9 @@
             <MudTd>@context.WearMax ↔ @context.WearMin</MudTd>
             <MudTd>@context.State</MudTd>
             <MudTd Class="d-flex justify-end">
-                <MudButtonGroup>
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateManufacturer(context))" />
+                <MudButtonGroup Size="@Size.Small">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateManufacturer(context))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteManufacturer(context))" />
                 </MudButtonGroup>
             </MudTd>
         </RowTemplate>
@@ -32,7 +33,7 @@
 </MudContainer>
 
 @code {
-    private IEnumerable<Manufacturer> ManufacturerNames = new List<Manufacturer>();
+    private List<Manufacturer> ManufacturerNames = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,5 +53,11 @@
             await ManufacturerService.UpdateManufacturer(updatedItem);
             ManufacturerNames = await ManufacturerService.GetManufacturers();
         }
+    }
+
+    async Task DeleteManufacturer(Manufacturer manufacturer)
+    {
+        await ManufacturerService.DeleteManufacturer(manufacturer);
+        ManufacturerNames.Remove(manufacturer);
     }
 }

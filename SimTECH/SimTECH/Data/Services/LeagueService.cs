@@ -41,5 +41,17 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+
+        public async Task DeleteLeague(League league)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            if (context.Season.Any(e => e.LeagueId == league.Id))
+                throw new InvalidOperationException("Can not delete leagues containing seasons");
+            else
+                context.Remove(league);
+
+            await context.SaveChangesAsync();
+        }
     }
 }
