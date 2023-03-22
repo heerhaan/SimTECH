@@ -12,6 +12,11 @@
     {
         <MudTabs Outlined="true" Centered="true">
             <MudTabPanel Text="Intro">
+                @* place alert to above if necessary outside this tab *@
+                @if (_errorMessage != null)
+                {
+                    <MudAlert Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="HideErr" Style="z-index: 10;position: relative;">@_errorMessage</MudAlert>
+                }
                 <MudGrid Spacing="5">
                     <MudItem xs="12">
                         <MudPaper Class="pa-4">
@@ -36,7 +41,7 @@
             <MudTabPanel Text="Calendar">
                 <Calendar />
             </MudTabPanel>
-            <MudTabPanel Text="Standings" BadgeData='"Alhamdullah"' BadgeColor="Color.Warning">
+            <MudTabPanel Text="Standings" BadgeData='"S"' BadgeColor="Color.Tertiary">
                 <Standings />
             </MudTabPanel>
             <MudTabPanel Text="Drivers">
@@ -102,15 +107,26 @@
     [Parameter] public long SeasonId { get; set; }
 
     public Season? Season { get; set; }
+    private string? _errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
         Season = await SeasonService.GetSeasonById(SeasonId);
     }
 
-    private void StartSeason()
+    private async Task StartSeason()
     {
-        Snackbar.Add("Starting the season has not been implemented yet!", Severity.Warning);
+        if (Season != null)
+        {
+            var _errorMessage = await SeasonService.ActivateSeason(Season);
+
+            if (_errorMessage == null)
+                Snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
+        }
+        else
+        {
+            _errorMessage = "Couldn't detect a season (wtf?)";
+        }
     }
 
     private void AddAllEntrants()
@@ -132,4 +148,6 @@
             Season = updatedItem;
         }
     }
+
+    private void HideErr() => _errorMessage = null;
 }

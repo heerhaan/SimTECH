@@ -32,7 +32,7 @@ namespace SimTECH
             builder.Services.AddServerSideBlazor();
             builder.Services.AddMudServices(config =>
             {
-                config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
+                //config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
                 config.SnackbarConfiguration.ShowCloseIcon = true;
                 config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
             });

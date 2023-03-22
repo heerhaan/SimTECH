@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
@@ -68,6 +69,40 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<string?> ActivateSeason(Season season)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            if (season.State != State.Concept)
+                throw new InvalidOperationException("Can only activate seasons which are currently in 'concept'.");
+
+            var completeSeason = await context.Season
+                .Include(e => e.SeasonEngines)
+                .Include(e => e.SeasonTeams)
+                .Include(e => e.SeasonDrivers)
+                .Include(e => e.Races)
+                .SingleAsync(e => e.Id == season.Id);
+
+            if (completeSeason.SeasonEngines?.Any() != true)
+                return "this blitherin idiot right here forgot to add any entrants to this season, begin with adding the engines.";
+            if (completeSeason.SeasonTeams?.Any() != true)
+                return "absolute moron forgot to add the teams, how are you going to race a motorsport season without any teams. come on mate";
+            if (completeSeason.SeasonDrivers?.Any() != true)
+                return "hey robocop this isn't the future, we still have people driving the cars. so add some fucking drivers will ya?";
+            if (completeSeason?.Races?.Any() != true)
+                return "hint of advice, a season without any races is hardly much of a season. add races, pisshead";
+
+            // i know i know, fugly solution here but alas it works
+            var editModel = new EditSeasonModel(season) { State = State.Active };
+            var editedRecord = editModel.Record;
+
+            context.Update(editedRecord);
+
+            await context.SaveChangesAsync();
+
+            return null;
         }
     }
 }

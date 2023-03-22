@@ -3,6 +3,7 @@
 @inject SeasonEntrantService EntrantService
 @inject ManufacturerService ManufacturerService
 @inject NavigationManager Nav
+@inject ISnackbar Snackbar
 
 <MudForm Model="@Model">
     <MudPaper Elevation="25" Class="ma-10">
@@ -20,15 +21,12 @@
             {
                 <MudProgressCircular Color="Color.Secondary" Size="Size.Large" Indeterminate="true" />
             }
-            @if (_informative != null)
-            {
-                <MudAlert Severity="Severity.Info" ShowCloseIcon="true" CloseIconClicked="HideInformative">@_informative</MudAlert>
-            }
         </MudToolBar>
     </MudPaper>
 
+
     <MudContainer Class="@(_currentStep == 1 ? "" : "d-none")">
-        <EntrantPicker Model="@Model"/>
+        <EntrantPicker Model="@Model" />
     </MudContainer>
 
     <MudContainer Class="@(_currentStep == 2 ? "" : "d-none")">
@@ -63,18 +61,20 @@
     <MudContainer Class="@(_currentStep == 3 ? "" : "d-none")">
         <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true">
             <HeaderContent>
-                <MudTh>Name</MudTh>
-                <MudTh>Principal</MudTh>
-                <MudTh>Colour</MudTh>
-                <MudTh>Accent</MudTh>
-                <MudTh>BaseValue</MudTh>
-                <MudTh>Aero</MudTh>
-                <MudTh>Chassis</MudTh>
-                <MudTh>Powertrain</MudTh>
-                <MudTh>Reliability</MudTh>
-                <MudTh>Manufacturer</MudTh>
+                <MudTh Style="min-width: 200px;">Team</MudTh>
+                <MudTh Style="min-width: 200px;">Name</MudTh>
+                <MudTh Style="min-width: 200px;">Principal</MudTh>
+                <MudTh Style="min-width: 100px;">Colour</MudTh>
+                <MudTh Style="min-width: 100px;">Accent</MudTh>
+                <MudTh Style="min-width: 50px;">Base</MudTh>
+                <MudTh Style="min-width: 50px;">Aero</MudTh>
+                <MudTh Style="min-width: 50px;">Chassis</MudTh>
+                <MudTh Style="min-width: 50px;">Powertrain</MudTh>
+                <MudTh Style="min-width: 50px;">Reliability</MudTh>
+                <MudTh Style="min-width: 200px;">Manufacturer</MudTh>
             </HeaderContent>
             <RowTemplate>
+                <MudTd DataLabel="Team">@(context.Team?.Name ?? "Unknown")</MudTd>
                 <MudTd DataLabel="Name">
                     @if (context.Team != null)
                     {
@@ -85,7 +85,7 @@
                 <MudTd DataLabel="Principal">@context.Principal</MudTd>
                 <MudTd DataLabel="Colour">@context.Colour</MudTd>
                 <MudTd DataLabel="Accent">@context.Accent</MudTd>
-                <MudTd DataLabel="BaseValue">@context.BaseValue</MudTd>
+                <MudTd DataLabel="Base">@context.BaseValue</MudTd>
                 <MudTd DataLabel="Aero">@context.Aero</MudTd>
                 <MudTd DataLabel="Chassis">@context.Chassis</MudTd>
                 <MudTd DataLabel="Powertrain">@context.Powertrain</MudTd>
@@ -93,6 +93,7 @@
                 <MudTd DataLabel="Manufacturer">@context.ManufacturerId</MudTd>
             </RowTemplate>
             <RowEditingTemplate>
+                <MudTd DataLabel="Team">@(context.Team?.Name ?? "Unknown")</MudTd>
                 <MudTd DataLabel="Name">
                     <MudTextField @bind-Value="@context.Name" Required />
                 </MudTd>
@@ -105,7 +106,7 @@
                 <MudTd DataLabel="Accent">
                     <MudColorPicker @bind-Text="@context.Accent" DisableAlpha="true" />
                 </MudTd>
-                <MudTd DataLabel="BaseValue">
+                <MudTd DataLabel="Base">
                     <MudNumericField @bind-Value="@context.BaseValue" />
                 </MudTd>
                 <MudTd DataLabel="Aero">
@@ -168,7 +169,7 @@
                 <MudTd DataLabel="Name">
                     @if (context.Driver != null)
                     {
-                        <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                        <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Tiny" />
                         @context.Driver.FullName
                     }
                     else
@@ -203,21 +204,21 @@
     <MudContainer Class="@(_currentStep == 5 ? "" : "d-none")">
         <MudDropContainer T="EditSeasonTeamModel" Items="Model.SeasonTeams" @ref="_dropperTeams" ItemsSelector="@((item,dropzone) => item.BaseEngineId.ToString() == dropzone)" ItemDropped="TeamEngineDropped" Class="d-flex flex-wrap flex-grow-1">
             <ChildContent>
-                <MudPaper Class="ma-4 flex-grow-1">
+                <MudPaper Class="ma-4 flex-grow-1" Width="225px">
                     <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
                         <MudListSubheader>Unassigned teams</MudListSubheader>
-                        <MudDropZone T="EditSeasonTeamModel" Identifier="0" Class="flex-grow-1" />
+                        <MudDropZone T="EditSeasonTeamModel" Identifier="0" Class="flex-grow-1" Style="min-height: 50px;" />
                     </MudList>
                 </MudPaper>
                 @foreach (var seasonEngine in Model.SeasonEngines)
                 {
                     var dropzone = seasonEngine.EngineId.ToString();
-                    <MudPaper Class="ma-4 flex-grow-1">
+                    <MudPaper Class="ma-4 flex-grow-1" Width="225px">
                         <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
                             <MudListSubheader>
                                 Engine: @seasonEngine.Name
                             </MudListSubheader>
-                            <MudDropZone T="EditSeasonTeamModel" Identifier="@dropzone" Class="flex-grow-1" />
+                            <MudDropZone T="EditSeasonTeamModel" Identifier="@dropzone" Class="flex-grow-1" Style="min-height: 50px;" />
                         </MudList>
                     </MudPaper>
                 }
@@ -231,21 +232,21 @@
     <MudContainer Class="@(_currentStep == 6 ? "" : "d-none")">
         <MudDropContainer T="EditSeasonDriverModel" Items="Model.SeasonDrivers" @ref="_dropperDrivers" ItemsSelector="@((item,dropzone) => item.BaseTeamId.ToString() == dropzone)" ItemDropped="DriverTeamDropped" Class="d-flex flex-wrap flex-grow-1">
             <ChildContent>
-                <MudPaper Class="ma-4 flex-grow-1">
+                <MudPaper Class="ma-4 flex-grow-1" Width="225px">
                     <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
                         <MudListSubheader>Unassigned drivers</MudListSubheader>
-                        <MudDropZone T="EditSeasonDriverModel" Identifier="0" Class="flex-grow-1" />
+                        <MudDropZone T="EditSeasonDriverModel" Identifier="0" Class="flex-grow-1" Style="min-height: 50px;" />
                     </MudList>
                 </MudPaper>
                 @foreach (var seasonTeam in Model.SeasonTeams)
                 {
                     var dropzone = seasonTeam.TeamId.ToString();
-                    <MudPaper Class="ma-4 flex-grow-1">
+                    <MudPaper Class="ma-4 flex-grow-1" Width="225px">
                         <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
                             <MudListSubheader>
                                 <CountryFlag Code="@seasonTeam.Team.Country" /> @seasonTeam.Name
                             </MudListSubheader>
-                            <MudDropZone T="EditSeasonDriverModel" Identifier="@dropzone" Class="flex-grow-1" />
+                            <MudDropZone T="EditSeasonDriverModel" Identifier="@dropzone" Class="flex-grow-1" Style="min-height: 50px;" />
                         </MudList>
                     </MudPaper>
                 }
@@ -261,85 +262,91 @@
 
     <MudContainer Class="@(_currentStep == 7 ? "" : "d-none")">
         <MudStack Row="true">
-            <MudTable Items="Model.SeasonEngines">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">Participating engines</MudText>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Power</MudTh>
-                    <MudTh>Reliability</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Name">@context.Name</MudTd>
-                    <MudTd DataLabel="Power">@context.Power</MudTd>
-                    <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
-                </RowTemplate>
-            </MudTable>
+            <MudPaper>
+                <MudTable Items="Model.SeasonEngines">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Participating engines</MudText>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Power</MudTh>
+                        <MudTh>Reliability</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Power">@context.Power</MudTd>
+                        <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
 
-            <MudTable Items="Model.SeasonTeams">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">Participating teams</MudText>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Principal</MudTh>
-                    <MudTh>Colour</MudTh>
-                    <MudTh>Accent</MudTh>
-                    <MudTh>BaseValue</MudTh>
-                    <MudTh>Aero</MudTh>
-                    <MudTh>Chassis</MudTh>
-                    <MudTh>Powertrain</MudTh>
-                    <MudTh>Reliability</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Name">
-                        @if (context.Team != null)
-                        {
-                            <CountryFlag Code="context.Team.Country" Size="FlagSize.Small" />
-                        }
-                        @context.Name
-                    </MudTd>
-                    <MudTd DataLabel="Principal">@context.Principal</MudTd>
-                    <MudTd DataLabel="Colour">@context.Colour</MudTd>
-                    <MudTd DataLabel="Accent">@context.Accent</MudTd>
-                    <MudTd DataLabel="BaseValue">@context.BaseValue</MudTd>
-                    <MudTd DataLabel="Aero">@context.Aero</MudTd>
-                    <MudTd DataLabel="Chassis">@context.Chassis</MudTd>
-                    <MudTd DataLabel="Powertrain">@context.Powertrain</MudTd>
-                    <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
-                </RowTemplate>
-            </MudTable>
+            <MudPaper>
+                <MudTable Items="Model.SeasonTeams">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Participating teams</MudText>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Principal</MudTh>
+                        <MudTh>Colour</MudTh>
+                        <MudTh>Accent</MudTh>
+                        <MudTh>BaseValue</MudTh>
+                        <MudTh>Aero</MudTh>
+                        <MudTh>Chassis</MudTh>
+                        <MudTh>Powertrain</MudTh>
+                        <MudTh>Reliability</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">
+                            @if (context.Team != null)
+                            {
+                                <CountryFlag Code="context.Team.Country" Size="FlagSize.Small" />
+                            }
+                            @context.Name
+                        </MudTd>
+                        <MudTd DataLabel="Principal">@context.Principal</MudTd>
+                        <MudTd DataLabel="Colour">@context.Colour</MudTd>
+                        <MudTd DataLabel="Accent">@context.Accent</MudTd>
+                        <MudTd DataLabel="BaseValue">@context.BaseValue</MudTd>
+                        <MudTd DataLabel="Aero">@context.Aero</MudTd>
+                        <MudTd DataLabel="Chassis">@context.Chassis</MudTd>
+                        <MudTd DataLabel="Powertrain">@context.Powertrain</MudTd>
+                        <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
 
-            <MudTable Items="Model.SeasonDrivers">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">Participating drivers</MudText>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Number</MudTh>
-                    <MudTh>Skill</MudTh>
-                    <MudTh>Reliability</MudTh>
-                    <MudTh>TeamRole</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Name">
-                        @if (context.Driver != null)
-                        {
-                            <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
-                            @context.Driver.FullName
-                        }
-                        else
-                        {
-                            <span>Unknown (wtf how did you do this?)</span>
-                        }
-                    </MudTd>
-                    <MudTd DataLabel="Number">@context.Number</MudTd>
-                    <MudTd DataLabel="Skill">@context.Skill</MudTd>
-                    <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
-                    <MudTd DataLabel="TeamRole">@context.TeamRole</MudTd>
-                </RowTemplate>
-            </MudTable>
+            <MudPaper>
+                <MudTable Items="Model.SeasonDrivers">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Participating drivers</MudText>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Number</MudTh>
+                        <MudTh>Skill</MudTh>
+                        <MudTh>Reliability</MudTh>
+                        <MudTh>TeamRole</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">
+                            @if (context.Driver != null)
+                            {
+                                <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                                @context.Driver.FullName
+                            }
+                            else
+                            {
+                                <span>Unknown (wtf how did you do this?)</span>
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Number">@context.Number</MudTd>
+                        <MudTd DataLabel="Skill">@context.Skill</MudTd>
+                        <MudTd DataLabel="Reliability">@context.Reliability</MudTd>
+                        <MudTd DataLabel="TeamRole">@context.TeamRole</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
         </MudStack>
     </MudContainer>
 </MudForm>
@@ -356,7 +363,6 @@
 
     private bool _loading = false;
     private bool _disableNext = false;
-    private string? _informative;
     private int _currentStep = 0;
 
     protected override async Task OnInitializedAsync()
@@ -366,8 +372,6 @@
 
         _currentStep++;
     }
-
-    private void HideInformative() => _informative = null;
 
     private void ToggleLoader() => _loading = !_loading;
 
@@ -384,7 +388,7 @@
                         // TODO: Retrieve stats from previous season engine
                         Model.SeasonEngines.Add(new EditSeasonEngineModel() { EngineId = engine.Id, Name = engine.Name, SeasonId = Season.Id });
                     }
-                    _informative = "The following engines are selected for the upcoming season, if you wish so then the info can be edited in-line";
+                    Snackbar.Add("The following engines are selected for the upcoming season, if you wish so then the info can be edited in-line", Severity.Info);
                 }
                 break;
             case 2:
@@ -394,7 +398,7 @@
                         // TODO: Retrieve stats from previous season team
                         Model.SeasonTeams.Add(new EditSeasonTeamModel() { TeamId = team.Id, SeasonId = Season.Id, Team = team });
                     }
-                    _informative = "The following teams are selected for the upcoming season, if you wish so then the info can be edited in-line";
+                    Snackbar.Add("The following teams are selected for the upcoming season, if you wish so then the info can be edited in-line", Severity.Info);
                 }
                 break;
             case 3:
@@ -404,14 +408,22 @@
                         // TODO: Retrieve stats from previous season driver
                         Model.SeasonDrivers.Add(new EditSeasonDriverModel() { DriverId = driver.Id, SeasonId = Season.Id, Driver = driver });
                     }
-                    _informative = "The following drivers are selected for the upcoming season, if you wish so then the info can be edited in-line";
+                    Snackbar.Add("The following drivers are selected for the upcoming season, if you wish so then the info can be edited in-line", Severity.Info);
                 }
                 break;
             case 4:
                 RefreshTeamEngine();
                 break;
             case 5:
-                RefreshDriverTeam();
+                {
+                    if (Model.SeasonTeams.Any(e => e.BaseEngineId == 0))
+                    {
+                        Snackbar.Add("oi cunt some teams are still without an engine, assign them", Severity.Error);
+                        return;
+                    }
+
+                    RefreshDriverTeam();
+                }
                 break;
             default:
                 break;
