@@ -38,6 +38,7 @@ namespace SimTECH
             });
 
             // Provider services
+            builder.Services.AddScoped<BreadcrumbProvider>();
             builder.Services.AddScoped<SimAuthenticationStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(e => e.GetRequiredService<SimAuthenticationStateProvider>());
 
