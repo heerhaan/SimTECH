@@ -12,15 +12,24 @@
     {
         <MudTabs Outlined="true" Centered="true">
             <MudTabPanel Text="Intro">
-                <MudGrid>
+                <MudGrid Spacing="5">
                     <MudItem xs="12">
-                        <MudText>Hello, the season year is @Season.Year</MudText>
+                        <MudPaper Class="pa-4">
+                            <MudText>Hello, the season year is @Season.Year</MudText>
+                            <MudText>Current status of the season: in-development</MudText>
+                        </MudPaper>
                     </MudItem>
                     <MudItem xs="6">
-                        <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="StartSeason">Start season</MudButton>
+                        @if (Season.State == State.Concept)
+                        {
+                            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                                <MudButton OnClick="StartSeason">Start season</MudButton>
+                                <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
+                            </MudButtonGroup>
+                        }
                     </MudItem>
                     <MudItem xs="6">
-                        <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddAllEntrants">Add all entrants</MudButton>
+                        -
                     </MudItem>
                 </MudGrid>
             </MudTabPanel>
@@ -99,11 +108,6 @@
         Season = await SeasonService.GetSeasonById(SeasonId);
     }
 
-    /*
-    * Idea: add entrants wizard, select the engines, teams and drivers to use; store selections in a list.
-    * then make dropzones for every engine -> drop teams underneath them. Same page after for teams with drivers.
-     */
-
     private void StartSeason()
     {
         Snackbar.Add("Starting the season has not been implemented yet!", Severity.Warning);
@@ -111,6 +115,7 @@
 
     private void AddAllEntrants()
     {
+        // TODO: Check if there are already any entrants added, if so then remove
         Nav.NavigateTo($"/addentrants/{SeasonId}");
     }
 

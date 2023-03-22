@@ -17,9 +17,13 @@
             <PropertyColumn Property="e => e.LeagueId" />
             <TemplateColumn CellClass="d-flex justify end">
                 <CellTemplate>
-                    <MudButtonGroup>
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(async () => await UpdateSeason(context.Item))" />
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
+                    <MudButtonGroup Size="@Size.Small">
+                        <MudIconButton Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(async () => await UpdateSeason(context.Item))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
+                        @if (context.Item.State == State.Concept)
+                        {
+                            <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => DeleteSeason(context.Item))" />
+                        }
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -53,6 +57,15 @@
         {
             await SeasonService.UpdateSeason(updatedItem);
             Nav.NavigateTo($"/overview/{updatedItem.Id}");
+        }
+    }
+
+    private async Task DeleteSeason(Season season)
+    {
+        var result = await SeasonService.DeleteSeason(season);
+        if (result)
+        {
+            SeasonData.Remove(season);
         }
     }
 

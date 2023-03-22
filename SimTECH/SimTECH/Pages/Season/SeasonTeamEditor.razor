@@ -4,7 +4,7 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@Model">
-            @if (Model.Id == 0)
+            @if (Model.Id == 0 && Teams is not null)
             {
                 <MudSelect T="long" @bind-Value="@Model.TeamId">
                     @foreach (var team in Teams)
@@ -27,19 +27,25 @@
             <MudNumericField @bind-Value="@Model.Powertrain" />
             <MudNumericField @bind-Value="@Model.Reliability" />
 
-            <MudSelect T="long" @bind-Value="@Model.ManufacturerId">
-                @foreach (var manufacturer in Manufacturers)
-                {
-                    <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
-                }
-            </MudSelect>
-
-            <MudSelect T="long" @bind-Value="@Model.SeasonEngineId">
-                @foreach (var engine in SeasonEngines)
-                {
-                    <MudSelectItem Value="engine.Id">@engine.Name</MudSelectItem>
-                }
-            </MudSelect>
+            @if (Manufacturers is not null)
+            {
+                <MudSelect T="long" @bind-Value="@Model.ManufacturerId">
+                    @foreach (var manufacturer in Manufacturers)
+                    {
+                        <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            
+            @if (SeasonEngines is not null)
+            {
+                <MudSelect T="long" @bind-Value="@Model.SeasonEngineId">
+                    @foreach (var engine in SeasonEngines)
+                    {
+                        <MudSelectItem Value="engine.Id">@engine.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            }
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -70,8 +76,6 @@
 
             _loading = false;
         }
-
-        // TODO: handle what happens if teams/seasonengines/manufacturers is null
     }
 
     private void Submit()
