@@ -1,0 +1,124 @@
+﻿@page "/strategies"
+@inject StrategyService StrategyService
+@inject IDialogService DialogService
+
+<PageTitle>Strategies</PageTitle>
+
+<MudContainer>
+    <MudTabs>
+        <MudTabPanel Text="Strategies">
+            <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+                <MudText Typo="Typo.h4">Strategies</MudText>
+                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddStrategy">New</MudButton>
+            </MudPaper>
+            <MudDataGrid T="Strategy" Items="@StrategyData" Bordered="true" Dense="true">
+                <Columns>
+                    <PropertyColumn Property="e => e.StintLength" />
+                    <TemplateColumn>
+                        <CellTemplate>
+                            @if (context.Item.StrategyTyres?.Count > 0)
+                            {
+                                foreach (var strategyTyre in context.Item.StrategyTyres)
+                                {
+                                    <span class="tyre" style="border-color:@(strategyTyre.Tyre.Colour)">
+                                        @strategyTyre.Tyre.Name.ElementAt(0)
+                                    </span>
+                                }
+                            }
+                            else
+                            {
+                                <MudText>No tyres in strategy found!</MudText>
+                            }
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn CellClass="d-flex justify-end">
+                        <CellTemplate>
+                            <MudButtonGroup>
+                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateStrategy(context.Item))" />
+                            </MudButtonGroup>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="Strategy" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudTabPanel>
+
+        <MudTabPanel Text="Tyres">
+            <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+                <MudText Typo="Typo.h4">Tyres</MudText>
+                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTyre">New</MudButton>
+            </MudPaper>
+            <MudDataGrid T="Tyre" Items="@TyreData" Bordered="true" Dense="true">
+                <Columns>
+                    <PropertyColumn Property="e => e.Name" CellStyleFunc="_applyTyreColouring" />
+                    <PropertyColumn Property="e => e.State" IsEditable="false" />
+                    <PropertyColumn Property="e => e.Pace" />
+                    <PropertyColumn Property="e => e.WearMax" />
+                    <PropertyColumn Property="e => e.WearMin" />
+                    <TemplateColumn CellClass="d-flex justify-end">
+                        <CellTemplate>
+                            <MudButtonGroup>
+                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTyre(context.Item))" />
+                            </MudButtonGroup>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="Tyre" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudTabPanel>
+    </MudTabs>
+</MudContainer>
+
+@code {
+    private List<Strategy> StrategyData = new();
+    private List<Tyre> TyreData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        StrategyData = await StrategyService.GetStrategies();
+        TyreData = await StrategyService.GetTyres();
+    }
+
+    private Func<Tyre, string> _applyTyreColouring => e =>
+    {
+        return $"border-color: {e.Colour}";
+    };
+
+    async Task AddStrategy() => await UpdateStrategy(new Strategy());
+    async Task UpdateStrategy(Strategy strategy)
+    {
+        var parameters = new DialogParameters
+        {
+            ["Strategy"] = strategy,
+            ["Tyres"] = TyreData
+        };
+
+        var dialog = await DialogService.ShowAsync<StrategyEditor>("Modify strategy", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Strategy updatedItem)
+        {
+            await StrategyService.UpdateStrategy(updatedItem);
+            StrategyData = await StrategyService.GetStrategies();
+        }
+    }
+
+    async Task AddTyre() => await UpdateTyre(new Tyre());
+    async Task UpdateTyre(Tyre item)
+    {
+        var parameters = new DialogParameters { ["Tyre"] = item };
+
+        var dialog = await DialogService.ShowAsync<TyreEditor>("Modify tyre", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Tyre updatedItem)
+        {
+            await StrategyService.UpdateTyre(updatedItem);
+            TyreData = await StrategyService.GetTyres();
+        }
+    }
+}

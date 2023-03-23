@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using MudBlazor;
 using MudBlazor.Services;
 using SimTECH.Data;
 using SimTECH.Data.Requirements;
@@ -29,19 +30,34 @@ namespace SimTECH
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddMudServices();
+            builder.Services.AddMudServices(config =>
+            {
+                //config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
+                config.SnackbarConfiguration.ShowCloseIcon = true;
+                config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
+            });
 
             // Provider services
+            builder.Services.AddScoped<BreadcrumbProvider>();
             builder.Services.AddScoped<SimAuthenticationStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(e => e.GetRequiredService<SimAuthenticationStateProvider>());
-            
+
             // Authentication requirement services
             builder.Services.AddScoped<IAuthorizationHandler, CoolRequirementHandler>();
             builder.Services.AddScoped<IAuthorizationHandler, ChoiceRequirementHandler>();
 
             // Data services
             builder.Services.AddScoped<DriverService>();
+            builder.Services.AddScoped<EngineService>();
+            builder.Services.AddScoped<LeagueService>();
+            builder.Services.AddScoped<ManufacturerService>();
+            builder.Services.AddScoped<RaceService>();
+            builder.Services.AddScoped<SeasonService>();
+            builder.Services.AddScoped<SeasonEntrantService>();
+            builder.Services.AddScoped<StrategyService>();
             builder.Services.AddScoped<TeamService>();
+            builder.Services.AddScoped<TrackService>();
+            builder.Services.AddScoped<TraitService>();
             builder.Services.AddScoped<UserService>();
 
             // Add authorization policies

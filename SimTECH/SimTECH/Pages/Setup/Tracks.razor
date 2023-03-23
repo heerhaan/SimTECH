@@ -1,0 +1,72 @@
+﻿@page "/tracks"
+@inject TrackService TrackService
+@inject TraitService TraitService
+@inject IDialogService DialogService
+
+<PageTitle>Tracks</PageTitle>
+
+<MudContainer>
+    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+        <MudText Typo="Typo.h4">Tracks</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrack">New</MudButton>
+    </MudPaper>
+    <MudTable Items="@TrackData" ReadOnly="@_readOnly" Bordered="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Country</MudTh>
+            <MudTh>Length</MudTh>
+            <MudTh>AeroMod</MudTh>
+            <MudTh>ChassisMod</MudTh>
+            <MudTh>PowerMod</MudTh>
+            <MudTh>QualifyingMod</MudTh>
+            <MudTh>State</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>
+                <CountryFlag Code="@context.Country" Size="FlagSize.Small" IncludeName="true" />
+            </MudTd>
+            <MudTd>@context.Length</MudTd>
+            <MudTd>@context.AeroMod</MudTd>
+            <MudTd>@context.ChassisMod</MudTd>
+            <MudTd>@context.PowerMod</MudTd>
+            <MudTd>@context.QualifyingMod</MudTd>
+            <MudTd>@context.State</MudTd>
+            <MudTd Class="d-flex justify-end">
+                <MudButtonGroup>
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrack(context))" />
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private bool _readOnly = false;
+    private List<Track> TrackData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        TrackData = await TrackService.GetTracks();
+    }
+
+    async Task AddTrack() => await UpdateTrack(new Track());
+    async Task UpdateTrack(Track item)
+    {
+        var parameters = new DialogParameters 
+        { 
+            ["Track"] = item,
+            ["Traits"] = await TraitService.GetTraitsOfType(Entrant.Track)
+        };
+
+        var dialog = await DialogService.ShowAsync<TrackEditor>("Modify track", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Track updatedItem)
+        {
+            await TrackService.UpdateTrack(updatedItem);
+            TrackData = await TrackService.GetTracks();
+        }
+    }
+}

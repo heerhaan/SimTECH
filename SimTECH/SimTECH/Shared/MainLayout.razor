@@ -2,15 +2,26 @@
 @inject SimAuthenticationStateProvider SimAuthenticationStateProvider
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkTheme" Theme="_theme" />
-<MudDialogProvider />
+<MudDialogProvider
+    FullWidth="true"
+    MaxWidth="MaxWidth.Large"
+    CloseButton="true"
+    DisableBackdropClick="true"
+    Position="DialogPosition.Center"
+/>
+<MudSnackbarProvider />
 
 <PageTitle>SimTECH</PageTitle>
 
 <MudLayout>
-    <MudAppBar Elevation="1">
-        <MudText Typo="Typo.h5" Class="ml-2">SimTECH</MudText>
+    <MudAppBar Elevation="1" Dense="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Primary" Edge="Edge.Start" OnClick="ToggleSidebar" />
+        <MudText>> [Current league]</MudText>
+        <Breadcrumbs /> @* TODO: Use this implemented feature too *@
         <MudSpacer />
-        <MudSwitch @bind-Checked="@_isDarkTheme" Color="Color.Primary" T="bool" Label="Light/Dark"></MudSwitch>
+        <MudToggleIconButton @bind-Toggled="@_isDarkTheme"
+            Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
+            ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Tertiary" ToggledTitle="Dark" />
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <!-- HINT: Following menu is good for user settings -->
             <ActivatorContent>
@@ -19,6 +30,9 @@
             <ChildContent>
                 <AuthorizeView>
                     <Authorized>
+                        <MudMenuItem>
+                            <MudNavLink Href="/admin" Match="NavLinkMatch.Prefix">Admin</MudNavLink>
+                        </MudMenuItem>
                         <MudMenuItem OnClick="LogoutAsync">Logout</MudMenuItem>
                     </Authorized>
                     <NotAuthorized>
@@ -30,7 +44,10 @@
             </ChildContent>
         </MudMenu>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Mini" OpenMiniOnHover="true">
+    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Responsive">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h5">SimTECH</MudText>
+        </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
     <MudMainContent>
@@ -42,15 +59,40 @@
 
 @code {
     private MudTheme _theme = new();
-
-    private string notification = string.Empty;
-    private bool _drawerOpen = false;
+    private string _notification = string.Empty;
+    private bool _drawerOpen = true;
     private bool _isDarkTheme = true;
+
+    void ToggleSidebar()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
 
     async Task LogoutAsync()
     {
         await SimAuthenticationStateProvider.LogoutAsync();
 
-        notification = "Logged out!";
+        _notification = "Logged out!";
     }
+
+    // TODO: Synth theme is not worked out yet, this exists as a showcase for which theme we're using here
+    private MudTheme defaultTheme = new();
+    private MudTheme synthTheme = new()
+    {
+        Palette = new()
+        {
+            Primary = Colors.DeepPurple.Lighten2,
+            Secondary = Colors.Cyan.Accent2,
+        },
+        PaletteDark = new()
+        {
+            Primary = Colors.DeepPurple.Default,
+            Secondary = Colors.Cyan.Accent2,
+        },
+        LayoutProperties = new()
+        {
+            DrawerWidthLeft = "260px",
+            DrawerWidthRight = "300px"
+        }
+    };
 }

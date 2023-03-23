@@ -1,0 +1,123 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>
+            Add new strategy
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="6">
+                <MudPaper>
+                    <MudTable T="EditStrategyTyreModel" Items="@model.StrategyTyres">
+                        <HeaderContent>
+                            <MudTh>Tyre</MudTh>
+                            <MudTh>Apply in Stint Nr.</MudTh>
+                            <MudTh></MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Tyre">
+                                <span class="tyre" style="border-color:@(context.Tyre.Colour)">
+                                    @context.Tyre.Name.ElementAt(0)
+                                </span>
+                                </MudTd>
+                            <MudTd DataLabel="NumberStint">
+                                <MudNumericField T="int" @bind-Value="context.NumberStint" />
+                            </MudTd>
+                            <MudTd>
+                                <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveTyreFromStrategy(context))" />
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper>
+                    <MudTable T="Tyre" Items="@Tyres" OnRowClick="AppendTyreToStrategy" Hover="true">
+                        <HeaderContent>
+                            <MudTh>Tyre</MudTh>
+                            <MudTh>Length</MudTh>
+                            <MudTh>Pace</MudTh>
+                            <MudTh>Wear</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Tyre">
+                                <span class="tyre" style="border-color:@(context.Colour)">@context.Name.ElementAt(0)</span>
+                            </MudTd>
+                            <MudTd DataLabel="Length">@context.Length</MudTd>
+                            <MudTd DataLabel="Pace">@context.Pace</MudTd>
+                            <MudTd DataLabel="Wear">@context.WearMax ↔ @context.WearMin</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected MudDialogInstance? StrategyDialog { get; set; }
+
+    [Parameter]
+    public Strategy? Strategy { get; set; } = new();
+
+    [Parameter]
+    public List<Tyre> Tyres { get; set; } = new();
+
+    private EditStrategyModel model = new();
+
+    private int lastStintNumber = 0;
+
+    protected override void OnInitialized()
+    {
+        if (Strategy != null)
+        {
+            model = new EditStrategyModel(Strategy);
+
+            if(model.StrategyTyres.Any())
+                lastStintNumber = model.StrategyTyres.Max(e => e.NumberStint);
+        }
+    }
+
+    private void AppendTyreToStrategy(TableRowClickEventArgs<Tyre> rowClickEvent)
+    {
+        Tyre tyre = rowClickEvent.Item;
+
+        var appendedStrategyTyre = new EditStrategyTyreModel
+        {
+            NumberStint = lastStintNumber,
+            TyreId = tyre.Id,
+            Tyre = tyre,
+            StrategyId = model.Id
+        };
+
+        lastStintNumber += tyre.Length;
+
+        model.StrategyTyres.Add(appendedStrategyTyre);
+    }
+
+    private void RemoveTyreFromStrategy(EditStrategyTyreModel strategyTyre)
+    {
+        if (strategyTyre.Tyre != null)
+            lastStintNumber -= strategyTyre.Tyre.Length;
+
+        model.StrategyTyres.Remove(strategyTyre);
+    }
+
+    private void Submit()
+    {
+        model.StintLength = model.StrategyTyres.Sum(e => e.Tyre?.Length ?? 0);
+
+        if (model.IsDirty)
+        {
+            var modStrategy = model.Record;
+            StrategyDialog?.Close(DialogResult.Ok(modStrategy));
+        }
+    }
+
+    private void Cancel() => StrategyDialog?.Cancel();
+}

@@ -1,0 +1,59 @@
+﻿@page "/engines"
+@inject EngineService EngineService
+@inject IDialogService DialogService
+
+<PageTitle>Engines</PageTitle>
+
+<MudContainer>
+    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+        <MudText Typo="Typo.h4">Engines</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddEngine">New</MudButton>
+    </MudPaper>
+    <MudTable Items="@EngineNames" Bordered="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>State</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.State</MudTd>
+            <MudTd>
+                <MudButtonGroup Size="@Size.Small">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteEngine(context))" />
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private List<Engine> EngineNames = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        EngineNames = await EngineService.GetEngines();
+    }
+
+    async Task AddEngine() => await UpdateEngine(new Engine());
+    async Task UpdateEngine(Engine item)
+    {
+        var parameters = new DialogParameters { ["Engine"] = (item) };
+
+        var dialog = await DialogService.ShowAsync<EngineEditor>("Modify engine", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Engine updatedItem)
+        {
+            await EngineService.UpdateEngine(updatedItem);
+            EngineNames = await EngineService.GetEngines();
+        }
+    }
+
+    async Task DeleteEngine(Engine engine)
+    {
+        await EngineService.DeleteEngine(engine);
+        EngineNames.Remove(engine);
+    }
+}

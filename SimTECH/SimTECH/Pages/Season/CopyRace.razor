@@ -1,0 +1,38 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>Copy the setup of an existing race and add it to the current season</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudDataGrid T="CopyRaceModel">
+            <Columns>
+                <PropertyColumn Property="e => e.Name" />
+                <TemplateColumn Title="Country">
+                    <CellTemplate>
+                        <CountryFlag Code="@context.Item.Country" Size="FlagSize.Normal" IncludeName="true" />
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="e => e.SeasonYear" Title="Year" />
+                <TemplateColumn CellClass="d-flex justify-end">
+                    <CellTemplate>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(async () => await CopySelectedRace(context.Item))" />
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="CopyRaceModel" />
+            </PagerContent>
+        </MudDataGrid>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? RaceDialog { get; set; }
+
+    // TODO: parameter for league
+    // TODO: filter out races from tracks already inside season
+
+    async Task CopySelectedRace(CopyRaceModel copiedRace)
+    {
+        throw new NotImplementedException("Nog niet geïmplementeerd, oetlul");
+    }
+}

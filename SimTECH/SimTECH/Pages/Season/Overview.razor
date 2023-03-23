@@ -1,0 +1,154 @@
+﻿@page "/overview/{SeasonId:long}"
+
+@inject SeasonService SeasonService
+@inject NavigationManager Nav
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Overview</PageTitle>
+
+<CascadingValue Value="Season">
+    @if (Season != null)
+    {
+        <MudTabs Outlined="true" Centered="true">
+            <MudTabPanel Text="Intro">
+                <MudGrid Spacing="5">
+                    <MudItem xs="12">
+                        <MudPaper Class="pa-4">
+                            <MudText>Hello, the season year is @Season.Year</MudText>
+                            <MudText>Currenly in status: @Season.State.ToString()</MudText>
+                            <MudText>Development status: season configuration is done</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        @if (Season.State == State.Concept)
+                        {
+                            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                                <MudButton OnClick="StartSeason">Start season</MudButton>
+                                <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
+                            </MudButtonGroup>
+                        }
+                    </MudItem>
+                    <MudItem xs="6">
+                        (...)
+                    </MudItem>
+                </MudGrid>
+                @* place alert to above if necessary outside this tab *@
+                @if (_errorMessage != null)
+                {
+                    <MudAlert Variant="Variant.Filled" Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="HideErr" Style="z-index:10; position: absolute;">@_errorMessage</MudAlert>
+                }
+            </MudTabPanel>
+            <MudTabPanel Text="Calendar">
+                <Calendar />
+            </MudTabPanel>
+            <MudTabPanel Text="Standings" BadgeData='"S"' BadgeColor="Color.Tertiary">
+                <Standings />
+            </MudTabPanel>
+            <MudTabPanel Text="Drivers">
+                <SeasonDrivers />
+            </MudTabPanel>
+            <MudTabPanel Text="Teams">
+                <SeasonTeams />
+            </MudTabPanel>
+            <MudTabPanel Text="Engines">
+                <SeasonEngines />
+            </MudTabPanel>
+            <MudTabPanel Text="Settings" BadgeData='"!"' BadgeColor="Color.Error">
+                <MudGrid>
+                    @* NOTE: This panel is incredibly ugly FYI *@
+                    <MudItem xs="3">
+                        <MudPaper>
+                            <MudTextField @bind-Value="Season.Year" Label="Year" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.MaximumDriversInRace" Label="MaximumDriversInRace" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.QualifyingAmountQ2" Label="QualifyingAmountQ2" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.QualifyingAmountQ3" Label="QualifyingAmountQ3" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.QualifyingRNG" Label="QualifyingRNG" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.RunAmountSession" Label="RunAmountSession" ReadOnly="true"></MudTextField>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="3">
+                        <MudPaper>
+                            <MudTextField @bind-Value="Season.GridBonus" Label="GridBonus" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.PitMinimum" Label="PitMinimum" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.PitMaximum" Label="PitMaximum" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.PointsPole" Label="PointsPole" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.PointsFastestLap" Label="PointsFastestLap" ReadOnly="true"></MudTextField>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper>
+                            @if (Season.PointAllotments != null)
+                            {
+                                @foreach (var allotment in Season.PointAllotments)
+                                {
+                                    <MudText>Pos.@allotment.Position -- @allotment.Points pts.</MudText>
+                                }
+                            }
+                            else
+                            {
+                                <MudAlert Variant="Variant.Outlined" Severity="Severity.Error">Where are the friggin point allotments</MudAlert>
+                            }
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row="true">
+                            <MudText>[placeholder]</MudText>
+                            <MudSpacer />
+                            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Outlined.Edit" OnClick="UpdateSeason">Edit settings</MudButton>
+                        </MudStack>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+        </MudTabs>
+    }
+</CascadingValue>
+
+@code {
+    [Parameter] public long SeasonId { get; set; }
+
+    public Season? Season { get; set; }
+    private string? _errorMessage { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Season = await SeasonService.GetSeasonById(SeasonId);
+    }
+
+    private async Task StartSeason()
+    {
+        if (Season != null)
+        {
+            _errorMessage = await SeasonService.ActivateSeason(Season);
+
+            if (_errorMessage == null)
+                Snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
+        }
+        else
+        {
+            _errorMessage = "Couldn't detect a season (wtf?)";
+        }
+    }
+
+    private void AddAllEntrants()
+    {
+        // TODO: Check if there are already any entrants added, if so then remove
+        Nav.NavigateTo($"/addentrants/{SeasonId}");
+    }
+
+    async Task UpdateSeason()
+    {
+        var parameters = new DialogParameters { ["Season"] = Season, ["Copied"] = false };
+
+        var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
+        {
+            await SeasonService.UpdateSeason(updatedItem);
+            Season = updatedItem;
+        }
+    }
+
+    private void HideErr() => _errorMessage = null;
+}

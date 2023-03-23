@@ -1,0 +1,59 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>Add new manufacturer</MudText>
+        <MudText Color="Color.Warning">@_validation</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@model">
+            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+            <MudColorPicker @bind-Text="model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" />
+            <MudColorPicker @bind-Text="model.Accent" Label="Accent" Placeholder="Select accent" DisableAlpha="true" />
+            <MudNumericField T="int" @bind-Value="model.Pace" Label="Pace" />
+            <MudNumericField T="int" @bind-Value="model.WearMax" Label="WearMax" />
+            <MudNumericField T="int" @bind-Value="model.WearMin" Label="WearMin" />
+        </MudForm>
+        <MudPaper Height="100px">
+            <MudText Typo="Typo.h6">Preview</MudText>
+            <div style="background-color:@(model.Colour); color:@(model.Accent)">
+                @model.Name
+            </div>
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected MudDialogInstance? ManufacturerDialog { get; set; }
+
+    [Parameter]
+    public Manufacturer? Manufacturer { get; set; }
+
+    private EditManufacturerModel model = new();
+    private string _validation = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        if (Manufacturer != null)
+            model = new EditManufacturerModel(Manufacturer);
+    }
+
+    private void Submit()
+    {
+        if (model.IsDirty)
+        {
+            var modItem = model.Record;
+
+            ManufacturerDialog?.Close(DialogResult.Ok(modItem));
+        }
+        else
+        {
+            _validation = "No changes detected!";
+        }
+    }
+
+    private void Cancel() => ManufacturerDialog?.Cancel();
+}

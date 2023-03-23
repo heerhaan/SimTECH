@@ -1,0 +1,157 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>Are you sure you want to create a new season with these settings?</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@model">
+            <MudGrid Spacing="2">
+                <MudItem xs="6">
+                    <MudPaper>
+                        <MudNumericField T="int" @bind-Value="model.Year" Label="Year" />
+                        <MudNumericField T="int" @bind-Value="model.MaximumDriversInRace" Label="MaximumDriversInRace" />
+                        <MudNumericField T="int" @bind-Value="model.QualifyingAmountQ2" Label="Q2.Count" />
+                        <MudNumericField T="int" @bind-Value="model.QualifyingAmountQ3" Label="Q3.Count" />
+                        <MudNumericField T="int" @bind-Value="model.QualifyingRNG" Label="Q.RNG" />
+                        <MudNumericField T="int" @bind-Value="model.RunAmountSession" Label="Amount runs Q.session" />
+                        <MudNumericField T="int" @bind-Value="model.GridBonus" Label="Bonus per grid position" />
+                        <MudNumericField T="int" @bind-Value="model.PitMinimum" Label="Pit min. RNG" />
+                        <MudNumericField T="int" @bind-Value="model.PitMaximum" Label="Pit max. RNG" />
+                        <MudNumericField T="int" @bind-Value="model.PointsPole" Label="Awarded pts. POLE" />
+                        <MudNumericField T="int" @bind-Value="model.PointsFastestLap" Label="Awarded pts. FL" />
+
+                        <MudNumericField T="long" @bind-Value="model.LeagueId" Label="League ID" />
+
+                        @if (Copied ?? false)
+                        {
+                            <MudCheckBox @bind-Checked="_copyRaces" Color="Color.Tertiary" Label="Copy all races from season" />
+                            @if (_copyRaces)
+                            {
+                                <MudAlert Severity="Severity.Warning">Sorry! Feature isn't implemented yet.</MudAlert>
+                            }
+                        }
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper>
+                        <MudText>Points per position</MudText>
+                        <MudTable Items="@model.PointAllotments" Dense="true" ReadOnly="false"
+                                  RowEditPreview="BackupAllotment" RowEditCancel="ResetAllotment" ApplyButtonPosition="TableApplyButtonPosition.End"
+                                  EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
+                            <HeaderContent>
+                                <MudTh>
+                                    <MudTableSortLabel SortBy="new Func<EditPointAllotmentModel, object>(e => e.Position)">Position</MudTableSortLabel>
+                                </MudTh>
+                                <MudTh>Points</MudTh>
+                                <MudTh></MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Position">
+                                    <MudNumericField @bind-Value="@context.Position" Required />
+                                </MudTd>
+                                <MudTd DataLabel="Points">
+                                    <MudNumericField @bind-Value="@context.Points" Required />
+                                </MudTd>
+                                <MudTd>
+                                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveAllotment(context))" />
+                                </MudTd>
+                            </RowTemplate>
+                            <FooterContent>
+                                <MudTFootRow>
+                                    <MudTd>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendAllotment"></MudIconButton>
+                                    </MudTd>
+                                </MudTFootRow>
+                            </FooterContent>
+                            <EditButtonContent Context="button">
+                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+                            </EditButtonContent>
+                        </MudTable>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? SeasonDialog { get; set; }
+
+    [Parameter] public Season? Season { get; set; }
+    [Parameter] public bool? Copied { get; set; }
+
+    private EditSeasonModel model = new();
+    private EditPointAllotmentModel allotmentBackup;
+
+    private bool _copyRaces { get; set; }
+    private int _lowestPosition { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Season != null)
+        {
+            model = new EditSeasonModel(Season);
+
+            if (model.PointAllotments.Any())
+                _lowestPosition = model.PointAllotments.Max(e => e.Position);
+
+            if (Copied.GetValueOrDefault())
+                model.ResetIdentifierFields();
+        }
+
+        // TODO: Following is temp until this is set by default
+        if (model.LeagueId == 0)
+            model.LeagueId = 1;
+    }
+
+    private void BackupAllotment(object allotment) //alternatively use EditPointAllotmentModel if this doesnt work
+    {
+        allotmentBackup = new()
+            {
+                Id = ((EditPointAllotmentModel)allotment).Id,
+                Position = ((EditPointAllotmentModel)allotment).Position,
+                Points = ((EditPointAllotmentModel)allotment).Points
+            };
+    }
+
+    private void ResetAllotment(object allotment) //alternatively use EditPointAllotmentModel if this doesnt work
+    {
+        ((EditPointAllotmentModel)allotment).Id = allotmentBackup.Id;
+        ((EditPointAllotmentModel)allotment).Position = allotmentBackup.Position;
+        ((EditPointAllotmentModel)allotment).Points = allotmentBackup.Points;
+    }
+
+    private void AppendAllotment()
+    {
+        model.PointAllotments.Add(new EditPointAllotmentModel
+            {
+                Position = ++_lowestPosition,
+                Points = 0
+            });
+    }
+
+    private void RemoveAllotment(EditPointAllotmentModel allotment)
+    {
+        --_lowestPosition;
+        model.PointAllotments.Remove(allotment);
+    }
+
+    private void Submit()
+    {
+        if (_copyRaces)
+        {
+            // TODO: handle what to do here
+        }
+
+        if (model.IsDirty)
+        {
+            var modSeason = model.Record;
+            SeasonDialog?.Close(DialogResult.Ok(modSeason));
+        }
+    }
+
+    private void Cancel() => SeasonDialog?.Cancel();
+}

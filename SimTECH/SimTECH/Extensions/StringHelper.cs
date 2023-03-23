@@ -2,12 +2,14 @@
 {
     public static class StringHelper
     {
-        public static string CountryCodeToEmoji(this string countryCode)
+        public static string? TrimEmptyToNull(this string? text)
         {
-            if (countryCode == null || countryCode.Length != 2)
-                return "[??]";
+            var trimmed = text?.Trim() ?? string.Empty;
 
-            return string.Concat(countryCode.ToUpper().Select(e => char.ConvertFromUtf32(e + 0x1F1A5)));
+            if (trimmed.Length == 0)
+                return null;
+
+            return trimmed;
         }
     }
 }

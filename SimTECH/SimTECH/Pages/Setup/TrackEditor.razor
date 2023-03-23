@@ -1,0 +1,85 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>
+            Add new track
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@model">
+            <MudGrid>
+                <MudItem xs="8">
+                    <MudPaper Elevation="10">
+                        <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+                        <MudCountrySelect @bind-Value="model.Country" />
+                        <MudNumericField T="double" @bind-Value="model.Length" Label="Length" Format="N2" />
+                        <MudNumericField T="double" @bind-Value="model.AeroMod" Label="AeroMod" Format="N2" />
+                        <MudNumericField T="double" @bind-Value="model.ChassisMod" Label="ChassisMod" Format="N2" />
+                        <MudNumericField T="double" @bind-Value="model.PowerMod" Label="PowerMod" Format="N2" />
+                        <MudNumericField T="double" @bind-Value="model.QualifyingMod" Label="QualifyingMod" Format="N2" />
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="4">
+                    <MudPaper Elevation="10">
+                        Traits bla bla
+                        <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
+                            @foreach (var trait in Traits)
+                            {
+                                <MudChip Text="@trait.Name" Value="@trait.Id"></MudChip>
+                            }
+                        </MudChipSet>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? TrackDialog { get; set; }
+
+    [Parameter] public Track? Track { get; set; }
+    [Parameter] public List<Trait> Traits { get; set; } = new();
+
+    private EditTrackModel model = new();
+    private ICollection<object>? selectedTraits { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Track != null)
+        {
+            model = new EditTrackModel(Track);
+
+            if (model.TrackTraits.Any())
+            {
+                selectedTraits = model.TrackTraits.Select(e => e.TraitId).Cast<object>().ToList();
+            }
+        }
+        else
+        {
+            selectedTraits = new List<long>() as ICollection<object>;
+        }
+    }
+
+    private void Submit()
+    {
+        if (selectedTraits != null)
+        {
+            model.TrackTraits = selectedTraits
+                .Cast<long>()
+                .Select(e => new EditTrackTraitModel { TrackId = model.Id, TraitId = e })
+                .ToList();
+        }
+
+        if (model.IsDirty)
+        {
+            var modTrack = model.Record;
+            TrackDialog?.Close(DialogResult.Ok(modTrack));
+        }
+    }
+
+    private void Cancel() => TrackDialog?.Cancel();
+}

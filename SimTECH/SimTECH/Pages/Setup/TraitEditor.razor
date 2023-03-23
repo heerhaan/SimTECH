@@ -1,0 +1,72 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>Modify</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@model">
+            <MudGrid Spacing="2">
+                <MudItem xs="6">
+                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+                    <MudSelect T="Entrant" @bind-Value="model.Type" Label="Entrant type" Variant="Variant.Outlined">
+                        @foreach (var entrant in EnumHelper.GetEntrantSelection())
+                        {
+                            <MudSelectItem Value="@entrant.Key">@entrant.Value</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudTextField T="string" @bind-Value="model.Description" Label="Description" Variant="Variant.Outlined" Lines="5" />
+                </MudItem>
+                <MudItem xs="3">
+                    <MudNumericField T="int" @bind-Value="model.DriverPace" Label="DriverPace" />
+                    <MudNumericField T="int" @bind-Value="model.CarPace" Label="CarPace" />
+                    <MudNumericField T="int" @bind-Value="model.EnginePace" Label="EnginePace" />
+                </MudItem>
+                <MudItem xs="3">
+                    <MudNumericField T="int" @bind-Value="model.DriverReliability" Label="DriverReliability" />
+                    <MudNumericField T="int" @bind-Value="model.CarReliability" Label="CarReliability" />
+                    <MudNumericField T="int" @bind-Value="model.EngineReliability" Label="EngineReliability" />
+                </MudItem>
+                <MudItem xs="3">
+                    <MudNumericField T="int" @bind-Value="model.QualifyingPace" Label="QualifyingPace" />
+                    <MudNumericField T="int" @bind-Value="model.WearMax" Label="WearMax" />
+                    <MudNumericField T="int" @bind-Value="model.WearMin" Label="WearMin" />
+                </MudItem>
+                <MudItem xs="3">
+                    <MudNumericField T="int" @bind-Value="model.RngMin" Label="RngMin" />
+                    <MudNumericField T="int" @bind-Value="model.RngMax" Label="RngMax" />
+                    <MudCheckBox @bind-Checked="model.ForWetConditions" Label="Only during wet conditions" Color="Color.Tertiary" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? TraitDialog { get; set; }
+
+    [Parameter] public Trait? Trait { get; set; }
+
+    private EditTraitModel model = new();
+
+    protected override void OnInitialized()
+    {
+        if (Trait != null)
+            model = new EditTraitModel(Trait);
+    }
+
+    private void Submit()
+    {
+        if (model.IsDirty)
+        {
+            var modTrait = model.Record;
+            TraitDialog?.Close(DialogResult.Ok(modTrait));
+        }
+    }
+
+    private void Cancel() => TraitDialog?.Cancel();
+}

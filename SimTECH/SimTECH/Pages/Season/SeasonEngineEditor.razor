@@ -1,0 +1,58 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>Modify season engine</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@Model">
+            @if (Engines != null)
+            {
+                @if (Model.Id == 0)
+                {
+                    <MudSelect T="long" @bind-Value="@Model.EngineId">
+                        @foreach (var engine in Engines)
+                        {
+                            <MudSelectItem Value="engine.Id">@engine.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+                <MudTextField @bind-Value="@Model.Name" Required />
+                <MudNumericField @bind-Value="@Model.Power" />
+                <MudNumericField @bind-Value="@Model.Reliability" />
+            }
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? EngineDialog { get; set; }
+
+    [Parameter] public long SeasonId { get; set; }
+    [Parameter] public List<Engine>? Engines { get; set; }
+    [Parameter] public SeasonEngine? SeasonEngine { get; set; }
+
+    private EditSeasonEngineModel Model = new();
+
+    protected override void OnInitialized()
+    {
+        if (SeasonEngine != null)
+        {
+            Model = new EditSeasonEngineModel(SeasonEngine);
+            Model.SeasonId = SeasonId;
+        }
+    }
+
+    private void Submit()
+    {
+        if (Model.IsDirty)
+        {
+            var modEngine = Model.Record;
+            EngineDialog?.Close(DialogResult.Ok(modEngine));
+        }
+    }
+
+    private void Cancel() => EngineDialog?.Cancel();
+}

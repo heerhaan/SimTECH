@@ -1,0 +1,95 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>Add new league</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@model">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+                </MudItem>
+                <MudItem xs="6">
+                    <RangeInput Items="_skillRanges" RangeType="RangeType.Skill">
+                        <MudText Typo="Typo.h6">Skill</MudText>
+                    </RangeInput>
+                </MudItem>
+                <MudItem xs="6">
+                    <RangeInput Items="_ageRanges" RangeType="RangeType.Age">
+                        <MudText Typo="Typo.h6">">Age</MudText>
+                    </RangeInput>
+                </MudItem>
+                <MudItem xs="6">
+                    <RangeInput Items="_teamRanges" RangeType="RangeType.Team">
+                        <MudText Typo="Typo.h6">Team</MudText>
+                    </RangeInput>
+                </MudItem>
+                <MudItem xs="6">
+                    <RangeInput Items="_engineRanges" RangeType="RangeType.Engine">
+                        <MudText Typo="Typo.h6">">Engine</MudText>
+                    </RangeInput>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? LeagueDialog { get; set; }
+
+    [Parameter] public League? League { get; set; }
+
+    private EditLeagueModel model = new();
+    private List<EditRangeModel> _skillRanges = new();
+    private List<EditRangeModel> _ageRanges = new();
+    private List<EditRangeModel> _teamRanges = new();
+    private List<EditRangeModel> _engineRanges = new();
+
+    protected override void OnInitialized()
+    {
+        if (League != null)
+        {
+            model = new EditLeagueModel(League);
+            _skillRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Skill).ToList();
+            _ageRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Age).ToList();
+            _teamRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Team).ToList();
+            _engineRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Engine).ToList();
+        }
+    }
+
+    private void AppendSkillRangeRow()
+    {
+        var newRange = new EditRangeModel
+            {
+                Type = RangeType.Skill,
+                Comparer = 1,
+                Minimum = -2,
+                Maximum = 2,
+                LeagueId = model.Id
+            };
+
+        model.DevelopmentRanges.Add(newRange);
+    }
+
+    private void Submit()
+    {
+        var allRanges = new List<EditRangeModel>();
+        allRanges.AddRange(_skillRanges);
+        allRanges.AddRange(_ageRanges);
+        allRanges.AddRange(_teamRanges);
+        allRanges.AddRange(_engineRanges);
+
+        model.DevelopmentRanges = allRanges;
+
+        if (model.IsDirty)
+        {
+            var modLeague = model.Record;
+            LeagueDialog?.Close(DialogResult.Ok(modLeague));
+        }
+    }
+
+    private void Cancel() => LeagueDialog?.Cancel();
+}

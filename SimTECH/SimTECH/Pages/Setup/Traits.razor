@@ -1,0 +1,137 @@
+﻿@page "/traits"
+@inject TraitService TraitService
+@inject IDialogService DialogService
+
+<PageTitle>Traits</PageTitle>
+
+<MudContainer>
+    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+        <MudText Typo="Typo.h4">Traits</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrait">New</MudButton>
+    </MudPaper>
+    <MudDataGrid T="Trait" Items="TraitNames" Bordered="true" Dense="true">
+        <Columns>
+            <HierarchyColumn T="Trait" />
+            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.Description" />
+            <PropertyColumn Property="e => e.Type" />
+            <PropertyColumn Property="e => e.ForWetConditions" />
+            <PropertyColumn Property="e => e.State" />
+            <TemplateColumn CellClass="d-flex justify-end">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrait(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <ChildRowContent>
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">TODO: This detail page lol haha</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudGrid>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>Qualifying pace: @(context.Item.QualifyingPace)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>Driver pace: @(context.Item.DriverPace)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>Car pace: @(context.Item.CarPace)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>Engine pace: @(context.Item.EnginePace)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>Driver reliability: @(context.Item.DriverReliability)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>Car reliability: @(context.Item.CarReliability)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>Engine reliability: @(context.Item.EngineReliability)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>Wear max: @(context.Item.WearMax)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>Wear min: @(context.Item.WearMin)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>RNG min: @(context.Item.RngMin)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>RNG max: @(context.Item.RngMax)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText>For wet conditions:</MudText>
+                                @if (context.Item.ForWetConditions)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success"></MudIcon>
+                                }
+                                else
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Block" Color="Color.Error"></MudIcon>
+                                }
+                            </MudPaper>
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+        </ChildRowContent>
+        <PagerContent>
+            <MudDataGridPager T="Trait" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    private List<Trait> TraitNames = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        TraitNames = await TraitService.GetTraits();
+    }
+
+    async Task AddTrait() => await UpdateTrait(new Trait());
+    async Task UpdateTrait(Trait item)
+    {
+        var parameters = new DialogParameters { ["Trait"] = item };
+
+        var dialog = await DialogService.ShowAsync<TraitEditor>("Modify trait", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Trait updatedItem)
+        {
+            await TraitService.UpdateTrait(updatedItem);
+            TraitNames = await TraitService.GetTraits();
+        }
+    }
+}

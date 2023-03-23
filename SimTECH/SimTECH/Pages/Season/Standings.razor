@@ -1,0 +1,76 @@
+﻿@inject SeasonEntrantService EntrantService
+
+<MudContainer>
+    <MudText>Je suis incomplementa</MudText>
+    <MudGrid Spacing="3">
+        <MudItem xs="6">
+            <MudPaper Elevation="15">
+                <MudTable Items="@SeasonDrivers" Style="pa-4">
+                    <HeaderContent>
+                        <MudTh>Position</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Number</MudTh>
+                        <MudTh>TeamRole</MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<SeasonDriver, object>(e => e.Points)">Points</MudTableSortLabel>
+                        </MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Position">0</MudTd>
+                        <MudTd DataLabel="Name">
+                            @if (context.Driver != null)
+                            {
+                                <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                                @context.Driver.FullName
+                            }
+                            else
+                            {
+                                <span>Unknown (wtf how did you do this?)</span>
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Number">@context.Number</MudTd>
+                        <MudTd DataLabel="TeamRole">@context.TeamRole</MudTd>
+                        <MudTd DataLabel="Points">@context.Points</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper Elevation="15" Style="pa-4">
+                <MudTable Items="@SeasonTeams">
+                    <HeaderContent>
+                        <MudTh>Position</MudTh>
+                        <MudTh>Principal</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Points</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Position">0</MudTd>
+                        <MudTd DataLabel="Principal">@context.Principal</MudTd>
+                        <MudTd DataLabel="Name" Style="@($"background-color:{context.Colour}; color:{context.Accent}")">
+                            @if (context.Team != null)
+                            {
+                                <CountryFlag Code="context.Team.Country" Size="FlagSize.Small" />
+                            }
+                            @context.Name;
+                        </MudTd>
+                        <MudTd DataLabel="Points">@context.Points</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    [CascadingParameter] public Season Season { get; set; }
+
+    private List<SeasonDriver> SeasonDrivers { get; set; }
+    private List<SeasonTeam> SeasonTeams { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        SeasonDrivers = await EntrantService.GetSeasonDrivers(Season.Id);
+        SeasonTeams = await EntrantService.GetSeasonTeams(Season.Id);
+    }
+}

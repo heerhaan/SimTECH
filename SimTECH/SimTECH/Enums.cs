@@ -2,13 +2,88 @@
 
 namespace SimTECH
 {
+    public enum State
+    {
+        Concept = 0,
+        Active,
+        Closed,
+        Archived
+    }
+
+    public enum Entrant
+    {
+        Unknown = 0,
+        Driver,
+        Team,
+        Track
+    }
+
+    public enum RangeType
+    {
+        Unknown = 0,
+        Skill,
+        Age,
+        Team,
+        Engine
+    }
+
+    #region racing
+
+    public enum Weather
+    {
+        Unknown = 0,
+        Sunny, Overcast, Rain, Storm
+    }
+
+    public enum TeamRole
+    {
+        None = 0,
+        Main, Support
+    }
+
+    public enum RaceStatus
+    {
+        Unknown = 0,
+        Racing, Dnf, Dsq, Dnq
+    }
+
+    // TODO: You might want to rethink this enum
+    public enum Incident
+    {
+        None = 0,
+        Damage, Collision, Accident, Puncture,
+        Engine,
+        Electrics, Exhaust, Clutch, Hydraulics, Wheel, Brakes,
+        Illegal, Fuel, Dangerous
+    }
+
+    [Flags]
+    public enum StintEvent
+    {
+        None = 0,
+        Driver = 1, Car = 2, Engine = 4, Reliability = 8
+    }
+
+    [Flags]
+    public enum RacerEvent
+    {
+        Unknown = 0,
+        Racing = 1,
+        DriverDnf = 2, CarDnf = 4, EngineDnf = 8,
+        Mistake = 16, Pitstop = 32, Swap = 64
+    }
+
+    #endregion racing
+
+    #region countries
+
     public enum FlagSize
     {
         Normal = 0,
-        Small = 1,
-        Large = 2,
+        Tiny, Small, Large
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1154:Sort enum members.", Justification = "I don't care")]
     public enum Country
     {
         [Description("Afghanistan")] AF = 1,
@@ -58,7 +133,7 @@ namespace SimTECH
         [Description("Chile")] CL = 45,
         [Description("China")] CN = 46,
         [Description("Christmas Island")] CX = 47,
-        [Description("Cocos (Keeling) Islands")] CC = 48,
+        [Description("Cocos Islands")] CC = 48,
         [Description("Colombia")] CO = 49,
         [Description("Comoros")] KM = 50,
         [Description("Congo")] CG = 51,
@@ -82,7 +157,8 @@ namespace SimTECH
         [Description("Eritrea")] ER = 69,
         [Description("Estonia")] EE = 70,
         [Description("Ethiopia")] ET = 71,
-        [Description("Falkland Islands (Malvinas)")] FK = 72,
+        [Description("European Union")] EU = 250,
+        [Description("Falkland Islands")] FK = 72,
         [Description("Faroe Islands")] FO = 73,
         [Description("Fiji")] FJ = 74,
         [Description("Finland")] FI = 75,
@@ -128,6 +204,7 @@ namespace SimTECH
         [Description("Kazakhstan")] KZ = 115,
         [Description("Kenya")] KE = 116,
         [Description("Kiribati")] KI = 117,
+        [Description("Kosovo")] XK = 251,
         [Description("North-Korea")] KP = 118,
         [Description("South-Korea")] KR = 119,
         [Description("Kuwait")] KW = 120,
@@ -155,8 +232,8 @@ namespace SimTECH
         [Description("Mauritius")] MU = 142,
         [Description("Mayotte")] YT = 143,
         [Description("Mexico")] MX = 144,
-        [Description("Micronesia (Federated States of)")] FM = 145,
-        [Description("Moldova (Republic of)")] MD = 146,
+        [Description("Micronesia")] FM = 145,
+        [Description("Moldova")] MD = 146,
         [Description("Monaco")] MC = 147,
         [Description("Mongolia")] MN = 148,
         [Description("Montenegro")] ME = 149,
@@ -211,7 +288,7 @@ namespace SimTECH
         [Description("Seychelles")] SC = 198,
         [Description("Sierra Leone")] SL = 199,
         [Description("Singapore")] SG = 200,
-        [Description("Sint Maarten (Dutch part)")] SX = 201,
+        [Description("Sint Maarten")] SX = 201,
         [Description("Slovakia")] SK = 202,
         [Description("Slovenia")] SI = 203,
         [Description("Solomon Islands")] SB = 204,
@@ -246,6 +323,7 @@ namespace SimTECH
         [Description("Ukraine")] UA = 233,
         [Description("United Arab Emirates")] AE = 234,
         [Description("United Kingdom")] GB = 235,
+        [Description("United Nations")] UN = 252,
         [Description("United States of America")] US = 236,
         [Description("United States Minor Outlying Islands")] UM = 237,
         [Description("Uruguay")] UY = 238,
@@ -261,9 +339,8 @@ namespace SimTECH
         [Description("Zambia")] ZM = 248,
         [Description("Zimbabwe")] ZW = 249,
 
-        // Additional flags
-        [Description("European Union")] EU = 250,
-        [Description("Kosovo")] XK = 251,
-        [Description("United Nations")] UN = 252,
+        // Last index is 252 (European Union)
     }
+
+    #endregion countries
 }

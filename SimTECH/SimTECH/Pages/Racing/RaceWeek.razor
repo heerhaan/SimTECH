@@ -1,0 +1,24 @@
+﻿@page "/raceweek/{RaceId:long}"
+
+@inject RaceService _raceService
+
+<h3>RaweCeek</h3>
+
+<MudGrid>
+
+</MudGrid>
+
+@code {
+    [Parameter] public long RaceId { get; set; }
+
+    public Race? Race { get; set; }
+
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Race = await _raceService.GetRaceById(RaceId);
+
+        loading = false;
+    }
+}

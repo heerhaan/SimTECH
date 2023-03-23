@@ -1,0 +1,83 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>Modify season driver</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@Model">
+            @if (Model.Id == 0)
+            {
+                <MudSelect T="long" @bind-Value="@Model.DriverId">
+                    @foreach (var driver in Drivers)
+                    {
+                        <MudSelectItem Value="driver.Id">
+                            <CountryFlag Code="driver.Country" Size="FlagSize.Tiny" />
+                            @driver.FullName
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            }
+
+            <MudNumericField @bind-Value="@Model.Number" />
+            <MudNumericField @bind-Value="@Model.Skill" />
+            <MudNumericField @bind-Value="@Model.Reliability" />
+
+            <MudSelect T="TeamRole" @bind-Value="@Model.TeamRole">
+                @foreach (var select in EnumHelper.GetTeamRoleSelection())
+                {
+                    <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (SeasonTeams is not null)
+            {
+                <MudSelect T="long" @bind-Value="@_seasonTeamId">
+                    @foreach (var steam in SeasonTeams)
+                    {
+                        <MudSelectItem Value="steam.Id">
+                            @steam.Name
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            }
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
+
+    [Parameter] public long SeasonId { get; set; }
+    [Parameter] public List<Driver>? Drivers { get; set; }
+    [Parameter] public List<SeasonTeam>? SeasonTeams { get; set; }
+    [Parameter] public SeasonDriver? SeasonDriver { get; set; }
+
+    private EditSeasonDriverModel Model = new();
+    private long _seasonTeamId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (SeasonDriver != null)
+        {
+            Model = new EditSeasonDriverModel(SeasonDriver);
+            Model.SeasonId = SeasonId;
+            _seasonTeamId = Model.SeasonTeamId.GetValueOrDefault();
+        }
+    }
+
+    private void Submit()
+    {
+        Model.SeasonTeamId = _seasonTeamId;
+
+        if (Model.IsDirty)
+        {
+            var modDriver = Model.Record;
+            DriverDialog?.Close(DialogResult.Ok(modDriver));
+        }
+    }
+
+    private void Cancel() => DriverDialog?.Cancel();
+}

@@ -1,0 +1,56 @@
+﻿@inherits InputBase<Country>
+
+<MudSelect @bind-Value="HandleSelection" Label="Select a country" Variant="Variant.Outlined">
+    @ChildContent
+    @foreach (var country in CountrySelectItems)
+    {
+        <MudSelectItem Value="@country.Code">
+            <span>@country.Flag @country.Name</span>
+        </MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    
+    public Country HandleSelection
+    {
+        get { return CurrentValue; }
+        set { CurrentValue = value; }
+    }
+
+    private List<CountrySelectItem> CountrySelectItems => Countries
+        .Select(e => new CountrySelectItem
+            {
+                Code = e,
+                Name = e.GetDescription(),
+                Flag = e.CountryCodeToEmoji(),
+            })
+        .ToList();
+
+    private Country[] Countries = Enum.GetValues<Country>();
+
+    protected override bool TryParseValueFromString(string? value, out Country result, out string validationErrorMessage)
+    {
+        result = default;
+
+        if (value != null && Enum.TryParse<Country>(value, out Country parsedResult))
+        {
+            result = parsedResult;
+
+            validationErrorMessage = string.Empty;
+            return true;
+        }
+
+        validationErrorMessage = "Failed to handle selected";
+        return false;
+    }
+
+    protected class CountrySelectItem
+    {
+        public Country Code { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Flag { get; set; } = string.Empty;
+    }
+}

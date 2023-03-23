@@ -1,20 +1,32 @@
 ﻿@page "/teams"
-@layout SetupLayout
 @inject TeamService TeamService
+@inject TraitService TraitService
+@inject IDialogService DialogService
 
 <PageTitle>Teams</PageTitle>
 
 <MudContainer>
-    <h2>Teams</h2>
-
-    <MudDataGrid Items="@TeamNames">
+    <MudContainer Class="d-flex justify-space-between pa-2 mx-2 my-2">
+        <MudText Typo="Typo.h4">Teams</MudText>
+        <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="AddTeam">New</MudButton>
+    </MudContainer>
+    <MudDataGrid T="Team" Items="@TeamData">
         <Columns>
             <HierarchyColumn T="Team" />
-            <Column T="Team" Field="Name">
+            <PropertyColumn Property="e => e.Name" />
+            <TemplateColumn Title="Country">
                 <CellTemplate>
-                    <span>@context.Item.Country.CountryCodeToEmoji() @context.Item.Name</span>
+                    <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
-            </Column>
+            </TemplateColumn>
+            <PropertyColumn Property="e => e.State" />
+            <TemplateColumn CellClass="d-flex justify-end">
+                <CellTemplate>
+                    <MudButtonGroup>
+                       <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeam(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
         </Columns>
         <ChildRowContent>
             <MudCard>
@@ -25,7 +37,7 @@
                 </MudCardHeader>
                 <MudCardContent>
                     <MudText>Woah, check this flag out!</MudText>
-                    <span class="flag flag-lg">@context.Item.Country.CountryCodeToEmoji()</span>
+                    <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" />
                 </MudCardContent>
             </MudCard>
         </ChildRowContent>
@@ -36,10 +48,29 @@
 </MudContainer>
 
 @code {
-    private IEnumerable<Team> TeamNames = new List<Team>();
+    private List<Team> TeamData = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        TeamNames = TeamService.GetTestNames();
+        TeamData = await TeamService.GetTeams();
+    }
+
+    async Task AddTeam() => await UpdateTeam(new Team());
+    async Task UpdateTeam(Team item)
+    {
+        var parameters = new DialogParameters 
+        { 
+            ["Team"] = item,
+            ["Traits"] = await TraitService.GetTraitsOfType(Entrant.Team)
+        };
+
+        var dialog = await DialogService.ShowAsync<TeamEditor>("Modify team", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Team updatedItem)
+        {
+            await TeamService.UpdateTeam(updatedItem);
+            TeamData = await TeamService.GetTeams();
+        }
     }
 }

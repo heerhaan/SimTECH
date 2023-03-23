@@ -1,0 +1,63 @@
+﻿@page "/manufacturers"
+@inject ManufacturerService ManufacturerService
+@inject IDialogService DialogService
+
+<PageTitle>Manufacturers</PageTitle>
+
+<MudContainer>
+    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
+        <MudText Typo="Typo.h4">Tyre manufacturers</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddManufacturer">New</MudButton>
+    </MudPaper>
+    <MudTable Items="@ManufacturerData" Bordered="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Pace</MudTh>
+            <MudTh>Wear</MudTh>
+            <MudTh>State</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd Style="@($"background-color: {context.Colour}; color: {context.Accent}")">@context.Name</MudTd>
+            <MudTd>@context.Pace</MudTd>
+            <MudTd>@context.WearMax ↔ @context.WearMin</MudTd>
+            <MudTd>@context.State</MudTd>
+            <MudTd Class="d-flex justify-end">
+                <MudButtonGroup Size="@Size.Small">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateManufacturer(context))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteManufacturer(context))" />
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private List<Manufacturer> ManufacturerData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ManufacturerData = await ManufacturerService.GetManufacturers();
+    }
+
+    async Task AddManufacturer() => await UpdateManufacturer(new Manufacturer());
+    async Task UpdateManufacturer(Manufacturer item)
+    {
+        var parameters = new DialogParameters { ["Manufacturer"] = item };
+
+        var dialog = await DialogService.ShowAsync<ManufacturerEditor>("Modify manufacturer", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Manufacturer updatedItem)
+        {
+            await ManufacturerService.UpdateManufacturer(updatedItem);
+            ManufacturerData = await ManufacturerService.GetManufacturers();
+        }
+    }
+
+    async Task DeleteManufacturer(Manufacturer manufacturer)
+    {
+        await ManufacturerService.DeleteManufacturer(manufacturer);
+        ManufacturerData.Remove(manufacturer);
+    }
+}

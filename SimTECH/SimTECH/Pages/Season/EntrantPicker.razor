@@ -1,0 +1,154 @@
+﻿@inject EngineService EngineService
+@inject TeamService TeamService
+@inject DriverService DriverService
+
+<MudContainer>
+    <MudText Typo="Typo.h4">Engines</MudText>
+    <MudGrid>
+        <MudItem xs="6">
+            <MudPaper>
+                <MudText Typo="Typo.h5">Entered</MudText>
+                <MudTable T="Engine" Items="@Model.BaseEngines" OnRowClick="RemoveEngine" Hover="true" Dense="true">
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper>
+                <MudText Typo="Typo.h5">Available</MudText>
+                <MudTable T="Engine" Items="@Engines" OnRowClick="EnterEngine" Hover="true" Dense="true">
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+<MudContainer>
+    <MudText Typo="Typo.h4">Teams</MudText>
+    <MudGrid>
+        <MudItem xs="6">
+            <MudPaper>
+                <MudText Typo="Typo.h5">Entered</MudText>
+                <MudTable T="Team" Items="@Model.BaseTeams" OnRowClick="RemoveTeam" Hover="true" Dense="true">
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">
+                            <CountryFlag Code="@context.Country" />
+                            @context.Name
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper>
+                <MudText Typo="Typo.h5">Available</MudText>
+                <MudTable T="Team" Items="@Teams" OnRowClick="EnterTeam" Hover="true" Dense="true">
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">
+                            <CountryFlag Code="@context.Country" />
+                            @context.Name
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+<MudContainer>
+    <MudText Typo="Typo.h4">Drivers</MudText>
+    <MudGrid>
+        <MudItem xs="6">
+            <MudPaper>
+                <MudText Typo="Typo.h5">Entered</MudText>
+                <MudTable T="Driver" Items="@Model.BaseDrivers" OnRowClick="RemoveDriver" Hover="true" Dense="true">
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">
+                            <CountryFlag Code="@context.Country" />
+                            @context.FullName
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper>
+                <MudText Typo="Typo.h5">Available</MudText>
+                <MudTable T="Driver" Items="@Drivers" OnRowClick="EnterDriver" Hover="true" Dense="true">
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">
+                            <CountryFlag Code="@context.Country" />
+                            @context.FullName
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    [Parameter] public AddEntrantsModel Model { get; set; } = new();
+
+    private List<Engine> Engines = new();
+    private List<Team> Teams = new();
+    private List<Driver> Drivers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Engines = await EngineService.GetEngines();
+        Teams = await TeamService.GetTeams();
+        Drivers = await DriverService.GetDrivers();
+    }
+
+    private void EnterEngine(TableRowClickEventArgs<Engine> rowClickEvent)
+    {
+        var selectedEngine = rowClickEvent.Item;
+
+        Model.BaseEngines.Add(selectedEngine);
+        Engines.Remove(selectedEngine);
+    }
+
+    private void RemoveEngine(TableRowClickEventArgs<Engine> rowClickEvent)
+    {
+        var selectedEngine = rowClickEvent.Item;
+
+        Engines.Add(selectedEngine);
+        Model.BaseEngines.Remove(selectedEngine);
+    }
+
+    private void EnterTeam(TableRowClickEventArgs<Team> rowClickEvent)
+    {
+        var selectedTeam = rowClickEvent.Item;
+
+        Model.BaseTeams.Add(selectedTeam);
+        Teams.Remove(selectedTeam);
+    }
+
+    private void RemoveTeam(TableRowClickEventArgs<Team> rowClickEvent)
+    {
+        var selectedTeam = rowClickEvent.Item;
+
+        Teams.Add(selectedTeam);
+        Model.BaseTeams.Remove(selectedTeam);
+    }
+
+    private void EnterDriver(TableRowClickEventArgs<Driver> rowClickEvent)
+    {
+        var selectedDriver = rowClickEvent.Item;
+
+        Model.BaseDrivers.Add(selectedDriver);
+        Drivers.Remove(selectedDriver);
+    }
+
+    private void RemoveDriver(TableRowClickEventArgs<Driver> rowClickEvent)
+    {
+        var selectedDriver = rowClickEvent.Item;
+
+        Drivers.Add(selectedDriver);
+        Model.BaseDrivers.Remove(selectedDriver);
+    }
+}

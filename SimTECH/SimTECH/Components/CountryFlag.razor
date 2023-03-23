@@ -1,0 +1,65 @@
+﻿<span>
+    <span class="@flagIconClass">@flagIcon</span>
+    @flagNationName
+</span>
+
+@code {
+    [Parameter]
+    public Country Code { get; set; }
+
+    [Parameter]
+    public FlagSize Size { get; set; } = FlagSize.Normal;
+
+    [Parameter]
+    public bool IncludeName { get; set; } = false;
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    private string flagSize
+    {
+        get
+        {
+            switch (this.Size)
+            {
+                case FlagSize.Tiny:
+                    return "flag-xs";
+                case FlagSize.Small:
+                    return "flag-sm";
+                case FlagSize.Large:
+                    return "flag-lg";
+                default:
+                    return "flag-md";
+            }
+        }
+    }
+
+    private string flagIconClass
+    {
+        get
+        {
+            return $"flag {flagSize}";
+        }
+    }
+
+    private string flagIcon
+    {
+        get
+        {
+            return Code.CountryCodeToEmoji();
+        }
+    }
+
+    private string flagNationName
+    {
+        get
+        {
+            if (this.IncludeName)
+            {
+                return Code.GetDescription();
+            }
+
+            return string.Empty;
+        }
+    }
+}

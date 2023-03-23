@@ -1,0 +1,23 @@
+﻿@inject BreadcrumbProvider Bread
+@implements IDisposable
+
+@*
+    Navigation provider for breadcrumbs (https://stackoverflow.com/questions/64473844/how-can-i-modify-the-layout-from-a-blazor-page)
+*@
+
+@if (Bread.Visible)
+{
+    <MudBreadcrumbs Items="Bread.Breadcrumbs" />
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        Bread.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        Bread.OnChange -= StateHasChanged;
+    }
+}
