@@ -7,7 +7,7 @@
     <MudText Typo="Typo.h4">Teams in season</MudText>
     <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterTeam">New</MudButton>
 </MudContainer>
-<MudDataGrid T="SeasonTeam" Items="SeasonTeamEntrants">
+<MudDataGrid T="SeasonTeam" Items="@SeasonTeamEntrants">
     <Columns>
         <PropertyColumn Property="e => e.Name" CellStyleFunc="@_teamStyleFunc" />
         <TemplateColumn Title="Country">
@@ -26,14 +26,16 @@
         <PropertyColumn Property="e => e.BaseValue" />
         <TemplateColumn Title="A/C/P">
             <CellTemplate>
-                    <MudText>@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
+                <MudText>@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="e => e.Reliability" />
-        <PropertyColumn Property="e => e.SeasonEngine.Name" />
+        <PropertyColumn Property="e => e.SeasonEngineId" />
         <TemplateColumn Title="Manufacturer">
             <CellTemplate>
-                <MudText>@(ManufacturerData.Find(e => e.Id == context.Item.ManufacturerId)?.Name ?? "[error: wtf where manufacturer?]")</MudText>
+                <MudText>
+                    @(ManufacturerData.Find(e => e.Id == context.Item.ManufacturerId)?.Name ?? "[error: wtf where manufacturer?]")
+                </MudText>
             </CellTemplate>
         </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end">
@@ -49,9 +51,9 @@
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
-    private List<SeasonTeam> SeasonTeamEntrants = new();
-    private List<Team> TeamData = new();
-    private List<Manufacturer> ManufacturerData = new();
+    private List<SeasonTeam> SeasonTeamEntrants { get; set; }
+    private List<Team> TeamData { get; set; }
+    private List<Manufacturer> ManufacturerData { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

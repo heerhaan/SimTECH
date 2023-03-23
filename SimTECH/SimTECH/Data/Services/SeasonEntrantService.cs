@@ -39,6 +39,7 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonTeam
+                .Include(e => e.Team)
                 .Where(e => e.SeasonId == seasonId)
                 .ToListAsync();
         }

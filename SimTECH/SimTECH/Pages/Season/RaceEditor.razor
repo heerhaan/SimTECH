@@ -69,11 +69,12 @@
     </DialogActions>
 </MudDialog>
 
-    @code {
+@code {
     [CascadingParameter] protected MudDialogInstance? RaceDialog { get; set; }
 
     [Parameter] public Race? Race { get; set; }
     [Parameter] public List<Track> Tracks { get; set; } = new();
+    [Parameter] public int SeasonId { get; set; }
     [Parameter] public int IncomingRound { get; set; }
 
     private EditRaceModel Model = new();
@@ -89,6 +90,7 @@
             Model = new EditRaceModel(Race)
             {
                 Round = IncomingRound,
+                SeasonId = SeasonId,
             };
 
             orderNum = Model.Stints.Count;
