@@ -2,67 +2,66 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h6">Add race</MudText>
+        <MudText Typo="Typo.h6">Add race for round: @IncomingRound</MudText>
         <MudText Typo="Typo.body1">Stint's can be re-ordered by dragging them</MudText>
     </TitleContent>
     <DialogContent>
-        <MudGrid>
-            <MudItem xs="6">
-                <MudTextField @bind-Value="model.Name" Label="Name" />
-                <MudSelect T="long" @bind-Value="model.TrackId" Label="Track">
-                    @foreach (var select in Tracks)
-                    {
-                        <MudSelectItem Value="select.Id">
-                            <CountryFlag Code="@select.Country" Size="FlagSize.Small" />
-                            @select.Name
-                        </MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
+        <MudForm Model="@Model">
+            <MudGrid>
+                <MudItem xs="6">
+                    <MudTextField @bind-Value="Model.Name" Label="Name" />
+                    <MudSelect T="long" @bind-Value="Model.TrackId" Label="Track" ReadOnly="@(Model.Id != 0)">
+                        @foreach (var select in Tracks)
+                        {
+                            <MudSelectItem Value="select.Id">
+                                <CountryFlag Code="@select.Country" Size="FlagSize.Small" />
+                                @select.Name
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
 
-            <MudItem xs="6">
-                <MudNumericField T="int" @bind-Value="model.Round" Label="Round" />
-                <MudSelect T="Weather" @bind-Value="model.Weather" Label="Weather">
-                    @foreach (var select in EnumHelper.GetWeatherSelection())
-                    {
-                        <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
+                <MudItem xs="6">
+                    <MudSelect T="Weather" @bind-Value="Model.Weather" Label="Weather">
+                        @foreach (var select in EnumHelper.GetWeatherSelection())
+                        {
+                            <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudStack Row="true">
+                        <MudNumericField T="int" @bind-Value="amountStints" Label="Amount of stints" />
+                        <MudButton Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small" OnClick="SetStintAmount">
+                            Set amount
+                        </MudButton>
+                    </MudStack>
+                </MudItem>
 
-            <MudItem xs="12">
-                <MudStack Row="true">
-                    <MudNumericField T="int" @bind-Value="_amountStints" Label="Amount of stints"  />
-                    <MudButton OnClick="SetStintAmount" Variant="Variant.Filled" Color="Color.Primary" >
-                        Set amount and edit stints
-                    </MudButton>
-                </MudStack>
-            </MudItem>
+                <MudItem xs="12">
+                    <MudDropContainer T="EditStintModel" Items="Model.Stints" @ref="_container" ItemsSelector="(item, zone) => true" ItemDropped="ItemDropped">
+                        <ChildContent>
+                            <MudPaper Elevation="15" Class="ma-2 pa-2">
+                                <MudText>Stint setup for the race</MudText>
+                                <MudDropZone T="EditStintModel" Identifier="temp" AllowReorder="true" />
+                            </MudPaper>
+                        </ChildContent>
+                        <ItemRenderer>
+                            <MudPaper Elevation="25" Class="ma-2 pa-2">
+                                <MudStack Spacing="2" Row="true" Justify="Justify.SpaceEvenly">
+                                    <MudText>@(1 + context.Order)</MudText>
+                                        <MudCheckBox @bind-Checked="context.UseDriver" Color="Color.Tertiary" Label="Driver" />
+                                        <MudCheckBox @bind-Checked="context.UseCar" Color="Color.Tertiary" Label="Car" />
+                                        <MudCheckBox @bind-Checked="context.UseEngine" Color="Color.Tertiary" Label="Engine" />
+                                        <MudCheckBox @bind-Checked="context.UseReliability" Color="Color.Tertiary" Label="Reliability" />
+                                        <MudNumericField T="int" @bind-Value="context.RngMin" Label="RngMin" />
+                                        <MudNumericField T="int" @bind-Value="context.RngMax" Label="RngMax" />
+                                    </MudStack>
+                                </MudPaper>
+                            </ItemRenderer>
+                        </MudDropContainer>
+                    </MudItem>
+                </MudGrid>
+        </MudForm>
 
-            <MudItem xs="12">
-                <MudDropContainer T="EditStintModel" Items="model.Stints" @ref="_container" ItemsSelector="(item, zone) => true" ItemDropped="ItemDropped">
-                    <ChildContent>
-                        <MudPaper Elevation="15" Class="ma-2 pa-2">
-                            <MudText>Stint setup for the race</MudText>
-                            <MudDropZone T="EditStintModel" Identifier="temp" AllowReorder="true" />
-                        </MudPaper>
-                    </ChildContent>
-                    <ItemRenderer>
-                        <MudPaper Elevation="25" Class="ma-2 pa-2">
-                            <MudStack Spacing="2" Row="true" Justify="Justify.SpaceEvenly">
-                                <MudText>@(1 + context.Order)</MudText>
-                                <MudCheckBox @bind-Checked="context.UseDriver" Color="Color.Tertiary" Label="Driver" />
-                                <MudCheckBox @bind-Checked="context.UseCar" Color="Color.Tertiary" Label="Car" />
-                                <MudCheckBox @bind-Checked="context.UseEngine" Color="Color.Tertiary" Label="Engine" />
-                                <MudCheckBox @bind-Checked="context.UseReliability" Color="Color.Tertiary" Label="Reliability" />
-                                <MudNumericField T="int" @bind-Value="context.RngMin" Label="RngMin" />
-                                <MudNumericField T="int" @bind-Value="context.RngMax" Label="RngMax" />
-                            </MudStack>
-                        </MudPaper>
-                    </ItemRenderer>
-                </MudDropContainer>
-            </MudItem>
-        </MudGrid>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -75,54 +74,50 @@
 
     [Parameter] public Race? Race { get; set; }
     [Parameter] public List<Track> Tracks { get; set; } = new();
+    [Parameter] public int IncomingRound { get; set; }
 
-    private EditRaceModel model = new();
+    private EditRaceModel Model = new();
+    //private MudForm form; can be used for validation by calling form.Validate() if it's a ref
     private MudDropContainer<EditStintModel> _container;
-    private int _amountStints { get; set; }
+    private int amountStints { get; set; }
     private int orderNum = 0;
 
     protected override void OnInitialized()
     {
         if (Race != null)
         {
-            model = new EditRaceModel(Race);
-            orderNum = model.Stints.Count;
+            Model = new EditRaceModel(Race)
+            {
+                Round = IncomingRound,
+            };
+
+            orderNum = Model.Stints.Count;
         }
     }
 
     private void SetStintAmount()
     {
-        if (_amountStints > orderNum)
+        if (amountStints > orderNum)
         {
-            for (; orderNum < _amountStints; orderNum++)
+            for (; orderNum < amountStints; orderNum++)
             {
-                model.Stints.Add(new EditStintModel
+                Model.Stints.Add(new EditStintModel
                     {
                         Order = orderNum,
-                        RngMin = 20,
-                        RngMax = 40
+                        RngMin = 10,
+                        RngMax = (NumberHelper.RandomInt(4, 6) * 10)
                     });
             }
         }
         else
         {
-            for (; orderNum > _amountStints; orderNum--)
+            for (; orderNum > amountStints; orderNum--)
             {
-                model.Stints.RemoveAt(orderNum - 1);
+                Model.Stints.RemoveAt(orderNum - 1);
             }
         }
 
         RefreshContainer();
-    }
-
-    private void AddStint()
-    {
-        model.Stints.Add(new EditStintModel
-        {
-            Order = orderNum++,
-            RngMin = 20,
-            RngMax = 40
-        });
     }
 
     private void RefreshContainer()
@@ -136,14 +131,14 @@
 
     private void ItemDropped(MudItemDropInfo<EditStintModel> dropItem)
     {
-        model.Stints.UpdateOrder(dropItem, item => item.Order);
+        Model.Stints.UpdateOrder(dropItem, item => item.Order);
     }
 
     private void Submit()
     {
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            var modRace = model.Record;
+            var modRace = Model.Record;
 
             RaceDialog?.Close(DialogResult.Ok(modRace));
         }

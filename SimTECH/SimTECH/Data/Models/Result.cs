@@ -20,6 +20,6 @@
         public long StrategyId { get; set; }
         public Strategy Strategy { get; set; } = default!;
 
-        public IList<StintResult> StintResults { get; set; } = default!;
+        public IList<StintResult>? StintResults { get; set; }
     }
 }
