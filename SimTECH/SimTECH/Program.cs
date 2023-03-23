@@ -23,6 +23,7 @@ namespace SimTECH
             builder.Services.AddDbContextFactory<SimTechDbContext>(options =>
             {
                 options.UseSqlServer(connectionString);
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 options.ConfigureWarnings(e => e.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
             });
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();

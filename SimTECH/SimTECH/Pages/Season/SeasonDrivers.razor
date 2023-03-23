@@ -10,8 +10,10 @@
     <Columns>
         <TemplateColumn Title="Name">
             <CellTemplate>
-                <CountryFlag Code="@context.Item.Driver.Country" Size="FlagSize.Tiny" />
-                <MudText>@context.Item.Driver.FullName</MudText>
+                <MudText>
+                    <CountryFlag Code="@context.Item.Driver.Country" Size="FlagSize.Small" />
+                    @context.Item.Driver.FullName
+                </MudText>
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="e => e.Number" />
@@ -69,7 +71,10 @@
             _loading = true;
 
             await EntrantService.UpdateSeasonDriver(updatedDriver);
+
             SeasonDriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
+            foreach (var sdriver in SeasonDriverEntrants)
+                sdriver.SeasonTeam = TeamEntrants.FirstOrDefault(e => e.Id == sdriver.SeasonTeamId);
 
             _loading = false;
         }

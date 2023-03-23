@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
+using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.Services
 {
@@ -18,6 +19,7 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Season
+                .AsNoTracking()
                 .Include(e => e.PointAllotments)
                 .ToListAsync();
         }
@@ -27,6 +29,7 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Season
+                .AsNoTracking()
                 .Include(e => e.PointAllotments)
                 .SingleAsync(e => e.Id == seasonId);
         }
@@ -71,27 +74,27 @@ namespace SimTECH.Data.Services
             return true;
         }
 
-        public async Task<string?> ActivateSeason(Season season)
+        public async Task<string?> ActivateSeason(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            if (season.State != State.Concept)
-                throw new InvalidOperationException("Can only activate seasons which are currently in 'concept'.");
-
-            var completeSeason = await context.Season
+            var season = await context.Season
                 .Include(e => e.SeasonEngines)
                 .Include(e => e.SeasonTeams)
                 .Include(e => e.SeasonDrivers)
                 .Include(e => e.Races)
-                .SingleAsync(e => e.Id == season.Id);
+                .SingleAsync(e => e.Id == seasonId);
 
-            if (completeSeason.SeasonEngines?.Any() != true)
+            if (season.State != State.Concept)
+                throw new InvalidOperationException("Can only activate seasons which are currently in 'concept'.");
+
+            if (season.SeasonEngines?.Any() != true)
                 return "this blitherin idiot right here forgot to add any entrants to this season, begin with adding the engines.";
-            if (completeSeason.SeasonTeams?.Any() != true)
+            if (season.SeasonTeams?.Any() != true)
                 return "absolute moron forgot to add the teams, how are you going to race a motorsport season without any teams. come on mate";
-            if (completeSeason.SeasonDrivers?.Any() != true)
+            if (season.SeasonDrivers?.Any() != true)
                 return "hey robocop this isn't the future, we still have people driving the cars. so add some fucking drivers will ya?";
-            if (completeSeason?.Races?.Any() != true)
+            if (season?.Races?.Any() != true)
                 return "hint of advice, a season without any races is hardly much of a season. add races, pisshead";
 
             // i know i know, fugly solution here but alas it works
