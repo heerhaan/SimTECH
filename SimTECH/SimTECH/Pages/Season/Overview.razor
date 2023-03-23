@@ -12,11 +12,6 @@
     {
         <MudTabs Outlined="true" Centered="true">
             <MudTabPanel Text="Intro">
-                @* place alert to above if necessary outside this tab *@
-                @if (_errorMessage != null)
-                {
-                    <MudAlert Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="HideErr" Style="z-index: 10;position: relative;">@_errorMessage</MudAlert>
-                }
                 <MudGrid Spacing="5">
                     <MudItem xs="12">
                         <MudPaper Class="pa-4">
@@ -34,9 +29,14 @@
                         }
                     </MudItem>
                     <MudItem xs="6">
-                        -
+                        (...)
                     </MudItem>
                 </MudGrid>
+                @* place alert to above if necessary outside this tab *@
+                @if (_errorMessage != null)
+                {
+                    <MudAlert Variant="Variant.Filled" Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="HideErr" Style="z-index:10; position: absolute;">@_errorMessage</MudAlert>
+                }
             </MudTabPanel>
             <MudTabPanel Text="Calendar">
                 <Calendar />
@@ -107,7 +107,7 @@
     [Parameter] public long SeasonId { get; set; }
 
     public Season? Season { get; set; }
-    private string? _errorMessage;
+    private string? _errorMessage { get; set; } = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,7 +118,7 @@
     {
         if (Season != null)
         {
-            var _errorMessage = await SeasonService.ActivateSeason(Season);
+            _errorMessage = await SeasonService.ActivateSeason(Season);
 
             if (_errorMessage == null)
                 Snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
