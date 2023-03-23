@@ -6,14 +6,19 @@
     <MudText Typo="Typo.h4">In-season drivers</MudText>
     <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterDriver">New</MudButton>
 </MudContainer>
-<MudDataGrid T="SeasonDriver" Items="SeasonDriverEntrants">
+<MudDataGrid T="SeasonDriver" Items="SeasonDriverEntrants" Loading="_loading">
     <Columns>
-        <PropertyColumn Property="e => e.Driver.FullName" />
+        <TemplateColumn Title="Name">
+            <CellTemplate>
+                <CountryFlag Code="@context.Item.Driver.Country" Size="FlagSize.Tiny" />
+                <MudText>@context.Item.Driver.FullName</MudText>
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="e => e.Number" />
         <PropertyColumn Property="e => e.Skill" />
         <PropertyColumn Property="e => e.Reliability" />
         <PropertyColumn Property="e => e.TeamRole" />
-        <PropertyColumn Property="e => e.SeasonTeamId" />
+        <PropertyColumn Property="e => e.SeasonTeam.Name" />
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudButtonGroup>
@@ -31,11 +36,18 @@
     private List<SeasonTeam> TeamEntrants = new();
     private List<Driver> DriverData = new();
 
+    private bool _loading = true;
+
     protected override async Task OnInitializedAsync()
     {
         SeasonDriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
         TeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
         DriverData = await DriverService.GetDrivers();
+
+        foreach (var sdriver in SeasonDriverEntrants)
+            sdriver.SeasonTeam = TeamEntrants.FirstOrDefault(e => e.Id == sdriver.SeasonTeamId);
+
+        _loading = false;
     }
 
     async Task EnterDriver() => await UpdateDriverEntrant(new SeasonDriver());
@@ -54,8 +66,12 @@
 
         if (!result.Canceled && result.Data != null && result.Data is SeasonDriver updatedDriver)
         {
+            _loading = true;
+
             await EntrantService.UpdateSeasonDriver(updatedDriver);
             SeasonDriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
+
+            _loading = false;
         }
     }
 }
