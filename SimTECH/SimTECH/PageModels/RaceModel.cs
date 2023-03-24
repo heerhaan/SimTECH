@@ -29,7 +29,6 @@ namespace SimTECH.PageModels
 
         public TraitResultEffect TraitEffect { get; set; }
         //score? position?
-        public List<int> RunResults { get; set; } = new();
         public int[] RunVals { get; set; }
 
         // Properties underneath are optionable, depending on circumstances
