@@ -9,7 +9,8 @@
 </MudContainer>
 <MudDataGrid T="SeasonTeam" Items="@SeasonTeamEntrants">
     <Columns>
-        <PropertyColumn Property="e => e.Name" CellStyleFunc="@_teamStyleFunc" />
+        <PropertyColumn Property="e => e.Name" />
+        <TemplateColumn CellStyleFunc="@ViewHelper.TeamCellStyleFunc" CellClass="accent-cell" />
         <TemplateColumn Title="Country">
             <CellTemplate>
                 @if (context.Item.Team is not null)

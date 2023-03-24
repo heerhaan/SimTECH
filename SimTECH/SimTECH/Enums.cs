@@ -7,7 +7,9 @@ namespace SimTECH
         Concept = 0,
         Active,
         Closed,
-        Archived
+        Archived,
+        // NOTE: additional states are found underneath, used for some entities to control behaviur
+        Advanced,
     }
 
     public enum Entrant

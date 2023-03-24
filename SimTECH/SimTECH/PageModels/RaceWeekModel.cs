@@ -9,6 +9,8 @@ namespace SimTECH.PageModels
         public List<RaceWeekDriver> RaceWeekDrivers { get; set; }
 
         public List<Strategy>? AvailableStrategies { get; set; }
+
+        public List<Trait>? TrackTraits { get; set; }
     }
 
     public class RaceWeekDriver
@@ -31,5 +33,7 @@ namespace SimTECH.PageModels
         public int Grid { get; set; }
         public int Position { get; set; }
         public RaceStatus Status { get; set; }
+        public long StrategyId { get; set; }
+        public Strategy? Strategy { get; set; }
     }
 }

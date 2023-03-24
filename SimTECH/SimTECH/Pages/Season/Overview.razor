@@ -1,5 +1,6 @@
 ﻿@page "/overview/{SeasonId:long}"
 
+@inject RaceService RaceService
 @inject SeasonService SeasonService
 @inject NavigationManager Nav
 @inject IDialogService DialogService
@@ -30,7 +31,21 @@
                         }
                     </MudItem>
                     <MudItem xs="6">
-                        (...)
+                        <MudPaper Class="pa-4">
+                            <MudText Typo="Typo.h6">Next race</MudText>
+                            @if (NextRace is null)
+                            {
+                                <MudText>no upcoming race for this season detected</MudText>
+                            }
+                            else
+                            {
+                                <MudText>
+                                    <CountryFlag Code="NextRace.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
+                                </MudText>
+                                <MudText>todo: more info here about the next race :)))</MudText>
+                                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small" OnClick="GoToNextRace">Go to</MudButton>
+                            }
+                        </MudPaper>
                     </MudItem>
                 </MudGrid>
                 @* place alert to above if necessary outside this tab *@
@@ -108,11 +123,15 @@
     [Parameter] public long SeasonId { get; set; }
 
     public Season? Season { get; set; }
+    public Race? NextRace { get; set; }
     private string? _errorMessage { get; set; } = null;
 
     protected override async Task OnInitializedAsync()
     {
         Season = await SeasonService.GetSeasonById(SeasonId);
+
+        if (Season != null)
+            NextRace = await RaceService.GetNextRaceOfSeason(SeasonId);
     }
 
     private async Task StartSeason()
@@ -134,6 +153,20 @@
     {
         // TODO: Check if there are already any entrants added, if so then remove
         Nav.NavigateTo($"/addentrants/{SeasonId}");
+    }
+
+    private async Task GoToNextRace()
+    {
+        if (NextRace is null)
+        {
+            Snackbar.Add("can't find the next race, you sure it exists lad?");
+            return;
+        }
+
+        if (NextRace.State == State.Concept)
+            await RaceService.ActivateRace(NextRace.Id);
+
+        Nav.NavigateTo($"/raceweek/{NextRace.Id}");
     }
 
     async Task UpdateSeason()

@@ -19,7 +19,6 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Season
-                .AsNoTracking()
                 .Include(e => e.PointAllotments)
                 .ToListAsync();
         }
@@ -29,7 +28,6 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Season
-                .AsNoTracking()
                 .Include(e => e.PointAllotments)
                 .SingleAsync(e => e.Id == seasonId);
         }

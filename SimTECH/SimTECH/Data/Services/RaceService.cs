@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
@@ -33,6 +34,17 @@ namespace SimTECH.Data.Services
                 .Include(e => e.Stints)
                 .Include(e => e.Penalties)
                 .SingleAsync(e => e.Id == raceId);
+        }
+
+        public async Task<Race?> GetNextRaceOfSeason(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Race
+                .Include(e => e.Track)
+                .Where(e => e.SeasonId == seasonId && (e.State == State.Concept || e.State == State.Active))
+                .OrderBy(e => e.Round)
+                .FirstOrDefaultAsync();
         }
 
         public async Task UpdateRace(Race race)
@@ -90,6 +102,24 @@ namespace SimTECH.Data.Services
 
             context.AddRange(driverResults);
 
+            var editModel = new EditRaceModel(race) { State = State.Active };
+            var editedRecord = editModel.Record;
+
+            context.Update(editedRecord);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task PickStrategy(long resultId, long strategyId, int pace)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.Result
+                .Where(e => e.Id == resultId)
+                .ExecuteUpdate(ex => ex
+                    .SetProperty(prop => prop.StrategyId, strategyId)
+                    .SetProperty(prop => prop.TyreLife, pace));
+
             await context.SaveChangesAsync();
         }
 
@@ -116,10 +146,14 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
+                .Include(e => e.Stints)
                 .Include(e => e.Penalties)
                 .Include(e => e.Track)
-                    .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
+
+            var trackTraits = await context.Trait
+                .Where(trait => trait.TrackTraits.Any(tt => tt.TrackId == race.TrackId))
+                .ToListAsync();
 
             var strategiesForRace = await context.Strategy
                 .Include(e => e.StrategyTyres)
@@ -139,16 +173,22 @@ namespace SimTECH.Data.Services
                     Number = result.SeasonDriver.Number,
                     Role = result.SeasonDriver.TeamRole,
                     Country = result.SeasonDriver.Driver.Country,
+
                     SeasonTeamId = result.SeasonTeamId,
                     TeamName = result.SeasonTeam.Name,
                     Colour = result.SeasonTeam.Colour,
                     Accent = result.SeasonTeam.Accent,
+
                     ResultId = result.Id,
                     Grid = result.Grid,
                     Position = result.Position,
-                    Status = result.Status
+                    Status = result.Status,
+                    StrategyId = result.StrategyId,
                 })
                 .ToListAsync();
+
+            foreach (var driver in weekendDrivers)
+                driver.Strategy = strategiesForRace.Find(e => e.Id == driver.StrategyId);
 
             if (weekendDrivers?.Any() != true)
                 throw new InvalidOperationException("We're going to need some actual drivers too");
@@ -158,6 +198,7 @@ namespace SimTECH.Data.Services
                 Race = race,
                 RaceWeekDrivers = weekendDrivers,
                 AvailableStrategies = strategiesForRace,
+                TrackTraits = trackTraits,
             };
         }
         #endregion

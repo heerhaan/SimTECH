@@ -8,6 +8,11 @@
 </MudContainer>
 <MudDataGrid T="SeasonDriver" Items="SeasonDriverEntrants" Loading="_loading">
     <Columns>
+        <TemplateColumn Title="#" CellStyleFunc="@ViewHelper.DriverGradientStyleFunc">
+            <CellTemplate>
+                @(++positionIndexer)
+            </CellTemplate>
+        </TemplateColumn>
         <TemplateColumn Title="Name">
             <CellTemplate>
                 <MudText>
@@ -39,6 +44,7 @@
     private List<Driver> DriverData = new();
 
     private bool _loading = true;
+    private int positionIndexer = 0;
 
     protected override async Task OnInitializedAsync()
     {

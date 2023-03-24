@@ -22,8 +22,8 @@
 
         public bool ForWetConditions { get; set; }
 
-        public IList<DriverTrait>? DriverTraits { get; set; }
-        public IList<TeamTrait>? TeamTraits { get; set; }
-        public IList<TrackTrait>? TrackTraits { get; set; }
+        public IList<DriverTrait> DriverTraits { get; set; }
+        public IList<TeamTrait> TeamTraits { get; set; }
+        public IList<TrackTrait> TrackTraits { get; set; }
     }
 }
