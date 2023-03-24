@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SimTECH.Data.Models
 {
     public record Race
     {
@@ -16,5 +18,8 @@
         public IList<Stint>? Stints { get; set; }
         public IList<Penalty>? Penalties { get; set; }
         public IList<Result>? Results { get; set; }
+
+        [NotMapped]
+        public bool IsWet => Weather == Weather.Rain || Weather == Weather.Storm;
     }
 }

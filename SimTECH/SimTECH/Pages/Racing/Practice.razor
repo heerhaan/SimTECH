@@ -1,6 +1,105 @@
 ﻿@page "/practice/{RaceId:long}"
 
+@inject RaceService _raceService
+
+@if (loading)
+{
+    <MudAlert Severity="Severity.Warning">This bad boi is still loading, some patience please!</MudAlert>
+}
+else
+{
+    <MudContainer>
+        <MudTable Items="@RaceModel.RaceDrivers.OrderByDescending(e => e.MaxScore)">
+            <ToolBarContent>
+                <MudText>
+                    <CountryFlag Code="@RaceModel.Country" />
+                    @RaceModel.Name - PRACTICE
+                </MudText>
+                <MudSpacer />
+                @if (advancedRuns == RaceModel.AmountRuns)
+                {
+                    <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
+                }
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>#</MudTh>
+                <MudTh>Driver</MudTh>
+                <MudTh>Num</MudTh>
+                <MudTh>Team</MudTh>
+                <MudTh>PWR</MudTh>
+                @for (int i = 1; i <= RaceModel.AmountRuns; i++)
+                {
+                    <MudTh>@i</MudTh>
+                }
+                <MudTh>Score</MudTh>
+                <MudTh>Gap</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@(++indexer)</MudTd>
+                <MudTd>@context.FullName</MudTd>
+                <MudTd>@context.Number</MudTd>
+                <MudTd>@context.TeamName</MudTd>
+                <MudTd>@context.Power</MudTd>
+                @foreach (var runResult in context.RunVals)
+                {
+                    <MudTd>@runResult</MudTd>
+                }
+                <MudTd>@context.MaxScore</MudTd>
+                <MudTd>@GapToLeader(context.MaxScore)</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudContainer>
+}
 
 @code {
     [Parameter] public long RaceId { get; set; }
+
+    public RaceModel RaceModel { get; set; }
+
+    private bool loading = true;
+    private int indexer = 0;
+    private int advancedRuns = 0;
+    private int maxRng = 30;
+    private int highestScore = 0;
+    private double gapMarge = 0.08;
+
+    protected override async Task OnInitializedAsync()
+    {
+        RaceModel = await _raceService.RetrieveRaceModel(RaceId);
+
+        loading = false;
+    }
+
+    private string GapToLeader(int score)
+    {
+        double gap = ((highestScore - score) * gapMarge);
+
+        return $"+{Math.Round(gap, 2)}";
+    }
+
+    private void Advance()
+    {
+        indexer = 0;
+
+        foreach (var driver in RaceModel.RaceDrivers)
+        {
+            var randomResult = driver.Power + NumberHelper.RandomInt(maxRng);
+            driver.RunVals[advancedRuns] = randomResult;
+            //driver.RunResults.Add(randomResult);
+
+            if (randomResult > highestScore)
+                highestScore = randomResult;
+        }
+
+        advancedRuns++;
+    }
+
+    private void Finish()
+    {
+        advancedRuns++;
+    }
 }

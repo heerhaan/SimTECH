@@ -107,6 +107,7 @@ namespace SimTECH.Data.Services
 
             context.Update(editedRecord);
 
+            // Warning, sometimes seems to save double the results? vv wrong
             await context.SaveChangesAsync();
         }
 
@@ -121,6 +122,103 @@ namespace SimTECH.Data.Services
                     .SetProperty(prop => prop.TyreLife, pace));
 
             await context.SaveChangesAsync();
+        }
+
+        // Quite the sizeable boi here
+        public async Task<RaceModel> RetrieveRaceModel(long raceId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var race = await context.Race
+                .Include(e => e.Track)
+                    .ThenInclude(e => e.TrackTraits)
+                .SingleAsync(e => e.Id == raceId);
+
+            var driverResults = await context.Result
+                .Where(e => e.RaceId == raceId)
+                .ToListAsync();
+
+            var drivers = await context.SeasonDriver
+                .Include(e => e.Driver)
+                    .ThenInclude(e => e.DriverTraits)
+                .Where(e => e.SeasonId == race.SeasonId)
+                .ToListAsync();
+
+            var teams = await context.SeasonTeam
+                .Include(e => e.SeasonEngine)
+                .Include(e => e.Team)
+                    .ThenInclude(e => e.TeamTraits)
+                .Where(e => e.SeasonId == race.SeasonId)
+                .ToListAsync();
+
+            // Excludes wet traits if the race isn't wet either
+            var allTraits = await context.Trait
+                .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.IsWet)
+                .ToListAsync();
+
+            // Do we feel secure about these null refs?
+            var trackTraits = allTraits
+                .Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id))
+                .ToList();
+
+            var raceDrivers = new List<RaceDriver>();
+
+            var amountRuns = 2;
+
+            foreach (var driverResult in driverResults)
+            {
+                var driverTraits = new List<Trait>(trackTraits);
+
+                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId);
+                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId);
+
+                if (driver == null)
+                    throw new InvalidOperationException("Could not find matching seasondriver for result");
+                if (team == null)
+                    throw new InvalidOperationException("Could not find matching seasonteam for result");
+
+                int baseSpeed = driver.Skill + team.BaseValue + team.SeasonEngine.Power;
+                double teamModifiers = (team.Aero * race.Track.AeroMod)
+                    + (team.Chassis * race.Track.ChassisMod)
+                    + (team.Powertrain * race.Track.PowerMod);
+
+                var driverPower = baseSpeed + teamModifiers.RoundDouble();
+
+                if (driver.Driver.DriverTraits?.Any() == true)
+                    driverTraits.AddRange(allTraits.Where(e => driver.Driver.DriverTraits.Select(dt => dt.TraitId).Contains(e.Id)));
+
+                if (team.Team.TeamTraits?.Any() == true)
+                    driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
+
+                raceDrivers.Add(new RaceDriver
+                {
+                    FullName = driver.Driver.FullName,
+                    Number = driver.Number,
+                    Role = driver.TeamRole,
+                    Nationality = driver.Driver.Country,
+                    TeamName = team.Name,
+                    Colour = team.Colour,
+                    Accent = team.Accent,
+
+                    Power = driverPower,
+
+                    Result = driverResult,
+
+                    TraitEffect = NumberHelper.SumTraitEffects(driverTraits),
+                    RunVals = new int[amountRuns],
+                });
+            }
+
+            return new RaceModel
+            {
+                Name = race.Name,
+                Country = race.Track.Country,
+                Weather = race.Weather,
+
+                AmountRuns = amountRuns,
+
+                RaceDrivers = raceDrivers,
+            };
         }
 
         #region single-purpose calls
@@ -150,6 +248,9 @@ namespace SimTECH.Data.Services
                 .Include(e => e.Penalties)
                 .Include(e => e.Track)
                 .SingleAsync(e => e.Id == raceId);
+
+            if (race.State == State.Concept)
+                throw new InvalidOperationException("wrong state, reee. Activate first!!!");
 
             var trackTraits = await context.Trait
                 .Where(trait => trait.TrackTraits.Any(tt => tt.TrackId == race.TrackId))

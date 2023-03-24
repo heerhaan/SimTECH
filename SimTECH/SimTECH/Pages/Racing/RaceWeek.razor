@@ -1,6 +1,7 @@
 ﻿@page "/raceweek/{RaceId:long}"
 
 @inject RaceService _raceService
+@inject NavigationManager Nav
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
@@ -95,7 +96,7 @@ else
                 </MudItem>
 
                 <MudItem xs="6">
-                    <MudPaper Class="pa-4" Style="grid-area:info;">
+                    <MudPaper Class="pa-4">
                         <MudList>
                             <MudListSubheader>Track info</MudListSubheader>
                             <MudListItem>Length: @ViewModel.Race.Track.Length</MudListItem>
@@ -128,11 +129,11 @@ else
                 </MudItem>
 
                 <MudItem xs="6">
-                    <MudPaper Class="pa-4" Style="grid-area:buttons;">
+                    <MudPaper Class="pa-4">
                         <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined" VerticalAlign="true">
                             @if (ViewModel.Race.State == State.Active)
                             {
-                                <MudButton OnClick="TempButtonEvent">Prac</MudButton>
+                                <MudButton OnClick="GoToPractice">Prac</MudButton>
                                 <MudButton OnClick="TempButtonEvent">Qual</MudButton>
                             }
                             else if (ViewModel.Race.State != State.Concept)
@@ -150,7 +151,7 @@ else
                 </MudItem>
 
                 <MudItem xs="12">
-                    <MudPaper Class="pa-4" Style="grid-area:stints;">
+                    <MudPaper Class="pa-4">
                         <MudTable Items="@ViewModel.Race.Stints" Dense="true">
                             <HeaderContent>
                                 <MudTh>#</MudTh>
@@ -351,6 +352,11 @@ else
 
     private void TempButtonEvent() => Snackbar.Add("not implemented yet", Severity.Error);
 
+    private void GoToPractice()
+    {
+        Nav.NavigateTo($"/practice/{RaceId}");
+    }
+
     async Task PickStrategy(long resultId)
     {
         var parameters = new DialogParameters 
@@ -364,7 +370,9 @@ else
 
         if (!result.Canceled && result.Data != null && result.Data is Strategy newStrategy)
         {
-            
+            await _raceService.PickStrategy(resultId, newStrategy.Id, newStrategy.StrategyTyres[0].Tyre.Pace);
+
+            ViewModel.RaceWeekDrivers.Single(e => e.ResultId == resultId).Strategy = newStrategy;
         }
     }
 }
