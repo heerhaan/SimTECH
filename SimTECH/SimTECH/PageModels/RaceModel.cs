@@ -27,14 +27,14 @@ namespace SimTECH.PageModels
 
         public Result Result { get; set; }//overwegend weg ermee?
 
-        public TraitResultEffect TraitEffect { get; set; }
+        public TraitEffect TraitEffect { get; set; }
         //score? position?
-        public int[] RunVals { get; set; }
+        public int[] RunValues { get; set; }
 
         // Properties underneath are optionable, depending on circumstances
         public int Position { get; set; }
         public int Score { get; set; }
 
-        public int MaxScore => RunVals.Max();
+        public int MaxScore => RunValues.Max();
     }
 }

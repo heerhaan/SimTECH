@@ -124,6 +124,11 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task PersistGridPositions(long raceId, Dictionary<long, int> driverPositions)
+        {
+
+        }
+
         // Quite the sizeable boi here
         public async Task<RaceModel> RetrieveRaceModel(long raceId)
         {
@@ -205,7 +210,7 @@ namespace SimTECH.Data.Services
                     Result = driverResult,
 
                     TraitEffect = NumberHelper.SumTraitEffects(driverTraits),
-                    RunVals = new int[amountRuns],
+                    RunValues = new int[amountRuns],
                 });
             }
 

@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.PageModels
 {
-    public class TraitResultEffect
+    public class TraitEffect
     {
         public int QualifyingPace { get; set; }
         public int DriverPace { get; set; }

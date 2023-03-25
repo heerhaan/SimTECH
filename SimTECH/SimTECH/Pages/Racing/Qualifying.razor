@@ -44,7 +44,7 @@ else
                     <MudTd>@context.Number</MudTd>
                     <MudTd>@context.TeamName</MudTd>
                     <MudTd>@context.Power</MudTd>
-                    @foreach (var runResult in context.RunVals)
+                    @foreach (var runResult in context.RunValues)
                     {
                         <MudTd>@runResult</MudTd>
                     }
@@ -88,7 +88,7 @@ else
         foreach (var driver in RaceModel.RaceDrivers)
         {
             var randomResult = driver.Power + NumberHelper.RandomInt(maxRng);
-            driver.RunVals[advancedRuns] = randomResult;
+            driver.RunValues[advancedRuns] = randomResult;
 
             if (randomResult > highestScore)
                 highestScore = randomResult;

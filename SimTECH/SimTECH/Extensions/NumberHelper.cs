@@ -28,9 +28,9 @@ namespace SimTECH.Extensions
             return _rng.NextDouble() * (max - min) + min;
         }
 
-        public static TraitResultEffect SumTraitEffects(IEnumerable<Trait> traits)
+        public static TraitEffect SumTraitEffects(IEnumerable<Trait> traits)
         {
-            return new TraitResultEffect
+            return new TraitEffect
             {
                 QualifyingPace          = traits.Sum(e => e.QualifyingPace),
                 DriverPace              = traits.Sum(e => e.DriverPace),
