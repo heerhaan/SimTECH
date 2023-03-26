@@ -1,6 +1,7 @@
 ﻿@page "/practice/{RaceId:long}"
 
 @inject RaceService _raceService
+@inject NavigationManager Nav
 
 @if (loading)
 {
@@ -11,7 +12,7 @@ else
     <MudContainer>
         <MudTable Items="@RaceModel.RaceDrivers.OrderByDescending(e => e.MaxScore)">
             <ToolBarContent>
-                <MudText>
+                <MudText Typo="Typo.h6">
                     <CountryFlag Code="@RaceModel.Country" />
                     @RaceModel.Name - PRACTICE
                 </MudText>
@@ -33,7 +34,8 @@ else
                 <MudTh>PWR</MudTh>
                 @for (int i = 1; i <= RaceModel.AmountRuns; i++)
                 {
-                    <MudTh>@i</MudTh>
+                    var j = i;
+                    <MudTh>@j</MudTh>
                 }
                 <MudTh>Score</MudTh>
                 <MudTh>Gap</MudTh>
@@ -78,7 +80,7 @@ else
     {
         double gap = ((highestScore - score) * gapMarge);
 
-        return $"+{Math.Round(gap, 2)}";
+        return $"+{Math.Round(gap, 2)}s";
     }
 
     private void Advance()
@@ -97,8 +99,16 @@ else
         advancedRuns++;
     }
 
-    private void Finish()
+    private async Task Finish()
     {
-        //foreach (var driv)
+        var positionResults = new Dictionary<long, int>();
+        var position = 0;
+
+        foreach (var driver in RaceModel.RaceDrivers.OrderByDescending(e => e.MaxScore))
+            positionResults.Add(driver.ResultId, ++position);
+
+        await _raceService.PersistGridPositions(positionResults);
+
+        Nav.NavigateTo("/raceweek/" + RaceId);
     }
 }

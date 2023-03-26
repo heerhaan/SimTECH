@@ -124,9 +124,16 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task PersistGridPositions(long raceId, Dictionary<long, int> driverPositions)
+        public async Task PersistGridPositions(Dictionary<long, int> driverPositions)
         {
+            using var context = _dbFactory.CreateDbContext();
 
+            var driverResults = await context.Result.Where(e => driverPositions.Keys.Contains(e.Id)).ToListAsync();
+
+            foreach (var result in driverResults)
+                result.Grid = driverPositions[result.Id];
+
+            await context.SaveChangesAsync();
         }
 
         // Quite the sizeable boi here
@@ -197,6 +204,7 @@ namespace SimTECH.Data.Services
 
                 raceDrivers.Add(new RaceDriver
                 {
+                    ResultId = driverResult.Id,
                     FullName = driver.Driver.FullName,
                     Number = driver.Number,
                     Role = driver.TeamRole,

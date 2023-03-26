@@ -15,6 +15,7 @@ namespace SimTECH.PageModels
 
     public class RaceDriver
     {
+        public long ResultId { get; set; }
         public string FullName { get; set; }
         public int Number { get; set; }
         public TeamRole Role { get; set; }
