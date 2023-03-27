@@ -30,7 +30,13 @@
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="e => e.Reliability" />
-        <PropertyColumn Property="e => e.SeasonEngineId" Title="Engine" />
+        <TemplateColumn Title="Engine">
+            <CellTemplate>
+                <MudText>
+                    @(SeasonEngineData.Find(e => e.Id == context.Item.SeasonEngineId)?.Name ?? "[error: wtf where engine?]")
+                </MudText>
+            </CellTemplate>
+        </TemplateColumn>
         <TemplateColumn Title="Manufacturer">
             <CellTemplate>
                 <MudText>
@@ -53,12 +59,14 @@
 
     private List<SeasonTeam> SeasonTeamEntrants { get; set; }
     private List<Team> TeamData { get; set; }
+    private List<SeasonEngine> SeasonEngineData { get; set; }
     private List<Manufacturer> ManufacturerData { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         SeasonTeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
         TeamData = await TeamService.GetTeams();
+        SeasonEngineData = await EntrantService.GetSeasonEngines(Season.Id);
         ManufacturerData = await ManufacturerService.GetManufacturers();
     }
 
@@ -75,7 +83,7 @@
                 ["SeasonId"] = Season.Id,
                 ["Teams"] = TeamData,
                 ["Manufacturers"] = ManufacturerData,
-                ["SeasonEngines"] = await EntrantService.GetSeasonEngines(Season.Id),
+                ["SeasonEngines"] = SeasonEngineData,
                 ["SeasonTeam"] = item,
             };
 

@@ -38,33 +38,34 @@ else
             <MudPaper Class="pa-4" Style="height: 100%">
                 <MudTable Items="@ViewModel.RaceWeekDrivers" Dense="true">
                     <HeaderContent>
-                        <MudTh>#</MudTh>
+                        <MudTh>Grid</MudTh>
                         <MudTh>Name</MudTh>
                         <MudTh>Strategy</MudTh>
                         <MudTh>Penalty</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))">
-                            @context.Position
+                            @context.Grid
                         </MudTd>
                         <MudTd>@context.FullName</MudTd>
                         <MudTd>
-                            @if (context.Strategy is null)
-                            {
-                                <MudText>ferrari (no strategy)</MudText>
-                            }
-                            else
-                            {
-                                <MudStack Spacing="1" Row="true">
-                                    @foreach (var tyreElem in context.Strategy.StrategyTyres)
-                                    {
-                                        <span class="tyre" style="border-color:@(tyreElem.Tyre.Colour)">
-                                            @tyreElem.Tyre.Name.ElementAt(0)
-                                        </span>
-                                    }
-                                </MudStack>
-                            }
-                            <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(async () => await PickStrategy(context.ResultId))" />
+                            <MudLink OnClick="@(async () => await PickStrategy(context.ResultId))">
+                                @if (context.Strategy is null)
+                                {
+                                    <MudText>ferrari (no strategy)</MudText>
+                                }
+                                else
+                                {
+                                    <MudStack Spacing="1" Row="true">
+                                        @foreach (var tyreElem in context.Strategy.StrategyTyres)
+                                        {
+                                            <span class="tyre" style="border-color:@(tyreElem.Tyre.Colour)">
+                                                @tyreElem.Tyre.Name.ElementAt(0)
+                                            </span>
+                                        }
+                                    </MudStack>
+                                }
+                            </MudLink>
                         </MudTd>
                         <MudTd>todo</MudTd>
                     </RowTemplate>
