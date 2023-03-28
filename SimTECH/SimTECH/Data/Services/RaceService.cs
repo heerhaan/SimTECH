@@ -107,7 +107,7 @@ namespace SimTECH.Data.Services
 
             context.Update(editedRecord);
 
-            // Warning, sometimes seems to save double the results? vv wrong
+            // TODO: Warning, is able to save duplicate season drivers to the results, refactor to check for this!
             await context.SaveChangesAsync();
         }
 
@@ -124,7 +124,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task PersistGridPositions(Dictionary<long, int> driverPositions)
+        public async Task PersistGridPositions(Dictionary<long, int> driverPositions, long? raceToAdvance = null)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -132,6 +132,18 @@ namespace SimTECH.Data.Services
 
             foreach (var result in driverResults)
                 result.Grid = driverPositions[result.Id];
+
+            context.UpdateRange(driverResults);
+
+            if (raceToAdvance != null)
+            {
+                var race = await context.Race.SingleAsync(e => e.Id == raceToAdvance);
+
+                var editModel = new EditRaceModel(race) { State = State.Advanced };
+                var editedRecord = editModel.Record;
+
+                context.Update(editedRecord);
+            }
 
             await context.SaveChangesAsync();
         }

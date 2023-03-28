@@ -6,7 +6,7 @@
         <MudForm Model="@Model">
             @if (Model.Id == 0 && Teams is not null)
             {
-                <MudSelect T="long" @bind-Value="@Model.TeamId">
+                <MudSelect T="long" @bind-Value="@Model.TeamId" Label="Team">
                     @foreach (var team in Teams)
                     {
                         <MudSelectItem Value="team.Id">
@@ -17,19 +17,19 @@
                 </MudSelect>
             }
 
-            <MudTextField @bind-Value="@Model.Name" Required />
-            <MudTextField @bind-Value="@Model.Principal" Required />
-            <MudColorPicker @bind-Text="@Model.Colour" DisableAlpha="true" />
-            <MudColorPicker @bind-Text="@Model.Accent" DisableAlpha="true" />
-            <MudNumericField @bind-Value="@Model.BaseValue" />
-            <MudNumericField @bind-Value="@Model.Aero" />
-            <MudNumericField @bind-Value="@Model.Chassis" />
-            <MudNumericField @bind-Value="@Model.Powertrain" />
-            <MudNumericField @bind-Value="@Model.Reliability" />
+            <MudTextField @bind-Value="@Model.Name" Label="Name" Required />
+            <MudTextField @bind-Value="@Model.Principal" Label="Principal" Required />
+            <MudColorPicker @bind-Text="@Model.Colour" Label="Colour" DisableAlpha="true" />
+            <MudColorPicker @bind-Text="@Model.Accent" Label="Accent" DisableAlpha="true" />
+            <MudNumericField @bind-Value="@Model.BaseValue" Label="BaseValue" />
+            <MudNumericField @bind-Value="@Model.Aero" Label="Aero" />
+            <MudNumericField @bind-Value="@Model.Chassis" Label="Chassis" />
+            <MudNumericField @bind-Value="@Model.Powertrain" Label="Powertrain" />
+            <MudNumericField @bind-Value="@Model.Reliability" Label="Reliability" />
 
             @if (Manufacturers is not null)
             {
-                <MudSelect T="long" @bind-Value="@Model.ManufacturerId">
+                <MudSelect T="long" @bind-Value="@Model.ManufacturerId" Label="Tyre manufacturer">
                     @foreach (var manufacturer in Manufacturers)
                     {
                         <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
@@ -39,7 +39,7 @@
             
             @if (SeasonEngines is not null)
             {
-                <MudSelect T="long" @bind-Value="@Model.SeasonEngineId">
+                <MudSelect T="long" @bind-Value="@Model.SeasonEngineId" Label="Engine">
                     @foreach (var engine in SeasonEngines)
                     {
                         <MudSelectItem Value="engine.Id">@engine.Name</MudSelectItem>

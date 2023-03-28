@@ -6,7 +6,7 @@
         <MudForm Model="@Model">
             @if (Model.Id == 0)
             {
-                <MudSelect T="long" @bind-Value="@Model.DriverId">
+                <MudSelect T="long" @bind-Value="@Model.DriverId" Label="Driver">
                     @foreach (var driver in Drivers)
                     {
                         <MudSelectItem Value="driver.Id">
@@ -17,11 +17,11 @@
                 </MudSelect>
             }
 
-            <MudNumericField @bind-Value="@Model.Number" />
-            <MudNumericField @bind-Value="@Model.Skill" />
-            <MudNumericField @bind-Value="@Model.Reliability" />
+            <MudNumericField @bind-Value="@Model.Number" Label="Number" />
+            <MudNumericField @bind-Value="@Model.Skill" Label="Skill" />
+            <MudNumericField @bind-Value="@Model.Reliability" Label="Reliability" />
 
-            <MudSelect T="TeamRole" @bind-Value="@Model.TeamRole">
+            <MudSelect T="TeamRole" @bind-Value="@Model.TeamRole" Label="Team Role">
                 @foreach (var select in EnumHelper.GetTeamRoleSelection())
                 {
                     <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
@@ -30,7 +30,7 @@
 
             @if (SeasonTeams is not null)
             {
-                <MudSelect T="long" @bind-Value="@_seasonTeamId">
+                <MudSelect T="long" @bind-Value="@_seasonTeamId" Label="Team">
                     @foreach (var steam in SeasonTeams)
                     {
                         <MudSelectItem Value="steam.Id">

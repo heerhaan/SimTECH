@@ -142,7 +142,10 @@
             _errorMessage = await SeasonService.ActivateSeason(Season.Id);
 
             if (_errorMessage == null)
+            {
+                Season.State = State.Active; // NOTE: It always changes to active if started
                 Snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
+            }
         }
         else
         {

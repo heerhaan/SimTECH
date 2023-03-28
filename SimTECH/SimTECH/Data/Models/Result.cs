@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record Result
+    public class Result
     {
         public long Id { get; set; }
         public int Grid { get; set; }

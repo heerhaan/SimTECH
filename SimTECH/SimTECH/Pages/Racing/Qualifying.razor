@@ -1,6 +1,7 @@
 ﻿@page "/qualifying/{RaceId:long}"
 
 @inject RaceService _raceService
+@inject NavigationManager Nav
 
 @if (loading)
 {
@@ -97,8 +98,16 @@ else
         advancedRuns++;
     }
 
-    private void Finish()
+    private async Task Finish()
     {
-        advancedRuns++;
+        var positionResults = new Dictionary<long, int>();
+        var position = 0;
+
+        foreach (var driver in RaceModel.RaceDrivers.OrderByDescending(e => e.MaxScore))
+            positionResults.Add(driver.ResultId, ++position);
+
+        await _raceService.PersistGridPositions(positionResults, RaceId);
+
+        Nav.NavigateTo("/raceweek/" + RaceId);
     }
 }
