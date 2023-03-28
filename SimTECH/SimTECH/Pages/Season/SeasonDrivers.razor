@@ -4,13 +4,14 @@
 
 <MudDataGrid T="SeasonDriver" Items="SeasonDriverEntrants" Loading="_loading" Class="my-2">
     <ToolBarContent>
-        <MudText Typo="Typo.h4">In-season drivers</MudText>
+        <MudText Typo="Typo.h4">Drivers</MudText>
         <MudSpacer />
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterDriver">New</MudButton>
     </ToolBarContent>
     <Columns>
         <TemplateColumn Title="#" CellStyleFunc="@ViewHelper.DriverGradientStyleFunc">
             <CellTemplate>
+                @* There is something wrong with this stupid position indexer, consider defining the position on-load *@
                 @(++positionIndexer)
             </CellTemplate>
         </TemplateColumn>
@@ -26,7 +27,18 @@
         <PropertyColumn Property="e => e.Skill" />
         <PropertyColumn Property="e => e.Reliability" />
         <PropertyColumn Property="e => e.TeamRole" />
-        <PropertyColumn Property="e => e.SeasonTeam.Name" />
+        <TemplateColumn>
+            <CellTemplate>
+                @if (context.Item.SeasonTeam == null)
+                {
+                    <MudText Color="Color.Error">Dropped</MudText>
+                }
+                else
+                {
+                    <MudText>@context.Item.SeasonTeam.Name</MudText>
+                }
+            </CellTemplate>
+        </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudButtonGroup>

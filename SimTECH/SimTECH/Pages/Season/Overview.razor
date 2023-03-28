@@ -12,7 +12,7 @@
     @if (Season != null)
     {
         <MudTabs Outlined="true" Centered="true">
-            <MudTabPanel Text="Intro">
+            <MudTabPanel Text="Overview">
                 <MudGrid Spacing="5">
                     <MudItem xs="12">
                         <MudPaper Class="pa-4">
@@ -33,17 +33,24 @@
                     <MudItem xs="6">
                         <MudPaper Class="pa-4">
                             <MudText Typo="Typo.h6">Next race</MudText>
-                            @if (NextRace is null)
+                            @if (Season.State == State.Active)
                             {
-                                <MudText>no upcoming race for this season detected</MudText>
+                                @if (NextRace is null)
+                                {
+                                    <MudText>no upcoming race for this season detected</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>
+                                        <CountryFlag Code="NextRace.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
+                                    </MudText>
+                                    <MudText>todo: more info here about the next race :)))</MudText>
+                                    <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small" OnClick="GoToNextRace">Go to</MudButton>
+                                }
                             }
                             else
                             {
-                                <MudText>
-                                    <CountryFlag Code="NextRace.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
-                                </MudText>
-                                <MudText>todo: more info here about the next race :)))</MudText>
-                                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small" OnClick="GoToNextRace">Go to</MudButton>
+                                <MudText>Think for a second, if there is a next race then the season is active. This season isn't so there is no next race, bellend.</MudText>
                             }
                         </MudPaper>
                     </MudItem>

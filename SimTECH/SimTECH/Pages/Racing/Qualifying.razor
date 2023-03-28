@@ -11,61 +11,151 @@ else
 {
     <MudTabs>
         <MudTabPanel Text="Q1">
-
-        </MudTabPanel>
-    </MudTabs>
-    <MudContainer>
-        <MudTable Items="@RaceModel.RaceDrivers.OrderByDescending(e => e.MaxScore)">
-            <ToolBarContent>
-                <MudText>
-                    <CountryFlag Code="@RaceModel.Country" />
-                    @RaceModel.Name - QUALIFYING
-                </MudText>
-                <MudSpacer />
-                @if (advancedRuns == RaceModel.AmountRuns)
-                {
-                    <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
-                }
-                else
-                {
-                    <MudButton Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
-                }
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh>#</MudTh>
-                <MudTh>Driver</MudTh>
-                <MudTh>Num</MudTh>
-                <MudTh>Team</MudTh>
-                <MudTh>PWR</MudTh>
-                @for (int i = 1; i <= RaceModel.AmountRuns; i++)
-                {
-                    var j = i;
-                    <MudTh>@j</MudTh>
-                }
-                <MudTh>Score</MudTh>
-                <MudTh>Gap</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd>@(++indexer)</MudTd>
+            <MudTable Items="@Drivers.OrderByDescending(e => e.MaxScoreQ1)">
+                <ToolBarContent>
+                    <MudText>
+                        <CountryFlag Code="@RaceModel.Country" />
+                        @RaceModel.Name - QUALIFYING
+                    </MudText>
+                    <MudSpacer />
+                    @if (advancedRuns == RaceModel.AmountRuns)
+                    {
+                        <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
+                    }
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>#</MudTh>
+                    <MudTh>Driver</MudTh>
+                    <MudTh>Num</MudTh>
+                    <MudTh>Team</MudTh>
+                    <MudTh>PWR</MudTh>
+                    @for (int i = 1; i <= RaceModel.AmountRuns; i++)
+                    {
+                        var j = i;
+                        <MudTh>@j</MudTh>
+                    }
+                    <MudTh>Score</MudTh>
+                    <MudTh>Gap</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@(++indexer)</MudTd>
                     <MudTd>@context.FullName</MudTd>
                     <MudTd>@context.Number</MudTd>
                     <MudTd>@context.TeamName</MudTd>
                     <MudTd>@context.Power</MudTd>
-                    @foreach (var runResult in context.RunValues)
+                    @foreach (var runResult in context.RunValuesQ1)
                     {
                         <MudTd>@runResult</MudTd>
                     }
-                <MudTd>@context.MaxScore</MudTd>
-                <MudTd>@GapToLeader(context.MaxScore)</MudTd>
-            </RowTemplate>
-        </MudTable>
-    </MudContainer>
+                    <MudTd>@context.MaxScoreQ1</MudTd>
+                    <MudTd>@GapToLeader(context.MaxScoreQ1)</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudTabPanel>
+        <MudTabPanel Text="Q2">
+            <MudTable Items="@Drivers.OrderByDescending(e => e.MaxScoreQ1)">
+                <ToolBarContent>
+                    <MudText>
+                        <CountryFlag Code="@RaceModel.Country" />
+                        @RaceModel.Name - QUALIFYING
+                    </MudText>
+                    <MudSpacer />
+                    @if (advancedRuns == RaceModel.AmountRuns)
+                    {
+                        <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
+                    }
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>#</MudTh>
+                    <MudTh>Driver</MudTh>
+                    <MudTh>Num</MudTh>
+                    <MudTh>Team</MudTh>
+                    <MudTh>PWR</MudTh>
+                    @for (int i = 1; i <= RaceModel.AmountRuns; i++)
+                    {
+                        var j = i;
+                        <MudTh>@j</MudTh>
+                    }
+                    <MudTh>Score</MudTh>
+                    <MudTh>Gap</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@(++indexer)</MudTd>
+                        <MudTd>@context.FullName</MudTd>
+                        <MudTd>@context.Number</MudTd>
+                        <MudTd>@context.TeamName</MudTd>
+                        <MudTd>@context.Power</MudTd>
+                        @foreach (var runResult in context.RunValuesQ1)
+                    {
+                        <MudTd>@runResult</MudTd>
+                    }
+                    <MudTd>@context.MaxScoreQ1</MudTd>
+                    <MudTd>@GapToLeader(context.MaxScoreQ1)</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudTabPanel>
+        <MudTabPanel Text="Q3">
+            <MudTable Items="@Drivers.OrderByDescending(e => e.MaxScoreQ3)">
+                <ToolBarContent>
+                    <MudText>
+                        <CountryFlag Code="@RaceModel.Country" />
+                        @RaceModel.Name - QUALIFYING
+                    </MudText>
+                    <MudSpacer />
+                    @if (advancedRuns == RaceModel.AmountRuns)
+                    {
+                        <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
+                    }
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>#</MudTh>
+                    <MudTh>Driver</MudTh>
+                    <MudTh>Num</MudTh>
+                    <MudTh>Team</MudTh>
+                    <MudTh>PWR</MudTh>
+                    @for (int i = 1; i <= RaceModel.AmountRuns; i++)
+                    {
+                        var j = i;
+                        <MudTh>@j</MudTh>
+                    }
+                    <MudTh>Score</MudTh>
+                    <MudTh>Gap</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@(++indexer)</MudTd>
+                    <MudTd>@context.FullName</MudTd>
+                    <MudTd>@context.Number</MudTd>
+                    <MudTd>@context.TeamName</MudTd>
+                    <MudTd>@context.Power</MudTd>
+                    @foreach (var runResult in context.RunValuesQ3)
+                    {
+                        <MudTd>@runResult</MudTd>
+                    }
+                    <MudTd>@context.MaxScoreQ3</MudTd>
+                    <MudTd>@GapToLeader(context.MaxScoreQ3)</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudTabPanel>
+    </MudTabs>
 }
 
 @code {
     [Parameter] public long RaceId { get; set; }
 
     public RaceModel RaceModel { get; set; }
+    public List<QualifyingDriver> Drivers { get; set; }
 
     // Two ways to do this: three different racedriver lists for each session
     // Alternatively make a custom class which has an identifier for which session the values are
@@ -79,7 +169,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        RaceModel = await _raceService.RetrieveRaceModel(RaceId);
+        RaceModel = await _raceService.RetrieveQualifyingModel(RaceId);
+        Drivers = RaceModel.RaceDrivers.Cast<QualifyingDriver>().ToList();
 
         loading = false;
     }
@@ -95,7 +186,7 @@ else
     {
         indexer = 0;
 
-        foreach (var driver in RaceModel.RaceDrivers)
+        foreach (var driver in RaceModel.OldRaceDrivers)
         {
             var randomResult = driver.Power + NumberHelper.RandomInt(maxRng);
             driver.RunValues[advancedRuns] = randomResult;
@@ -112,7 +203,7 @@ else
         var positionResults = new Dictionary<long, int>();
         var position = 0;
 
-        foreach (var driver in RaceModel.RaceDrivers.OrderByDescending(e => e.MaxScore))
+        foreach (var driver in RaceModel.OldRaceDrivers.OrderByDescending(e => e.MaxScore))
             positionResults.Add(driver.ResultId, ++position);
 
         await _raceService.PersistGridPositions(positionResults, RaceId);

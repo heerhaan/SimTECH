@@ -88,7 +88,7 @@
     private string exampleStore = "nothing stored yo";
     private string newExampleString = "this is a new example string for storage";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var storedExample = await LocalStorage.GetAsync<string>("example");
         exampleStore = storedExample.Success ? storedExample.Value : "yikes, really nothing stored yo";

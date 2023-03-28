@@ -8,8 +8,11 @@ namespace SimTECH.PageModels
         public Country Country { get; set; }
         public Weather Weather { get; set; }
 
-        public int AmountRuns { get; set; }
+        public int AmountRuns { get; set; }//Can be used for both runs in qualy and stints in race
 
-        public List<RaceDriver> RaceDrivers { get; set; }
+        public List<RaceDriver> OldRaceDrivers { get; set; }//ew delet
+        public List<DriverBase> RaceDrivers { get; set; }
+
+        public Season Season { get; set; }//pick values intead of whole object?
     }
 }

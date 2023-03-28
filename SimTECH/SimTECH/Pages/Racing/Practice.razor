@@ -10,7 +10,7 @@
 else
 {
     <MudContainer>
-        <MudTable Items="@RaceModel.RaceDrivers.OrderByDescending(e => e.MaxScore)">
+        <MudTable Items="@Drivers.OrderByDescending(e => e.MaxScore)">
             <ToolBarContent>
                 <MudText Typo="Typo.h6">
                     <CountryFlag Code="@RaceModel.Country" />
@@ -61,6 +61,7 @@ else
     [Parameter] public long RaceId { get; set; }
 
     public RaceModel RaceModel { get; set; }
+    public List<PracticeDriver> Drivers { get; set; }
 
     private bool loading = true;
     private int indexer = 0;
@@ -71,7 +72,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        RaceModel = await _raceService.RetrieveRaceModel(RaceId);
+        RaceModel = await _raceService.RetrievePracticeModel(RaceId);
+        Drivers = RaceModel.RaceDrivers.Cast<PracticeDriver>().ToList();
 
         loading = false;
     }
@@ -87,7 +89,7 @@ else
     {
         indexer = 0;
 
-        foreach (var driver in RaceModel.RaceDrivers)
+        foreach (var driver in Drivers)
         {
             var randomResult = driver.Power + NumberHelper.RandomInt(maxRng);
             driver.RunValues[advancedRuns] = randomResult;
@@ -104,7 +106,7 @@ else
         var positionResults = new Dictionary<long, int>();
         var position = 0;
 
-        foreach (var driver in RaceModel.RaceDrivers.OrderByDescending(e => e.MaxScore))
+        foreach (var driver in Drivers.OrderByDescending(e => e.MaxScore))
             positionResults.Add(driver.ResultId, ++position);
 
         await _raceService.PersistGridPositions(positionResults);

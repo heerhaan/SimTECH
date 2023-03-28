@@ -47,11 +47,12 @@
         </MudTabPanel>
 
         <MudTabPanel Text="Tyres">
-            <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-                <MudText Typo="Typo.h4">Tyres</MudText>
-                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTyre">New</MudButton>
-            </MudPaper>
             <MudDataGrid T="Tyre" Items="@TyreData" Bordered="true" Dense="true">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h4">Tyres</MudText>
+                    <MudSpacer />
+                    <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTyre">New</MudButton>
+                </ToolBarContent>
                 <Columns>
                     <PropertyColumn Property="e => e.Name" CellStyleFunc="_applyTyreColouring" />
                     <PropertyColumn Property="e => e.State" IsEditable="false" />
