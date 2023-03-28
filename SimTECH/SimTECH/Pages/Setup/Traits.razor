@@ -5,11 +5,12 @@
 <PageTitle>Traits</PageTitle>
 
 <MudContainer>
-    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-        <MudText Typo="Typo.h4">Traits</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrait">New</MudButton>
-    </MudPaper>
-    <MudDataGrid T="Trait" Items="TraitNames" Bordered="true" Dense="true">
+    <MudDataGrid T="Trait" Items="TraitNames" Bordered="true" Dense="true" Class="mt-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Traits</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrait">New</MudButton>
+        </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Trait" />
             <PropertyColumn Property="e => e.Name" />

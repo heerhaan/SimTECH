@@ -1,15 +1,17 @@
 ﻿@page "/leagues"
+
 @inject LeagueService LeagueService
 @inject IDialogService DialogService
 
 <PageTitle>Leagues</PageTitle>
 
 <MudContainer>
-    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-        <MudText Typo="Typo.h4">Leagues</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddLeague">New</MudButton>
-    </MudPaper>
-    <MudDataGrid T="League" Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true">
+    <MudDataGrid T="League" Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true" Class="my-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Leagues</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddLeague">New</MudButton>
+        </ToolBarContent>
         <Columns>
             <HierarchyColumn T="League" />
             <PropertyColumn Property="e => e.Name" />
@@ -50,13 +52,14 @@
 </MudContainer>
 
 @code {
-    private bool _loading = true;
     private DialogOptions dialogOptions = new()
     {
         MaxWidth = MaxWidth.ExtraLarge,
     };
     private List<League> LeagueData = new List<League>();
 
+    private bool _loading = true;
+    
     protected override async Task OnInitializedAsync()
     {
         LeagueData = await LeagueService.GetLeagues();

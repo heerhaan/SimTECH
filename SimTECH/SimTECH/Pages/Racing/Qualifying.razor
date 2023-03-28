@@ -9,6 +9,11 @@
 }
 else
 {
+    <MudTabs>
+        <MudTabPanel Text="Q1">
+
+        </MudTabPanel>
+    </MudTabs>
     <MudContainer>
         <MudTable Items="@RaceModel.RaceDrivers.OrderByDescending(e => e.MaxScore)">
             <ToolBarContent>
@@ -34,7 +39,8 @@ else
                 <MudTh>PWR</MudTh>
                 @for (int i = 1; i <= RaceModel.AmountRuns; i++)
                 {
-                    <MudTh>@i</MudTh>
+                    var j = i;
+                    <MudTh>@j</MudTh>
                 }
                 <MudTh>Score</MudTh>
                 <MudTh>Gap</MudTh>
@@ -60,6 +66,9 @@ else
     [Parameter] public long RaceId { get; set; }
 
     public RaceModel RaceModel { get; set; }
+
+    // Two ways to do this: three different racedriver lists for each session
+    // Alternatively make a custom class which has an identifier for which session the values are
 
     private bool loading = true;
     private int indexer = 0;

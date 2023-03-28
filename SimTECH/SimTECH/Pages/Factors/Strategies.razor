@@ -7,11 +7,12 @@
 <MudContainer>
     <MudTabs>
         <MudTabPanel Text="Strategies">
-            <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-                <MudText Typo="Typo.h4">Strategies</MudText>
-                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddStrategy">New</MudButton>
-            </MudPaper>
-            <MudDataGrid T="Strategy" Items="@StrategyData" Bordered="true" Dense="true">
+            <MudDataGrid T="Strategy" Items="@StrategyData" Bordered="true" Dense="true" Class="my-2">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h4">Strategies</MudText>
+                    <MudSpacer />
+                    <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddStrategy">New</MudButton>
+                </ToolBarContent>
                 <Columns>
                     <PropertyColumn Property="e => e.StintLength" />
                     <TemplateColumn>

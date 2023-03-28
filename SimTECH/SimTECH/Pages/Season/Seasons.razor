@@ -6,11 +6,12 @@
 <PageTitle>Seasons</PageTitle>
 
 <MudContainer>
-    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-        <MudText Typo="Typo.h4">Seasons</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="NewSeason">New</MudButton>
-    </MudPaper>
-    <MudDataGrid T="Season" Items="@SeasonData" Bordered="true" Dense="true">
+    <MudDataGrid T="Season" Items="@SeasonData" Bordered="true" Dense="true" Class="my-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Seasons</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="NewSeason">New</MudButton>
+        </ToolBarContent>
         <Columns>
             <PropertyColumn Property="e => e.Year" />
             <PropertyColumn Property="e => e.State" />

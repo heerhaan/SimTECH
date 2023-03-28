@@ -3,11 +3,12 @@
 @inject TeamService TeamService
 @inject IDialogService DialogService
 
-<MudContainer Class="d-flex justify-space-between pa-2 mx-2 my-2">
-    <MudText Typo="Typo.h4">Teams in season</MudText>
-    <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterTeam">New</MudButton>
-</MudContainer>
-<MudDataGrid T="SeasonTeam" Items="@SeasonTeamEntrants">
+<MudDataGrid T="SeasonTeam" Items="@SeasonTeamEntrants" Class="my-2">
+    <ToolBarContent>
+        <MudText Typo="Typo.h4">Teams in season</MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterTeam">New</MudButton>
+    </ToolBarContent>
     <Columns>
         <PropertyColumn Property="e => e.Name" CellStyleFunc="@_teamStyleFunc" />
         <TemplateColumn Title="Country">

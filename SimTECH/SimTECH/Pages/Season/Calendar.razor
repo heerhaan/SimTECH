@@ -4,54 +4,53 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudContainer>
-    <MudText Typo="Typo.h3">Races</MudText>
-
-    @if (Season.State == State.Concept)
-    {
-        <MudButtonGroup Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large">
-            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRace">Add new race</MudButton>
-            <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="CopyRace">Copy race</MudButton>
-        </MudButtonGroup>
-    }
-
-    <MudTable Items="RaceData">
-        <HeaderContent>
-            <MudTh>Round</MudTh>
-            <MudTh>Country</MudTh>
-            <MudTh>Name</MudTh>
-            <MudTh>Weather</MudTh>
-            <MudTh>Winning driver</MudTh>
-            <MudTh>Winning team</MudTh>
-            <MudTh>State</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>@context.Round</MudTd>
-            <MudTd>
-                <CountryFlag Code="context.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
-            </MudTd>
-            <MudTd>@context.Name</MudTd>
-            <MudTd>@context.Weather</MudTd>
-            <MudTd>TODO</MudTd>
-            <MudTd>TODO</MudTd>
-            <MudTd>@context.State</MudTd>
-            <MudTd>
-                <MudButtonGroup Size="@Size.Small">
-                    @if (Season.State == State.Concept)
-                    {
-                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context))" />
-                    }
-                    else if (Season.State == State.Active && (context.State == State.Active || context.Round == nextRound))
-                    {
-                        <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRaceWeek(context))" />
-                    }
-                </MudButtonGroup>
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
-</MudContainer>
+<MudTable Items="RaceData">
+    <ToolBarContent>
+        <MudText Typo="Typo.h3">Races</MudText>
+        <MudSpacer />
+        @if (Season.State == State.Concept)
+        {
+            <MudButtonGroup Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large">
+                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRace">Add new race</MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="CopyRace">Copy race</MudButton>
+            </MudButtonGroup>
+        }
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Round</MudTh>
+        <MudTh>Country</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Weather</MudTh>
+        <MudTh>Winning driver</MudTh>
+        <MudTh>Winning team</MudTh>
+        <MudTh>State</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Round</MudTd>
+        <MudTd>
+            <CountryFlag Code="context.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
+        </MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.Weather</MudTd>
+        <MudTd>TODO</MudTd>
+        <MudTd>TODO</MudTd>
+        <MudTd>@context.State</MudTd>
+        <MudTd>
+            <MudButtonGroup Size="@Size.Small">
+                @if (Season.State == State.Concept)
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context))" />
+                }
+                else if (Season.State == State.Active && (context.State == State.Active || context.Round == nextRound))
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRaceWeek(context))" />
+                }
+            </MudButtonGroup>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
 
 @code {
     [CascadingParameter] public Season Season { get; set; }

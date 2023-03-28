@@ -6,11 +6,12 @@
 <PageTitle>Drivers</PageTitle>
 
 <MudContainer>
-    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-        <MudText Typo="Typo.h4">Drivers</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddDriver">New</MudButton>
-    </MudPaper>
-    <MudDataGrid T="Driver" Items="@DriverData" ReadOnly="@_readOnly" Bordered="true" Dense="true">
+    <MudDataGrid T="Driver" Items="@DriverData" ReadOnly="@_readOnly" Bordered="true" Dense="true" Class="mt-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Drivers</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddDriver">New</MudButton>
+        </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Driver" />
             <PropertyColumn Property="e => e.FullName" />

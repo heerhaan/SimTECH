@@ -2,11 +2,12 @@
 @inject SeasonEntrantService EntrantService
 @inject IDialogService DialogService
 
-<MudContainer Class="d-flex justify-space-between pa-2 mx-2 my-2">
-    <MudText Typo="Typo.h4">In-season drivers</MudText>
-    <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterDriver">New</MudButton>
-</MudContainer>
-<MudDataGrid T="SeasonDriver" Items="SeasonDriverEntrants" Loading="_loading">
+<MudDataGrid T="SeasonDriver" Items="SeasonDriverEntrants" Loading="_loading" Class="my-2">
+    <ToolBarContent>
+        <MudText Typo="Typo.h4">In-season drivers</MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterDriver">New</MudButton>
+    </ToolBarContent>
     <Columns>
         <TemplateColumn Title="#" CellStyleFunc="@ViewHelper.DriverGradientStyleFunc">
             <CellTemplate>
