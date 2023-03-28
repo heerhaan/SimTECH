@@ -148,8 +148,8 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        // Quite the sizeable boi here
-        public async Task<RaceModel> RetrieveOldRaceModel(long raceId)
+        // Race, qualy and practice models are nearly the same but a generic solution did not came to me
+        public async Task<RaceModel> RetrieveRaceModel(long raceId)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -157,6 +157,8 @@ namespace SimTECH.Data.Services
                 .Include(e => e.Track)
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
+
+            var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
 
             var driverResults = await context.Result
                 .Where(e => e.RaceId == raceId)
@@ -185,9 +187,9 @@ namespace SimTECH.Data.Services
                 .Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id))
                 .ToList();
 
-            var raceDrivers = new List<RaceDriver>();//ungeneric
+            var raceDrivers = new List<RaceDriver>();
 
-            var amountRuns = 2;//ungeneric
+            var amountRuns = 2;
 
             foreach (var driverResult in driverResults)
             {
@@ -243,107 +245,13 @@ namespace SimTECH.Data.Services
 
                 AmountRuns = amountRuns,
 
-                OldRaceDrivers = raceDrivers,
-            };
-        }
-
-        public async Task<RaceModel> RetrievePracticeModel(long raceId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var race = await context.Race
-                .Include(e => e.Track)
-                    .ThenInclude(e => e.TrackTraits)
-                .SingleAsync(e => e.Id == raceId);
-
-            var driverResults = await context.Result
-                .Where(e => e.RaceId == raceId)
-                .ToListAsync();
-
-            var drivers = await context.SeasonDriver
-                .Include(e => e.Driver)
-                    .ThenInclude(e => e.DriverTraits)
-                .Where(e => e.SeasonId == race.SeasonId)
-                .ToListAsync();
-
-            var teams = await context.SeasonTeam
-                .Include(e => e.SeasonEngine)
-                .Include(e => e.Team)
-                    .ThenInclude(e => e.TeamTraits)
-                .Where(e => e.SeasonId == race.SeasonId)
-                .ToListAsync();
-
-            // Excludes wet traits if the race isn't wet either
-            var allTraits = await context.Trait
-                .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.IsWet)
-                .ToListAsync();
-
-            // Do we feel secure about these null refs?
-            var trackTraits = allTraits
-                .Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id))
-                .ToList();
-
-            var raceDrivers = new List<DriverBase>();//ungeneric
-
-            var amountRuns = 2;//ungeneric
-
-            foreach (var driverResult in driverResults)
-            {
-                var driverTraits = new List<Trait>(trackTraits);
-
-                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId);
-                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId);
-
-                if (driver == null)
-                    throw new InvalidOperationException("Could not find matching seasondriver for result");
-                if (team == null)
-                    throw new InvalidOperationException("Could not find matching seasonteam for result");
-
-                int baseSpeed = driver.Skill + team.BaseValue + team.SeasonEngine.Power;
-                double teamModifiers = (team.Aero * race.Track.AeroMod)
-                    + (team.Chassis * race.Track.ChassisMod)
-                    + (team.Powertrain * race.Track.PowerMod);
-
-                var driverPower = baseSpeed + teamModifiers.RoundDouble();
-
-                if (driver.Driver.DriverTraits?.Any() == true)
-                    driverTraits.AddRange(allTraits.Where(e => driver.Driver.DriverTraits.Select(dt => dt.TraitId).Contains(e.Id)));
-
-                if (team.Team.TeamTraits?.Any() == true)
-                    driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
-
-                //ungeneric
-                raceDrivers.Add(new PracticeDriver
-                {
-                    ResultId = driverResult.Id,
-                    FullName = driver.Driver.FullName,
-                    Number = driver.Number,
-                    Role = driver.TeamRole,
-                    Nationality = driver.Driver.Country,
-                    TeamName = team.Name,
-                    Colour = team.Colour,
-                    Accent = team.Accent,
-
-                    Power = driverPower,
-
-                    TraitEffect = NumberHelper.SumTraitEffects(driverTraits),
-                    RunValues = new int[amountRuns],
-                });
-            }
-
-            return new RaceModel
-            {
-                Name = race.Name,
-                Country = race.Track.Country,
-                Weather = race.Weather,
-
-                AmountRuns = amountRuns,
-
                 RaceDrivers = raceDrivers,
+
+                Season = season
             };
         }
 
-        public async Task<RaceModel> RetrieveQualifyingModel(long raceId)
+        public async Task<QualifyingModel> RetrieveQualifyingModel(long raceId)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -381,9 +289,9 @@ namespace SimTECH.Data.Services
                 .Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id))
                 .ToList();
 
-            var raceDrivers = new List<DriverBase>();//ungeneric
+            var raceDrivers = new List<QualifyingDriver>();
 
-            var amountRuns = 2;//ungeneric
+            var amountRuns = 2;
 
             foreach (var driverResult in driverResults)
             {
@@ -410,7 +318,6 @@ namespace SimTECH.Data.Services
                 if (team.Team.TeamTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
-                //ungeneric
                 raceDrivers.Add(new QualifyingDriver
                 {
                     ResultId = driverResult.Id,
@@ -431,7 +338,7 @@ namespace SimTECH.Data.Services
                 });
             }
 
-            return new RaceModel
+            return new QualifyingModel
             {
                 Name = race.Name,
                 Country = race.Track.Country,
@@ -439,12 +346,13 @@ namespace SimTECH.Data.Services
 
                 AmountRuns = amountRuns,
 
-                RaceDrivers = raceDrivers,
+                QualifyingDrivers = raceDrivers,
+
+                Season = season
             };
         }
 
-        private async Task<RaceModel> FillRaceModelBase<TDriver>(long raceId, List<DriverBase> participatingDrivers)
-            where TDriver : DriverBase
+        public async Task<PracticeModel> RetrievePracticeModel(long raceId)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -480,7 +388,9 @@ namespace SimTECH.Data.Services
                 .Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id))
                 .ToList();
 
-            var amountRuns = 2;//ungeneric
+            var practiceDrivers = new List<PracticeDriver>();
+
+            var amountRuns = 2;
 
             foreach (var driverResult in driverResults)
             {
@@ -508,7 +418,7 @@ namespace SimTECH.Data.Services
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
                 //ungeneric
-                participatingDrivers.Add(new DriverBase
+                practiceDrivers.Add(new PracticeDriver
                 {
                     ResultId = driverResult.Id,
                     FullName = driver.Driver.FullName,
@@ -526,7 +436,7 @@ namespace SimTECH.Data.Services
                 });
             }
 
-            return new RaceModel
+            return new PracticeModel
             {
                 Name = race.Name,
                 Country = race.Track.Country,
@@ -534,110 +444,12 @@ namespace SimTECH.Data.Services
 
                 AmountRuns = amountRuns,
 
-                RaceDrivers = participatingDrivers,
+                PracticeDrivers = practiceDrivers,
             };
         }
 
-        // TODO: model underneath is EH
-        public async Task<RaceModel> RetrieveRaceModel(long raceId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var race = await context.Race
-                .Include(e => e.Track)
-                    .ThenInclude(e => e.TrackTraits)
-                .SingleAsync(e => e.Id == raceId);
-
-            var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
-
-            var driverResults = await context.Result
-                .Where(e => e.RaceId == raceId)
-                .ToListAsync();
-
-            var drivers = await context.SeasonDriver
-                .Include(e => e.Driver)
-                    .ThenInclude(e => e.DriverTraits)
-                .Where(e => e.SeasonId == race.SeasonId)
-                .ToListAsync();
-
-            var teams = await context.SeasonTeam
-                .Include(e => e.SeasonEngine)
-                .Include(e => e.Team)
-                    .ThenInclude(e => e.TeamTraits)
-                .Where(e => e.SeasonId == race.SeasonId)
-                .ToListAsync();
-
-            // Excludes wet traits if the race isn't wet either
-            var allTraits = await context.Trait
-                .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.IsWet)
-                .ToListAsync();
-
-            // Do we feel secure about these null refs?
-            var trackTraits = allTraits
-                .Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id))
-                .ToList();
-
-            var raceDrivers = new List<DriverBase>();//ungeneric
-
-            var amountRuns = 2;//ungeneric
-
-            foreach (var driverResult in driverResults)
-            {
-                var driverTraits = new List<Trait>(trackTraits);
-
-                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId);
-                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId);
-
-                if (driver == null)
-                    throw new InvalidOperationException("Could not find matching seasondriver for result");
-                if (team == null)
-                    throw new InvalidOperationException("Could not find matching seasonteam for result");
-
-                int baseSpeed = driver.Skill + team.BaseValue + team.SeasonEngine.Power;
-                double teamModifiers = (team.Aero * race.Track.AeroMod)
-                    + (team.Chassis * race.Track.ChassisMod)
-                    + (team.Powertrain * race.Track.PowerMod);
-
-                var driverPower = baseSpeed + teamModifiers.RoundDouble();
-
-                if (driver.Driver.DriverTraits?.Any() == true)
-                    driverTraits.AddRange(allTraits.Where(e => driver.Driver.DriverTraits.Select(dt => dt.TraitId).Contains(e.Id)));
-
-                if (team.Team.TeamTraits?.Any() == true)
-                    driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
-
-                //ungeneric
-                raceDrivers.Add(new RaceDriver
-                {
-                    ResultId = driverResult.Id,
-                    FullName = driver.Driver.FullName,
-                    Number = driver.Number,
-                    Role = driver.TeamRole,
-                    Nationality = driver.Driver.Country,
-                    TeamName = team.Name,
-                    Colour = team.Colour,
-                    Accent = team.Accent,
-
-                    Power = driverPower,
-
-                    TraitEffect = NumberHelper.SumTraitEffects(driverTraits),
-                    RunValues = new int[amountRuns],
-                });
-            }
-
-            return new RaceModel
-            {
-                Name = race.Name,
-                Country = race.Track.Country,
-                Weather = race.Weather,
-
-                AmountRuns = amountRuns,
-
-                RaceDrivers = raceDrivers,
-
-                Season = season,
-            };
-        }
+        // TODO: I want to make the reacemodel more generic, but how?!
+        //private async Task<RaceModel> FillRaceModelBase<TDriver>(long raceId, List<DriverBase> participatingDrivers) { }
 
         #region single-purpose calls
         // TODO: LeagueID parameter

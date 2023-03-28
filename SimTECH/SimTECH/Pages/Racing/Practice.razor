@@ -10,14 +10,14 @@
 else
 {
     <MudContainer>
-        <MudTable Items="@Drivers.OrderByDescending(e => e.MaxScore)">
+        <MudTable Items="@PracticeModel.PracticeDrivers.OrderByDescending(e => e.MaxScore)">
             <ToolBarContent>
                 <MudText Typo="Typo.h6">
-                    <CountryFlag Code="@RaceModel.Country" />
-                    @RaceModel.Name - PRACTICE
+                    <CountryFlag Code="@PracticeModel.Country" />
+                    @PracticeModel.Name - PRACTICE
                 </MudText>
                 <MudSpacer />
-                @if (advancedRuns == RaceModel.AmountRuns)
+                @if (advancedRuns == PracticeModel.AmountRuns)
                 {
                     <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
                 }
@@ -32,7 +32,7 @@ else
                 <MudTh>Num</MudTh>
                 <MudTh>Team</MudTh>
                 <MudTh>PWR</MudTh>
-                @for (int i = 1; i <= RaceModel.AmountRuns; i++)
+                @for (int i = 1; i <= PracticeModel.AmountRuns; i++)
                 {
                     var j = i;
                     <MudTh>@j</MudTh>
@@ -60,8 +60,7 @@ else
 @code {
     [Parameter] public long RaceId { get; set; }
 
-    public RaceModel RaceModel { get; set; }
-    public List<PracticeDriver> Drivers { get; set; }
+    public PracticeModel PracticeModel { get; set; }
 
     private bool loading = true;
     private int indexer = 0;
@@ -72,8 +71,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        RaceModel = await _raceService.RetrievePracticeModel(RaceId);
-        Drivers = RaceModel.RaceDrivers.Cast<PracticeDriver>().ToList();
+        PracticeModel = await _raceService.RetrievePracticeModel(RaceId);
 
         loading = false;
     }
@@ -89,7 +87,7 @@ else
     {
         indexer = 0;
 
-        foreach (var driver in Drivers)
+        foreach (var driver in PracticeModel.PracticeDrivers)
         {
             var randomResult = driver.Power + NumberHelper.RandomInt(maxRng);
             driver.RunValues[advancedRuns] = randomResult;
@@ -106,7 +104,7 @@ else
         var positionResults = new Dictionary<long, int>();
         var position = 0;
 
-        foreach (var driver in Drivers.OrderByDescending(e => e.MaxScore))
+        foreach (var driver in PracticeModel.PracticeDrivers.OrderByDescending(e => e.MaxScore))
             positionResults.Add(driver.ResultId, ++position);
 
         await _raceService.PersistGridPositions(positionResults);

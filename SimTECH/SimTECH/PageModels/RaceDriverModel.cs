@@ -2,6 +2,7 @@
 
 namespace SimTECH.PageModels
 {
+    // Er is een betere manier om de sessies te implementeren maar ik weet even niet hoe
     public abstract class DriverBase
     {
         public long ResultId { get; set; }
