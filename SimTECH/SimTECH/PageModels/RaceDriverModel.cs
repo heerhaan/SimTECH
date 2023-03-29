@@ -1,4 +1,5 @@
 ﻿using SimTECH.Data.Models;
+using SimTECH.Extensions;
 
 namespace SimTECH.PageModels
 {
@@ -29,7 +30,7 @@ namespace SimTECH.PageModels
 
         // Properties underneath are optionable, depending on circumstances
         public int Position { get; set; }
-        public int Score { get; set; }
+        public int TotalScore { get; set; }
 
         public int MaxScore => RunValues.Max();//weg ermee... toch?... alhoewel FL?
     }
@@ -40,14 +41,21 @@ namespace SimTECH.PageModels
         public int[] RunValuesQ1 { get; set; }
         public int PositionQ1 { get; set; }
         public int MaxScoreQ1 => RunValuesQ1.Max();
+        public string DisplayGapQ1 { get; set; }
 
         public int[] RunValuesQ2 { get; set; }
         public int PositionQ2 { get; set; }
         public int MaxScoreQ2 => RunValuesQ2.Max();
+        public string DisplayGapQ2 { get; set; }
 
         public int[] RunValuesQ3 { get; set; }
         public int PositionQ3 { get; set; }
         public int MaxScoreQ3 => RunValuesQ3.Max();
+        public string DisplayGapQ3 { get; set; }
+
+        public int Position { get; set; }
+
+        public int GetQualifyingResult(int maxRng) => Power + TraitEffect.QualifyingPace + NumberHelper.RandomInt(maxRng);
     }
 
     public class PracticeDriver : DriverBase

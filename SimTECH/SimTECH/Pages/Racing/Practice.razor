@@ -10,7 +10,7 @@
 else
 {
     <MudContainer>
-        <MudTable Items="@PracticeModel.PracticeDrivers.OrderByDescending(e => e.MaxScore)">
+        <MudTable Items="@PracticeModel.PracticeDrivers.OrderBy(e => e.Position)">
             <ToolBarContent>
                 <MudText Typo="Typo.h6">
                     <CountryFlag Code="@PracticeModel.Country" />
@@ -41,7 +41,7 @@ else
                 <MudTh>Gap</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd>@(++indexer)</MudTd>
+                <MudTd>@context.Position</MudTd>
                 <MudTd>@context.FullName</MudTd>
                 <MudTd>@context.Number</MudTd>
                 <MudTd>@context.TeamName</MudTd>
@@ -63,7 +63,6 @@ else
     public PracticeModel PracticeModel { get; set; }
 
     private bool loading = true;
-    private int indexer = 0;
     private int advancedRuns = 0;
     private int maxRng = 30;
     private int highestScore = 0;
@@ -85,7 +84,7 @@ else
 
     private void Advance()
     {
-        indexer = 0;
+        var positionIndex = 0;
 
         foreach (var driver in PracticeModel.PracticeDrivers)
         {
@@ -96,16 +95,15 @@ else
                 highestScore = randomResult;
         }
 
+        foreach (var driver in PracticeModel.PracticeDrivers)
+            driver.Position = ++positionIndex;
+
         advancedRuns++;
     }
 
     private async Task Finish()
     {
-        var positionResults = new Dictionary<long, int>();
-        var position = 0;
-
-        foreach (var driver in PracticeModel.PracticeDrivers.OrderByDescending(e => e.MaxScore))
-            positionResults.Add(driver.ResultId, ++position);
+        var positionResults = PracticeModel.PracticeDrivers.ToDictionary(e => e.ResultId, e => e.Position);
 
         await _raceService.PersistGridPositions(positionResults);
 

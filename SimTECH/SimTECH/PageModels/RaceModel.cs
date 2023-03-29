@@ -23,6 +23,10 @@ namespace SimTECH.PageModels
         public List<QualifyingDriver> QualifyingDrivers { get; set; }
 
         public Season Season { get; set; }//pick values intead of whole object?
+
+        public int HighestScoreQ1() => QualifyingDrivers.Max(e => e.MaxScoreQ1);
+        public int HighestScoreQ2() => QualifyingDrivers.Max(e => e.MaxScoreQ2);
+        public int HighestScoreQ3() => QualifyingDrivers.Max(e => e.MaxScoreQ3);
     }
 
     public class PracticeModel : SessionBase
