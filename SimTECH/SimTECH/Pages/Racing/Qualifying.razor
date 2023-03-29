@@ -52,8 +52,9 @@ else
                 </RowTemplate>
             </MudTable>
         </MudTabPanel>
-        <MudTabPanel Text="Q2">
-            <MudTable Items="@QualifyingModel.QualifyingDrivers.OrderBy(e => e.PositionQ2)">
+        <MudTabPanel Text="Q2" Disabled="@(advancedQ1 != QualifyingModel.AmountRuns)">
+            @* Sorry to say this but this is fucking disguisting way to limit who gets loaded into the qualifying table *@
+            <MudTable Items="@QualifyingModel.QualifyingDrivers.OrderBy(e => e.Position).Take(QualifyingModel.Season.QualifyingAmountQ2).OrderBy(e => e.PositionQ2)">
                 <ToolBarContent>
                     <MudText>
                         <CountryFlag Code="@QualifyingModel.Country" />
@@ -94,8 +95,8 @@ else
                 </RowTemplate>
             </MudTable>
         </MudTabPanel>
-        <MudTabPanel Text="Q3">
-            <MudTable Items="@QualifyingModel.QualifyingDrivers.OrderBy(e => e.PositionQ3)">
+        <MudTabPanel Text="Q3" Disabled="@(advancedQ2 != QualifyingModel.AmountRuns)">
+            <MudTable Items="@QualifyingModel.QualifyingDrivers.OrderBy(e => e.Position).Take(QualifyingModel.Season.QualifyingAmountQ3).OrderBy(e => e.PositionQ3)">
                 <ToolBarContent>
                     <MudText>
                         <CountryFlag Code="@QualifyingModel.Country" />
@@ -148,17 +149,30 @@ else
 
     public QualifyingModel QualifyingModel { get; set; }
 
+    // big ass hmm about doing it like this tbh
+    // this also does not work yet
+    private List<SessionDriver> DriversInQ1 { get; set; }
+    private List<SessionDriver>? DriversInQ2 { get; set; }
+    private List<SessionDriver>? DriversInQ3 { get; set; }
+
     // Two ways to do this: three different racedriver lists for each session
     // Alternatively make a custom class which has an identifier for which session the values are
 
     private bool loading = true;
     private int advancedQ1, advancedQ2, advancedQ3 = 0;
-    private int maxRng = 30;
     private double gapMarge = 0.08;
 
     protected override async Task OnInitializedAsync()
     {
         QualifyingModel = await _raceService.RetrieveQualifyingModel(RaceId);
+        DriversInQ1 = QualifyingModel.QualifyingDrivers
+            .Select(e => 
+                e.CastDownwards(new SessionDriver
+                {
+                    SessionValues = new int[QualifyingModel.AmountRuns],
+                })
+            )
+            .ToList();
 
         loading = false;
     }
@@ -179,7 +193,7 @@ else
 
         var highestScore = QualifyingModel.HighestScoreQ1();
 
-        foreach (var driver in QualifyingModel.QualifyingDrivers)
+        foreach (var driver in QualifyingModel.QualifyingDrivers.OrderByDescending(e => e.MaxScoreQ1))
         {
             driver.Position = ++positionIndex;
             driver.PositionQ1 = positionIndex;
@@ -188,6 +202,14 @@ else
         }
 
         advancedQ1++;
+
+        if (advancedQ1 == QualifyingModel.AmountRuns)
+        {
+            DriversInQ2 = DriversInQ1.OrderBy(e => e.SessionPosition).Take(QualifyingModel.Season.QualifyingAmountQ2).ToList();
+
+            foreach (var driver in DriversInQ2)
+                driver.ResetSessionResult(QualifyingModel.AmountRuns);
+        }
     }
 
     private void AdvanceQ2()
@@ -199,7 +221,7 @@ else
 
         var highestScore = QualifyingModel.HighestScoreQ2();
 
-        foreach (var driver in QualifyingModel.QualifyingDrivers)
+        foreach (var driver in QualifyingModel.QualifyingDrivers.OrderByDescending(e => e.MaxScoreQ2))
         {
             driver.Position = ++positionIndex;
             driver.PositionQ2 = positionIndex;
@@ -208,6 +230,14 @@ else
         }
 
         advancedQ2++;
+
+        if (advancedQ2 == QualifyingModel.AmountRuns && DriversInQ2 != null)
+        {
+            DriversInQ3 = DriversInQ2.OrderBy(e => e.SessionPosition).Take(QualifyingModel.Season.QualifyingAmountQ3).ToList();
+
+            foreach (var driver in DriversInQ3)
+                driver.ResetSessionResult(QualifyingModel.AmountRuns);
+        }
     }
 
     private void AdvanceQ3()
@@ -219,7 +249,7 @@ else
 
         var highestScore = QualifyingModel.HighestScoreQ3();
 
-        foreach (var driver in QualifyingModel.QualifyingDrivers)
+        foreach (var driver in QualifyingModel.QualifyingDrivers.OrderByDescending(e => e.MaxScoreQ3))
         {
             driver.Position = ++positionIndex;
             driver.PositionQ3 = positionIndex;
@@ -237,5 +267,21 @@ else
         await _raceService.PersistGridPositions(positionResults, RaceId);
 
         Nav.NavigateTo("/raceweek/" + RaceId);
+    }
+
+    // Not used yet but I get the idea something like this could be used to implement a more generic solution in favour of hardcoded sessions
+    private class SessionDriver : QualifyingDriver
+    {
+        public int[] SessionValues { get; set; }
+        public int SessionPosition { get; set; }
+        public string LeaderGap { get; set; } = string.Empty;
+
+        public int MaxScore => SessionValues.Max();
+
+        public void ResetSessionResult(int runAmount)
+        {
+            SessionValues = new int[runAmount];
+            LeaderGap = string.Empty;
+        }
     }
 }

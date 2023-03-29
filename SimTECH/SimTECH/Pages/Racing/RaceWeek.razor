@@ -135,11 +135,11 @@ else
                             @if (ViewModel.Race.State == State.Active)
                             {
                                 <MudButton OnClick="GoToPractice">Prac</MudButton>
-                                <MudButton OnClick="TempButtonEvent">Qual</MudButton>
+                                <MudButton OnClick="GoToQualifying">Qual</MudButton>
                             }
                             else if (ViewModel.Race.State != State.Concept)
                             {
-                                <MudButton OnClick="TempButtonEvent">Race</MudButton>
+                                <MudButton OnClick="GoToRace">Race</MudButton>
                             }
                         </MudButtonGroup>
                     </MudPaper>
@@ -216,15 +216,14 @@ else
 
     private void TempButtonEvent() => Snackbar.Add("not implemented yet", Severity.Error);
 
-    private void GoToPractice()
-    {
-        Nav.NavigateTo($"/practice/{RaceId}");
-    }
+    private void GoToPractice() => Nav.NavigateTo($"/practice/{RaceId}");
+    private void GoToQualifying() => Nav.NavigateTo($"/qualifying/{RaceId}");
+    private void GoToRace() => Nav.NavigateTo($"/race/{RaceId}");
 
     async Task PickStrategy(long resultId)
     {
         var parameters = new DialogParameters 
-            { 
+            {
                 ["ResultId"] = resultId,
                 ["Strategies"] = ViewModel.AvailableStrategies,
             };
