@@ -24,15 +24,22 @@ namespace SimTECH.PageModels
 
     public class RaceDriver : DriverBase
     {
-        public Result Result { get; set; }//overwegend weg ermee?
+        public RaceStatus Status { get; set; }
+        public Incident Incident { get; set; }
 
-        public int[] RunValues { get; set; }//weg ermee... toch?
+        public int Grid { get; set; }
+        public int Setup { get; set; }
+        public int TyreLife { get; set; }
 
-        // Properties underneath are optionable, depending on circumstances
+        public Tyre CurrentTyre { get; set; }
+        public Strategy Strategy { get; set; }
+
         public int Position { get; set; }
-        public int TotalScore { get; set; }
+        public int[] StintScores { get; set; }
+        public int TotalScore => StintScores.Sum();
+        public string DisplayGap { get; set; }
 
-        public int MaxScore => RunValues.Max();//weg ermee... toch?... alhoewel FL?
+        public int MaxScore => StintScores.Max();//weg ermee... toch?... alhoewel FL?
     }
 
     public class QualifyingDriver : DriverBase

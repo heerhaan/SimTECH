@@ -124,14 +124,24 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task PersistGridPositions(Dictionary<long, int> driverPositions, long? raceToAdvance = null)
+        public async Task PersistGridPositions(Dictionary<long, int> driverPositions, long? raceToAdvance = null, int? maximumRace = null)
         {
             using var context = _dbFactory.CreateDbContext();
+
+            if (raceToAdvance != null && maximumRace == null)
+                throw new InvalidOperationException("oi fucker, include the maximum allowed too!");
 
             var driverResults = await context.Result.Where(e => driverPositions.Keys.Contains(e.Id)).ToListAsync();
 
             foreach (var result in driverResults)
-                result.Grid = driverPositions[result.Id];
+            {
+                var achievedPosition = driverPositions[result.Id];
+                result.Grid = achievedPosition;
+                result.Position = achievedPosition;
+
+                if (maximumRace != null)
+                    result.Status = achievedPosition > maximumRace.Value ? RaceStatus.Dnq : RaceStatus.Racing;
+            }
 
             context.UpdateRange(driverResults);
 
@@ -154,14 +164,18 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
+                .Include(e => e.Stints)
                 .Include(e => e.Track)
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
 
+            if (race.Stints?.Any() != true)
+                throw new InvalidOperationException("oi m8, get sum stints ya?");
+
             var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
 
             var driverResults = await context.Result
-                .Where(e => e.RaceId == raceId)
+                .Where(e => e.RaceId == raceId && e.Status != RaceStatus.Dnq)
                 .ToListAsync();
 
             var drivers = await context.SeasonDriver
@@ -182,14 +196,20 @@ namespace SimTECH.Data.Services
                 .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.IsWet)
                 .ToListAsync();
 
-            // Do we feel secure about these null refs?
-            var trackTraits = allTraits
-                .Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id))
-                .ToList();
+            var allStrategies = await context.Strategy
+                .Include(e => e.StrategyTyres)
+                    .ThenInclude(e => e.Tyre)
+                .ToListAsync();
+
+            List<Trait> trackTraits;
+            if (race.Track?.TrackTraits?.Any() == true)
+                trackTraits = allTraits.Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id)).ToList();
+            else
+                trackTraits = new();
 
             var raceDrivers = new List<RaceDriver>();
 
-            var amountRuns = 2;
+            var stintLength = race.Stints.Count;
 
             foreach (var driverResult in driverResults)
             {
@@ -216,7 +236,8 @@ namespace SimTECH.Data.Services
                 if (team.Team.TeamTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
-                //ungeneric
+                var driverStrategy = allStrategies.Single(e => e.Id == driverResult.StrategyId);
+
                 raceDrivers.Add(new RaceDriver
                 {
                     ResultId = driverResult.Id,
@@ -230,20 +251,28 @@ namespace SimTECH.Data.Services
 
                     Power = driverPower,
 
-                    Result = driverResult,
-
                     TraitEffect = NumberHelper.SumTraitEffects(driverTraits),
-                    RunValues = new int[amountRuns],
+
+                    Status = driverResult.Status,
+                    Incident = driverResult.Incident,
+                    Grid = driverResult.Grid,
+                    Setup = driverResult.Setup,
+                    TyreLife = driverResult.TyreLife,
+                    Strategy = driverStrategy,
+                    CurrentTyre = driverStrategy.StrategyTyres[0].Tyre,
+
+                    Position = driverResult.Position,
+                    StintScores = new int[stintLength],
                 });
             }
 
             return new RaceModel
             {
                 Name = race.Name,
-                Country = race.Track.Country,
+                Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
                 Weather = race.Weather,
 
-                AmountRuns = amountRuns,
+                AmountRuns = stintLength,
 
                 RaceDrivers = raceDrivers,
 

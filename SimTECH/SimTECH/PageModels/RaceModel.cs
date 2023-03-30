@@ -13,6 +13,8 @@ namespace SimTECH.PageModels
 
     public class RaceModel : SessionBase
     {
+        public int Round { get; set; }
+
         public List<RaceDriver> RaceDrivers { get; set; }
 
         public Season Season { get; set; }//pick values intead of whole object?
@@ -20,6 +22,8 @@ namespace SimTECH.PageModels
 
     public class QualifyingModel : SessionBase
     {
+        //public int MaximumInRace { get; set; }//see season prop
+
         public List<QualifyingDriver> QualifyingDrivers { get; set; }
 
         public Season Season { get; set; }//pick values intead of whole object?

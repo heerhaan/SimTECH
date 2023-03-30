@@ -1,7 +1,102 @@
 ﻿@page "/race/{RaceId:long}"
 
-<h3>Race</h3>
+@inject RaceService _raceService
+@inject NavigationManager Nav
+
+@if (!loading)
+{
+    <MudTable Items="@Model.RaceDrivers">
+        <ToolBarContent>
+            <MudText>
+                <CountryFlag Code="@Model.Country" />
+                @Model.Name - RACE @Model.Round
+            </MudText>
+            <MudText>@Model.Weather</MudText>
+            <MudSpacer />
+            @if (advancedStints == Model.AmountRuns)
+            {
+                <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
+            }
+            else
+            {
+                <MudButton Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
+            }
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh>Grid</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>No</MudTh>
+            <MudTh>Team</MudTh>
+            <MudTh>PWR</MudTh>
+            <MudTh>TYRE</MudTh>
+            @for (int i = 1; i <= Model.AmountRuns; i++)
+            {
+                var j = i;
+                <MudTh>@j</MudTh>
+            }
+            <MudTh>Score</MudTh>
+            <MudTh>Status</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Position</MudTd>
+            <MudTd>@context.Grid</MudTd>
+            <MudTd>
+                <CountryFlag Code="context.Nationality" Size="FlagSize.Small" />
+                @context.FullName
+            </MudTd>
+            <MudTd>@context.Number</MudTd>
+            <MudTd>@context.TeamName</MudTd>
+            <MudTd>@context.Power</MudTd>
+            <MudTd>@context.TyreLife</MudTd>
+            @foreach (var stintResult in context.StintScores)
+            {
+                <MudTd>@stintResult</MudTd>
+            }
+            <MudTd>@context.Position</MudTd>
+            <MudTd>
+                @if (context.Status != RaceStatus.Racing)
+                {
+                    <MudText>@context.Status</MudText>
+                }
+                else
+                {
+                    <MudText>@context.DisplayGap</MudText>
+                }
+            </MudTd>
+        </RowTemplate>
+        <FooterContent>
+            <MudTFootRow>
+                <MudTd colspan="20">
+
+                </MudTd>
+            </MudTFootRow>
+        </FooterContent>
+    </MudTable>
+}
 
 @code {
+    [Parameter] public long RaceId { get; set; }
 
+    public RaceModel Model { get; set; }
+
+    private bool loading = true;
+    private int advancedStints = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await _raceService.RetrieveRaceModel(RaceId);
+
+        loading = false;
+    }
+
+    private void Advance()
+    {
+
+    }
+
+    private void Finish()
+    {
+        
+    }
 }
