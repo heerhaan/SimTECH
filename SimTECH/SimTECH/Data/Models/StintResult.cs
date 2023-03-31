@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using SimTECH.PageModels;
+
+namespace SimTECH.Data.Models
 {
     public record StintResult
     {
@@ -13,5 +15,17 @@
         public Stint Stint { get; set; } = default!;
         public long ResultId { get; set; }
         public Result Result { get; set; } = default!;
+
+        public RaceStint ToRaceStint()
+        {
+            return new RaceStint
+            {
+                Order = Order,
+                Score = StintScore,
+                TotalScore = TotalScore,
+                Position = Position,
+                RacerEvents = RacerEvents,
+            };
+        }
     }
 }

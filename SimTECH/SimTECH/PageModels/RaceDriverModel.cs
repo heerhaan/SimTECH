@@ -18,8 +18,6 @@ namespace SimTECH.PageModels
         public string Accent { get; set; }
 
         public int Power { get; set; }
-
-        public TraitEffect TraitEffect { get; set; }
     }
 
     public class RaceDriver : DriverBase
@@ -33,23 +31,30 @@ namespace SimTECH.PageModels
 
         public Tyre CurrentTyre { get; set; }
         public Strategy Strategy { get; set; }
-        public Manufacturer Manufacturer { get; set; }
+
+        public int DriverPower { get; set; }
+        public int CarPower { get; set; }
+        public int EnginePower { get; set; }
+        public int DriverReliability { get; set; }
+        public int CarReliability { get; set; }
+        public int EngineReliability { get; set; }
+        public int WearMaxMod { get; set; }
+        public int WearMinMod { get; set; }
+        public int RngMinMod { get; set; }
+        public int RngMaxMod { get; set; }
 
         public int Position { get; set; }
-        public int[] StintScores { get; set; }
-        public int TotalScore => StintScores.Sum();
+        public int RaceScore { get; set; }
         public string DisplayGap { get; set; }
 
         public List<RaceStint> RaceStints { get; set; } = new();
-
-        public int MaxScore => StintScores.Max();//weg ermee... toch?... alhoewel FL?
     }
 
     public class RaceStint
     {
         public int Order { get; set; }
         public int Score { get; set; }
-        //public int TotalScore { get; set; }
+        public int TotalScore { get; set; }
         public int Position { get; set; }
         public RacerEvent RacerEvents { get; set; }
     }
@@ -73,6 +78,8 @@ namespace SimTECH.PageModels
         public string DisplayGapQ3 { get; set; }
 
         public int Position { get; set; }
+
+        public TraitEffect TraitEffect { get; set; }
 
         public int GetQualifyingResult(int maxRng) => Power + TraitEffect.QualifyingPace + NumberHelper.RandomInt(maxRng);
     }

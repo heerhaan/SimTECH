@@ -42,7 +42,7 @@ namespace SimTECH.Data.Services
 
             return await context.Race
                 .Include(e => e.Track)
-                .Where(e => e.SeasonId == seasonId && (e.State == State.Concept || e.State == State.Active))
+                .Where(e => e.SeasonId == seasonId && (e.State == State.Concept || e.State == State.Active || e.State == State.Advanced))
                 .OrderBy(e => e.Round)
                 .FirstOrDefaultAsync();
         }
@@ -201,6 +201,8 @@ namespace SimTECH.Data.Services
                     .ThenInclude(e => e.Tyre)
                 .ToListAsync();
 
+            var allManufacturers = await context.Manufacturer.ToListAsync();
+
             List<Trait> trackTraits;
             if (race.Track?.TrackTraits?.Any() == true)
                 trackTraits = allTraits.Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id)).ToList();
@@ -211,19 +213,27 @@ namespace SimTECH.Data.Services
 
             var stintLength = race.Stints.Count;
 
+            // TODO: read the following from the config
+            const double engineMultiplier = 0.9;
+            const int weatherRng = 0;
+            const int weatherDnf = 0;
+
             foreach (var driverResult in driverResults)
             {
                 var driverTraits = new List<Trait>(trackTraits);
 
-                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId);
-                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId);
+                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId)
+                    ?? throw new InvalidOperationException("Could not find matching seasondriver for result");
+                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId)
+                    ?? throw new InvalidOperationException("Could not find matching seasonteam for result");
+                var manufacturer = allManufacturers.Find(e => e.Id == team.ManufacturerId)
+                    ?? throw new InvalidOperationException("Could not find matching manufacturer for driver");
+                var strategy = allStrategies.Find(e => e.Id == driverResult.StrategyId)
+                    ?? throw new InvalidOperationException("Could not find the strategy for driver");
 
-                if (driver == null)
-                    throw new InvalidOperationException("Could not find matching seasondriver for result");
-                if (team == null)
-                    throw new InvalidOperationException("Could not find matching seasonteam for result");
+                var enginePower = (team.SeasonEngine.Power * engineMultiplier).RoundDouble();
 
-                int baseSpeed = driver.Skill + team.BaseValue + team.SeasonEngine.Power;
+                int baseSpeed = driver.Skill + team.BaseValue + enginePower;
                 double teamModifiers = (team.Aero * race.Track.AeroMod)
                     + (team.Chassis * race.Track.ChassisMod)
                     + (team.Powertrain * race.Track.PowerMod);
@@ -232,11 +242,10 @@ namespace SimTECH.Data.Services
 
                 if (driver.Driver.DriverTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => driver.Driver.DriverTraits.Select(dt => dt.TraitId).Contains(e.Id)));
-
                 if (team.Team.TeamTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
-                var driverStrategy = allStrategies.Single(e => e.Id == driverResult.StrategyId);
+                var sumTraits = NumberHelper.SumTraitEffects(driverTraits);
 
                 raceDrivers.Add(new RaceDriver
                 {
@@ -251,18 +260,29 @@ namespace SimTECH.Data.Services
 
                     Power = driverPower,
 
-                    TraitEffect = NumberHelper.SumTraitEffects(driverTraits),
-
                     Status = driverResult.Status,
                     Incident = driverResult.Incident,
+
                     Grid = driverResult.Grid,
                     Setup = driverResult.Setup,
                     TyreLife = driverResult.TyreLife,
-                    Strategy = driverStrategy,
-                    CurrentTyre = driverStrategy.StrategyTyres[0].Tyre,
+
+                    Strategy = strategy,
+                    CurrentTyre = strategy.StrategyTyres[0].Tyre,
+
+                    DriverPower = sumTraits.DriverPace + driver.Skill,
+                    CarPower = sumTraits.CarPace + team.BaseValue + teamModifiers.RoundDouble() + RetrieveStatusBonus(driver),
+                    EnginePower = sumTraits.EnginePace + enginePower,
+                    DriverReliability = sumTraits.DriverReliability + driver.Reliability + weatherDnf,
+                    CarReliability = sumTraits.CarReliability + team.Reliability,
+                    EngineReliability = sumTraits.EngineReliability + team.SeasonEngine.Reliability,
+                    WearMaxMod = sumTraits.WearMaximum + manufacturer.WearMax,
+                    WearMinMod = sumTraits.WearMinimum + manufacturer.WearMin,
+                    RngMinMod = sumTraits.MinRNG + manufacturer.Pace,
+                    RngMaxMod = sumTraits.MaxRNG + manufacturer.Pace + weatherRng,
 
                     Position = driverResult.Position,
-                    StintScores = new int[stintLength],
+                    RaceStints = driverResult.StintResults?.Select(e => e.ToRaceStint()).ToList() ?? new(),
                 });
             }
 
@@ -271,6 +291,8 @@ namespace SimTECH.Data.Services
                 Name = race.Name,
                 Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
                 Weather = race.Weather,
+                Round = race.Round,
+                Stints = race.Stints.ToList(),
 
                 AmountRuns = stintLength,
 
@@ -278,6 +300,17 @@ namespace SimTECH.Data.Services
 
                 Season = season
             };
+        }
+
+        // TODO: function can probably be placed elsewhere where it fits better
+        private static int RetrieveStatusBonus(SeasonDriver driver)
+        {
+            if (driver.TeamRole == TeamRole.Main)
+                return 2;
+            else if (driver.TeamRole == TeamRole.Support)
+                return -2;
+
+            return 0;
         }
 
         public async Task<QualifyingModel> RetrieveQualifyingModel(long raceId)
@@ -442,11 +475,9 @@ namespace SimTECH.Data.Services
 
                 if (driver.Driver.DriverTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => driver.Driver.DriverTraits.Select(dt => dt.TraitId).Contains(e.Id)));
-
                 if (team.Team.TeamTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
-                //ungeneric
                 practiceDrivers.Add(new PracticeDriver
                 {
                     ResultId = driverResult.Id,
@@ -460,7 +491,6 @@ namespace SimTECH.Data.Services
 
                     Power = driverPower,
 
-                    TraitEffect = NumberHelper.SumTraitEffects(driverTraits),
                     RunValues = new int[amountRuns],
                 });
             }

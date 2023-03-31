@@ -9,6 +9,11 @@ namespace SimTECH.Extensions
             return $"background: linear-gradient(to top left, var(--mud-palette-surface) 49.5%, {colour} 50.5%); color: {accent}";
         }
 
+        public static string GetTeamSimpleStyle(string colour)
+        {
+            return $"border-right:solid 10px {colour};";
+        }
+
         public static Func<SeasonDriver, string> DriverGradientStyleFunc => driver =>
         {
             if (driver.SeasonTeam is null)
