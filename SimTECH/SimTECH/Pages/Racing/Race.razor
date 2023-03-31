@@ -13,7 +13,7 @@
             </MudText>
             <MudText>@Model.Weather</MudText>
             <MudSpacer />
-            @if (advancedStints == Model.AmountRuns)
+            @if (currentStint == Model.AmountRuns)
             {
                 <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
             }
@@ -30,10 +30,9 @@
             <MudTh>Team</MudTh>
             <MudTh>PWR</MudTh>
             <MudTh>TYRE</MudTh>
-            @for (int i = 1; i <= Model.AmountRuns; i++)
+            @foreach (var stint in Model.Stints.OrderBy(e => e.Order))
             {
-                var j = i;
-                <MudTh>@j</MudTh>
+                <MudTh>@stint.Order</MudTh>
             }
             <MudTh>Score</MudTh>
             <MudTh>Status</MudTh>
@@ -49,9 +48,17 @@
             <MudTd>@context.TeamName</MudTd>
             <MudTd>@context.Power</MudTd>
             <MudTd>@context.TyreLife</MudTd>
-            @foreach (var stintResult in context.StintScores)
+            @foreach (var stint in Model.Stints.OrderBy(e => e.Order))
             {
-                <MudTd>@stintResult</MudTd>
+                var driverStint = context.RaceStints.Find(e => e.Order == stint.Order);
+                if (driverStint != null)
+                {
+                    <MudTd>@driverStint.Score</MudTd>
+                }
+                else
+                {
+                    <MudTd>-</MudTd>
+                }
             }
             <MudTd>@context.Position</MudTd>
             <MudTd>
@@ -81,22 +88,61 @@
     public RaceModel Model { get; set; }
 
     private bool loading = true;
-    private int advancedStints = 0;
+    private int currentStint = 0;
 
     protected override async Task OnInitializedAsync()
     {
         Model = await _raceService.RetrieveRaceModel(RaceId);
+
+        if (Model.RaceDrivers.First().RaceStints.Any())
+            currentStint = DetermineCurrentStint();
 
         loading = false;
     }
 
     private void Advance()
     {
+        // Determine which stint it currently is
+        var raceStint = Model.Stints.Find(e => e.Order == (++currentStint));
 
+        // Determine the values which impact the race like: weather and it's multipliers
+        // Remember that track traits are already calculated in the traiteffect
+
+        // Iterate through all still running drivers
+        foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
+        {
+            // Add a new stint result object which complements their order, read from racestint for this
+
+            // Check reliability
+
+            // Calculate stintscore
+            // Mistake
+            // Strategy
+            // ApplyDriver
+            // ApplyTeam
+            // ApplyEngine
+            // Determine new positions (keep team role in mind here!)
+        }
+
+        // If the result isn't automatically added, consider using StateHasChanged()
+
+        // Persist the new stint results, yes after doing all whats needed to show them
+    }
+
+    private void PersistStintResults()
+    {
+        
     }
 
     private void Finish()
     {
-        
+
     }
+
+    private int DetermineCurrentStint()
+    {
+        return Model.RaceDrivers.SelectMany(e => e.RaceStints).Max(e => e.Order);
+    }
+
+    private static int GetQualifyingBonus(int grid, int driverCount, int bonus) => (driverCount * bonus) - ((grid - 1) * bonus);
 }

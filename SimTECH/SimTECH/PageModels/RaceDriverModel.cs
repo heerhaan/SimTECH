@@ -33,13 +33,25 @@ namespace SimTECH.PageModels
 
         public Tyre CurrentTyre { get; set; }
         public Strategy Strategy { get; set; }
+        public Manufacturer Manufacturer { get; set; }
 
         public int Position { get; set; }
         public int[] StintScores { get; set; }
         public int TotalScore => StintScores.Sum();
         public string DisplayGap { get; set; }
 
+        public List<RaceStint> RaceStints { get; set; } = new();
+
         public int MaxScore => StintScores.Max();//weg ermee... toch?... alhoewel FL?
+    }
+
+    public class RaceStint
+    {
+        public int Order { get; set; }
+        public int Score { get; set; }
+        //public int TotalScore { get; set; }
+        public int Position { get; set; }
+        public RacerEvent RacerEvents { get; set; }
     }
 
     public class QualifyingDriver : DriverBase
