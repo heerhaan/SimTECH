@@ -48,6 +48,10 @@ namespace SimTECH.PageModels
         public string DisplayGap { get; set; }
 
         public List<RaceStint> RaceStints { get; set; } = new();
+
+        public List<int> LapScores { get; set; } = new();
+
+        public int LapSum => LapScores.Sum();
     }
 
     public class RaceStint

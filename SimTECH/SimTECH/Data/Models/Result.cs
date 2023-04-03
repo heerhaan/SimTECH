@@ -21,5 +21,7 @@
         public Strategy Strategy { get; set; } = default!;
 
         public IList<StintResult>? StintResults { get; set; }
+
+        public IList<LapScore> LapScores { get; set; } = new List<LapScore>();
     }
 }

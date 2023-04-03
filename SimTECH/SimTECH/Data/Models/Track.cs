@@ -10,7 +10,8 @@
 
         public double AeroMod { get; set; }
         public double ChassisMod { get; set; }
-        public double PowerMod { get; set; }
+        //public double GearMod { get; set; }
+        public double PowerMod { get; set; }//should be used for the engine
         public double QualifyingMod { get; set; }
 
         public IList<Race>? Races { get; set; }
