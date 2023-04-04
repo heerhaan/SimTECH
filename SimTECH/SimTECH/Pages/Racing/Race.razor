@@ -6,16 +6,16 @@
 
 @if (!loading)
 {
-    <MudTable Items="@Model.RaceDrivers.OrderBy(e => e.Position)" Dense="true" HorizontalScrollbar="false" Style="width: 1600px">
+    <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" Style="width: 1600px">
         <ToolBarContent>
             <MudText>
                 <CountryFlag Code="@Model.Country" />
-                @Model.Name - RACE ROUND @Model.Round
+                @Model.Name - LAPRACE ROUND @Model.Round
             </MudText>
-            <MudText>weater: @Model.Weather</MudText>
-            <MudText>next stint: @currentStint</MudText>
-            <MudSpacer />
-            @if (currentStint == Model.AmountRuns)
+            <MudText>weather: @Model.Weather</MudText>
+            <MudText>Laps = @(lapsRaced) / @(lapCount)</MudText>
+                <MudSpacer />
+                @if (lapsRaced == lapCount)
             {
                 <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
             }
@@ -32,11 +32,11 @@
             <MudTh Style="min-width: 220px">Team</MudTh>
             <MudTh Style="width: 30px">PWR</MudTh>
             <MudTh Style="width: 50px">TYRE</MudTh>
-            @foreach (var stint in Model.Stints.OrderBy(e => e.Order))
+            @for (int i = 1; i <= 5; i++)
             {
-                <MudTh Style="width: 30px">@stint.Order</MudTh>
+                var j = i;
+                <MudTh Style="width: 30px">@j</MudTh>
             }
-            <MudTh Style="min-width: 100px">Score</MudTh>
             <MudTh Style="min-width: 100px">Status</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -52,34 +52,16 @@
             <MudTd Style="@(ViewHelper.GetTeamSimpleStyle(context.Colour))">
                 @context.TeamName
             </MudTd>
-            <MudTd>@context.Power</MudTd>
+            <MudTd>@context.Power [@(context.NormalizedPower)]</MudTd>
             <MudTd>
                 <span class="tyre" style="border-color:@(context.CurrentTyre.Colour)">
                     @context.TyreLife
                 </span>
             </MudTd>
-            @foreach (var stint in Model.Stints.OrderBy(e => e.Order))
+            @for (int i = 1; i <= 5; i++)
             {
-                var driverStint = context.RaceStints.Find(e => e.Order == stint.Order);
-                if (driverStint != null)
-                {
-                    <MudTd>@driverStint.Score</MudTd>
-                }
-                else
-                {
-                    <MudTd>-</MudTd>
-                }
+                <MudTd>-</MudTd>
             }
-            <MudTd>
-                @if (context.Status == RaceStatus.Racing)
-                {
-                    <MudText>@context.RaceScore</MudText>
-                }
-                else
-                {
-                    <MudText>@context.Status</MudText>
-                }
-            </MudTd>
             <MudTd>
                 @if (context.Status == RaceStatus.Racing)
                 {
@@ -87,7 +69,7 @@
                 }
                 else
                 {
-                    <MudText>@context.Incident</MudText>
+                    <MudText Color="Color.Error">@context.Incident</MudText>
                 }
             </MudTd>
         </RowTemplate>
@@ -108,52 +90,38 @@
     public RaceModel Model { get; set; }
 
     private bool loading = true;
-    private int currentStint = 0;
 
+    private int lapsRaced = 0;
+    private int lapCount = 50;
+    private int raceMinRng = 0;
+    private int raceMaxRng = 10 * 50; //10*lapcount
     private int disqualifyChance = (100 / 4); // means 1/25 chance of DSQ | should read from config
     private int mistakeRolls = 2;
-    private int mistakeMinCost = -30;
-    private int mistakeMaxCost = -20;
+    private int mistakeMinCost;
+    private int mistakeMaxCost;
     private double gapMarge = 0.28;
 
     protected override async Task OnInitializedAsync()
     {
         Model = await _raceService.RetrieveRaceModel(RaceId);
 
-        if (Model.RaceDrivers.First().RaceStints.Any())
-            currentStint = DetermineCurrentStint();
+        mistakeMinCost = -30 * lapCount;
+        mistakeMaxCost = -20 * lapCount;
 
         loading = false;
     }
 
     private void Advance()
     {
-        var nextStint = currentStint;
-
-        // Determine which stint it currently is
-        var raceStint = Model.Stints.Find(e => e.Order == nextStint);
-
-        if (raceStint == null)
-        {
-            Snackbar.Add($"Couldn't find the upcoming stint {currentStint--} for this race, how weird!", Severity.Error);
-            return;
-        }
+        int advanceLaps = 10;
 
         // Determine the values which impact the race like: weather and it's multipliers (configuration innit?)
 
         // Iterate through all still running drivers
         foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
         {
-            // Add a new stint result object which complements their order, read from racestint for this
-            var driverStint = new RaceStint
-            {
-                Order = raceStint.Order,
-                TotalScore = driver.RaceScore,
-                RacerEvents = RacerEvent.Racing,
-            };
-
             // Check reliability
-            if (raceStint.StintEvents.HasFlag(StintEvent.Reliability))
+            if (ShouldCheckReliability())
             {
                 var wouldDisqualify = NumberHelper.RandomInt(disqualifyChance) == 0;
 
@@ -162,84 +130,90 @@
                     driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
                     driver.Incident = wouldDisqualify ? Incident.Dangerous : Incident.Damage;
 
-                    driverStint.RacerEvents = RacerEvent.DriverDnf;
-                    driverStint.Score = wouldDisqualify ? -2000 : -1000;
+                    //lapResult = wouldDisqualify ? -100000 : -50000;
                 }
                 else if (DidReliabilityFail(driver.CarReliability))
                 {
                     driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
                     driver.Incident = wouldDisqualify ? Incident.Illegal : Incident.Clutch;
 
-                    driverStint.RacerEvents = RacerEvent.CarDnf;
-                    driverStint.Score = wouldDisqualify ? -2000 : -1000;
+                    //lapResult = wouldDisqualify ? -100000 : -50000;
                 }
                 else if (DidReliabilityFail(driver.EngineReliability))
                 {
                     driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
                     driver.Incident = wouldDisqualify ? Incident.Fuel : Incident.Engine;
 
-                    driverStint.RacerEvents = RacerEvent.EngineDnf;
-                    driverStint.Score = wouldDisqualify ? -2000 : -1000;
+                    //lapResult = wouldDisqualify ? -100000 : -50000;
                 }
             }
 
-            // Calculate stintscore
+            // Calculate score
             if (driver.Status == RaceStatus.Racing)
             {
-                var stintScore = NumberHelper.RandomInt((raceStint.RngMin + driver.RngMinMod), (raceStint.RngMax + driver.RngMaxMod));
+                // Always multiply rng with the given lap count, add power to every lap (thats why we do that now otherwise weird calc moment inbound)
+                // probs not best to calculate this here
+                var minRng = (raceMinRng + driver.RngMinMod);
+                var maxRng = (raceMaxRng + driver.RngMaxMod);
 
-                // Mistake
-                var mistake = false;
-                for (int i = 0; i < mistakeRolls; i++)
+                for (int j = 0; j < advanceLaps; j++)
                 {
-                    mistake = DidReliabilityFail(driver.DriverReliability);
-                    if (!mistake)
-                        break;
+                    int lapResult = NumberHelper.RandomInt(minRng, maxRng);
+
+                    // Mistake
+                    var mistake = false;
+                    for (int i = 0; i < mistakeRolls; i++)
+                    {
+                        mistake = DidReliabilityFail(driver.DriverReliability);
+                        if (!mistake)
+                            break;
+                    }
+
+                    if (mistake)
+                    {
+                        lapResult += NumberHelper.RandomInt(mistakeMinCost, mistakeMaxCost);
+                        //driverStint.RacerEvents |= RacerEvent.Mistake;
+                    }
+
+                    // TODO: Strategy
+                    if (driver.WearMinMod <= driver.WearMaxMod)
+                        driver.WearMinMod = driver.WearMaxMod + 1;
+
+                    driver.TyreLife += NumberHelper.RandomInt(driver.WearMaxMod, driver.WearMinMod);
+
+                    // ApplyDriver
+                    //lapResult += driver.DriverPower;
+                    // ApplyTeam
+                    //lapResult += driver.CarPower;
+                    // ApplyEngine
+                    //lapResult += driver.EnginePower;
+
+                    lapResult += driver.NormalizedPower;
+
+                    driver.LapScores.Add(lapResult);
                 }
-
-                if (mistake)
-                {
-                    stintScore += NumberHelper.RandomInt(mistakeMinCost, mistakeMaxCost);
-                    driverStint.RacerEvents |= RacerEvent.Mistake;
-                }
-
-                // TODO: Strategy
-                if (driver.WearMinMod <= driver.WearMaxMod)
-                    driver.WearMinMod = driver.WearMaxMod + 1;
-
-                driver.TyreLife += NumberHelper.RandomInt(driver.WearMaxMod, driver.WearMinMod);
-
-                // ApplyDriver
-                if (raceStint.StintEvents.HasFlag(StintEvent.Driver))
-                    stintScore += driver.DriverPower;
-
-                // ApplyTeam
-                if (raceStint.StintEvents.HasFlag(StintEvent.Car))
-                    stintScore += driver.CarPower;
-
-                // ApplyEngine
-                if (raceStint.StintEvents.HasFlag(StintEvent.Engine))
-                    stintScore += driver.EnginePower;
-
-                driverStint.Score = stintScore;
             }
-
-            driverStint.TotalScore += driverStint.Score;
-            driver.RaceScore = driverStint.TotalScore;
-            driver.RaceStints.Add(driverStint);
         }
+
+        lapsRaced += advanceLaps;
 
         // Determine new positions (keep team role in mind here!)
         DeterminePositions();
 
         // Persist the new stint results, yes after doing all whats needed to show them
-
-        currentStint++;
     }
 
-    private int DetermineCurrentStint()
+    private bool ShouldCheckReliability()
     {
-        return Model.RaceDrivers.SelectMany(e => e.RaceStints).Max(e => e.Order);
+        if (lapsRaced == 0)
+            return true;
+        if (lapCount == lapsRaced)
+            return true;
+
+        // More instances when one should check reliablity?
+        // Maybe a different way to determine these checks?
+
+        return false;
     }
 
     private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(100) >= reliability;
@@ -247,12 +221,12 @@
     private void DeterminePositions()
     {
         var position = 0;
-        var highestScore = Model.RaceDrivers.Max(e => e.RaceScore);
+        var highestScore = Model.RaceDrivers.Max(e => e.LapSum);
 
-        foreach (var driver in Model.RaceDrivers.OrderByDescending(e => e.RaceScore))
+        foreach (var driver in Model.RaceDrivers.OrderByDescending(e => e.LapSum))
         {
             driver.Position = ++position;
-            driver.DisplayGap = GapToLeader(driver.RaceScore, highestScore);
+            driver.DisplayGap = GapToLeader(driver.LapSum, highestScore);
         }
 
         // Apply the whole thing here where main/support matters

@@ -15,7 +15,6 @@ namespace SimTECH.PageModels
     {
         public int Round { get; set; }
 
-        public List<Stint> Stints { get; set; }
         public List<RaceDriver> RaceDrivers { get; set; }
 
         public Season Season { get; set; }//pick values intead of whole object?

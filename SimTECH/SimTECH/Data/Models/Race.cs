@@ -15,7 +15,6 @@ namespace SimTECH.Data.Models
         public long TrackId { get; set; }
         public Track Track { get; set; } = default!;
 
-        public IList<Stint>? Stints { get; set; }
         public IList<Penalty>? Penalties { get; set; }
         public IList<Result>? Results { get; set; }
 

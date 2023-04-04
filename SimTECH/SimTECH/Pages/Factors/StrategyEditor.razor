@@ -11,7 +11,6 @@
                     <MudTable T="EditStrategyTyreModel" Items="@model.StrategyTyres">
                         <HeaderContent>
                             <MudTh>Tyre</MudTh>
-                            <MudTh>Apply in Stint Nr.</MudTh>
                             <MudTh></MudTh>
                         </HeaderContent>
                         <RowTemplate>
@@ -20,9 +19,6 @@
                                     @context.Tyre.Name.ElementAt(0)
                                 </span>
                                 </MudTd>
-                            <MudTd DataLabel="NumberStint">
-                                <MudNumericField T="int" @bind-Value="context.NumberStint" />
-                            </MudTd>
                             <MudTd>
                                 <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveTyreFromStrategy(context))" />
                             </MudTd>
@@ -70,16 +66,11 @@
 
     private EditStrategyModel model = new();
 
-    private int lastStintNumber = 0;
-
     protected override void OnInitialized()
     {
         if (Strategy != null)
         {
             model = new EditStrategyModel(Strategy);
-
-            if(model.StrategyTyres.Any())
-                lastStintNumber = model.StrategyTyres.Max(e => e.NumberStint);
         }
     }
 
@@ -89,29 +80,21 @@
 
         var appendedStrategyTyre = new EditStrategyTyreModel
         {
-            NumberStint = lastStintNumber,
             TyreId = tyre.Id,
             Tyre = tyre,
             StrategyId = model.Id
         };
-
-        lastStintNumber += tyre.Length;
 
         model.StrategyTyres.Add(appendedStrategyTyre);
     }
 
     private void RemoveTyreFromStrategy(EditStrategyTyreModel strategyTyre)
     {
-        if (strategyTyre.Tyre != null)
-            lastStintNumber -= strategyTyre.Tyre.Length;
-
         model.StrategyTyres.Remove(strategyTyre);
     }
 
     private void Submit()
     {
-        model.StintLength = model.StrategyTyres.Sum(e => e.Tyre?.Length ?? 0);
-
         if (model.IsDirty)
         {
             var modStrategy = model.Record;

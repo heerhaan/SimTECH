@@ -31,7 +31,6 @@ namespace SimTECH.Data.Services
 
             return await context.Race
                 .Include(e => e.Track)
-                .Include(e => e.Stints)
                 .Include(e => e.Penalties)
                 .SingleAsync(e => e.Id == raceId);
         }
@@ -64,7 +63,6 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
-                .Include(e => e.Stints)
                 .SingleAsync(e => e.Id == raceId);
 
             if (race.State != State.Concept)
@@ -77,7 +75,6 @@ namespace SimTECH.Data.Services
             var strategiesForRace = await context.Strategy
                 .Include(e => e.StrategyTyres)
                     .ThenInclude(e => e.Tyre)
-                .Where(e => e.StintLength == race.Stints.Count)
                 .ToListAsync();
 
             if (strategiesForRace?.Any() != true)
@@ -164,13 +161,9 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
-                .Include(e => e.Stints)
                 .Include(e => e.Track)
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
-
-            if (race.Stints?.Any() != true)
-                throw new InvalidOperationException("oi m8, get sum stints ya?");
 
             var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
 
@@ -211,7 +204,7 @@ namespace SimTECH.Data.Services
 
             var raceDrivers = new List<RaceDriver>();
 
-            var stintLength = race.Stints.Count;
+            var lapCount = 50;
 
             // TODO: read the following from the config
             const double engineMultiplier = 0.9;
@@ -247,6 +240,9 @@ namespace SimTECH.Data.Services
 
                 var sumTraits = NumberHelper.SumTraitEffects(driverTraits);
 
+                var totalPower = sumTraits.DriverPace + driver.Skill + sumTraits.CarPace + team.BaseValue + teamModifiers.RoundDouble() + RetrieveStatusBonus(driver) + sumTraits.EnginePace + enginePower;
+                var normalizedPowerCalc = (totalPower * lapCount);
+
                 raceDrivers.Add(new RaceDriver
                 {
                     ResultId = driverResult.Id,
@@ -270,9 +266,7 @@ namespace SimTECH.Data.Services
                     Strategy = strategy,
                     CurrentTyre = strategy.StrategyTyres[0].Tyre,
 
-                    DriverPower = sumTraits.DriverPace + driver.Skill,
-                    CarPower = sumTraits.CarPace + team.BaseValue + teamModifiers.RoundDouble() + RetrieveStatusBonus(driver),
-                    EnginePower = sumTraits.EnginePace + enginePower,
+                    NormalizedPower = normalizedPowerCalc,
                     DriverReliability = sumTraits.DriverReliability + driver.Reliability + weatherDnf,
                     CarReliability = sumTraits.CarReliability + team.Reliability,
                     EngineReliability = sumTraits.EngineReliability + team.SeasonEngine.Reliability,
@@ -282,7 +276,6 @@ namespace SimTECH.Data.Services
                     RngMaxMod = sumTraits.MaxRNG + manufacturer.Pace + weatherRng,
 
                     Position = driverResult.Position,
-                    RaceStints = driverResult.StintResults?.Select(e => e.ToRaceStint()).ToList() ?? new(),
                 });
             }
 
@@ -292,9 +285,8 @@ namespace SimTECH.Data.Services
                 Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
                 Weather = race.Weather,
                 Round = race.Round,
-                Stints = race.Stints.ToList(),
 
-                AmountRuns = stintLength,
+                AmountRuns = lapCount,
 
                 RaceDrivers = raceDrivers,
 
@@ -533,7 +525,6 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
-                .Include(e => e.Stints)
                 .Include(e => e.Penalties)
                 .Include(e => e.Track)
                 .SingleAsync(e => e.Id == raceId);
@@ -548,7 +539,6 @@ namespace SimTECH.Data.Services
             var strategiesForRace = await context.Strategy
                 .Include(e => e.StrategyTyres)
                     .ThenInclude(e => e.Tyre)
-                .Where(e => e.StintLength == race.Stints.Count)
                 .ToListAsync();
 
             var weekendDrivers = await context.Result

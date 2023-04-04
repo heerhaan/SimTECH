@@ -10,7 +10,7 @@
         public int QualifyingAmountQ2 { get; set; }
         public int QualifyingAmountQ3 { get; set; }
         public int QualifyingRNG { get; set; }
-        public int RunAmountSession { get; set; }
+        public int RunAmountSession { get; set; }//questionable, config?
         public int GridBonus { get; set; }
         public int PitMinimum { get; set; }
         public int PitMaximum { get; set; }

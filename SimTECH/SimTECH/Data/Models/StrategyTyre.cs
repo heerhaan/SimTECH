@@ -3,7 +3,6 @@
     public record StrategyTyre
     {
         public long Id { get; set; }
-        public int NumberStint { get; set; }
 
         public long StrategyId { get; set; }
         public Strategy Strategy { get; set; } = default!;

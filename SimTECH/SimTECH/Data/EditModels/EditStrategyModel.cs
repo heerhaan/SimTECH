@@ -7,7 +7,6 @@ namespace SimTECH.Data.EditModels
         private readonly Strategy _strategy;
 
         public long Id { get; set; }
-        public int StintLength { get; set; }
         public State State { get; set; }
         public IList<EditStrategyTyreModel> StrategyTyres { get; set; } = new List<EditStrategyTyreModel>();
 
@@ -15,7 +14,6 @@ namespace SimTECH.Data.EditModels
         public EditStrategyModel(Strategy strategy)
         {
             Id = strategy.Id;
-            StintLength = strategy.StintLength;
             State = strategy.State;
             StrategyTyres = strategy.StrategyTyres?
                 .Select(e => new EditStrategyTyreModel(e))
@@ -29,7 +27,6 @@ namespace SimTECH.Data.EditModels
             new()
             {
                 Id = Id,
-                StintLength = StintLength,
                 State = State,
 
                 StrategyTyres = StrategyTyres
@@ -45,7 +42,6 @@ namespace SimTECH.Data.EditModels
         private readonly StrategyTyre _strategyTyre;
 
         public long Id { get; set; }
-        public int NumberStint { get; set; }
         public long StrategyId { get; set; }
         public long TyreId { get; set; }
         public Tyre? Tyre { get; set; }
@@ -54,7 +50,6 @@ namespace SimTECH.Data.EditModels
         public EditStrategyTyreModel(StrategyTyre strategyTyre)
         {
             Id = strategyTyre.Id;
-            NumberStint = strategyTyre.NumberStint;
             StrategyId = strategyTyre.StrategyId;
             TyreId = strategyTyre.TyreId;
             Tyre = strategyTyre.Tyre;
@@ -66,7 +61,6 @@ namespace SimTECH.Data.EditModels
             new()
             {
                 Id = Id,
-                NumberStint = NumberStint,
                 StrategyId = StrategyId,
                 TyreId = TyreId
             };

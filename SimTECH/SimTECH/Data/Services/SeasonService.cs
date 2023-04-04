@@ -57,7 +57,6 @@ namespace SimTECH.Data.Services
             var seasonTeams = await context.SeasonTeam.Where(e => e.SeasonId == season.Id).ToListAsync();
             var seasonEngines = await context.SeasonEngine.Where(e => e.SeasonId == season.Id).ToListAsync();
             var racesInSeason = await context.Race
-                .Include(e => e.Stints)
                 .Where(e => e.SeasonId == season.Id)
                 .ToListAsync();
 

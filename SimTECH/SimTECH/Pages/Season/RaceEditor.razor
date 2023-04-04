@@ -1,6 +1,4 @@
-﻿@using MudBlazor.Utilities
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">Add race for round: @IncomingRound</MudText>
         <MudText Typo="Typo.body1">Stints can be re-ordered by dragging them</MudText>
@@ -28,40 +26,10 @@
                             <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
                         }
                     </MudSelect>
-                    <MudStack Row="true">
-                        <MudNumericField T="int" @bind-Value="amountStints" Label="Amount of stints" />
-                        <MudButton Variant="Variant.Filled" Color="Color.Tertiary" Size="Size.Small" OnClick="SetStintAmount">
-                            Set amount
-                        </MudButton>
-                    </MudStack>
+                    <MudText>Maybe amount laps here? or a precalc of it?</MudText>
                 </MudItem>
-
-                <MudItem xs="12">
-                    <MudDropContainer T="EditStintModel" Items="Model.Stints" @ref="_container" ItemsSelector="(item, zone) => true" ItemDropped="ItemDropped">
-                        <ChildContent>
-                            <MudPaper Elevation="15" Class="ma-2 pa-2">
-                                <MudText>Stint setup for the race</MudText>
-                                <MudDropZone T="EditStintModel" Identifier="temp" AllowReorder="true" />
-                            </MudPaper>
-                        </ChildContent>
-                        <ItemRenderer>
-                            <MudPaper Elevation="25" Class="ma-2 pa-2">
-                                <MudStack Spacing="2" Row="true" Justify="Justify.SpaceEvenly">
-                                    <MudText>@(1 + context.Order)</MudText>
-                                        <MudCheckBox @bind-Checked="context.UseDriver" Color="Color.Tertiary" Label="Driver" />
-                                        <MudCheckBox @bind-Checked="context.UseCar" Color="Color.Tertiary" Label="Car" />
-                                        <MudCheckBox @bind-Checked="context.UseEngine" Color="Color.Tertiary" Label="Engine" />
-                                        <MudCheckBox @bind-Checked="context.UseReliability" Color="Color.Tertiary" Label="Reliability" />
-                                        <MudNumericField T="int" @bind-Value="context.RngMin" Label="RngMin" />
-                                        <MudNumericField T="int" @bind-Value="context.RngMax" Label="RngMax" />
-                                    </MudStack>
-                                </MudPaper>
-                            </ItemRenderer>
-                        </MudDropContainer>
-                    </MudItem>
-                </MudGrid>
+            </MudGrid>
         </MudForm>
-
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -78,10 +46,6 @@
     [Parameter] public int IncomingRound { get; set; }
 
     private EditRaceModel Model = new();
-    //private MudForm form; can be used for validation by calling form.Validate() if it's a ref
-    private MudDropContainer<EditStintModel> _container;
-    private int amountStints { get; set; }
-    private int orderNum = 0;
 
     protected override void OnInitialized()
     {
@@ -92,48 +56,7 @@
                 Round = IncomingRound,
                 SeasonId = SeasonId,
             };
-
-            orderNum = Model.Stints.Count;
         }
-    }
-
-    private void SetStintAmount()
-    {
-        if (amountStints > orderNum)
-        {
-            for (; orderNum < amountStints; orderNum++)
-            {
-                Model.Stints.Add(new EditStintModel
-                    {
-                        Order = orderNum,
-                        RngMin = 10,
-                        RngMax = (NumberHelper.RandomInt(4, 6) * 10)
-                    });
-            }
-        }
-        else
-        {
-            for (; orderNum > amountStints; orderNum--)
-            {
-                Model.Stints.RemoveAt(orderNum - 1);
-            }
-        }
-
-        RefreshContainer();
-    }
-
-    private void RefreshContainer()
-    {
-        //update the binding to the container
-        StateHasChanged();
-
-        //the container refreshes the internal state
-        _container.Refresh();
-    }
-
-    private void ItemDropped(MudItemDropInfo<EditStintModel> dropItem)
-    {
-        Model.Stints.UpdateOrder(dropItem, item => item.Order);
     }
 
     private void Submit()
