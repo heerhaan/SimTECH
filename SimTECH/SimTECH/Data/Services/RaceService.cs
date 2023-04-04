@@ -155,6 +155,34 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task PersistLapScores(Dictionary<long, List<int>> resultLapScores)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var lapEntities = new List<LapScore>();
+
+            foreach (var result in resultLapScores)
+            {
+                var resultScores = result.Value.ConvertAll(e => new LapScore { Score = e, ResultId = result.Key });
+                lapEntities.AddRange(resultScores);
+            }
+
+            context.LapScore.AddRange(lapEntities);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task FinishRace(Race finishedRace, List<Result> finishedResults)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.Update(finishedRace);
+
+            context.UpdateRange(finishedResults);
+
+            await context.SaveChangesAsync();
+        }
+
         // Race, qualy and practice models are nearly the same but a generic solution did not came to me
         public async Task<RaceModel> RetrieveRaceModel(long raceId)
         {
@@ -281,6 +309,7 @@ namespace SimTECH.Data.Services
 
             return new RaceModel
             {
+                RaceId = race.Id,
                 Name = race.Name,
                 Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
                 Weather = race.Weather,
@@ -394,6 +423,7 @@ namespace SimTECH.Data.Services
 
             return new QualifyingModel
             {
+                RaceId = race.Id,
                 Name = race.Name,
                 Country = race.Track.Country,
                 Weather = race.Weather,
@@ -489,6 +519,7 @@ namespace SimTECH.Data.Services
 
             return new PracticeModel
             {
+                RaceId = race.Id,
                 Name = race.Name,
                 Country = race.Track.Country,
                 Weather = race.Weather,

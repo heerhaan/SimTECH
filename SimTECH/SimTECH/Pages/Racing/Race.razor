@@ -116,6 +116,7 @@
         int advanceLaps = 10;
 
         // Determine the values which impact the race like: weather and it's multipliers (configuration innit?)
+        var newLapScores = new List<LapScore>();
 
         // Iterate through all still running drivers
         foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
@@ -245,13 +246,24 @@
 
     private void ShowGraph() => Snackbar.Add("Not implemented yet", Severity.Warning);
 
-    private void PersistStintResults()
+    private async Task PersistLapScores()
     {
+        // For now not implemented per advance but all in total
 
+        var driverTotalScores = Model.RaceDrivers.ToDictionary(e => e.ResultId, e => e.LapScores);
+
+        if (driverTotalScores?.Any() == true)
+            await _raceService.PersistLapScores(driverTotalScores);
     }
 
-    private void Finish()
+    private async Task Finish()
     {
+        var finishedRace = Model.ToFinishedRace();
+        var finishedResults = Model.RaceDrivers.Select(e => e.ToResult()).ToList();
 
+        // Should be removed if it is done per advance
+        await PersistLapScores();
+
+        await _raceService.FinishRace(finishedRace, finishedResults);
     }
 }

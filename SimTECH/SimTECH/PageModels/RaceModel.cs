@@ -4,6 +4,7 @@ namespace SimTECH.PageModels
 {
     public abstract class SessionBase
     {
+        public long RaceId { get; set; }
         public string Name { get; set; }
         public Country Country { get; set; }
         public Weather Weather { get; set; }
@@ -18,6 +19,18 @@ namespace SimTECH.PageModels
         public List<RaceDriver> RaceDrivers { get; set; }
 
         public Season Season { get; set; }//pick values intead of whole object?
+
+        public Race ToFinishedRace()
+        {
+            return new Race
+            {
+                Id = RaceId,
+                Round = Round,
+                Name = Name,
+                Weather = Weather,
+                State = State.Closed,
+            };
+        }
     }
 
     public class QualifyingModel : SessionBase

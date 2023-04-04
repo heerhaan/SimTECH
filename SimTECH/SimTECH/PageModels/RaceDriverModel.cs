@@ -47,6 +47,21 @@ namespace SimTECH.PageModels
         public List<int> LapScores { get; set; } = new();
 
         public int LapSum => LapScores.Sum();
+
+        public Result ToResult()
+        {
+            return new Result
+            {
+                Id = ResultId,
+                Grid = Grid,
+                Position = Position,
+                Score = LapSum,
+                Status = Status,
+                Incident = Incident,
+                Setup = Setup,
+                TyreLife = TyreLife,
+            };
+        }
     }
 
     public class QualifyingDriver : DriverBase
