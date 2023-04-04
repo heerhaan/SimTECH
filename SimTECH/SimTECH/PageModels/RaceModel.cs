@@ -14,13 +14,14 @@ namespace SimTECH.PageModels
 
     public class RaceModel : SessionBase
     {
+        public long TrackId { get; set; }
         public int Round { get; set; }
 
         public List<RaceDriver> RaceDrivers { get; set; }
 
         public Season Season { get; set; }//pick values intead of whole object?
 
-        public Race ToFinishedRace()
+        public Race ToFinishedRace()// arguably it might be easier to just store a Race entity object
         {
             return new Race
             {
@@ -29,6 +30,8 @@ namespace SimTECH.PageModels
                 Name = Name,
                 Weather = Weather,
                 State = State.Closed,
+                SeasonId = Season.Id,
+                TrackId = TrackId
             };
         }
     }

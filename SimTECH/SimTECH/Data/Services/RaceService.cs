@@ -172,13 +172,39 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task FinishRace(Race finishedRace, List<Result> finishedResults)
+        public async Task FinishRace(Race finishedRace, List<Result> finishedResults, List<ScoredPoints> scoredPoints)
         {
             using var context = _dbFactory.CreateDbContext();
 
             context.Update(finishedRace);
-
             context.UpdateRange(finishedResults);
+
+            var seasonTeams = await context.SeasonTeam
+                .Where(e => scoredPoints.Select(s => s.SeasonTeamId).Contains(e.Id))
+                .ToListAsync();
+
+            var seasonDrivers = await context.SeasonDriver
+                .Where(e => scoredPoints.Select(s => s.SeasonDriverId).Contains(e.Id))
+                .ToListAsync();
+
+            foreach (var scoredTeam in scoredPoints.GroupBy(e => e.SeasonTeamId))
+            {
+                var seasonTeam = seasonTeams.Single(e => e.Id == scoredTeam.Key);
+
+                seasonTeam.Points += scoredTeam.Sum(e => e.Points);
+                seasonTeam.HiddenPoints += scoredTeam.Sum(e => e.HiddenPoints);
+
+                foreach (var scoredDriver in scoredTeam)
+                {
+                    var seasonDriver = seasonDrivers.Single(e => e.Id == scoredDriver.SeasonDriverId);
+
+                    seasonDriver.Points += scoredDriver.Points;
+                    seasonDriver.HiddenPoints += scoredDriver.HiddenPoints;
+                }
+            }
+
+            context.UpdateRange(seasonTeams);
+            context.UpdateRange(seasonDrivers);
 
             await context.SaveChangesAsync();
         }
@@ -193,7 +219,9 @@ namespace SimTECH.Data.Services
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
 
-            var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
+            var season = await context.Season
+                .Include(e => e.PointAllotments)
+                .SingleAsync(e => e.Id == race.SeasonId);
 
             var driverResults = await context.Result
                 .Where(e => e.RaceId == raceId && e.Status != RaceStatus.Dnq)
@@ -274,6 +302,8 @@ namespace SimTECH.Data.Services
                 raceDrivers.Add(new RaceDriver
                 {
                     ResultId = driverResult.Id,
+                    SeasonDriverId = driverResult.SeasonDriverId,
+                    SeasonTeamId = driverResult.SeasonTeamId,
                     FullName = driver.Driver.FullName,
                     Number = driver.Number,
                     Role = driver.TeamRole,
@@ -310,6 +340,7 @@ namespace SimTECH.Data.Services
             return new RaceModel
             {
                 RaceId = race.Id,
+                TrackId = race.TrackId,
                 Name = race.Name,
                 Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
                 Weather = race.Weather,

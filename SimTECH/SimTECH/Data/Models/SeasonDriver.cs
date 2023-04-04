@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record SeasonDriver
+    public class SeasonDriver
     {
         public long Id { get; set; }
         public int Number { get; set; }

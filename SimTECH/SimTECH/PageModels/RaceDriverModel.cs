@@ -7,6 +7,8 @@ namespace SimTECH.PageModels
     public abstract class DriverBase
     {
         public long ResultId { get; set; }
+        public long SeasonDriverId { get; set; }
+        public long SeasonTeamId { get; set; }
 
         public string FullName { get; set; }
         public int Number { get; set; }
@@ -46,9 +48,9 @@ namespace SimTECH.PageModels
 
         public List<int> LapScores { get; set; } = new();
 
-        public int LapSum => LapScores.Sum();
+        public int LapSum => LapScores?.Sum() ?? 0;
 
-        public Result ToResult()
+        public Result ToResult(long raceId)
         {
             return new Result
             {
@@ -60,8 +62,52 @@ namespace SimTECH.PageModels
                 Incident = Incident,
                 Setup = Setup,
                 TyreLife = TyreLife,
+
+                SeasonDriverId = SeasonDriverId,
+                SeasonTeamId = SeasonTeamId,
+                RaceId = raceId,
+                StrategyId = Strategy.Id,
             };
         }
+
+        public ScoredPoints ToScoredPoints(Dictionary<int, int> allotments, int polePoints, int fastLapPoints, bool hasFastestLap)
+        {
+            var points = 0;
+            var hiddenPoints = 0;
+
+            if (allotments.TryGetValue(Position, out int allotedPoints))
+                points += allotedPoints;
+
+            if (Grid == 1)
+                points += polePoints;
+
+            if (hasFastestLap)
+                points += fastLapPoints;
+
+            if (Status == RaceStatus.Racing)
+            {
+                double positionCalc = 20000000 / Position;
+
+                hiddenPoints = positionCalc.RoundDouble();
+            }
+
+            return new ScoredPoints
+            {
+                SeasonDriverId = SeasonDriverId,
+                SeasonTeamId = SeasonTeamId,
+                Points = points,
+                HiddenPoints = hiddenPoints,
+            };
+        }
+    }
+
+    public class ScoredPoints
+    {
+        public long SeasonDriverId { get; set; }
+        public long SeasonTeamId { get; set; }
+
+        public int Points { get; set; }
+        public int HiddenPoints { get; set; }
     }
 
     public class QualifyingDriver : DriverBase
