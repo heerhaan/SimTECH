@@ -153,19 +153,6 @@ else
     </MudTabs>
 }
 
-@if (!loading)
-{
-    <MudContainer>
-        actual standings
-        <MudStack>
-            @foreach (var result in Model.QualifyingDrivers.OrderBy(e => e.Position))
-            {
-                <MudText>P@(result.Position). @(result.FullName) [@(result.Number)]</MudText>
-            }
-        </MudStack>
-    </MudContainer>
-}
-
 @code {
     [Parameter] public long RaceId { get; set; }
 

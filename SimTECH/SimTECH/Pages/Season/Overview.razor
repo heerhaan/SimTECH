@@ -1,4 +1,5 @@
 ﻿@page "/overview/{SeasonId:long}"
+@page "/overview/{SeasonId:long}/{TabIndex:int}"
 
 @inject RaceService RaceService
 @inject SeasonService SeasonService
@@ -11,7 +12,7 @@
 <CascadingValue Value="Season" IsFixed="true"> @* still should confirm if isfixed also works when re-assigning the object by loading a new season *@
     @if (Season != null)
     {
-        <MudTabs Outlined="true" Centered="true">
+        <MudTabs Outlined="true" Centered="true" @ref="tabs">
             <MudTabPanel Text="Overview">
                 <MudGrid Spacing="5">
                     <MudItem xs="12">
@@ -128,11 +129,24 @@
 
 @code {
     [Parameter] public long SeasonId { get; set; }
+    [Parameter] public int TabIndex { get; set; } = 0;
+
+    MudTabs _tabs;
 
     public Season? Season { get; set; }
     public Race? NextRace { get; set; }
 
     private string? _errorMessage { get; set; } = null;
+
+    // Underneath is an ID to confirm if it works
+    //protected MudDropContainer<EditSeasonTeamModel> teamDropper
+    //{
+    //    get => _dropperTeams;
+    //    set
+    //    {
+    //        _dropperTeams = value;
+    //    }
+    //}
 
     protected override async Task OnInitializedAsync()
     {
@@ -140,6 +154,24 @@
 
         if (Season != null)
             NextRace = await RaceService.GetNextRaceOfSeason(SeasonId);
+
+        if (TabIndex != 0)
+            ActivatePanel(TabIndex);
+    }
+
+    protected MudTabs tabs
+    {
+        get => _tabs;
+        set
+        {
+            _tabs = value;
+        }
+    }
+
+    void ActivatePanel(int index)
+    {
+        // doesnt work, null ref
+        // tabs.ActivatePanel(index);
     }
 
     private async Task StartSeason()
