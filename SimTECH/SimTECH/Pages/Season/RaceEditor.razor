@@ -5,30 +5,23 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@Model">
-            <MudGrid>
-                <MudItem xs="6">
-                    <MudTextField @bind-Value="Model.Name" Label="Name" />
-                    <MudSelect T="long" @bind-Value="Model.TrackId" Label="Track" ReadOnly="@(Model.Id != 0)">
-                        @foreach (var select in Tracks)
-                        {
-                            <MudSelectItem Value="select.Id">
-                                <CountryFlag Code="@select.Country" Size="FlagSize.Small" />
-                                @select.Name
-                            </MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudItem>
-
-                <MudItem xs="6">
-                    <MudSelect T="Weather" @bind-Value="Model.Weather" Label="Weather">
-                        @foreach (var select in EnumHelper.GetWeatherSelection())
-                        {
-                            <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
-                        }
-                    </MudSelect>
-                    <MudText>Maybe amount laps here? or a precalc of it?</MudText>
-                </MudItem>
-            </MudGrid>
+            <MudTextField @bind-Value="Model.Name" Label="Name" />
+            <MudSelect T="long" @bind-Value="Model.TrackId" Label="Track" ReadOnly="@(Model.Id != 0)">
+                @foreach (var select in Tracks)
+                {
+                    <MudSelectItem Value="select.Id">
+                        <CountryFlag Code="@select.Country" Size="FlagSize.Small" />
+                        @select.Name
+                    </MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="Weather" @bind-Value="Model.Weather" Label="Weather">
+                @foreach (var select in EnumHelper.GetWeatherSelection())
+                {
+                    <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                }
+            </MudSelect>
+            @* amount of laps? the calculation of this? a preview even? *@
         </MudForm>
     </DialogContent>
     <DialogActions>
