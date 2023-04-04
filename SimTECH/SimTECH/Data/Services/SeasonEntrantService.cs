@@ -39,8 +39,19 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonTeam
-                .Include(e => e.Team)
                 .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Team)
+                .ToListAsync();
+        }
+
+        public async Task<List<SeasonTeam>> GetSeasonTeamsWithResults(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonTeam
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Team)
+                .Include(e => e.Results)
                 .ToListAsync();
         }
 
@@ -76,6 +87,17 @@ namespace SimTECH.Data.Services
             return await context.SeasonDriver
                 .Include(e => e.Driver)
                 .Where(e => e.SeasonId == seasonId)
+                .ToListAsync();
+        }
+
+        public async Task<List<SeasonDriver>> GetSeasonDriversWithResults(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonDriver
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Driver)
+                .Include(e => e.Results)
                 .ToListAsync();
         }
 

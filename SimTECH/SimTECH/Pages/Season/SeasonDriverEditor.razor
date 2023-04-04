@@ -4,7 +4,7 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@Model">
-            @if (Model.Id == 0)
+            @if (Model.Id == 0 && Drivers is not null)
             {
                 <MudSelect T="long" @bind-Value="@Model.DriverId" Label="Driver">
                     @foreach (var driver in Drivers)
@@ -17,9 +17,9 @@
                 </MudSelect>
             }
 
-            <MudNumericField @bind-Value="@Model.Number" Label="Number" />
-            <MudNumericField @bind-Value="@Model.Skill" Label="Skill" />
-            <MudNumericField @bind-Value="@Model.Reliability" Label="Reliability" />
+            <MudNumericField @bind-Value="@Model.Number" Label="Number" Class="field-sm" />
+            <MudNumericField @bind-Value="@Model.Skill" Label="Skill" Class="field-sm" />
+            <MudNumericField @bind-Value="@Model.Reliability" Label="Reliability" Class="field-sm" />
 
             <MudSelect T="TeamRole" @bind-Value="@Model.TeamRole" Label="Team Role">
                 @foreach (var select in EnumHelper.GetTeamRoleSelection())

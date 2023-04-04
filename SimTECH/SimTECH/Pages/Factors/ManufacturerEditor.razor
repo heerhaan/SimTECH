@@ -5,12 +5,14 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@model">
-            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
-            <MudColorPicker @bind-Text="model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" />
-            <MudColorPicker @bind-Text="model.Accent" Label="Accent" Placeholder="Select accent" DisableAlpha="true" />
-            <MudNumericField T="int" @bind-Value="model.Pace" Label="Pace" />
-            <MudNumericField T="int" @bind-Value="model.WearMax" Label="WearMax" />
-            <MudNumericField T="int" @bind-Value="model.WearMin" Label="WearMin" />
+            <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
+            <MudColorPicker @bind-Text="model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" Class="field-sm" />
+            <MudColorPicker @bind-Text="model.Accent" Label="Accent" Placeholder="Select accent" DisableAlpha="true" Class="field-sm" />
+            <MudNumericField T="int" @bind-Value="model.Pace" Label="Pace" Class="field-sm" />
+            <MudStack Row="true" Spacing="4">
+                <MudNumericField T="int" @bind-Value="model.WearMax" Label="WearMax" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="model.WearMin" Label="WearMin" Class="field-sm" />
+            </MudStack>
         </MudForm>
         <MudPaper Height="100px">
             <MudText Typo="Typo.h6">Preview</MudText>

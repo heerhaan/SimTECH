@@ -10,18 +10,19 @@
             <MudGrid>
                 <MudItem xs="8">
                     <MudStack Row="true" Spacing="4">
-                        <MudTextField T="string" @bind-Value="model.FirstName" Label="FirstName" />
-                        <MudTextField T="string" @bind-Value="model.LastName" Label="LastName" />
+                        <MudTextField T="string" @bind-Value="model.FirstName" Label="First Name" />
+                        <MudTextField T="string" @bind-Value="model.LastName" Label="Last Name" />
                     </MudStack>
+
                     <MudTextField T="string" @bind-Value="model.Abbreviation" Label="Abbreviation" />
-                    <MudDatePicker @bind-Date="@dateSetter" Label="Date of birth" />
+                    <MudDatePicker @bind-Date="@dateSetter" Label="Date of Birth" />
                     <MudCountrySelect @bind-Value="model.Country" />
                     <MudTextField T="string" @bind-Value="model.Biography" Label="Biography" />
                 </MudItem>
 
                 <MudItem xs="4">
                     <MudText>Traits for drivers</MudText>
-                    @* Use MidChipSet also more often in favour of select when there are few options! (1 click > 2 click) *@
+                    @* Use MudChipSet also more often in favour of select when there are few options! (1 click > 2 click) *@
                     <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
                         @foreach (var trait in Traits)
                         {

@@ -6,24 +6,39 @@
         <MudForm Model="@model">
             <MudGrid Spacing="2">
                 <MudItem xs="6">
-                    <MudPaper>
-                        <MudNumericField T="int" @bind-Value="model.Year" Label="Year" />
-                        <MudNumericField T="int" @bind-Value="model.MaximumDriversInRace" Label="MaximumDriversInRace" />
-                        <MudNumericField T="int" @bind-Value="model.QualifyingAmountQ2" Label="Q2.Count" />
-                        <MudNumericField T="int" @bind-Value="model.QualifyingAmountQ3" Label="Q3.Count" />
-                        <MudNumericField T="int" @bind-Value="model.QualifyingRNG" Label="Q.RNG" />
-                        <MudNumericField T="int" @bind-Value="model.RunAmountSession" Label="Amount runs Q.session" />
-                        <MudNumericField T="int" @bind-Value="model.GridBonus" Label="Bonus per grid position" />
-                        <MudNumericField T="int" @bind-Value="model.PitMinimum" Label="Pit min. RNG" />
-                        <MudNumericField T="int" @bind-Value="model.PitMaximum" Label="Pit max. RNG" />
-                        <MudNumericField T="int" @bind-Value="model.PointsPole" Label="Awarded pts. POLE" />
-                        <MudNumericField T="int" @bind-Value="model.PointsFastestLap" Label="Awarded pts. FL" />
+                    <MudPaper Elevation="5">
+                        <MudText Typo="Typo.subtitle1">Season information</MudText>
+                        <MudDivider />
+                        <MudNumericField T="int" @bind-Value="model.Year" Label="Year" Class="field-sm" />
+
+                        <MudText Typo="Typo.subtitle1">Qualifying (and practice) settings</MudText>
+                        <MudDivider />
+                        <MudNumericField T="int" @bind-Value="model.RunAmountSession" Label="Amount of runs per session" Class="field-sm" />
+                        <MudNumericField T="int" @bind-Value="model.QualifyingRNG" Label="Maximum RNG for qualifying" Class="field-sm" />
+                        <MudStack Row="true" Spacing="4">
+                            <MudNumericField T="int" @bind-Value="model.QualifyingAmountQ2" Label="Amount of drivers in Q2" Class="field-sm" />
+                            <MudNumericField T="int" @bind-Value="model.QualifyingAmountQ3" Label="Amount of drivers in Q3" Class="field-sm" />
+                        </MudStack>
+
+                        <MudText Typo="Typo.subtitle1">Race settings</MudText>
+                        <MudDivider />
+                        <MudStack Row="true" Spacing="4">
+                            <MudNumericField T="int" @bind-Value="model.PitMinimum" Label="Pit Min. RNG" Class="field-sm" />
+                            <MudNumericField T="int" @bind-Value="model.PitMaximum" Label="Pit Max. RNG" Class="field-sm" />
+                        </MudStack>
+                        <MudNumericField T="int" @bind-Value="model.MaximumDriversInRace" Label="MaximumDriversInRace" Class="field-sm" />
+                        <MudNumericField T="int" @bind-Value="model.GridBonus" Label="Bonus per grid position" Class="field-sm" />
+                        
+                        <MudText Typo="Typo.subtitle1">Additional points</MudText>
+                        <MudDivider />
+                        <MudNumericField T="int" @bind-Value="model.PointsPole" Label="Awarded points Pole" Class="field-sm" />
+                        <MudNumericField T="int" @bind-Value="model.PointsFastestLap" Label="Awarded points Fastest Lap" Class="field-sm" />
 
                         <MudNumericField T="long" @bind-Value="model.LeagueId" Label="League ID" />
 
                         @if (Copied ?? false)
                         {
-                            <MudCheckBox @bind-Checked="_copyRaces" Color="Color.Tertiary" Label="Copy all races from season" />
+                            <MudCheckBox @bind-Checked="_copyRaces" Color="Color.Tertiary" Label="Copy all races from this season" />
                             @if (_copyRaces)
                             {
                                 <MudAlert Severity="Severity.Warning">Sorry! Feature isn't implemented yet.</MudAlert>
@@ -31,9 +46,12 @@
                         }
                     </MudPaper>
                 </MudItem>
+
                 <MudItem xs="6">
-                    <MudPaper>
-                        <MudText>Points per position</MudText>
+                    <MudPaper Elevation="5">
+                        <MudText Typo="Typo.subtitle1">Setting points per position</MudText>
+                        <MudDivider />
+
                         <MudTable Items="@model.PointAllotments" Dense="true" ReadOnly="false"
                                   RowEditPreview="BackupAllotment" RowEditCancel="ResetAllotment" ApplyButtonPosition="TableApplyButtonPosition.End"
                                   EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
