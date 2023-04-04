@@ -13,28 +13,21 @@
                 <MudGrid Spacing="4">
                     <MudItem xs="6">
                         <MudPaper Elevation="15">
-                            <MudTable Items="@SeasonDrivers" Style="pa-4">
+                            <MudTable Items="@DriverResultsModel" Class="pa-4">
                                 <HeaderContent>
                                     <MudTh>Position</MudTh>
                                     <MudTh>Name</MudTh>
                                     <MudTh>Number</MudTh>
                                     <MudTh>TeamRole</MudTh>
                                     <MudTh>
-                                        <MudTableSortLabel SortBy="new Func<SeasonDriver, object>(e => e.Points)">Points</MudTableSortLabel>
+                                        <MudTableSortLabel SortBy="new Func<StandingDriverModel, object>(e => e.Points)">Points</MudTableSortLabel>
                                     </MudTh>
                                 </HeaderContent>
                                 <RowTemplate>
                                     <MudTd DataLabel="Position">0</MudTd>
                                     <MudTd DataLabel="Name">
-                                        @if (context.Driver != null)
-                                        {
-                                            <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
-                                            @context.Driver.FullName
-                                        }
-                                        else
-                                        {
-                                            <span>Unknown (wtf how did you do this?)</span>
-                                        }
+                                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                                        @context.Name
                                     </MudTd>
                                     <MudTd DataLabel="Number">@context.Number</MudTd>
                                     <MudTd DataLabel="TeamRole">@context.TeamRole</MudTd>
@@ -45,8 +38,8 @@
                     </MudItem>
 
                     <MudItem xs="6">
-                        <MudPaper Elevation="15" Style="pa-4">
-                            <MudTable Items="@SeasonTeams">
+                        <MudPaper Elevation="15" Class="pa-4">
+                            <MudTable Items="@TeamResultsModel">
                                 <HeaderContent>
                                     <MudTh>Position</MudTh>
                                     <MudTh>Principal</MudTh>
@@ -54,13 +47,10 @@
                                     <MudTh>Points</MudTh>
                                 </HeaderContent>
                                 <RowTemplate>
-                                    <MudTd DataLabel="Position">0</MudTd>
+                                    <MudTd DataLabel="Position">@context.Position</MudTd>
                                     <MudTd DataLabel="Principal">@context.Principal</MudTd>
                                     <MudTd DataLabel="Name" Style="@($"background-color:{context.Colour}; color:{context.Accent}")">
-                                        @if (context.Team != null)
-                                        {
-                                            <CountryFlag Code="context.Team.Country" Size="FlagSize.Small" />
-                                        }
+                                        <CountryFlag Code="context.Nationality" Size="FlagSize.Small" />
                                         @context.Name
                                     </MudTd>
                                     <MudTd DataLabel="Points">@context.Points</MudTd>
@@ -120,7 +110,7 @@
             </MudTabPanel>
 
             <MudTabPanel Text="WCC results">
-                <MudTable Items="@SeasonTeams">
+                <MudTable Items="@TeamResultsModel">
                     <HeaderContent>
                         <MudTh>#</MudTh>
                         <MudTh>Team</MudTh>
@@ -135,7 +125,30 @@
                         <MudTh>AVG</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-
+                        <MudTd>@context.Position</MudTd>
+                        <MudTd>
+                            <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
+                            @context.Name
+                        </MudTd>
+                        @foreach (var round in Races.OrderBy(e => e.Round))
+                        {
+                            var teamResults = context.ResultCells.Where(e => e.Round == round.Round).ToList();
+                            if (teamResults.Any())
+                            {
+                                <MudTd>
+                                    @foreach (var result in teamResults)
+                                    {
+                                        <MudChip Style="@(GetResultStyle(result))">@result.Position</MudChip>
+                                    }
+                                </MudTd>
+                            }
+                            else
+                            {
+                                <MudTd>-</MudTd>
+                            }
+                        }
+                        <MudTd>@context.Points</MudTd>
+                        <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
                     </RowTemplate>
                 </MudTable>
             </MudTabPanel>
@@ -146,8 +159,6 @@
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
-    private List<SeasonDriver> SeasonDrivers { get; set; }
-    private List<SeasonTeam> SeasonTeams { get; set; }
     private List<Race> Races { get; set; }
     private List<StandingDriverModel> DriverResultsModel { get; set; }
     private List<StandingTeamModel> TeamResultsModel { get; set; }
@@ -158,16 +169,22 @@
 
     protected override async Task OnInitializedAsync()
     {
-        SeasonDrivers = await _entrantService.GetSeasonDriversWithResults(Season.Id);
-        SeasonTeams = await _entrantService.GetSeasonTeamsWithResults(Season.Id);
         Races = await _raceService.GetRacesBySeason(Season.Id);
 
         int indexer = 0;
 
-        DriverResultsModel = SeasonDrivers
+        DriverResultsModel = (await _entrantService.GetSeasonDriversWithResults(Season.Id))
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
             .Select(e => ToDriverResultModel(e, ++indexer))
+            .ToList();
+
+        indexer = 0;
+
+        TeamResultsModel = (await _entrantService.GetSeasonTeamsWithResults(Season.Id))
+            .OrderByDescending(e => e.Points)
+                .ThenByDescending(e => e.HiddenPoints)
+            .Select(e => ToTeamResultModel(e, ++indexer))
             .ToList();
 
         if (Season != null && Season.PointAllotments?.Any() == true)
@@ -220,15 +237,31 @@
     private StandingDriverModel ToDriverResultModel(SeasonDriver driver, int position)
     {
         return new StandingDriverModel
-        {
-            Position = position,
-            Name = driver.Driver.FullName,
-            Nationality = driver.Driver.Country,
-            Points = driver.Points,
-            HiddenPoints = driver.HiddenPoints,
+            {
+                Position = position,
+                Name = driver.Driver.FullName,
+                Nationality = driver.Driver.Country,
+                Points = driver.Points,
+                HiddenPoints = driver.HiddenPoints,
 
-            ResultCells = driver.Results.Select(e => ToResultCell(e)).ToList(),
-        };
+                ResultCells = driver.Results.Select(e => ToResultCell(e)).ToList(),
+            };
+    }
+
+    private StandingTeamModel ToTeamResultModel(SeasonTeam team, int position)
+    {
+        return new StandingTeamModel
+            {
+                Position = position,
+                Name = team.Name,
+                Nationality = team.Team.Country,
+                Points = team.Points,
+                HiddenPoints = team.HiddenPoints,
+                Colour = team.Colour,
+                Accent = team.Accent,
+
+                ResultCells = team.Results.Select(e => ToResultCell(e)).ToList(),
+            };
     }
 
     private StandingResultCell ToResultCell(Result result)
@@ -250,17 +283,21 @@
         public int Points { get; set; }
         public int HiddenPoints { get; set; }
 
+        public string Colour { get; set; }
+        public string Accent { get; set; }
+
         public List<StandingResultCell> ResultCells { get; set; }
     }
 
     private class StandingDriverModel : StandingEntrantBase
     {
         public int Number { get; set; }
+        public TeamRole TeamRole { get; set; }
     }
 
     private class StandingTeamModel : StandingEntrantBase
     {
-
+        public string Principal { get; set; }
     }
 
     private class StandingResultCell
