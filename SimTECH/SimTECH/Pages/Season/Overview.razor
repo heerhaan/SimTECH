@@ -79,9 +79,17 @@
             </MudTabPanel>
             <MudTabPanel Text="Settings" BadgeData='"!"' BadgeColor="Color.Error">
                 <MudGrid>
-                    @* NOTE: This panel is incredibly ugly FYI *@
+                    <MudItem xs="12">
+                        <MudPaper Elevation="15">
+                            <MudStack Row="true">
+                                <MudText>[placeholder for stuff (and thangs)]</MudText>
+                                <MudSpacer />
+                                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Outlined.Edit" OnClick="UpdateSeason">Edit settings</MudButton>
+                            </MudStack>
+                        </MudPaper>
+                    </MudItem>
                     <MudItem xs="3">
-                        <MudPaper>
+                        <MudPaper Elevation="15">
                             <MudTextField @bind-Value="Season.Year" Label="Year" ReadOnly="true"></MudTextField>
                             <MudTextField @bind-Value="Season.MaximumDriversInRace" Label="MaximumDriversInRace" ReadOnly="true"></MudTextField>
                             <MudTextField @bind-Value="Season.QualifyingAmountQ2" Label="QualifyingAmountQ2" ReadOnly="true"></MudTextField>
@@ -91,7 +99,7 @@
                         </MudPaper>
                     </MudItem>
                     <MudItem xs="3">
-                        <MudPaper>
+                        <MudPaper Elevation="15">
                             <MudTextField @bind-Value="Season.GridBonus" Label="GridBonus" ReadOnly="true"></MudTextField>
                             <MudTextField @bind-Value="Season.PitMinimum" Label="PitMinimum" ReadOnly="true"></MudTextField>
                             <MudTextField @bind-Value="Season.PitMaximum" Label="PitMaximum" ReadOnly="true"></MudTextField>
@@ -100,7 +108,26 @@
                         </MudPaper>
                     </MudItem>
                     <MudItem xs="6">
-                        <MudPaper>
+                        <MudPaper Elevation="15">
+                            <MudText Typo="Typo.subtitle1">Points scored per position</MudText>
+                            <MudSimpleTable>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var allotment in Season.PointAllotments)
+                                    {
+                                        <tr>
+                                            <td>@allotment.Position</td>
+                                            <td></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </MudSimpleTable>
+
                             @if (Season.PointAllotments != null)
                             {
                                 @foreach (var allotment in Season.PointAllotments)
@@ -110,16 +137,9 @@
                             }
                             else
                             {
-                                <MudAlert Variant="Variant.Outlined" Severity="Severity.Error">Where are the friggin point allotments</MudAlert>
+                                <MudAlert Variant="Variant.Outlined" Severity="Severity.Error">Where are the friggin point allotments then?</MudAlert>
                             }
                         </MudPaper>
-                    </MudItem>
-                    <MudItem>
-                        <MudStack Row="true">
-                            <MudText>[placeholder]</MudText>
-                            <MudSpacer />
-                            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Outlined.Edit" OnClick="UpdateSeason">Edit settings</MudButton>
-                        </MudStack>
                     </MudItem>
                 </MudGrid>
             </MudTabPanel>
