@@ -9,35 +9,34 @@
         <MudForm Model="@model">
             <MudGrid>
                 <MudItem xs="8">
-                    <MudStack Row="true" Spacing="4">
-                        <MudTextField T="string" @bind-Value="model.FirstName" Label="First Name" />
-                        <MudTextField T="string" @bind-Value="model.LastName" Label="Last Name" />
-                    </MudStack>
-
-                    <MudTextField T="string" @bind-Value="model.Abbreviation" Label="Abbreviation" />
-                    <MudDatePicker @bind-Date="@dateSetter" Label="Date of Birth" />
-                    <MudCountrySelect @bind-Value="model.Country" />
-                    <MudTextField T="string" @bind-Value="model.Biography" Label="Biography" />
+                    <MudPaper Elevation="15" Class="pa-2">
+                        <MudStack>
+                            <MudStack Row="true" Spacing="4">
+                                <MudTextField T="string" @bind-Value="model.FirstName" Label="First Name" Class="field-md" />
+                                <MudTextField T="string" @bind-Value="model.LastName" Label="Last Name" Class="field-md" />
+                            </MudStack>
+                            <MudTextField T="string" @bind-Value="model.Abbreviation" Label="Abbreviation" Class="field-sm" />
+                            <MudDatePicker @bind-Date="@dateSetter" Label="Date of Birth" Class="field-md" />
+                            <MudCountrySelect @bind-Value="model.Country" Class="field-md" />
+                            <MudTextField T="string" @bind-Value="model.Biography" Label="Biography" Lines="5" />
+                        </MudStack>
+                    </MudPaper>
                 </MudItem>
 
                 <MudItem xs="4">
-                    <MudText>Traits for drivers</MudText>
-                    @* Use MudChipSet also more often in favour of select when there are few options! (1 click > 2 click) *@
-                    <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
-                        @foreach (var trait in Traits)
-                        {
-                            <MudChip Text="@trait.Name" Value="@trait.Id"></MudChip>
-                        }
-                    </MudChipSet>
+                    <MudPaper Elevation="15" Class="pa-2">
+                        <MudText Typo="Typo.subtitle1">Traits</MudText>
+                        @* Use MudChipSet also more often in favour of select when there are few options! (1 click > 2 click) *@
+                        <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
+                            @foreach (var trait in Traits)
+                            {
+                                <MudChip Text="@trait.Name" Value="@trait.Id"></MudChip>
+                            }
+                        </MudChipSet>
+                    </MudPaper>
                 </MudItem>
             </MudGrid>
         </MudForm>
-        <MudText>
-            @if (selectedTraits != null)
-            {
-                <span>@selectedTraits.Count.ToString()</span>
-            }
-        </MudText>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>

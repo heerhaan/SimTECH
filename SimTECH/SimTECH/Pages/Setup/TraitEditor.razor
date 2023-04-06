@@ -1,24 +1,33 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText>Modify</MudText>
+        <MudText>Modify trait</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm Model="@model">
-
-            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
-
             <MudGrid Spacing="2">
                 <MudItem xs="6">
-                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
-                    <MudSelect T="Entrant" @bind-Value="model.Type" Label="Entrant type" Variant="Variant.Outlined">
-                        @foreach (var entrant in EnumHelper.GetEntrantSelection())
-                        {
-                            <MudSelectItem Value="@entrant.Key">@entrant.Value</MudSelectItem>
-                        }
-                    </MudSelect>
+                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
+                    <MudText Typo="Typo.subtitle2">Entrant type</MudText>
+                    @if (model.Id == 0)
+                    {
+                        <MudChipSet @bind-SelectedChip="entrantChip">
+                            @foreach (var entrant in EnumHelper.GetEntrantSelection())
+                            {
+                                <MudChip Value="@entrant.Key">@entrant.Value</MudChip>
+                            }
+                        </MudChipSet>
+                    }
+                    else
+                    {
+                        <MudText>@model.Type.ToString()</MudText>
+                    }
                 </MudItem>
                 <MudItem xs="6">
                     <MudTextField T="string" @bind-Value="model.Description" Label="Description" Variant="Variant.Outlined" Lines="5" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle1">Modifiers</MudText>
+                    <MudDivider />
                 </MudItem>
                 <MudItem xs="3">
                     <MudNumericField T="int" @bind-Value="model.DriverPace" Label="DriverPace" />
@@ -51,8 +60,9 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? TraitDialog { get; set; }
-
     [Parameter] public Trait? Trait { get; set; }
+
+    private MudChip? entrantChip;
 
     private EditTraitModel model = new();
 
@@ -64,6 +74,15 @@
 
     private void Submit()
     {
+        // Deserves perhaps a warning/validation message
+        if (model.Id == 0)
+        {
+            if (entrantChip == null)
+                return;
+
+            model.Type = (Entrant)entrantChip.Value;
+        }
+
         if (model.IsDirty)
         {
             var modTrait = model.Record;
