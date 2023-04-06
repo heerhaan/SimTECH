@@ -83,9 +83,7 @@
     private void HandleLengthLapCalc(string strLength)
     {
         var convertedDouble = double.Parse(strLength);
-        int expectedLaps = (int)Math.Round((double)raceLength / convertedDouble);
-
-        expectedLapCount = $"Expected amount of laps: {expectedLaps}";
+        expectedLapCount = $"Expected amount of laps: {NumberHelper.CalcLapCount(raceLength, convertedDouble)}";
     }
 
     private void Submit()

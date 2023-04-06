@@ -28,6 +28,9 @@ namespace SimTECH.Extensions
             return _rng.NextDouble() * (max - min) + min;
         }
 
+        public static int CalcLapCount(int raceLength, double trackLength)
+            => (int)Math.Round(raceLength / trackLength);
+
         public static TraitEffect SumTraitEffects(IEnumerable<Trait> traits)
         {
             return new TraitEffect

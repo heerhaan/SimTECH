@@ -21,7 +21,8 @@
             }
             else
             {
-                <MudButton Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
+                <MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" />
+                <MudButton Color="Color.Tertiary" Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
             }
         </ToolBarContent>
         <HeaderContent>
@@ -102,7 +103,10 @@
     private int mistakeRolls = 2;
     private int mistakeMinCost;
     private int mistakeMaxCost;
-    private double gapMarge = 0.28;
+    private int calculated = 0;
+    private int calculationCount;
+    private int calculationsPerAdvance = 1;
+    private double gapMarge = 0.12;
 
     protected override async Task OnInitializedAsync()
     {
@@ -111,6 +115,8 @@
 
         mistakeMinCost = -30 * lapCount;
         mistakeMaxCost = -20 * lapCount;
+
+        calculationCount = Model.RaceLength / 10;
 
         loading = false;
     }
