@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
+using SimTECH.PageModels;
 using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.Services
@@ -103,6 +104,19 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
 
             return null;
+        }
+
+        public SeasonOverviewAvailability GetOverviewAvailability(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return new SeasonOverviewAvailability
+            {
+                HasPointAllotment = context.Season.Single(e => e.Id == seasonId).PointAllotments.Any(),
+                HasEngines = false,
+                HasTeams = false,
+                HasDrivers = false,
+            };
         }
     }
 }

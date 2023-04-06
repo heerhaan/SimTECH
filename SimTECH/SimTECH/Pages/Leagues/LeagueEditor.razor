@@ -7,6 +7,7 @@
             <MudGrid>
                 <MudItem xs="12">
                     <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+                    <MudNumericField T="int" @bind-Value="model.RaceLength" Step="10" Label="RaceLength" HelperText="Should round to nearest ten" Validation="@(new Func<int, string>(LengthValidator))" />
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Elevation="5" Class="pa-4">
@@ -80,6 +81,14 @@
             };
 
         model.DevelopmentRanges.Add(newRange);
+    }
+
+    private string? LengthValidator(int length)
+    {
+        if ((length % 10) != 0)
+            return "Race length should be a factor of 10";
+
+        return null;
     }
 
     private void Submit()

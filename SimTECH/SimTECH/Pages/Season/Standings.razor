@@ -12,8 +12,8 @@
             <MudTabPanel Text="Standings">
                 <MudGrid Spacing="4">
                     <MudItem xs="6">
-                        <MudPaper Elevation="15">
-                            <MudTable Items="@DriverResultsModel" Class="pa-4">
+                        <MudPaper Elevation="15" Class="pa-4">
+                            <MudTable Items="@DriverResultsModel">
                                 <HeaderContent>
                                     <MudTh>Position</MudTh>
                                     <MudTh>Name</MudTh>
@@ -24,7 +24,7 @@
                                     </MudTh>
                                 </HeaderContent>
                                 <RowTemplate>
-                                    <MudTd DataLabel="Position">0</MudTd>
+                                    <MudTd DataLabel="Position">@context.Position</MudTd>
                                     <MudTd DataLabel="Name">
                                         <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
                                         @context.Name
@@ -62,51 +62,48 @@
             </MudTabPanel>
 
             <MudTabPanel Text="WDC results">
-                <MudTable Items="@DriverResultsModel">
-                    <HeaderContent>
-                        <MudTh>#</MudTh>
-                        <MudTh>No</MudTh>
-                        <MudTh>Driver</MudTh>
-                        @foreach (var race in Races.OrderBy(e => e.Round))
-                        {
-                            <MudTh>
-                                <CountryFlag Code="@race.Track.Country" Size="FlagSize.Tiny" />
-                                @(race.Track.Name.Substring(0, 3))
-                            </MudTh>
-                        }
-                        <MudTh>PTS</MudTh>
-                        <MudTh>AVG</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>@context.Position</MudTd>
-                        <MudTd>@context.Number</MudTd>
-                        <MudTd>
-                            <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
-                            @context.Name
-                        </MudTd>
-                        @for (int i = 0; i <= Races.Count; i++)
-                        {
-                            if (i < context.ResultCells.Count)
+                <MudPaper Elevation="15" Class="pa-4">
+                    <MudTable Items="@DriverResultsModel">
+                        <HeaderContent>
+                            <MudTh>#</MudTh>
+                            <MudTh>No</MudTh>
+                            <MudTh>Driver</MudTh>
+                            @foreach (var race in Races.OrderBy(e => e.Round))
                             {
-                                var result = context.ResultCells[i];
-                                <MudTd Style="@(GetResultStyle(result))">
-                                    @result.Position
-
-                                    @if (result.Pole)
-                                    {
-                                        <MudText>[P]</MudText>
-                                    }
-                                </MudTd>
+                                <MudTh>
+                                    <CountryFlag Code="@race.Track.Country" Size="FlagSize.Tiny" />
+                                    @(race.Track.Name.Substring(0, 3))
+                                </MudTh>
                             }
-                            else
+                            <MudTh>PTS</MudTh>
+                            <MudTh>AVG</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.Position</MudTd>
+                            <MudTd>@context.Number</MudTd>
+                            <MudTd>
+                                <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
+                                @context.Name
+                            </MudTd>
+                            @for (int i = 0; i <= Races.Count; i++)
                             {
-                                <MudTd>-</MudTd>
+                                if (i < context.ResultCells.Count)
+                                {
+                                    var result = context.ResultCells[i];
+                                    <MudTd Style="@(GetResultStyle(result))">
+                                        @(GetResultText(result))
+                                    </MudTd>
+                                }
+                                else
+                                {
+                                    <MudTd>-</MudTd>
+                                }
                             }
-                        }
-                        <MudTd>@context.Points</MudTd>
-                        <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
-                    </RowTemplate>
-                </MudTable>
+                            <MudTd>@context.Points</MudTd>
+                            <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
             </MudTabPanel>
 
             <MudTabPanel Text="WCC results">
@@ -136,10 +133,14 @@
                             if (teamResults.Any())
                             {
                                 <MudTd>
-                                    @foreach (var result in teamResults)
-                                    {
-                                        <MudChip Style="@(GetResultStyle(result))">@result.Position</MudChip>
-                                    }
+                                    <MudStack>
+                                        @foreach (var result in teamResults)
+                                        {
+                                            <MudChip Style="@(GetResultStyle(result))">
+                                                @(GetResultText(result))
+                                            </MudChip>
+                                        }
+                                    </MudStack>
                                 </MudTd>
                             }
                             else
@@ -234,6 +235,25 @@
         return cellStyle;
     }
 
+    private string GetResultText(StandingResultCell cell)
+    {
+        var cellText = string.Empty;
+
+        switch (cell.Status)
+        {
+            case RaceStatus.Dnq: cellText = "DNQ";
+                break;
+            case RaceStatus.Dsq: cellText = "DSQ";
+                break;
+            case RaceStatus.Dnf: cellText = "DNF";
+                break;
+            default: cellText = cell.Position.ToString();
+                break;
+        }
+
+        return cellText;
+    }
+
     private StandingDriverModel ToDriverResultModel(SeasonDriver driver, int position)
     {
         return new StandingDriverModel
@@ -254,6 +274,7 @@
             {
                 Position = position,
                 Name = team.Name,
+                Principal = team.Principal,
                 Nationality = team.Team.Country,
                 Points = team.Points,
                 HiddenPoints = team.HiddenPoints,

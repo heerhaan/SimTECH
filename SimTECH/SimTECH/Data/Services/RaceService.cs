@@ -91,7 +91,7 @@ namespace SimTECH.Data.Services
                     Status = RaceStatus.Racing,
                     TyreLife = strategy.StrategyTyres[0].Tyre.Pace,
                     SeasonDriverId = driver.Id,
-                    SeasonTeamId = driver.SeasonTeamId.Value,
+                    SeasonTeamId = driver.SeasonTeamId.GetValueOrDefault(),
                     RaceId = race.Id,
                     StrategyId = strategy.Id,
                 });
@@ -267,7 +267,7 @@ namespace SimTECH.Data.Services
             const int weatherRng = 0;
             const int weatherDnf = 0;
 
-            foreach (var driverResult in driverResults)
+            foreach (var driverResult in driverResults.Where(e => e.Status != RaceStatus.Dnq))
             {
                 var driverTraits = new List<Trait>(trackTraits);
 

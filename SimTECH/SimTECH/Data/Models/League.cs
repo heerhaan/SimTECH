@@ -4,6 +4,7 @@
     {
         public long Id { get; set; }
         public string Name { get; set; } = default!;
+        public int RaceLength { get; set; }
         public State State { get; set; }
 
         // TODO: Tiers could be helpful in adding them to the same races but it's a bigger thing, requires total design

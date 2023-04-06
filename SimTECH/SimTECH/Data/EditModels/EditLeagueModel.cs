@@ -8,6 +8,7 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public int RaceLength { get; set; }
         public State State { get; set; }
         public IList<EditRangeModel> DevelopmentRanges { get; set; } = new List<EditRangeModel>();
 
@@ -16,6 +17,7 @@ namespace SimTECH.Data.EditModels
         {
             Id = league.Id;
             Name = league.Name;
+            RaceLength = league.RaceLength;
             State = league.State;
             DevelopmentRanges = league.DevelopmentRanges?
                 .Select(range => new EditRangeModel(range))
@@ -30,6 +32,7 @@ namespace SimTECH.Data.EditModels
             {
                 Id = Id,
                 Name = Name ?? string.Empty,
+                RaceLength = RaceLength,
                 State = State,
                 DevelopmentRanges = DevelopmentRanges
                     .Select(range => range.Record)
