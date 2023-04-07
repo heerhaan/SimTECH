@@ -3,6 +3,7 @@
     public class TraitEffect
     {
         public int QualifyingPace { get; set; }
+        public int RacePace { get; set; }
         public int DriverPace { get; set; }
         public int CarPace { get; set; }
         public int EnginePace { get; set; }

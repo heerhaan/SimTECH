@@ -10,10 +10,10 @@
         <ToolBarContent>
             <MudText>
                 <CountryFlag Code="@Model.Country" />
-                @Model.Name - LAPRACE ROUND @Model.Round
+                @Model.Name - ROUND @Model.Round
             </MudText>
             <MudText>weather: @Model.Weather</MudText>
-            <MudText>Laps = @(lapsRaced) / @(lapCount)</MudText>
+            <MudText>Lap @(lapsRaced) / @(lapCount)</MudText>
             <MudSpacer />
             @if (lapsRaced == lapCount)
             {
@@ -21,7 +21,7 @@
             }
             else
             {
-                <MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" />
+                <MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" Class="field-md" />
                 <MudButton Color="Color.Tertiary" Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
             }
         </ToolBarContent>
@@ -53,7 +53,7 @@
             <MudTd Style="@(ViewHelper.GetTeamSimpleStyle(context.Colour))">
                 @context.TeamName
             </MudTd>
-            <MudTd>@context.Power [@(context.NormalizedPower)]</MudTd>
+            <MudTd>@context.Power</MudTd>
             <MudTd>
                 <span class="tyre" style="border-color:@(context.CurrentTyre.Colour)">
                     @context.TyreLife
@@ -183,7 +183,6 @@
                     if (mistake)
                     {
                         lapResult += NumberHelper.RandomInt(mistakeMinCost, mistakeMaxCost);
-                        //driverStint.RacerEvents |= RacerEvent.Mistake;
                     }
 
                     // TODO: Strategy
@@ -192,14 +191,7 @@
 
                     driver.TyreLife += NumberHelper.RandomInt(driver.WearMaxMod, driver.WearMinMod);
 
-                    // ApplyDriver
-                    //lapResult += driver.DriverPower;
-                    // ApplyTeam
-                    //lapResult += driver.CarPower;
-                    // ApplyEngine
-                    //lapResult += driver.EnginePower;
-
-                    lapResult += driver.NormalizedPower;
+                    lapResult += driver.Power;
 
                     driver.LapScores.Add(lapResult);
                 }

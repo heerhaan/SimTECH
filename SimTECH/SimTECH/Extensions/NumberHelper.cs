@@ -36,9 +36,7 @@ namespace SimTECH.Extensions
             return new TraitEffect
             {
                 QualifyingPace          = traits.Sum(e => e.QualifyingPace),
-                DriverPace              = traits.Sum(e => e.DriverPace),
-                CarPace                 = traits.Sum(e => e.CarPace),
-                EnginePace              = traits.Sum(e => e.EnginePace),
+                RacePace                = traits.Sum(e => e.RacePace),
                 DriverReliability       = traits.Sum(e => e.DriverReliability),
                 CarReliability          = traits.Sum(e => e.CarReliability),
                 EngineReliability       = traits.Sum(e => e.EngineReliability),

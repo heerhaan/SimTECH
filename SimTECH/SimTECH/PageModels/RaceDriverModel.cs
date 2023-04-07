@@ -34,7 +34,6 @@ namespace SimTECH.PageModels
         public Tyre CurrentTyre { get; set; }
         public Strategy Strategy { get; set; }
 
-        public int NormalizedPower { get; set; }
         public int DriverReliability { get; set; }
         public int CarReliability { get; set; }
         public int EngineReliability { get; set; }

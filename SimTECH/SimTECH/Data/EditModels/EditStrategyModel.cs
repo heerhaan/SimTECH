@@ -42,6 +42,7 @@ namespace SimTECH.Data.EditModels
         private readonly StrategyTyre _strategyTyre;
 
         public long Id { get; set; }
+        public int Order { get; set; }
         public long StrategyId { get; set; }
         public long TyreId { get; set; }
         public Tyre? Tyre { get; set; }
@@ -50,6 +51,7 @@ namespace SimTECH.Data.EditModels
         public EditStrategyTyreModel(StrategyTyre strategyTyre)
         {
             Id = strategyTyre.Id;
+            Order = strategyTyre.Order;
             StrategyId = strategyTyre.StrategyId;
             TyreId = strategyTyre.TyreId;
             Tyre = strategyTyre.Tyre;

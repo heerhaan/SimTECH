@@ -260,7 +260,7 @@ namespace SimTECH.Data.Services
 
             var raceDrivers = new List<RaceDriver>();
 
-            var lapCount = 50;
+            var lapCount = 30;
 
             // TODO: read the following from the config
             const double engineMultiplier = 0.9;
@@ -280,15 +280,6 @@ namespace SimTECH.Data.Services
                 var strategy = allStrategies.Find(e => e.Id == driverResult.StrategyId)
                     ?? throw new InvalidOperationException("Could not find the strategy for driver");
 
-                var enginePower = (team.SeasonEngine.Power * engineMultiplier).RoundDouble();
-
-                int baseSpeed = driver.Skill + team.BaseValue + enginePower;
-                double teamModifiers = (team.Aero * race.Track.AeroMod)
-                    + (team.Chassis * race.Track.ChassisMod)
-                    + (team.Powertrain * race.Track.PowerMod);
-
-                var driverPower = baseSpeed + teamModifiers.RoundDouble();
-
                 if (driver.Driver.DriverTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => driver.Driver.DriverTraits.Select(dt => dt.TraitId).Contains(e.Id)));
                 if (team.Team.TeamTraits?.Any() == true)
@@ -296,8 +287,14 @@ namespace SimTECH.Data.Services
 
                 var sumTraits = NumberHelper.SumTraitEffects(driverTraits);
 
-                var totalPower = sumTraits.DriverPace + driver.Skill + sumTraits.CarPace + team.BaseValue + teamModifiers.RoundDouble() + RetrieveStatusBonus(driver) + sumTraits.EnginePace + enginePower;
-                var normalizedPowerCalc = (totalPower * lapCount);
+                double teamModifiers = (team.Aero * race.Track.AeroMod)
+                    + (team.Chassis * race.Track.ChassisMod)
+                    + (team.Powertrain * race.Track.PowerMod);
+
+                var driverPower = sumTraits.DriverPace + driver.Skill + RetrieveStatusBonus(driver);
+                var carPower = sumTraits.CarPace + team.BaseValue + teamModifiers.RoundDouble();
+                var enginePower = sumTraits.EnginePace + (team.SeasonEngine.Power * engineMultiplier).RoundDouble();
+                var totalPower = driverPower + carPower + enginePower;
 
                 raceDrivers.Add(new RaceDriver
                 {
@@ -312,8 +309,6 @@ namespace SimTECH.Data.Services
                     Colour = team.Colour,
                     Accent = team.Accent,
 
-                    Power = driverPower,
-
                     Status = driverResult.Status,
                     Incident = driverResult.Incident,
 
@@ -324,7 +319,7 @@ namespace SimTECH.Data.Services
                     Strategy = strategy,
                     CurrentTyre = strategy.StrategyTyres[0].Tyre,
 
-                    NormalizedPower = normalizedPowerCalc,
+                    Power = totalPower,
                     DriverReliability = sumTraits.DriverReliability + driver.Reliability + weatherDnf,
                     CarReliability = sumTraits.CarReliability + team.Reliability,
                     EngineReliability = sumTraits.EngineReliability + team.SeasonEngine.Reliability,
