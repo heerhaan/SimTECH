@@ -1,5 +1,6 @@
 ﻿@page "/seasons"
 @inject NavigationManager Nav
+@inject LeagueService LeagueService
 @inject SeasonService SeasonService
 @inject IDialogService DialogService
 
@@ -15,7 +16,11 @@
         <Columns>
             <PropertyColumn Property="e => e.Year" />
             <PropertyColumn Property="e => e.State" />
-            <PropertyColumn Property="e => e.LeagueId" />
+            <TemplateColumn Title="League">
+                <CellTemplate>
+                    <MudText>@(Leagues.Find(e => e.Id == context.Item.LeagueId)?.Name ?? "Unknown?!")</MudText>
+                </CellTemplate>
+            </TemplateColumn>
             <TemplateColumn CellClass="d-flex justify end">
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small">
@@ -39,10 +44,12 @@
 @code {
     private bool _readOnly = false;
     private List<Season> SeasonData = new();
+    private List<League> Leagues = new();
 
     protected override async Task OnInitializedAsync()
     {
         SeasonData = await SeasonService.GetSeasons();
+        Leagues = await LeagueService.GetLeagues();
     }
 
     // Arguably delete the copy, use by default the last season as a base
@@ -50,7 +57,7 @@
     private async Task CopySeason(Season season) => await UpdateSeason(season, true);
     private async Task UpdateSeason(Season item, bool isCopied = false)
     {
-        var parameters = new DialogParameters { ["Season"] = item, ["Copied"] = isCopied };
+        var parameters = new DialogParameters { ["Season"] = item, ["Leagues"] = Leagues, ["Copied"] = isCopied };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;

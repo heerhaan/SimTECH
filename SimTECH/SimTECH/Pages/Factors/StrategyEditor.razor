@@ -9,16 +9,16 @@
                     <MudTable T="EditStrategyTyreModel" Items="@model.StrategyTyres">
                         <HeaderContent>
                             <MudTh>Order</MudTh>
-                            <MudTh>Tyre</MudTh>
+                            <MudTh>Tyres</MudTh>
                             <MudTh></MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd DataLabel="Order">@context.Order</MudTd>
-                            <MudTd DataLabel="Tyre">
+                            <MudTd DataLabel="Tyres">
                                 <span class="tyre" style="border-color:@(context.Tyre.Colour)">
                                     @context.Tyre.Name.ElementAt(0)
                                 </span>
-                                </MudTd>
+                            </MudTd>
                             <MudTd>
                                 <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveTyreFromStrategy(context))" />
                             </MudTd>
@@ -99,7 +99,8 @@
 
     private void RemoveTyreFromStrategy(EditStrategyTyreModel strategyTyre)
     {
-        --orderMax;
+        if (orderMax != 0)
+            --orderMax;
 
         model.StrategyTyres.Remove(strategyTyre);
 

@@ -9,7 +9,8 @@
 
 <PageTitle>Overview</PageTitle>
 
-<CascadingValue Value="Season" IsFixed="true"> @* still should confirm if isfixed also works when re-assigning the object by loading a new season *@
+@* still should confirm if isfixed also works when re-assigning the object by loading a new season *@
+<CascadingValue Value="Season" IsFixed="true">
     @if (Season != null)
     {
         <MudTabs Outlined="true" Centered="true" @ref="tabs">
@@ -148,16 +149,16 @@
 
 @code {
     [Parameter] public long SeasonId { get; set; }
-    [Parameter] public int TabIndex { get; set; } = 0;
-
-    MudTabs _tabs;
+    [Parameter] public int TabIndex { get; set; }
 
     public Season? Season { get; set; }
     public Race? NextRace { get; set; }
 
+    MudTabs? tabs;
+
     //private SeasonOverviewAvailability OverviewAvailability { get; set; } = new();
 
-    private string? _errorMessage { get; set; } = null;
+    private string? _errorMessage { get; set; }
 
     // Underneath is an ID to confirm if it works
     //protected MudDropContainer<EditSeasonTeamModel> teamDropper
@@ -182,15 +183,6 @@
         //    ActivatePanel(TabIndex);
     }
 
-    protected MudTabs tabs
-    {
-        get => _tabs;
-        set
-        {
-            _tabs = value;
-        }
-    }
-
     // doesnt work, null ref
     //void ActivatePanel(int index)
     //{
@@ -209,6 +201,7 @@
                 Snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
             }
         }
+        // It's pretty much impossible to hit this else-condition but eh
         else
         {
             _errorMessage = "Couldn't detect a season (wtf?)";

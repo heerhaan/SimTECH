@@ -9,6 +9,7 @@ namespace SimTECH.Data.EditModels
         public long Id { get; set; }
         public int Round { get; set; }
         public string Name { get; set; } = string.Empty;
+        public int RaceLength { get; set; }
         public Weather Weather { get; set; }
         public State State { get; set; }
 
@@ -21,6 +22,7 @@ namespace SimTECH.Data.EditModels
             Id = race.Id;
             Round = race.Round;
             Name = race.Name;
+            RaceLength = race.RaceLength;
             Weather = race.Weather;
             State = race.State;
             SeasonId = race.SeasonId;
@@ -35,6 +37,7 @@ namespace SimTECH.Data.EditModels
                 Id = Id,
                 Round = Round,
                 Name = Name,
+                RaceLength = RaceLength,
                 Weather = Weather,
                 State = State,
                 SeasonId = SeasonId,

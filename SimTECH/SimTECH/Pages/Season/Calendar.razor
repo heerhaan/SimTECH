@@ -1,4 +1,5 @@
-﻿@inject RaceService RaceService
+﻿@inject LeagueService _leagueService
+@inject RaceService RaceService
 @inject TrackService TrackService
 @inject NavigationManager Nav
 @inject IDialogService DialogService
@@ -73,9 +74,16 @@
     private async Task AddRace() => await UpdateRace(new Race());
     private async Task UpdateRace(Race item)
     {
+        var seasonLeague = await _leagueService.GetLeagueById(Season.LeagueId);
         var availableTracks = (await TrackService.GetTracks())
             .Where(e => !RaceData.Select(r => r.TrackId).Contains(e.Id))
             .ToList();
+
+        if (seasonLeague == null)
+        {
+            Snackbar.Add("how in the hell is it unknown which league this is, cant do shit now?!", Severity.Error);
+            return;
+        }
 
         if (!availableTracks.Any() && item.Id == 0)
         {
@@ -88,7 +96,8 @@
                 ["Race"] = item,
                 ["Tracks"] = availableTracks,
                 ["SeasonId"] = Season.Id,
-                ["IncomingRound"] = (RaceData.Count + 1)
+                ["IncomingRound"] = (RaceData.Count + 1),
+                ["DefaultRaceLength"] = seasonLeague.RaceLength,
             };
 
         var dialog = await DialogService.ShowAsync<RaceEditor>("Modify Race", parameters);

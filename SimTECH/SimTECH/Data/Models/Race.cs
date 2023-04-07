@@ -7,6 +7,7 @@ namespace SimTECH.Data.Models
         public long Id { get; set; }
         public int Round { get; set; }
         public string Name { get; set; } = default!;
+        public int RaceLength { get; set; }
         public Weather Weather { get; set; }
         public State State { get; set; }
 

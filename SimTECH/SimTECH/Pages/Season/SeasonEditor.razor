@@ -39,9 +39,17 @@
                                 <MudNumericField T="int" @bind-Value="model.PointsPole" Label="Awarded points Pole" Class="field-md" />
                                 <MudNumericField T="int" @bind-Value="model.PointsFastestLap" Label="Awarded points Fastest Lap" Class="field-md" />
                             </div>
+                            <div>
+                                <MudText Typo="Typo.subtitle1">TEMP: Select a league for this season</MudText>
+                                <MudDivider />
+                                <MudSelect T="long" @bind-Value="model.LeagueId" Label="League" ReadOnly="@(model.Id != 0)">
+                                    @foreach (var select in Leagues)
+                                    {
+                                        <MudSelectItem Value="select.Id">@select.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </div>
                         </MudStack>
-
-                        <MudNumericField T="long" @bind-Value="model.LeagueId" Label="League ID" />
 
                         @if (Copied)
                         {
@@ -50,10 +58,6 @@
                             {
                                 <MudAlert Severity="Severity.Warning">Sorry! Feature isn't implemented yet.</MudAlert>
                             }
-                        }
-                        else
-                        {
-                            <MudText>dumb and gay</MudText>
                         }
                     </MudPaper>
                 </MudItem>
@@ -110,6 +114,7 @@
     [CascadingParameter] protected MudDialogInstance? SeasonDialog { get; set; }
 
     [Parameter] public Season? Season { get; set; }
+    [Parameter] public List<League> Leagues { get; set; }
     [Parameter] public bool Copied { get; set; }
 
     private EditSeasonModel model = new();

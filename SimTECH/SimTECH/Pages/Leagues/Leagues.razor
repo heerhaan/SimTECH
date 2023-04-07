@@ -1,5 +1,4 @@
 ﻿@page "/leagues"
-
 @inject LeagueService LeagueService
 @inject IDialogService DialogService
 
@@ -8,7 +7,7 @@
 <MudContainer>
     <MudDataGrid T="League" Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true" Class="my-2">
         <ToolBarContent>
-            <MudText Typo="Typo.h4">Leagues</MudText>
+            <MudText Typo="Typo.h4">Leagues [@activeLeagueId]</MudText>
             <MudSpacer />
             <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddLeague">New</MudButton>
         </ToolBarContent>
@@ -20,6 +19,7 @@
             <TemplateColumn CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">
+                        @*<MudIconButton Icon="@Icons.Material.Filled.ElectricBolt" OnClick="@(async () => await ActivateLeague(context.Item))" />*@
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context.Item))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteLeague(context.Item))" />
                     </MudButtonGroup>
@@ -53,19 +53,31 @@
 </MudContainer>
 
 @code {
-    private DialogOptions dialogOptions = new()
-    {
-        MaxWidth = MaxWidth.ExtraLarge,
-    };
+    private DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.ExtraLarge };
     private List<League> LeagueData = new List<League>();
 
     private bool _loading = true;
-    
+    private long activeLeagueId { get; set; } = 0;
+
     protected override async Task OnInitializedAsync()
     {
         LeagueData = await LeagueService.GetLeagues();
         _loading = false;
     }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    var storedLeagueId = await LocalStorage.GetAsync<long>("activeleague");
+    //    if (storedLeagueId.Success)
+    //    {
+    //        activeLeagueId = storedLeagueId.Value;
+    //    }
+    //}
+
+    //async Task ActivateLeague(League item)
+    //{
+    //    await LocalStorage.SetAsync("activeleague", item.Id);
+    //}
 
     async Task AddLeague() => await UpdateLeague(new League());
     async Task UpdateLeague(League item)

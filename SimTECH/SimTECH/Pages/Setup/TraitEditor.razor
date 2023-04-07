@@ -6,21 +6,25 @@
         <MudForm Model="@model">
             <MudGrid Spacing="2">
                 <MudItem xs="6">
-                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
-                    <MudText Typo="Typo.subtitle2">Entrant type</MudText>
-                    @if (model.Id == 0)
-                    {
-                        <MudChipSet @bind-SelectedChip="entrantChip">
-                            @foreach (var entrant in EnumHelper.GetEntrantSelection())
+                    <MudStack Justify="Justify.SpaceBetween" Class="py-2">
+                        <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
+                        <div>
+                            <MudText Typo="Typo.subtitle2">Entrant type</MudText>
+                            @if (model.Id == 0)
                             {
-                                <MudChip Value="@entrant.Key">@entrant.Value</MudChip>
+                                <MudChipSet @bind-SelectedChip="entrantChip">
+                                    @foreach (var entrant in EnumHelper.GetEntrantSelection())
+                                    {
+                                        <MudChip Value="@entrant.Key">@entrant.Value</MudChip>
+                                    }
+                                </MudChipSet>
                             }
-                        </MudChipSet>
-                    }
-                    else
-                    {
-                        <MudText>@model.Type.ToString()</MudText>
-                    }
+                            else
+                            {
+                                <MudText>@model.Type.ToString()</MudText>
+                            }
+                        </div>
+                    </MudStack>
                 </MudItem>
                 <MudItem xs="6">
                     <MudTextField T="string" @bind-Value="model.Description" Label="Description" Variant="Variant.Outlined" Lines="5" />
@@ -72,9 +76,9 @@
 
     private void Submit()
     {
-        // Deserves perhaps a warning/validation message
         if (model.Id == 0)
         {
+            // Perhaps own warning/validation message
             if (entrantChip == null)
                 return;
 
