@@ -1,0 +1,120 @@
+﻿@inject LeagueService LeagueService
+@inject SeasonEntrantService EntrantService
+@inject SeasonService SeasonService
+
+<MudTabs>
+    <MudTabPanel Text="Drivers">
+        @if (DevelopedEntrants != null)
+        {
+            <MudTable Items="@DevelopedEntrants">
+                <ToolBarContent>
+                    <MudStack>
+                        <MudChipSet @bind-SelectedChip="_selectedChip">
+                            <MudChip Default="true">Default</MudChip>
+                            <MudChip>Range</MudChip>
+                            <MudChip>Direct</MudChip>
+                        </MudChipSet>
+                        <MudChipSet @bind-SelectedChip="_devChip">
+                            <MudChip Default="true">Skill</MudChip>
+                            <MudChip>Reliability</MudChip>
+                        </MudChipSet>
+                    </MudStack>
+
+                    @if (_selectedChip != null && _selectedChip.Text == "Range")
+                    {
+                        <MudNumericField T="int" @bind-Value="_minRange" Max="_maxRange" Label="Min" />
+                        <MudNumericField T="int" @bind-Value="_maxRange" Min="_minRange" Label="Max" />
+                    }
+
+                    <MudSpacer />
+                    <MudButton>Run</MudButton>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Age</MudTh>
+                    <MudTh>Old</MudTh>
+                    <MudTh>Change</MudTh>
+                    <MudTh>New</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <CountryFlag Code="@context.Nationality.GetValueOrDefault()" Size="FlagSize.Tiny" />
+                        @context.Name
+                    </MudTd>
+                    <MudTd>@context.Additional</MudTd>
+                    <MudTd>@context.Old</MudTd>
+                    <MudTd>0</MudTd>
+                    <MudTd>0</MudTd>
+                    <MudTd Class="d-flex justify-end">
+
+                    </MudTd>
+                </RowTemplate>
+                <RowEditingTemplate>
+
+                </RowEditingTemplate>
+            </MudTable>
+        }
+    </MudTabPanel>
+    <MudTabPanel Text="Teams">
+        @if (SeasonTeams != null)
+        {
+            <MudTable Items="@SeasonTeams">
+
+            </MudTable>
+        }
+    </MudTabPanel>
+    <MudTabPanel Text="Engines">
+        @if (SeasonEngines != null)
+        {
+            <MudTable Items="@SeasonEngines">
+
+            </MudTable>
+        }
+    </MudTabPanel>
+</MudTabs>
+
+@code {
+    [Parameter] public long SeasonId { get; set; }
+
+    Season Season;
+    League League;
+    List<SeasonDriver> SeasonDrivers;
+    List<SeasonTeam> SeasonTeams;
+    List<SeasonEngine> SeasonEngines;
+    List<DevelopedEntrant> DevelopedEntrants;
+
+    MudChip? _selectedChip;
+    MudChip? _devChip;
+    int _minRange;
+    int _maxRange;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Season = await SeasonService.GetSeasonById(SeasonId);
+        League = await LeagueService.GetLeagueById(Season.LeagueId);
+        SeasonDrivers = await EntrantService.GetSeasonDrivers(SeasonId);
+        SeasonTeams = await EntrantService.GetSeasonTeams(SeasonId);
+        SeasonEngines = await EntrantService.GetSeasonEngines(SeasonId);
+
+        DevelopedEntrants = SeasonDrivers.Select(e =>
+            new DevelopedEntrant
+            {
+                Name = e.Driver.FullName,
+                Nationality = e.Driver.Country,
+                Additional = e.Driver.DateOfBirth.Year.ToString(),
+                Old = e.Skill,
+            })
+            .ToList();
+    }
+
+    private class DevelopedEntrant
+    {
+        public string Name { get; set; }
+        public Country? Nationality { get; set; }
+        public string? Additional { get; set; }
+        public int Old { get; set; }
+        public int Change { get; set; }
+        public int New { get; set; }
+    }
+}

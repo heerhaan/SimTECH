@@ -3,6 +3,7 @@
 @inject LeagueService LeagueService
 @inject RaceService RaceService
 @inject SeasonService SeasonService
+@inject BreadcrumbProvider Bread
 @inject NavigationManager Nav
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
@@ -174,6 +175,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Overview", href: "overview")
+        });
+
         Season = await SeasonService.GetSeasonById(SeasonId);
 
         //OverviewAvailability = SeasonService.GetOverviewAvailability(SeasonId);

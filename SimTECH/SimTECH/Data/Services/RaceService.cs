@@ -291,7 +291,7 @@ namespace SimTECH.Data.Services
                     + (team.Chassis * race.Track.ChassisMod)
                     + (team.Powertrain * race.Track.PowerMod);
 
-                var driverPower = sumTraits.DriverPace + driver.Skill + RetrieveStatusBonus(driver);
+                var driverPower = sumTraits.DriverPace + driver.Skill + driver.RetrieveStatusBonus();
                 var carPower = sumTraits.CarPace + team.BaseValue + teamModifiers.RoundDouble();
                 var enginePower = sumTraits.EnginePace + (team.SeasonEngine.Power * engineMultiplier).RoundDouble();
                 var totalPower = driverPower + carPower + enginePower;
@@ -352,17 +352,6 @@ namespace SimTECH.Data.Services
             };
         }
 
-        // TODO: function can probably be placed elsewhere where it fits better
-        private static int RetrieveStatusBonus(SeasonDriver driver)
-        {
-            if (driver.TeamRole == TeamRole.Main)
-                return 2;
-            else if (driver.TeamRole == TeamRole.Support)
-                return -2;
-
-            return 0;
-        }
-
         public async Task<QualifyingModel> RetrieveQualifyingModel(long raceId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -403,8 +392,6 @@ namespace SimTECH.Data.Services
 
             var raceDrivers = new List<QualifyingDriver>();
 
-            var amountRuns = 2;
-
             foreach (var driverResult in driverResults)
             {
                 var driverTraits = new List<Trait>(trackTraits);
@@ -417,8 +404,8 @@ namespace SimTECH.Data.Services
                 if (team == null)
                     throw new InvalidOperationException("Could not find matching seasonteam for result");
 
-                int baseSpeed = driver.Skill + team.BaseValue + team.SeasonEngine.Power;
-                double teamModifiers = (team.Aero * race.Track.AeroMod)
+                var baseSpeed = driver.Skill + team.BaseValue + team.SeasonEngine.Power;
+                var teamModifiers = (team.Aero * race.Track.AeroMod)
                     + (team.Chassis * race.Track.ChassisMod)
                     + (team.Powertrain * race.Track.PowerMod);
 
@@ -444,9 +431,9 @@ namespace SimTECH.Data.Services
                     Power = driverPower,
 
                     TraitEffect = NumberHelper.SumTraitEffects(driverTraits),
-                    RunValuesQ1 = new int[amountRuns],
-                    RunValuesQ2 = new int[amountRuns],
-                    RunValuesQ3 = new int[amountRuns],
+                    RunValuesQ1 = new int[season.RunAmountSession],
+                    RunValuesQ2 = new int[season.RunAmountSession],
+                    RunValuesQ3 = new int[season.RunAmountSession],
                 });
             }
 
@@ -457,11 +444,14 @@ namespace SimTECH.Data.Services
                 Country = race.Track.Country,
                 Weather = race.Weather,
 
-                AmountRuns = amountRuns,
+                AmountRuns = season.RunAmountSession,
 
                 QualifyingDrivers = raceDrivers,
 
-                Season = season
+                MaximumRaceDrivers = season.MaximumDriversInRace,
+                QualyRng = season.QualifyingRNG,
+                QualyAmountQ2 = season.QualifyingAmountQ2,
+                QualyAmountQ3 = season.QualifyingAmountQ3,
             };
         }
 
@@ -641,6 +631,50 @@ namespace SimTECH.Data.Services
                 TrackTraits = trackTraits,
             };
         }
+
+        //public async Task<QualifyingModel> SlimRetrieveQualyModel(long raceId)
+        //{
+        //    // Showcase of an alternative implementation
+        //    // This was supposedly faster but it elapses as quickly as the regular model, anyway it does work!
+        //    using var context = _dbFactory.CreateDbContext();
+
+        //    var qualyModel = await context.Race
+        //        .Where(e => e.Id == raceId)
+        //        .Select(e => new QualifyingModel
+        //        {
+        //            RaceId = e.Id,
+        //            Name = e.Name,
+        //            Country = e.Track.Country,
+        //            AmountRuns = e.Season.RunAmountSession,
+        //            QualyRng = e.Season.QualifyingRNG,
+        //            QualyAmountQ2 = e.Season.QualifyingAmountQ2,
+        //            QualyAmountQ3 = e.Season.QualifyingAmountQ3,
+        //            MaximumRaceDrivers = e.Season.MaximumDriversInRace,
+        //            TrackTraitIds = e.Track.TrackTraits.Select(tt => tt.TraitId).ToList(),
+
+        //            QualifyingDrivers = e.Results.Select(r =>
+        //                new QualifyingDriver
+        //                {
+        //                    ResultId = r.Id,
+        //                    FullName = r.SeasonDriver.Driver.FullName,
+        //                    Number = r.SeasonDriver.Number,
+        //                    Role = r.SeasonDriver.TeamRole,
+        //                    Nationality = r.SeasonDriver.Driver.Country,
+        //                    TeamName = r.SeasonTeam.Name,
+        //                    Colour = r.SeasonTeam.Colour,
+        //                    Accent = r.SeasonTeam.Accent,
+        //                    BaseValue = r.SeasonTeam.BaseValue,
+        //                    EnginePower = r.SeasonTeam.SeasonEngine.Power,
+
+        //                    DriverTraitIds = r.SeasonDriver.Driver.DriverTraits.Select(dr => dr.TraitId).ToList(),
+        //                    TeamTraitIds = r.SeasonTeam.Team.TeamTraits.Select(tt => tt.TraitId).ToList(),
+        //                })
+        //            .ToList()
+        //        })
+        //        .SingleAsync();
+
+        //    return qualyModel;
+        //}
         #endregion
     }
 }

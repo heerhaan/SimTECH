@@ -1,0 +1,69 @@
+﻿@page "/addentrantswizard/{SeasonId:long}"
+@inject SeasonService SeasonService
+@inject SeasonEntrantService EntrantService
+@inject ManufacturerService ManufacturerService
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@using MudBlazor.Extensions
+@using MudExtensions.Enums;
+@using MudExtensions.Utilities
+
+<MudForm @ref="_form" Model="@Model">
+    <MudStepper @ref="_stepper">
+        <MudStep Title="Engines">
+
+        </MudStep>
+
+        <MudStep Title="All entries" IsResultStep="true">
+
+        </MudStep>
+    </MudStepper>
+</MudForm>
+
+@code {
+    [Parameter] public long SeasonId { get; set; }
+
+    public Season Season = new();
+    public AddEntrantsModel Model = new();
+
+    private List<Manufacturer> manufacturers = new();
+    private MudDropContainer<EditSeasonTeamModel> _dropperTeams;
+    private MudDropContainer<EditSeasonDriverModel> _dropperDrivers;
+
+    private bool _loading = false;
+    private bool _disableNext = false;
+    private int _currentStep = 0;
+
+    MudStepper _stepper;
+    MudForm _form;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Season = await SeasonService.GetSeasonById(SeasonId);
+        manufacturers = await ManufacturerService.GetManufacturers();
+
+        _currentStep++;
+    }
+
+    private async Task<bool> ValidateStep(StepChangeDirection direction)
+    {
+        if (_stepper == null || direction == StepChangeDirection.Backward)
+            return false;
+
+        if(_stepper.GetActiveIndex() == 0)
+        {
+            
+        }
+    }
+
+    private async Task AddAllEntrants()
+    {
+        Model.CombineEntrantModels();
+
+        var rootEntrants = Model.SeasonEngines.Select(e => e.Record).ToList();
+
+        await EntrantService.PersistSeasonEntrants(rootEntrants);
+
+        Nav.NavigateTo($"/overview/{SeasonId}");
+    }
+}

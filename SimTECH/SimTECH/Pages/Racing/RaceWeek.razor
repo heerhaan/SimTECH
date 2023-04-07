@@ -1,6 +1,7 @@
 ﻿@page "/raceweek/{RaceId:long}"
 
 @inject RaceService _raceService
+@inject BreadcrumbProvider Bread
 @inject NavigationManager Nav
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
@@ -107,25 +108,6 @@ else
                             <MudListItem>Qualy mod: @ViewModel.Race.Track.QualifyingMod</MudListItem>
                             <MudListItem>Weather: @ViewModel.Race.Weather</MudListItem>
                         </MudList>
-                        @if (ViewModel.AvailableStrategies?.Any() == true)
-                        {
-                            <MudList>
-                                <MudListSubheader>Available strategies for race</MudListSubheader>
-                                @foreach (var strategy in ViewModel.AvailableStrategies)
-                                {
-                                    <MudListItem>
-                                        <MudStack Spacing="1" Row="true">
-                                            @foreach (var tyreElem in strategy.StrategyTyres)
-                                            {
-                                                <span class="tyre" style="border-color:@(tyreElem.Tyre.Colour)">
-                                                    @tyreElem.Tyre.Name.ElementAt(0)
-                                                </span>
-                                            }
-                                        </MudStack>
-                                    </MudListItem>
-                                }
-                            </MudList>
-                        }
                     </MudPaper>
                 </MudItem>
 
@@ -144,18 +126,6 @@ else
                         </MudButtonGroup>
                     </MudPaper>
                 </MudItem>
-
-                <MudItem xs="6">
-                    <MudPaper Class="mud-height-full">
-                        miauw
-                    </MudPaper>
-                </MudItem>
-
-                <MudItem xs="12">
-                    <MudPaper Class="pa-4">
-                        
-                    </MudPaper>
-                </MudItem>
             </MudGrid>
         </MudItem>
     </MudGrid>
@@ -172,10 +142,14 @@ else
     {
         ViewModel = await _raceService.GetRaceWeekModel(RaceId);
 
+        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Overview", href: $"overview/{ViewModel.Race.SeasonId}"),
+            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
+        });
+
         loading = false;
     }
-
-    private void TempButtonEvent() => Snackbar.Add("not implemented yet", Severity.Error);
 
     private void GoToPractice() => Nav.NavigateTo($"/practice/{RaceId}");
     private void GoToQualifying() => Nav.NavigateTo($"/qualifying/{RaceId}");

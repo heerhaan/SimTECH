@@ -9,12 +9,6 @@
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterDriver">New</MudButton>
     </ToolBarContent>
     <Columns>
-        <TemplateColumn Title="#" CellStyleFunc="@ViewHelper.DriverGradientStyleFunc">
-            <CellTemplate>
-                @* There is something wrong with this stupid position indexer, consider defining the position on-load *@
-                @(++positionIndexer)
-            </CellTemplate>
-        </TemplateColumn>
         <TemplateColumn Title="Name">
             <CellTemplate>
                 <MudText>
@@ -23,7 +17,7 @@
                 </MudText>
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="e => e.Number" />
+        <PropertyColumn Property="e => e.Number" Title="Nr." CellStyleFunc="@ViewHelper.DriverTeamStyleFunc" HeaderClass="number-col" CellClass="number-col" Sortable="false" />
         <PropertyColumn Property="e => e.Skill" />
         <PropertyColumn Property="e => e.Reliability" />
         <PropertyColumn Property="e => e.TeamRole" />
@@ -57,7 +51,6 @@
     private List<Driver> DriverData = new();
 
     private bool _loading = true;
-    private int positionIndexer = 0;
 
     protected override async Task OnInitializedAsync()
     {

@@ -10,7 +10,7 @@
         <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterTeam">New</MudButton>
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="e => e.Name" CellStyleFunc="@_teamStyleFunc" />
+        <PropertyColumn Property="e => e.Name" CellStyleFunc="@ViewHelper.TeamSimpleStyleFunc" />
         <TemplateColumn Title="Country">
             <CellTemplate>
                 @if (context.Item.Team is not null)
@@ -70,11 +70,6 @@
         SeasonEngineData = await EntrantService.GetSeasonEngines(Season.Id);
         ManufacturerData = await ManufacturerService.GetManufacturers();
     }
-
-    private Func<SeasonTeam, string> _teamStyleFunc => e =>
-    {
-        return $"border-right:solid 10px {e.Colour};";
-    };
 
     async Task EnterTeam() => await UpdateTeamEntrant(new SeasonTeam());
     async Task UpdateTeamEntrant(SeasonTeam item)

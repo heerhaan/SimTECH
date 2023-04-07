@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject BreadcrumbProvider Bread
 @inject SimAuthenticationStateProvider SimAuthenticationStateProvider
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkTheme" Theme="_theme" />
@@ -16,8 +17,7 @@
 <MudLayout>
     <MudAppBar Elevation="5" Dense="true">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Primary" Edge="Edge.Start" OnClick="ToggleSidebar" />
-        <MudText>League: todo</MudText>
-        <Breadcrumbs /> @* TODO: Use this implemented feature too *@
+        <Breadcrumbs />
         <MudSpacer />
         <MudToggleIconButton @bind-Toggled="@_isDarkTheme"
             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
@@ -63,6 +63,14 @@
     private string _notification = string.Empty;
     private bool _drawerOpen = true;
     private bool _isDarkTheme = true;
+
+    protected override void OnInitialized()
+    {
+        // NavState (breadcrumbs, etc) is Scoped, so it lives as long as our connection lives.
+        // So when a new page is visited, we need to clear navigation to prevent breadcrumbs from bleed-over, etc.
+        // This also makes the navbar invisible by default.
+        Bread.Reset();
+    }
 
     void ToggleSidebar()
     {

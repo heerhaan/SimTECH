@@ -132,6 +132,11 @@ namespace SimTECH.PageModels
 
         public int Position { get; set; }
 
+        public int BaseValue { get; set; }
+        public int EnginePower { get; set; }
+        public List<long> DriverTraitIds { get; set; }
+        public List<long> TeamTraitIds { get; set; }
+
         public TraitEffect TraitEffect { get; set; }
 
         public int GetQualifyingResult(int maxRng) => Power + TraitEffect.QualifyingPace + NumberHelper.RandomInt(maxRng);

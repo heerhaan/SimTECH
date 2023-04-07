@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MudBlazor;
 using MudBlazor.Services;
+using MudExtensions.Services;
 using SimTECH.Data;
 using SimTECH.Data.Requirements;
 using SimTECH.Data.Services;
@@ -37,6 +38,7 @@ namespace SimTECH
                 config.SnackbarConfiguration.ShowCloseIcon = true;
                 config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
             });
+            builder.Services.AddMudExtensions();
 
             // Provider services
             builder.Services.AddScoped<BreadcrumbProvider>();
