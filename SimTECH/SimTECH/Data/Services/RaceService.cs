@@ -342,6 +342,7 @@ namespace SimTECH.Data.Services
                 Round = race.Round,
 
                 AmountRuns = lapCount,
+                RaceLength = race.RaceLength,
 
                 RaceDrivers = raceDrivers,
 

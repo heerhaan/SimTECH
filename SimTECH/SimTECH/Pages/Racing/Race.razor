@@ -13,32 +13,29 @@
                 @Model.Name - ROUND @Model.Round
             </MudText>
             <MudText>weather: @Model.Weather</MudText>
-            <MudText>Lap @(lapsRaced) / @(lapCount)</MudText>
+            <MudText>Lap @(calculated * 10) / @(calculationCount * 10)</MudText>
             <MudSpacer />
-            @if (lapsRaced == lapCount)
+            @if (calculated >= calculationCount)
             {
                 <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
             }
             else
             {
-                <MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" Class="field-md" />
+                @*<MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" Class="field-md" />*@
                 <MudButton Color="Color.Tertiary" Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
             }
         </ToolBarContent>
         <HeaderContent>
             <MudTh Style="width: 15px">#</MudTh>
             <MudTh Style="width: 30px">Grid</MudTh>
-            <MudTh Style="min-width: 220px">Name</MudTh>
+            <MudTh Style="width: 220px">Name</MudTh>
             <MudTh Style="width: 30px">No</MudTh>
-            <MudTh Style="min-width: 220px">Team</MudTh>
+            <MudTh Style="width: 220px">Team</MudTh>
             <MudTh Style="width: 30px">PWR</MudTh>
             <MudTh Style="width: 50px">TYRE</MudTh>
-            @for (int i = 1; i <= 5; i++)
-            {
-                var j = i;
-                <MudTh Style="width: 30px">@j</MudTh>
-            }
-            <MudTh Style="min-width: 100px">Status</MudTh>
+            <MudTh Style="width: 50px">Score</MudTh>
+            <MudTh Style="width: 100px">Status</MudTh>
+            <MudTh>Visual</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))">
@@ -59,10 +56,6 @@
                     @context.TyreLife
                 </span>
             </MudTd>
-            @for (int i = 0; i < 4; i++)
-            {
-                <MudTd></MudTd>
-            }
             <MudTd>@context.LapSum</MudTd>
             <MudTd>
                 @if (context.Status == RaceStatus.Racing)
@@ -73,6 +66,9 @@
                 {
                     <MudText Color="Color.Error">@context.Incident</MudText>
                 }
+            </MudTd>
+            <MudTd>
+                <MudProgressLinear Value="@context.LapSum" Min="0" Max="@highestScore" Color="Color.Warning" Size="Size.Medium" Class="my-2" />
             </MudTd>
         </RowTemplate>
         <FooterContent>
@@ -95,27 +91,26 @@
 
     private bool loading = true;
 
-    private int lapsRaced = 0;
-    private int lapCount = 50;
-    private int raceMinRng = 0;
-    private int raceMaxRng = 10 * 50; //10*lapcount
     private int disqualifyChance = (100 / 4); // means 1/25 chance of DSQ | should read from config
     private int mistakeRolls = 2;
-    private int mistakeMinCost;
-    private int mistakeMaxCost;
-    private int calculated = 0;
-    private int calculationCount;
-    private int calculationsPerAdvance = 1;
+    private int mistakeMinCost = -30;
+    private int mistakeMaxCost = -20;
     private double gapMarge = 0.12;
+
+    private int participatingDrivers { get; set; }
+    private int fastestLap { get; set; }
+    private int highestScore { get; set; }
+
+    private int calculated { get; set; }
+    private int calculationCount { get; set; }
+    private int calculationsPerAdvance = 5;
 
     protected override async Task OnInitializedAsync()
     {
         Model = await _raceService.RetrieveRaceModel(RaceId);
         allotments = Model.Season.PointAllotments.ToDictionary(e => e.Position, e => e.Points);
 
-        mistakeMinCost = -30 * lapCount;
-        mistakeMaxCost = -20 * lapCount;
-
+        participatingDrivers = Model.RaceDrivers.Count;
         calculationCount = Model.RaceLength / 10;
 
         loading = false;
@@ -123,10 +118,10 @@
 
     private void Advance()
     {
-        int advanceLaps = 10;
-
         // Determine the values which impact the race like: weather and it's multipliers (configuration innit?)
         var newLapScores = new List<LapScore>();
+
+        long? newFastestLapScorer = null;
 
         // Iterate through all still running drivers
         foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
@@ -140,22 +135,16 @@
                 {
                     driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
                     driver.Incident = wouldDisqualify ? Incident.Dangerous : Incident.Damage;
-
-                    //lapResult = wouldDisqualify ? -100000 : -50000;
                 }
                 else if (DidReliabilityFail(driver.CarReliability))
                 {
                     driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
                     driver.Incident = wouldDisqualify ? Incident.Illegal : Incident.Clutch;
-
-                    //lapResult = wouldDisqualify ? -100000 : -50000;
                 }
                 else if (DidReliabilityFail(driver.EngineReliability))
                 {
                     driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
                     driver.Incident = wouldDisqualify ? Incident.Fuel : Incident.Engine;
-
-                    //lapResult = wouldDisqualify ? -100000 : -50000;
                 }
             }
 
@@ -164,16 +153,20 @@
             {
                 // Always multiply rng with the given lap count, add power to every lap (thats why we do that now otherwise weird calc moment inbound)
                 // probs not best to calculate this here
-                var minRng = (raceMinRng + driver.RngMinMod);
-                var maxRng = (raceMaxRng + driver.RngMaxMod);
+                var minRng = (0 + driver.RngMinMod);
+                var maxRng = (100 + driver.RngMaxMod);
 
-                for (int j = 0; j < advanceLaps; j++)
+                for (int i = 0; i < calculationsPerAdvance; i++)
                 {
                     int lapResult = NumberHelper.RandomInt(minRng, maxRng);
 
-                    // Mistake
+                    // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
+                    if (i == 0 && calculated == 0)
+                        lapResult += GetQualifyingBonus(driver.Grid);
+
+                    // Check if driver made a mistake, if so then it's going to cost him
                     var mistake = false;
-                    for (int i = 0; i < mistakeRolls; i++)
+                    for (int j = 0; j < mistakeRolls; j++)
                     {
                         mistake = DidReliabilityFail(driver.DriverReliability);
                         if (!mistake)
@@ -183,34 +176,44 @@
                     if (mistake)
                     {
                         lapResult += NumberHelper.RandomInt(mistakeMinCost, mistakeMaxCost);
+                        AddRaceEvent(driver, calculated + i, RacerEvent.Mistake);
                     }
 
-                    // TODO: Strategy
-                    if (driver.WearMinMod <= driver.WearMaxMod)
-                        driver.WearMinMod = driver.WearMaxMod + 1;
+                    // Strategy
+                    lapResult += HandleStrategy(driver, i);
 
-                    driver.TyreLife += NumberHelper.RandomInt(driver.WearMaxMod, driver.WearMinMod);
-
+                    // Adds the overall power of the driver
                     lapResult += driver.Power;
 
+                    if (lapResult > fastestLap)
+                    {
+                        fastestLap = lapResult;
+                        newFastestLapScorer = driver.ResultId;
+                    }
+
+                    // Finally add the score to the lap results
                     driver.LapScores.Add(lapResult);
                 }
             }
         }
 
-        lapsRaced += advanceLaps;
+        calculated += calculationsPerAdvance;
 
         // Determine new positions (keep team role in mind here!)
-        DeterminePositions();
+        DeterminePositions(newFastestLapScorer);
+
+        StateHasChanged();
 
         // Persist the new stint results, yes after doing all whats needed to show them
     }
 
+    int GetQualifyingBonus(int grid) => (participatingDrivers * Model.Season.GridBonus) - ((grid - 1) * Model.Season.GridBonus);
+
     private bool ShouldCheckReliability()
     {
-        if (lapsRaced == 0)
+        if (calculated == 0)
             return true;
-        if (lapCount == lapsRaced)
+        if (calculated == calculationsPerAdvance)
             return true;
 
         // More instances when one should check reliablity?
@@ -221,18 +224,78 @@
 
     private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(100) >= reliability;
 
-    private void DeterminePositions()
+    int HandleStrategy(RaceDriver driver, int lap)
     {
-        var position = 0;
-        var highestScore = Model.RaceDrivers.Max(e => e.LapSum);
+        var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
+        var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
 
-        foreach (var driver in Model.RaceDrivers.OrderByDescending(e => e.LapSum))
+        // Ensures minimum wear is always at least one more than the maximum wear
+        if (tyreMinWear <= tyreMaxWear)
+            tyreMinWear = tyreMaxWear + 1;
+
+        // Maximum wear is more than the tyre can handle, it's time for a pitstop!
+        if (tyreMaxWear > driver.TyreLife)
+        {
+            var nextOrder = driver.CurrentTyreOrder + 1;
+            var nextTyre = driver.Strategy.StrategyTyres.FirstOrDefault(e => e.Order == nextOrder);
+
+            // If there is another tyre left in the strategy then we're installing it
+            if (nextTyre != null)
+            {
+                driver.CurrentTyre = nextTyre.Tyre;
+                driver.CurrentTyreOrder = nextOrder;
+                driver.TyreLife = nextTyre.Tyre.Pace;
+
+                AddRaceEvent(driver, calculated + lap, RacerEvent.Pitstop);
+            }
+        }
+
+        int tyreLifeBeforeWear = driver.TyreLife;
+
+        // Add wear to the tyre
+        driver.TyreLife += NumberHelper.RandomInt(tyreMaxWear, tyreMinWear);
+
+        return tyreLifeBeforeWear;
+    }
+
+    void AddRaceEvent(RaceDriver driver, int lap, RacerEvent racerEvent)
+    {
+        if (driver.RaceEventsPerLap.ContainsKey(lap))
+            driver.RaceEventsPerLap[lap] |= racerEvent;
+        else
+            driver.RaceEventsPerLap.Add(lap, racerEvent);
+    }
+
+    private void DeterminePositions(long? newFastestLapHolder)
+    {
+        var racingDrivers = Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).ToList();
+
+        var position = 0;
+        highestScore = racingDrivers.Max(e => e.LapSum);
+
+        var previousDriver = racingDrivers.First();
+
+        foreach (var driver in racingDrivers.OrderByDescending(e => e.LapSum))
         {
             driver.Position = ++position;
             driver.DisplayGap = GapToLeader(driver.LapSum, highestScore);
-        }
 
-        // Apply the whole thing here where main/support matters
+            if (newFastestLapHolder != null)
+            {
+                driver.HasFastestLap = false;
+                if (driver.ResultId == newFastestLapHolder)
+                    driver.HasFastestLap = true;
+            }
+
+            // Current iteration doesn't allow to swap drivers easily like this, how do we solve this?
+            //if (driver.Role == TeamRole.Main)
+            //{
+            //    if (previousDriver.SeasonTeamId == driver.SeasonDriverId && previousDriver.Role == TeamRole.Support)
+            //    {
+                    
+            //    }
+            //}
+        }
     }
 
     private string GapToLeader(int score, int highestScore)

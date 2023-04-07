@@ -29,6 +29,7 @@ namespace SimTECH.PageModels
 
         public int Grid { get; set; }
         public int Setup { get; set; }
+        public int CurrentTyreOrder { get; set; }
         public int TyreLife { get; set; }
 
         public Tyre CurrentTyre { get; set; }
@@ -44,8 +45,10 @@ namespace SimTECH.PageModels
 
         public int Position { get; set; }
         public string DisplayGap { get; set; }
+        public bool HasFastestLap { get; set; }
 
         public List<int> LapScores { get; set; } = new();
+        public Dictionary<int, RacerEvent> RaceEventsPerLap { get; set; } = new();
 
         public int LapSum => LapScores?.Sum() ?? 0;
 
