@@ -17,7 +17,8 @@ namespace SimTECH
         Unknown = 0,
         Driver,
         Team,
-        Track
+        Track,
+        Engine,
     }
 
     public enum RangeType
