@@ -336,8 +336,10 @@ namespace SimTECH.Data.Services
             {
                 RaceId = race.Id,
                 TrackId = race.TrackId,
+                TrackLength = race.Track.Length,
                 Name = race.Name,
                 Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
+
                 Weather = race.Weather,
                 Round = race.Round,
 

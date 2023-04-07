@@ -15,6 +15,7 @@ namespace SimTECH.PageModels
     public class RaceModel : SessionBase
     {
         public long TrackId { get; set; }
+        public double TrackLength { get; set; }
         public int Round { get; set; }
         public int RaceLength { get; set; }
 

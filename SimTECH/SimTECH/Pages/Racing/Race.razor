@@ -13,7 +13,7 @@
                 @Model.Name - ROUND @Model.Round
             </MudText>
             <MudText>weather: @Model.Weather</MudText>
-            <MudText>Lap @(calculated * 10) / @(calculationCount * 10)</MudText>
+            <MudText>Laps: @(racedLaps) / @(totalLaps)</MudText>
             <MudSpacer />
             @if (calculated >= calculationCount)
             {
@@ -100,6 +100,8 @@
     private int participatingDrivers { get; set; }
     private int fastestLap { get; set; }
     private int highestScore { get; set; }
+    private int racedLaps { get; set; }
+    private int totalLaps;
 
     private int calculated { get; set; }
     private int calculationCount { get; set; }
@@ -112,6 +114,9 @@
 
         participatingDrivers = Model.RaceDrivers.Count;
         calculationCount = Model.RaceLength / 10;
+
+        racedLaps = NumberHelper.CalcLapCount(calculated, Model.TrackLength);
+        totalLaps = NumberHelper.CalcLapCount(calculationCount, Model.TrackLength);
 
         loading = false;
     }
@@ -198,6 +203,7 @@
         }
 
         calculated += calculationsPerAdvance;
+        racedLaps = NumberHelper.CalcLapCount(calculated, Model.TrackLength);
 
         // Determine new positions (keep team role in mind here!)
         DeterminePositions(newFastestLapScorer);
