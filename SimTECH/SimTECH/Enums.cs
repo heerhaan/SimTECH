@@ -30,6 +30,8 @@ namespace SimTECH
         Engine
     }
 
+    public enum TargetDevelop { Main, Reliability }
+
     #region racing
 
     public enum Weather

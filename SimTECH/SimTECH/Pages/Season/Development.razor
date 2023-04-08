@@ -1,194 +1,131 @@
 ﻿@inject LeagueService LeagueService
 @inject SeasonEntrantService EntrantService
 @inject SeasonService SeasonService
+@inject ISnackbar Snackbar
 
-<MudTabs>
-    <MudTabPanel Text="Drivers" OnClick="(() => SwapDevelopTab(Entrant.Driver))">
-        @if (DevelopedEntrants != null && _activeEntrant == Entrant.Driver)
-        {
-            <MudTable Items="@DevelopedEntrants">
-                <ToolBarContent>
-                    <MudStack>
-                        <MudChipSet @bind-SelectedChip="_selectedChip">
-                            <MudChip Default="true">Default</MudChip>
-                            <MudChip>Range</MudChip>
-                            <MudChip>Direct</MudChip>
-                        </MudChipSet>
-                        <MudChipSet @bind-SelectedChip="_devChip">
-                            <MudChip Default="true">Skill</MudChip>
-                            <MudChip>Reliability</MudChip>
-                        </MudChipSet>
-                    </MudStack>
+<MudContainer>
+    @if (DevelopedEntrants != null)
+    {
+        <MudTable Items="@DevelopedEntrants">
+            <ToolBarContent>
+                <MudText>entrant chipset placeholder</MudText>
 
-                    @if (_selectedChip != null && _selectedChip.Text == "Range")
+                <div style="border: 1px solid white" class="pa-1 mx-1">
+                    <MudText>Develop type [@_selectedType]</MudText>
+                    <MudChipSet SelectedChipChanged="TypeChipChanged" Mandatory="true">
+                        <MudChip Value="TypeDevelop.Range" Default="true">Range</MudChip>
+                        <MudChip Value="TypeDevelop.Set">Set</MudChip>
+                        <MudChip Value="TypeDevelop.Direct">Direct</MudChip>
+                    </MudChipSet>
+                </div>
+
+                <div style="border: 1px solid white" class="pa-1 mx-1">
+                    <MudText>Develop target [@_selectedTarget]</MudText>
+                    <MudChipSet SelectedChipChanged="TargetChipChanged" Mandatory="true">
+                        <MudChip Value="TargetDevelop.Main" Default="true">@_mainTypeName</MudChip>
+                        <MudChip Value="TargetDevelop.Reliability">Reliability</MudChip>
+                    </MudChipSet>
+                </div>
+
+                @if (_selectedType == TypeDevelop.Range)
+                {
+                    <MudNumericField T="int" Label="Min" ValueChanged="ApplyMinRange" />
+                    <MudNumericField T="int" Label="Max" ValueChanged="ApplyMaxRange" />
+                }
+
+                <MudSpacer />
+                <MudButton Variant="Variant.Filled" OnClick="RunDevelop">Run</MudButton>
+                @if (_ranDevelop)
+                {
+                    <MudButton Variant="Variant.Filled" OnClick="SaveDevelopment">Save</MudButton>
+                }
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>@_addedColumnTitle</MudTh>
+                <MudTh>Old</MudTh>
+                <MudTh>Change</MudTh>
+                <MudTh>New</MudTh>
+                <MudTh>Range</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    @if (context.Nationality.HasValue)
                     {
-                        <MudNumericField T="int" @bind-Value="_minRange" Max="_maxRange" Label="Min" />
-                        <MudNumericField T="int" @bind-Value="_maxRange" Min="_minRange" Label="Max" />
+                        <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Tiny" />
                     }
-
-                    <MudSpacer />
-                    <MudButton>Run</MudButton>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Age</MudTh>
-                    <MudTh>Old</MudTh>
-                    <MudTh>Change</MudTh>
-                    <MudTh>New</MudTh>
-                    <MudTh></MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>
-                        <CountryFlag Code="@context.Nationality.GetValueOrDefault()" Size="FlagSize.Tiny" />
-                        @context.Name
-                    </MudTd>
-                    <MudTd>@context.Additional</MudTd>
-                    <MudTd>@context.Old</MudTd>
-                    <MudTd>@context.Change</MudTd>
-                    <MudTd>@context.New</MudTd>
-                    <MudTd Class="d-flex justify-end">
-
-                    </MudTd>
-                </RowTemplate>
-                <RowEditingTemplate>
-
-                </RowEditingTemplate>
-            </MudTable>
-        }
-    </MudTabPanel>
-    <MudTabPanel Text="Teams" OnClick="(() => SwapDevelopTab(Entrant.Team))">
-        @if (DevelopedEntrants != null && _activeEntrant == Entrant.Team)
-        {
-            <MudTable Items="@DevelopedEntrants">
-                <ToolBarContent>
-                    <MudStack>
-                        <MudChipSet @bind-SelectedChip="_selectedChip">
-                            <MudChip Default="true">Default</MudChip>
-                            <MudChip>Range</MudChip>
-                            <MudChip>Direct</MudChip>
-                        </MudChipSet>
-                        <MudChipSet @bind-SelectedChip="_devChip">
-                            <MudChip Default="true">BaseValue</MudChip>
-                            <MudChip>Modifiers</MudChip>
-                            <MudChip>Reliability</MudChip>
-                        </MudChipSet>
-                    </MudStack>
-
-                    @if (_selectedChip != null && _selectedChip.Text == "Range")
+                    @context.Name
+                </MudTd>
+                <MudTd>
+                    @if (context.Optional != null)
                     {
-                        <MudNumericField T="int" @bind-Value="_minRange" Max="_maxRange" Label="Min" />
-                        <MudNumericField T="int" @bind-Value="_maxRange" Min="_minRange" Label="Max" />
+                        <MudText>@context.Optional</MudText>
                     }
-
-                    <MudSpacer />
-                    <MudButton>Run</MudButton>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Old</MudTh>
-                    <MudTh>Change</MudTh>
-                    <MudTh>New</MudTh>
-                    <MudTh></MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>
-                        <CountryFlag Code="@context.Nationality.GetValueOrDefault()" Size="FlagSize.Tiny" />
-                        @context.Name
-                    </MudTd>
-                    <MudTd>@context.Old</MudTd>
-                    <MudTd>@context.Change</MudTd>
-                    <MudTd>@context.New</MudTd>
-                    <MudTd Class="d-flex justify-end">
-
-                    </MudTd>
-                </RowTemplate>
-                <RowEditingTemplate>
-
-                </RowEditingTemplate>
-            </MudTable>
-        }
-    </MudTabPanel>
-    <MudTabPanel Text="Engines" OnClick="(() => SwapDevelopTab(Entrant.Engine))">
-        @if (DevelopedEntrants != null && _activeEntrant == Entrant.Engine)
-        {
-            <MudTable Items="@DevelopedEntrants">
-                <ToolBarContent>
-                    <MudStack>
-                        <MudChipSet @bind-SelectedChip="_selectedChip">
-                            <MudChip Default="true">Default</MudChip>
-                            <MudChip>Range</MudChip>
-                            <MudChip>Direct</MudChip>
-                        </MudChipSet>
-                        <MudChipSet @bind-SelectedChip="_devChip">
-                            <MudChip Default="true">Power</MudChip>
-                            <MudChip>Reliability</MudChip>
-                        </MudChipSet>
+                </MudTd>
+                <MudTd>@context.Old</MudTd>
+                <MudTd>@context.Change</MudTd>
+                <MudTd>@context.New</MudTd>
+                <MudTd>
+                    <MudStack Row="true">
+                        <MudNumericField T="int" @bind-Value="context.Min" Label="Min" ReadOnly="_selectedType != TypeDevelop.Direct" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Add" />
+                        <MudNumericField T="int" @bind-Value="context.Max" Label="Max" ReadOnly="_selectedType != TypeDevelop.Direct" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Remove" />
                     </MudStack>
-
-                    @if (_selectedChip != null && _selectedChip.Text == "Range")
+                </MudTd>
+            </RowTemplate>
+@*            <RowEditingTemplate>
+                <MudTd>
+                    @if (context.Nationality.HasValue)
                     {
-                        <MudNumericField T="int" @bind-Value="_minRange" Max="_maxRange" Label="Min" />
-                        <MudNumericField T="int" @bind-Value="_maxRange" Min="_minRange" Label="Max" />
+                        <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Tiny" />
                     }
-
-                    <MudSpacer />
-                    <MudButton>Run</MudButton>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Old</MudTh>
-                    <MudTh>Change</MudTh>
-                    <MudTh>New</MudTh>
-                    <MudTh></MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>@context.Name</MudTd>
-                    <MudTd>@context.Old</MudTd>
-                    <MudTd>@context.Change</MudTd>
-                    <MudTd>@context.New</MudTd>
-                    <MudTd Class="d-flex justify-end">
-
-                    </MudTd>
-                </RowTemplate>
-                <RowEditingTemplate>
-
-                </RowEditingTemplate>
-            </MudTable>
-        }
-    </MudTabPanel>
-</MudTabs>
+                    @context.Name
+                </MudTd>
+                <MudTd>
+                    @if (context.Additional != null)
+                    {
+                        <MudText>@context.Additional</MudText>
+                    }
+                </MudTd>
+                <MudTd>@context.Old</MudTd>
+                <MudTd>@context.Change</MudTd>
+                <MudTd>
+                    <MudNumericField T="int" @bind-Value="context.New" />
+                </MudTd>
+            </RowEditingTemplate>
+            <EditButtonContent Context="button">
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+            </EditButtonContent>*@
+        </MudTable>
+    }
+</MudContainer>
 
 @code {
-    [Parameter] public long SeasonId { get; set; }
+    [CascadingParameter] public Season Season { get; set; }
 
-    Season Season;
     League League;
     List<SeasonDriver> SeasonDrivers;
     List<SeasonTeam> SeasonTeams;
     List<SeasonEngine> SeasonEngines;
     List<DevelopedEntrant> DevelopedEntrants;
 
-    MudChip? _selectedChip;
-    MudChip? _devChip;
-    int _minRange;
-    int _maxRange;
+    TypeDevelop _selectedType = TypeDevelop.Range;
+    TargetDevelop _selectedTarget = TargetDevelop.Main;
     Entrant _activeEntrant = Entrant.Driver;
+    string _mainTypeName = "Skill";
+    string _addedColumnTitle = "Age";
+    bool _ranDevelop = false;
 
     protected override async Task OnInitializedAsync()
     {
-        Season = await SeasonService.GetSeasonById(SeasonId);
         League = await LeagueService.GetLeagueById(Season.LeagueId);
-        SeasonDrivers = await EntrantService.GetSeasonDrivers(SeasonId);
-        SeasonTeams = await EntrantService.GetSeasonTeams(SeasonId);
-        SeasonEngines = await EntrantService.GetSeasonEngines(SeasonId);
+        SeasonDrivers = await EntrantService.GetSeasonDrivers(Season.Id);
+        SeasonTeams = await EntrantService.GetSeasonTeams(Season.Id);
+        SeasonEngines = await EntrantService.GetSeasonEngines(Season.Id);
+
+        DevelopDrivers();
     }
 
-    //async Task SaveDevelopment()
-    //{
-        
-    //}
-
-    void SwapDevelopTab(Entrant entrant)
+    void ReloadDeveloped(Entrant entrant)
     {
         switch (entrant)
         {
@@ -199,6 +136,7 @@
         }
 
         _activeEntrant = entrant;
+        _ranDevelop = false;
     }
 
     void DevelopDrivers()
@@ -206,10 +144,11 @@
         DevelopedEntrants = SeasonDrivers.Select(e =>
             new DevelopedEntrant
                 {
+                    Id = e.Id,
                     Name = e.Driver.FullName,
                     Nationality = e.Driver.Country,
-                    Additional = e.Driver.DateOfBirth.Year.ToString(),
-                    Old = e.Skill,
+                    Optional = e.Driver.DateOfBirth.Year,
+                    Old = _selectedTarget == TargetDevelop.Main ? e.Skill : e.Reliability,
                 })
             .ToList();
     }
@@ -219,10 +158,11 @@
         DevelopedEntrants = SeasonTeams.Select(e =>
             new DevelopedEntrant
             {
+                Id = e.Id,
                 Name = e.Name,
                 Nationality = e.Team.Country,
-                Additional = null,
-                Old = e.BaseValue,
+                Optional = null,
+                Old = _selectedTarget == TargetDevelop.Main ? e.BaseValue : e.Reliability,
             })
             .ToList();
     }
@@ -232,21 +172,164 @@
         DevelopedEntrants = SeasonEngines.Select(e =>
             new DevelopedEntrant
                 {
+                    Id = e.Id,
                     Name = e.Name,
                     Nationality = null,
-                    Additional = null,
-                    Old = e.Power,
+                    Optional = null,
+                    Old = _selectedTarget == TargetDevelop.Main ? e.Power : e.Reliability,
                 })
             .ToList();
     }
 
+    void TypeChipChanged(MudChip? typeChip)
+    {
+        if (typeChip != null)
+        {
+            _selectedType = (TypeDevelop)typeChip.Value;
+
+            if (_selectedType == TypeDevelop.Set)
+                ApplyDefaultRanges();
+        }
+    }
+
+    void TargetChipChanged(MudChip? devChip)
+    {
+        if (devChip != null)
+        {
+            _selectedTarget = (TargetDevelop)devChip.Value;
+
+            ReloadDeveloped(_activeEntrant);
+        }
+    }
+
+    void ApplyDefaultRanges()
+    {
+        if (_selectedTarget == TargetDevelop.Main && League.DevelopmentRanges?.Any() == true)
+        {
+            List<DevelopmentRange> setCompareRange;
+            List<DevelopmentRange>? optionalCompareRange = null;
+
+            switch (_activeEntrant)
+            {
+                case Entrant.Driver:
+                    setCompareRange = League.DevelopmentRanges.Where(e => e.Type == RangeType.Skill).OrderBy(e => e.Comparer).ToList();
+                    optionalCompareRange = League.DevelopmentRanges.Where(e => e.Type == RangeType.Age).OrderBy(e => e.Comparer).ToList();
+                    break;
+                case Entrant.Team:
+                    setCompareRange = League.DevelopmentRanges.Where(e => e.Type == RangeType.Team).OrderBy(e => e.Comparer).ToList();
+                    break;
+                case Entrant.Engine:
+                    setCompareRange = League.DevelopmentRanges.Where(e => e.Type == RangeType.Engine).OrderBy(e => e.Comparer).ToList();
+                    break;
+                default:
+                    setCompareRange = new();
+                    break;
+            }
+
+            if (setCompareRange.Any() || (optionalCompareRange?.Any() == true))
+            {
+                foreach (var entrant in DevelopedEntrants)
+                {
+                    int min = 0;
+                    int max = 0;
+
+                    var matchRange = setCompareRange.FirstOrDefault(e => e.Comparer >= entrant.Old);
+
+                    if (matchRange == null)
+                    {
+                        matchRange = setCompareRange[setCompareRange.Count - 1];
+                    }
+
+                    min = matchRange.Minimum;
+                    max = matchRange.Maximum;
+
+                    if (optionalCompareRange?.Any() == true && entrant.Optional.HasValue)
+                    {
+                        var optRange = optionalCompareRange.FirstOrDefault(e => e.Comparer >= entrant.Optional.Value);
+
+                        if (optRange != null)
+                        {
+                            min += optRange.Minimum;
+                            max += optRange.Maximum;
+                        }
+                    }
+
+                    entrant.Min = min;
+                    entrant.Max = max;
+                }
+
+                return;
+            }
+        }
+
+        foreach (var entrant in DevelopedEntrants)
+        {
+            entrant.Min = -2;
+            entrant.Max = 2;
+        }
+    }
+
+    void ApplyMinRange(int newMin)
+    {
+        foreach (var entrant in DevelopedEntrants)
+            entrant.Min = newMin;
+    }
+
+    void ApplyMaxRange(int newMax)
+    {
+        foreach (var entrant in DevelopedEntrants)
+            entrant.Max = newMax;
+    }
+
+    void RunDevelop()
+    {
+        foreach (var entrant in DevelopedEntrants)
+        {
+            if (entrant.Min >= entrant.Max)
+            {
+                Snackbar.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
+                return;
+            }
+
+            entrant.Change = NumberHelper.RandomInt(entrant.Min, entrant.Max);
+            entrant.New = entrant.Old + entrant.Change;
+        }
+
+        _ranDevelop = true;
+    }
+
+    async Task SaveDevelopment()
+    {
+        var developedValues = DevelopedEntrants.ToDictionary(e => e.Id, e => e.New);
+
+        switch (_activeEntrant)
+        {
+            case Entrant.Driver:
+                await EntrantService.SaveDriverDevelopment(developedValues, _selectedTarget);
+                break;
+            case Entrant.Team:
+                await EntrantService.SaveTeamDevelopment(developedValues, _selectedTarget);
+                break;
+            case Entrant.Engine:
+                await EntrantService.SaveEngineDevelopment(developedValues, _selectedTarget);
+                break;
+        }
+
+        ReloadDeveloped(_activeEntrant);
+    }
+
     private class DevelopedEntrant
     {
+        public long Id { get; set; }
         public string Name { get; set; }
         public Country? Nationality { get; set; }
-        public string? Additional { get; set; }
+        public int? Optional { get; set; }
         public int Old { get; set; }
         public int Change { get; set; }
         public int New { get; set; }
+        public int Min { get; set; }
+        public int Max { get; set; }
     }
+
+    enum TypeDevelop { Set, Range, Direct }
 }
