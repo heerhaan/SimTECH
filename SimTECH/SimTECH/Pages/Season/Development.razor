@@ -4,45 +4,75 @@
 @inject ISnackbar Snackbar
 
 <MudContainer>
+    <MudContainer>
+        <MudPaper Height="100px" Width="100%">
+            <MudStack Row="true" Justify="Justify.SpaceBetween">
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="RunDevelop">Run</MudButton>
+                <div>
+                    @if (_ranDevelop)
+                    {
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="SaveDevelopment">Save</MudButton>
+                    }
+                </div>
+            </MudStack>
+        </MudPaper>
+    </MudContainer>
     @if (DevelopedEntrants != null)
     {
-        <MudTable Items="@DevelopedEntrants">
+        <MudTable Items="@DevelopedEntrants" Dense="true">
             <ToolBarContent>
-                <MudText>entrant chipset placeholder</MudText>
-
-                <div style="border: 1px solid white" class="pa-1 mx-1">
-                    <MudText>Develop type [@_selectedType]</MudText>
-                    <MudChipSet SelectedChipChanged="TypeChipChanged" Mandatory="true">
-                        <MudChip Value="TypeDevelop.Range" Default="true">Range</MudChip>
-                        <MudChip Value="TypeDevelop.Set">Set</MudChip>
-                        <MudChip Value="TypeDevelop.Direct">Direct</MudChip>
+                <div class="pa-1 mx-1">
+                    <MudTooltip Text="For whom the development is run">
+                        <MudText Typo="Typo.overline">Entrant</MudText>
+                    </MudTooltip>
+                    <MudChipSet SelectedChipChanged="EntrantChipChanged" Mandatory="true">
+                        <MudChip Color="Color.Primary" Value="Entrant.Driver" Default="true">Driver</MudChip>
+                        <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
+                        <MudChip Color="Color.Primary" Value="Entrant.Engine">Engine</MudChip>
                     </MudChipSet>
                 </div>
 
-                <div style="border: 1px solid white" class="pa-1 mx-1">
-                    <MudText>Develop target [@_selectedTarget]</MudText>
+                <div class="pa-1 mx-1">
+                    <MudTooltip Text="How the development ranges are determined">
+                        <MudText Typo="Typo.overline">Type</MudText>
+                    </MudTooltip>
+                    <MudChipSet SelectedChipChanged="TypeChipChanged" Mandatory="true">
+                        <MudChip Color="Color.Secondary" Value="TypeDevelop.Range" Default="true">Range</MudChip>
+                        <MudChip Color="Color.Secondary" Value="TypeDevelop.Set">Set</MudChip>
+                        <MudChip Color="Color.Secondary" Value="TypeDevelop.Direct">Direct</MudChip>
+                    </MudChipSet>
+                </div>
+
+                <div class="pa-1 mx-1">
+                    <MudTooltip Text="Which aspect is going to be developed">
+                        <MudText Typo="Typo.overline">Target</MudText>
+                    </MudTooltip>
                     <MudChipSet SelectedChipChanged="TargetChipChanged" Mandatory="true">
-                        <MudChip Value="TargetDevelop.Main" Default="true">@_mainTypeName</MudChip>
-                        <MudChip Value="TargetDevelop.Reliability">Reliability</MudChip>
+                        <MudChip Color="Color.Tertiary" Value="TargetDevelop.Main" Default="true">@_mainTypeName</MudChip>
+                        <MudChip Color="Color.Tertiary" Value="TargetDevelop.Reliability">Reliability</MudChip>
                     </MudChipSet>
                 </div>
 
                 @if (_selectedType == TypeDevelop.Range)
                 {
-                    <MudNumericField T="int" Label="Min" ValueChanged="ApplyMinRange" />
-                    <MudNumericField T="int" Label="Max" ValueChanged="ApplyMaxRange" />
+                    <MudNumericField T="int" Label="Min" ValueChanged="ApplyMinRange" Class="field-sm" />
+                    <MudNumericField T="int" Label="Max" ValueChanged="ApplyMaxRange" Class="field-sm" />
                 }
 
                 <MudSpacer />
-                <MudButton Variant="Variant.Filled" OnClick="RunDevelop">Run</MudButton>
+
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="RunDevelop">Run</MudButton>
                 @if (_ranDevelop)
                 {
-                    <MudButton Variant="Variant.Filled" OnClick="SaveDevelopment">Save</MudButton>
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="SaveDevelopment">Save</MudButton>
                 }
             </ToolBarContent>
             <HeaderContent>
                 <MudTh>Name</MudTh>
-                <MudTh>@_addedColumnTitle</MudTh>
+                @if (_optionalColTitle != null)
+                {
+                    <MudTh>@_optionalColTitle</MudTh>
+                }
                 <MudTh>Old</MudTh>
                 <MudTh>Change</MudTh>
                 <MudTh>New</MudTh>
@@ -56,45 +86,20 @@
                     }
                     @context.Name
                 </MudTd>
-                <MudTd>
-                    @if (context.Optional != null)
-                    {
-                        <MudText>@context.Optional</MudText>
-                    }
-                </MudTd>
+                @if (_optionalColTitle != null)
+                {
+                    <MudTd>@(context.Optional.HasValue ? context.Optional.Value : "?")</MudTd>
+                }
                 <MudTd>@context.Old</MudTd>
                 <MudTd>@context.Change</MudTd>
                 <MudTd>@context.New</MudTd>
                 <MudTd>
                     <MudStack Row="true">
-                        <MudNumericField T="int" @bind-Value="context.Min" Label="Min" ReadOnly="_selectedType != TypeDevelop.Direct" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Add" />
-                        <MudNumericField T="int" @bind-Value="context.Max" Label="Max" ReadOnly="_selectedType != TypeDevelop.Direct" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Remove" />
+                        <MudNumericField T="int" @bind-Value="context.Min" Label="Min" ReadOnly="_selectedType != TypeDevelop.Direct" Class="field-sm" />
+                        <MudNumericField T="int" @bind-Value="context.Max" Label="Max" ReadOnly="_selectedType != TypeDevelop.Direct" Class="field-sm" />
                     </MudStack>
                 </MudTd>
             </RowTemplate>
-@*            <RowEditingTemplate>
-                <MudTd>
-                    @if (context.Nationality.HasValue)
-                    {
-                        <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Tiny" />
-                    }
-                    @context.Name
-                </MudTd>
-                <MudTd>
-                    @if (context.Additional != null)
-                    {
-                        <MudText>@context.Additional</MudText>
-                    }
-                </MudTd>
-                <MudTd>@context.Old</MudTd>
-                <MudTd>@context.Change</MudTd>
-                <MudTd>
-                    <MudNumericField T="int" @bind-Value="context.New" />
-                </MudTd>
-            </RowEditingTemplate>
-            <EditButtonContent Context="button">
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
-            </EditButtonContent>*@
         </MudTable>
     }
 </MudContainer>
@@ -108,11 +113,11 @@
     List<SeasonEngine> SeasonEngines;
     List<DevelopedEntrant> DevelopedEntrants;
 
+    Entrant _activeEntrant = Entrant.Driver;
     TypeDevelop _selectedType = TypeDevelop.Range;
     TargetDevelop _selectedTarget = TargetDevelop.Main;
-    Entrant _activeEntrant = Entrant.Driver;
     string _mainTypeName = "Skill";
-    string _addedColumnTitle = "Age";
+    string? _optionalColTitle = "Age";
     bool _ranDevelop = false;
 
     protected override async Task OnInitializedAsync()
@@ -147,10 +152,12 @@
                     Id = e.Id,
                     Name = e.Driver.FullName,
                     Nationality = e.Driver.Country,
-                    Optional = e.Driver.DateOfBirth.Year,
+                    Optional = Season.Year - e.Driver.DateOfBirth.Year,
                     Old = _selectedTarget == TargetDevelop.Main ? e.Skill : e.Reliability,
                 })
             .ToList();
+
+        _optionalColTitle = "Age";
     }
 
     void DevelopTeams()
@@ -165,6 +172,8 @@
                 Old = _selectedTarget == TargetDevelop.Main ? e.BaseValue : e.Reliability,
             })
             .ToList();
+
+        _optionalColTitle = null;
     }
 
     void DevelopEngines()
@@ -179,6 +188,20 @@
                     Old = _selectedTarget == TargetDevelop.Main ? e.Power : e.Reliability,
                 })
             .ToList();
+
+        _optionalColTitle = null;
+    }
+
+    void EntrantChipChanged(MudChip? entrantChip)
+    {
+        if (entrantChip != null)
+        {
+            _activeEntrant = (Entrant)entrantChip.Value;
+            ReloadDeveloped(_activeEntrant);
+
+            if (_selectedType == TypeDevelop.Set)
+                ApplyDefaultRanges();
+        }
     }
 
     void TypeChipChanged(MudChip? typeChip)
@@ -197,7 +220,6 @@
         if (devChip != null)
         {
             _selectedTarget = (TargetDevelop)devChip.Value;
-
             ReloadDeveloped(_activeEntrant);
         }
     }
