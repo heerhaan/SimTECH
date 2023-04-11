@@ -14,7 +14,7 @@
 <CascadingValue Value="Season" IsFixed="true">
     @if (Season != null)
     {
-        <MudTabs Outlined="true" Centered="true" @ref="tabs">
+        <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="_activeTabIndex">
             <MudTabPanel Text="Overview">
                 <MudGrid Spacing="4">
                     <MudItem xs="12">
@@ -50,11 +50,12 @@
                                 }
                                 else
                                 {
+                                    <MudText>Round @NextRace.Round - @NextRace.Name</MudText>
                                     <MudText>
                                         <CountryFlag Code="NextRace.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
                                     </MudText>
-                                    <MudText>todo: more info here about the next race :)))</MudText>
-                                    <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small" OnClick="GoToNextRace">Go to</MudButton>
+
+                                    <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small" Class="mt-auto" OnClick="GoToNextRace">Go to</MudButton>
                                 }
                             }
                             else
@@ -76,11 +77,6 @@
                         <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
                     </MudItem>
                 </MudGrid>
-                @* place alert to above if necessary outside this tab *@
-                @if (_errorMessage != null)
-                {
-                    <MudAlert Variant="Variant.Filled" Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="HideErr" Style="z-index:10; position: absolute;">@_errorMessage</MudAlert>
-                }
             </MudTabPanel>
             <MudTabPanel Text="Calendar">
                 <Calendar />
@@ -103,7 +99,7 @@
                     <Development />
                 </MudTabPanel>
             }
-            <MudTabPanel Text="Settings" BadgeData='"!"' BadgeColor="Color.Error">
+            <MudTabPanel Text="Settings" BadgeDot="true" BadgeColor="Color.Primary">
                 <MudGrid>
                     <MudItem xs="12">
                         <MudPaper Elevation="15" Class="pa-4">
@@ -114,6 +110,7 @@
                             </MudStack>
                         </MudPaper>
                     </MudItem>
+
                     <MudItem xs="4">
                         <MudPaper Elevation="15" Class="pa-4 mud-height-full">
                             <MudText Typo="Typo.subtitle1">Settings 1</MudText>
@@ -125,6 +122,7 @@
                             <MudTextField @bind-Value="Season.RunAmountSession" Label="RunAmountSession" ReadOnly="true"></MudTextField>
                         </MudPaper>
                     </MudItem>
+
                     <MudItem xs="4">
                         <MudPaper Elevation="15" Class="pa-4 mud-height-full">
                             <MudText Typo="Typo.subtitle1">Settings 2</MudText>
@@ -137,6 +135,7 @@
                             <MudTextField @bind-Value="Season.PointsFastestLap" Label="PointsFastestLap" ReadOnly="true"></MudTextField>
                         </MudPaper>
                     </MudItem>
+
                     <MudItem xs="4">
                         <MudPaper Elevation="15" Class="pa-4 mud-height-full">
                             <MudText Typo="Typo.subtitle1">Points per position</MudText>
@@ -179,21 +178,9 @@
     public Season? Season { get; set; }
     public Race? NextRace { get; set; }
 
-    MudTabs? tabs;
+    int _activeTabIndex = 0;
 
     //private SeasonOverviewAvailability OverviewAvailability { get; set; } = new();
-
-    private string? _errorMessage { get; set; }
-
-    // Underneath is an ID to confirm if it works
-    //protected MudDropContainer<EditSeasonTeamModel> teamDropper
-    //{
-    //    get => _dropperTeams;
-    //    set
-    //    {
-    //        _dropperTeams = value;
-    //    }
-    //}
 
     protected override async Task OnInitializedAsync()
     {
@@ -202,39 +189,31 @@
             new BreadcrumbItem("Overview", href: "overview")
         });
 
+        _activeTabIndex = TabIndex;
+
         Season = await SeasonService.GetSeasonById(SeasonId);
 
         //OverviewAvailability = SeasonService.GetOverviewAvailability(SeasonId);
 
         if (Season != null)
             NextRace = await RaceService.GetNextRaceOfSeason(SeasonId);
-
-        //if (TabIndex != 0)
-        //    ActivatePanel(TabIndex);
     }
-
-    // doesnt work, null ref
-    //void ActivatePanel(int index)
-    //{
-    //    tabs.ActivatePanel(index);
-    //}
 
     private async Task StartSeason()
     {
         if (Season != null)
         {
-            _errorMessage = await SeasonService.ActivateSeason(Season.Id);
+            var error = await SeasonService.ActivateSeason(Season.Id);
 
-            if (_errorMessage == null)
+            if (error == null)
             {
                 Season.State = State.Active; // NOTE: It always changes to active if started
                 Snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
             }
-        }
-        // It's pretty much impossible to hit this else-condition but eh
-        else
-        {
-            _errorMessage = "Couldn't detect a season (wtf?)";
+            else
+            {
+                Snackbar.Add(error, Severity.Error);
+            }
         }
     }
 
@@ -273,6 +252,4 @@
             Season = updatedItem;
         }
     }
-
-    private void HideErr() => _errorMessage = null;
 }

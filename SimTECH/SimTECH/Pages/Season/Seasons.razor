@@ -7,48 +7,68 @@
 <PageTitle>Seasons</PageTitle>
 
 <MudContainer>
-    <MudDataGrid T="Season" Items="@SeasonData" Bordered="true" Dense="true" Class="my-2">
-        <ToolBarContent>
-            <MudText Typo="Typo.h4">Seasons</MudText>
-            <MudSpacer />
-            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="NewSeason">New</MudButton>
-        </ToolBarContent>
-        <Columns>
-            <PropertyColumn Property="e => e.Year" />
-            <PropertyColumn Property="e => e.State" />
-            <TemplateColumn Title="League">
-                <CellTemplate>
-                    <MudText>@(Leagues.Find(e => e.Id == context.Item.LeagueId)?.Name ?? "Unknown?!")</MudText>
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn CellClass="d-flex justify end">
-                <CellTemplate>
-                    <MudButtonGroup Size="@Size.Small">
-                        <MudIconButton Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(async () => await CopySeason(context.Item))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
-                        @if (context.Item.State == State.Concept)
+    @if (SeasonList != null)
+    {
+        <MudDataGrid T="SeasonListModel" Items="@SeasonList" Bordered="true" Dense="true" Class="my-2">
+            <ToolBarContent>
+                <MudText Typo="Typo.h4">Seasons</MudText>
+                <MudSpacer />
+                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="NewSeason">New</MudButton>
+            </ToolBarContent>
+            <Columns>
+                <PropertyColumn Property="e => e.Year" />
+                <PropertyColumn Property="e => e.State" />
+                <TemplateColumn Title="Leaders">
+                    <CellTemplate>
+                        @if (context.Item.LeadingDriver == null)
                         {
-                            <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateSeason(context.Item))" />
-                            <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async() => await DeleteSeason(context.Item))" />
+                            <MudText>No leading driver</MudText>
                         }
-                    </MudButtonGroup>
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-        <PagerContent>
-            <MudDataGridPager T="Season" />
-        </PagerContent>
-    </MudDataGrid>
+                        else
+                        {
+                            <MudText>@context.Item.LeadingDriver.Name [context.Item.LeadingDriver.Colour] [context.Item.LeadingDriver.Accent]</MudText>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+@*                <TemplateColumn Title="League">
+                    <CellTemplate>
+                        <MudText>@(Leagues.Find(e => e.Id == context.Item.LeagueId)?.Name ?? "Unknown?!")</MudText>
+                    </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn CellClass="d-flex justify end">
+                        <CellTemplate>
+                            <MudButtonGroup Size="@Size.Small">
+                                <MudIconButton Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(async () => await CopySeason(context.Item))" />
+                                <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
+                                @if (context.Item.State == State.Concept)
+                            {
+                                <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateSeason(context.Item))" />
+                                <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async() => await DeleteSeason(context.Item))" />
+                            }
+                        </MudButtonGroup>
+                    </CellTemplate>
+                </TemplateColumn>*@
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="SeasonListModel" />
+            </PagerContent>
+        </MudDataGrid>
+    }
+    
 </MudContainer>
 
 @code {
     private List<Season> SeasonData = new();
     private List<League> Leagues = new();
 
+    private List<SeasonListModel> SeasonList;
+
     protected override async Task OnInitializedAsync()
     {
         SeasonData = await SeasonService.GetSeasons();
         Leagues = await LeagueService.GetLeagues();
+
+        SeasonList = await SeasonService.GetSeasonList();
     }
 
     // Arguably delete the copy, use by default the last season as a base
