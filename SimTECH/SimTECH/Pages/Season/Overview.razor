@@ -19,25 +19,29 @@
                 <MudGrid Spacing="4">
                     <MudItem xs="12">
                         <MudPaper Class="pa-4">
-                            <MudText>Hello, the season year is @Season.Year</MudText>
-                            <MudText>Currenly in status: @Season.State.ToString()</MudText>
-                            <MudText>Development status: season configuration is done</MudText>
+                            <MudStack Row="true">
+                                <div>
+                                    <MudText>Hello, the season year is @Season.Year</MudText>
+                                    <MudText>Currenly in status: @Season.State.ToString()</MudText>
+                                    <MudText>Development status: season configuration is done</MudText>
+                                </div>
+                                <MudSpacer />
+                                <div>-</div>
+                                @if (Season.State == State.Concept)
+                                {
+                                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                                        <MudButton OnClick="StartSeason">Start season</MudButton>
+                                        <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
+                                    </MudButtonGroup>
+                                }
+                            </MudStack>
+                            
                         </MudPaper>
                     </MudItem>
-                    @if (Season.State == State.Concept)
-                    {
-                        <MudItem xs="6">
-                            <MudPaper Elevation="15" Class="pa-4">
-                                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                                    <MudButton OnClick="StartSeason">Start season</MudButton>
-                                    <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
-                                </MudButtonGroup>
-                            </MudPaper>
-                        </MudItem>
-                    }
+
                     <MudItem xs="6">
-                        <MudPaper Elevation="15" Class="pa-4">
-                            <MudText Typo="Typo.h6">Next race</MudText>
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudText Typo="Typo.h6">Upcoming race</MudText>
                             @if (Season.State == State.Active)
                             {
                                 @if (NextRace is null)
@@ -58,6 +62,18 @@
                                 <MudText>Think for a second, if there is a next race then the season is active. This season isn't so there is no next race, bellend.</MudText>
                             }
                         </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="6">
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="6">
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="6">
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
                     </MudItem>
                 </MudGrid>
                 @* place alert to above if necessary outside this tab *@
