@@ -35,7 +35,7 @@
                     }
                     else
                     {
-                        <MudTable T="Tyre" Items="@Tyres" OnRowClick="AppendTyreToStrategy" Hover="true">
+                        <MudTable T="Tyre" Items="@Tyres" Hover="true" OnRowClick="AppendTyreToStrategy">
                             <HeaderContent>
                                 <MudTh>Tyre</MudTh>
                                 <MudTh>Length</MudTh>
@@ -43,12 +43,12 @@
                                 <MudTh>Wear</MudTh>
                             </HeaderContent>
                             <RowTemplate>
-                                <MudTd DataLabel="Tyre">
+                                <MudTd>
                                     <span class="tyre" style="border-color:@(context.Colour)">@context.Name.ElementAt(0)</span>
                                 </MudTd>
                                 <MudTd DataLabel="Length">@context.Length</MudTd>
                                 <MudTd DataLabel="Pace">@context.Pace</MudTd>
-                                <MudTd DataLabel="Wear">@context.WearMax ↔ @context.WearMin</MudTd>
+                                <MudTd>@context.WearMax ↔ @context.WearMin</MudTd>
                             </RowTemplate>
                         </MudTable>
                     }

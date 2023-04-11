@@ -1,6 +1,6 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText>Add new manufacturer</MudText>
+        <MudText>Modify tyre manufacturer</MudText>
         <MudText Color="Color.Warning">@_validation</MudText>
     </TitleContent>
     <DialogContent>
@@ -28,15 +28,13 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? ManufacturerDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? ManufacturerDialog { get; set; }
+    [Parameter] public Manufacturer? Manufacturer { get; set; }
 
-    [Parameter]
-    public Manufacturer? Manufacturer { get; set; }
+    string _validation = string.Empty;
 
     private EditManufacturerModel model = new();
-    private string _validation = string.Empty;
-
+    
     protected override void OnInitialized()
     {
         if (Manufacturer != null)

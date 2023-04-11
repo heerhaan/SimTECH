@@ -1,6 +1,6 @@
 ﻿@page "/race/{RaceId:long}"
 
-@inject RaceService _raceService
+@inject RaceService RaceService
 @inject NavigationManager Nav
 @inject ISnackbar Snackbar
 
@@ -21,20 +21,34 @@
             }
             else
             {
-                @*<MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" Class="field-md" />*@
+                @* The following seems a bit too clumsy  to implement, so it isn't implemented
+                    <MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" Class="field-md" />
+                *@
                 <MudButton Color="Color.Tertiary" Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
             }
         </ToolBarContent>
+        <ColGroup>
+            <col style="width: 15px" />
+            <col style="width: 30px" />
+            <col style="width: 220px" />
+            <col style="width: 30px" />
+            <col style="width: 220px" />
+            <col style="width: 30px" />
+            <col style="width: 50px" />
+            <col style="width: 50px" />
+            <col style="width: 100px" />
+            <col />
+        </ColGroup>
         <HeaderContent>
-            <MudTh Style="width: 15px">#</MudTh>
-            <MudTh Style="width: 30px">Grid</MudTh>
-            <MudTh Style="width: 220px">Name</MudTh>
-            <MudTh Style="width: 30px">No</MudTh>
-            <MudTh Style="width: 220px">Team</MudTh>
-            <MudTh Style="width: 30px">PWR</MudTh>
-            <MudTh Style="width: 50px">TYRE</MudTh>
-            <MudTh Style="width: 50px">Score</MudTh>
-            <MudTh Style="width: 100px">Status</MudTh>
+            <MudTh>#</MudTh>
+            <MudTh>Grid</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>No</MudTh>
+            <MudTh>Team</MudTh>
+            <MudTh>PWR</MudTh>
+            <MudTh>TYRE</MudTh>
+            <MudTh>Score</MudTh>
+            <MudTh>Status</MudTh>
             <MudTh>Visual</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -109,7 +123,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Model = await _raceService.RetrieveRaceModel(RaceId);
+        Model = await RaceService.RetrieveRaceModel(RaceId);
         allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
 
         participatingDrivers = Model.RaceDrivers.Count;
@@ -324,7 +338,7 @@
         var driverTotalScores = Model.RaceDrivers.ToDictionary(e => e.ResultId, e => e.LapScores);
 
         if (driverTotalScores?.Any() == true)
-            await _raceService.PersistLapScores(driverTotalScores);
+            await RaceService.PersistLapScores(driverTotalScores);
     }
 
     private async Task Finish()
@@ -340,7 +354,7 @@
         // Should be removed if it is done per advance
         await PersistLapScores();
 
-        await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints);
+        await RaceService.FinishRace(finishedRace, finishedResults, scoredPoints);
 
         Nav.NavigateTo($"/overview/{Model.Season.Id}/3"); // 3 = standingspanel
     }

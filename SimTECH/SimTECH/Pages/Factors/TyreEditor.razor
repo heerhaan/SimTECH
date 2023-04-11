@@ -1,25 +1,30 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText>
-            Add new tyre
-        </MudText>
+        <MudText>Modify tyre</MudText>
+        <MudText>Tyres get replaced when their life reaches 0</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@model">
-            <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
-            <MudColorPicker @bind-Text="model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" Class="field-md" />
-            <MudNumericField T="int" @bind-Value="model.Length" Label="Length" Class="field-md" />
-            <MudNumericField T="int" @bind-Value="model.Pace" Label="Pace" Class="field-md" />
+        <MudForm Model="@Model">
+            <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
+            <MudColorPicker @bind-Text="Model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" Class="field-md" />
+            
+            <div class="d-inline-flex flex-row gap-1">
+                <MudNumericField T="int" @bind-Value="Model.Length" Label="Length" Class="field-md" ReadOnly="true" />
+
+                <span class="my-auto">Predicted length in KM: @(PredictedLength())km</span>
+            </div>
+            
+            <MudNumericField T="int" @bind-Value="Model.Pace" Label="Pace" Class="field-md" />
             <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
-                <MudNumericField T="int" @bind-Value="model.WearMax" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.DoubleArrow" AdornmentColor="Color.Warning" Label="WearMax" Class="field-sm" />
-                <MudNumericField T="int" @bind-Value="model.WearMin" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.DoubleArrow" AdornmentColor="Color.Warning" Label="WearMin" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.WearMax" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.DoubleArrow" AdornmentColor="Color.Warning" Label="WearMax" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.WearMin" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.DoubleArrow" AdornmentColor="Color.Warning" Label="WearMin" Class="field-sm" />
             </MudStack>
         </MudForm>
-        <MudPaper Height="75px">
+        <MudPaper Height="100px">
             <MudText Typo="Typo.h6">Preview</MudText>
-            @if (!string.IsNullOrEmpty(model.Name))
+            @if (!string.IsNullOrEmpty(Model.Name))
             {
-                <span class="tyre" style="border-color:@(model.Colour)">@model.Name.ElementAt(0)</span>
+                <span class="tyre" style="border-color:@(Model.Colour)">@Model.Name.ElementAt(0)</span>
             }
         </MudPaper>
     </DialogContent>
@@ -30,25 +35,36 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? TyreDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? TyreDialog { get; set; }
+    [Parameter] public Tyre? Tyre { get; set; }
 
-    [Parameter]
-    public Tyre? Tyre { get; set; } = new();
-
-    private EditTyreModel model = new();
+    private EditTyreModel Model = new();
 
     protected override void OnInitialized()
     {
         if (Tyre != null)
-            model = new EditTyreModel(Tyre);
+        {
+            Model = new EditTyreModel(Tyre);
+        }
+    }
+
+    int PredictedLength()
+    {
+        if (Model.Pace == 0 || (Model.WearMax == 0 && Model.WearMin == 0))
+            return 0;
+
+        var wearAverage = ((Model.WearMax + Model.WearMin) / 2) * -1;
+
+        return (Model.Pace / wearAverage) * 10;
     }
 
     private void Submit()
     {
-        if (model.IsDirty)
+        Model.Length = PredictedLength();
+
+        if (Model.IsDirty)
         {
-            var modTyre = model.Record;
+            var modTyre = Model.Record;
             TyreDialog?.Close(DialogResult.Ok(modTyre));
         }
     }

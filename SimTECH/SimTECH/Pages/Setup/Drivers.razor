@@ -6,23 +6,22 @@
 <PageTitle>Drivers</PageTitle>
 
 <MudContainer>
-    <MudDataGrid T="Driver" Items="@DriverData" ReadOnly="@_readOnly" Bordered="true" Dense="true" Class="mt-2">
+    <MudDataGrid T="Driver" Items="@DriverData" Bordered="true" Dense="true" Class="mt-2">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Drivers</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddDriver">New</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddDriver">New</MudButton>
         </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Driver" />
-            <PropertyColumn Property="e => e.FullName" />
+            <PropertyColumn Property="e => e.FullName" Title="Name" />
             <PropertyColumn Property="e => e.Abbreviation" />
             <PropertyColumn Property="e => e.DateOfBirth" Title="DOB" Format="d" />
-            <TemplateColumn T="Driver" Title="Country">
+            <TemplateColumn T="Driver" Title="Nationality">
                 <CellTemplate>
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.State" />
             <TemplateColumn T="Driver" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small">
@@ -36,12 +35,11 @@
             <MudCard>
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6">TODO: This detail page lol haha</MudText>
+                        <MudText Typo="Typo.h6">@context.Item.FullName</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
-                    <MudText>Woah, check this flag out!</MudText>
-                    <CountryFlag Code="@context.Item.Country" Size="FlagSize.Large" />
+                    <MudText>Item is currently: @context.Item.State</MudText>
                 </MudCardContent>
             </MudCard>
         </ChildRowContent>
@@ -52,8 +50,6 @@
 </MudContainer>
 
 @code {
-    private bool _readOnly = false; // NOTE: Useful when app goes public
-
     private List<Driver> DriverData = new();
 
     protected override async Task OnInitializedAsync()

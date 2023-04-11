@@ -13,5 +13,15 @@
         public int WearMin { get; set; }
 
         public IList<StrategyTyre>? StrategyTyres { get; set; }
+
+        public int PredictedLength()
+        {
+            if (Pace == 0 || (WearMax == 0 && WearMin == 0))
+                return 0;
+
+            var wearAverage = ((WearMax + WearMin) / 2) * -1;
+
+            return (Pace / wearAverage) * 10;
+        }
     }
 }
