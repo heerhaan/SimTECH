@@ -18,7 +18,6 @@
                                     <MudTh Class="number-col">#</MudTh>
                                     <MudTh>Name</MudTh>
                                     <MudTh Class="number-col">No.</MudTh>
-                                    <MudTh>TeamRole</MudTh>
                                     <MudTh>
                                         <MudTableSortLabel SortBy="new Func<StandingDriverModel, object>(e => e.Points)">PTS</MudTableSortLabel>
                                     </MudTh>
@@ -34,7 +33,6 @@
                                     <MudTd DataLabel="No." Style="@(ViewHelper.GetFullColourStyle(context.Colour, context.Accent))" Class="number-col">
                                         @context.Number
                                     </MudTd>
-                                    <MudTd DataLabel="TeamRole">@context.TeamRole</MudTd>
                                     <MudTd DataLabel="PTS">@context.Points</MudTd>
                                 </RowTemplate>
                             </MudTable>
@@ -77,6 +75,7 @@
                             <MudTh Class="number-col">#</MudTh>
                             <MudTh>Driver</MudTh>
                             <MudTh Class="number-col">No</MudTh>
+                            <MudTh>PTS</MudTh>
                             @foreach (var race in Races.OrderBy(e => e.Round))
                             {
                                 <MudTh Class="number-col">
@@ -84,7 +83,6 @@
                                     @(race.Track.Name.Substring(0, 3))
                                 </MudTh>
                             }
-                            <MudTh>PTS</MudTh>
                             <MudTh>AVG</MudTh>
                         </HeaderContent>
                         <RowTemplate>
@@ -96,6 +94,7 @@
                                 @context.Name
                             </MudTd>
                             <MudTd Class="number-col" Style="@(ViewHelper.GetFullColourStyle(context.Colour, context.Accent))">@context.Number</MudTd>
+                            <MudTd>@context.Points</MudTd>
                             @for (int i = 0; i < Races.Count; i++)
                             {
                                 if (i < context.ResultCells.Count)
@@ -110,7 +109,6 @@
                                     <MudTd Class="number-col">-</MudTd>
                                 }
                             }
-                            <MudTd>@context.Points</MudTd>
                             <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -125,6 +123,7 @@
                     <HeaderContent>
                         <MudTh Class="number-col">#</MudTh>
                         <MudTh>Team</MudTh>
+                        <MudTh>PTS</MudTh>
                         @foreach (var race in Races.OrderBy(e => e.Round))
                         {
                             <MudTh Class="number-col-lg">
@@ -132,7 +131,6 @@
                                 @(race.Track.Name.Substring(0, 3))
                             </MudTh>
                         }
-                        <MudTh>PTS</MudTh>
                         <MudTh>AVG</MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -141,6 +139,7 @@
                             <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
                             @context.Name
                         </MudTd>
+                        <MudTd>@context.Points</MudTd>
                         @foreach (var round in Races.OrderBy(e => e.Round))
                         {
                             var teamResults = context.ResultCells.Where(e => e.Round == round.Round).ToList();
@@ -162,7 +161,6 @@
                                 <MudTd>-</MudTd>
                             }
                         }
-                        <MudTd>@context.Points</MudTd>
                         <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
                     </RowTemplate>
                 </MudTable>

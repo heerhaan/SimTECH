@@ -1,4 +1,4 @@
-﻿@inject LeagueService _leagueService
+﻿@inject LeagueService LeagueService
 @inject RaceService RaceService
 @inject TrackService TrackService
 @inject NavigationManager Nav
@@ -44,7 +44,7 @@
                     <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context))" />
                     <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context))" />
                 }
-                else if (Season.State == State.Active && (context.State == State.Active || context.Round == nextRound))
+                else if (Season.State == State.Active && (context.Round == _nextRound.GetValueOrDefault()))
                 {
                     <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRaceWeek(context))" />
                 }
@@ -57,8 +57,7 @@
     [CascadingParameter] public Season Season { get; set; }
 
     private IList<Race> RaceData = new List<Race>();
-    private string? _notification;
-    private int? nextRound;
+    int? _nextRound;
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,15 +65,13 @@
             .OrderBy(e => e.Round)
             .ToList();
 
-        var nextRace = RaceData.FirstOrDefault(e => e.State == State.Concept || e.State == State.Active);
-        if (nextRace != null)
-            nextRound = nextRace.Round;
+        _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? null;
     }
 
     private async Task AddRace() => await UpdateRace(new Race());
     private async Task UpdateRace(Race item)
     {
-        var seasonLeague = await _leagueService.GetLeagueById(Season.LeagueId);
+        var seasonLeague = await LeagueService.GetLeagueById(Season.LeagueId);
         var availableTracks = (await TrackService.GetTracks())
             .Where(e => !RaceData.Select(r => r.TrackId).Contains(e.Id))
             .ToList();
@@ -143,7 +140,7 @@
     {
         if (race.State == State.Concept)
         {
-            if (race.Round == nextRound)
+            if (race.Round == _nextRound)
                 await RaceService.ActivateRace(race.Id);
             else
             {

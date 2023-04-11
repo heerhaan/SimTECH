@@ -68,7 +68,7 @@
                 }
             </MudTd>
             <MudTd>
-                <MudProgressLinear Value="@context.LapSum" Min="0" Max="@highestScore" Color="Color.Warning" Size="Size.Medium" Class="my-2" />
+                <MudProgressLinear Value="@context.LapSum" Min="0" Max="@highestScore" Size="Size.Medium" Color="Color.Secondary" Class="my-2" />
             </MudTd>
         </RowTemplate>
         <FooterContent>
@@ -110,7 +110,7 @@
     protected override async Task OnInitializedAsync()
     {
         Model = await _raceService.RetrieveRaceModel(RaceId);
-        allotments = Model.Season.PointAllotments.ToDictionary(e => e.Position, e => e.Points);
+        allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
 
         participatingDrivers = Model.RaceDrivers.Count;
         calculationCount = Model.RaceLength / 10;

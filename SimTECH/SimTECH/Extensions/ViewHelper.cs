@@ -9,6 +9,8 @@ namespace SimTECH.Extensions
 
         public static string GetFullColourStyle(string colour, string accent) => $"background-color:{colour};color:{accent}";
 
+        public static string SetBackgroundColour(string colour) => $"background-color:{colour}";
+
         public static string GetSimpleStyle(string colour) => $"border-right:solid 10px {colour};";
 
         public static Func<SeasonDriver, string> DriverGradientStyleFunc => driver =>
