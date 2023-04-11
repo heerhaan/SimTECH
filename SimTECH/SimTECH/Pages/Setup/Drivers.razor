@@ -6,7 +6,7 @@
 <PageTitle>Drivers</PageTitle>
 
 <MudContainer>
-    <MudDataGrid T="Driver" Items="@DriverData" Bordered="true" Dense="true" Class="mt-2">
+    <MudDataGrid T="Driver" Items="@DriverData" Bordered="true" Class="mt-2">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Drivers</MudText>
             <MudSpacer />
@@ -22,9 +22,9 @@
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="Driver" Sortable="false" CellClass="d-flex justify-end">
+            <TemplateColumn T="Driver" Sortable="false">
                 <CellTemplate>
-                    <MudButtonGroup Size="@Size.Small">
+                    <MudButtonGroup Size="@Size.Small" Class="ml-auto">
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteDriver(context.Item))" />
                     </MudButtonGroup>

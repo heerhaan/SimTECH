@@ -6,14 +6,14 @@
         public int Year { get; set; }
         public State State { get; set; }
 
-        public LeadingEntrant? LeadingDriver { get; set; }
-        public LeadingEntrant? LeadingTeam { get; set; }
-    }
+        public string League { get; set; }
 
-    public class LeadingEntrant
-    {
-        public string Name { get; set; }
-        public string Colour { get; set; }
-        public string Accent { get; set; }
+        public string DriverName { get; set; }
+        public Country DriverNationality { get; set; }
+
+        public string TeamName { get; set; }
+        public string TeamColour { get; set; }
+        public string TeamAccent { get; set; }
+        public Country TeamNationality { get; set; }
     }
 }

@@ -18,36 +18,30 @@
             <Columns>
                 <PropertyColumn Property="e => e.Year" />
                 <PropertyColumn Property="e => e.State" />
-                <TemplateColumn Title="Leaders">
+                <TemplateColumn Title="Leading driver">
                     <CellTemplate>
-                        @if (context.Item.LeadingDriver == null)
-                        {
-                            <MudText>No leading driver</MudText>
-                        }
-                        else
-                        {
-                            <MudText>@context.Item.LeadingDriver.Name [context.Item.LeadingDriver.Colour] [context.Item.LeadingDriver.Accent]</MudText>
-                        }
+                        <CountryFlag Code="context.Item.DriverNationality" Size="FlagSize.Small" />
+                        <span>@context.Item.DriverName</span>
                     </CellTemplate>
                 </TemplateColumn>
-@*                <TemplateColumn Title="League">
+                <TemplateColumn Title="Leading team" CellStyleFunc="@LeadingTeamStyleFunc" >
                     <CellTemplate>
-                        <MudText>@(Leagues.Find(e => e.Id == context.Item.LeagueId)?.Name ?? "Unknown?!")</MudText>
+                        <CountryFlag Code="context.Item.TeamNationality" Size="FlagSize.Small" />
+                        <span>@context.Item.TeamName</span>
                     </CellTemplate>
-                    </TemplateColumn>
-                    <TemplateColumn CellClass="d-flex justify end">
-                        <CellTemplate>
-                            <MudButtonGroup Size="@Size.Small">
-                                <MudIconButton Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(async () => await CopySeason(context.Item))" />
-                                <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
-                                @if (context.Item.State == State.Concept)
+                </TemplateColumn>
+                <PropertyColumn Property="e => e.League" />
+                <TemplateColumn CellClass="d-flex justify end">
+                    <CellTemplate>
+                        <MudButtonGroup Size="@Size.Small">
+                            <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
+                            @if (context.Item.State == State.Concept)
                             {
-                                <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateSeason(context.Item))" />
-                                <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async() => await DeleteSeason(context.Item))" />
+                                <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async() => await DeleteSeason(context.Item.Id))" />
                             }
                         </MudButtonGroup>
                     </CellTemplate>
-                </TemplateColumn>*@
+                </TemplateColumn>
             </Columns>
             <PagerContent>
                 <MudDataGridPager T="SeasonListModel" />
@@ -58,25 +52,29 @@
 </MudContainer>
 
 @code {
-    private List<Season> SeasonData = new();
-    private List<League> Leagues = new();
-
+    private List<Season> SeasonData;
+    private List<League> LeagueData;
     private List<SeasonListModel> SeasonList;
 
     protected override async Task OnInitializedAsync()
     {
         SeasonData = await SeasonService.GetSeasons();
-        Leagues = await LeagueService.GetLeagues();
+        LeagueData = await LeagueService.GetLeagues();
 
         SeasonList = await SeasonService.GetSeasonList();
     }
 
     // Arguably delete the copy, use by default the last season as a base
+    //private async Task CopySeason(Season season) => await UpdateSeason(season, true);
+    private async Task EditSeason(long seasonId)
+    {
+        var season = SeasonData.Single(e => e.Id == seasonId);
+        await UpdateSeason(season);
+    }
     private async Task NewSeason() => await UpdateSeason(new Season());
-    private async Task CopySeason(Season season) => await UpdateSeason(season, true);
     private async Task UpdateSeason(Season item, bool isCopied = false)
     {
-        var parameters = new DialogParameters { ["Season"] = item, ["Leagues"] = Leagues, ["Copied"] = isCopied };
+        var parameters = new DialogParameters { ["Season"] = item, ["Leagues"] = LeagueData, ["Copied"] = isCopied };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
@@ -88,12 +86,12 @@
         }
     }
 
-    private async Task DeleteSeason(Season season)
+    private async Task DeleteSeason(long seasonId)
     {
-        var result = await SeasonService.DeleteSeason(season);
+        var result = await SeasonService.DeleteSeason(seasonId);
         if (result)
         {
-            SeasonData.Remove(season);
+            SeasonData.Remove(SeasonData.Single(e => e.Id == seasonId));
         }
     }
 
@@ -102,11 +100,6 @@
         Nav.NavigateTo($"/overview/{seasonId}");
     }
 
-    private class SeasonOverview
-    {
-        public int Year { get; set; }
-
-        // Leading driver
-        // Leading team
-    }
+    private static Func<SeasonListModel, string> LeadingTeamStyleFunc => model 
+        => ViewHelper.GetFullColourStyle(model.TeamColour, model.TeamAccent);
 }

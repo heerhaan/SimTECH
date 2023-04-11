@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
+using SimTECH.Extensions;
 using SimTECH.PageModels;
-using SimTECH.Pages.Season;
-using System.Diagnostics;
 
 namespace SimTECH.Data.Services
 {
@@ -46,9 +45,11 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteSeason(Season? season)
+        public async Task<bool> DeleteSeason(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
+
+            var season = await context.Season.SingleAsync(e => e.Id == seasonId);
 
             if (season == null)
                 throw new InvalidOperationException("No season related to ID found");
@@ -108,95 +109,44 @@ namespace SimTECH.Data.Services
         }
 
         #region page models
-
+        // Retrieves a list of seasons specifically meant to be displayed in the... list of seasons!!!
         public async Task<List<SeasonListModel>> GetSeasonList()
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             using var context = _dbFactory.CreateDbContext();
 
             var seasons = await context.Season
-                .Include(e => e.SeasonDrivers)
-                    .ThenInclude(e => e.Driver)
-                .Include(e => e.SeasonTeams)
+                .Include(e => e.League)
+                .Include(
+                    s => s.SeasonDrivers
+                        .OrderByDescending(d => d.Points)
+                        .Take(1))
+                    .ThenInclude(d => d.Driver)
+                .Include(
+                    s => s.SeasonTeams
+                        .OrderByDescending(t => t.Points)
+                        .Take(1))
+                    .ThenInclude(t => t.Team)
                 .ToListAsync();
 
-            // optimize the call underneath but just so you know, its MUCH faster this way
-            var listModel = seasons.Select(s => new SeasonListModel
+            return seasons.ConvertAll(s => new SeasonListModel
             {
                 Id = s.Id,
                 Year = s.Year,
                 State = s.State,
 
-                LeadingDriver = s.SeasonDrivers?
-                    .OrderByDescending(sd => sd.Points)
-                        .ThenByDescending(sd => sd.HiddenPoints)
-                    .Take(1)
-                    .Select(sd => new LeadingEntrant
-                    {
-                        Name = sd.Driver.FullName,
-                        Colour = s.SeasonTeams?.FirstOrDefault(st => sd.SeasonTeamId == st.Id)?.Colour ?? "black",
-                        Accent = s.SeasonTeams?.FirstOrDefault(st => sd.SeasonTeamId == st.Id)?.Accent ?? "black",
-                    })
-                    .FirstOrDefault(),
+                League = s.League.Name,
 
-                LeadingTeam = s.SeasonTeams?
-                    .OrderByDescending(sd => sd.Points)
-                        .ThenByDescending(sd => sd.HiddenPoints)
-                    .Take(1)
-                    .Select(sd => new LeadingEntrant
-                    {
-                        Name = sd.Name,
-                        Colour = sd.Colour,
-                        Accent = sd.Accent
-                    })
-                    .FirstOrDefault(),
-            }).ToList();
+                DriverName = s.SeasonDrivers?.FirstOrDefault()?.Driver.FullName ?? "Unknown",
+                DriverNationality = s.SeasonDrivers?.FirstOrDefault()?.Driver.Country ?? EnumHelper.GetDefaultCountry(),
 
-            //var listModel = await context.Season
-            //    .Select(s => new SeasonListModel
-            //    {
-            //        Id = s.Id,
-            //        Year = s.Year,
-            //        State = s.State,
-
-            //        LeadingDriver = s.SeasonDrivers == null
-            //            ? null
-            //            : s.SeasonDrivers
-            //            .OrderByDescending(sd => sd.Points)
-            //                .ThenByDescending(sd => sd.HiddenPoints)
-            //            .Take(1)
-            //            .Select(sd => new LeadingEntrant
-            //            {
-            //                Name = sd.Driver.FullName,
-            //                Colour = sd.SeasonTeam.Colour,
-            //                Accent = sd.SeasonTeam.Accent
-            //            })
-            //            .FirstOrDefault(),
-
-            //        LeadingTeam = s.SeasonTeams == null
-            //            ? null
-            //            : s.SeasonTeams
-            //            .OrderByDescending(sd => sd.Points)
-            //                .ThenByDescending(sd => sd.HiddenPoints)
-            //            .Take(1)
-            //            .Select(sd => new LeadingEntrant
-            //            {
-            //                Name = sd.Name,
-            //                Colour = sd.Colour,
-            //                Accent = sd.Accent
-            //            })
-            //            .FirstOrDefault(),
-            //    })
-            //    .ToListAsync();
-
-            stopwatch.Stop();
-            var jaa = stopwatch.ElapsedMilliseconds;
-
-            return listModel;
+                TeamName = s.SeasonTeams?.FirstOrDefault()?.Name ?? "Unknown",
+                TeamColour = s.SeasonTeams?.FirstOrDefault()?.Colour ?? "Unknown",
+                TeamAccent = s.SeasonTeams?.FirstOrDefault()?.Accent ?? "Unknown",
+                TeamNationality = s.SeasonTeams?.FirstOrDefault()?.Team.Country ?? EnumHelper.GetDefaultCountry(),
+            });
         }
 
+        // The idea is that this piece of code gives us the info needed to know whether we're going to need to display a warning
         public SeasonOverviewAvailability GetOverviewAvailability(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
