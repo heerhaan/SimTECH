@@ -4,6 +4,7 @@ using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
+using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.Services
 {
@@ -25,6 +26,15 @@ namespace SimTECH.Data.Services
             return await context.Race
                 .Include(e => e.Track)
                 .Where(e => e.SeasonId == seasonId)
+                .ToListAsync();
+        }
+
+        public async Task<List<Race>> GetLastRaces(int amount)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Race
+                .TakeLast(amount)
                 .ToListAsync();
         }
 
@@ -210,6 +220,43 @@ namespace SimTECH.Data.Services
             context.UpdateRange(seasonDrivers);
 
             await context.SaveChangesAsync();
+        }
+
+        public async Task<List<SimpleCalendarRace>> GetRecentlyFinishedCalendarRaces(int amount)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            // some issue still...
+            var aha = await context.Race
+                .Where(e => e.State == State.Closed && e.Results.Any())
+                .TakeLastSpecial(amount)//komt niet hierdoor!
+                .Select(e => new SimpleCalendarRace
+                {
+                    Round = e.Round,
+                    Name = e.Name,
+                    Country = e.Track.Country,
+                    LeagueName = e.Season.League.Name,
+
+                    WinningDriver = e.Results.Select(d => new DriverWinnerModel
+                    {
+                        Name = d.SeasonDriver.Driver.FullName,
+                        Country = d.SeasonDriver.Driver.Country,
+                        Number = d.SeasonDriver.Number
+                    })
+                    .First(),
+
+                    WinningTeam = e.Results.Select(t => new TeamWinnerModel
+                    {
+                        Name = t.SeasonTeam.Name,
+                        Country = t.SeasonTeam.Team.Country,
+                        Colour = t.SeasonTeam.Colour,
+                        Accent = t.SeasonTeam.Accent
+                    })
+                    .First(),
+                })
+                .ToListAsync();
+
+            return aha;
         }
 
         // Race, qualy and practice models are nearly the same but a generic solution did not came to me

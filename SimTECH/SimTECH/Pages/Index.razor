@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject RaceService RaceService
 @inject ProtectedLocalStorage LocalStorage
 @inject SimAuthenticationStateProvider AuthenticationProvider
 @inject NavigationManager Nav
@@ -32,7 +33,42 @@
                 <MudItem xs="12">
                     <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
                         <MudText Typo="Typo.h6">Last races</MudText>
-                        <MudText>Todo</MudText>
+                        @if (recentRaces != null)
+                        {
+                            <MudTable Items="recentRaces" Dense="true">
+                                <HeaderContent>
+                                    <MudTh>League</MudTh>
+                                    <MudTh>Round</MudTh>
+                                    <MudTh>Name</MudTh>
+                                    <MudTh>Winning driver</MudTh>
+                                    <MudTh>Winning team</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd>@context.LeagueName</MudTd>
+                                    <MudTd>
+                                        <MudText Typo="Typo.body2">
+                                            <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
+                                            Round:
+                                            @context.Round
+                                        </MudText>
+                                    </MudTd>
+                                    <MudTd>@context.Name</MudTd>
+                                    <MudTd>
+                                        <MudText Typo="Typo.body2">
+                                            <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
+                                            @context.WinningDriver.Name
+                                            <MudChip Variant="Variant.Text" Color="NextColour()" DisableRipple="true"></MudChip>
+                                        </MudText>
+                                    </MudTd>
+                                    <MudTd Style="@ViewHelper.GetFullColourStyle(context.WinningTeam.Colour, context.WinningTeam.Accent)">
+                                        <MudText Typo="Typo.body2">
+                                            <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
+                                            @context.WinningTeam.Name
+                                        </MudText>
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        }
                     </MudPaper>
                 </MudItem>
 
@@ -102,13 +138,30 @@
 </MudContainer>
 
 @code {
+    List<SimpleCalendarRace> recentRaces;
+    Color[] cycleColours = (Color[])Enum.GetValues(typeof(Color));
     string? _exampleStore = "nothing stored yo";
     string _newExampleString = "this is a new example string for storage";
+    int _raceAmount = 5;
+    int _cycler = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        recentRaces = await RaceService.GetRecentlyFinishedCalendarRaces(_raceAmount);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var storedExample = await LocalStorage.GetAsync<string>("example");
         _exampleStore = storedExample.Success ? storedExample.Value : "yikes, really nothing stored yo";
+    }
+
+    Color NextColour()
+    {
+        _cycler++;
+        _cycler %= cycleColours.Length;
+
+        return cycleColours[_cycler];
     }
 
     private async Task SetExample() => await LocalStorage.SetAsync("example", _newExampleString);

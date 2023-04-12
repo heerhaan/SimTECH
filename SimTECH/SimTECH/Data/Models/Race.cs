@@ -16,8 +16,8 @@ namespace SimTECH.Data.Models
         public long TrackId { get; set; }
         public Track Track { get; set; } = default!;
 
-        public IList<Penalty>? Penalties { get; set; }
-        public IList<Result>? Results { get; set; }
+        public IList<Penalty> Penalties { get; set; } = default!;
+        public IList<Result> Results { get; set; } = default!;
 
         [NotMapped]
         public bool IsWet => Weather == Weather.Rain || Weather == Weather.Storm;
