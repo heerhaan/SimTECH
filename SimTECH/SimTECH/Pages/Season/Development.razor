@@ -8,8 +8,22 @@
     <MudPaper>
         <MudStack Row="true" Class="px-4 py-2">
             <MudText Typo="Typo.h4">Development</MudText>
+
+            <div class="mx-1 my-auto">
+                <MudTooltip Text="For whom the development is run">
+                    <MudText Typo="Typo.overline">Entrant</MudText>
+                </MudTooltip>
+                <MudChipSet SelectedChipChanged="EntrantChipChanged" Mandatory="true">
+                    <MudChip Color="Color.Primary" Value="Entrant.Driver" Default="true">Driver</MudChip>
+                    <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
+                    <MudChip Color="Color.Primary" Value="Entrant.Engine">Engine</MudChip>
+                </MudChipSet>
+            </div>
+
             <MudSpacer />
+
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="RunDevelop">Run</MudButton>
+            
             @if (_ranDevelop)
             {
                 <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="SaveDevelopment">Save</MudButton>
@@ -17,17 +31,6 @@
         </MudStack>
         <MudTable Items="@DevelopedEntrants" Dense="true">
             <ToolBarContent>
-                <div class="pa-1 mx-1">
-                    <MudTooltip Text="For whom the development is run">
-                        <MudText Typo="Typo.overline">Entrant</MudText>
-                    </MudTooltip>
-                    <MudChipSet SelectedChipChanged="EntrantChipChanged" Mandatory="true">
-                        <MudChip Color="Color.Primary" Value="Entrant.Driver" Default="true">Driver</MudChip>
-                        <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
-                        <MudChip Color="Color.Primary" Value="Entrant.Engine">Engine</MudChip>
-                    </MudChipSet>
-                </div>
-
                 <div class="pa-1 mx-1">
                     <MudTooltip Text="How the development ranges are determined">
                         <MudText Typo="Typo.overline">Type</MudText>
@@ -274,6 +277,7 @@
             }
         }
 
+        // Fallback minimum and maximum with the defaults
         foreach (var entrant in DevelopedEntrants)
         {
             entrant.Min = -2;
@@ -305,6 +309,15 @@
 
             entrant.Change = NumberHelper.RandomInt(entrant.Min, entrant.Max);
             entrant.New = entrant.Old + entrant.Change;
+
+            if (_selectedTarget == TargetDevelop.Reliability)
+            {
+                // The minimum and maximum value for reliability is between 1 and 100, thus we set those limits
+                if (entrant.New > 100)
+                    entrant.New = 100;
+                else if (entrant.New < 1)
+                    entrant.New = 1;
+            }
         }
 
         _ranDevelop = true;
@@ -329,19 +342,4 @@
 
         ReloadDeveloped(_activeEntrant);
     }
-
-    private class DevelopedEntrant
-    {
-        public long Id { get; set; }
-        public string Name { get; set; }
-        public Country? Nationality { get; set; }
-        public int? Optional { get; set; }
-        public int Old { get; set; }
-        public int Change { get; set; }
-        public int New { get; set; }
-        public int Min { get; set; }
-        public int Max { get; set; }
-    }
-
-    enum TypeDevelop { Set, Range, Direct }
 }

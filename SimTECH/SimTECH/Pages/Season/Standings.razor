@@ -1,5 +1,5 @@
-﻿@inject SeasonEntrantService _entrantService
-@inject RaceService _raceService
+﻿@inject SeasonEntrantService EntrantService
+@inject RaceService RaceService
 
 <MudContainer>
     @if (loading)
@@ -52,12 +52,12 @@
                                     <MudTd DataLabel="#" Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))" Class="number-col">
                                         @context.Position
                                     </MudTd>
-                                    <MudTd DataLabel="Principal">@context.Principal</MudTd>
-                                    <MudTd DataLabel="Name" Style="@(ViewHelper.GetSimpleStyle(context.Colour))">
-                                        <CountryFlag Code="context.Nationality" Size="FlagSize.Small" />
+                                    <MudTd>@context.Principal</MudTd>
+                                    <MudTd Style="@(ViewHelper.GetSimpleStyle(context.Colour))">
+                                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
                                         @context.Name
                                     </MudTd>
-                                    <MudTd DataLabel="PTS">@context.Points</MudTd>
+                                    <MudTd>@context.Points</MudTd>
                                 </RowTemplate>
                             </MudTable>
                         </MudPaper>
@@ -71,19 +71,30 @@
                         <ToolBarContent>
                             <MudText Typo="Typo.h4">WDC results</MudText>
                         </ToolBarContent>
+                        <ColGroup>
+                            <col class="number-col" />
+                            <col />
+                            <col class="number-col" />
+                            <col />
+                            @for (int i = 0; i < Races.Count; i++)
+                            {
+                                <col class="number-col" />
+                            }
+                            <col />
+                        </ColGroup>
                         <HeaderContent>
                             <MudTh Class="number-col">#</MudTh>
                             <MudTh>Driver</MudTh>
-                            <MudTh Class="number-col">No</MudTh>
+                            <MudTh>No</MudTh>
                             <MudTh>PTS</MudTh>
                             @foreach (var race in Races.OrderBy(e => e.Round))
                             {
-                                <MudTh Class="number-col">
+                                <MudTh>
                                     <CountryFlag Code="@race.Track.Country" Size="FlagSize.Tiny" />
                                     @(race.Track.Name.Substring(0, 3))
                                 </MudTh>
                             }
-                            <MudTh>AVG</MudTh>
+                            <MudTh class="number-col">AVG</MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))" Class="number-col">
@@ -93,20 +104,20 @@
                                 <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
                                 @context.Name
                             </MudTd>
-                            <MudTd Class="number-col" Style="@(ViewHelper.GetFullColourStyle(context.Colour, context.Accent))">@context.Number</MudTd>
+                            <MudTd Style="@(ViewHelper.GetFullColourStyle(context.Colour, context.Accent))">@context.Number</MudTd>
                             <MudTd>@context.Points</MudTd>
                             @for (int i = 0; i < Races.Count; i++)
                             {
                                 if (i < context.ResultCells.Count)
                                 {
                                     var result = context.ResultCells[i];
-                                    <MudTd Class="number-col" Style="@(GetResultStyle(result))">
+                                    <MudTd Style="@(GetResultStyle(result))">
                                         @(GetResultText(result))
                                     </MudTd>
                                 }
                                 else
                                 {
-                                    <MudTd Class="number-col">-</MudTd>
+                                    <MudTd>-</MudTd>
                                 }
                             }
                             <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
@@ -184,9 +195,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Races = await _raceService.GetRacesBySeason(Season.Id);
-        SeasonDrivers = await _entrantService.GetSeasonDriversWithResults(Season.Id);
-        SeasonTeams = await _entrantService.GetSeasonTeamsWithResults(Season.Id);
+        Races = await RaceService.GetRacesBySeason(Season.Id);
+        SeasonDrivers = await EntrantService.GetSeasonDriversWithResults(Season.Id);
+        SeasonTeams = await EntrantService.GetSeasonTeamsWithResults(Season.Id);
 
         int indexer = 0;
 

@@ -1,6 +1,6 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText>Modify season driver</MudText>
+        <MudText>Modify in-season driver</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm Model="@Model">
@@ -28,7 +28,9 @@
                 }
             </MudSelect>
 
-            @if (SeasonTeams is not null)
+            <MudSwitch @bind-Checked="@_isDropped" Label="Drop driver from team?" Color="Color.Error" />
+
+            @if (SeasonTeams is not null && !_isDropped)
             {
                 <MudSelect T="long" @bind-Value="@_seasonTeamId" Label="Team">
                     @foreach (var steam in SeasonTeams)
@@ -55,8 +57,9 @@
     [Parameter] public List<SeasonTeam>? SeasonTeams { get; set; }
     [Parameter] public SeasonDriver? SeasonDriver { get; set; }
 
-    private EditSeasonDriverModel Model = new();
-    private long _seasonTeamId { get; set; }
+    EditSeasonDriverModel Model = new();
+    long _seasonTeamId;
+    bool _isDropped = false;
 
     protected override void OnInitialized()
     {
@@ -70,7 +73,7 @@
 
     private void Submit()
     {
-        Model.SeasonTeamId = _seasonTeamId;
+        Model.SeasonTeamId = _isDropped ? null : _seasonTeamId;
 
         if (Model.IsDirty)
         {

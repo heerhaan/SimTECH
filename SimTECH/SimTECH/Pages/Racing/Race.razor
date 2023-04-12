@@ -103,23 +103,23 @@
 
     private Dictionary<int, int> allotments;
 
-    private bool loading = true;
+    bool loading = true;
 
-    private int disqualifyChance = (100 / 4); // means 1/25 chance of DSQ | should read from config
-    private int mistakeRolls = 2;
-    private int mistakeMinCost = -30;
-    private int mistakeMaxCost = -20;
-    private double gapMarge = 0.12;
+    int disqualifyChance = (100 / 4); // means 1/25 chance of DSQ | should read from config
+    int mistakeRolls = 2;
+    int mistakeMinCost = -30;
+    int mistakeMaxCost = -20;
+    double gapMarge = 0.12;
 
-    private int participatingDrivers { get; set; }
-    private int fastestLap { get; set; }
-    private int highestScore { get; set; }
-    private int racedLaps { get; set; }
-    private int totalLaps;
+    int participatingDrivers;
+    int fastestLap;
+    int highestScore;
+    int racedLaps;
+    int totalLaps;
 
-    private int calculated { get; set; }
-    private int calculationCount { get; set; }
-    private int calculationsPerAdvance = 5;
+    int calculated;
+    int calculationCount;
+    int calculationsPerAdvance = 5;
 
     protected override async Task OnInitializedAsync()
     {
@@ -288,14 +288,14 @@
 
     private void DeterminePositions(long? newFastestLapHolder)
     {
-        var racingDrivers = Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).ToList();
+        var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum).ToList();
 
         var position = 0;
         highestScore = racingDrivers.Max(e => e.LapSum);
 
         var previousDriver = racingDrivers.First();
 
-        foreach (var driver in racingDrivers.OrderByDescending(e => e.LapSum))
+        foreach (var driver in racingDrivers)
         {
             driver.Position = ++position;
             driver.DisplayGap = GapToLeader(driver.LapSum, highestScore);

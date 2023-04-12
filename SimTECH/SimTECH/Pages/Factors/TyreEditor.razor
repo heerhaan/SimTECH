@@ -7,25 +7,31 @@
         <MudForm Model="@Model">
             <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
             <MudColorPicker @bind-Text="Model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" Class="field-md" />
-            
-            <div class="d-inline-flex flex-row gap-1">
-                <MudNumericField T="int" @bind-Value="Model.Length" Label="Length" Class="field-md" ReadOnly="true" />
-
-                <span class="my-auto">Predicted length in KM: @(PredictedLength())km</span>
-            </div>
-            
             <MudNumericField T="int" @bind-Value="Model.Pace" Label="Pace" Class="field-md" />
+
             <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
-                <MudNumericField T="int" @bind-Value="Model.WearMax" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.DoubleArrow" AdornmentColor="Color.Warning" Label="WearMax" Class="field-sm" />
-                <MudNumericField T="int" @bind-Value="Model.WearMin" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.DoubleArrow" AdornmentColor="Color.Warning" Label="WearMin" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.WearMax" Max="@(Model.WearMin)" Label="WearMax" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.WearMin" Min="@(Model.WearMax)" Label="WearMin" Class="field-sm" />
             </MudStack>
         </MudForm>
         <MudPaper Height="100px">
-            <MudText Typo="Typo.h6">Preview</MudText>
-            @if (!string.IsNullOrEmpty(Model.Name))
-            {
-                <span class="tyre" style="border-color:@(Model.Colour)">@Model.Name.ElementAt(0)</span>
-            }
+            <MudStack Row="true">
+                <MudCard>
+                    <MudCardContent>
+                        <MudText>Preview tyre</MudText>
+                        @if (!string.IsNullOrEmpty(Model.Name))
+                        {
+                            <span class="tyre" style="border-color:@(Model.Colour)">@Model.Name.ElementAt(0)</span>
+                        }
+                    </MudCardContent>
+                </MudCard>
+                <MudCard>
+                    <MudCardContent>
+                        <MudText>Predicted length</MudText>
+                        <MudText Typo="Typo.body2">@(PredictedLength())km</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudStack>
         </MudPaper>
     </DialogContent>
     <DialogActions>
@@ -54,6 +60,9 @@
             return 0;
 
         var wearAverage = ((Model.WearMax + Model.WearMin) / 2) * -1;
+
+        if (wearAverage == 0)
+            return 0;
 
         return (Model.Pace / wearAverage) * 10;
     }
