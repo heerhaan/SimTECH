@@ -5,15 +5,14 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudTable Items="RaceData">
+<MudTable Items="RaceCalendar">
     <ToolBarContent>
         <MudText Typo="Typo.h3">Races</MudText>
         <MudSpacer />
         @if (Season.State == State.Concept)
         {
             <MudButtonGroup Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large">
-                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRace">Add new race</MudButton>
-                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="CopyRace">Copy race</MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRaces">Add races</MudButton>
             </MudButtonGroup>
         }
     </ToolBarContent>
@@ -30,19 +29,31 @@
     <RowTemplate>
         <MudTd>@context.Round</MudTd>
         <MudTd>
-            <CountryFlag Code="context.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
+            <CountryFlag Code="context.Country" Size="FlagSize.Normal" IncludeName="true" />
         </MudTd>
         <MudTd>@context.Name</MudTd>
         <MudTd>@context.Weather</MudTd>
-        <MudTd>TODO</MudTd>
-        <MudTd>TODO</MudTd>
+        <MudTd>
+            @if (context.WinningDriver != null)
+            {
+                <CountryFlag Code="context.DriverNationality.GetValueOrDefault()" Size="FlagSize.Small" />
+                <span>@context.WinningDriver [@(context.DriverNumber)]</span>
+            }
+        </MudTd>
+        <MudTd Style="@ViewHelper.GetFullColourStyle(context.TeamColour, context.TeamAccent)">
+            @if (context.WinningTeam != null)
+            {
+                <CountryFlag Code="context.DriverNationality.GetValueOrDefault()" Size="FlagSize.Small" />
+                <span>@context.WinningDriver [@(context.DriverNumber)]</span>
+            }
+        </MudTd>
         <MudTd>@context.State</MudTd>
         <MudTd>
             <MudButtonGroup Size="@Size.Small">
                 @if (Season.State == State.Concept)
                 {
-                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context))" />
-                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.Id))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.Id))" />
                 }
                 else if (Season.State == State.Active && (context.Round == _nextRound.GetValueOrDefault()))
                 {
@@ -57,10 +68,12 @@
     [CascadingParameter] public Season Season { get; set; }
 
     private IList<Race> RaceData = new List<Race>();
+    List<CalendarRaceModel> RaceCalendar = new();
     int? _nextRound;
 
     protected override async Task OnInitializedAsync()
     {
+        RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
         RaceData = (await RaceService.GetRacesBySeason(Season.Id))
             .OrderBy(e => e.Round)
             .ToList();
@@ -68,9 +81,9 @@
         _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? null;
     }
 
-    private async Task AddRace() => await UpdateRace(new Race());
-    private async Task UpdateRace(Race item)
+    private async Task UpdateRace(long raceId)
     {
+        var item = await RaceService.GetRaceById(raceId);
         var seasonLeague = await LeagueService.GetLeagueById(Season.LeagueId);
         var availableTracks = (await TrackService.GetTracks())
             .Where(e => !RaceData.Select(r => r.TrackId).Contains(e.Id))
@@ -112,31 +125,19 @@
         }
     }
 
-    private async Task DeleteRace(Race race)
+    private async Task AddRaces()
+    {
+        // TODO: implement plural add action
+        Snackbar.Add("functionality has not been implemented yet!!! :3", Severity.Error);
+    }
+
+    private async Task DeleteRace(long raceId)
     {
         // TODO: implement delete action
         Snackbar.Add("functionality has not been implemented yet!!! :3", Severity.Error);
     }
 
-    private async Task CopyRace()
-    {
-        // TODO: this
-        Snackbar.Add("not implemented yet lol", Severity.Warning);
-        return;
-
-        var parameters = new DialogParameters { ["LeagueId"] = 1 };
-
-        var dialog = await DialogService.ShowAsync<CopyRace>("Copy an existing race", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data != null && result.Data is Race copiedRace)
-        {
-            // Store result
-            RaceData.Add(copiedRace);
-        }
-    }
-
-    private async Task GoToRaceWeek(Race race)
+    private async Task GoToRaceWeek(CalendarRaceModel race)
     {
         if (race.State == State.Concept)
         {

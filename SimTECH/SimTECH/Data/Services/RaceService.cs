@@ -553,23 +553,6 @@ namespace SimTECH.Data.Services
         //private async Task<RaceModel> FillRaceModelBase<TDriver>(long raceId, List<DriverBase> participatingDrivers) { }
 
         #region single-purpose calls
-        // TODO: LeagueID parameter
-        public async Task<List<CopyRaceModel>> GetRacesToCopy()
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.Race
-                .Where(e => e.Season.LeagueId == 1)
-                .Select(e => new CopyRaceModel
-                {
-                    RaceId = e.Id,
-                    Name = e.Name,
-                    Country = e.Track.Country,
-                    SeasonYear = e.Season.Year
-                })
-                .ToListAsync();
-        }
-
         public async Task<RaceWeekModel> GetRaceWeekModel(long raceId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -632,49 +615,69 @@ namespace SimTECH.Data.Services
             };
         }
 
-        //public async Task<QualifyingModel> SlimRetrieveQualyModel(long raceId)
-        //{
-        //    // Showcase of an alternative implementation
-        //    // This was supposedly faster but it elapses as quickly as the regular model, anyway it does work!
-        //    using var context = _dbFactory.CreateDbContext();
+        public async Task<List<CalendarRaceModel>> GetRaceCalendar(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
 
-        //    var qualyModel = await context.Race
-        //        .Where(e => e.Id == raceId)
-        //        .Select(e => new QualifyingModel
-        //        {
-        //            RaceId = e.Id,
-        //            Name = e.Name,
-        //            Country = e.Track.Country,
-        //            AmountRuns = e.Season.RunAmountSession,
-        //            QualyRng = e.Season.QualifyingRNG,
-        //            QualyAmountQ2 = e.Season.QualifyingAmountQ2,
-        //            QualyAmountQ3 = e.Season.QualifyingAmountQ3,
-        //            MaximumRaceDrivers = e.Season.MaximumDriversInRace,
-        //            TrackTraitIds = e.Track.TrackTraits.Select(tt => tt.TraitId).ToList(),
+            var races = await context.Race
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Track)
+                .Include(
+                    r => r.Results
+                        .OrderByDescending(re => re.Position)
+                        .Take(1))
+                .ToListAsync();
 
-        //            QualifyingDrivers = e.Results.Select(r =>
-        //                new QualifyingDriver
-        //                {
-        //                    ResultId = r.Id,
-        //                    FullName = r.SeasonDriver.Driver.FullName,
-        //                    Number = r.SeasonDriver.Number,
-        //                    Role = r.SeasonDriver.TeamRole,
-        //                    Nationality = r.SeasonDriver.Driver.Country,
-        //                    TeamName = r.SeasonTeam.Name,
-        //                    Colour = r.SeasonTeam.Colour,
-        //                    Accent = r.SeasonTeam.Accent,
-        //                    BaseValue = r.SeasonTeam.BaseValue,
-        //                    EnginePower = r.SeasonTeam.SeasonEngine.Power,
+            var drivers = await context.SeasonDriver
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Driver)
+                .ToListAsync();
 
-        //                    DriverTraitIds = r.SeasonDriver.Driver.DriverTraits.Select(dr => dr.TraitId).ToList(),
-        //                    TeamTraitIds = r.SeasonTeam.Team.TeamTraits.Select(tt => tt.TraitId).ToList(),
-        //                })
-        //            .ToList()
-        //        })
-        //        .SingleAsync();
+            var teams = await context.SeasonTeam
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Team)
+                .ToListAsync();
 
-        //    return qualyModel;
-        //}
+            var calendar = new List<CalendarRaceModel>(races.Count);
+
+            foreach (var race in races.OrderBy(e => e.Round))
+            {
+                var calendarModel = new CalendarRaceModel
+                {
+                    Id = race.Id,
+                    Round = race.Round,
+                    Name = race.Name,
+                    Country = race.Track.Country,
+                    Weather = race.Weather,
+                    State = race.State
+                };
+
+                if (race.Results?.Any() == true)
+                {
+                    var winningDriver = drivers.FirstOrDefault(d => race.Results.First().SeasonDriverId == d.Id);
+                    var winningTeam = teams.FirstOrDefault(t => race.Results.First().SeasonTeamId ==  t.Id);
+
+                    if (winningDriver != null)
+                    {
+                        calendarModel.WinningDriver = winningDriver.Driver.FullName;
+                        calendarModel.DriverNationality = winningDriver.Driver.Country;
+                        calendarModel.DriverNumber = winningDriver.Number;
+                    }
+
+                    if (winningTeam != null)
+                    {
+                        calendarModel.WinningTeam = winningTeam.Name;
+                        calendarModel.TeamNationality = winningTeam.Team.Country;
+                        calendarModel.TeamColour = winningTeam.Colour;
+                        calendarModel.TeamAccent = winningTeam.Accent;
+                    }
+                }
+
+                calendar.Add(calendarModel);
+            }
+
+            return calendar;
+        }
         #endregion
     }
 }

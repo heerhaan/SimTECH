@@ -14,14 +14,16 @@
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Pace</MudTh>
-            <MudTh>Wear</MudTh>
+            <MudTh>Maximum wear</MudTh>
+            <MudTh>Minimum wear</MudTh>
             <MudTh>State</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd Style="@($"background-color: {context.Colour}; color: {context.Accent}")">@context.Name</MudTd>
+            <MudTd Style="@ViewHelper.GetFullColourStyle(context.Colour, context.Accent)">@context.Name</MudTd>
             <MudTd>@context.Pace</MudTd>
-            <MudTd>@context.WearMax ↔ @context.WearMin</MudTd>
+            <MudTd>@context.WearMax</MudTd>
+            <MudTd>@context.WearMin</MudTd>
             <MudTd>@context.State</MudTd>
             <MudTd Class="d-flex justify-end">
                 <MudButtonGroup Size="@Size.Small">
