@@ -23,7 +23,7 @@
         <MudTh>Weather</MudTh>
         <MudTh>Winning driver</MudTh>
         <MudTh>Winning team</MudTh>
-        <MudTh>State</MudTh>
+        <MudTh>Status</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
@@ -43,8 +43,8 @@
         <MudTd Style="@ViewHelper.GetFullColourStyle(context.TeamColour, context.TeamAccent)">
             @if (context.WinningTeam != null)
             {
-                <CountryFlag Code="context.DriverNationality.GetValueOrDefault()" Size="FlagSize.Small" />
-                <span>@context.WinningDriver [@(context.DriverNumber)]</span>
+                <CountryFlag Code="context.TeamNationality.GetValueOrDefault()" Size="FlagSize.Small" />
+                <span>@context.WinningTeam</span>
             }
         </MudTd>
         <MudTd>@context.State</MudTd>
@@ -67,7 +67,7 @@
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
-    private IList<Race> RaceData = new List<Race>();
+    IList<Race> RaceData = new List<Race>();
     List<CalendarRaceModel> RaceCalendar = new();
     int? _nextRound;
 

@@ -15,7 +15,7 @@
 
         public string? WinningTeam { get; set; }
         public Country? TeamNationality { get; set; }
-        public string TeamColour { get; set; } = "var(--mud-palette-secondary)";
-        public string TeamAccent { get; set; } = "var(--mud-palette-secondary-text)";
+        public string TeamColour { get; set; } = "var(--mud-palette-background)";
+        public string TeamAccent { get; set; } = "var(--mud-palette-text-primary)";
     }
 }
