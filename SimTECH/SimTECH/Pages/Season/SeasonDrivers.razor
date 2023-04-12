@@ -2,17 +2,19 @@
 @inject SeasonEntrantService EntrantService
 @inject IDialogService DialogService
 
-<MudDataGrid T="SeasonDriver" Items="@SeasonDriverEntrants" Loading="@_loading" Class="my-2">
+<MudDataGrid T="SeasonDriver" Items="@SeasonDriverEntrants" Dense="true" Loading="@_loading" Class="my-2">
     <ToolBarContent>
         <MudText Typo="Typo.h4">Drivers</MudText>
         <MudSpacer />
         <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterDriver">New</MudButton>
     </ToolBarContent>
     <Columns>
-        <TemplateColumn Title="Name">
+        <TemplateColumn Title="Name" Sortable="false">
             <CellTemplate>
-                <CountryFlag Code="@context.Item.Driver.Country" Size="FlagSize.Small" />
-                <MudText Typo="Typo.body2">@context.Item.Driver.FullName</MudText>
+                <MudText Typo="Typo.body2">
+                    <CountryFlag Code="@context.Item.Driver.Country" Size="FlagSize.Small" />
+                    @context.Item.Driver.FullName
+                </MudText>
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="e => e.Number" Title="Nr." CellStyleFunc="@ViewHelper.DriverTeamStyleFunc" HeaderClass="number-col" CellClass="number-col" Sortable="false" />
@@ -31,7 +33,7 @@
                 }
             </CellTemplate>
         </TemplateColumn>
-        <TemplateColumn CellClass="d-flex justify-end">
+        <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudButtonGroup>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriverEntrant(context.Item))" />

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using MudBlazor;
 using MudBlazor.Services;
 using MudExtensions.Services;
@@ -39,6 +40,9 @@ namespace SimTECH
                 config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
             });
             builder.Services.AddMudExtensions();
+
+            // Add configuration
+            builder.Services.Configure<SimConfig>(builder.Configuration.GetSection(SimConfig.SectionKey));
 
             // Provider services
             builder.Services.AddScoped<BreadcrumbProvider>();

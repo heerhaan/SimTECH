@@ -2,6 +2,7 @@
 @inject ProtectedLocalStorage LocalStorage
 @inject SimAuthenticationStateProvider AuthenticationProvider
 @inject NavigationManager Nav
+@inject IOptions<SimConfig> Config
 @attribute [AllowAnonymous]
 
 <PageTitle>Home</PageTitle>
@@ -89,6 +90,10 @@
                                 <p>Christ mate, why are you like the way you are.</p>
                             </NotAuthorized>
                         </AuthorizeView>
+                    </div>
+                    <div>
+                        <MudText>@Config.Value.MistakeUpperValue</MudText>
+                        <MudText>@Config.Value.DisqualifyChance</MudText>
                     </div>
                 </MudStack>
             </MudPaper>

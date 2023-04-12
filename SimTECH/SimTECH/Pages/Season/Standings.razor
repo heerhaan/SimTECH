@@ -1,170 +1,123 @@
 ﻿@inject SeasonEntrantService EntrantService
 @inject RaceService RaceService
 
-<MudContainer>
-    @if (loading)
-    {
-        <MudAlert Severity="Severity.Warning">Eyo this bad boi is loading, here it comes!</MudAlert>
-    }
-    else
-    {
-        <MudTabs Outlined="true">
-            <MudTabPanel Text="Standings">
-                <MudGrid Spacing="4">
-                    <MudItem xs="6">
-                        <MudPaper Elevation="15" Class="pa-4">
-                            <MudTable Items="@DriverResultsModel" Dense="true">
-                                <HeaderContent>
-                                    <MudTh Class="number-col">#</MudTh>
-                                    <MudTh>Name</MudTh>
-                                    <MudTh Class="number-col">No.</MudTh>
-                                    <MudTh>
-                                        <MudTableSortLabel SortBy="new Func<StandingDriverModel, object>(e => e.Points)">PTS</MudTableSortLabel>
-                                    </MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="#" Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))" Class="number-col">
-                                        @context.Position
-                                    </MudTd>
-                                    <MudTd DataLabel="Name">
-                                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
-                                        @context.Name
-                                    </MudTd>
-                                    <MudTd DataLabel="No." Style="@(ViewHelper.GetFullColourStyle(context.Colour, context.Accent))" Class="number-col">
-                                        @context.Number
-                                    </MudTd>
-                                    <MudTd DataLabel="PTS">@context.Points</MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        </MudPaper>
-                    </MudItem>
-
-                    <MudItem xs="6">
-                        <MudPaper Elevation="15" Class="pa-4">
-                            <MudTable Items="@TeamResultsModel" Dense="true">
-                                <HeaderContent>
-                                    <MudTh Class="number-col">#</MudTh>
-                                    <MudTh>Principal</MudTh>
-                                    <MudTh>Name</MudTh>
-                                    <MudTh>PTS</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="#" Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))" Class="number-col">
-                                        @context.Position
-                                    </MudTd>
-                                    <MudTd>@context.Principal</MudTd>
-                                    <MudTd Style="@(ViewHelper.GetSimpleStyle(context.Colour))">
-                                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
-                                        @context.Name
-                                    </MudTd>
-                                    <MudTd>@context.Points</MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        </MudPaper>
-                    </MudItem>
-                </MudGrid>
-            </MudTabPanel>
-
-            <MudTabPanel Text="WDC results">
-                <MudPaper Elevation="15">
-                    <MudTable Items="@DriverResultsModel">
-                        <ToolBarContent>
-                            <MudText Typo="Typo.h4">WDC results</MudText>
-                        </ToolBarContent>
-                        <ColGroup>
-                            <col class="number-col" />
-                            <col />
-                            <col class="number-col" />
-                            <col />
-                            @for (int i = 0; i < Races.Count; i++)
-                            {
-                                <col class="number-col" />
-                            }
-                            <col />
-                        </ColGroup>
-                        <HeaderContent>
-                            <MudTh Class="number-col">#</MudTh>
-                            <MudTh>Driver</MudTh>
-                            <MudTh>No</MudTh>
-                            <MudTh>PTS</MudTh>
-                            @foreach (var race in Races.OrderBy(e => e.Round))
-                            {
+@if (loading)
+{
+    <MudAlert Severity="Severity.Warning">Eyo this bad boi is loading, here it comes!</MudAlert>
+}
+else
+{
+    <MudTabs Outlined="true" Centered="true">
+        <MudTabPanel Text="Standings">
+            <MudGrid Spacing="4">
+                <MudItem xs="6">
+                    <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                        <MudTable Items="@DriverResultsModel" Dense="true">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h5">Drivers</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh Class="number-col">#</MudTh>
+                                <MudTh>Name</MudTh>
+                                <MudTh Class="number-col">No.</MudTh>
                                 <MudTh>
-                                    <CountryFlag Code="@race.Track.Country" Size="FlagSize.Tiny" />
-                                    @(race.Track.Name.Substring(0, 3))
+                                    <MudTableSortLabel SortBy="new Func<StandingDriverModel, object>(e => e.Points)">PTS</MudTableSortLabel>
                                 </MudTh>
-                            }
-                            <MudTh class="number-col">AVG</MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))" Class="number-col">
-                                @context.Position
-                            </MudTd>
-                            <MudTd>
-                                <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
-                                @context.Name
-                            </MudTd>
-                            <MudTd Style="@(ViewHelper.GetFullColourStyle(context.Colour, context.Accent))">@context.Number</MudTd>
-                            <MudTd>@context.Points</MudTd>
-                            @for (int i = 0; i < Races.Count; i++)
-                            {
-                                if (i < context.ResultCells.Count)
-                                {
-                                    var result = context.ResultCells[i];
-                                    <MudTd Style="@(GetResultStyle(result))">
-                                        @(GetResultText(result))
-                                    </MudTd>
-                                }
-                                else
-                                {
-                                    <MudTd>-</MudTd>
-                                }
-                            }
-                            <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                </MudPaper>
-            </MudTabPanel>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="#" Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))" Class="number-col">
+                                    @context.Position
+                                </MudTd>
+                                <MudTd DataLabel="Name">
+                                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                                    @context.Name
+                                </MudTd>
+                                <MudTd DataLabel="No." Style="@(ViewHelper.GetFullColourStyle(context.Colour, context.Accent))" Class="number-col">
+                                    @context.Number
+                                </MudTd>
+                                <MudTd DataLabel="PTS">@context.Points</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudPaper>
+                </MudItem>
 
-            <MudTabPanel Text="WCC results">
-                <MudTable Items="@TeamResultsModel">
+                <MudItem xs="6">
+                    <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                        <MudTable Items="@TeamResultsModel" Dense="true">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h5">Teams</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh Class="number-col">#</MudTh>
+                                <MudTh>Principal</MudTh>
+                                <MudTh>Name</MudTh>
+                                <MudTh>PTS</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="#" Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))" Class="number-col">
+                                    @context.Position
+                                </MudTd>
+                                <MudTd>@context.Principal</MudTd>
+                                <MudTd Style="@(ViewHelper.GetSimpleStyle(context.Colour))">
+                                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                                    @context.Name
+                                </MudTd>
+                                <MudTd>@context.Points</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudTabPanel>
+
+        <MudTabPanel Text="WDC results">
+            <MudPaper Elevation="15">
+                <MudTable Items="@DriverResultsModel">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h4">WCC results</MudText>
+                        <MudText Typo="Typo.h4">WDC results</MudText>
                     </ToolBarContent>
+                    <ColGroup>
+                        <col class="number-col" />
+                        <col />
+                        <col class="number-col" />
+                        <col />
+                        @for (int i = 0; i < Races.Count; i++)
+                        {
+                            <col class="number-col" />
+                        }
+                        <col />
+                    </ColGroup>
                     <HeaderContent>
                         <MudTh Class="number-col">#</MudTh>
-                        <MudTh>Team</MudTh>
+                        <MudTh>Driver</MudTh>
+                        <MudTh>No</MudTh>
                         <MudTh>PTS</MudTh>
                         @foreach (var race in Races.OrderBy(e => e.Round))
                         {
-                            <MudTh Class="number-col-lg">
+                            <MudTh>
                                 <CountryFlag Code="@race.Track.Country" Size="FlagSize.Tiny" />
                                 @(race.Track.Name.Substring(0, 3))
                             </MudTh>
                         }
-                        <MudTh>AVG</MudTh>
+                        <MudTh class="number-col">AVG</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))" Class="number-col">@context.Position</MudTd>
-                        <MudTd Style="@(ViewHelper.GetSimpleStyle(context.Colour))">
+                        <MudTd Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))" Class="number-col">
+                            @context.Position
+                        </MudTd>
+                        <MudTd>
                             <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
                             @context.Name
                         </MudTd>
+                        <MudTd Style="@(ViewHelper.GetFullColourStyle(context.Colour, context.Accent))">@context.Number</MudTd>
                         <MudTd>@context.Points</MudTd>
-                        @foreach (var round in Races.OrderBy(e => e.Round))
+                        @for (int i = 0; i < Races.Count; i++)
                         {
-                            var teamResults = context.ResultCells.Where(e => e.Round == round.Round).ToList();
-                            if (teamResults.Any())
+                            if (i < context.ResultCells.Count)
                             {
-                                <MudTd Class="number-col-lg">
-                                    <MudStack>
-                                        @foreach (var result in teamResults)
-                                        {
-                                            <MudChip Style="@(GetResultStyle(result))">
-                                                @(GetResultText(result))
-                                            </MudChip>
-                                        }
-                                    </MudStack>
+                                var result = context.ResultCells[i];
+                                <MudTd Style="@(GetResultStyle(result))">
+                                    @(GetResultText(result))
                                 </MudTd>
                             }
                             else
@@ -175,10 +128,61 @@
                         <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
                     </RowTemplate>
                 </MudTable>
-            </MudTabPanel>
-        </MudTabs>
-    }
-</MudContainer>
+            </MudPaper>
+        </MudTabPanel>
+
+        <MudTabPanel Text="WCC results">
+            <MudTable Items="@TeamResultsModel">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h4">WCC results</MudText>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh Class="number-col">#</MudTh>
+                    <MudTh>Team</MudTh>
+                    <MudTh>PTS</MudTh>
+                    @foreach (var race in Races.OrderBy(e => e.Round))
+                    {
+                        <MudTh Class="number-col-lg">
+                            <CountryFlag Code="@race.Track.Country" Size="FlagSize.Tiny" />
+                            @(race.Track.Name.Substring(0, 3))
+                        </MudTh>
+                    }
+                    <MudTh>AVG</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))" Class="number-col">@context.Position</MudTd>
+                    <MudTd Style="@(ViewHelper.GetSimpleStyle(context.Colour))">
+                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
+                        @context.Name
+                    </MudTd>
+                    <MudTd>@context.Points</MudTd>
+                    @foreach (var round in Races.OrderBy(e => e.Round))
+                    {
+                        var teamResults = context.ResultCells.Where(e => e.Round == round.Round).ToList();
+                        if (teamResults.Any())
+                        {
+                            <MudTd Class="number-col-lg">
+                                <MudStack>
+                                    @foreach (var result in teamResults)
+                                    {
+                                        <MudChip Style="@(GetResultStyle(result))">
+                                            @(GetResultText(result))
+                                        </MudChip>
+                                    }
+                                </MudStack>
+                            </MudTd>
+                        }
+                        else
+                        {
+                            <MudTd>-</MudTd>
+                        }
+                    }
+                    <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudTabPanel>
+    </MudTabs>
+}
 
 @code {
     [CascadingParameter] public Season Season { get; set; }

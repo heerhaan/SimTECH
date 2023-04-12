@@ -68,16 +68,12 @@
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
-    IList<Race> RaceData = new List<Race>();
     List<CalendarRaceModel> RaceCalendar = new();
     int? _nextRound;
 
     protected override async Task OnInitializedAsync()
     {
         RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
-        RaceData = (await RaceService.GetRacesBySeason(Season.Id))
-            .OrderBy(e => e.Round)
-            .ToList();
 
         _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? null;
     }
@@ -87,7 +83,7 @@
         var item = await RaceService.GetRaceById(raceId);
         var seasonLeague = await LeagueService.GetLeagueById(Season.LeagueId);
         var availableTracks = (await TrackService.GetTracks())
-            .Where(e => !RaceData.Select(r => r.TrackId).Contains(e.Id))
+            .Where(e => !RaceCalendar.Select(r => r.TrackId).Contains(e.Id))
             .ToList();
 
         if (seasonLeague == null)
@@ -107,7 +103,7 @@
                 ["Race"] = item,
                 ["Tracks"] = availableTracks,
                 ["SeasonId"] = Season.Id,
-                ["IncomingRound"] = (RaceData.Count + 1),
+                ["IncomingRound"] = (RaceCalendar.Count + 1),
                 ["DefaultRaceLength"] = seasonLeague.RaceLength,
             };
 
@@ -117,12 +113,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
         {
             await RaceService.UpdateRace(updatedRace);
-
-            // Could potentially be modified to remove and update if isn't new
-            if (updatedRace.Id == 0)
-                RaceData.Add(updatedRace);
-            else
-                RaceData = await RaceService.GetRacesBySeason(Season.Id);
+            RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
         }
     }
 

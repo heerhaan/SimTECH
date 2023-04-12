@@ -4,12 +4,12 @@ namespace SimTECH.Extensions
 {
     public static class ExtendSeasonDriver
     {
-        public static int RetrieveStatusBonus(this SeasonDriver driver)
+        public static int RetrieveStatusBonus(this SeasonDriver driver, int modifier)
         {
             if (driver.TeamRole == TeamRole.Main)
-                return 2;
+                return modifier;
             if (driver.TeamRole == TeamRole.Support)
-                return -2;
+                return modifier * -1;
 
             return 0;
         }

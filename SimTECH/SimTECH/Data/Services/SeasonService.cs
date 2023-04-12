@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
@@ -9,10 +10,12 @@ namespace SimTECH.Data.Services
     public class SeasonService
     {
         private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
+        private readonly SimConfig _config;
 
-        public SeasonService(IDbContextFactory<SimTechDbContext> factory)
+        public SeasonService(IDbContextFactory<SimTechDbContext> factory, IOptions<SimConfig> config)
         {
             _dbFactory = factory;
+            _config = config.Value;
         }
 
         public async Task<List<Season>> GetSeasons()
@@ -160,6 +163,94 @@ namespace SimTECH.Data.Services
             };
         }
 
+        public async Task<List<PowerRankModel>> GetPowerRankings(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var drivers = await context.SeasonDriver
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Driver)
+                    .ThenInclude(e => e.DriverTraits)
+                .ToListAsync();
+
+            var teams = await context.SeasonTeam
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.SeasonEngine)
+                .Include(e => e.Team)
+                    .ThenInclude(e => e.TeamTraits)
+                .ToListAsync();
+
+            var allTraits = await context.Trait.ToListAsync();
+
+            var allManufacturers = await context.Manufacturer.ToListAsync();
+
+            var powerDrivers = new List<PowerRankModel>();
+
+            foreach (var driver in drivers)
+            {
+                var powerModel = new PowerRankModel
+                {
+                    DriverName = driver.Driver.FullName,
+                    DriverNumber = driver.Number,
+                    Nationality = driver.Driver.Country,
+                };
+                var driverTraits = new List<Trait>();
+
+                if (driver.Driver.DriverTraits?.Any() == true)
+                    driverTraits.AddRange(allTraits.Where(e => driver.Driver.DriverTraits.Select(dt => dt.TraitId).Contains(e.Id)));
+
+                powerModel.QualyPower += driver.Skill + driver.RetrieveStatusBonus(_config.CarDriverStatusModifier);
+                powerModel.RacePower += driver.Skill + driver.RetrieveStatusBonus(_config.CarDriverStatusModifier);
+                powerModel.DriverRel = driver.Reliability;
+
+                if (driver.SeasonTeamId.HasValue)
+                {
+                    var team = teams.Single(e => e.Id == driver.SeasonTeamId);
+                    var manufacturer = allManufacturers.Single(e => e.Id == team.ManufacturerId);
+
+                    if (team.Team.TeamTraits?.Any() == true)
+                        driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
+
+                    powerModel.QualyPower += team.BaseValue + team.SeasonEngine.Power + manufacturer.Pace;
+                    powerModel.RacePower += team.BaseValue + team.SeasonEngine.Power + manufacturer.Pace;
+
+                    powerModel.Aero = team.Aero;
+                    powerModel.Chassis = team.Chassis;
+                    powerModel.Powertrain = team.Powertrain;
+                    powerModel.CarRel = team.Reliability;
+                    powerModel.EngineRel = team.SeasonEngine.Reliability;
+                    powerModel.WearMax = manufacturer.WearMax;
+                    powerModel.WearMin = manufacturer.WearMin;
+
+                    powerModel.TeamName = team.Name;
+                    powerModel.Colour = team.Colour;
+                    powerModel.Accent = team.Accent;
+                    powerModel.Engine = team.SeasonEngine.Name;
+                    powerModel.Manufacturer = manufacturer.Name;
+                }
+                else
+                {
+                    powerModel.TeamName = "Dropped";
+                    powerModel.Engine = "None";
+                }
+
+                var sumTraits = NumberHelper.SumTraitEffects(driverTraits);
+
+                powerModel.QualyPower += sumTraits.QualifyingPace;
+                powerModel.RacePower += sumTraits.RacePace;
+                powerModel.DriverRel += sumTraits.DriverReliability;
+                powerModel.CarRel += sumTraits.CarReliability;
+                powerModel.EngineRel += sumTraits.EngineReliability;
+                powerModel.WearMax += sumTraits.WearMaximum;
+                powerModel.WearMin += sumTraits.WearMinimum;
+
+                powerModel.TraitEffect = sumTraits;
+
+                powerDrivers.Add(powerModel);
+            }
+
+            return powerDrivers;
+        }
         #endregion
     }
 }

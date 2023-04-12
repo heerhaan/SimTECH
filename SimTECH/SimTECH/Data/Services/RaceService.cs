@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
@@ -9,10 +10,12 @@ namespace SimTECH.Data.Services
     public class RaceService
     {
         private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
+        private readonly SimConfig _config;
 
-        public RaceService(IDbContextFactory<SimTechDbContext> factory)
+        public RaceService(IDbContextFactory<SimTechDbContext> factory, IOptions<SimConfig> config)
         {
             _dbFactory = factory;
+            _config = config.Value;
         }
 
         public async Task<List<Race>> GetRacesBySeason(long seasonId)
@@ -260,12 +263,36 @@ namespace SimTECH.Data.Services
 
             var raceDrivers = new List<RaceDriver>();
 
-            var lapCount = 30;
+            double engineMultiplier = 0;
+            int weatherRng = 0;
+            int weatherDnf = 0;
 
-            // TODO: read the following from the config
-            const double engineMultiplier = 0.9;
-            const int weatherRng = 0;
-            const int weatherDnf = 0;
+            if (race.Weather == Weather.Sunny)
+                engineMultiplier = _config.SunnyEngineMultiplier;
+            else if (race.IsWet)
+                engineMultiplier = _config.WetEngineMultiplier;
+            else
+                engineMultiplier = _config.OvercastEngineMultiplier;
+
+            switch (race.Weather)
+            {
+                case Weather.Sunny:
+                    engineMultiplier = _config.SunnyEngineMultiplier;
+                    break;
+                case Weather.Overcast:
+                    engineMultiplier = _config.OvercastEngineMultiplier;
+                    break;
+                case Weather.Rain:
+                    engineMultiplier = _config.WetEngineMultiplier;
+                    weatherRng = _config.RainAdditionalRNG;
+                    weatherDnf = _config.RainDriverReliabilityModifier;
+                    break;
+                case Weather.Storm:
+                    engineMultiplier = _config.WetEngineMultiplier;
+                    weatherRng = _config.StormAdditionalRNG;
+                    weatherDnf = _config.StormDriverReliabilityModifier;
+                    break;
+            }
 
             foreach (var driverResult in driverResults.Where(e => e.Status != RaceStatus.Dnq))
             {
@@ -291,10 +318,10 @@ namespace SimTECH.Data.Services
                     + (team.Chassis * race.Track.ChassisMod)
                     + (team.Powertrain * race.Track.PowerMod);
 
-                var driverPower = sumTraits.DriverPace + driver.Skill + driver.RetrieveStatusBonus();
-                var carPower = sumTraits.CarPace + team.BaseValue + teamModifiers.RoundDouble();
-                var enginePower = sumTraits.EnginePace + (team.SeasonEngine.Power * engineMultiplier).RoundDouble();
-                var totalPower = driverPower + carPower + enginePower;
+                var driverPower = driver.Skill + driver.RetrieveStatusBonus(_config.CarDriverStatusModifier);
+                var carPower = team.BaseValue + teamModifiers.RoundDouble();
+                var enginePower = (team.SeasonEngine.Power * engineMultiplier).RoundDouble();
+                var totalPower = driverPower + carPower + enginePower + sumTraits.RacePace;
 
                 raceDrivers.Add(new RaceDriver
                 {
@@ -343,7 +370,6 @@ namespace SimTECH.Data.Services
                 Weather = race.Weather,
                 Round = race.Round,
 
-                AmountRuns = lapCount,
                 RaceLength = race.RaceLength,
 
                 RaceDrivers = raceDrivers,
@@ -624,7 +650,7 @@ namespace SimTECH.Data.Services
                 .Include(e => e.Track)
                 .Include(
                     r => r.Results
-                        .OrderByDescending(re => re.Position)
+                        .OrderBy(re => re.Position)
                         .Take(1))
                 .ToListAsync();
 
@@ -649,7 +675,8 @@ namespace SimTECH.Data.Services
                     Name = race.Name,
                     Country = race.Track.Country,
                     Weather = race.Weather,
-                    State = race.State
+                    State = race.State,
+                    TrackId = race.TrackId,
                 };
 
                 if (race.Results?.Any() == true)

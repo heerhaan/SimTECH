@@ -9,17 +9,6 @@
         <MudStack Row="true" Class="px-4 py-2">
             <MudText Typo="Typo.h4">Development</MudText>
 
-            <div class="mx-1 my-auto">
-                <MudTooltip Text="For whom the development is run">
-                    <MudText Typo="Typo.overline">Entrant</MudText>
-                </MudTooltip>
-                <MudChipSet SelectedChipChanged="EntrantChipChanged" Mandatory="true">
-                    <MudChip Color="Color.Primary" Value="Entrant.Driver" Default="true">Driver</MudChip>
-                    <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
-                    <MudChip Color="Color.Primary" Value="Entrant.Engine">Engine</MudChip>
-                </MudChipSet>
-            </div>
-
             <MudSpacer />
 
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="RunDevelop">Run</MudButton>
@@ -31,6 +20,17 @@
         </MudStack>
         <MudTable Items="@DevelopedEntrants" Dense="true">
             <ToolBarContent>
+                <div class="mx-1 my-auto">
+                    <MudTooltip Text="For whom the development is run">
+                        <MudText Typo="Typo.overline">Entrant</MudText>
+                    </MudTooltip>
+                    <MudChipSet SelectedChipChanged="EntrantChipChanged" Mandatory="true">
+                        <MudChip Color="Color.Primary" Value="Entrant.Driver" Default="true">Driver</MudChip>
+                        <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
+                        <MudChip Color="Color.Primary" Value="Entrant.Engine">Engine</MudChip>
+                    </MudChipSet>
+                </div>
+                
                 <div class="pa-1 mx-1">
                     <MudTooltip Text="How the development ranges are determined">
                         <MudText Typo="Typo.overline">Type</MudText>

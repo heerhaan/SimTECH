@@ -7,7 +7,7 @@
     <ToolBarContent>
         <MudText Typo="Typo.h4">Teams</MudText>
         <MudSpacer />
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterTeam">New</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterTeam">New</MudButton>
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="e => e.Name" CellStyleFunc="@ViewHelper.TeamSimpleStyleFunc" />
@@ -25,7 +25,7 @@
         </TemplateColumn>
         <PropertyColumn Property="e => e.Principal" />
         <PropertyColumn Property="e => e.BaseValue" />
-        <TemplateColumn Title="A/C/P">
+        <TemplateColumn Title="A/C/P" Sortable="false">
             <CellTemplate>
                 <MudText>@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
             </CellTemplate>
@@ -45,7 +45,7 @@
                 </MudText>
             </CellTemplate>
         </TemplateColumn>
-        <TemplateColumn CellClass="d-flex justify-end">
+        <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudButtonGroup>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeamEntrant(context.Item))" />

@@ -8,6 +8,7 @@
         public Country Country { get; set; }
         public Weather Weather { get; set; }
         public State State { get; set; }
+        public long TrackId { get; set; }
 
         public string? WinningDriver { get; set; }
         public Country? DriverNationality { get; set; }
