@@ -1,37 +1,60 @@
 ﻿@page "/components/{SeasonId:long}"
 @inject BreadcrumbProvider Bread
+@inject SeasonService SeasonService
 
 <PageTitle>Components</PageTitle>
 
 <MudContainer>
     <MudGrid>
         <MudItem xs="9">
-            <MudTable Items="@PartsPerDriver">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h4">Components</MudText>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Engines</MudTh>
-                    <MudTh>Electrics</MudTh>
-                    <MudTh>Accidents</MudTh>
-                    <MudTh>Collisions</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>@context.Name</MudTd>
-                    <MudTd>0</MudTd>
-                    <MudTd>0</MudTd>
-                    <MudTd>0</MudTd>
-                    <MudTd>0</MudTd>
-                </RowTemplate>
-                <FooterContent>
-                    <MudTd>LIMIT</MudTd>
-                    <MudTd>0</MudTd>
-                    <MudTd>0</MudTd>
-                    <MudTd>0</MudTd>
-                    <MudTd>0</MudTd>
-                </FooterContent>
-            </MudTable>
+            <MudPaper>
+                @if (PartsPerDriver != null)
+                {
+                    <MudTable Items="@PartsPerDriver">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h4">Components</MudText>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>Name</MudTh>
+                            <MudTh Class="number-col">No.</MudTh>
+                            <MudTh>Accidents</MudTh>
+                            <MudTh>Collisions</MudTh>
+                            <MudTh>Engines</MudTh>
+                            <MudTh>Electrics</MudTh>
+                            <MudTh>Hydraulics</MudTh>
+                            <MudTh>DNF</MudTh>
+                            <MudTh>DSQ</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.Name</MudTd>
+                            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                                @context.Number
+                            </MudTd>
+                            <MudTd>@context.Accidents</MudTd>
+                            <MudTd>@context.Collisions</MudTd>
+                            <MudTd>@context.Engines</MudTd>
+                            <MudTd>@context.Electrics</MudTd>
+                            <MudTd>@context.Hydraulics</MudTd>
+                            <MudTd>@context.TotalDnf</MudTd>
+                            <MudTd>@context.TotalDsq</MudTd>
+                        </RowTemplate>
+                        <FooterContent>
+                            <MudTd>LIMIT</MudTd>
+                            <MudTd>0</MudTd>
+                            <MudTd>0</MudTd>
+                            <MudTd>0</MudTd>
+                            <MudTd>0</MudTd>
+                            <MudTd>-</MudTd>
+                            <MudTd>-</MudTd>
+                        </FooterContent>
+                    </MudTable>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="3">
+            <MudPaper>
+
+            </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
@@ -41,7 +64,7 @@
 
     List<PartsUsageModel> PartsPerDriver;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -49,6 +72,6 @@
             new BreadcrumbItem("Components", href: $"components/{SeasonId}"),
         });
 
-        return base.OnInitializedAsync();
+        PartsPerDriver = await SeasonService.GetPartsUsageModel(SeasonId);
     }
 }

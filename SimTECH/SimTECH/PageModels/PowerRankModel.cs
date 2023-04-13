@@ -7,8 +7,8 @@
         public Country Nationality { get; set; }
 
         public string TeamName { get; set; }
-        public string Colour { get; set; } = "var(--mud-palette-background)";
-        public string Accent { get; set; } = "var(--mud-palette-text-primary)";
+        public string Colour { get; set; } = Constants.DefaultColour;
+        public string Accent { get; set; } = Constants.DefaultAccent;
         public string Engine { get; set; }
         public string Manufacturer { get; set; }
 

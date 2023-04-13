@@ -251,6 +251,47 @@ namespace SimTECH.Data.Services
 
             return powerDrivers;
         }
+
+        public async Task<List<PartsUsageModel>> GetPartsUsageModel(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var drivers = await context.SeasonDriver
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Driver)
+                .Include(e => e.SeasonTeam)
+                .ToListAsync();
+
+            var results = await context.Result
+                .Where(e => e.Race.SeasonId == seasonId)
+                .ToListAsync();
+
+            var partsUsedList = new List<PartsUsageModel>(drivers.Count);
+
+            foreach (var driver in drivers)
+            {
+                var driverResults = results.Where(e => e.SeasonDriverId == driver.Id).ToList();
+
+                partsUsedList.Add(new PartsUsageModel
+                {
+                    Name = driver.Driver.FullName,
+                    Number = driver.Number,
+                    Team = driver.SeasonTeam?.Name ?? "None",
+                    Colour = driver.SeasonTeam?.Colour ?? Constants.DefaultColour,
+                    Accent = driver.SeasonTeam?.Accent ?? Constants.DefaultAccent,
+
+                    Accidents = driverResults.Count(e => e.Incident == Incident.Accident),
+                    Collisions = driverResults.Count(e => e.Incident == Incident.Collision),
+                    Engines = driverResults.Count(e => e.Incident == Incident.Engine),
+                    Electrics = driverResults.Count(e => e.Incident == Incident.Electrics),
+                    Hydraulics = driverResults.Count(e => e.Incident == Incident.Hydraulics),
+                    TotalDnf = driverResults.Count(e => e.Status == RaceStatus.Dnf),
+                    TotalDsq = driverResults.Count(e => e.Status == RaceStatus.Dsq),
+                });
+            }
+
+            return partsUsedList;
+        }
         #endregion
     }
 }

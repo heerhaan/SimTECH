@@ -163,12 +163,12 @@
                 if (DidReliabilityFail(driver.DriverReliability))
                 {
                     driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-                    driver.Incident = wouldDisqualify ? Incident.Dangerous : Incident.Damage;
+                    driver.Incident = wouldDisqualify ? Incident.Dangerous : EnumHelper.GetDriverIncidents.TakeRandomItem();
                 }
                 else if (DidReliabilityFail(driver.CarReliability))
                 {
                     driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-                    driver.Incident = wouldDisqualify ? Incident.Illegal : Incident.Clutch;
+                    driver.Incident = wouldDisqualify ? Incident.Illegal : EnumHelper.GetCarIncidents.TakeRandomItem();
                 }
                 else if (DidReliabilityFail(driver.EngineReliability))
                 {
