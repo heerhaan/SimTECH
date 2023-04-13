@@ -27,6 +27,7 @@ namespace SimTECH.PageModels
         public RaceStatus Status { get; set; }
         public Incident Incident { get; set; }
 
+        public int Position { get; set; }
         public int Grid { get; set; }
         public int Setup { get; set; }
         public int CurrentTyreOrder { get; set; }
@@ -43,7 +44,6 @@ namespace SimTECH.PageModels
         public int RngMinMod { get; set; }
         public int RngMaxMod { get; set; }
 
-        public int Position { get; set; }
         public string DisplayGap { get; set; }
         public bool HasFastestLap { get; set; }
 
@@ -51,6 +51,7 @@ namespace SimTECH.PageModels
         public Dictionary<int, RacerEvent> RaceEventsPerLap { get; set; } = new();
 
         public int LapSum => LapScores?.Sum() ?? 0;
+        public int GridChange => Grid - Position;
 
         public Result ToResult(long raceId)
         {

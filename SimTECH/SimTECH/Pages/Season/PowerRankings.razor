@@ -58,7 +58,7 @@
         DriverRankings = await SeasonService.GetPowerRankings(Season.Id);
     }
 
-    private Func<PowerRankModel, string> FullStyleFunc => power => ViewHelper.GetFullColourStyle(power.Colour, power.Accent);
+    private Func<PowerRankModel, string> FullStyleFunc => power => ViewHelper.SetFullColourstyle(power.Colour, power.Accent);
 
-    private Func<PowerRankModel, string> SimpleCellStyle => power => ViewHelper.GetSimpleStyle(power.Colour);
+    private Func<PowerRankModel, string> SimpleCellStyle => power => ViewHelper.SetBorderRightStyle(power.Colour);
 }

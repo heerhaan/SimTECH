@@ -4,7 +4,6 @@ using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
-using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.Services
 {
@@ -26,15 +25,6 @@ namespace SimTECH.Data.Services
             return await context.Race
                 .Include(e => e.Track)
                 .Where(e => e.SeasonId == seasonId)
-                .ToListAsync();
-        }
-
-        public async Task<List<Race>> GetLastRaces(int amount)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.Race
-                .TakeLast(amount)
                 .ToListAsync();
         }
 
@@ -222,22 +212,22 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task<List<SimpleCalendarRace>> GetRecentlyFinishedCalendarRaces(int amount)
+        public async Task<List<FinishedRaceModel>> GetRecentlyFinishedCalendarRaces(int amount)
         {
             using var context = _dbFactory.CreateDbContext();
 
             // some issue still...
             var aha = await context.Race
                 .Where(e => e.State == State.Closed && e.Results.Any())
-                .TakeLastSpecial(amount)//komt niet hierdoor!
-                .Select(e => new SimpleCalendarRace
+                .TakeLastSpecial(amount)
+                .Select(e => new FinishedRaceModel
                 {
                     Round = e.Round,
                     Name = e.Name,
                     Country = e.Track.Country,
                     LeagueName = e.Season.League.Name,
 
-                    WinningDriver = e.Results.Select(d => new DriverWinnerModel
+                    WinningDriver = e.Results.Select(d => new DriverWinner
                     {
                         Name = d.SeasonDriver.Driver.FullName,
                         Country = d.SeasonDriver.Driver.Country,
@@ -245,7 +235,7 @@ namespace SimTECH.Data.Services
                     })
                     .First(),
 
-                    WinningTeam = e.Results.Select(t => new TeamWinnerModel
+                    WinningTeam = e.Results.Select(t => new TeamWinner
                     {
                         Name = t.SeasonTeam.Name,
                         Country = t.SeasonTeam.Team.Country,
@@ -695,10 +685,7 @@ namespace SimTECH.Data.Services
             var races = await context.Race
                 .Where(e => e.SeasonId == seasonId)
                 .Include(e => e.Track)
-                .Include(
-                    r => r.Results
-                        .OrderBy(re => re.Position)
-                        .Take(1))
+                .Include(e => e.Results)
                 .ToListAsync();
 
             var drivers = await context.SeasonDriver
@@ -728,22 +715,41 @@ namespace SimTECH.Data.Services
 
                 if (race.Results?.Any() == true)
                 {
-                    var winningDriver = drivers.FirstOrDefault(d => race.Results.First().SeasonDriverId == d.Id);
-                    var winningTeam = teams.FirstOrDefault(t => race.Results.First().SeasonTeamId ==  t.Id);
+                    var poleResult = race.Results.FirstOrDefault(e => e.Grid == 1);
 
-                    if (winningDriver != null)
+                    if (poleResult != null)
                     {
-                        calendarModel.WinningDriver = winningDriver.Driver.FullName;
-                        calendarModel.DriverNationality = winningDriver.Driver.Country;
-                        calendarModel.DriverNumber = winningDriver.Number;
+                        var poleDriver = drivers.Find(e => e.Id == poleResult.SeasonDriverId);
+
+                        if (poleDriver != null)
+                        {
+                            calendarModel.PoleDriver = poleDriver.Driver.FullName;
+                            calendarModel.PoleNationality = poleDriver.Driver.Country;
+                            calendarModel.PoleNumber = poleDriver.Number;
+                        }
                     }
 
-                    if (winningTeam != null)
+                    var winningResult = race.Results.FirstOrDefault(e => e.Position == 1);
+
+                    if (winningResult != null)
                     {
-                        calendarModel.WinningTeam = winningTeam.Name;
-                        calendarModel.TeamNationality = winningTeam.Team.Country;
-                        calendarModel.TeamColour = winningTeam.Colour;
-                        calendarModel.TeamAccent = winningTeam.Accent;
+                        var winningDriver = drivers.FirstOrDefault(d => winningResult.SeasonDriverId == d.Id);
+                        var winningTeam = teams.FirstOrDefault(t => winningResult.SeasonTeamId == t.Id);
+
+                        if (winningDriver != null)
+                        {
+                            calendarModel.WinningDriver = winningDriver.Driver.FullName;
+                            calendarModel.DriverNationality = winningDriver.Driver.Country;
+                            calendarModel.DriverNumber = winningDriver.Number;
+                        }
+
+                        if (winningTeam != null)
+                        {
+                            calendarModel.WinningTeam = winningTeam.Name;
+                            calendarModel.TeamNationality = winningTeam.Team.Country;
+                            calendarModel.TeamColour = winningTeam.Colour;
+                            calendarModel.TeamAccent = winningTeam.Accent;
+                        }
                     }
                 }
 

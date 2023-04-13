@@ -17,12 +17,27 @@
             </MudButtonGroup>
         }
     </ToolBarContent>
+    <ColGroup>
+        <col class="number-col" />
+        <col />
+        <col />
+        <col />
+        <col class="number-col" />
+        <col />
+        <col />
+        <col />
+        <col />
+    </ColGroup>
     <HeaderContent>
         <MudTh>Round</MudTh>
         <MudTh>Country</MudTh>
         <MudTh>Name</MudTh>
         <MudTh>Weather</MudTh>
+        <MudTh></MudTh>
+        <MudTh>Pole</MudTh>
+        <MudTh></MudTh>
         <MudTh>Winning driver</MudTh>
+        <MudTh Class="pa-0"></MudTh>
         <MudTh>Winning team</MudTh>
         <MudTh>Status</MudTh>
         <MudTh></MudTh>
@@ -35,13 +50,32 @@
         <MudTd>@context.Name</MudTd>
         <MudTd>@context.Weather</MudTd>
         <MudTd>
+            @if (context.PoleNumber.HasValue)
+            {
+                <span>@(context.PoleNumber)</span>
+            }
+        </MudTd>
+        <MudTd>
+            @if (context.PoleDriver != null)
+            {
+                <CountryFlag Code="context.PoleNationality.GetValueOrDefault()" Size="FlagSize.Small" />
+                <span>@context.PoleDriver</span>
+            }
+        </MudTd>
+        <MudTd>
+            @if (context.DriverNumber.HasValue)
+            {
+                <span>@(context.DriverNumber)</span>
+            }
+        </MudTd>
+        <MudTd>
             @if (context.WinningDriver != null)
             {
                 <CountryFlag Code="context.DriverNationality.GetValueOrDefault()" Size="FlagSize.Small" />
-                <span>@context.WinningDriver [@(context.DriverNumber)]</span>
+                <span>@context.WinningDriver</span>
             }
         </MudTd>
-        <MudTd Style="@ViewHelper.GetFullColourStyle(context.TeamColour, context.TeamAccent)">
+        <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.TeamColour))">
             @if (context.WinningTeam != null)
             {
                 <CountryFlag Code="context.TeamNationality.GetValueOrDefault()" Size="FlagSize.Small" />

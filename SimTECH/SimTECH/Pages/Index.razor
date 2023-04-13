@@ -12,7 +12,13 @@
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-
+                <MudText Typo="Typo.overline">Config:</MudText>
+                <MudText Typo="Typo.body2">Dsq chance: @Config.Value.DisqualifyChance</MudText>
+                <MudText Typo="Typo.body2">Rain RNG: @Config.Value.RainAdditionalRNG</MudText>
+                <MudText Typo="Typo.body2">Storm RNG: @Config.Value.StormAdditionalRNG</MudText>
+                <MudText Typo="Typo.body2">Rain reliability: @Config.Value.RainDriverReliabilityModifier</MudText>
+                <MudText Typo="Typo.body2">Storm reliability: @Config.Value.StormDriverReliabilityModifier</MudText>
+                <MudText Typo="Typo.body2">Team status car mod: @Config.Value.CarDriverStatusModifier</MudText>
             </MudPaper>
         </MudItem>
 
@@ -24,7 +30,13 @@
 
         <MudItem xs="12" sm="12" md="4">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-
+                <MudText Typo="Typo.overline">Config:</MudText>
+                <MudText Typo="Typo.body2">Sunny engine multiplier: @Config.Value.SunnyEngineMultiplier</MudText>
+                <MudText Typo="Typo.body2">Overcast engine multiplier: @Config.Value.OvercastEngineMultiplier</MudText>
+                <MudText Typo="Typo.body2">Wet engine multiplier: @Config.Value.WetEngineMultiplier</MudText>
+                <MudText Typo="Typo.body2">Mistake rolls: @Config.Value.MistakeAmountRolls</MudText>
+                <MudText Typo="Typo.body2">Mistake min rng: @Config.Value.MistakeLowerValue</MudText>
+                <MudText Typo="Typo.body2">Mistake max rng: @Config.Value.MistakeUpperValue</MudText>
             </MudPaper>
         </MudItem>
 
@@ -32,49 +44,57 @@
             <MudGrid>
                 <MudItem xs="12">
                     <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-                        <MudText Typo="Typo.h6">Last races</MudText>
-                        @if (recentRaces != null)
-                        {
-                            <MudTable Items="recentRaces" Dense="true">
-                                <HeaderContent>
-                                    <MudTh>League</MudTh>
-                                    <MudTh>Round</MudTh>
-                                    <MudTh>Name</MudTh>
-                                    <MudTh>Winning driver</MudTh>
-                                    <MudTh>Winning team</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd>@context.LeagueName</MudTd>
-                                    <MudTd>
-                                        <MudText Typo="Typo.body2">
-                                            <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
-                                            Round:
-                                            @context.Round
-                                        </MudText>
-                                    </MudTd>
-                                    <MudTd>@context.Name</MudTd>
-                                    <MudTd>
-                                        <MudText Typo="Typo.body2">
-                                            <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
-                                            @context.WinningDriver.Name
-                                            <MudChip Variant="Variant.Text" Color="NextColour()" DisableRipple="true"></MudChip>
-                                        </MudText>
-                                    </MudTd>
-                                    <MudTd Style="@ViewHelper.GetFullColourStyle(context.WinningTeam.Colour, context.WinningTeam.Accent)">
-                                        <MudText Typo="Typo.body2">
-                                            <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
-                                            @context.WinningTeam.Name
-                                        </MudText>
-                                    </MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        }
+                        <MudText Typo="Typo.h6">Examples</MudText>
+                        
+                        <div>
+                            <!-- Local storage value -->
+                            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">Set store</MudButton>
+                            <MudText>@_exampleStore</MudText>
+                        </div>
+                        <div>
+                            <!-- Authenticate by policy -->
+                            <AuthorizeView>
+                                <Authorized>
+                                    <p>Damn @(AuthenticationProvider.CurrentUser?.FullName ?? "wtf who"), good to see you logged in.</p>
+                                </Authorized>
+                                <NotAuthorized>
+                                    <p>What are you doing here, mate. You aren't even logged in!</p>
+                                </NotAuthorized>
+                            </AuthorizeView>
+
+                            <AuthorizeView Roles="admin">
+                                <Authorized>
+                                    <p>O damn, hello Mr. Admin! Love yo see ya :)</p>
+                                </Authorized>
+                            </AuthorizeView>
+                        </div>
                     </MudPaper>
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
+                        <MudStack>
+                            <div>
+                                <!-- Authenticate by policy -->
+                                <AuthorizeView Policy="CoolOnly">
+                                    <Authorized>
+                                        <p>Good to see some cool dudes here</p>
+                                    </Authorized>
+                                    <NotAuthorized>
+                                        <p>No offense, but you're kinda cringe... lol</p>
+                                    </NotAuthorized>
+                                </AuthorizeView>
 
+                                <AuthorizeView Policy="ChoicePolicy" Resource="3">
+                                    <Authorized>
+                                        <p>But man, you wouldn't believe the cringe-worthy dudes that show up here.</p>
+                                    </Authorized>
+                                    <NotAuthorized>
+                                        <p>Christ mate, why are you like the way you are.</p>
+                                    </NotAuthorized>
+                                </AuthorizeView>
+                            </div>
+                        </MudStack>
                     </MudPaper>
                 </MudItem>
             </MudGrid>
@@ -82,63 +102,50 @@
 
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 100%">
-                <MudText Typo="Typo.h6">Examples</MudText>
-
-                <MudStack Spacing="4">
-                    <div>
-                        <!-- Local storage value -->
-                        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">Set store</MudButton>
-                        <MudText>@_exampleStore</MudText>
-                    </div>
-                    <div>
-                        <!-- Authenticate by policy -->
-                        <AuthorizeView>
-                            <Authorized>
-                                <p>Damn @(AuthenticationProvider.CurrentUser?.FullName ?? "wtf who"), good to see you logged in.</p>
-                            </Authorized>
-                            <NotAuthorized>
-                                <p>What are you doing here, mate. You aren't even logged in!</p>
-                            </NotAuthorized>
-                        </AuthorizeView>
-
-                        <AuthorizeView Roles="admin">
-                            <Authorized>
-                                <p>O damn, hello Mr. Admin! Love yo see ya :)</p>
-                            </Authorized>
-                        </AuthorizeView>
-                    </div>
-                    <div>
-                        <!-- Authenticate by policy -->
-                        <AuthorizeView Policy="CoolOnly">
-                            <Authorized>
-                                <p>Good to see some cool dudes here</p>
-                            </Authorized>
-                            <NotAuthorized>
-                                <p>No offense, but you're kinda cringe... lol</p>
-                            </NotAuthorized>
-                        </AuthorizeView>
-
-                        <AuthorizeView Policy="ChoicePolicy" Resource="3">
-                            <Authorized>
-                                <p>But man, you wouldn't believe the cringe-worthy dudes that show up here.</p>
-                            </Authorized>
-                            <NotAuthorized>
-                                <p>Christ mate, why are you like the way you are.</p>
-                            </NotAuthorized>
-                        </AuthorizeView>
-                    </div>
-                    <div>
-                        <MudText>@Config.Value.MistakeUpperValue</MudText>
-                        <MudText>@Config.Value.DisqualifyChance</MudText>
-                    </div>
-                </MudStack>
+                <MudText Typo="Typo.h6">Last races</MudText>
+                @if (recentRaces != null)
+                {
+                    <MudTable Items="recentRaces" Dense="true">
+                        <HeaderContent>
+                            <MudTh>League</MudTh>
+                            <MudTh>Round</MudTh>
+                            <MudTh>Name</MudTh>
+                            <MudTh>Winning driver</MudTh>
+                            <MudTh>Winning team</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.LeagueName</MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.body2">
+                                    <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
+                                    Round:
+                                    @context.Round
+                                </MudText>
+                            </MudTd>
+                            <MudTd>@context.Name</MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.body2">
+                                    <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
+                                    @context.WinningDriver.Name
+                                    <MudChip Variant="Variant.Text" Color="NextColour()" DisableRipple="true">@context.WinningDriver.Number</MudChip>
+                                </MudText>
+                            </MudTd>
+                            <MudTd Style="@ViewHelper.SetFullColourstyle(context.WinningTeam.Colour, context.WinningTeam.Accent)">
+                                <MudText Typo="Typo.body2">
+                                    <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
+                                    @context.WinningTeam.Name
+                                </MudText>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
             </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
-    List<SimpleCalendarRace> recentRaces;
+    List<FinishedRaceModel> recentRaces;
     Color[] cycleColours = (Color[])Enum.GetValues(typeof(Color));
     string? _exampleStore = "nothing stored yo";
     string _newExampleString = "this is a new example string for storage";

@@ -63,6 +63,7 @@ namespace SimTECH.Data.EditModels
             new()
             {
                 Id = Id,
+                Order = Order,
                 StrategyId = StrategyId,
                 TyreId = TyreId
             };

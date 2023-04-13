@@ -29,14 +29,15 @@
         </ToolBarContent>
         <ColGroup>
             <col style="width: 15px" />
-            <col style="width: 30px" />
+            <col style="width: 40px" />
             <col style="width: 220px" />
             <col style="width: 30px" />
             <col style="width: 220px" />
             <col style="width: 30px" />
             <col style="width: 50px" />
             <col style="width: 50px" />
-            <col style="width: 100px" />
+            <col style="width: 75px" />
+            <col style="width: 150px" />
             <col />
         </ColGroup>
         <HeaderContent>
@@ -49,19 +50,22 @@
             <MudTh>TYRE</MudTh>
             <MudTh>Score</MudTh>
             <MudTh>Status</MudTh>
+            <MudTh>Events</MudTh>
             <MudTh>Visual</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))">
+            <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
                 @context.Position
             </MudTd>
-            <MudTd>@context.Grid</MudTd>
+            <MudTd>
+                <GridChange Change="@context.GridChange" />
+            </MudTd>
             <MudTd>
                 <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
                 @context.FullName
             </MudTd>
             <MudTd>@context.Number</MudTd>
-            <MudTd Style="@(ViewHelper.GetSimpleStyle(context.Colour))">
+            <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
                 @context.TeamName
             </MudTd>
             <MudTd>@context.Power</MudTd>
@@ -74,11 +78,17 @@
             <MudTd>
                 @if (context.Status == RaceStatus.Racing)
                 {
-                    <MudText>@context.DisplayGap</MudText>
+                    <MudText Typo="Typo.body2">@context.DisplayGap</MudText>
                 }
                 else
                 {
-                    <MudText Color="Color.Error">@context.Incident</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Error">@context.Incident</MudText>
+                }
+            </MudTd>
+            <MudTd>
+                @foreach (var raceEvent in context.RaceEventsPerLap)
+                {
+                    <MudText Typo="Typo.body2">Lap @(raceEvent.Key): @(raceEvent.Value)</MudText>
                 }
             </MudTd>
             <MudTd>
@@ -312,7 +322,7 @@
             //{
             //    if (previousDriver.SeasonTeamId == driver.SeasonDriverId && previousDriver.Role == TeamRole.Support)
             //    {
-                    
+
             //    }
             //}
         }
