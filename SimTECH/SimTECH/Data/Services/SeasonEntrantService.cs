@@ -36,7 +36,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            var engines = await context.SeasonEngine.Where(e => developmentDict.ContainsKey(e.Id)).ToListAsync();
+            var engines = await context.SeasonEngine.Where(e => developmentDict.Keys.Contains(e.Id)).ToListAsync();
 
             foreach (var engine in engines)
             {
@@ -101,7 +101,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            var teams = await context.SeasonTeam.Where(e => developmentDict.ContainsKey(e.Id)).ToListAsync();
+            var teams = await context.SeasonTeam.Where(e => developmentDict.Keys.Contains(e.Id)).ToListAsync();
 
             foreach (var team in teams)
             {

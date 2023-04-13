@@ -216,8 +216,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            // some issue still...
-            var aha = await context.Race
+            return await context.Race
                 .Where(e => e.State == State.Closed && e.Results.Any())
                 .TakeLastSpecial(amount)
                 .Select(e => new FinishedRaceModel
@@ -245,8 +244,6 @@ namespace SimTECH.Data.Services
                     .First(),
                 })
                 .ToListAsync();
-
-            return aha;
         }
 
         // Race, qualy and practice models are nearly the same but a generic solution did not came to me

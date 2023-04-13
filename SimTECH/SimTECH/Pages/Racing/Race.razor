@@ -156,25 +156,22 @@
         foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
         {
             // Check reliability
-            if (ShouldCheckReliability())
-            {
-                var wouldDisqualify = NumberHelper.RandomInt(disqualifyChance) == 0;
+            var wouldDisqualify = NumberHelper.RandomInt(disqualifyChance) == 0;
 
-                if (DidReliabilityFail(driver.DriverReliability))
-                {
-                    driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-                    driver.Incident = wouldDisqualify ? Incident.Dangerous : EnumHelper.GetDriverIncidents.TakeRandomItem();
-                }
-                else if (DidReliabilityFail(driver.CarReliability))
-                {
-                    driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-                    driver.Incident = wouldDisqualify ? Incident.Illegal : EnumHelper.GetCarIncidents.TakeRandomItem();
-                }
-                else if (DidReliabilityFail(driver.EngineReliability))
-                {
-                    driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-                    driver.Incident = wouldDisqualify ? Incident.Fuel : Incident.Engine;
-                }
+            if (DidReliabilityFail(driver.DriverReliability))
+            {
+                driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
+                driver.Incident = wouldDisqualify ? Incident.Dangerous : EnumHelper.GetDriverIncidents.TakeRandomItem();
+            }
+            else if (DidReliabilityFail(driver.CarReliability))
+            {
+                driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
+                driver.Incident = wouldDisqualify ? Incident.Illegal : EnumHelper.GetCarIncidents.TakeRandomItem();
+            }
+            else if (DidReliabilityFail(driver.EngineReliability))
+            {
+                driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
+                driver.Incident = wouldDisqualify ? Incident.Fuel : Incident.Engine;
             }
 
             // Calculate score
@@ -252,7 +249,7 @@
         return false;
     }
 
-    private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(100) >= reliability;
+    private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) >= reliability;
 
     int HandleStrategy(RaceDriver driver, int lap)
     {

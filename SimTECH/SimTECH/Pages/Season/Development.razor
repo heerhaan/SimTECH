@@ -301,7 +301,7 @@
     {
         foreach (var entrant in DevelopedEntrants)
         {
-            if (entrant.Min >= entrant.Max)
+            if (entrant.Min > entrant.Max)
             {
                 Snackbar.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
                 return;
@@ -312,9 +312,9 @@
 
             if (_selectedTarget == TargetDevelop.Reliability)
             {
-                // The minimum and maximum value for reliability is between 1 and 100, thus we set those limits
-                if (entrant.New > 100)
-                    entrant.New = 100;
+                // The minimum and maximum value for reliability is between 1 and 1000, thus we set those limits
+                if (entrant.New > 1000)
+                    entrant.New = 1000;
                 else if (entrant.New < 1)
                     entrant.New = 1;
             }
@@ -331,12 +331,15 @@
         {
             case Entrant.Driver:
                 await EntrantService.SaveDriverDevelopment(developedValues, _selectedTarget);
+                SeasonDrivers = await EntrantService.GetSeasonDrivers(Season.Id);
                 break;
             case Entrant.Team:
                 await EntrantService.SaveTeamDevelopment(developedValues, _selectedTarget);
+                SeasonTeams = await EntrantService.GetSeasonTeams(Season.Id);
                 break;
             case Entrant.Engine:
                 await EntrantService.SaveEngineDevelopment(developedValues, _selectedTarget);
+                SeasonEngines = await EntrantService.GetSeasonEngines(Season.Id);
                 break;
         }
 
