@@ -10,17 +10,8 @@
         public State State { get; set; }
         public long TrackId { get; set; }
 
-        public string? PoleDriver { get; set; }
-        public Country? PoleNationality { get; set; }
-        public int? PoleNumber { get; set; }
-
-        public string? WinningDriver { get; set; }
-        public Country? DriverNationality { get; set; }
-        public int? DriverNumber { get; set; }
-
-        public string? WinningTeam { get; set; }
-        public Country? TeamNationality { get; set; }
-        public string TeamColour { get; set; } = "var(--mud-palette-background)";
-        public string TeamAccent { get; set; } = "var(--mud-palette-text-primary)";
+        public DriverWinner PoleSitter { get; set; }
+        public DriverWinner DriverWinner { get; set; }
+        public TeamWinner TeamWinner { get; set; }
     }
 }

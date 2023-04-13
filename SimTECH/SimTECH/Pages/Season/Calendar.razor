@@ -24,6 +24,8 @@
         <col />
         <col class="number-col" />
         <col />
+        <col class="number-col" />
+        <col />
         <col />
         <col />
         <col />
@@ -37,7 +39,6 @@
         <MudTh>Pole</MudTh>
         <MudTh></MudTh>
         <MudTh>Winning driver</MudTh>
-        <MudTh Class="pa-0"></MudTh>
         <MudTh>Winning team</MudTh>
         <MudTh>Status</MudTh>
         <MudTh></MudTh>
@@ -49,39 +50,47 @@
         </MudTd>
         <MudTd>@context.Name</MudTd>
         <MudTd>@context.Weather</MudTd>
-        <MudTd>
-            @if (context.PoleNumber.HasValue)
-            {
-                <span>@(context.PoleNumber)</span>
-            }
-        </MudTd>
-        <MudTd>
-            @if (context.PoleDriver != null)
-            {
-                <CountryFlag Code="context.PoleNationality.GetValueOrDefault()" Size="FlagSize.Small" />
-                <span>@context.PoleDriver</span>
-            }
-        </MudTd>
-        <MudTd>
-            @if (context.DriverNumber.HasValue)
-            {
-                <span>@(context.DriverNumber)</span>
-            }
-        </MudTd>
-        <MudTd>
-            @if (context.WinningDriver != null)
-            {
-                <CountryFlag Code="context.DriverNationality.GetValueOrDefault()" Size="FlagSize.Small" />
-                <span>@context.WinningDriver</span>
-            }
-        </MudTd>
-        <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.TeamColour))">
-            @if (context.WinningTeam != null)
-            {
-                <CountryFlag Code="context.TeamNationality.GetValueOrDefault()" Size="FlagSize.Small" />
-                <span>@context.WinningTeam</span>
-            }
-        </MudTd>
+        @if (context.PoleSitter != null)
+        {
+            <MudTd Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
+                <span>@(context.PoleSitter.Number)</span>
+            </MudTd>
+            <MudTd>
+                <CountryFlag Code="context.PoleSitter.Country" Size="FlagSize.Small" />
+                <span>@context.PoleSitter.Name</span>
+            </MudTd>
+        }
+        else
+        {
+            <MudTd></MudTd>
+            <MudTd></MudTd>
+        }
+
+        @if (context.DriverWinner != null)
+        {
+            <MudTd Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
+                <span>@(context.DriverWinner.Number)</span>
+            </MudTd>
+            <MudTd>
+                <CountryFlag Code="context.DriverWinner.Country" Size="FlagSize.Small" />
+                <span>@context.DriverWinner.Name</span>
+            </MudTd>
+        }
+        else
+        {
+            <MudTd></MudTd>
+            <MudTd></MudTd>
+        }
+        @if (context.TeamWinner != null)
+        {
+            <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.TeamWinner.Colour))">
+                <span>@context.TeamWinner.Name</span>
+            </MudTd>
+        }
+        else
+        {
+            <MudTd></MudTd>
+        }
         <MudTd>@context.State</MudTd>
         <MudTd>
             <MudButtonGroup Size="@Size.Small">
@@ -93,6 +102,10 @@
                 else if (Season.State == State.Active && (context.Round == _nextRound.GetValueOrDefault()))
                 {
                     <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRaceWeek(context))" />
+                }
+                else if (context.State == State.Closed)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Flag" OnClick="@(() => GoToRaceWeek(context))" />
                 }
             </MudButtonGroup>
         </MudTd>

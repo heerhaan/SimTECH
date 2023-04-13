@@ -719,37 +719,47 @@ namespace SimTECH.Data.Services
 
                     if (poleResult != null)
                     {
-                        var poleDriver = drivers.Find(e => e.Id == poleResult.SeasonDriverId);
+                        var poleDriver = drivers.Single(e => e.Id == poleResult.SeasonDriverId);
+                        var poleTeam = teams.Single(e => e.Id == poleResult.SeasonTeamId);
 
-                        if (poleDriver != null)
+                        calendarModel.PoleSitter = new DriverWinner
                         {
-                            calendarModel.PoleDriver = poleDriver.Driver.FullName;
-                            calendarModel.PoleNationality = poleDriver.Driver.Country;
-                            calendarModel.PoleNumber = poleDriver.Number;
-                        }
+                            Name = poleDriver.Driver.FullName,
+                            Country = poleDriver.Driver.Country,
+                            Number = poleDriver.Number,
+                            Colour = poleTeam.Colour,
+                            Accent = poleTeam.Accent
+                        };
                     }
 
                     var winningResult = race.Results.FirstOrDefault(e => e.Position == 1);
 
                     if (winningResult != null)
                     {
-                        var winningDriver = drivers.FirstOrDefault(d => winningResult.SeasonDriverId == d.Id);
-                        var winningTeam = teams.FirstOrDefault(t => winningResult.SeasonTeamId == t.Id);
+                        var winningDriver = drivers.Single(d => winningResult.SeasonDriverId == d.Id);
+                        var driverTeam = teams.Find(e => e.Id == winningDriver.SeasonTeamId.GetValueOrDefault());
 
-                        if (winningDriver != null)
+                        calendarModel.DriverWinner = new DriverWinner
                         {
-                            calendarModel.WinningDriver = winningDriver.Driver.FullName;
-                            calendarModel.DriverNationality = winningDriver.Driver.Country;
-                            calendarModel.DriverNumber = winningDriver.Number;
+                            Name = winningDriver.Driver.FullName,
+                            Country = winningDriver.Driver.Country,
+                            Number = winningDriver.Number,
+                        };
+
+                        if (driverTeam != null)
+                        {
+                            calendarModel.DriverWinner.Colour = driverTeam.Colour;
+                            calendarModel.DriverWinner.Accent = driverTeam.Accent;
                         }
 
-                        if (winningTeam != null)
+                        var winningTeam = teams.Single(t => winningResult.SeasonTeamId == t.Id);
+
+                        calendarModel.TeamWinner = new TeamWinner
                         {
-                            calendarModel.WinningTeam = winningTeam.Name;
-                            calendarModel.TeamNationality = winningTeam.Team.Country;
-                            calendarModel.TeamColour = winningTeam.Colour;
-                            calendarModel.TeamAccent = winningTeam.Accent;
-                        }
+                            Name = winningTeam.Name,
+                            Colour = winningTeam.Colour,
+                            Accent = winningTeam.Accent,
+                        };
                     }
                 }
 
