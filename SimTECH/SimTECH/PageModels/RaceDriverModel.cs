@@ -44,11 +44,13 @@ namespace SimTECH.PageModels
         public int RngMinMod { get; set; }
         public int RngMaxMod { get; set; }
 
-        public string DisplayGap { get; set; }
+        public int Gap { get; set; }
+        public double DisplayGap { get; set; }
         public bool HasFastestLap { get; set; }
 
         public List<int> LapScores { get; set; } = new();
         public Dictionary<int, RacerEvent> RaceEventsPerLap { get; set; } = new();
+        public List<LapScore> LapResults { get; set; } = new();
 
         public int LapSum => LapScores?.Sum() ?? 0;
         public int GridChange => Grid - Position;

@@ -1,6 +1,6 @@
 ﻿@page "/raceweek/{RaceId:long}"
 
-@inject RaceService _raceService
+@inject RaceService RaceService
 @inject BreadcrumbProvider Bread
 @inject NavigationManager Nav
 @inject IDialogService DialogService
@@ -129,7 +129,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        ViewModel = await _raceService.GetRaceWeekModel(RaceId);
+        ViewModel = await RaceService.GetRaceWeekModel(RaceId);
 
         Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -157,7 +157,7 @@ else
 
         if (!result.Canceled && result.Data != null && result.Data is Strategy newStrategy)
         {
-            await _raceService.PickStrategy(resultId, newStrategy.Id, newStrategy.StrategyTyres[0].Tyre.Pace);
+            await RaceService.PickStrategy(resultId, newStrategy.Id, newStrategy.StrategyTyres[0].Tyre.Pace);
 
             ViewModel.RaceWeekDrivers.Single(e => e.ResultId == resultId).Strategy = newStrategy;
         }

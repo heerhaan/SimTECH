@@ -2,6 +2,7 @@
 
 @inject RaceService RaceService
 @inject NavigationManager Nav
+@inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
 @if (!loading)
@@ -78,7 +79,7 @@
             <MudTd>
                 @if (context.Status == RaceStatus.Racing)
                 {
-                    <MudText Typo="Typo.body2">@context.DisplayGap</MudText>
+                    <MudText Typo="Typo.body2">+@(context.DisplayGap)</MudText>
                 }
                 else
                 {
@@ -111,7 +112,7 @@
 
     public RaceModel Model { get; set; }
 
-    private Dictionary<int, int> allotments;
+    Dictionary<int, int> allotments;
 
     bool loading = true;
 
@@ -145,7 +146,7 @@
         loading = false;
     }
 
-    private void Advance()
+    void Advance()
     {
         // Determine the values which impact the race like: weather and it's multipliers (configuration innit?)
         var newLapScores = new List<LapScore>();
@@ -184,6 +185,8 @@
 
                 for (int i = 0; i < calculationsPerAdvance; i++)
                 {
+                    var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated + i };
+
                     int lapResult = NumberHelper.RandomInt(minRng, maxRng);
 
                     // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
@@ -202,11 +205,11 @@
                     if (mistake)
                     {
                         lapResult += NumberHelper.RandomInt(mistakeMinCost, mistakeMaxCost);
-                        AddRaceEvent(driver, calculated + i, RacerEvent.Mistake);
+                        AddRaceEvent(driver, calculated + i, RacerEvent.Mistake, lapScore);
                     }
 
                     // Strategy
-                    lapResult += HandleStrategy(driver, i);
+                    lapResult += HandleStrategy(driver, i, lapScore);
 
                     // Adds the overall power of the driver
                     lapResult += driver.Power;
@@ -218,6 +221,8 @@
                     }
 
                     // Finally add the score to the lap results
+                    lapScore.Score = lapResult;
+                    driver.LapResults.Add(lapScore);
                     driver.LapScores.Add(lapResult);
                 }
             }
@@ -236,7 +241,7 @@
 
     int GetQualifyingBonus(int grid) => (participatingDrivers * Model.Season.GridBonus) - ((grid - 1) * Model.Season.GridBonus);
 
-    private bool ShouldCheckReliability()
+    bool ShouldCheckReliability()
     {
         if (calculated == 0)
             return true;
@@ -249,9 +254,9 @@
         return false;
     }
 
-    private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) >= reliability;
+    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) >= reliability;
 
-    int HandleStrategy(RaceDriver driver, int lap)
+    int HandleStrategy(RaceDriver driver, int lap, LapScore lapScore)
     {
         var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
         var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
@@ -273,7 +278,7 @@
                 driver.CurrentTyreOrder = nextOrder;
                 driver.TyreLife = nextTyre.Tyre.Pace;
 
-                AddRaceEvent(driver, calculated + lap, RacerEvent.Pitstop);
+                AddRaceEvent(driver, calculated + lap, RacerEvent.Pitstop, lapScore);
             }
         }
 
@@ -285,27 +290,33 @@
         return tyreLifeBeforeWear;
     }
 
-    void AddRaceEvent(RaceDriver driver, int lap, RacerEvent racerEvent)
+    void AddRaceEvent(RaceDriver driver, int lap, RacerEvent racerEvent, LapScore lapResult)
     {
+        // the dict should probably be temp
         if (driver.RaceEventsPerLap.ContainsKey(lap))
             driver.RaceEventsPerLap[lap] |= racerEvent;
         else
             driver.RaceEventsPerLap.Add(lap, racerEvent);
+
+        // and this one permanent, doesnt even deserve its own method tbh
+        lapResult.RacerEvents |= racerEvent;
     }
 
-    private void DeterminePositions(long? newFastestLapHolder)
+    void DeterminePositions(long? newFastestLapHolder)
     {
         var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum).ToList();
 
         var position = 0;
         highestScore = racingDrivers.Max(e => e.LapSum);
 
-        var previousDriver = racingDrivers.First();
+        // Only need to use the previous driver if we knew how to swap positions
+        // var previousDriver = racingDrivers.First();
 
         foreach (var driver in racingDrivers)
         {
             driver.Position = ++position;
-            driver.DisplayGap = GapToLeader(driver.LapSum, highestScore);
+
+            AddGapToLeader(driver, highestScore);
 
             if (newFastestLapHolder != null)
             {
@@ -325,20 +336,27 @@
         }
     }
 
-    private string GapToLeader(int score, int highestScore)
+    void AddGapToLeader(RaceDriver driver, int highestScore)
     {
-        double gap = ((highestScore - score) * gapMarge);
+        int actualGap = highestScore - driver.LapSum;
+        double displayGap = actualGap * gapMarge;
 
-        return $"+{Math.Round(gap, 2)}";
+        driver.Gap = actualGap;
+        driver.DisplayGap = Math.Round(displayGap, 2);
     }
 
-    private static int GetQualifyingBonus(int grid, int driverCount, int bonus) => (driverCount * bonus) - ((grid - 1) * bonus);
+    static int GetQualifyingBonus(int grid, int driverCount, int bonus) => (driverCount * bonus) - ((grid - 1) * bonus);
 
-    private void ShowImage() => Snackbar.Add("Not implemented yet", Severity.Warning);
+    void ShowImage() => Snackbar.Add("Not implemented yet", Severity.Warning);
 
-    private void ShowGraph() => Snackbar.Add("Not implemented yet", Severity.Warning);
+    async Task ShowGraph()
+    {
+        var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
 
-    private async Task PersistLapScores()
+        _ = await DialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters);
+    }
+
+    async Task PersistLapScores()
     {
         // For now not implemented per advance but all in total
 
@@ -348,7 +366,7 @@
             await RaceService.PersistLapScores(driverTotalScores);
     }
 
-    private async Task Finish()
+    async Task Finish()
     {
         var fastestLapDriver = Model.RaceDrivers.Where(e => e.LapScores.Any()).OrderByDescending(e => e.LapScores.Max()).First();
 
