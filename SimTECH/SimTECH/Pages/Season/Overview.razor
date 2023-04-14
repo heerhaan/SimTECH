@@ -65,7 +65,16 @@
                     </MudItem>
 
                     <MudItem xs="6">
-                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudStack>
+                                <MudText Typo="Typo.h6">Components</MudText>
+                                <MudText>
+                                    Redirect to page with overview of the used components and any upcoming penalty's for this season
+                                </MudText>
+                                <MudSpacer />
+                                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="GoToComponentUsage">Go to</MudButton>
+                            </MudStack>
+                        </MudPaper>
                     </MudItem>
 
                     <MudItem xs="6">
@@ -215,6 +224,8 @@
         // TODO: Check if there are already any entrants added, if so then remove
         Nav.NavigateTo($"/addentrants/{SeasonId}");
     }
+
+    private void GoToComponentUsage() => Nav.NavigateTo($"/components/{SeasonId}");
 
     private async Task GoToNextRace()
     {
