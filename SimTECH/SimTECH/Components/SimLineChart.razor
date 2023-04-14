@@ -1,7 +1,42 @@
-﻿<ApexCharts.ApexChart>
-
+﻿<ApexCharts.ApexChart TItem="DataPoint" Title="@title">
+    <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                Items="DataSets"
+                                Name="Test name haha"
+                                SeriesType="ApexCharts.SeriesType.Line"
+                                XValue="@(e => e.XValue)"
+                                YValue="@(e => e.YValue)"
+                                OrderBy="@(e => e.Y)"/>
 </ApexCharts.ApexChart>
 
 @code {
+    List<DataPoint> DataSets = new();
 
+    string title = "Test data";
+
+    protected override void OnInitialized()
+    {
+        SetTestData();
+    }
+
+    private void SetTestData()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            var dataSet = new DataPoint
+                {
+                    Name = i.ToString(),
+                    XValue = $"set: {i}",
+                    YValue = i * 4,
+                };
+
+            DataSets.Add(dataSet);
+        }
+    }
+
+    protected internal class DataPoint
+    {
+        public string Name { get; set; }
+        public string XValue { get; set; }
+        public int YValue { get; set; }
+    }
 }
