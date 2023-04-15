@@ -51,12 +51,12 @@
                     var dataSet = new DataSet { Label = driver.FullName };
 
                     int gap = 0;
-                    for (int i = 0; i < driver.LapScores.Count; i++)
+                    for (int i = 0; i < driver.LapResults.Count; i++)
                     {
                         var compareSet = LeaderScores[i];
-                        var driverScore = driver.LapScores[i];
+                        var driverScore = driver.LapResults[i];
 
-                        gap += compareSet.Score - driverScore;
+                        gap += compareSet.Score - driverScore.Score;
 
                         dataSet.DataPoints.Add(new DataPoint(compareSet.Order, gap));
                     }

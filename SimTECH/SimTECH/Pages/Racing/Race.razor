@@ -79,7 +79,7 @@
             <MudTd>
                 @if (context.Status == RaceStatus.Racing)
                 {
-                    <MudText Typo="Typo.body2">+@(context.DisplayGap)</MudText>
+                    <MudText Typo="Typo.body2">+@(context.TimedGap(Model.GapMarge))</MudText>
                 }
                 else
                 {
@@ -87,9 +87,12 @@
                 }
             </MudTd>
             <MudTd>
-                @foreach (var raceEvent in context.RaceEventsPerLap)
+                @foreach (var lapEvent in context.LapResults)
                 {
-                    <MudText Typo="Typo.body2">Lap @(raceEvent.Key): @(raceEvent.Value)</MudText>
+                    @foreach (var raceEvent in lapEvent.RacerEvents.GetFlagged().Where(e => !e.HasFlag(RacerEvent.Racing)))
+                    {
+                        <MudText Typo="Typo.body2">Lap @(lapEvent.Order): @(raceEvent.ToString())</MudText>
+                    }
                 }
             </MudTd>
             <MudTd>
@@ -116,17 +119,14 @@
 
     bool loading = true;
 
-    int disqualifyChance = (100 / 4); // means 1/25 chance of DSQ | should read from config
-    int mistakeRolls = 2;
-    int mistakeMinCost = -30;
-    int mistakeMaxCost = -20;
-    double gapMarge = 0.12;
-
+    int disqualifyChance;
     int participatingDrivers;
     int fastestLap;
     int highestScore;
     int racedLaps;
     int totalLaps;
+    int minLapRng = 0;
+    int maxLapRng = 100;
 
     int calculated;
     int calculationCount;
@@ -137,6 +137,8 @@
         Model = await RaceService.RetrieveRaceModel(RaceId);
         allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
 
+        // Chance is calculated by dividing the set value with 100, making it a "reference"
+        disqualifyChance = 100 / Model.DisqualifyChance;
         participatingDrivers = Model.RaceDrivers.Count;
         calculationCount = Model.RaceLength / 10;
 
@@ -148,122 +150,119 @@
 
     void Advance()
     {
-        // Determine the values which impact the race like: weather and it's multipliers (configuration innit?)
-        var newLapScores = new List<LapScore>();
+        // Use this variable to persist the lap scores which were generated in this advance
+        var lapScoresToPersist = new List<LapScore>();
 
-        long? newFastestLapScorer = null;
-
-        // Iterate through all still running drivers
-        foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
+        // Every i in this instance is relative to 10km of racing
+        for (int i = 0; i < calculationsPerAdvance; i++)
         {
-            // Check reliability
-            var wouldDisqualify = NumberHelper.RandomInt(disqualifyChance) == 0;
+            long? newFastestLapScorer = null;
 
-            if (DidReliabilityFail(driver.DriverReliability))
+            // Iterate through all still running drivers
+            foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
             {
-                driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-                driver.Incident = wouldDisqualify ? Incident.Dangerous : EnumHelper.GetDriverIncidents.TakeRandomItem();
-            }
-            else if (DidReliabilityFail(driver.CarReliability))
-            {
-                driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-                driver.Incident = wouldDisqualify ? Incident.Illegal : EnumHelper.GetCarIncidents.TakeRandomItem();
-            }
-            else if (DidReliabilityFail(driver.EngineReliability))
-            {
-                driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-                driver.Incident = wouldDisqualify ? Incident.Fuel : Incident.Engine;
-            }
+                var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
-            // Calculate score
-            if (driver.Status == RaceStatus.Racing)
-            {
-                // Always multiply rng with the given lap count, add power to every lap (thats why we do that now otherwise weird calc moment inbound)
-                // probs not best to calculate this here
-                var minRng = (0 + driver.RngMinMod);
-                var maxRng = (100 + driver.RngMaxMod);
+                // Determine if either driver, car or engine has failed
+                CheckReliability(driver, lapScore);
 
-                for (int i = 0; i < calculationsPerAdvance; i++)
+                // Calculate the score for drivers which are still racing
+                if (driver.Status == RaceStatus.Racing)
                 {
-                    var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated + i };
+                    var minRng = (minLapRng + driver.RngMinMod);
+                    var maxRng = (maxLapRng + driver.RngMaxMod);
 
-                    int lapResult = NumberHelper.RandomInt(minRng, maxRng);
+                    int lapValue = NumberHelper.RandomInt(minRng, maxRng);
 
                     // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
-                    if (i == 0 && calculated == 0)
-                        lapResult += GetQualifyingBonus(driver.Grid);
+                    if (calculated == 0)
+                        lapValue += GetQualifyingBonus(driver.Grid);
 
                     // Check if driver made a mistake, if so then it's going to cost him
-                    var mistake = false;
-                    for (int j = 0; j < mistakeRolls; j++)
+                    for (int j = 0; j < Model.MistakeRolls; j++)
                     {
-                        mistake = DidReliabilityFail(driver.DriverReliability);
-                        if (!mistake)
+                        if (DidReliabilityFail(driver.DriverReliability))
+                        {
+                            lapValue += NumberHelper.RandomInt(Model.MistakeMinCost, Model.MistakeMaxCost);
+                            lapScore.RacerEvents |= RacerEvent.Mistake;
                             break;
-                    }
-
-                    if (mistake)
-                    {
-                        lapResult += NumberHelper.RandomInt(mistakeMinCost, mistakeMaxCost);
-                        AddRaceEvent(driver, calculated + i, RacerEvent.Mistake, lapScore);
+                        }
                     }
 
                     // Strategy
-                    lapResult += HandleStrategy(driver, i, lapScore);
+                    lapValue += HandleStrategy(driver, lapScore);
 
                     // Adds the overall power of the driver
-                    lapResult += driver.Power;
+                    lapValue += driver.Power;
 
-                    if (lapResult > fastestLap)
+                    if (lapValue > fastestLap)
                     {
-                        fastestLap = lapResult;
+                        fastestLap = lapValue;
                         newFastestLapScorer = driver.ResultId;
                     }
 
                     // Finally add the score to the lap results
-                    lapScore.Score = lapResult;
+                    lapScore.Score = lapValue;
                     driver.LapResults.Add(lapScore);
-                    driver.LapScores.Add(lapResult);
+                    lapScoresToPersist.Add(lapScore);
                 }
             }
+
+            // Determine new positions (keep team role in mind here!)
+            PostProcessAdvance(newFastestLapScorer);
+
+            ++calculated;
+
+            // Last brace before going to the next advance
         }
 
-        calculated += calculationsPerAdvance;
         racedLaps = NumberHelper.CalcLapCount(calculated, Model.TrackLength);
-
-        // Determine new positions (keep team role in mind here!)
-        DeterminePositions(newFastestLapScorer);
 
         StateHasChanged();
 
         // Persist the new stint results, yes after doing all whats needed to show them
+        //PersistLapScores(lapScoresToPersist);
     }
 
     int GetQualifyingBonus(int grid) => (participatingDrivers * Model.Season.GridBonus) - ((grid - 1) * Model.Season.GridBonus);
 
-    bool ShouldCheckReliability()
+    void CheckReliability(RaceDriver driver, LapScore lapScore)
     {
-        if (calculated == 0)
-            return true;
-        if (calculated == calculationsPerAdvance)
-            return true;
+        var wouldDisqualify = NumberHelper.RandomInt(disqualifyChance) == 0;
 
-        // More instances when one should check reliablity?
-        // Maybe a different way to determine these checks?
-
-        return false;
+        if (DidReliabilityFail(driver.DriverReliability))
+        {
+            driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
+            driver.Incident = wouldDisqualify ? Incident.Dangerous : EnumHelper.GetDriverIncidents.TakeRandomItem();
+            lapScore.RacerEvents |= RacerEvent.DriverDnf;
+        }
+        else if (DidReliabilityFail(driver.CarReliability))
+        {
+            driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
+            driver.Incident = wouldDisqualify ? Incident.Illegal : EnumHelper.GetCarIncidents.TakeRandomItem();
+            lapScore.RacerEvents |= RacerEvent.CarDnf;
+        }
+        else if (DidReliabilityFail(driver.EngineReliability))
+        {
+            driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
+            driver.Incident = wouldDisqualify ? Incident.Fuel : Incident.Engine;
+            lapScore.RacerEvents |= RacerEvent.EngineDnf;
+        }
     }
 
     bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) >= reliability;
 
-    int HandleStrategy(RaceDriver driver, int lap, LapScore lapScore)
+    int HandleStrategy(RaceDriver driver, LapScore lapScore)
     {
         var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
         var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
 
-        // Ensures minimum wear is always at least one more than the maximum wear
+        // Ensures maximum wear is always at least one less than the minimum wear
         if (tyreMinWear <= tyreMaxWear)
-            tyreMinWear = tyreMaxWear + 1;
+        {
+            tyreMaxWear = tyreMinWear - 1;
+            Snackbar.Add("A situation occurred where the maximum wear was higher than the minimum wear, please reconsider some set tyre wear values!");
+        }
 
         // Maximum wear is more than the tyre can handle, it's time for a pitstop!
         if (tyreMaxWear > driver.TyreLife)
@@ -278,7 +277,7 @@
                 driver.CurrentTyreOrder = nextOrder;
                 driver.TyreLife = nextTyre.Tyre.Pace;
 
-                AddRaceEvent(driver, calculated + lap, RacerEvent.Pitstop, lapScore);
+                lapScore.RacerEvents |= RacerEvent.Pitstop;
             }
         }
 
@@ -290,19 +289,7 @@
         return tyreLifeBeforeWear;
     }
 
-    void AddRaceEvent(RaceDriver driver, int lap, RacerEvent racerEvent, LapScore lapResult)
-    {
-        // the dict should probably be temp
-        if (driver.RaceEventsPerLap.ContainsKey(lap))
-            driver.RaceEventsPerLap[lap] |= racerEvent;
-        else
-            driver.RaceEventsPerLap.Add(lap, racerEvent);
-
-        // and this one permanent, doesnt even deserve its own method tbh
-        lapResult.RacerEvents |= racerEvent;
-    }
-
-    void DeterminePositions(long? newFastestLapHolder)
+    void PostProcessAdvance(long? newFastestLapHolder)
     {
         var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum).ToList();
 
@@ -316,7 +303,8 @@
         {
             driver.Position = ++position;
 
-            AddGapToLeader(driver, highestScore);
+            // Portrays the gap to the current race leader
+            driver.Gap = highestScore - driver.LapSum;
 
             if (newFastestLapHolder != null)
             {
@@ -336,15 +324,6 @@
         }
     }
 
-    void AddGapToLeader(RaceDriver driver, int highestScore)
-    {
-        int actualGap = highestScore - driver.LapSum;
-        double displayGap = actualGap * gapMarge;
-
-        driver.Gap = actualGap;
-        driver.DisplayGap = Math.Round(displayGap, 2);
-    }
-
     static int GetQualifyingBonus(int grid, int driverCount, int bonus) => (driverCount * bonus) - ((grid - 1) * bonus);
 
     void ShowImage() => Snackbar.Add("Not implemented yet", Severity.Warning);
@@ -356,29 +335,24 @@
         _ = await DialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters);
     }
 
-    async Task PersistLapScores()
+    async Task PersistLapScores(List<LapScore> lapScores)
     {
-        // For now not implemented per advance but all in total
-
-        var driverTotalScores = Model.RaceDrivers.ToDictionary(e => e.ResultId, e => e.LapScores);
-
-        if (driverTotalScores?.Any() == true)
-            await RaceService.PersistLapScores(driverTotalScores);
+        await RaceService.PersistLapScores(lapScores);
     }
 
     async Task Finish()
     {
-        var fastestLapDriver = Model.RaceDrivers.Where(e => e.LapScores.Any()).OrderByDescending(e => e.LapScores.Max()).First();
-
         var finishedRace = Model.ToFinishedRace();
         var finishedResults = Model.RaceDrivers.Select(e => e.ToResult(RaceId)).ToList();
         var scoredPoints = Model.RaceDrivers
-            .Select(e => e.ToScoredPoints(allotments, Model.Season.PointsPole, Model.Season.PointsFastestLap, e.ResultId == fastestLapDriver.ResultId))
+            .Select(e => e.ToScoredPoints(allotments, Model.Season.PointsPole, Model.Season.PointsFastestLap))
             .ToList();
 
         // Should be removed if it is done per advance
-        await PersistLapScores();
+        var allLapScores = Model.RaceDrivers.SelectMany(e => e.LapResults).Where(e => e.Id == 0).ToList();
+        await PersistLapScores(allLapScores);
 
+        // Todo: check if this doesnt mess with the lapscores
         await RaceService.FinishRace(finishedRace, finishedResults, scoredPoints);
 
         Nav.NavigateTo($"/overview/{Model.Season.Id}/2"); // 2 = standingspanel

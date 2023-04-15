@@ -2,6 +2,11 @@
 {
     public static class EnumHelper
     {
+        public static IEnumerable<Enum> GetFlagged(this Enum e)
+        {
+            return Enum.GetValues(e.GetType()).Cast<Enum>().Where(e.HasFlag);
+        }
+
         public static string CountryCodeToEmoji(this Country countryCode)
         {
             return string.Concat(countryCode.ToString().Select(e => char.ConvertFromUtf32(e + 0x1F1A5)));

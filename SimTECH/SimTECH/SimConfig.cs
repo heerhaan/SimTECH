@@ -5,6 +5,7 @@
         public const string SectionKey = "SimConfig";
 
         public int DisqualifyChance { get; set; }
+        public double GapMarge { get; set; }
 
         // MistakeAmountRolls refers to the consequent rolls that need to be done before a driver makes a mistake, mistakes are accounted for in each stint for each driver
         public int MistakeAmountRolls { get; set; }

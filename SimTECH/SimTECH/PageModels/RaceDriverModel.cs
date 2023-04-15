@@ -1,5 +1,6 @@
 ﻿using SimTECH.Data.Models;
 using SimTECH.Extensions;
+using System.Linq;
 
 namespace SimTECH.PageModels
 {
@@ -30,6 +31,7 @@ namespace SimTECH.PageModels
         public int Position { get; set; }
         public int Grid { get; set; }
         public int Setup { get; set; }
+        // Current Tyre order value also isn't stored, might be useful though if we want to not finish a race in 1 go
         public int CurrentTyreOrder { get; set; }
         public int TyreLife { get; set; }
 
@@ -45,15 +47,13 @@ namespace SimTECH.PageModels
         public int RngMaxMod { get; set; }
 
         public int Gap { get; set; }
-        public double DisplayGap { get; set; }
         public bool HasFastestLap { get; set; }
 
-        public List<int> LapScores { get; set; } = new();
-        public Dictionary<int, RacerEvent> RaceEventsPerLap { get; set; } = new();
         public List<LapScore> LapResults { get; set; } = new();
 
-        public int LapSum => LapScores?.Sum() ?? 0;
+        public int LapSum => LapResults.Sum(e => e.Score);
         public int GridChange => Grid - Position;
+        public double TimedGap(double marge) => Math.Round(Gap * marge, 2);
 
         public Result ToResult(long raceId)
         {
@@ -75,7 +75,7 @@ namespace SimTECH.PageModels
             };
         }
 
-        public ScoredPoints ToScoredPoints(Dictionary<int, int> allotments, int polePoints, int fastLapPoints, bool hasFastestLap)
+        public ScoredPoints ToScoredPoints(Dictionary<int, int> allotments, int polePoints, int fastLapPoints)
         {
             var points = 0;
             var hiddenPoints = 0;
@@ -86,12 +86,12 @@ namespace SimTECH.PageModels
             if (Grid == 1)
                 points += polePoints;
 
-            if (hasFastestLap)
+            if (HasFastestLap)
                 points += fastLapPoints;
 
             if (Status == RaceStatus.Racing)
             {
-                double positionCalc = 20000000 / Position;
+                double positionCalc = 200000 / Position;
 
                 hiddenPoints = positionCalc.RoundDouble();
             }

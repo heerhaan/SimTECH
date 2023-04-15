@@ -126,10 +126,12 @@
                                 <MudText Typo="Typo.body2">
                                     <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
                                     @context.WinningDriver.Name
-                                    <MudChip Variant="Variant.Text" Color="NextColour()" DisableRipple="true">@context.WinningDriver.Number</MudChip>
+                                    <MudChip Variant="Variant.Text" Size="Size.Small" Color="NextColour()" DisableRipple="true">
+                                        @context.WinningDriver.Number
+                                    </MudChip>
                                 </MudText>
                             </MudTd>
-                            <MudTd Style="@ViewHelper.SetFullColourstyle(context.WinningTeam.Colour, context.WinningTeam.Accent)">
+                            <MudTd Style="@ViewHelper.SetBorderLeftStyle(context.WinningTeam.Colour)">
                                 <MudText Typo="Typo.body2">
                                     <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
                                     @context.WinningTeam.Name
@@ -143,7 +145,6 @@
 
         <MudItem xs="12">
             <MudPaper>
-                <SimLineChart />
             </MudPaper>
         </MudItem>
     </MudGrid>

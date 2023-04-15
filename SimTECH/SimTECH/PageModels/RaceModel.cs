@@ -23,6 +23,13 @@ namespace SimTECH.PageModels
 
         public Season Season { get; set; }//pick values intead of whole object?
 
+        // Values read from the configuration
+        public int DisqualifyChance { get; set; }
+        public int MistakeRolls { get; set; }
+        public int MistakeMinCost { get; set; }
+        public int MistakeMaxCost { get; set; }
+        public double GapMarge { get; set; }
+
         public Race ToFinishedRace()// arguably it might be easier to just store a Race entity object
         {
             return new Race

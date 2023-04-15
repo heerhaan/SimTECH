@@ -158,19 +158,13 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task PersistLapScores(Dictionary<long, List<int>> resultLapScores)
+        public async Task PersistLapScores(List<LapScore> lapscores)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            var lapEntities = new List<LapScore>();
+            // Validation?
 
-            foreach (var result in resultLapScores)
-            {
-                var resultScores = result.Value.ConvertAll(e => new LapScore { Score = e, ResultId = result.Key });
-                lapEntities.AddRange(resultScores);
-            }
-
-            context.LapScore.AddRange(lapEntities);
+            context.LapScore.AddRange(lapscores);
 
             await context.SaveChangesAsync();
         }
@@ -265,29 +259,28 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
 
             var drivers = await context.SeasonDriver
+                .Where(e => e.SeasonId == race.SeasonId)
                 .Include(e => e.Driver)
                     .ThenInclude(e => e.DriverTraits)
-                .Where(e => e.SeasonId == race.SeasonId)
                 .ToListAsync();
 
             var teams = await context.SeasonTeam
+                .Where(e => e.SeasonId == race.SeasonId)
                 .Include(e => e.SeasonEngine)
+                .Include(e => e.Manufacturer)
                 .Include(e => e.Team)
                     .ThenInclude(e => e.TeamTraits)
-                .Where(e => e.SeasonId == race.SeasonId)
                 .ToListAsync();
 
             // Excludes wet traits if the race isn't wet either
             var allTraits = await context.Trait
-                .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.IsWet)
+                .Where(e => (!e.ForWetConditions) || e.ForWetConditions == race.IsWet)
                 .ToListAsync();
 
             var allStrategies = await context.Strategy
                 .Include(e => e.StrategyTyres)
                     .ThenInclude(e => e.Tyre)
                 .ToListAsync();
-
-            var allManufacturers = await context.Manufacturer.ToListAsync();
 
             List<Trait> trackTraits;
             if (race.Track?.TrackTraits?.Any() == true)
@@ -297,16 +290,10 @@ namespace SimTECH.Data.Services
 
             var raceDrivers = new List<RaceDriver>();
 
+            // Set weather multipliers defined in the configuration here
             double engineMultiplier = 0;
             int weatherRng = 0;
             int weatherDnf = 0;
-
-            if (race.Weather == Weather.Sunny)
-                engineMultiplier = _config.SunnyEngineMultiplier;
-            else if (race.IsWet)
-                engineMultiplier = _config.WetEngineMultiplier;
-            else
-                engineMultiplier = _config.OvercastEngineMultiplier;
 
             switch (race.Weather)
             {
@@ -328,30 +315,28 @@ namespace SimTECH.Data.Services
                     break;
             }
 
+            // Iterate through all driver results for this raceweek, excluding the drivers which failed to qualify
             foreach (var driverResult in driverResults.Where(e => e.Status != RaceStatus.Dnq))
             {
                 var driverTraits = new List<Trait>(trackTraits);
 
-                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId)
-                    ?? throw new InvalidOperationException("Could not find matching seasondriver for result");
-                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId)
-                    ?? throw new InvalidOperationException("Could not find matching seasonteam for result");
-                var manufacturer = allManufacturers.Find(e => e.Id == team.ManufacturerId)
-                    ?? throw new InvalidOperationException("Could not find matching manufacturer for driver");
-                var strategy = allStrategies.Find(e => e.Id == driverResult.StrategyId)
-                    ?? throw new InvalidOperationException("Could not find the strategy for driver");
+                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId) ?? throw new InvalidOperationException("Could not find matching seasondriver for result");
+                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId) ?? throw new InvalidOperationException("Could not find matching seasonteam for result");
+                var strategy = allStrategies.Find(e => e.Id == driverResult.StrategyId) ?? throw new InvalidOperationException("Could not find the strategy for driver");
+
+                if (team.Manufacturer == null)
+                    throw new InvalidOperationException("where the tyre manufacturer at boi?");
 
                 if (driver.Driver.DriverTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => driver.Driver.DriverTraits.Select(dt => dt.TraitId).Contains(e.Id)));
                 if (team.Team.TeamTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
+                double teamModifiers = (team.Aero * race.Track?.AeroMod ?? 1)
+                    + (team.Chassis * race.Track?.ChassisMod ?? 1)
+                    + (team.Powertrain * race.Track?.PowerMod ?? 1);
+
                 var sumTraits = NumberHelper.SumTraitEffects(driverTraits);
-
-                double teamModifiers = (team.Aero * race.Track.AeroMod)
-                    + (team.Chassis * race.Track.ChassisMod)
-                    + (team.Powertrain * race.Track.PowerMod);
-
                 var driverPower = driver.Skill + driver.RetrieveStatusBonus(_config.CarDriverStatusModifier);
                 var carPower = team.BaseValue + teamModifiers.RoundDouble();
                 var enginePower = (team.SeasonEngine.Power * engineMultiplier).RoundDouble();
@@ -378,16 +363,18 @@ namespace SimTECH.Data.Services
                     TyreLife = driverResult.TyreLife,
 
                     Strategy = strategy,
+                    // We might want to store the current tyre ID too otherwise this makes little sense when opening an older rees
+                    // Also this way one has to finish a started race
                     CurrentTyre = strategy.StrategyTyres[0].Tyre,
 
                     Power = totalPower,
                     DriverReliability = sumTraits.DriverReliability + driver.Reliability + weatherDnf,
                     CarReliability = sumTraits.CarReliability + team.Reliability,
                     EngineReliability = sumTraits.EngineReliability + team.SeasonEngine.Reliability,
-                    WearMaxMod = sumTraits.WearMaximum + manufacturer.WearMax,
-                    WearMinMod = sumTraits.WearMinimum + manufacturer.WearMin,
-                    RngMinMod = sumTraits.MinRNG + manufacturer.Pace,
-                    RngMaxMod = sumTraits.MaxRNG + manufacturer.Pace + weatherRng,
+                    WearMaxMod = sumTraits.WearMaximum + team.Manufacturer.WearMax,
+                    WearMinMod = sumTraits.WearMinimum + team.Manufacturer.WearMin,
+                    RngMinMod = sumTraits.MinRNG + team.Manufacturer.Pace,
+                    RngMaxMod = sumTraits.MaxRNG + team.Manufacturer.Pace + weatherRng,
 
                     Position = driverResult.Position,
                 });
@@ -397,18 +384,22 @@ namespace SimTECH.Data.Services
             {
                 RaceId = race.Id,
                 TrackId = race.TrackId,
-                TrackLength = race.Track.Length,
+                TrackLength = race.Track?.Length ?? 0,
+                RaceLength = race.RaceLength,
                 Name = race.Name,
                 Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
-
                 Weather = race.Weather,
                 Round = race.Round,
 
-                RaceLength = race.RaceLength,
-
                 RaceDrivers = raceDrivers,
 
-                Season = season
+                Season = season,
+
+                DisqualifyChance = _config.DisqualifyChance,
+                MistakeRolls = _config.MistakeAmountRolls,
+                MistakeMinCost = _config.MistakeLowerValue,
+                MistakeMaxCost = _config.MistakeUpperValue,
+                GapMarge = _config.GapMarge,
             };
         }
 
