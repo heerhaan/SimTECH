@@ -126,7 +126,7 @@
     int racedLaps;
     int totalLaps;
     int minLapRng = 0;
-    int maxLapRng = 100;
+    int maxLapRng = 50;
 
     int calculated;
     int calculationCount;
@@ -335,10 +335,7 @@
         _ = await DialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters);
     }
 
-    async Task PersistLapScores(List<LapScore> lapScores)
-    {
-        await RaceService.PersistLapScores(lapScores);
-    }
+    async Task PersistLapScores(List<LapScore> lapScores) => await RaceService.PersistLapScores(lapScores);
 
     async Task Finish()
     {
