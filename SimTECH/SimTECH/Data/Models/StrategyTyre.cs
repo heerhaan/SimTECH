@@ -1,14 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace SimTECH.Data.Models
+﻿namespace SimTECH.Data.Models
 {
     public record StrategyTyre
     {
         public long Id { get; set; }
-        public int NumberStint { get; set; }
-
-        [NotMapped]
-        public int Order { get; set; } //temp
+        public int Order { get; set; }
 
         public long StrategyId { get; set; }
         public Strategy Strategy { get; set; } = default!;

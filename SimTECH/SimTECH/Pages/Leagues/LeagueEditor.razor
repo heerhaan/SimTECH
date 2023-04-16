@@ -1,32 +1,63 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText>Add new league</MudText>
+        <MudText>Modify league</MudText>
+        <MudText>Keep in mind that race length is used to determine the amount of calcuations each race,
+            which is why we round to 10 since every ten decimals amounts to one additional calculation.
+        </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@model">
+        <MudForm Model="@model" @ref="form">
             <MudGrid>
-                <MudItem xs="12">
-                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+                <MudItem xs="9">
+                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
+                    <MudNumericField T="int" @bind-Value="model.RaceLength" Step="10" Label="RaceLength" HelperText="Should round to nearest ten" Validation="@(new Func<int, string>(LengthValidator))" Class="field-md" />
                 </MudItem>
-                <MudItem xs="6">
-                    <RangeInput Items="_skillRanges" RangeType="RangeType.Skill">
-                        <MudText Typo="Typo.h6">Skill</MudText>
-                    </RangeInput>
+
+                <MudItem xs="3">
+                    @if (errorValidations.Any())
+                    {
+                        <MudList>
+                            <MudListSubheader>Error messages</MudListSubheader>
+                            @foreach (var error in errorValidations)
+                            {
+                                <MudListItem>
+                                    <MudText Color="Color.Error">@error</MudText>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    }
                 </MudItem>
+
                 <MudItem xs="6">
-                    <RangeInput Items="_ageRanges" RangeType="RangeType.Age">
-                        <MudText Typo="Typo.h6">">Age</MudText>
-                    </RangeInput>
+                    <MudPaper Elevation="5">
+                        <RangeInput Items="_skillRanges" RangeType="RangeType.Skill">
+                            <MudText Typo="Typo.h6">Skill</MudText>
+                        </RangeInput>
+                    </MudPaper>
                 </MudItem>
+
                 <MudItem xs="6">
-                    <RangeInput Items="_teamRanges" RangeType="RangeType.Team">
-                        <MudText Typo="Typo.h6">Team</MudText>
-                    </RangeInput>
+                    <MudPaper Elevation="5">
+                        <RangeInput Items="_ageRanges" RangeType="RangeType.Age">
+                            <MudText Typo="Typo.h6">Age</MudText>
+                        </RangeInput>
+                    </MudPaper>
                 </MudItem>
+
                 <MudItem xs="6">
-                    <RangeInput Items="_engineRanges" RangeType="RangeType.Engine">
-                        <MudText Typo="Typo.h6">">Engine</MudText>
-                    </RangeInput>
+                    <MudPaper Elevation="5">
+                        <RangeInput Items="_teamRanges" RangeType="RangeType.Team">
+                            <MudText Typo="Typo.h6">Team</MudText>
+                        </RangeInput>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="6">
+                    <MudPaper Elevation="5">
+                        <RangeInput Items="_engineRanges" RangeType="RangeType.Engine">
+                            <MudText Typo="Typo.h6">Engine</MudText>
+                        </RangeInput>
+                    </MudPaper>
                 </MudItem>
             </MudGrid>
         </MudForm>
@@ -42,11 +73,15 @@
 
     [Parameter] public League? League { get; set; }
 
+    private MudForm? form;
+
     private EditLeagueModel model = new();
     private List<EditRangeModel> _skillRanges = new();
     private List<EditRangeModel> _ageRanges = new();
     private List<EditRangeModel> _teamRanges = new();
     private List<EditRangeModel> _engineRanges = new();
+
+    private List<string> errorValidations = new();
 
     protected override void OnInitialized()
     {
@@ -60,22 +95,32 @@
         }
     }
 
-    private void AppendSkillRangeRow()
+    private string? LengthValidator(int length)
     {
-        var newRange = new EditRangeModel
-            {
-                Type = RangeType.Skill,
-                Comparer = 1,
-                Minimum = -2,
-                Maximum = 2,
-                LeagueId = model.Id
-            };
+        if ((length % 10) != 0)
+            return "Race length should be a factor of 10";
 
-        model.DevelopmentRanges.Add(newRange);
+        return null;
+    }
+
+    private bool RunValidations()
+    {
+        var isValid = true;
+
+        if ((model.RaceLength % 10) != 0)
+        {
+            errorValidations.Add("Race length should be a factor of 10");
+            isValid = false;
+        }
+
+        return isValid;
     }
 
     private void Submit()
     {
+        if (!RunValidations())
+            return;
+
         var allRanges = new List<EditRangeModel>();
         allRanges.AddRange(_skillRanges);
         allRanges.AddRange(_ageRanges);

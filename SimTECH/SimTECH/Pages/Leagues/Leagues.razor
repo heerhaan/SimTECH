@@ -1,22 +1,26 @@
 ﻿@page "/leagues"
+@inject BreadcrumbProvider Bread
 @inject LeagueService LeagueService
 @inject IDialogService DialogService
 
 <PageTitle>Leagues</PageTitle>
 
 <MudContainer>
-    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-        <MudText Typo="Typo.h4">Leagues</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddLeague">New</MudButton>
-    </MudPaper>
-    <MudDataGrid T="League" Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true">
+    <MudDataGrid T="League" Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true" Class="my-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Leagues</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddLeague">New</MudButton>
+        </ToolBarContent>
         <Columns>
             <HierarchyColumn T="League" />
             <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.RaceLength" />
             <PropertyColumn Property="e => e.State" />
-            <TemplateColumn CellClass="d-flex justify-end">
+            <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">
+                        @*<MudIconButton Icon="@Icons.Material.Filled.ElectricBolt" OnClick="@(async () => await ActivateLeague(context.Item))" />*@
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context.Item))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteLeague(context.Item))" />
                     </MudButtonGroup>
@@ -34,7 +38,7 @@
                                 <MudListSubheader>Development ranges for @rangeGroup.Key.ToString()</MudListSubheader>
                                 @foreach (var range in rangeGroup)
                                 {
-                                    <MudListItem>@range.Comparer - @range.Minimum - @range.Maximum</MudListItem>
+                                    <MudListItem>@range.Comparer | @range.Minimum ↔ @range.Maximum</MudListItem>
                                 }
                             </MudList>
                         </MudPaper>
@@ -50,18 +54,36 @@
 </MudContainer>
 
 @code {
-    private bool _loading = true;
-    private DialogOptions dialogOptions = new()
-    {
-        MaxWidth = MaxWidth.ExtraLarge,
-    };
-    private List<League> LeagueData = new List<League>();
+    DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.ExtraLarge };
+    List<League> LeagueData = new List<League>();
+
+    bool _loading = true;
+    //private long activeLeagueId { get; set; } = 0;
 
     protected override async Task OnInitializedAsync()
     {
+        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+        });
+
         LeagueData = await LeagueService.GetLeagues();
         _loading = false;
     }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    var storedLeagueId = await LocalStorage.GetAsync<long>("activeleague");
+    //    if (storedLeagueId.Success)
+    //    {
+    //        activeLeagueId = storedLeagueId.Value;
+    //    }
+    //}
+
+    //async Task ActivateLeague(League item)
+    //{
+    //    await LocalStorage.SetAsync("activeleague", item.Id);
+    //}
 
     async Task AddLeague() => await UpdateLeague(new League());
     async Task UpdateLeague(League item)

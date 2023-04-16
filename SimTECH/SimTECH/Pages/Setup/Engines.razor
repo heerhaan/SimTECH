@@ -5,11 +5,12 @@
 <PageTitle>Engines</PageTitle>
 
 <MudContainer>
-    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-        <MudText Typo="Typo.h4">Engines</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddEngine">New</MudButton>
-    </MudPaper>
-    <MudTable Items="@EngineNames" Bordered="true">
+    <MudTable Items="@EngineNames" Bordered="true" Class="mt-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Engines</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddEngine">New</MudButton>
+        </ToolBarContent>
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>State</MudTh>
@@ -18,7 +19,7 @@
         <RowTemplate>
             <MudTd>@context.Name</MudTd>
             <MudTd>@context.State</MudTd>
-            <MudTd>
+            <MudTd Class="d-flex justify-end">
                 <MudButtonGroup Size="@Size.Small">
                     <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context))" />
                     <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteEngine(context))" />

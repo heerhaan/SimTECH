@@ -1,0 +1,301 @@
+﻿@page "/qualifying/{RaceId:long}"
+
+@inject RaceService _raceService
+@inject NavigationManager Nav
+
+@if (loading)
+{
+    <MudAlert Severity="Severity.Warning">This bad boi is still loading, some patience please!</MudAlert>
+}
+else
+{
+    <MudTabs>
+        <MudTabPanel Text="Q1">
+            @*
+                Table underneath is a good target for a refactor to a component, perhaps even a nested component! 
+                Nested as in a component QualifyingSession implements a component Session (which can be implemented by practice!)
+            *@
+            <MudTable Items="@DriversInQ1.OrderBy(e => e.PositionQ1)">
+                <ToolBarContent>
+                    <MudText>
+                        <CountryFlag Code="@Model.Country" />
+                        @Model.Name - QUALIFYING
+                    </MudText>
+                    <MudSpacer />
+                    @if (advancedQ1 != Model.AmountRuns)
+                    {
+                        <MudButton Variant="Variant.Outlined" OnClick="AdvanceQ1">Advance</MudButton>
+                    }
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>#</MudTh>
+                    <MudTh>Driver</MudTh>
+                    <MudTh>Num</MudTh>
+                    <MudTh>Team</MudTh>
+                    <MudTh>PWR</MudTh>
+                    @for (int i = 1; i <= Model.AmountRuns; i++)
+                    {
+                        var j = i;
+                        <MudTh>@j</MudTh>
+                    }
+                    <MudTh>Score</MudTh>
+                    <MudTh>Gap</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.PositionQ1</MudTd>
+                    <MudTd>@context.FullName</MudTd>
+                    <MudTd>@context.Number</MudTd>
+                    <MudTd>@context.TeamName</MudTd>
+                    <MudTd>@context.Power</MudTd>
+                    @foreach (var runResult in context.RunValuesQ1)
+                    {
+                        <MudTd>@runResult</MudTd>
+                    }
+                    <MudTd>@context.MaxScoreQ1</MudTd>
+                    <MudTd>@context.DisplayGapQ1</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudTabPanel>
+        <MudTabPanel Text="Q2" Disabled="@(advancedQ1 != Model.AmountRuns)">
+            @if (DriversInQ2 != null)
+            {
+                <MudTable Items="@DriversInQ2.OrderBy(e => e.PositionQ2)">
+                    <ToolBarContent>
+                        <MudText>
+                            <CountryFlag Code="@Model.Country" />
+                            @Model.Name - QUALIFYING
+                        </MudText>
+                        <MudSpacer />
+                        @if (advancedQ2 != Model.AmountRuns)
+                        {
+                            <MudButton Variant="Variant.Outlined" OnClick="AdvanceQ2">Advance</MudButton>
+                        }
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>#</MudTh>
+                        <MudTh>Driver</MudTh>
+                        <MudTh>Num</MudTh>
+                        <MudTh>Team</MudTh>
+                        <MudTh>PWR</MudTh>
+                        @for (int i = 1; i <= Model.AmountRuns; i++)
+                        {
+                            var j = i;
+                            <MudTh>@j</MudTh>
+                        }
+                        <MudTh>Score</MudTh>
+                        <MudTh>Gap</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.PositionQ2</MudTd>
+                        <MudTd>@context.FullName</MudTd>
+                        <MudTd>@context.Number</MudTd>
+                        <MudTd>@context.TeamName</MudTd>
+                        <MudTd>@context.Power</MudTd>
+                        @foreach (var runResult in context.RunValuesQ2)
+                        {
+                            <MudTd>@runResult</MudTd>
+                        }
+                        <MudTd>@context.MaxScoreQ2</MudTd>
+                        <MudTd>@context.DisplayGapQ2</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudTabPanel>
+        <MudTabPanel Text="Q3" Disabled="@(advancedQ2 != Model.AmountRuns)">
+            @if (DriversInQ3 != null)
+            {
+                <MudTable Items="@DriversInQ3.OrderBy(e => e.PositionQ3)">
+                    <ToolBarContent>
+                        <MudText>
+                            <CountryFlag Code="@Model.Country" />
+                            @Model.Name - QUALIFYING
+                        </MudText>
+                        <MudSpacer />
+                        @if (advancedQ3 == Model.AmountRuns)
+                        {
+                            <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton Variant="Variant.Outlined" OnClick="AdvanceQ3">Advance</MudButton>
+                        }
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>#</MudTh>
+                        <MudTh>Driver</MudTh>
+                        <MudTh>Num</MudTh>
+                        <MudTh>Team</MudTh>
+                        <MudTh>PWR</MudTh>
+                        @for (int i = 1; i <= Model.AmountRuns; i++)
+                        {
+                            var j = i;
+                            <MudTh>@j</MudTh>
+                        }
+                        <MudTh>Score</MudTh>
+                        <MudTh>Gap</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.PositionQ3</MudTd>
+                        <MudTd>@context.FullName</MudTd>
+                        <MudTd>@context.Number</MudTd>
+                        <MudTd>@context.TeamName</MudTd>
+                        <MudTd>@context.Power</MudTd>
+                        @foreach (var runResult in context.RunValuesQ3)
+                        {
+                            <MudTd>@runResult</MudTd>
+                        }
+                        <MudTd>@context.MaxScoreQ3</MudTd>
+                        <MudTd>@context.DisplayGapQ3</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudTabPanel>
+    </MudTabs>
+}
+
+@code {
+    [Parameter] public long RaceId { get; set; }
+
+    public QualifyingModel Model { get; set; }
+
+    // big ass hmm about doing it like this tbh
+    // this also does not work yet
+    private List<QualifyingDriver> DriversInQ1 { get; set; }
+    private List<QualifyingDriver>? DriversInQ2 { get; set; }
+    private List<QualifyingDriver>? DriversInQ3 { get; set; }
+
+    // Two ways to do this: three different racedriver lists for each session
+    // Alternatively make a custom class which has an identifier for which session the values are
+
+    private bool loading = true;
+    private int advancedQ1, advancedQ2, advancedQ3 = 0;
+    private double gapMarge = 0.08;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await _raceService.RetrieveQualifyingModel(RaceId);
+        DriversInQ1 = Model.QualifyingDrivers;
+
+        loading = false;
+    }
+
+    private string GapToLeader(int score, int highestScore)
+    {
+        double gap = ((highestScore - score) * gapMarge);
+
+        return $"+{Math.Round(gap, 2)}";
+    }
+
+    private void AdvanceQ1()
+    {
+        var positionIndex = 0;
+
+        foreach (var driver in DriversInQ1)
+        {
+            driver.RunValuesQ1[advancedQ1] = driver.GetQualifyingResult(Model.QualyRng);
+        }
+
+        var highestScore = DriversInQ1.SelectMany(e => e.RunValuesQ1).Max();
+
+        foreach (var driver in DriversInQ1.OrderByDescending(e => e.MaxScoreQ1))
+        {
+            driver.Position = ++positionIndex;
+            driver.PositionQ1 = positionIndex;
+
+            driver.DisplayGapQ1 = GapToLeader(driver.MaxScoreQ1, highestScore);
+        }
+
+        advancedQ1++;
+
+        if (advancedQ1 == Model.AmountRuns)
+        {
+            DriversInQ2 = DriversInQ1
+                .OrderBy(e => e.PositionQ1)
+                .Take(Model.QualyAmountQ2)
+                .ToList();
+        }
+    }
+
+    private void AdvanceQ2()
+    {
+        if (DriversInQ2 != null)
+        {
+            var positionIndex = 0;
+
+            foreach (var driver in DriversInQ2)
+            {
+                var qualifyingResult = driver.GetQualifyingResult(Model.QualyRng);
+                driver.RunValuesQ2[advancedQ2] = qualifyingResult;
+            }
+
+            var highestScore = DriversInQ2.SelectMany(e => e.RunValuesQ2).Max();
+
+            foreach (var driver in DriversInQ2.OrderByDescending(e => e.MaxScoreQ2))
+            {
+                driver.Position = ++positionIndex;
+                driver.PositionQ2 = positionIndex;
+
+                //driver.LeaderGap = GapToLeader(driver.MaxScore, highestScore);
+                driver.DisplayGapQ2 = GapToLeader(driver.MaxScoreQ2, highestScore);
+            }
+
+            advancedQ2++;
+
+            if (advancedQ2 == Model.AmountRuns)
+            {
+                DriversInQ3 = DriversInQ2
+                    .OrderBy(e => e.PositionQ2)
+                    .Take(Model.QualyAmountQ3)
+                    .ToList();
+            }
+        }
+    }
+
+    private void AdvanceQ3()
+    {
+        if (DriversInQ3 != null)
+        {
+            var positionIndex = 0;
+
+            foreach (var driver in DriversInQ3)
+                driver.RunValuesQ3[advancedQ3] = driver.GetQualifyingResult(Model.QualyRng);
+
+            var highestScore = DriversInQ3.SelectMany(e => e.RunValuesQ3).Max();
+
+            foreach (var driver in DriversInQ3.OrderByDescending(e => e.MaxScoreQ3))
+            {
+                driver.Position = ++positionIndex;
+                driver.PositionQ3 = positionIndex;
+
+                driver.DisplayGapQ3 = GapToLeader(driver.MaxScoreQ3, highestScore);
+            }
+
+            advancedQ3++;
+        }
+    }
+
+    private async Task Finish()
+    {
+        var positionResults = Model.QualifyingDrivers.ToDictionary(e => e.ResultId, e => e.Position);
+
+        await _raceService.PersistGridPositions(positionResults, RaceId, Model.MaximumRaceDrivers);
+
+        Nav.NavigateTo("/raceweek/" + RaceId);
+    }
+
+    // Not used yet but I get the idea something like this could be used to implement a more generic solution in favour of hardcoded sessions
+    private class SessionDriver : QualifyingDriver
+    {
+        public int[] SessionValues { get; set; }
+        public int SessionPosition { get; set; }
+        public string LeaderGap { get; set; } = string.Empty;
+
+        public int MaxScore => SessionValues.Max();
+
+        public void ResetSessionResult(int runAmount)
+        {
+            SessionValues = new int[runAmount];
+            LeaderGap = string.Empty;
+        }
+    }
+}

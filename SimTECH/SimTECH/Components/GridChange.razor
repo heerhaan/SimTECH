@@ -1,0 +1,43 @@
+﻿<MudChip Size="Size.Small" Icon="@_icon" Color="@_iconColour" Label="true" Style="@_style">@_gridDisplay</MudChip>
+
+@code {
+    [Parameter] public int Change { get; set; }
+
+    private string _icon {
+        get
+        {
+            if (Change > 0)
+                return Icons.Material.Filled.KeyboardDoubleArrowUp;
+            if (Change < 0)
+                return Icons.Material.Filled.KeyboardDoubleArrowDown;
+
+            return Icons.Material.Filled.Dehaze;
+        }
+    }
+
+    private Color _iconColour
+    {
+        get
+        {
+            if (Change > 0)
+                return Color.Success;
+            if (Change < 0)
+                return Color.Error;
+
+            return Color.Warning;
+        }
+    }
+
+    private string _style
+    {
+        get
+        {
+            if (Change == 0)
+                return "color:black";
+
+            return string.Empty;
+        }
+    }
+
+    private int _gridDisplay => Change < 0 ? Change * -1 : Change;
+}

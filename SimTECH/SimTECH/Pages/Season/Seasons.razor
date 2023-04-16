@@ -1,54 +1,79 @@
 ﻿@page "/seasons"
 @inject NavigationManager Nav
+@inject LeagueService LeagueService
 @inject SeasonService SeasonService
 @inject IDialogService DialogService
 
 <PageTitle>Seasons</PageTitle>
 
 <MudContainer>
-    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-        <MudText Typo="Typo.h4">Seasons</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="NewSeason">New</MudButton>
-    </MudPaper>
-    <MudDataGrid T="Season" Items="@SeasonData" Bordered="true" Dense="true">
-        <Columns>
-            <PropertyColumn Property="e => e.Year" />
-            <PropertyColumn Property="e => e.State" />
-            <PropertyColumn Property="e => e.LeagueId" />
-            <TemplateColumn CellClass="d-flex justify end">
-                <CellTemplate>
-                    <MudButtonGroup Size="@Size.Small">
-                        <MudIconButton Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(async () => await UpdateSeason(context.Item))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
-                        @if (context.Item.State == State.Concept)
-                        {
-                            <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => DeleteSeason(context.Item))" />
-                        }
-                    </MudButtonGroup>
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-        <PagerContent>
-            <MudDataGridPager T="Season" />
-        </PagerContent>
-    </MudDataGrid>
+    @if (SeasonList != null)
+    {
+        <MudDataGrid T="SeasonListModel" Items="@SeasonList" Bordered="true" Dense="true" Class="my-2">
+            <ToolBarContent>
+                <MudText Typo="Typo.h4">Seasons</MudText>
+                <MudSpacer />
+                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="NewSeason">New</MudButton>
+            </ToolBarContent>
+            <Columns>
+                <PropertyColumn Property="e => e.Year" />
+                <PropertyColumn Property="e => e.State" />
+                <TemplateColumn Title="Leading driver">
+                    <CellTemplate>
+                        <CountryFlag Code="context.Item.DriverNationality" Size="FlagSize.Small" />
+                        <span>@context.Item.DriverName</span>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Leading team" CellStyleFunc="@LeadingTeamStyleFunc" >
+                    <CellTemplate>
+                        <CountryFlag Code="context.Item.TeamNationality" Size="FlagSize.Small" />
+                        <span>@context.Item.TeamName</span>
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="e => e.League" />
+                <TemplateColumn CellClass="d-flex justify end">
+                    <CellTemplate>
+                        <MudButtonGroup Size="@Size.Small">
+                            <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
+                            @if (context.Item.State == State.Concept)
+                            {
+                                <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async() => await DeleteSeason(context.Item.Id))" />
+                            }
+                        </MudButtonGroup>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="SeasonListModel" />
+            </PagerContent>
+        </MudDataGrid>
+    }
 </MudContainer>
 
 @code {
-    private bool _readOnly = false;
-    private List<Season> SeasonData = new();
+    private List<Season> SeasonData;
+    private List<League> LeagueData;
+    private List<SeasonListModel> SeasonList;
 
     protected override async Task OnInitializedAsync()
     {
         SeasonData = await SeasonService.GetSeasons();
+        LeagueData = await LeagueService.GetLeagues();
+
+        SeasonList = await SeasonService.GetSeasonList();
     }
 
     // Arguably delete the copy, use by default the last season as a base
+    //private async Task CopySeason(Season season) => await UpdateSeason(season, true);
+    private async Task EditSeason(long seasonId)
+    {
+        var season = SeasonData.Single(e => e.Id == seasonId);
+        await UpdateSeason(season);
+    }
     private async Task NewSeason() => await UpdateSeason(new Season());
-    private async Task CopySeason(Season season) => await UpdateSeason(season, true);
     private async Task UpdateSeason(Season item, bool isCopied = false)
     {
-        var parameters = new DialogParameters { ["Season"] = item, ["Copied"] = isCopied };
+        var parameters = new DialogParameters { ["Season"] = item, ["Leagues"] = LeagueData, ["Copied"] = isCopied };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
@@ -60,12 +85,12 @@
         }
     }
 
-    private async Task DeleteSeason(Season season)
+    private async Task DeleteSeason(long seasonId)
     {
-        var result = await SeasonService.DeleteSeason(season);
+        var result = await SeasonService.DeleteSeason(seasonId);
         if (result)
         {
-            SeasonData.Remove(season);
+            SeasonData.Remove(SeasonData.Single(e => e.Id == seasonId));
         }
     }
 
@@ -74,11 +99,6 @@
         Nav.NavigateTo($"/overview/{seasonId}");
     }
 
-    private class SeasonOverview
-    {
-        public int Year { get; set; }
-
-        // Leading driver
-        // Leading team
-    }
+    private static Func<SeasonListModel, string> LeadingTeamStyleFunc => model 
+        => ViewHelper.SetFullColourstyle(model.TeamColour, model.TeamAccent);
 }

@@ -1,26 +1,37 @@
 ﻿<MudDialog>
     <TitleContent>
         <MudText>
-            Add new track
+            Modify a track
         </MudText>
+        <MudText>Expected length per race: @(raceLength)KM</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm Model="@model">
             <MudGrid>
                 <MudItem xs="8">
-                    <MudPaper Elevation="10">
-                        <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
-                        <MudCountrySelect @bind-Value="model.Country" />
-                        <MudNumericField T="double" @bind-Value="model.Length" Label="Length" Format="N2" />
-                        <MudNumericField T="double" @bind-Value="model.AeroMod" Label="AeroMod" Format="N2" />
-                        <MudNumericField T="double" @bind-Value="model.ChassisMod" Label="ChassisMod" Format="N2" />
-                        <MudNumericField T="double" @bind-Value="model.PowerMod" Label="PowerMod" Format="N2" />
-                        <MudNumericField T="double" @bind-Value="model.QualifyingMod" Label="QualifyingMod" Format="N2" />
+                    <MudPaper Elevation="10" Class="pa-4">
+                        <MudStack>
+                            <MudText Typo="Typo.subtitle1">Features</MudText>
+                            <MudDivider />
+                            <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
+                            <MudCountrySelect @bind-Value="model.Country" Class="field-md my-2" />
+                            <MudStack Row="true" Spacing="6">
+                                <MudNumericField T="double" @bind-Value="model.Length" Label="Length" Format="N2" Adornment="Adornment.End" AdornmentText="Km" AdornmentColor="Color.Tertiary" DebounceInterval="500" OnDebounceIntervalElapsed="HandleLengthLapCalc" HelperText="@expectedLapCount" />
+                            </MudStack>
+
+                            <MudText Typo="Typo.subtitle1" Class="mt-4">Modifiers</MudText>
+                            <MudDivider />
+                            <MudNumericField T="double" @bind-Value="model.AeroMod" Label="Aero mod" Format="N2" Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="model.ChassisMod" Label="Chassis mod" Format="N2" Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="model.PowerMod" Label="Power mod" Format="N2" Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="model.QualifyingMod" Label="Qualy mod" Format="N2" Class="field-sm" />
+                        </MudStack>
                     </MudPaper>
                 </MudItem>
+
                 <MudItem xs="4">
-                    <MudPaper Elevation="10">
-                        Traits bla bla
+                    <MudPaper Elevation="10" Class="pa-4">
+                        <MudText Typo="Typo.subtitle1">Traits</MudText>
                         <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
                             @foreach (var trait in Traits)
                             {
@@ -47,11 +58,16 @@
     private EditTrackModel model = new();
     private ICollection<object>? selectedTraits { get; set; }
 
+    private int raceLength = 300;
+    private string expectedLapCount = "Expected amount of laps: 0";
+
     protected override void OnInitialized()
     {
         if (Track != null)
         {
             model = new EditTrackModel(Track);
+
+            HandleLengthLapCalc(model.Length.ToString());
 
             if (model.TrackTraits.Any())
             {
@@ -62,6 +78,12 @@
         {
             selectedTraits = new List<long>() as ICollection<object>;
         }
+    }
+
+    private void HandleLengthLapCalc(string strLength)
+    {
+        var convertedDouble = double.Parse(strLength);
+        expectedLapCount = $"Expected amount of laps: {NumberHelper.CalcLapCount(raceLength, convertedDouble)}";
     }
 
     private void Submit()

@@ -7,7 +7,9 @@ namespace SimTECH
         Concept = 0,
         Active,
         Closed,
-        Archived
+        Archived,
+        // NOTE: additional states are found underneath, used for some entities to control behaviur
+        Advanced,
     }
 
     public enum Entrant
@@ -15,7 +17,8 @@ namespace SimTECH
         Unknown = 0,
         Driver,
         Team,
-        Track
+        Track,
+        Engine,
     }
 
     public enum RangeType
@@ -26,6 +29,8 @@ namespace SimTECH
         Team,
         Engine
     }
+
+    public enum TargetDevelop { Main, Reliability }
 
     #region racing
 

@@ -1,0 +1,112 @@
+﻿@page "/practice/{RaceId:long}"
+
+@inject RaceService _raceService
+@inject NavigationManager Nav
+
+@if (loading)
+{
+    <MudAlert Severity="Severity.Warning">This bad boi is still loading, some patience please!</MudAlert>
+}
+else
+{
+    <MudContainer>
+        <MudTable Items="@PracticeModel.PracticeDrivers.OrderBy(e => e.Position)">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">
+                    <CountryFlag Code="@PracticeModel.Country" />
+                    @PracticeModel.Name - PRACTICE
+                </MudText>
+                <MudSpacer />
+                @if (advancedRuns == PracticeModel.AmountRuns)
+                {
+                    <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
+                }
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>#</MudTh>
+                <MudTh>Driver</MudTh>
+                <MudTh>Num</MudTh>
+                <MudTh>Team</MudTh>
+                <MudTh>PWR</MudTh>
+                @for (int i = 1; i <= PracticeModel.AmountRuns; i++)
+                {
+                    var j = i;
+                    <MudTh>@j</MudTh>
+                }
+                <MudTh>Score</MudTh>
+                <MudTh>Gap</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Position</MudTd>
+                <MudTd>@context.FullName</MudTd>
+                <MudTd>@context.Number</MudTd>
+                <MudTd>@context.TeamName</MudTd>
+                <MudTd>@context.Power</MudTd>
+                @foreach (var runResult in context.RunValues)
+                {
+                    <MudTd>@runResult</MudTd>
+                }
+                <MudTd>@context.MaxScore</MudTd>
+                <MudTd>@GapToLeader(context.MaxScore)</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudContainer>
+}
+
+@code {
+    [Parameter] public long RaceId { get; set; }
+
+    public PracticeModel PracticeModel { get; set; }
+
+    private bool loading = true;
+    private int advancedRuns = 0;
+    private int maxRng = 30;
+    private int highestScore = 0;
+    private double gapMarge = 0.08;
+
+    protected override async Task OnInitializedAsync()
+    {
+        PracticeModel = await _raceService.RetrievePracticeModel(RaceId);
+
+        loading = false;
+    }
+
+    private string GapToLeader(int score)
+    {
+        double gap = ((highestScore - score) * gapMarge);
+
+        return $"+{Math.Round(gap, 2)}s";
+    }
+
+    private void Advance()
+    {
+        var positionIndex = 0;
+
+        foreach (var driver in PracticeModel.PracticeDrivers)
+        {
+            var randomResult = driver.Power + NumberHelper.RandomInt(maxRng);
+            driver.RunValues[advancedRuns] = randomResult;
+
+            if (randomResult > highestScore)
+                highestScore = randomResult;
+        }
+
+        foreach (var driver in PracticeModel.PracticeDrivers)
+            driver.Position = ++positionIndex;
+
+        advancedRuns++;
+    }
+
+    private async Task Finish()
+    {
+        var positionResults = PracticeModel.PracticeDrivers.ToDictionary(e => e.ResultId, e => e.Position);
+
+        await _raceService.PersistGridPositions(positionResults);
+
+        Nav.NavigateTo("/raceweek/" + RaceId);
+    }
+}

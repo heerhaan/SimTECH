@@ -18,6 +18,8 @@ namespace SimTECH.Data.EditModels
         public int GridBonus { get; set; }
         public int PitMinimum { get; set; }
         public int PitMaximum { get; set; }
+        public int RngMinimum { get; set; }
+        public int RngMaximum { get; set; }
         public int PointsPole { get; set; }
         public int PointsFastestLap { get; set; }
         public long LeagueId { get; set; }
@@ -37,6 +39,8 @@ namespace SimTECH.Data.EditModels
             GridBonus = season.GridBonus;
             PitMinimum = season.PitMinimum;
             PitMaximum = season.PitMaximum;
+            RngMinimum = season.RngMinimum;
+            RngMaximum = season.RngMaximum;
             PointsPole = season.PointsPole;
             PointsFastestLap = season.PointsFastestLap;
             LeagueId = season.LeagueId;
@@ -61,6 +65,8 @@ namespace SimTECH.Data.EditModels
                 GridBonus = GridBonus,
                 PitMinimum = PitMinimum,
                 PitMaximum = PitMaximum,
+                RngMinimum = RngMinimum,
+                RngMaximum = RngMaximum,
                 PointsPole = PointsPole,
                 PointsFastestLap = PointsFastestLap,
                 LeagueId = LeagueId,

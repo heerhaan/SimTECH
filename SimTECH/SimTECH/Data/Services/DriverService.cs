@@ -80,6 +80,15 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task<List<Result>> GetAllResults(long driverId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Result
+                .Where(e => e.Race.State == State.Closed && e.SeasonDriver.Driver.Id == driverId)
+                .ToListAsync();
+        }
+
         public static void ValidateDriver(Driver driver)
         {
             throw new NotImplementedException();

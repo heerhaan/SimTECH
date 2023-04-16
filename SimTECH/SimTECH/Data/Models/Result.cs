@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record Result
+    public class Result
     {
         public long Id { get; set; }
         public int Grid { get; set; }
@@ -20,6 +20,6 @@
         public long StrategyId { get; set; }
         public Strategy Strategy { get; set; } = default!;
 
-        public IList<StintResult>? StintResults { get; set; }
+        public IList<LapScore> LapScores { get; set; } = new List<LapScore>();
     }
 }

@@ -18,4 +18,9 @@
             //_model = model;
         }
     }
+
+    public interface IEntity
+    {
+        //public weSG(UriHostNameType[orASGuiophjbfageEAFG IBOPUHJ:NO])
+    }
 }

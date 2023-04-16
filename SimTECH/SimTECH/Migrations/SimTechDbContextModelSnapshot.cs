@@ -17,7 +17,7 @@ namespace SimTECH.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.3")
+                .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -158,6 +158,33 @@ namespace SimTECH.Migrations
                     b.ToTable("Engine");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.LapScore", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RacerEvents")
+                        .HasColumnType("int");
+
+                    b.Property<long>("ResultId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResultId");
+
+                    b.ToTable("LapScore");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.League", b =>
                 {
                     b.Property<long>("Id")
@@ -169,6 +196,9 @@ namespace SimTECH.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("RaceLength")
+                        .HasColumnType("int");
 
                     b.Property<int>("State")
                         .HasColumnType("int");
@@ -285,6 +315,9 @@ namespace SimTECH.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("RaceLength")
+                        .HasColumnType("int");
+
                     b.Property<int>("Round")
                         .HasColumnType("int");
 
@@ -399,6 +432,12 @@ namespace SimTECH.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("QualifyingRNG")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RngMaximum")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RngMinimum")
                         .HasColumnType("int");
 
                     b.Property<int>("RunAmountSession")
@@ -593,74 +632,6 @@ namespace SimTECH.Migrations
                     b.ToTable("Sponsor");
                 });
 
-            modelBuilder.Entity("SimTECH.Data.Models.Stint", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<long>("RaceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("RngMax")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RngMin")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StintEvents")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RaceId");
-
-                    b.ToTable("Stint");
-                });
-
-            modelBuilder.Entity("SimTECH.Data.Models.StintResult", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RacerEvents")
-                        .HasColumnType("int");
-
-                    b.Property<long>("ResultId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("StintId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("StintScore")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalScore")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ResultId");
-
-                    b.HasIndex("StintId");
-
-                    b.ToTable("StintResult");
-                });
-
             modelBuilder.Entity("SimTECH.Data.Models.Strategy", b =>
                 {
                     b.Property<long>("Id")
@@ -670,9 +641,6 @@ namespace SimTECH.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StintLength")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -688,7 +656,7 @@ namespace SimTECH.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<int>("NumberStint")
+                    b.Property<int>("Order")
                         .HasColumnType("int");
 
                     b.Property<long>("StrategyId")
@@ -811,9 +779,6 @@ namespace SimTECH.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<int>("CarPace")
-                        .HasColumnType("int");
-
                     b.Property<int>("CarReliability")
                         .HasColumnType("int");
 
@@ -821,13 +786,7 @@ namespace SimTECH.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DriverPace")
-                        .HasColumnType("int");
-
                     b.Property<int>("DriverReliability")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EnginePace")
                         .HasColumnType("int");
 
                     b.Property<int>("EngineReliability")
@@ -841,6 +800,9 @@ namespace SimTECH.Migrations
                         .HasColumnType("nvarchar(150)");
 
                     b.Property<int>("QualifyingPace")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RacePace")
                         .HasColumnType("int");
 
                     b.Property<int>("RngMax")
@@ -987,6 +949,17 @@ namespace SimTECH.Migrations
                     b.Navigation("Driver");
 
                     b.Navigation("Trait");
+                });
+
+            modelBuilder.Entity("SimTECH.Data.Models.LapScore", b =>
+                {
+                    b.HasOne("SimTECH.Data.Models.Result", "Result")
+                        .WithMany("LapScores")
+                        .HasForeignKey("ResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Result");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Penalty", b =>
@@ -1159,36 +1132,6 @@ namespace SimTECH.Migrations
                     b.Navigation("Team");
                 });
 
-            modelBuilder.Entity("SimTECH.Data.Models.Stint", b =>
-                {
-                    b.HasOne("SimTECH.Data.Models.Race", "Race")
-                        .WithMany("Stints")
-                        .HasForeignKey("RaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Race");
-                });
-
-            modelBuilder.Entity("SimTECH.Data.Models.StintResult", b =>
-                {
-                    b.HasOne("SimTECH.Data.Models.Result", "Result")
-                        .WithMany("StintResults")
-                        .HasForeignKey("ResultId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SimTECH.Data.Models.Stint", "Stint")
-                        .WithMany("StintResults")
-                        .HasForeignKey("StintId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Result");
-
-                    b.Navigation("Stint");
-                });
-
             modelBuilder.Entity("SimTECH.Data.Models.StrategyTyre", b =>
                 {
                     b.HasOne("SimTECH.Data.Models.Strategy", "Strategy")
@@ -1274,13 +1217,11 @@ namespace SimTECH.Migrations
                     b.Navigation("Penalties");
 
                     b.Navigation("Results");
-
-                    b.Navigation("Stints");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Result", b =>
                 {
-                    b.Navigation("StintResults");
+                    b.Navigation("LapScores");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Season", b =>
@@ -1311,11 +1252,6 @@ namespace SimTECH.Migrations
                     b.Navigation("Results");
 
                     b.Navigation("SeasonDrivers");
-                });
-
-            modelBuilder.Entity("SimTECH.Data.Models.Stint", b =>
-                {
-                    b.Navigation("StintResults");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Strategy", b =>

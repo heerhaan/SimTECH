@@ -1,4 +1,7 @@
-﻿namespace SimTECH.Extensions
+﻿using SimTECH.Data.Models;
+using SimTECH.PageModels;
+
+namespace SimTECH.Extensions
 {
     public static class NumberHelper
     {
@@ -23,6 +26,25 @@
         public static double RandomDouble(double min, double max)
         {
             return _rng.NextDouble() * (max - min) + min;
+        }
+
+        public static int CalcLapCount(int raceLength, double trackLength)
+            => (int)Math.Round(raceLength / trackLength);
+
+        public static TraitEffect SumTraitEffects(IEnumerable<Trait> traits)
+        {
+            return new TraitEffect
+            {
+                QualifyingPace          = traits.Sum(e => e.QualifyingPace),
+                RacePace                = traits.Sum(e => e.RacePace),
+                DriverReliability       = traits.Sum(e => e.DriverReliability),
+                CarReliability          = traits.Sum(e => e.CarReliability),
+                EngineReliability       = traits.Sum(e => e.EngineReliability),
+                WearMaximum             = traits.Sum(e => e.WearMax),
+                WearMinimum             = traits.Sum(e => e.WearMin),
+                MaxRNG                  = traits.Sum(e => e.RngMax),
+                MinRNG                  = traits.Sum(e => e.RngMin),
+            };
         }
     }
 }

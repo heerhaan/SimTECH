@@ -1,24 +1,167 @@
 ﻿@page "/raceweek/{RaceId:long}"
 
-@inject RaceService _raceService
+@inject RaceService RaceService
+@inject BreadcrumbProvider Bread
+@inject NavigationManager Nav
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
-<h3>RaweCeek</h3>
+<style type="text/css">
+    .test-dialog-shadow {
+        box-shadow: var(--mud-palette-secondary) 0 0 2em;
+    }
+</style>
 
-<MudGrid>
+@if (loading)
+{
+    <MudPaper Class="pa-4">
+        <MudStack Row="true">
+            <MudProgressCircular Color="Color.Secondary" Size="Size.Large" Indeterminate="true" />
+            <MudText>... retrieving rawe ceek data</MudText>
+        </MudStack>
+    </MudPaper>
+}
+else
+{
+    <MudGrid>
+        <MudItem xs="4">
+            <MudPaper Class="pa-4" Style="height: 100%">
+                <MudTable Items="@ViewModel.RaceWeekDrivers.OrderBy(e => e.Grid)" Dense="true">
+                    <HeaderContent>
+                        <MudTh>Grid</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Strategy</MudTh>
+                        <MudTh>Penalty</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
+                            @context.Grid
+                        </MudTd>
+                        <MudTd>@context.FullName</MudTd>
+                        <MudTd>
+                            <MudLink OnClick="@(async () => await PickStrategy(context.ResultId))">
+                                @if (context.Strategy is null)
+                                {
+                                    <MudText>ferrari (no strategy)</MudText>
+                                }
+                                else
+                                {
+                                    <MudStack Spacing="1" Row="true">
+                                        @foreach (var tyreElem in context.Strategy.StrategyTyres)
+                                        {
+                                            <span class="tyre" style="border-color:@(tyreElem.Tyre.Colour)">
+                                                @tyreElem.Tyre.Name.ElementAt(0)
+                                            </span>
+                                        }
+                                    </MudStack>
+                                }
+                            </MudLink>
+                        </MudTd>
+                        <MudTd>todo</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
 
-</MudGrid>
+        <MudItem xs="8">
+            <MudGrid>
+                <MudItem xs="6">
+                    <MudPaper Class="pa-4">
+                        <MudText Typo="Typo.h4">
+                            <CountryFlag Code="@ViewModel.Race.Track.Country" Size="FlagSize.Normal" />
+                            @ViewModel.Race.Name
+                        </MudText>
+                        @if (ViewModel.TrackTraits?.Any() == true)
+                        {
+                            <MudList>
+                                <MudListSubheader>Traits of this circuit</MudListSubheader>
+                                @foreach (var trait in ViewModel.TrackTraits)
+                                {
+                                    <MudListItem>
+                                        @trait.Name - @trait.Description
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        }
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="6">
+                    <MudPaper Class="pa-4">
+                        <MudList>
+                            <MudListSubheader>Track info</MudListSubheader>
+                            <MudListItem>Length: @ViewModel.Race.Track.Length</MudListItem>
+                            <MudListItem>Aero mod: @ViewModel.Race.Track.AeroMod</MudListItem>
+                            <MudListItem>Chassis mod: @ViewModel.Race.Track.ChassisMod</MudListItem>
+                            <MudListItem>Power mod: @ViewModel.Race.Track.PowerMod</MudListItem>
+                            <MudListItem>Qualy mod: @ViewModel.Race.Track.QualifyingMod</MudListItem>
+                            <MudListItem>Weather: @ViewModel.Race.Weather</MudListItem>
+                        </MudList>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="6">
+                    <MudPaper Class="pa-4">
+                        <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined" VerticalAlign="true">
+                            @if (ViewModel.Race.State == State.Active)
+                            {
+                                <MudButton OnClick="GoToPractice">Prac</MudButton>
+                                <MudButton OnClick="GoToQualifying">Qual</MudButton>
+                            }
+                            else if (ViewModel.Race.State != State.Concept)
+                            {
+                                <MudButton OnClick="GoToRace">Race</MudButton>
+                            }
+                        </MudButtonGroup>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+}
 
 @code {
     [Parameter] public long RaceId { get; set; }
 
-    public Race? Race { get; set; }
+    private RaceWeekModel ViewModel { get; set; }
 
     private bool loading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        Race = await _raceService.GetRaceById(RaceId);
+        ViewModel = await RaceService.GetRaceWeekModel(RaceId);
+
+        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: $"overview/{ViewModel.Race.SeasonId}"),
+            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
+        });
 
         loading = false;
+    }
+
+    private void GoToPractice() => Nav.NavigateTo($"/practice/{RaceId}");
+    private void GoToQualifying() => Nav.NavigateTo($"/qualifying/{RaceId}");
+    private void GoToRace() => Nav.NavigateTo($"/race/{RaceId}");
+
+    async Task PickStrategy(long resultId)
+    {
+        var parameters = new DialogParameters 
+            {
+                ["ResultId"] = resultId,
+                ["Strategies"] = ViewModel.AvailableStrategies,
+            };
+
+        var dialog = await DialogService.ShowAsync<StrategyPicker>("Set strategy", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Strategy newStrategy)
+        {
+            await RaceService.PickStrategy(resultId, newStrategy.Id, newStrategy.StrategyTyres[0].Tyre.Pace);
+
+            ViewModel.RaceWeekDrivers.Single(e => e.ResultId == resultId).Strategy = newStrategy;
+        }
     }
 }

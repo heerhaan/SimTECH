@@ -31,6 +31,25 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+
+        public async Task SaveEngineDevelopment(Dictionary<long, int> developmentDict, TargetDevelop target)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var engines = await context.SeasonEngine.Where(e => developmentDict.Keys.Contains(e.Id)).ToListAsync();
+
+            foreach (var engine in engines)
+            {
+                if (target == TargetDevelop.Main)
+                    engine.Power = developmentDict[engine.Id];
+                else
+                    engine.Reliability = developmentDict[engine.Id];
+            }
+
+            context.UpdateRange(engines);
+
+            await context.SaveChangesAsync();
+        }
         #endregion
 
         #region methods exclusively for season teams
@@ -39,8 +58,19 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonTeam
-                .Include(e => e.Team)
                 .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Team)
+                .ToListAsync();
+        }
+
+        public async Task<List<SeasonTeam>> GetSeasonTeamsWithResults(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonTeam
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Team)
+                .Include(e => e.Results)
                 .ToListAsync();
         }
 
@@ -66,6 +96,25 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+
+        public async Task SaveTeamDevelopment(Dictionary<long, int> developmentDict, TargetDevelop target)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var teams = await context.SeasonTeam.Where(e => developmentDict.Keys.Contains(e.Id)).ToListAsync();
+
+            foreach (var team in teams)
+            {
+                if (target == TargetDevelop.Main)
+                    team.BaseValue = developmentDict[team.Id];
+                else
+                    team.Reliability = developmentDict[team.Id];
+            }
+
+            context.UpdateRange(teams);
+
+            await context.SaveChangesAsync();
+        }
         #endregion
 
         #region methods exclusively for season drivers
@@ -79,6 +128,17 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
+        public async Task<List<SeasonDriver>> GetSeasonDriversWithResults(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonDriver
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Driver)
+                .Include(e => e.Results)
+                .ToListAsync();
+        }
+
         public async Task UpdateSeasonDriver(SeasonDriver driver)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -87,6 +147,25 @@ namespace SimTECH.Data.Services
                 context.Add(driver);
             else
                 context.Update(driver);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task SaveDriverDevelopment(Dictionary<long, int> developmentDict, TargetDevelop target)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var drivers = await context.SeasonDriver.Where(e => developmentDict.Keys.Contains(e.Id)).ToListAsync();
+
+            foreach (var driver in drivers)
+            {
+                if (target == TargetDevelop.Main)
+                    driver.Skill = developmentDict[driver.Id];
+                else
+                    driver.Reliability = developmentDict[driver.Id];
+            }
+
+            context.UpdateRange(drivers);
 
             await context.SaveChangesAsync();
         }

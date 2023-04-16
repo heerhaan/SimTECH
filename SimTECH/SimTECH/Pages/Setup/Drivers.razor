@@ -6,25 +6,25 @@
 <PageTitle>Drivers</PageTitle>
 
 <MudContainer>
-    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-        <MudText Typo="Typo.h4">Drivers</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddDriver">New</MudButton>
-    </MudPaper>
-    <MudDataGrid T="Driver" Items="@DriverData" ReadOnly="@_readOnly" Bordered="true" Dense="true">
+    <MudDataGrid T="Driver" Items="@DriverData" Class="mt-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Drivers</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddDriver">New</MudButton>
+        </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Driver" />
-            <PropertyColumn Property="e => e.FullName" />
+            <PropertyColumn Property="e => e.FullName" Title="Name" />
             <PropertyColumn Property="e => e.Abbreviation" />
-            <PropertyColumn Property="e => e.DateOfBirth" />
-            <TemplateColumn T="Driver" Title="Country">
+            <PropertyColumn Property="e => e.DateOfBirth" Title="DOB" Format="d" />
+            <TemplateColumn T="Driver" Title="Nationality" Sortable="false">
                 <CellTemplate>
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.State" />
-            <TemplateColumn T="Driver" CellClass="d-flex justify-end">
+            <TemplateColumn T="Driver" Sortable="false">
                 <CellTemplate>
-                    <MudButtonGroup Size="@Size.Small">
+                    <MudButtonGroup Size="@Size.Small" Class="ml-auto">
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteDriver(context.Item))" />
                     </MudButtonGroup>
@@ -35,12 +35,11 @@
             <MudCard>
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6">TODO: This detail page lol haha</MudText>
+                        <MudText Typo="Typo.h6">@context.Item.FullName</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
-                    <MudText>Woah, check this flag out!</MudText>
-                    <CountryFlag Code="@context.Item.Country" Size="FlagSize.Large" />
+                    <MudText>Item is currently: @context.Item.State</MudText>
                 </MudCardContent>
             </MudCard>
         </ChildRowContent>
@@ -51,8 +50,6 @@
 </MudContainer>
 
 @code {
-    private bool _readOnly = false; // NOTE: Useful when app goes public
-
     private List<Driver> DriverData = new();
 
     protected override async Task OnInitializedAsync()

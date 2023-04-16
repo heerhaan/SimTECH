@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record SeasonTeam
+    public class SeasonTeam
     {
         public long Id { get; set; }
         public string Name { get; set; } = default!;
@@ -14,7 +14,7 @@
         public int BaseValue { get; set; }
         public int Aero { get; set; }
         public int Chassis { get; set; }
-        public int Powertrain { get; set; }
+        public int Powertrain { get; set; }//More like a "drivetrain" in this instance
         public int Reliability { get; set; }
 
         //public int StandingsGoal { get; set; }

@@ -5,11 +5,12 @@
 <PageTitle>Traits</PageTitle>
 
 <MudContainer>
-    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-        <MudText Typo="Typo.h4">Traits</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrait">New</MudButton>
-    </MudPaper>
-    <MudDataGrid T="Trait" Items="TraitNames" Bordered="true" Dense="true">
+    <MudDataGrid T="Trait" Items="TraitNames" Bordered="true" Dense="true" Class="mt-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Traits</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrait">New</MudButton>
+        </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Trait" />
             <PropertyColumn Property="e => e.Name" />
@@ -17,7 +18,7 @@
             <PropertyColumn Property="e => e.Type" />
             <PropertyColumn Property="e => e.ForWetConditions" />
             <PropertyColumn Property="e => e.State" />
-            <TemplateColumn CellClass="d-flex justify-end">
+            <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrait(context.Item))" />
@@ -41,17 +42,7 @@
                         </MudItem>
                         <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText>Driver pace: @(context.Item.DriverPace)</MudText>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText>Car pace: @(context.Item.CarPace)</MudText>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText>Engine pace: @(context.Item.EnginePace)</MudText>
+                                <MudText>Driver pace: @(context.Item.RacePace)</MudText>
                             </MudPaper>
                         </MudItem>
                         <MudItem xs="3">

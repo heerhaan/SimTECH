@@ -5,22 +5,25 @@
 <PageTitle>Manufacturers</PageTitle>
 
 <MudContainer>
-    <MudPaper Class="d-flex justify-space-between pa-2 mx-2 my-2">
-        <MudText Typo="Typo.h4">Tyre manufacturers</MudText>
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddManufacturer">New</MudButton>
-    </MudPaper>
-    <MudTable Items="@ManufacturerData" Bordered="true">
+    <MudTable Items="@ManufacturerData" Bordered="true" Class="mt-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Tyre manufacturers</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddManufacturer">New</MudButton>
+        </ToolBarContent>
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Pace</MudTh>
-            <MudTh>Wear</MudTh>
+            <MudTh>Max. wear</MudTh>
+            <MudTh>Min. wear</MudTh>
             <MudTh>State</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd Style="@($"background-color: {context.Colour}; color: {context.Accent}")">@context.Name</MudTd>
+            <MudTd Style="@ViewHelper.SetFullColourstyle(context.Colour, context.Accent)">@context.Name</MudTd>
             <MudTd>@context.Pace</MudTd>
-            <MudTd>@context.WearMax ↔ @context.WearMin</MudTd>
+            <MudTd>@context.WearMax</MudTd>
+            <MudTd>@context.WearMin</MudTd>
             <MudTd>@context.State</MudTd>
             <MudTd Class="d-flex justify-end">
                 <MudButtonGroup Size="@Size.Small">
