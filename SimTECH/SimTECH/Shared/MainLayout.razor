@@ -2,7 +2,7 @@
 @inject BreadcrumbProvider Bread
 @inject SimAuthenticationStateProvider SimAuthenticationStateProvider
 
-<MudThemeProvider @bind-IsDarkMode="@_isDarkTheme" Theme="_theme" />
+<MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="theme" />
 <MudDialogProvider
     FullWidth="true"
     MaxWidth="MaxWidth.Large"
@@ -17,7 +17,7 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Primary" Edge="Edge.Start" OnClick="ToggleSidebar" />
         <Breadcrumbs />
         <MudSpacer />
-        <MudToggleIconButton @bind-Toggled="@_isDarkTheme"
+        <MudToggleIconButton @bind-Toggled="@isDarkTheme"
             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Tertiary" ToggledTitle="Dark" />
         
@@ -42,24 +42,26 @@
             </ChildContent>
         </MudMenu>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Responsive">
+    <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Responsive">
         <MudDrawerHeader>
             <MudText Typo="Typo.h5">SimTECH</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-            @Body
-        </MudContainer>
+        <CascadingValue Value="@isDarkTheme">
+            <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+                @Body
+            </MudContainer>
+        </CascadingValue>
     </MudMainContent>
 </MudLayout>
 
 @code {
-    private MudTheme _theme = new();
-    private string _notification = string.Empty;
-    private bool _drawerOpen = true;
-    private bool _isDarkTheme = true;
+    private MudTheme theme = new();
+    private string notification = string.Empty;
+    private bool drawerOpen = true;
+    public bool isDarkTheme = true;
 
     protected override void OnInitialized()
     {
@@ -71,14 +73,14 @@
 
     void ToggleSidebar()
     {
-        _drawerOpen = !_drawerOpen;
+        drawerOpen = !drawerOpen;
     }
 
     async Task LogoutAsync()
     {
         await SimAuthenticationStateProvider.LogoutAsync();
 
-        _notification = "Logged out!";
+        notification = "Logged out!";
     }
 
     // TODO: Synth theme is not worked out yet, this exists as a showcase for which theme we're using here

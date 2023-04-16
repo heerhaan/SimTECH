@@ -89,7 +89,7 @@
             <MudTd>
                 @foreach (var lapEvent in context.LapResults)
                 {
-                    @foreach (var raceEvent in lapEvent.RacerEvents.GetFlagged().Where(e => !e.HasFlag(RacerEvent.Racing)))
+                    @foreach (var raceEvent in lapEvent.RacerEvents.GetFlagged().Where(e => e.ToString() != "Unknown" && e.ToString() != "Racing"))
                     {
                         <MudText Typo="Typo.body2">Lap @(lapEvent.Order): @(raceEvent.ToString())</MudText>
                     }
@@ -142,8 +142,8 @@
         participatingDrivers = Model.RaceDrivers.Count;
         calculationCount = Model.RaceLength / 10;
 
-        racedLaps = NumberHelper.CalcLapCount(calculated, Model.TrackLength);
-        totalLaps = NumberHelper.CalcLapCount(calculationCount, Model.TrackLength);
+        racedLaps = NumberHelper.CalcLapCount(calculated * 10, Model.TrackLength);
+        totalLaps = NumberHelper.CalcLapCount(Model.RaceLength, Model.TrackLength);
 
         loading = false;
     }
@@ -216,7 +216,7 @@
             // Last brace before going to the next advance
         }
 
-        racedLaps = NumberHelper.CalcLapCount(calculated, Model.TrackLength);
+        racedLaps = NumberHelper.CalcLapCount(calculated * 10, Model.TrackLength);
 
         StateHasChanged();
 
@@ -250,7 +250,7 @@
         }
     }
 
-    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) >= reliability;
+    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
     int HandleStrategy(RaceDriver driver, LapScore lapScore)
     {

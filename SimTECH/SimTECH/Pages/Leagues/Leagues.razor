@@ -1,4 +1,5 @@
 ﻿@page "/leagues"
+@inject BreadcrumbProvider Bread
 @inject LeagueService LeagueService
 @inject IDialogService DialogService
 
@@ -7,7 +8,7 @@
 <MudContainer>
     <MudDataGrid T="League" Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true" Class="my-2">
         <ToolBarContent>
-            <MudText Typo="Typo.h4">Leagues [@activeLeagueId]</MudText>
+            <MudText Typo="Typo.h4">Leagues</MudText>
             <MudSpacer />
             <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddLeague">New</MudButton>
         </ToolBarContent>
@@ -53,14 +54,19 @@
 </MudContainer>
 
 @code {
-    private DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.ExtraLarge };
-    private List<League> LeagueData = new List<League>();
+    DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.ExtraLarge };
+    List<League> LeagueData = new List<League>();
 
-    private bool _loading = true;
-    private long activeLeagueId { get; set; } = 0;
+    bool _loading = true;
+    //private long activeLeagueId { get; set; } = 0;
 
     protected override async Task OnInitializedAsync()
     {
+        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+        });
+
         LeagueData = await LeagueService.GetLeagues();
         _loading = false;
     }

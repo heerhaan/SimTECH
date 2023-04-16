@@ -1,0 +1,162 @@
+﻿@inject DriverService DriverService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>Driver comparison</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudContainer Fixed="true" Class="pa-2">
+            @if (Drivers != null)
+            {
+                <MudStack>
+                    <MudText Typo="Typo.body1">Select drivers to compare</MudText>
+                    <MudStack Row="true" Justify="Justify.SpaceBetween">
+                        <MudSelect T="Driver" Label="Driver one" Class="field-lg" ValueChanged="LeftDriverChanged">
+                            @foreach (var driver in Drivers)
+                            {
+                                <MudSelectItem Value="driver">
+                                    <CountryFlag Code="driver.Country" Size="FlagSize.Tiny" />
+                                    @driver.FullName
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudSelect T="Driver" Label="Driver two" Class="field-lg" ValueChanged="RightDriverChanged">
+                            @foreach (var driver in Drivers)
+                            {
+                                <MudSelectItem Value="driver">
+                                    <CountryFlag Code="driver.Country" Size="FlagSize.Tiny" />
+                                    @driver.FullName
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudStack>
+
+                    <MudDivider />
+
+                    <MudStack Row="true" Justify="Justify.SpaceBetween">
+                        <div>
+                            @if (driverLeft != null)
+                            {
+                                <MudText Typo="Typo.body1">
+                                    <CountryFlag Code="@driverLeft.Country" Size="FlagSize.Small" />
+                                    @driverLeft.FullName
+                                </MudText>
+                            }
+                        </div>
+                        <div>
+                            @if (driverRight != null)
+                            {
+                                <MudText Typo="Typo.body1">
+                                    <CountryFlag Code="@driverRight.Country" Size="FlagSize.Small" />
+                                    @driverRight.FullName
+                                </MudText>
+                            }
+                        </div>
+                    </MudStack>
+
+                    <div class="pa-2" style="height: 550px">
+                        @if (preparedData)
+                        {
+                            <ApexCharts.ApexChart @ref="chart" TItem="DataPoint" Title="Driver compare" Options="@options" Height="500">
+                                <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                    Items="@leftSet.DataPoints"
+                                                    Name="@leftSet.Label"
+                                                    XValue="@(e => e.XData)"
+                                                    SeriesType="ApexCharts.SeriesType.Bar"
+                                                    YValue="@(e => e.YData)" />
+
+                                <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                    Items="@rightSet.DataPoints"
+                                                    Name="@rightSet.Label"
+                                                    XValue="@(e => e.XData)"
+                                                    SeriesType="ApexCharts.SeriesType.Bar"
+                                                    YValue="@(e => e.YData)" />
+                            </ApexCharts.ApexChart>
+                        }
+                    </div>
+                </MudStack>
+            }
+        </MudContainer>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
+    [CascadingParameter] public bool isDarkTheme { get; set; }
+
+    ApexCharts.ApexChart<DataPoint>? chart;
+    ApexCharts.ApexChartOptions<DataPoint> options;
+    List<Driver>? Drivers;
+    DataSet leftSet = new DataSet { Label = "left" };
+    DataSet rightSet = new DataSet { Label = "right" };
+    Driver? driverLeft;
+    Driver? driverRight;
+
+    bool preparedData = false;
+
+    protected override void OnInitialized()
+    {
+        options = new ApexCharts.ApexChartOptions<DataPoint>
+            {
+                PlotOptions = new ApexCharts.PlotOptions
+                {
+                    Bar = new ApexCharts.PlotOptionsBar
+                    {
+                        Horizontal = true
+                    }
+                },
+                Theme = new ApexCharts.Theme
+                {
+                    Mode = isDarkTheme ? ApexCharts.Mode.Dark : ApexCharts.Mode.Light,
+                },
+            };
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Drivers = await DriverService.GetDrivers();
+    }
+
+    async Task LeftDriverChanged(Driver? driver)
+    {
+        if (driver != null)
+        {
+            driverLeft = driver;
+            await PrepareDataSet(driver, leftSet);
+
+            if (chart != null)
+                await chart.RenderAsync();
+
+            preparedData = true;
+        }
+    }
+
+    async Task RightDriverChanged(Driver? driver)
+    {
+        if (driver != null)
+        {
+            driverRight = driver;
+            await PrepareDataSet(driver, rightSet);
+
+            if (chart != null)
+                await chart.RenderAsync();
+
+            preparedData = true;
+        }
+    }
+
+    async Task PrepareDataSet(Driver driver, DataSet dataSet)
+    {
+        dataSet.ClearDataPoints();
+
+        dataSet.Label = driver.FullName;
+
+        var driverResults = await DriverService.GetAllResults(driver.Id);
+
+        dataSet.DataPoints.Add(new DataPoint("Races", driverResults.Count()));
+        dataSet.DataPoints.Add(new DataPoint("Starts", driverResults.Count(e => e.Status != RaceStatus.Dnq)));
+        dataSet.DataPoints.Add(new DataPoint("Wins", driverResults.Count(e => e.Position == 1)));
+        dataSet.DataPoints.Add(new DataPoint("Poles", driverResults.Count(e => e.Grid == 1)));
+        dataSet.DataPoints.Add(new DataPoint("DNFs", driverResults.Count(e => e.Status == RaceStatus.Dnf || e.Status == RaceStatus.Dsq)));
+    }
+}

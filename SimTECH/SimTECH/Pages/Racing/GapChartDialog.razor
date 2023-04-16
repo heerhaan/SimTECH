@@ -9,7 +9,7 @@
         <MudContainer Fixed="true" Class="pa-4">
             @if (!loading)
             {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="Race gaps">
+                <ApexCharts.ApexChart TItem="DataPoint" Title="Gapper chart" Options="options">
                     @foreach (var driver in DataSets)
                     {
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
@@ -29,8 +29,10 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
+    [CascadingParameter] public bool isDarkTheme { get; set; }
     [Parameter] public List<RaceDriver> Drivers { get; set; }
 
+    ApexCharts.ApexChartOptions<DataPoint> options;
     List<DataSet> DataSets = new();
     List<LapScore> LeaderScores;
 
@@ -38,6 +40,14 @@
 
     protected override void OnInitialized()
     {
+        options = new ApexCharts.ApexChartOptions<DataPoint>
+            {
+                Theme = new ApexCharts.Theme
+                {
+                    Mode = isDarkTheme ? ApexCharts.Mode.Dark : ApexCharts.Mode.Light,
+                }
+            };
+
         if (Drivers != null)
         {
             LeaderScores = Drivers.First(e => e.Position == 1).LapResults;
@@ -63,7 +73,7 @@
 
                     var sameSeenTeams = seenTeamIdentifiers.Count(e => e == driver.SeasonTeamId);
 
-                    dataSet.Stroke = new ApexCharts.SeriesStroke { Color = driver.Colour, DashSpace = (1 * sameSeenTeams), Width = 3 };
+                    dataSet.Stroke = new ApexCharts.SeriesStroke { Color = driver.Colour, DashSpace = (2 * sameSeenTeams), Width = 3 };
 
                     seenTeamIdentifiers.Add(driver.SeasonTeamId);
                     DataSets.Add(dataSet);
