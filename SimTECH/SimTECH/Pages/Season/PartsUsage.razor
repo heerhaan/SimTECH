@@ -1,0 +1,82 @@
+﻿@page "/components/{SeasonId:long}"
+@inject BreadcrumbProvider Bread
+@inject SeasonService SeasonService
+
+<PageTitle>Components</PageTitle>
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="9">
+            <MudPaper Class="mud-height-full">
+                @if (PartsPerDriver != null)
+                {
+                    <MudTable Items="@PartsPerDriver">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h4">Components</MudText>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>Name</MudTh>
+                            <MudTh Class="number-col">No.</MudTh>
+                            <MudTh>Accidents</MudTh>
+                            <MudTh>Collisions</MudTh>
+                            <MudTh>Engines</MudTh>
+                            <MudTh>Electrics</MudTh>
+                            <MudTh>Hydraulics</MudTh>
+                            <MudTh>DNF</MudTh>
+                            <MudTh>DSQ</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.Name</MudTd>
+                            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                                @context.Number
+                            </MudTd>
+                            <MudTd>@context.Accidents</MudTd>
+                            <MudTd>@context.Collisions</MudTd>
+                            <MudTd>@context.Engines</MudTd>
+                            <MudTd>@context.Electrics</MudTd>
+                            <MudTd>@context.Hydraulics</MudTd>
+                            <MudTd>@context.TotalDnf</MudTd>
+                            <MudTd>@context.TotalDsq</MudTd>
+                        </RowTemplate>
+                        <FooterContent>
+                            <MudTd>LIMIT</MudTd>
+                            <MudTd>0</MudTd>
+                            <MudTd>0</MudTd>
+                            <MudTd>0</MudTd>
+                            <MudTd>0</MudTd>
+                            <MudTd>-</MudTd>
+                            <MudTd>-</MudTd>
+                        </FooterContent>
+                    </MudTable>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="3">
+            <MudPaper Class="mud-height-full">
+                <MudText Typo="Typo.h4">Other</MudText>
+                <MudText Typo="Typo.body2">
+                    ... Something related to this? I had an idea... but what?
+                    Optionally make the kind of incidents and such settable, including the penalties.
+                    Furthermore I suspect the upcoming penalty's and such were what I wanted to put here.
+                </MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    [Parameter] public long SeasonId { get; set; }
+
+    List<PartsUsageModel> PartsPerDriver;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Overview", href: $"overview/{SeasonId}"),
+            new BreadcrumbItem("Components", href: $"components/{SeasonId}"),
+        });
+
+        PartsPerDriver = await SeasonService.GetPartsUsageModel(SeasonId);
+    }
+}

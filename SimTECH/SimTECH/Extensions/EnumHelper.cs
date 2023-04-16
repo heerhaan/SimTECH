@@ -2,6 +2,11 @@
 {
     public static class EnumHelper
     {
+        public static IEnumerable<Enum> GetFlagged(this Enum e)
+        {
+            return Enum.GetValues(e.GetType()).Cast<Enum>().Where(e.HasFlag);
+        }
+
         public static string CountryCodeToEmoji(this Country countryCode)
         {
             return string.Concat(countryCode.ToString().Select(e => char.ConvertFromUtf32(e + 0x1F1A5)));
@@ -22,6 +27,9 @@
                 _ => Weather.Sunny,
             };
         }
+
+        public static Incident[] GetDriverIncidents => new Incident[] { Incident.Damage, Incident.Collision, Incident.Accident, Incident.Puncture };
+        public static Incident[] GetCarIncidents => new Incident[] { Incident.Electrics, Incident.Exhaust, Incident.Clutch, Incident.Hydraulics, Incident.Wheel, Incident.Brakes };
 
         // Dictionary selectors underneath
         public static Dictionary<Entrant, string> GetEntrantSelection() => new()

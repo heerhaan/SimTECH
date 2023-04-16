@@ -1,38 +1,46 @@
 ﻿@page "/overview/{SeasonId:long}"
-
+@page "/overview/{SeasonId:long}/{TabIndex:int}"
+@inject LeagueService LeagueService
 @inject RaceService RaceService
 @inject SeasonService SeasonService
+@inject BreadcrumbProvider Bread
 @inject NavigationManager Nav
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
 <PageTitle>Overview</PageTitle>
 
-<CascadingValue Value="Season" IsFixed="true"> @* still should confirm if isfixed also works when re-assigning the object by loading a new season *@
+@* still should confirm if isfixed also works when re-assigning the object by loading a new season *@
+<CascadingValue Value="Season" IsFixed="true">
     @if (Season != null)
     {
-        <MudTabs Outlined="true" Centered="true">
+        <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="_activeTabIndex">
             <MudTabPanel Text="Overview">
-                <MudGrid Spacing="5">
+                <MudGrid Spacing="4">
                     <MudItem xs="12">
                         <MudPaper Class="pa-4">
-                            <MudText>Hello, the season year is @Season.Year</MudText>
-                            <MudText>Currenly in status: @Season.State.ToString()</MudText>
-                            <MudText>Development status: season configuration is done</MudText>
+                            <MudStack Row="true">
+                                <div>
+                                    <MudText>Hello, the season year is @Season.Year</MudText>
+                                    <MudText>Currenly in status: @Season.State.ToString()</MudText>
+                                    <MudText>Development status: season configuration is done</MudText>
+                                </div>
+                                <MudSpacer />
+                                <div>-</div>
+                                @if (Season.State == State.Concept)
+                                {
+                                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                                        <MudButton OnClick="StartSeason">Start season</MudButton>
+                                        <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
+                                    </MudButtonGroup>
+                                }
+                            </MudStack>
                         </MudPaper>
                     </MudItem>
+
                     <MudItem xs="6">
-                        @if (Season.State == State.Concept)
-                        {
-                            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                                <MudButton OnClick="StartSeason">Start season</MudButton>
-                                <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
-                            </MudButtonGroup>
-                        }
-                    </MudItem>
-                    <MudItem xs="6">
-                        <MudPaper Class="pa-4">
-                            <MudText Typo="Typo.h6">Next race</MudText>
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudText Typo="Typo.h6">Upcoming race</MudText>
                             @if (Season.State == State.Active)
                             {
                                 @if (NextRace is null)
@@ -41,11 +49,12 @@
                                 }
                                 else
                                 {
+                                    <MudText>Round @NextRace.Round - @NextRace.Name</MudText>
                                     <MudText>
                                         <CountryFlag Code="NextRace.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
                                     </MudText>
-                                    <MudText>todo: more info here about the next race :)))</MudText>
-                                    <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small" OnClick="GoToNextRace">Go to</MudButton>
+
+                                    <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small" Class="mt-auto" OnClick="GoToNextRace">Go to</MudButton>
                                 }
                             }
                             else
@@ -54,12 +63,28 @@
                             }
                         </MudPaper>
                     </MudItem>
+
+                    <MudItem xs="6">
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudStack>
+                                <MudText Typo="Typo.h6">Components</MudText>
+                                <MudText>
+                                    Redirect to page with overview of the used components and any upcoming penalty's for this season
+                                </MudText>
+                                <MudSpacer />
+                                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="GoToComponentUsage">Go to</MudButton>
+                            </MudStack>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="6">
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="6">
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
+                    </MudItem>
                 </MudGrid>
-                @* place alert to above if necessary outside this tab *@
-                @if (_errorMessage != null)
-                {
-                    <MudAlert Variant="Variant.Filled" Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="HideErr" Style="z-index:10; position: absolute;">@_errorMessage</MudAlert>
-                }
             </MudTabPanel>
             <MudTabPanel Text="Calendar">
                 <Calendar />
@@ -67,20 +92,30 @@
             <MudTabPanel Text="Standings" BadgeData='"S"' BadgeColor="Color.Tertiary">
                 <Standings />
             </MudTabPanel>
-            <MudTabPanel Text="Drivers">
-                <SeasonDrivers />
+            <MudTabPanel Text="Entrants">
+                <Entrants />
             </MudTabPanel>
-            <MudTabPanel Text="Teams">
-                <SeasonTeams />
-            </MudTabPanel>
-            <MudTabPanel Text="Engines">
-                <SeasonEngines />
-            </MudTabPanel>
-            <MudTabPanel Text="Settings" BadgeData='"!"' BadgeColor="Color.Error">
+            @if (Season.State == State.Active)
+            {
+                <MudTabPanel Text="Development">
+                    <Development />
+                </MudTabPanel>
+            }
+            <MudTabPanel Text="Settings" BadgeDot="true" BadgeColor="Color.Primary">
                 <MudGrid>
-                    @* NOTE: This panel is incredibly ugly FYI *@
-                    <MudItem xs="3">
-                        <MudPaper>
+                    <MudItem xs="12">
+                        <MudPaper Elevation="15" Class="pa-4">
+                            <MudStack Row="true">
+                                <MudText Typo="Typo.h4">Settings</MudText>
+                                <MudSpacer />
+                                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Outlined.Edit" OnClick="UpdateSeason">Edit</MudButton>
+                            </MudStack>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="4">
+                        <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                            <MudText Typo="Typo.subtitle1">Settings 1</MudText>
                             <MudTextField @bind-Value="Season.Year" Label="Year" ReadOnly="true"></MudTextField>
                             <MudTextField @bind-Value="Season.MaximumDriversInRace" Label="MaximumDriversInRace" ReadOnly="true"></MudTextField>
                             <MudTextField @bind-Value="Season.QualifyingAmountQ2" Label="QualifyingAmountQ2" ReadOnly="true"></MudTextField>
@@ -89,36 +124,48 @@
                             <MudTextField @bind-Value="Season.RunAmountSession" Label="RunAmountSession" ReadOnly="true"></MudTextField>
                         </MudPaper>
                     </MudItem>
-                    <MudItem xs="3">
-                        <MudPaper>
+
+                    <MudItem xs="4">
+                        <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                            <MudText Typo="Typo.subtitle1">Settings 2</MudText>
                             <MudTextField @bind-Value="Season.GridBonus" Label="GridBonus" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.RngMinimum" Label="RngMinimum" ReadOnly="true"></MudTextField>
+                            <MudTextField @bind-Value="Season.RngMaximum" Label="RngMaximum" ReadOnly="true"></MudTextField>
                             <MudTextField @bind-Value="Season.PitMinimum" Label="PitMinimum" ReadOnly="true"></MudTextField>
                             <MudTextField @bind-Value="Season.PitMaximum" Label="PitMaximum" ReadOnly="true"></MudTextField>
                             <MudTextField @bind-Value="Season.PointsPole" Label="PointsPole" ReadOnly="true"></MudTextField>
                             <MudTextField @bind-Value="Season.PointsFastestLap" Label="PointsFastestLap" ReadOnly="true"></MudTextField>
                         </MudPaper>
                     </MudItem>
-                    <MudItem xs="6">
-                        <MudPaper>
+
+                    <MudItem xs="4">
+                        <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                            <MudText Typo="Typo.subtitle1">Points per position</MudText>
                             @if (Season.PointAllotments != null)
                             {
-                                @foreach (var allotment in Season.PointAllotments)
-                                {
-                                    <MudText>Pos.@allotment.Position -- @allotment.Points pts.</MudText>
-                                }
+                                <MudSimpleTable Dense="true">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Points</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var allotment in Season.PointAllotments)
+                                        {
+                                            <tr>
+                                                <td>@allotment.Position</td>
+                                                <td>@allotment.Points</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </MudSimpleTable>
                             }
                             else
                             {
-                                <MudAlert Variant="Variant.Outlined" Severity="Severity.Error">Where are the friggin point allotments</MudAlert>
+                                <MudAlert Variant="Variant.Outlined" Severity="Severity.Error">Where are the friggin point allotments then?</MudAlert>
                             }
                         </MudPaper>
-                    </MudItem>
-                    <MudItem>
-                        <MudStack Row="true">
-                            <MudText>[placeholder]</MudText>
-                            <MudSpacer />
-                            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Outlined.Edit" OnClick="UpdateSeason">Edit settings</MudButton>
-                        </MudStack>
                     </MudItem>
                 </MudGrid>
             </MudTabPanel>
@@ -128,15 +175,29 @@
 
 @code {
     [Parameter] public long SeasonId { get; set; }
+    [Parameter] public int TabIndex { get; set; }
 
     public Season? Season { get; set; }
     public Race? NextRace { get; set; }
 
-    private string? _errorMessage { get; set; } = null;
+    int _activeTabIndex = 0;
+
+    //private SeasonOverviewAvailability OverviewAvailability { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
+        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: $"overview/{SeasonId}"),
+        });
+
+        _activeTabIndex = TabIndex;
+
         Season = await SeasonService.GetSeasonById(SeasonId);
+
+        //OverviewAvailability = SeasonService.GetOverviewAvailability(SeasonId);
 
         if (Season != null)
             NextRace = await RaceService.GetNextRaceOfSeason(SeasonId);
@@ -146,17 +207,17 @@
     {
         if (Season != null)
         {
-            _errorMessage = await SeasonService.ActivateSeason(Season.Id);
+            var error = await SeasonService.ActivateSeason(Season.Id);
 
-            if (_errorMessage == null)
+            if (error == null)
             {
                 Season.State = State.Active; // NOTE: It always changes to active if started
                 Snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
             }
-        }
-        else
-        {
-            _errorMessage = "Couldn't detect a season (wtf?)";
+            else
+            {
+                Snackbar.Add(error, Severity.Error);
+            }
         }
     }
 
@@ -165,6 +226,8 @@
         // TODO: Check if there are already any entrants added, if so then remove
         Nav.NavigateTo($"/addentrants/{SeasonId}");
     }
+
+    private void GoToComponentUsage() => Nav.NavigateTo($"/components/{SeasonId}");
 
     private async Task GoToNextRace()
     {
@@ -182,7 +245,9 @@
 
     async Task UpdateSeason()
     {
-        var parameters = new DialogParameters { ["Season"] = Season, ["Copied"] = false };
+        // unless I see a reason to retrieve this for a reason elsewhere on this page
+        var leagues = await LeagueService.GetLeagues();
+        var parameters = new DialogParameters { ["Season"] = Season, ["Leagues"] = leagues, ["Copied"] = false };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
@@ -193,6 +258,4 @@
             Season = updatedItem;
         }
     }
-
-    private void HideErr() => _errorMessage = null;
 }

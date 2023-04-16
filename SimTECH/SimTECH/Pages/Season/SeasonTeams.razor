@@ -5,17 +5,17 @@
 
 <MudDataGrid T="SeasonTeam" Items="@SeasonTeamEntrants" Class="my-2">
     <ToolBarContent>
-        <MudText Typo="Typo.h4">Teams in season</MudText>
+        <MudText Typo="Typo.h4">Teams</MudText>
         <MudSpacer />
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterTeam">New</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterTeam">New</MudButton>
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="e => e.Name" CellStyleFunc="@_teamStyleFunc" />
+        <PropertyColumn Property="e => e.Name" CellStyleFunc="@ViewHelper.TeamBorderRightStyleFunc" />
         <TemplateColumn Title="Country">
             <CellTemplate>
                 @if (context.Item.Team is not null)
                 {
-                    <CountryFlag Code="@context.Item.Team.Country" Size="FlagSize.Normal" IncludeName="true" />
+                    <CountryFlag Code="@context.Item.Team.Country" Size="FlagSize.Small" IncludeName="true" />
                 }
                 else
                 {
@@ -25,7 +25,7 @@
         </TemplateColumn>
         <PropertyColumn Property="e => e.Principal" />
         <PropertyColumn Property="e => e.BaseValue" />
-        <TemplateColumn Title="A/C/P">
+        <TemplateColumn Title="A/C/P" Sortable="false">
             <CellTemplate>
                 <MudText>@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
             </CellTemplate>
@@ -45,7 +45,7 @@
                 </MudText>
             </CellTemplate>
         </TemplateColumn>
-        <TemplateColumn CellClass="d-flex justify-end">
+        <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudButtonGroup>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeamEntrant(context.Item))" />
@@ -70,11 +70,6 @@
         SeasonEngineData = await EntrantService.GetSeasonEngines(Season.Id);
         ManufacturerData = await ManufacturerService.GetManufacturers();
     }
-
-    private Func<SeasonTeam, string> _teamStyleFunc => e =>
-    {
-        return $"border-right:solid 10px {e.Colour};";
-    };
 
     async Task EnterTeam() => await UpdateTeamEntrant(new SeasonTeam());
     async Task UpdateTeamEntrant(SeasonTeam item)

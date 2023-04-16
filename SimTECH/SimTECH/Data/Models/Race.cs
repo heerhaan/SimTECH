@@ -7,6 +7,7 @@ namespace SimTECH.Data.Models
         public long Id { get; set; }
         public int Round { get; set; }
         public string Name { get; set; } = default!;
+        public int RaceLength { get; set; }
         public Weather Weather { get; set; }
         public State State { get; set; }
 
@@ -15,9 +16,8 @@ namespace SimTECH.Data.Models
         public long TrackId { get; set; }
         public Track Track { get; set; } = default!;
 
-        public IList<Stint>? Stints { get; set; }
-        public IList<Penalty>? Penalties { get; set; }
-        public IList<Result>? Results { get; set; }
+        public IList<Penalty> Penalties { get; set; } = default!;
+        public IList<Result> Results { get; set; } = default!;
 
         [NotMapped]
         public bool IsWet => Weather == Weather.Rain || Weather == Weather.Storm;

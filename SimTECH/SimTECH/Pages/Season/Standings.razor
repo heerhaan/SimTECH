@@ -1,75 +1,368 @@
 ﻿@inject SeasonEntrantService EntrantService
+@inject RaceService RaceService
 
-<MudContainer>
-    <MudGrid Spacing="3">
-        <MudItem xs="6">
+@if (loading)
+{
+    <MudAlert Severity="Severity.Warning">Eyo this bad boi is loading, here it comes!</MudAlert>
+}
+else
+{
+    <MudTabs Outlined="true" Centered="true">
+        <MudTabPanel Text="Standings">
+            <MudGrid Spacing="4">
+                <MudItem xs="6">
+                    <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                        <MudTable Items="@DriverResultsModel" Dense="true">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h5">Drivers</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh Class="number-col">#</MudTh>
+                                <MudTh>Name</MudTh>
+                                <MudTh Class="number-col">No.</MudTh>
+                                <MudTh>
+                                    <MudTableSortLabel SortBy="new Func<StandingDriverModel, object>(e => e.Points)">PTS</MudTableSortLabel>
+                                </MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="#" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))" Class="number-col">
+                                    @context.Position
+                                </MudTd>
+                                <MudTd DataLabel="Name">
+                                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                                    @context.Name
+                                </MudTd>
+                                <MudTd DataLabel="No." Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))" Class="number-col">
+                                    @context.Number
+                                </MudTd>
+                                <MudTd DataLabel="PTS">@context.Points</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="6">
+                    <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                        <MudTable Items="@TeamResultsModel" Dense="true">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h5">Teams</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh Class="number-col">#</MudTh>
+                                <MudTh>Principal</MudTh>
+                                <MudTh>Name</MudTh>
+                                <MudTh>PTS</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="#" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))" Class="number-col">
+                                    @context.Position
+                                </MudTd>
+                                <MudTd>@context.Principal</MudTd>
+                                <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
+                                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                                    @context.Name
+                                </MudTd>
+                                <MudTd>@context.Points</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudTabPanel>
+
+        <MudTabPanel Text="WDC results">
             <MudPaper Elevation="15">
-                <MudTable Items="@SeasonDrivers" Style="pa-4">
+                <MudTable Items="@DriverResultsModel">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h4">WDC results</MudText>
+                    </ToolBarContent>
+                    <ColGroup>
+                        <col class="number-col" />
+                        <col />
+                        <col class="number-col" />
+                        <col />
+                        @for (int i = 0; i < Races.Count; i++)
+                        {
+                            <col class="number-col" />
+                        }
+                        <col />
+                    </ColGroup>
                     <HeaderContent>
-                        <MudTh>Position</MudTh>
-                        <MudTh>Name</MudTh>
-                        <MudTh>Number</MudTh>
-                        <MudTh>TeamRole</MudTh>
-                        <MudTh>
-                            <MudTableSortLabel SortBy="new Func<SeasonDriver, object>(e => e.Points)">Points</MudTableSortLabel>
-                        </MudTh>
+                        <MudTh Class="number-col">#</MudTh>
+                        <MudTh>Driver</MudTh>
+                        <MudTh>No</MudTh>
+                        <MudTh>PTS</MudTh>
+                        @foreach (var race in Races.OrderBy(e => e.Round))
+                        {
+                            <MudTh>
+                                <CountryFlag Code="@race.Track.Country" Size="FlagSize.Tiny" />
+                                @(race.Track.Name.Substring(0, 3))
+                            </MudTh>
+                        }
+                        <MudTh class="number-col">AVG</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd DataLabel="Position">0</MudTd>
-                        <MudTd DataLabel="Name">
-                            @if (context.Driver != null)
+                        <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))" Class="number-col">
+                            @context.Position
+                        </MudTd>
+                        <MudTd>
+                            <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
+                            @context.Name
+                        </MudTd>
+                        <MudTd Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">@context.Number</MudTd>
+                        <MudTd>@context.Points</MudTd>
+                        @for (int i = 0; i < Races.Count; i++)
+                        {
+                            if (i < context.ResultCells.Count)
                             {
-                                <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
-                                @context.Driver.FullName
+                                var result = context.ResultCells[i];
+                                <MudTd Style="@(GetResultStyle(result))">
+                                    @(GetResultText(result))
+                                </MudTd>
                             }
                             else
                             {
-                                <span>Unknown (wtf how did you do this?)</span>
+                                <MudTd>-</MudTd>
                             }
-                        </MudTd>
-                        <MudTd DataLabel="Number">@context.Number</MudTd>
-                        <MudTd DataLabel="TeamRole">@context.TeamRole</MudTd>
-                        <MudTd DataLabel="Points">@context.Points</MudTd>
+                        }
+                        <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
                     </RowTemplate>
                 </MudTable>
             </MudPaper>
-        </MudItem>
-        <MudItem xs="6">
-            <MudPaper Elevation="15" Style="pa-4">
-                <MudTable Items="@SeasonTeams">
-                    <HeaderContent>
-                        <MudTh>Position</MudTh>
-                        <MudTh>Principal</MudTh>
-                        <MudTh>Name</MudTh>
-                        <MudTh>Points</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Position">0</MudTd>
-                        <MudTd DataLabel="Principal">@context.Principal</MudTd>
-                        <MudTd DataLabel="Name" Style="@($"background-color:{context.Colour}; color:{context.Accent}")">
-                            @if (context.Team != null)
-                            {
-                                <CountryFlag Code="context.Team.Country" Size="FlagSize.Small" />
-                            }
-                            @context.Name
-                        </MudTd>
-                        <MudTd DataLabel="Points">@context.Points</MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
-</MudContainer>
+        </MudTabPanel>
+
+        <MudTabPanel Text="WCC results">
+            <MudTable Items="@TeamResultsModel">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h4">WCC results</MudText>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh Class="number-col">#</MudTh>
+                    <MudTh>Team</MudTh>
+                    <MudTh>PTS</MudTh>
+                    @foreach (var race in Races.OrderBy(e => e.Round))
+                    {
+                        <MudTh Class="number-col-lg">
+                            <CountryFlag Code="@race.Track.Country" Size="FlagSize.Tiny" />
+                            @(race.Track.Name.Substring(0, 3))
+                        </MudTh>
+                    }
+                    <MudTh>AVG</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))" Class="number-col">@context.Position</MudTd>
+                    <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
+                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
+                        @context.Name
+                    </MudTd>
+                    <MudTd>@context.Points</MudTd>
+                    @foreach (var round in Races.OrderBy(e => e.Round))
+                    {
+                        var teamResults = context.ResultCells.Where(e => e.Round == round.Round).ToList();
+                        if (teamResults.Any())
+                        {
+                            <MudTd Class="number-col-lg">
+                                <MudStack>
+                                    @foreach (var result in teamResults)
+                                    {
+                                        <MudChip Style="@(GetResultStyle(result))">
+                                            @(GetResultText(result))
+                                        </MudChip>
+                                    }
+                                </MudStack>
+                            </MudTd>
+                        }
+                        else
+                        {
+                            <MudTd>-</MudTd>
+                        }
+                    }
+                    <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudTabPanel>
+    </MudTabs>
+}
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
     private List<SeasonDriver> SeasonDrivers { get; set; }
     private List<SeasonTeam> SeasonTeams { get; set; }
+    private List<Race> Races { get; set; }
+    private List<StandingDriverModel> DriverResultsModel { get; set; }
+    private List<StandingTeamModel> TeamResultsModel { get; set; }
+
+    private int lowestScoringPosition = 3;
+
+    private bool loading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        SeasonDrivers = await EntrantService.GetSeasonDrivers(Season.Id);
-        SeasonTeams = await EntrantService.GetSeasonTeams(Season.Id);
+        Races = await RaceService.GetRacesBySeason(Season.Id);
+        SeasonDrivers = await EntrantService.GetSeasonDriversWithResults(Season.Id);
+        SeasonTeams = await EntrantService.GetSeasonTeamsWithResults(Season.Id);
+
+        int indexer = 0;
+
+        DriverResultsModel = SeasonDrivers
+            .OrderByDescending(e => e.Points)
+                .ThenByDescending(e => e.HiddenPoints)
+            .Select(e => ToDriverResultModel(e, ++indexer))
+            .ToList();
+
+        indexer = 0;
+
+        TeamResultsModel = SeasonTeams
+            .OrderByDescending(e => e.Points)
+                .ThenByDescending(e => e.HiddenPoints)
+            .Select(e => ToTeamResultModel(e, ++indexer))
+            .ToList();
+
+        if (Season != null && Season.PointAllotments?.Any() == true)
+            lowestScoringPosition = Season.PointAllotments.Max(e => e.Position);
+
+        loading = false;
+    }
+
+    private string GetResultStyle(StandingResultCell cell)
+    {
+        var cellStyle = "";
+
+        if (cell.Status == RaceStatus.Dnq)
+        {
+            cellStyle = "background-color: rebeccapurple;";
+        }
+        else if (cell.Status == RaceStatus.Dsq)
+        {
+            cellStyle = "background-color: black;";
+        }
+        else if (cell.Status == RaceStatus.Dnf)
+        {
+            cellStyle = "background-color: red;";
+        }
+        else
+        {
+            switch (cell.Position)
+            {
+                case 1:
+                    cellStyle = "background-color: gold;";
+                    break;
+                case 2:
+                    cellStyle = "background-color: silver;";
+                    break;
+                case 3:
+                    cellStyle = "background-color: burlywood;";
+                    break;
+                case int n when n <= lowestScoringPosition:
+                    cellStyle = "background-color: lightgreen;";
+                    break;
+                default:
+                    cellStyle = "background-color: cornflowerblue";
+                    break;
+            }
+        }
+
+        return cellStyle;
+    }
+
+    private string GetResultText(StandingResultCell cell)
+    {
+        var cellText = string.Empty;
+
+        switch (cell.Status)
+        {
+            case RaceStatus.Dnq: cellText = "DNQ";
+                break;
+            case RaceStatus.Dsq: cellText = "DSQ";
+                break;
+            case RaceStatus.Dnf: cellText = "DNF";
+                break;
+            default: cellText = cell.Position.ToString();
+                break;
+        }
+
+        return cellText;
+    }
+
+    private StandingDriverModel ToDriverResultModel(SeasonDriver driver, int position)
+    {
+        var driverTeam = SeasonTeams.Find(e => e.Id == driver.SeasonTeamId);
+        return new StandingDriverModel
+            {
+                Position = position,
+                Name = driver.Driver.FullName,
+                Number = driver.Number,
+                Nationality = driver.Driver.Country,
+                Colour = driverTeam?.Colour ?? "var(--mud-palette-secondary)",
+                Accent = driverTeam?.Accent ?? "var(--mud-palette-secondary-text)",
+                Points = driver.Points,
+                HiddenPoints = driver.HiddenPoints,
+
+                ResultCells = driver.Results.Select(e => ToResultCell(e)).ToList(),
+            };
+    }
+
+    private StandingTeamModel ToTeamResultModel(SeasonTeam team, int position)
+    {
+        return new StandingTeamModel
+            {
+                Position = position,
+                Name = team.Name,
+                Principal = team.Principal,
+                Nationality = team.Team.Country,
+                Colour = team.Colour,
+                Accent = team.Accent,
+                Points = team.Points,
+                HiddenPoints = team.HiddenPoints,
+
+                ResultCells = team.Results?.Select(e => ToResultCell(e)).ToList() ?? new(),
+            };
+    }
+
+    private StandingResultCell ToResultCell(Result result)
+    {
+        return new StandingResultCell
+        {
+            Position = result.Position,
+            Status = result.Status,
+            Round = Races.Single(e => e.Id == result.RaceId).Round,
+            Pole = result.Grid == 1,
+        };
+    }
+
+    private abstract class StandingEntrantBase
+    {
+        public int Position { get; set; }
+        public string Name { get; set; }
+        public Country Nationality { get; set; }
+        public int Points { get; set; }
+        public int HiddenPoints { get; set; }
+
+        public string Colour { get; set; }
+        public string Accent { get; set; }
+
+        public List<StandingResultCell> ResultCells { get; set; }
+    }
+
+    private class StandingDriverModel : StandingEntrantBase
+    {
+        public int Number { get; set; }
+        public TeamRole TeamRole { get; set; }
+    }
+
+    private class StandingTeamModel : StandingEntrantBase
+    {
+        public string Principal { get; set; }
+    }
+
+    private class StandingResultCell
+    {
+        public int Position { get; set; }
+        public RaceStatus Status { get; set; }
+        public int Round { get; set; }
+
+        public bool Pole { get; set; }
+        public bool FL { get; set; }
     }
 }

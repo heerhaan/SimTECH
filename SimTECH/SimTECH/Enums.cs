@@ -17,7 +17,8 @@ namespace SimTECH
         Unknown = 0,
         Driver,
         Team,
-        Track
+        Track,
+        Engine,
     }
 
     public enum RangeType
@@ -28,6 +29,8 @@ namespace SimTECH
         Team,
         Engine
     }
+
+    public enum TargetDevelop { Main, Reliability }
 
     #region racing
 

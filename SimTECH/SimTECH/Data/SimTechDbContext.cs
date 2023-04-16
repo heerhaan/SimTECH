@@ -15,6 +15,7 @@ namespace SimTECH.Data
         public DbSet<Driver> Driver => Set<Driver>();
         public DbSet<DriverTrait> DriverTrait => Set<DriverTrait>();
         public DbSet<Engine> Engine => Set<Engine>();
+        public DbSet<LapScore> LapScore => Set<LapScore>();
         public DbSet<League> League => Set<League>();
         public DbSet<Manufacturer> Manufacturer => Set<Manufacturer>();
         public DbSet<Penalty> Penalty => Set<Penalty>();
@@ -26,8 +27,6 @@ namespace SimTECH.Data
         public DbSet<SeasonEngine> SeasonEngine => Set<SeasonEngine>();
         public DbSet<SeasonTeam> SeasonTeam => Set<SeasonTeam>();
         public DbSet<Sponsor> Sponsor => Set<Sponsor>();
-        public DbSet<Stint> Stint => Set<Stint>();
-        public DbSet<StintResult> StintResult => Set<StintResult>();
         public DbSet<Strategy> Strategy => Set<Strategy>();
         public DbSet<StrategyTyre> StrategyTyre => Set<StrategyTyre>();
         public DbSet<Team> Team => Set<Team>();

@@ -7,15 +7,14 @@
 <MudContainer>
     <MudTabs>
         <MudTabPanel Text="Strategies">
-            <MudDataGrid T="Strategy" Items="@StrategyData" Bordered="true" Dense="true" Class="my-2">
+            <MudDataGrid T="Strategy" Items="@StrategyData" Bordered="true" Dense="true">
                 <ToolBarContent>
                     <MudText Typo="Typo.h4">Strategies</MudText>
                     <MudSpacer />
-                    <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddStrategy">New</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="AddStrategy">New</MudButton>
                 </ToolBarContent>
                 <Columns>
-                    <PropertyColumn Property="e => e.StintLength" />
-                    <TemplateColumn>
+                    <TemplateColumn Title="Tyres" Sortable="false">
                         <CellTemplate>
                             @if (context.Item.StrategyTyres?.Count > 0)
                             {
@@ -28,11 +27,20 @@
                             }
                             else
                             {
-                                <MudText>No tyres in strategy found!</MudText>
+                                <span>No tyres in strategy found!</span>
                             }
                         </CellTemplate>
                     </TemplateColumn>
-                    <TemplateColumn CellClass="d-flex justify-end">
+                    <TemplateColumn Title="Length">
+                        <CellTemplate>
+                            @if (context.Item.StrategyTyres?.Count > 0)
+                            {
+                                <span>@context.Item.StrategyTyres.Sum(e => e.Tyre.PredictedLength())</span>
+                            }
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <PropertyColumn Property="e => e.State" />
+                    <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
                         <CellTemplate>
                             <MudButtonGroup>
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateStrategy(context.Item))" />
@@ -55,12 +63,12 @@
                 </ToolBarContent>
                 <Columns>
                     <PropertyColumn Property="e => e.Name" CellStyleFunc="_applyTyreColouring" />
-                    <PropertyColumn Property="e => e.State" IsEditable="false" />
-                    <PropertyColumn Property="e => e.Length" />
                     <PropertyColumn Property="e => e.Pace" />
                     <PropertyColumn Property="e => e.WearMax" />
                     <PropertyColumn Property="e => e.WearMin" />
-                    <TemplateColumn CellClass="d-flex justify-end">
+                    <PropertyColumn Property="e => e.Length" />
+                    <PropertyColumn Property="e => e.State" />
+                    <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
                         <CellTemplate>
                             <MudButtonGroup>
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTyre(context.Item))" />

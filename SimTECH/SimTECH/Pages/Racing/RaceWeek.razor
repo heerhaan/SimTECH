@@ -1,22 +1,12 @@
 ﻿@page "/raceweek/{RaceId:long}"
 
-@inject RaceService _raceService
+@inject RaceService RaceService
+@inject BreadcrumbProvider Bread
 @inject NavigationManager Nav
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
 <style type="text/css">
-    .raceweek-grid {
-        display: grid;
-        gap: 1em;
-        grid-template-columns: [begin] 1fr 1fr 1fr [end];
-        grid-template-rows: [begin] 1fr 1fr 1fr [end];
-        grid-template-areas:
-            "grid title info"
-            "grid buttons info"
-            "grid stints stints";
-    }
-
     .test-dialog-shadow {
         box-shadow: var(--mud-palette-secondary) 0 0 2em;
     }
@@ -44,7 +34,7 @@ else
                         <MudTh>Penalty</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd Style="@(ViewHelper.GetGradientCellStyle(context.Colour, context.Accent))">
+                        <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
                             @context.Grid
                         </MudTd>
                         <MudTd>@context.FullName</MudTd>
@@ -107,25 +97,6 @@ else
                             <MudListItem>Qualy mod: @ViewModel.Race.Track.QualifyingMod</MudListItem>
                             <MudListItem>Weather: @ViewModel.Race.Weather</MudListItem>
                         </MudList>
-                        @if (ViewModel.AvailableStrategies?.Any() == true)
-                        {
-                            <MudList>
-                                <MudListSubheader>Available strategies for race</MudListSubheader>
-                                @foreach (var strategy in ViewModel.AvailableStrategies)
-                                {
-                                    <MudListItem>
-                                        <MudStack Spacing="1" Row="true">
-                                            @foreach (var tyreElem in strategy.StrategyTyres)
-                                            {
-                                                <span class="tyre" style="border-color:@(tyreElem.Tyre.Colour)">
-                                                    @tyreElem.Tyre.Name.ElementAt(0)
-                                                </span>
-                                            }
-                                        </MudStack>
-                                    </MudListItem>
-                                }
-                            </MudList>
-                        }
                     </MudPaper>
                 </MudItem>
 
@@ -144,57 +115,6 @@ else
                         </MudButtonGroup>
                     </MudPaper>
                 </MudItem>
-
-                <MudItem xs="6">
-                    <MudPaper Class="mud-height-full">
-                        miauw
-                    </MudPaper>
-                </MudItem>
-
-                <MudItem xs="12">
-                    <MudPaper Class="pa-4">
-                        <MudTable Items="@ViewModel.Race.Stints" Dense="true">
-                            <HeaderContent>
-                                <MudTh>#</MudTh>
-                                <MudTh>Driver</MudTh>
-                                <MudTh>Car</MudTh>
-                                <MudTh>Engine</MudTh>
-                                <MudTh>Reliability</MudTh>
-                                <MudTh>RngMin</MudTh>
-                                <MudTh>RngMax</MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd>@context.Order</MudTd>
-                                <MudTd>
-                                    @if (context.StintEvents.HasFlag(StintEvent.Driver))
-                                    {
-                                        <MudIcon Icon="@Icons.Material.TwoTone.CheckCircle" Color="Color.Tertiary" Size="Size.Large" />
-                                    }
-                                </MudTd>
-                                <MudTd>
-                                    @if (context.StintEvents.HasFlag(StintEvent.Car))
-                                    {
-                                        <MudIcon Icon="@Icons.Material.TwoTone.CheckCircle" Color="Color.Tertiary" Size="Size.Large" />
-                                    }
-                                </MudTd>
-                                <MudTd>
-                                    @if (context.StintEvents.HasFlag(StintEvent.Engine))
-                                    {
-                                        <MudIcon Icon="@Icons.Material.TwoTone.CheckCircle" Color="Color.Tertiary" Size="Size.Large" />
-                                    }
-                                </MudTd>
-                                <MudTd>
-                                    @if (context.StintEvents.HasFlag(StintEvent.Reliability))
-                                    {
-                                        <MudIcon Icon="@Icons.Material.TwoTone.CheckCircle" Color="Color.Tertiary" Size="Size.Large" />
-                                    }
-                                </MudTd>
-                                <MudTd>@context.RngMin</MudTd>
-                                <MudTd>@context.RngMax</MudTd>
-                            </RowTemplate>
-                        </MudTable>
-                    </MudPaper>
-                </MudItem>
             </MudGrid>
         </MudItem>
     </MudGrid>
@@ -209,12 +129,18 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        ViewModel = await _raceService.GetRaceWeekModel(RaceId);
+        ViewModel = await RaceService.GetRaceWeekModel(RaceId);
+
+        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: $"overview/{ViewModel.Race.SeasonId}"),
+            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
+        });
 
         loading = false;
     }
-
-    private void TempButtonEvent() => Snackbar.Add("not implemented yet", Severity.Error);
 
     private void GoToPractice() => Nav.NavigateTo($"/practice/{RaceId}");
     private void GoToQualifying() => Nav.NavigateTo($"/qualifying/{RaceId}");
@@ -233,7 +159,7 @@ else
 
         if (!result.Canceled && result.Data != null && result.Data is Strategy newStrategy)
         {
-            await _raceService.PickStrategy(resultId, newStrategy.Id, newStrategy.StrategyTyres[0].Tyre.Pace);
+            await RaceService.PickStrategy(resultId, newStrategy.Id, newStrategy.StrategyTyres[0].Tyre.Pace);
 
             ViewModel.RaceWeekDrivers.Single(e => e.ResultId == resultId).Strategy = newStrategy;
         }

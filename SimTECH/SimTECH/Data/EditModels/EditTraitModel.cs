@@ -12,9 +12,7 @@ namespace SimTECH.Data.EditModels
         public Entrant Type { get; set; }
         public State State { get; set; }
         public int QualifyingPace { get; set; }
-        public int DriverPace { get; set; }
-        public int CarPace { get; set; }
-        public int EnginePace { get; set; }
+        public int RacePace { get; set; }
         public int DriverReliability { get; set; }
         public int CarReliability { get; set; }
         public int EngineReliability { get; set; }
@@ -33,9 +31,7 @@ namespace SimTECH.Data.EditModels
             Type = trait.Type;
             State = trait.State;
             QualifyingPace = trait.QualifyingPace;
-            DriverPace = trait.DriverPace;
-            CarPace = trait.CarPace;
-            EnginePace = trait.EnginePace;
+            RacePace = trait.RacePace;
             DriverReliability = trait.DriverReliability;
             CarReliability = trait.CarReliability;
             EngineReliability = trait.EngineReliability;
@@ -57,9 +53,7 @@ namespace SimTECH.Data.EditModels
                 Type = Type,
                 State = State,
                 QualifyingPace = QualifyingPace,
-                DriverPace = DriverPace,
-                CarPace = CarPace,
-                EnginePace = EnginePace,
+                RacePace = RacePace,
                 DriverReliability = DriverReliability,
                 CarReliability = CarReliability,
                 EngineReliability = EngineReliability,

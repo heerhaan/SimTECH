@@ -6,14 +6,14 @@
     <ToolBarContent>
         <MudText Typo="Typo.h4">Engines</MudText>
         <MudSpacer />
-        <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="EnterEngine">New</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterEngine">New</MudButton>
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="e => e.Name" />
         <PropertyColumn Property="e => e.Power" />
         <PropertyColumn Property="e => e.Reliability" />
         <PropertyColumn Property="e => e.Rebadged" />
-        <TemplateColumn CellClass="d-flex justify-end">
+        <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudButtonGroup>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context.Item))" />

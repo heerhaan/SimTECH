@@ -1,6 +1,6 @@
 ﻿@inherits InputBase<Country>
 
-<MudSelect @bind-Value="HandleSelection" Label="Select a country" Variant="Variant.Outlined">
+<MudSelect @bind-Value="HandleSelection" Label="Select a country" Variant="Variant.Outlined" Class="@Class">
     @ChildContent
     @foreach (var country in CountrySelectItems)
     {
@@ -11,9 +11,9 @@
 </MudSelect>
 
 @code {
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-    
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
     public Country HandleSelection
     {
         get { return CurrentValue; }

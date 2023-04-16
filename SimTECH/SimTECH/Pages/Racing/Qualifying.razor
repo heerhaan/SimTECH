@@ -153,19 +153,6 @@ else
     </MudTabs>
 }
 
-@if (!loading)
-{
-    <MudContainer>
-        actual standings
-        <MudStack>
-            @foreach (var result in Model.QualifyingDrivers.OrderBy(e => e.Position))
-            {
-                <MudText>P@(result.Position). @(result.FullName) [@(result.Number)]</MudText>
-            }
-        </MudStack>
-    </MudContainer>
-}
-
 @code {
     [Parameter] public long RaceId { get; set; }
 
@@ -205,7 +192,7 @@ else
 
         foreach (var driver in DriversInQ1)
         {
-            driver.RunValuesQ1[advancedQ1] = driver.GetQualifyingResult(Model.Season.QualifyingRNG);
+            driver.RunValuesQ1[advancedQ1] = driver.GetQualifyingResult(Model.QualyRng);
         }
 
         var highestScore = DriversInQ1.SelectMany(e => e.RunValuesQ1).Max();
@@ -224,7 +211,7 @@ else
         {
             DriversInQ2 = DriversInQ1
                 .OrderBy(e => e.PositionQ1)
-                .Take(Model.Season.QualifyingAmountQ2)
+                .Take(Model.QualyAmountQ2)
                 .ToList();
         }
     }
@@ -237,7 +224,7 @@ else
 
             foreach (var driver in DriversInQ2)
             {
-                var qualifyingResult = driver.GetQualifyingResult(Model.Season.QualifyingRNG);
+                var qualifyingResult = driver.GetQualifyingResult(Model.QualyRng);
                 driver.RunValuesQ2[advancedQ2] = qualifyingResult;
             }
 
@@ -258,7 +245,7 @@ else
             {
                 DriversInQ3 = DriversInQ2
                     .OrderBy(e => e.PositionQ2)
-                    .Take(Model.Season.QualifyingAmountQ3)
+                    .Take(Model.QualyAmountQ3)
                     .ToList();
             }
         }
@@ -271,7 +258,7 @@ else
             var positionIndex = 0;
 
             foreach (var driver in DriversInQ3)
-                driver.RunValuesQ3[advancedQ3] = driver.GetQualifyingResult(Model.Season.QualifyingRNG);
+                driver.RunValuesQ3[advancedQ3] = driver.GetQualifyingResult(Model.QualyRng);
 
             var highestScore = DriversInQ3.SelectMany(e => e.RunValuesQ3).Max();
 
@@ -291,7 +278,7 @@ else
     {
         var positionResults = Model.QualifyingDrivers.ToDictionary(e => e.ResultId, e => e.Position);
 
-        await _raceService.PersistGridPositions(positionResults, RaceId, Model.Season.MaximumDriversInRace);
+        await _raceService.PersistGridPositions(positionResults, RaceId, Model.MaximumRaceDrivers);
 
         Nav.NavigateTo("/raceweek/" + RaceId);
     }

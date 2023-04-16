@@ -1,0 +1,86 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.SsidChart" Class="mr-3 mb-n1"></MudIcon>
+            Gapper race chart
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudContainer Fixed="true" Class="pa-4">
+            @if (!loading)
+            {
+                <ApexCharts.ApexChart TItem="DataPoint" Title="Gapper chart" Options="options">
+                    @foreach (var driver in DataSets)
+                    {
+                        <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                            Items="@driver.DataPoints"
+                                            Name="@driver.Label"
+                                            SeriesType="ApexCharts.SeriesType.Line"
+                                            XValue="@(e => e.XData)"
+                                            YValue="@(e => e.YData)"
+                                            OrderBy="e => e.X"
+                                            Stroke="@driver.Stroke" />
+                    }
+                </ApexCharts.ApexChart>
+            }
+        </MudContainer>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
+    [CascadingParameter] public bool isDarkTheme { get; set; }
+    [Parameter] public List<RaceDriver> Drivers { get; set; }
+
+    ApexCharts.ApexChartOptions<DataPoint> options;
+    List<DataSet> DataSets = new();
+    List<LapScore> LeaderScores;
+
+    bool loading = true;
+
+    protected override void OnInitialized()
+    {
+        options = new ApexCharts.ApexChartOptions<DataPoint>
+            {
+                Theme = new ApexCharts.Theme
+                {
+                    Mode = isDarkTheme ? ApexCharts.Mode.Dark : ApexCharts.Mode.Light,
+                }
+            };
+
+        if (Drivers != null)
+        {
+            LeaderScores = Drivers.First(e => e.Position == 1).LapResults;
+
+            if (LeaderScores != null)
+            {
+                var seenTeamIdentifiers = new List<long>(Drivers.Count);
+
+                foreach (var driver in Drivers)
+                {
+                    var dataSet = new DataSet { Label = driver.FullName };
+
+                    int gap = 0;
+                    for (int i = 0; i < driver.LapResults.Count; i++)
+                    {
+                        var compareSet = LeaderScores[i];
+                        var driverScore = driver.LapResults[i];
+
+                        gap += compareSet.Score - driverScore.Score;
+
+                        dataSet.DataPoints.Add(new DataPoint(compareSet.Order, gap));
+                    }
+
+                    var sameSeenTeams = seenTeamIdentifiers.Count(e => e == driver.SeasonTeamId);
+
+                    dataSet.Stroke = new ApexCharts.SeriesStroke { Color = driver.Colour, DashSpace = (2 * sameSeenTeams), Width = 3 };
+
+                    seenTeamIdentifiers.Add(driver.SeasonTeamId);
+                    DataSets.Add(dataSet);
+                }
+
+                loading = false;
+            }
+        }
+    }
+}

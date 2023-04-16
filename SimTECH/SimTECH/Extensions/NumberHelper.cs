@@ -28,14 +28,15 @@ namespace SimTECH.Extensions
             return _rng.NextDouble() * (max - min) + min;
         }
 
+        public static int CalcLapCount(int raceLength, double trackLength)
+            => (int)Math.Round(raceLength / trackLength);
+
         public static TraitEffect SumTraitEffects(IEnumerable<Trait> traits)
         {
             return new TraitEffect
             {
                 QualifyingPace          = traits.Sum(e => e.QualifyingPace),
-                DriverPace              = traits.Sum(e => e.DriverPace),
-                CarPace                 = traits.Sum(e => e.CarPace),
-                EnginePace              = traits.Sum(e => e.EnginePace),
+                RacePace                = traits.Sum(e => e.RacePace),
                 DriverReliability       = traits.Sum(e => e.DriverReliability),
                 CarReliability          = traits.Sum(e => e.CarReliability),
                 EngineReliability       = traits.Sum(e => e.EngineReliability),

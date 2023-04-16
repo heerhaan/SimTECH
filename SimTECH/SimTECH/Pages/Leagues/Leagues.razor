@@ -1,5 +1,5 @@
 ﻿@page "/leagues"
-
+@inject BreadcrumbProvider Bread
 @inject LeagueService LeagueService
 @inject IDialogService DialogService
 
@@ -15,10 +15,12 @@
         <Columns>
             <HierarchyColumn T="League" />
             <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.RaceLength" />
             <PropertyColumn Property="e => e.State" />
-            <TemplateColumn CellClass="d-flex justify-end">
+            <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">
+                        @*<MudIconButton Icon="@Icons.Material.Filled.ElectricBolt" OnClick="@(async () => await ActivateLeague(context.Item))" />*@
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context.Item))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteLeague(context.Item))" />
                     </MudButtonGroup>
@@ -52,19 +54,36 @@
 </MudContainer>
 
 @code {
-    private DialogOptions dialogOptions = new()
-    {
-        MaxWidth = MaxWidth.ExtraLarge,
-    };
-    private List<League> LeagueData = new List<League>();
+    DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.ExtraLarge };
+    List<League> LeagueData = new List<League>();
 
-    private bool _loading = true;
-    
+    bool _loading = true;
+    //private long activeLeagueId { get; set; } = 0;
+
     protected override async Task OnInitializedAsync()
     {
+        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+        });
+
         LeagueData = await LeagueService.GetLeagues();
         _loading = false;
     }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    var storedLeagueId = await LocalStorage.GetAsync<long>("activeleague");
+    //    if (storedLeagueId.Success)
+    //    {
+    //        activeLeagueId = storedLeagueId.Value;
+    //    }
+    //}
+
+    //async Task ActivateLeague(League item)
+    //{
+    //    await LocalStorage.SetAsync("activeleague", item.Id);
+    //}
 
     async Task AddLeague() => await UpdateLeague(new League());
     async Task UpdateLeague(League item)
