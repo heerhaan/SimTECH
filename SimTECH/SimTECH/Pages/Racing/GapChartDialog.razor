@@ -9,7 +9,7 @@
         <MudContainer Fixed="true" Class="pa-4">
             @if (!loading)
             {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="Gapper chart" Options="options">
+                <ApexCharts.ApexChart TItem="DataPoint" Title="Gapper chart" Options="@options">
                     @foreach (var driver in DataSets)
                     {
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
@@ -29,7 +29,6 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
-    [CascadingParameter] public bool isDarkTheme { get; set; }
     [Parameter] public List<RaceDriver> Drivers { get; set; }
 
     ApexCharts.ApexChartOptions<DataPoint> options;
@@ -44,7 +43,7 @@
             {
                 Theme = new ApexCharts.Theme
                 {
-                    Mode = isDarkTheme ? ApexCharts.Mode.Dark : ApexCharts.Mode.Light,
+                    Mode = ApexCharts.Mode.Dark,
                 }
             };
 

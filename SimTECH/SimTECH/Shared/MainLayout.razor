@@ -19,7 +19,7 @@
         <MudSpacer />
         <MudToggleIconButton @bind-Toggled="@isDarkTheme"
             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
-            ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Tertiary" ToggledTitle="Dark" />
+            ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
         
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <ActivatorContent>
@@ -49,25 +49,24 @@
         <NavMenu />
     </MudDrawer>
     <MudMainContent>
-        <CascadingValue Value="@isDarkTheme">
-            <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-                @Body
-            </MudContainer>
-        </CascadingValue>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+            @Body
+        </MudContainer>
     </MudMainContent>
 </MudLayout>
 
 @code {
-    private MudTheme theme = new();
-    private string notification = string.Empty;
-    private bool drawerOpen = true;
-    public bool isDarkTheme = true;
+    MudTheme theme = new();
+    string notification = string.Empty;
+    bool drawerOpen = true;
+    bool isDarkTheme = true;
 
     protected override void OnInitialized()
     {
         // NavState (breadcrumbs, etc) is Scoped, so it lives as long as our connection lives.
         // So when a new page is visited, we need to clear navigation to prevent breadcrumbs from bleed-over, etc.
         // This also makes the navbar invisible by default.
+
         Bread.Reset();
     }
 

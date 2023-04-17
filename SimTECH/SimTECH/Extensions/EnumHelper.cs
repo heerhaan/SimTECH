@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Extensions
+﻿using MudBlazor;
+
+namespace SimTECH.Extensions
 {
     public static class EnumHelper
     {
@@ -27,6 +29,15 @@
                 _ => Weather.Sunny,
             };
         }
+
+        public static string GetWeatherIcon(this Weather weather) => weather switch
+        {
+            Weather.Sunny       => Icons.Material.Filled.WbSunny,
+            Weather.Overcast    => Icons.Material.Filled.Cloud,
+            Weather.Rain        => Icons.Material.Filled.WaterDrop,
+            Weather.Storm       => Icons.Material.Filled.Tsunami,
+            _ => Icons.Material.Filled.QuestionMark
+        };
 
         public static Incident[] GetDriverIncidents => new Incident[] { Incident.Damage, Incident.Collision, Incident.Accident, Incident.Puncture };
         public static Incident[] GetCarIncidents => new Incident[] { Incident.Electrics, Incident.Exhaust, Incident.Clutch, Incident.Hydraulics, Incident.Wheel, Incident.Brakes };

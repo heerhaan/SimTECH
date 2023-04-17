@@ -23,8 +23,8 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Race
-                .Include(e => e.Track)
                 .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Track)
                 .ToListAsync();
         }
 
@@ -43,8 +43,8 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Race
-                .Include(e => e.Track)
                 .Where(e => e.SeasonId == seasonId && (e.State == State.Concept || e.State == State.Active || e.State == State.Advanced))
+                .Include(e => e.Track)
                 .OrderBy(e => e.Round)
                 .FirstOrDefaultAsync();
         }
