@@ -9,17 +9,16 @@
 {
     <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" Style="width: 1600px">
         <ToolBarContent>
-            <MudStack Row="true" Justify="Justify.SpaceBetween">
+            <MudStack Row="true" Justify="Justify.SpaceBetween" Style="width:100%">
                 <MudText>
                     <MudIcon Icon="@(Model.Weather.GetWeatherIcon())" />
                     <CountryFlag Code="@Model.Country" />
                     @Model.Name - ROUND @Model.Round
                 </MudText>
-            </MudStack>
-            
-            <MudChip Color="Color.Dark" Label="true">@(racedLaps) / @(totalLaps)</MudChip>
 
-            <div>
+                <MudChip Color="Color.Dark" DisableRipple="true" Label="true">@(racedLaps) / @(totalLaps)</MudChip>
+
+                <div>
                 @if (calculated >= calculationCount)
                 {
                     <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
@@ -31,7 +30,8 @@
                     *@
                     <MudButton Color="Color.Tertiary" Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
                 }
-            </div>
+                </div>
+            </MudStack>
         </ToolBarContent>
         <ColGroup>
             <col style="width: 15px" />
