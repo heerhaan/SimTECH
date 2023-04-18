@@ -1,7 +1,7 @@
 ﻿@page "/practice/{RaceId:long}"
 
 @inject RaceService _raceService
-@inject NavigationManager Nav
+@inject NavigationManager _nav
 
 @if (loading)
 {
@@ -10,14 +10,14 @@
 else
 {
     <MudContainer>
-        <MudTable Items="@PracticeModel.PracticeDrivers.OrderBy(e => e.Position)">
+        <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)">
             <ToolBarContent>
                 <MudText Typo="Typo.h6">
-                    <CountryFlag Code="@PracticeModel.Country" />
-                    @PracticeModel.Name - PRACTICE
+                    <CountryFlag Code="@Model.Country" />
+                    @Model.Name - PRACTICE
                 </MudText>
                 <MudSpacer />
-                @if (advancedRuns == PracticeModel.AmountRuns)
+                @if (advancedRuns == Model.AmountRuns)
                 {
                     <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
                 }
@@ -28,30 +28,34 @@ else
             </ToolBarContent>
             <HeaderContent>
                 <MudTh>#</MudTh>
+                <MudTh Class="number-col">No.</MudTh>
                 <MudTh>Driver</MudTh>
-                <MudTh>Num</MudTh>
                 <MudTh>Team</MudTh>
                 <MudTh>PWR</MudTh>
-                @for (int i = 1; i <= PracticeModel.AmountRuns; i++)
+                @for (int i = 1; i <= Model.AmountRuns; i++)
                 {
                     var j = i;
-                    <MudTh>@j</MudTh>
+                    <MudTh Class="number-col">@j</MudTh>
                 }
                 <MudTh>Score</MudTh>
                 <MudTh>Gap</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.Position</MudTd>
+                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                    @context.Number
+                </MudTd>
                 <MudTd>@context.FullName</MudTd>
-                <MudTd>@context.Number</MudTd>
-                <MudTd>@context.TeamName</MudTd>
+                <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">
+                    @context.TeamName
+                </MudTd>
                 <MudTd>@context.Power</MudTd>
                 @foreach (var runResult in context.RunValues)
                 {
-                    <MudTd>@runResult</MudTd>
+                    <MudTd Class="number-col">@runResult</MudTd>
                 }
                 <MudTd>@context.MaxScore</MudTd>
-                <MudTd>@GapToLeader(context.MaxScore)</MudTd>
+                <MudTd>+@(context.TimedGap(Model.GapMarge))</MudTd>
             </RowTemplate>
         </MudTable>
     </MudContainer>
@@ -60,53 +64,47 @@ else
 @code {
     [Parameter] public long RaceId { get; set; }
 
-    public PracticeModel PracticeModel { get; set; }
+    public PracticeModel Model { get; set; }
 
-    private bool loading = true;
-    private int advancedRuns = 0;
-    private int maxRng = 30;
-    private int highestScore = 0;
-    private double gapMarge = 0.08;
+    bool loading = true;
+    int advancedRuns = 0;
+    int highestScore = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        PracticeModel = await _raceService.RetrievePracticeModel(RaceId);
+        Model = await _raceService.RetrievePracticeModel(RaceId);
 
         loading = false;
-    }
-
-    private string GapToLeader(int score)
-    {
-        double gap = ((highestScore - score) * gapMarge);
-
-        return $"+{Math.Round(gap, 2)}s";
     }
 
     private void Advance()
     {
         var positionIndex = 0;
 
-        foreach (var driver in PracticeModel.PracticeDrivers)
+        foreach (var driver in Model.PracticeDrivers)
         {
-            var randomResult = driver.Power + NumberHelper.RandomInt(maxRng);
-            driver.RunValues[advancedRuns] = randomResult;
+            var result = driver.Power + NumberHelper.RandomInt(Model.PracticeRng);
+            driver.RunValues[advancedRuns] = result;
 
-            if (randomResult > highestScore)
-                highestScore = randomResult;
+            if (result > highestScore)
+                highestScore = result;
         }
 
-        foreach (var driver in PracticeModel.PracticeDrivers)
+        foreach (var driver in Model.PracticeDrivers)
+        {
+            driver.Gap = highestScore - driver.MaxScore;
             driver.Position = ++positionIndex;
+        }
 
         advancedRuns++;
     }
 
     private async Task Finish()
     {
-        var positionResults = PracticeModel.PracticeDrivers.ToDictionary(e => e.ResultId, e => e.Position);
+        var positionResults = Model.PracticeDrivers.ToDictionary(e => e.ResultId, e => e.Position);
 
         await _raceService.PersistGridPositions(positionResults);
 
-        Nav.NavigateTo("/raceweek/" + RaceId);
+        _nav.NavigateTo("/raceweek/" + RaceId);
     }
 }

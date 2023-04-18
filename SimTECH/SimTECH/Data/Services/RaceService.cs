@@ -468,6 +468,8 @@ namespace SimTECH.Data.Services
                 if (team.Team.TeamTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
+                var traitEffect = NumberHelper.SumTraitEffects(driverTraits);
+
                 raceDrivers.Add(new QualifyingDriver
                 {
                     ResultId = driverResult.Id,
@@ -479,9 +481,8 @@ namespace SimTECH.Data.Services
                     Colour = team.Colour,
                     Accent = team.Accent,
 
-                    Power = driverPower,
+                    Power = driverPower + traitEffect.QualifyingPace,
 
-                    TraitEffect = NumberHelper.SumTraitEffects(driverTraits),
                     RunValuesQ1 = new int[season.RunAmountSession],
                     RunValuesQ2 = new int[season.RunAmountSession],
                     RunValuesQ3 = new int[season.RunAmountSession],
@@ -495,14 +496,15 @@ namespace SimTECH.Data.Services
                 Country = race.Track.Country,
                 Weather = race.Weather,
 
-                AmountRuns = season.RunAmountSession,
-
                 QualifyingDrivers = raceDrivers,
 
+                AmountRuns = season.RunAmountSession,
                 MaximumRaceDrivers = season.MaximumDriversInRace,
                 QualyRng = season.QualifyingRNG,
                 QualyAmountQ2 = season.QualifyingAmountQ2,
                 QualyAmountQ3 = season.QualifyingAmountQ3,
+
+                GapMarge = _config.GapMarge,
             };
         }
 
@@ -514,6 +516,8 @@ namespace SimTECH.Data.Services
                 .Include(e => e.Track)
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
+
+            var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
 
             var driverResults = await context.Result
                 .Where(e => e.RaceId == raceId)
@@ -534,7 +538,7 @@ namespace SimTECH.Data.Services
 
             // Excludes wet traits if the race isn't wet either
             var allTraits = await context.Trait
-                .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.IsWet)
+                .Where(e => !e.ForWetConditions)
                 .ToListAsync();
 
             // Do we feel secure about these null refs?
@@ -543,8 +547,6 @@ namespace SimTECH.Data.Services
                 .ToList();
 
             var practiceDrivers = new List<PracticeDriver>();
-
-            var amountRuns = 2;
 
             foreach (var driverResult in driverResults)
             {
@@ -583,7 +585,7 @@ namespace SimTECH.Data.Services
 
                     Power = driverPower,
 
-                    RunValues = new int[amountRuns],
+                    RunValues = new int[season.RunAmountSession],
                 });
             }
 
@@ -594,9 +596,12 @@ namespace SimTECH.Data.Services
                 Country = race.Track.Country,
                 Weather = race.Weather,
 
-                AmountRuns = amountRuns,
+                AmountRuns = season.RunAmountSession,
+                PracticeRng = season.QualifyingRNG / 2,
 
                 PracticeDrivers = practiceDrivers,
+
+                GapMarge = _config.GapMarge,
             };
         }
 

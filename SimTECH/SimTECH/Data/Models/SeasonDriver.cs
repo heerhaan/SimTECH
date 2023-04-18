@@ -20,4 +20,14 @@
 
         public IList<Result> Results { get; set; } = default!;
     }
+
+    public static class ExtendSeasonDriver
+    {
+        public static int RetrieveStatusBonus(this SeasonDriver driver, int modifier) => driver.TeamRole switch
+        {
+            TeamRole.Main => modifier,
+            TeamRole.Support => modifier * -1,
+            _ => 0,
+        };
+    }
 }

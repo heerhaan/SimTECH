@@ -44,7 +44,7 @@
                                 <MudNumericField T="int" @bind-Value="model.PointsFastestLap" Label="Awarded points Fastest Lap" Class="field-md" />
                             </div>
                             <div>
-                                <MudText Typo="Typo.subtitle1">TEMP: Select a league for this season</MudText>
+                                <MudText Typo="Typo.subtitle1">Select a league for this season</MudText>
                                 <MudDivider />
                                 <MudSelect T="long" @bind-Value="model.LeagueId" Label="League" ReadOnly="@(model.Id != 0)">
                                     @foreach (var select in Leagues)
@@ -54,15 +54,6 @@
                                 </MudSelect>
                             </div>
                         </MudStack>
-
-                        @if (Copied)
-                        {
-                            <MudCheckBox @bind-Checked="_copyRaces" Color="Color.Tertiary" Label="Copy all races from this season" />
-                            @if (_copyRaces)
-                            {
-                                <MudAlert Severity="Severity.Warning">Sorry! Feature isn't implemented yet.</MudAlert>
-                            }
-                        }
                     </MudPaper>
                 </MudItem>
 
@@ -116,10 +107,8 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? SeasonDialog { get; set; }
-
     [Parameter] public Season? Season { get; set; }
     [Parameter] public List<League> Leagues { get; set; }
-    [Parameter] public bool Copied { get; set; }
 
     private EditSeasonModel model = new();
     private EditPointAllotmentModel allotmentBackup;
@@ -135,9 +124,6 @@
 
             if (model.PointAllotments.Any())
                 _lowestPosition = model.PointAllotments.Max(e => e.Position);
-
-            if (Copied)
-                model.ResetIdentifierFields();
         }
 
         // TODO: Following is temp until this is set by default

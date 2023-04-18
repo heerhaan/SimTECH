@@ -2,17 +2,33 @@
 
 <PageTitle>Guide</PageTitle>
 
-<MudContainer>
-    <MudPaper>
-        <MudText>Idea of this page is to describe the functionalities in this application</MudText>
-
-        <MudContainer>
-            <MudText>What is calculated when pressing advance?</MudText>
-            ...
-        </MudContainer>
-    </MudPaper>
-</MudContainer>
+<MudGrid>
+    <MudItem xs=12>
+        <MudPaper Elevation="15" Height="100px" Class="d-flex flex-column justify-center align-center pa-4">
+            <MudText Typo="Typo.h4">Guide</MudText>
+            <MudText>Idea of this page is to describe the functionalities in this application</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="3">
+        <MudTreeView @bind-SelectedValue="ActiveTopic" Color="Color.Secondary" Hover="true">
+            <MudTreeViewItem @bind-Expanded="@folderOneExpanded" Value="@("Topic 1")" Icon="@(folderOneExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
+                <MudTreeViewItem Value="@("Subtopic 1")" Icon="@Icons.Custom.FileFormats.FileImage" />
+                <MudTreeViewItem Value="@("Subtopic 2")" Icon="@Icons.Custom.FileFormats.FileVideo" />
+            </MudTreeViewItem>
+            <MudTreeViewItem @bind-Expanded="@folderTwoExpanded" Value="@("Topic 2")" Icon="@(folderTwoExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
+                <MudTreeViewItem Value="@("Subtopic 3")" Icon="@Icons.Custom.FileFormats.FileExcel" />
+            </MudTreeViewItem>
+        </MudTreeView>
+    </MudItem>
+    <MudItem xs="9">
+        <MudPaper>
+            <MudText Style="width: 100%" Typo="@Typo.subtitle1">Selected item: @ActiveTopic</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
 
 @code {
-
+    string ActiveTopic { get; set; }
+    bool folderOneExpanded;
+    bool folderTwoExpanded;
 }

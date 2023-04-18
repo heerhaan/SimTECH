@@ -1,12 +1,12 @@
 ﻿@page "/overview/{SeasonId:long}"
 @page "/overview/{SeasonId:long}/{TabIndex:int}"
-@inject LeagueService LeagueService
-@inject RaceService RaceService
-@inject SeasonService SeasonService
-@inject BreadcrumbProvider Bread
-@inject NavigationManager Nav
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
+@inject LeagueService _leagueService
+@inject RaceService _raceService
+@inject SeasonService _seasonService
+@inject BreadcrumbProvider _bread
+@inject NavigationManager _nav
+@inject IDialogService _dialogService
+@inject ISnackbar _snackbar
 
 <PageTitle>Overview</PageTitle>
 
@@ -186,7 +186,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Seasons", href: "seasons"),
@@ -195,28 +195,28 @@
 
         _activeTabIndex = TabIndex;
 
-        Season = await SeasonService.GetSeasonById(SeasonId);
+        Season = await _seasonService.GetSeasonById(SeasonId);
 
         //OverviewAvailability = SeasonService.GetOverviewAvailability(SeasonId);
 
         if (Season != null)
-            NextRace = await RaceService.GetNextRaceOfSeason(SeasonId);
+            NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
     }
 
     private async Task StartSeason()
     {
         if (Season != null)
         {
-            var error = await SeasonService.ActivateSeason(Season.Id);
+            var error = await _seasonService.ActivateSeason(Season.Id);
 
             if (error == null)
             {
                 Season.State = State.Active; // NOTE: It always changes to active if started
-                Snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
+                _snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
             }
             else
             {
-                Snackbar.Add(error, Severity.Error);
+                _snackbar.Add(error, Severity.Error);
             }
         }
     }
@@ -224,37 +224,37 @@
     private void AddAllEntrants()
     {
         // TODO: Check if there are already any entrants added, if so then remove
-        Nav.NavigateTo($"/addentrants/{SeasonId}");
+        _nav.NavigateTo($"/addentrants/{SeasonId}");
     }
 
-    private void GoToComponentUsage() => Nav.NavigateTo($"/components/{SeasonId}");
+    private void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");
 
     private async Task GoToNextRace()
     {
         if (NextRace is null)
         {
-            Snackbar.Add("can't find the next race, you sure it exists lad?");
+            _snackbar.Add("can't find the next race, you sure it exists lad?");
             return;
         }
 
         if (NextRace.State == State.Concept)
-            await RaceService.ActivateRace(NextRace.Id);
+            await _raceService.ActivateRace(NextRace.Id);
 
-        Nav.NavigateTo($"/raceweek/{NextRace.Id}");
+        _nav.NavigateTo($"/raceweek/{NextRace.Id}");
     }
 
     async Task UpdateSeason()
     {
         // unless I see a reason to retrieve this for a reason elsewhere on this page
-        var leagues = await LeagueService.GetLeagues();
-        var parameters = new DialogParameters { ["Season"] = Season, ["Leagues"] = leagues, ["Copied"] = false };
+        var leagues = await _leagueService.GetLeagues();
+        var parameters = new DialogParameters { ["Season"] = Season, ["Leagues"] = leagues };
 
-        var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
+        var dialog = await _dialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
         {
-            await SeasonService.UpdateSeason(updatedItem);
+            await _seasonService.UpdateSeason(updatedItem);
             Season = updatedItem;
         }
     }

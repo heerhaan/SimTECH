@@ -1,7 +1,7 @@
 ﻿@page "/qualifying/{RaceId:long}"
 
 @inject RaceService _raceService
-@inject NavigationManager Nav
+@inject NavigationManager _nav
 
 @if (loading)
 {
@@ -19,7 +19,7 @@ else
                 <ToolBarContent>
                     <MudText>
                         <CountryFlag Code="@Model.Country" />
-                        @Model.Name - QUALIFYING
+                        @Model.Name - QUALIFYING Q1
                     </MudText>
                     <MudSpacer />
                     @if (advancedQ1 != Model.AmountRuns)
@@ -29,8 +29,8 @@ else
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh>#</MudTh>
+                    <MudTh>No.</MudTh>
                     <MudTh>Driver</MudTh>
-                    <MudTh>Num</MudTh>
                     <MudTh>Team</MudTh>
                     <MudTh>PWR</MudTh>
                     @for (int i = 1; i <= Model.AmountRuns; i++)
@@ -43,17 +43,17 @@ else
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>@context.PositionQ1</MudTd>
+                    <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">@context.Number</MudTd>
                     <MudTd>@context.FullName</MudTd>
-                    <MudTd>@context.Number</MudTd>
-                    <MudTd>@context.TeamName</MudTd>
+                    <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">@context.TeamName</MudTd>
                     <MudTd>@context.Power</MudTd>
                     @foreach (var runResult in context.RunValuesQ1)
                     {
                         <MudTd>@runResult</MudTd>
                     }
                     <MudTd>@context.MaxScoreQ1</MudTd>
-                    <MudTd>@context.DisplayGapQ1</MudTd>
-                </RowTemplate>
+                    <MudTd>+@(context.GapQ1)</MudTd>
+                    </RowTemplate>
             </MudTable>
         </MudTabPanel>
         <MudTabPanel Text="Q2" Disabled="@(advancedQ1 != Model.AmountRuns)">
@@ -63,7 +63,7 @@ else
                     <ToolBarContent>
                         <MudText>
                             <CountryFlag Code="@Model.Country" />
-                            @Model.Name - QUALIFYING
+                            @Model.Name - QUALIFYING Q2
                         </MudText>
                         <MudSpacer />
                         @if (advancedQ2 != Model.AmountRuns)
@@ -73,8 +73,8 @@ else
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>#</MudTh>
+                        <MudTh>No.</MudTh>
                         <MudTh>Driver</MudTh>
-                        <MudTh>Num</MudTh>
                         <MudTh>Team</MudTh>
                         <MudTh>PWR</MudTh>
                         @for (int i = 1; i <= Model.AmountRuns; i++)
@@ -87,17 +87,17 @@ else
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>@context.PositionQ2</MudTd>
+                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">@context.Number</MudTd>
                         <MudTd>@context.FullName</MudTd>
-                        <MudTd>@context.Number</MudTd>
-                        <MudTd>@context.TeamName</MudTd>
+                        <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">@context.TeamName</MudTd>
                         <MudTd>@context.Power</MudTd>
                         @foreach (var runResult in context.RunValuesQ2)
                         {
                             <MudTd>@runResult</MudTd>
                         }
                         <MudTd>@context.MaxScoreQ2</MudTd>
-                        <MudTd>@context.DisplayGapQ2</MudTd>
-                    </RowTemplate>
+                        <MudTd>+@(context.GapQ2)</MudTd>
+                        </RowTemplate>
                 </MudTable>
             }
         </MudTabPanel>
@@ -108,7 +108,7 @@ else
                     <ToolBarContent>
                         <MudText>
                             <CountryFlag Code="@Model.Country" />
-                            @Model.Name - QUALIFYING
+                            @Model.Name - QUALIFYING Q3
                         </MudText>
                         <MudSpacer />
                         @if (advancedQ3 == Model.AmountRuns)
@@ -122,8 +122,8 @@ else
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>#</MudTh>
+                        <MudTh>No.</MudTh>
                         <MudTh>Driver</MudTh>
-                        <MudTh>Num</MudTh>
                         <MudTh>Team</MudTh>
                         <MudTh>PWR</MudTh>
                         @for (int i = 1; i <= Model.AmountRuns; i++)
@@ -136,16 +136,16 @@ else
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>@context.PositionQ3</MudTd>
+                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">@context.Number</MudTd>
                         <MudTd>@context.FullName</MudTd>
-                        <MudTd>@context.Number</MudTd>
-                        <MudTd>@context.TeamName</MudTd>
+                        <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">@context.TeamName</MudTd>
                         <MudTd>@context.Power</MudTd>
                         @foreach (var runResult in context.RunValuesQ3)
                         {
                             <MudTd>@runResult</MudTd>
                         }
                         <MudTd>@context.MaxScoreQ3</MudTd>
-                        <MudTd>@context.DisplayGapQ3</MudTd>
+                        <MudTd>+@(context.GapQ3)</MudTd>
                     </RowTemplate>
                 </MudTable>
             }
@@ -179,13 +179,6 @@ else
         loading = false;
     }
 
-    private string GapToLeader(int score, int highestScore)
-    {
-        double gap = ((highestScore - score) * gapMarge);
-
-        return $"+{Math.Round(gap, 2)}";
-    }
-
     private void AdvanceQ1()
     {
         var positionIndex = 0;
@@ -201,8 +194,7 @@ else
         {
             driver.Position = ++positionIndex;
             driver.PositionQ1 = positionIndex;
-
-            driver.DisplayGapQ1 = GapToLeader(driver.MaxScoreQ1, highestScore);
+            driver.GapQ1 = Math.Round(((highestScore - driver.MaxScoreQ1) * Model.GapMarge), 2);
         }
 
         advancedQ1++;
@@ -234,9 +226,7 @@ else
             {
                 driver.Position = ++positionIndex;
                 driver.PositionQ2 = positionIndex;
-
-                //driver.LeaderGap = GapToLeader(driver.MaxScore, highestScore);
-                driver.DisplayGapQ2 = GapToLeader(driver.MaxScoreQ2, highestScore);
+                driver.GapQ2 = Math.Round(((highestScore - driver.MaxScoreQ2) * Model.GapMarge), 2);
             }
 
             advancedQ2++;
@@ -266,8 +256,7 @@ else
             {
                 driver.Position = ++positionIndex;
                 driver.PositionQ3 = positionIndex;
-
-                driver.DisplayGapQ3 = GapToLeader(driver.MaxScoreQ3, highestScore);
+                driver.GapQ3 = Math.Round(((highestScore - driver.MaxScoreQ3) * Model.GapMarge), 2);
             }
 
             advancedQ3++;
@@ -280,22 +269,6 @@ else
 
         await _raceService.PersistGridPositions(positionResults, RaceId, Model.MaximumRaceDrivers);
 
-        Nav.NavigateTo("/raceweek/" + RaceId);
-    }
-
-    // Not used yet but I get the idea something like this could be used to implement a more generic solution in favour of hardcoded sessions
-    private class SessionDriver : QualifyingDriver
-    {
-        public int[] SessionValues { get; set; }
-        public int SessionPosition { get; set; }
-        public string LeaderGap { get; set; } = string.Empty;
-
-        public int MaxScore => SessionValues.Max();
-
-        public void ResetSessionResult(int runAmount)
-        {
-            SessionValues = new int[runAmount];
-            LeaderGap = string.Empty;
-        }
+        _nav.NavigateTo("/raceweek/" + RaceId);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using SimTECH.Data.Models;
 using SimTECH.Extensions;
-using System.Linq;
 
 namespace SimTECH.PageModels
 {
@@ -21,6 +20,9 @@ namespace SimTECH.PageModels
         public string Accent { get; set; }
 
         public int Power { get; set; }
+
+        public int Gap { get; set; }
+        public double TimedGap(double marge) => Math.Round(Gap * marge, 2);
     }
 
     public class RaceDriver : DriverBase
@@ -46,14 +48,12 @@ namespace SimTECH.PageModels
         public int RngMinMod { get; set; }
         public int RngMaxMod { get; set; }
 
-        public int Gap { get; set; }
         public bool HasFastestLap { get; set; }
 
         public List<LapScore> LapResults { get; set; } = new();
 
         public int LapSum => LapResults.Sum(e => e.Score);
         public int GridChange => Grid - Position;
-        public double TimedGap(double marge) => Math.Round(Gap * marge, 2);
 
         public Result ToResult(long raceId)
         {
@@ -106,43 +106,36 @@ namespace SimTECH.PageModels
         }
     }
 
-    public class ScoredPoints
-    {
-        public long SeasonDriverId { get; set; }
-        public long SeasonTeamId { get; set; }
-
-        public int Points { get; set; }
-        public int HiddenPoints { get; set; }
-    }
-
     public class QualifyingDriver : DriverBase
     {
         // We now repeat these properties three times, enforcing (for now) three sessions but it's not too hard to make a list of this
         public int[] RunValuesQ1 { get; set; }
         public int PositionQ1 { get; set; }
         public int MaxScoreQ1 => RunValuesQ1.Max();
-        public string DisplayGapQ1 { get; set; }
+        public double GapQ1 { get; set; }
 
         public int[] RunValuesQ2 { get; set; }
         public int PositionQ2 { get; set; }
         public int MaxScoreQ2 => RunValuesQ2.Max();
-        public string DisplayGapQ2 { get; set; }
+        public double GapQ2 { get; set; }
 
         public int[] RunValuesQ3 { get; set; }
         public int PositionQ3 { get; set; }
         public int MaxScoreQ3 => RunValuesQ3.Max();
-        public string DisplayGapQ3 { get; set; }
+        public double GapQ3 { get; set; }
 
         public int Position { get; set; }
 
-        public int BaseValue { get; set; }
-        public int EnginePower { get; set; }
-        public List<long> DriverTraitIds { get; set; }
-        public List<long> TeamTraitIds { get; set; }
+        public int GetQualifyingResult(int maxRng) => Power + NumberHelper.RandomInt(maxRng);
+    }
 
-        public TraitEffect TraitEffect { get; set; }
-
-        public int GetQualifyingResult(int maxRng) => Power + TraitEffect.QualifyingPace + NumberHelper.RandomInt(maxRng);
+    public class QualySession
+    {
+        // Optionally add a grouping name for the session too
+        public int[] RunValues { get; set; }
+        public int Position { get; set; }
+        public int MaxScore { get; set; }
+        public string DisplayGap { get; set; }
     }
 
     public class PracticeDriver : DriverBase

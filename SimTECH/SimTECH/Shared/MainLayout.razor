@@ -2,7 +2,7 @@
 @inject BreadcrumbProvider Bread
 @inject SimAuthenticationStateProvider SimAuthenticationStateProvider
 
-<MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="theme" />
+<MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="@theme" />
 <MudDialogProvider
     FullWidth="true"
     MaxWidth="MaxWidth.Large"
@@ -17,6 +17,7 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Primary" Edge="Edge.Start" OnClick="ToggleSidebar" />
         <Breadcrumbs />
         <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" Href="/guide" />
         <MudToggleIconButton @bind-Toggled="@isDarkTheme"
             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
