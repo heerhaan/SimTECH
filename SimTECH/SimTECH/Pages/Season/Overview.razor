@@ -27,14 +27,24 @@
                                 </div>
                                 <MudSpacer />
                                 <div>-</div>
-                                @if (Season.State == State.Concept)
-                                {
-                                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                                        <MudButton OnClick="StartSeason">Start season</MudButton>
-                                        <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
-                                    </MudButtonGroup>
-                                }
                             </MudStack>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="6">
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudText Typo="Typo.h6">Controls</MudText>
+                            @if (Season.State == State.Concept)
+                            {
+                                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                                    <MudButton OnClick="StartSeason">Start season</MudButton>
+                                    <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
+                                </MudButtonGroup>
+                            }
+                            else if (Season.State == State.Active)
+                            {
+                                <MudButton Variant="Variant.Outlined" OnClick="FinishSeason">Finish season</MudButton>
+                            }
                         </MudPaper>
                     </MudItem>
 
@@ -65,6 +75,10 @@
                     </MudItem>
 
                     <MudItem xs="6">
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="6">
                         <MudPaper Height="200px" Elevation="15" Class="pa-4">
                             <MudStack>
                                 <MudText Typo="Typo.h6">Components</MudText>
@@ -75,14 +89,6 @@
                                 <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="GoToComponentUsage">Go to</MudButton>
                             </MudStack>
                         </MudPaper>
-                    </MudItem>
-
-                    <MudItem xs="6">
-                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
-                    </MudItem>
-
-                    <MudItem xs="6">
-                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
                     </MudItem>
                 </MudGrid>
             </MudTabPanel>
@@ -203,7 +209,29 @@
             NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
     }
 
-    private async Task StartSeason()
+    void AddAllEntrants()
+    {
+        // TODO: Check if there are already any entrants added, if so then remove
+        _nav.NavigateTo($"/addentrants/{SeasonId}");
+    }
+
+    void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");
+
+    async Task GoToNextRace()
+    {
+        if (NextRace is null)
+        {
+            _snackbar.Add("can't find the next race, you sure it exists lad?");
+            return;
+        }
+
+        if (NextRace.State == State.Concept)
+            await _raceService.ActivateRace(NextRace.Id);
+
+        _nav.NavigateTo($"/raceweek/{NextRace.Id}");
+    }
+
+    async Task StartSeason()
     {
         if (Season != null)
         {
@@ -221,33 +249,13 @@
         }
     }
 
-    private void AddAllEntrants()
-    {
-        // TODO: Check if there are already any entrants added, if so then remove
-        _nav.NavigateTo($"/addentrants/{SeasonId}");
-    }
-
-    private void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");
-
-    private async Task GoToNextRace()
-    {
-        if (NextRace is null)
-        {
-            _snackbar.Add("can't find the next race, you sure it exists lad?");
-            return;
-        }
-
-        if (NextRace.State == State.Concept)
-            await _raceService.ActivateRace(NextRace.Id);
-
-        _nav.NavigateTo($"/raceweek/{NextRace.Id}");
-    }
-
     async Task UpdateSeason()
     {
+        var editModel = new EditSeasonModel(Season);
         // unless I see a reason to retrieve this for a reason elsewhere on this page
         var leagues = await _leagueService.GetLeagues();
-        var parameters = new DialogParameters { ["Season"] = Season, ["Leagues"] = leagues };
+
+        var parameters = new DialogParameters { ["Model"] = editModel, ["Leagues"] = leagues };
 
         var dialog = await _dialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
@@ -256,6 +264,20 @@
         {
             await _seasonService.UpdateSeason(updatedItem);
             Season = updatedItem;
+        }
+    }
+
+    async Task FinishSeason()
+    {
+        bool? confirm = await _dialogService.ShowMessageBox(
+            "Warning",
+            "Are you sure you want to finish this season, this action cannot be undone!",
+            yesText: "Yep", cancelText: "Nope");
+
+        if (confirm == true)
+        {
+            await _seasonService.FinishSeason(Season.Id);
+            _nav.NavigateTo("/seasons");
         }
     }
 }

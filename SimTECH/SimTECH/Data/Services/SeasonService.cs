@@ -100,15 +100,24 @@ namespace SimTECH.Data.Services
             if (season?.Races?.Any() != true)
                 return "hint of advice, a season without any races is hardly much of a season. add races, pisshead";
 
-            // i know i know, fugly solution here but alas it works
-            var editModel = new EditSeasonModel(season) { State = State.Active };
-            var editedRecord = editModel.Record;
+            season.State = State.Active;
 
-            context.Update(editedRecord);
-
+            context.Update(season);
             await context.SaveChangesAsync();
 
             return null;
+        }
+
+        public async Task FinishSeason(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var season = await context.Season.SingleAsync(e => e.Id == seasonId);
+
+            season.State = State.Closed;
+            context.Update(season);
+
+            await context.SaveChangesAsync();
         }
 
         #region page models

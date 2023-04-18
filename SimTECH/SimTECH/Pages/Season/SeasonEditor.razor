@@ -3,7 +3,7 @@
         <MudText>Create a new season with the following settings</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@model">
+        <MudForm Model="@Model">
             <MudGrid Spacing="2">
                 <MudItem xs="8">
                     <MudPaper Elevation="5" Class="pa-4">
@@ -11,42 +11,42 @@
                             <div>
                                 <MudText Typo="Typo.subtitle1">Season information</MudText>
                                 <MudDivider />
-                                <MudNumericField T="int" @bind-Value="model.Year" Label="Year" Class="field-sm" />
+                                <MudNumericField T="int" @bind-Value="Model.Year" Label="Year" Class="field-sm" />
                             </div>
                             <div>
                                 <MudText Typo="Typo.subtitle1">Qualifying (and practice) settings</MudText>
                                 <MudDivider />
-                                <MudNumericField T="int" @bind-Value="model.RunAmountSession" Label="Amount of runs per session" Class="field-md" />
-                                <MudNumericField T="int" @bind-Value="model.QualifyingRNG" Label="Maximum RNG for qualifying" Class="field-md" />
+                                <MudNumericField T="int" @bind-Value="Model.RunAmountSession" Label="Amount of runs per session" Class="field-md" />
+                                <MudNumericField T="int" @bind-Value="Model.QualifyingRNG" Label="Maximum RNG for qualifying" Class="field-md" />
                                 <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="model.QualifyingAmountQ2" Label="Amount of drivers in Q2" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="model.QualifyingAmountQ3" Label="Amount of drivers in Q3" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ2" Label="Amount of drivers in Q2" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ3" Label="Amount of drivers in Q3" Class="field-md" />
                                 </MudStack>
                             </div>
                             <div>
                                 <MudText Typo="Typo.subtitle1">Race settings</MudText>
                                 <MudDivider />
                                 <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="model.RngMinimum" Label="Race Min. RNG" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="model.RngMaximum" Label="Race Max. RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.RngMinimum" Label="Race Min. RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.RngMaximum" Label="Race Max. RNG" Class="field-md" />
                                 </MudStack>
                                 <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="model.PitMinimum" Label="Pit Min. RNG" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="model.PitMaximum" Label="Pit Max. RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.PitMinimum" Label="Pit Min. RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.PitMaximum" Label="Pit Max. RNG" Class="field-md" />
                                 </MudStack>
-                                <MudNumericField T="int" @bind-Value="model.MaximumDriversInRace" Label="Maximum allowed drivers in race" Class="field-md" />
-                                <MudNumericField T="int" @bind-Value="model.GridBonus" Label="Bonus per grid position" Class="field-md" />
+                                <MudNumericField T="int" @bind-Value="Model.MaximumDriversInRace" Label="Maximum allowed drivers in race" Class="field-md" />
+                                <MudNumericField T="int" @bind-Value="Model.GridBonus" Label="Bonus per grid position" Class="field-md" />
                             </div>
                             <div>
                                 <MudText Typo="Typo.subtitle1">Additional points</MudText>
                                 <MudDivider />
-                                <MudNumericField T="int" @bind-Value="model.PointsPole" Label="Awarded points Pole" Class="field-md" />
-                                <MudNumericField T="int" @bind-Value="model.PointsFastestLap" Label="Awarded points Fastest Lap" Class="field-md" />
+                                <MudNumericField T="int" @bind-Value="Model.PointsPole" Label="Awarded points Pole" Class="field-md" />
+                                <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Awarded points Fastest Lap" Class="field-md" />
                             </div>
                             <div>
                                 <MudText Typo="Typo.subtitle1">Select a league for this season</MudText>
                                 <MudDivider />
-                                <MudSelect T="long" @bind-Value="model.LeagueId" Label="League" ReadOnly="@(model.Id != 0)">
+                                <MudSelect T="long" @bind-Value="Model.LeagueId" Label="League" ReadOnly="@(Model.Id != 0)">
                                     @foreach (var select in Leagues)
                                     {
                                         <MudSelectItem Value="select.Id">@select.Name</MudSelectItem>
@@ -62,7 +62,7 @@
                         <MudText Typo="Typo.subtitle1">Achieved points per position</MudText>
                         <MudDivider />
 
-                        <MudTable Items="@model.PointAllotments" Dense="true" ReadOnly="false"
+                        <MudTable Items="@Model.PointAllotments" Dense="true" ReadOnly="false"
                                   RowEditPreview="BackupAllotment" RowEditCancel="ResetAllotment" ApplyButtonPosition="TableApplyButtonPosition.End"
                                   EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
                             <HeaderContent>
@@ -107,28 +107,21 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? SeasonDialog { get; set; }
-    [Parameter] public Season? Season { get; set; }
+    [Parameter] public EditSeasonModel Model { get; set; }
     [Parameter] public List<League> Leagues { get; set; }
 
-    private EditSeasonModel model = new();
     private EditPointAllotmentModel allotmentBackup;
 
-    private bool _copyRaces { get; set; }
-    private int _lowestPosition { get; set; }
+    private int _lowestPosition;
 
     protected override void OnInitialized()
     {
-        if (Season != null)
-        {
-            model = new EditSeasonModel(Season);
-
-            if (model.PointAllotments.Any())
-                _lowestPosition = model.PointAllotments.Max(e => e.Position);
-        }
+        if (Model.PointAllotments.Any())
+            _lowestPosition = Model.PointAllotments.Max(e => e.Position);
 
         // TODO: Following is temp until this is set by default
-        if (model.LeagueId == 0)
-            model.LeagueId = 1;
+        if (Model.LeagueId == 0)
+            Model.LeagueId = 1;
     }
 
     private void BackupAllotment(object allotment) //alternatively use EditPointAllotmentModel if this doesnt work
@@ -150,7 +143,7 @@
 
     private void AppendAllotment()
     {
-        model.PointAllotments.Add(new EditPointAllotmentModel
+        Model.PointAllotments.Add(new EditPointAllotmentModel
             {
                 Position = ++_lowestPosition,
                 Points = 0
@@ -160,19 +153,14 @@
     private void RemoveAllotment(EditPointAllotmentModel allotment)
     {
         --_lowestPosition;
-        model.PointAllotments.Remove(allotment);
+        Model.PointAllotments.Remove(allotment);
     }
 
     private void Submit()
     {
-        if (_copyRaces)
+        if (Model.IsDirty)
         {
-            // TODO: handle what to do here
-        }
-
-        if (model.IsDirty)
-        {
-            var modSeason = model.Record;
+            var modSeason = Model.Record;
             SeasonDialog?.Close(DialogResult.Ok(modSeason));
         }
     }

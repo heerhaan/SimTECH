@@ -64,17 +64,20 @@
         SeasonList = await SeasonService.GetSeasonList();
     }
 
-    // Arguably delete the copy, use by default the last season as a base
-    //private async Task CopySeason(Season season) => await UpdateSeason(season, true);
-    private async Task EditSeason(long seasonId)
+    private async Task NewSeason()
     {
-        var season = SeasonData.Single(e => e.Id == seasonId);
-        await UpdateSeason(season);
-    }
-    private async Task NewSeason() => await UpdateSeason(new Season());
-    private async Task UpdateSeason(Season item, bool isCopied = false)
-    {
-        var parameters = new DialogParameters { ["Season"] = item, ["Leagues"] = LeagueData, ["Copied"] = isCopied };
+        EditSeasonModel? model = null;
+
+        var previousSeason = SeasonData.OrderByDescending(e => e.Year).FirstOrDefault();
+
+        if (previousSeason != null)
+        {
+            model = new EditSeasonModel(previousSeason);
+            model.ResetIdentifierFields();
+            model.Year++;
+        }
+
+        var parameters = new DialogParameters { ["Model"] = (model ?? new()), ["Leagues"] = LeagueData };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
