@@ -4,7 +4,6 @@
 
 <MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="@theme" />
 <MudDialogProvider
-    FullWidth="true"
     MaxWidth="MaxWidth.Large"
     CloseButton="true"
     DisableBackdropClick="true"
@@ -22,6 +21,11 @@
             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
         
+        <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Primary">
+            <MudMenuItem OnClick="SetDefaultTheme">Default</MudMenuItem>
+            <MudMenuItem OnClick="SetSynthTheme">Synth</MudMenuItem>
+        </MudMenu>
+
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <ActivatorContent>
                 <MudAvatar Color="Color.Secondary">AB</MudAvatar>
@@ -68,6 +72,7 @@
         // So when a new page is visited, we need to clear navigation to prevent breadcrumbs from bleed-over, etc.
         // This also makes the navbar invisible by default.
 
+        // doesnt seem to work btw lol
         Bread.Reset();
     }
 
@@ -83,24 +88,34 @@
         notification = "Logged out!";
     }
 
+    void SetDefaultTheme() => theme = defaultTheme;
+    void SetSynthTheme() => theme = synthTheme;
+
     // TODO: Synth theme is not worked out yet, this exists as a showcase for which theme we're using here
     private MudTheme defaultTheme = new();
     private MudTheme synthTheme = new()
-    {
-        Palette = new()
         {
-            Primary = Colors.DeepPurple.Lighten2,
-            Secondary = Colors.Cyan.Accent2,
-        },
-        PaletteDark = new()
-        {
-            Primary = Colors.DeepPurple.Default,
-            Secondary = Colors.Cyan.Accent2,
-        },
-        LayoutProperties = new()
-        {
-            DrawerWidthLeft = "260px",
-            DrawerWidthRight = "300px"
-        }
-    };
+            Palette = new PaletteLight()
+            {
+                Primary = Colors.DeepPurple.Default,
+                Secondary = Colors.Pink.Default,
+                Tertiary = Colors.Orange.Accent3,
+                AppbarBackground = Colors.DeepPurple.Default,
+
+                // prim: #6002ee /
+                // seco: #ee0290 | #021aee
+                // teri: #ee6002 | #d602ee
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Primary = Colors.DeepPurple.Lighten1,
+                //Analogous
+                //Secondary = Colors.Indigo.Darken1,
+                //Tertiary = Colors.Purple.Darken1,
+
+                // Triadic
+                //Secondary = Colors.Pink.Darken2,
+                //Tertiary = Colors.Yellow.Darken2,
+            },
+        };
 }

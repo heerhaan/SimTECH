@@ -1,10 +1,9 @@
 ﻿@page "/"
-@inject BreadcrumbProvider Bread
 @inject RaceService RaceService
 @inject ProtectedLocalStorage LocalStorage
 @inject SimAuthenticationStateProvider AuthenticationProvider
 @inject NavigationManager Nav
-@inject IOptions<SimConfig> Config
+@inject IOptions<SimConfig> _config
 @attribute [AllowAnonymous]
 
 <PageTitle>Home</PageTitle>
@@ -13,13 +12,13 @@
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-                <MudText Typo="Typo.overline">Config:</MudText>
-                <MudText Typo="Typo.body2">Dsq chance: @Config.Value.DisqualifyChance</MudText>
-                <MudText Typo="Typo.body2">Gap marge p/s: @Config.Value.GapMarge</MudText>
-                <MudText Typo="Typo.body2">Team status car mod: @Config.Value.CarDriverStatusModifier</MudText>
-                <MudText Typo="Typo.body2">Mistake rolls: @Config.Value.MistakeAmountRolls</MudText>
-                <MudText Typo="Typo.body2">Mistake min rng: @Config.Value.MistakeLowerValue</MudText>
-                <MudText Typo="Typo.body2">Mistake max rng: @Config.Value.MistakeUpperValue</MudText>
+                <MudText Typo="Typo.overline">_config:</MudText>
+                <MudText Typo="Typo.body2">Dsq chance: @_config.Value.DisqualifyChance</MudText>
+                <MudText Typo="Typo.body2">Gap marge p/s: @_config.Value.GapMarge</MudText>
+                <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
+                <MudText Typo="Typo.body2">Mistake rolls: @_config.Value.MistakeAmountRolls</MudText>
+                <MudText Typo="Typo.body2">Mistake min rng: @_config.Value.MistakeLowerValue</MudText>
+                <MudText Typo="Typo.body2">Mistake max rng: @_config.Value.MistakeUpperValue</MudText>
             </MudPaper>
         </MudItem>
 
@@ -31,14 +30,14 @@
 
         <MudItem xs="12" sm="12" md="4">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-                <MudText Typo="Typo.overline">Config:</MudText>
-                <MudText Typo="Typo.body2">Sunny engine multiplier: @Config.Value.SunnyEngineMultiplier</MudText>
-                <MudText Typo="Typo.body2">Overcast engine multiplier: @Config.Value.OvercastEngineMultiplier</MudText>
-                <MudText Typo="Typo.body2">Wet engine multiplier: @Config.Value.WetEngineMultiplier</MudText>
-                <MudText Typo="Typo.body2">Rain RNG: @Config.Value.RainAdditionalRNG</MudText>
-                <MudText Typo="Typo.body2">Storm RNG: @Config.Value.StormAdditionalRNG</MudText>
-                <MudText Typo="Typo.body2">Rain reliability: @Config.Value.RainDriverReliabilityModifier</MudText>
-                <MudText Typo="Typo.body2">Storm reliability: @Config.Value.StormDriverReliabilityModifier</MudText>
+                <MudText Typo="Typo.overline">_config:</MudText>
+                <MudText Typo="Typo.body2">Sunny engine multiplier: @_config.Value.SunnyEngineMultiplier</MudText>
+                <MudText Typo="Typo.body2">Overcast engine multiplier: @_config.Value.OvercastEngineMultiplier</MudText>
+                <MudText Typo="Typo.body2">Wet engine multiplier: @_config.Value.WetEngineMultiplier</MudText>
+                <MudText Typo="Typo.body2">Rain RNG: @_config.Value.RainAdditionalRNG</MudText>
+                <MudText Typo="Typo.body2">Storm RNG: @_config.Value.StormAdditionalRNG</MudText>
+                <MudText Typo="Typo.body2">Rain reliability: @_config.Value.RainDriverReliabilityModifier</MudText>
+                <MudText Typo="Typo.body2">Storm reliability: @_config.Value.StormDriverReliabilityModifier</MudText>
             </MudPaper>
         </MudItem>
 
@@ -162,11 +161,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
-        {
-            new BreadcrumbItem("Home", href: ""),
-        });
-
         recentRaces = await RaceService.GetRecentlyFinishedCalendarRaces(_raceAmount);
     }
 
