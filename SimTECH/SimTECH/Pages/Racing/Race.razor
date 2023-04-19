@@ -1,123 +1,127 @@
 ﻿@page "/race/{RaceId:long}"
-
 @inject RaceService _raceService
+@inject SeasonService _seasonService
 @inject NavigationManager _nav
 @inject IDialogService _dialogService
 @inject ISnackbar _snackbar
 
-@if (!loading)
-{
-    <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" Style="width: 1600px" id="race-display-elem" >
-        <ToolBarContent>
-            <MudStack Row="true" Justify="Justify.SpaceBetween" Style="width:100%">
-                <MudText>
-                    <MudIcon Icon="@(Model.Weather.GetWeatherIcon())" />
-                    <CountryFlag Code="@Model.Country" />
-                    @Model.Name - ROUND @Model.Round
-                </MudText>
+<PageTitle>Race</PageTitle>
 
-                <MudChip Color="Color.Dark" DisableRipple="true" Label="true">@(racedLaps) / @(totalLaps)</MudChip>
+<MudContainer MaxWidth="MaxWidth.False">
+    @if (!loading)
+    {
+        <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" Style="width: 1600px" id="race-display-elem">
+            <ToolBarContent>
+                <MudStack Row="true" Justify="Justify.SpaceBetween" Style="width:100%">
+                    <MudText>
+                        <MudIcon Icon="@(Model.Weather.GetWeatherIcon())" />
+                        <CountryFlag Code="@Model.Country" />
+                        @Model.Name - ROUND @Model.Round
+                    </MudText>
 
-                <div>
-                @if (calculated >= calculationCount)
-                {
-                    <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
-                }
-                else
-                {
-                    @* The following seems a bit too clumsy  to implement, so it isn't implemented
-                        <MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" Class="field-md" />
-                    *@
-                    <MudButton Color="Color.Tertiary" Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
-                }
-                </div>
-            </MudStack>
-        </ToolBarContent>
-        <ColGroup>
-            <col style="width: 15px" />
-            <col style="width: 40px" />
-            <col style="width: 220px" />
-            <col style="width: 30px" />
-            <col style="width: 220px" />
-            <col style="width: 30px" />
-            <col style="width: 50px" />
-            <col style="width: 50px" />
-            <col style="width: 75px" />
-            <col style="width: 150px" />
-            <col />
-        </ColGroup>
-        <HeaderContent>
-            <MudTh>#</MudTh>
-            <MudTh>Grid</MudTh>
-            <MudTh>Name</MudTh>
-            <MudTh>No</MudTh>
-            <MudTh>Team</MudTh>
-            <MudTh>PWR</MudTh>
-            <MudTh>TYRE</MudTh>
-            <MudTh>Score</MudTh>
-            <MudTh>Status</MudTh>
-            <MudTh>Events</MudTh>
-            <MudTh>Visual</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
-                @context.Position
-            </MudTd>
-            <MudTd>
-                <GridChange Change="@context.GridChange" />
-            </MudTd>
-            <MudTd>
-                <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
-                @context.FullName
-                @if (context.HasFastestLap)
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
-                }
-            </MudTd>
-            <MudTd>@context.Number</MudTd>
-            <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
-                @context.TeamName
-            </MudTd>
-            <MudTd>@context.Power</MudTd>
-            <MudTd>
-                <span class="tyre" style="border-color:@(context.CurrentTyre.Colour)">
-                    @context.TyreLife
-                </span>
-            </MudTd>
-            <MudTd>@context.LapSum</MudTd>
-            <MudTd>
-                @if (context.Status == RaceStatus.Racing)
-                {
-                    <MudText Typo="Typo.body2">+@(context.TimedGap(Model.GapMarge))</MudText>
-                }
-                else
-                {
-                    <MudText Typo="Typo.body2" Color="Color.Error">@context.Incident</MudText>
-                }
-            </MudTd>
-            <MudTd>
-                @foreach (var lapEvent in context.LapResults)
-                {
-                    @foreach (var raceEvent in lapEvent.RacerEvents.GetFlagged().Where(e => e.ToString() != "Unknown" && e.ToString() != "Racing"))
-                    {
-                        <MudText Typo="Typo.body2">Lap @(lapEvent.Order): @(raceEvent.ToString())</MudText>
-                    }
-                }
-            </MudTd>
-            <MudTd>
-                <MudProgressLinear Value="@context.LapSum" Min="0" Max="@highestScore" Size="Size.Medium" Color="Color.Secondary" Class="my-2" />
-            </MudTd>
-        </RowTemplate>
-        <FooterContent>
-            <MudTd colspan="20">
-                <MudStack Row="true" Justify="Justify.SpaceBetween">
-                    <MudIconButton Icon="@Icons.Material.Outlined.Image" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowImage" />
-                    <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowGraph" />
+                    <MudChip Color="Color.Dark" DisableRipple="true" Label="true">@(racedLaps) / @(totalLaps)</MudChip>
+
+                        <div>
+                            @if (calculated >= calculationCount)
+                        {
+                            <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
+                        }
+                        else
+                        {
+                            @* The following seems a bit too clumsy  to implement, so it isn't implemented
+                            <MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" Class="field-md" />
+                            *@
+                            <MudButton Color="Color.Tertiary" Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
+                        }
+                    </div>
                 </MudStack>
-            </MudTd>
-        </FooterContent>
-    </MudTable>
-}
+            </ToolBarContent>
+            <ColGroup>
+                <col style="width: 15px" />
+                <col style="width: 40px" />
+                <col style="width: 220px" />
+                <col style="width: 30px" />
+                <col style="width: 220px" />
+                <col style="width: 30px" />
+                <col style="width: 50px" />
+                <col style="width: 50px" />
+                <col style="width: 75px" />
+                <col style="width: 150px" />
+                <col />
+            </ColGroup>
+            <HeaderContent>
+                <MudTh>#</MudTh>
+                <MudTh>Grid</MudTh>
+                <MudTh>Name</MudTh>
+                <MudTh>No</MudTh>
+                <MudTh>Team</MudTh>
+                <MudTh>PWR</MudTh>
+                <MudTh>TYRE</MudTh>
+                <MudTh>Score</MudTh>
+                <MudTh>Status</MudTh>
+                <MudTh>Events</MudTh>
+                <MudTh>Visual</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
+                    @context.Position
+                </MudTd>
+                <MudTd>
+                    <GridChange Change="@context.GridChange" />
+                </MudTd>
+                <MudTd>
+                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
+                    @context.FullName
+                    @if (context.HasFastestLap)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
+                    }
+                </MudTd>
+                <MudTd>@context.Number</MudTd>
+                <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
+                    @context.TeamName
+                </MudTd>
+                <MudTd>@context.Power</MudTd>
+                <MudTd>
+                    <span class="tyre" style="border-color:@(context.CurrentTyre.Colour)">
+                        @context.TyreLife
+                    </span>
+                </MudTd>
+                <MudTd>@context.LapSum</MudTd>
+                <MudTd>
+                    @if (context.Status == RaceStatus.Racing)
+                    {
+                        <MudText Typo="Typo.body2">+@(context.TimedGap(Model.GapMarge))</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Error">@context.Incident</MudText>
+                    }
+                </MudTd>
+                <MudTd>
+                    @foreach (var lapEvent in context.LapResults)
+                    {
+                        @foreach (var raceEvent in lapEvent.RacerEvents.GetFlagged().Where(e => e.ToString() != "Unknown" && e.ToString() != "Racing"))
+                        {
+                            <MudText Typo="Typo.body2">Lap @(lapEvent.Order): @(raceEvent.ToString())</MudText>
+                        }
+                    }
+                </MudTd>
+                <MudTd>
+                    <MudProgressLinear Value="@context.LapSum" Min="0" Max="@highestScore" Size="Size.Medium" Color="Color.Secondary" Class="my-2" />
+                </MudTd>
+            </RowTemplate>
+            <FooterContent>
+                <MudTd colspan="20">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween">
+                        <MudIconButton Icon="@Icons.Material.Outlined.Image" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowImage" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowGraph" />
+                    </MudStack>
+                </MudTd>
+            </FooterContent>
+        </MudTable>
+    }
+</MudContainer>
 
 @code {
     [Parameter] public long RaceId { get; set; }
@@ -367,8 +371,9 @@
         // Todo: check if this doesnt mess with the lapscores
         await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints);
 
+        var nextRound = Model.Round + 1;
+        await _seasonService.CheckPenalties(Model.Season.Id, finishedResults, nextRound);
+
         _nav.NavigateTo($"/overview/{Model.Season.Id}/2"); // 2 = standingspanel
     }
-
-
 }

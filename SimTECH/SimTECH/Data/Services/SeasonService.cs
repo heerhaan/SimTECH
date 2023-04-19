@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using MudBlazor;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
@@ -116,6 +117,74 @@ namespace SimTECH.Data.Services
 
             season.State = State.Closed;
             context.Update(season);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task CheckPenalties(long seasonId, List<Result> raceResults, int nextRound)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var nextRace = await context.Race.FirstOrDefaultAsync(e => e.Round == nextRound);
+
+            // There is no next race, thus there is no need to determine a penalty
+            if (nextRace == null)
+                return;
+
+            var usedParts = await GetPartsUsageModel(seasonId);
+
+            // Should be set in either config or league settings(!)
+            int accidentLimit = 3;
+            //int collisionLimit = 3;
+            //int engineLimit = 3;
+            //int electricsLimit = 3;
+            //int hydraulicsLimit = 3;
+            // Same for the punishments (and differing punishments)
+            int positionPunishment = 2;
+            int dsqPunishment = 10;
+
+            var newPenalties = new List<Penalty>();
+
+            foreach (var dnfResult in raceResults.Where(e => e.Incident != Incident.None))
+            {
+                var componentUsage = usedParts.Single(e => e.SeasonDriverId == dnfResult.Id);
+
+                switch (dnfResult.Incident)
+                {
+                    case Incident.Accident:
+                    case Incident.Collision:
+                    case Incident.Engine:
+                    case Incident.Electrics:
+                    case Incident.Hydraulics:
+                        if (componentUsage.Accidents > accidentLimit)
+                        {
+                            newPenalties.Add(new Penalty
+                            {
+                                Reason = $"Too many {dnfResult.Incident}",
+                                Punishment = positionPunishment,
+                                SeasonDriverId = dnfResult.Id,
+                                RaceId = dnfResult.RaceId,
+                            });
+                        }
+                        break;
+                    case Incident.Illegal:
+                    case Incident.Dangerous:
+                    case Incident.Fuel:
+                        newPenalties.Add(new Penalty
+                        {
+                            Reason = $"Disqualified due to {dnfResult.Incident}",
+                            Punishment = dsqPunishment,
+                            SeasonDriverId = dnfResult.Id,
+                            RaceId = dnfResult.RaceId,
+                        });
+                        break;
+                    default:
+                        // No need to do anything else if an incidents isn't one of the above
+                        break;
+                }
+            }
+
+            context.AddRange(newPenalties);
 
             await context.SaveChangesAsync();
         }
@@ -283,6 +352,7 @@ namespace SimTECH.Data.Services
 
                 partsUsedList.Add(new PartsUsageModel
                 {
+                    SeasonDriverId = driver.Id,
                     Name = driver.Driver.FullName,
                     Number = driver.Number,
                     Team = driver.SeasonTeam?.Name ?? "None",

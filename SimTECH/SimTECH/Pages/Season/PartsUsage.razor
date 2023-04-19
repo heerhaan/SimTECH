@@ -1,6 +1,6 @@
 ﻿@page "/components/{SeasonId:long}"
 @inject BreadcrumbProvider _bread
-@inject SeasonService SeasonService
+@inject SeasonService _seasonService
 
 <PageTitle>Components</PageTitle>
 
@@ -16,7 +16,7 @@
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>Name</MudTh>
-                            <MudTh Class="number-col">No.</MudTh>
+                            <MudTh Class="number-col">No</MudTh>
                             <MudTh>Accidents</MudTh>
                             <MudTh>Collisions</MudTh>
                             <MudTh>Engines</MudTh>
@@ -40,10 +40,11 @@
                         </RowTemplate>
                         <FooterContent>
                             <MudTd>LIMIT</MudTd>
-                            <MudTd>0</MudTd>
-                            <MudTd>0</MudTd>
-                            <MudTd>0</MudTd>
-                            <MudTd>0</MudTd>
+                            <MudTd>3</MudTd>
+                            <MudTd>3</MudTd>
+                            <MudTd>3</MudTd>
+                            <MudTd>3</MudTd>
+                            <MudTd>3</MudTd>
                             <MudTd>-</MudTd>
                             <MudTd>-</MudTd>
                         </FooterContent>
@@ -79,6 +80,6 @@
             new BreadcrumbItem("Components", href: $"components/{SeasonId}"),
         });
 
-        PartsPerDriver = await SeasonService.GetPartsUsageModel(SeasonId);
+        PartsPerDriver = await _seasonService.GetPartsUsageModel(SeasonId);
     }
 }

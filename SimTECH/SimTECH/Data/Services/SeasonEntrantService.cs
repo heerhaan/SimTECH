@@ -177,7 +177,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            await context.AddRangeAsync(rootEngines);
+            context.AddRange(rootEngines);
 
             await context.SaveChangesAsync();
         }
