@@ -1,7 +1,7 @@
 ﻿<MudNavMenu Color="Color.Tertiary">
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
 
-    <MudNavGroup Title="Entrants" Icon="@Icons.Material.Filled.Settings">
+    <MudNavGroup Title="Entrants" Icon="@Icons.Material.Filled.Settings" @bind-Expanded="entrantsExpanded">
         <MudNavLink Href="/drivers" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PeopleAlt">Drivers</MudNavLink>
         <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.CarRepair">Teams</MudNavLink>
         <MudNavLink Href="/engines" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.SettingsInputComponent">Engines</MudNavLink>
@@ -9,7 +9,7 @@
         <MudNavLink Href="/traits" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FlashOn">Traits</MudNavLink>
     </MudNavGroup>
 
-    <MudNavGroup Title="Race factors" Icon="@Icons.Material.Filled.LocalGasStation">
+    <MudNavGroup Title="Race factors" Icon="@Icons.Material.Filled.LocalGasStation" @bind-Expanded="factorsExpanded">
         <MudNavLink Href="/manufacturers" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Garage">Manufacturers</MudNavLink>
         <MudNavLink Href="/strategies" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.GasMeter">Strategies</MudNavLink>
     </MudNavGroup>
@@ -20,3 +20,8 @@
 
     <MudNavLink Href="/stats" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.BarChart">Stats</MudNavLink>
 </MudNavMenu>
+
+@code {
+    bool entrantsExpanded = true;
+    bool factorsExpanded = true;
+}

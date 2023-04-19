@@ -18,12 +18,12 @@
                         <CellTemplate>
                             @if (context.Item.StrategyTyres?.Count > 0)
                             {
-                                foreach (var strategyTyre in context.Item.StrategyTyres)
-                                {
-                                    <span class="tyre" style="border-color:@(strategyTyre.Tyre.Colour)">
-                                        @strategyTyre.Tyre.Name.ElementAt(0)
-                                    </span>
-                                }
+                                <div class="d-flex flex-row gap-2">
+                                    @foreach (var strategyTyre in context.Item.StrategyTyres)
+                                    {
+                                    <span class="tyre" style="border-color:@(strategyTyre.Tyre.Colour)">@strategyTyre.Tyre.Name.ElementAt(0)</span>
+                                    }
+                                </div>
                             }
                             else
                             {
