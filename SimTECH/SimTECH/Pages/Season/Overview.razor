@@ -3,6 +3,7 @@
 @inject LeagueService _leagueService
 @inject RaceService _raceService
 @inject SeasonService _seasonService
+@inject SeasonEntrantService _entrantService
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject IDialogService _dialogService
@@ -36,6 +37,7 @@
                                 <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                                     <MudButton OnClick="StartSeason">Start season</MudButton>
                                     <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
+                                    <MudButton OnClick="CopyEntrants">Copy entrants</MudButton>
                                 </MudButtonGroup>
                             }
                             else if (Season.State == State.Active)
@@ -217,6 +219,22 @@
     {
         // TODO: Check if there are already any entrants added, if so then remove
         _nav.NavigateTo($"/addentrants/{SeasonId}");
+    }
+
+    async Task CopyEntrants()
+    {
+        var seasons = await _seasonService.GetSeasons();
+
+        var dialogParameters = new DialogParameters { ["Seasons"] = seasons };
+
+        var dialog = await _dialogService.ShowAsync<CopyEntrants>("Copy entrants", dialogParameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is long seasonToCopyFrom)
+        {
+            await _entrantService.CopyEntrantsFromSeason(SeasonId, seasonToCopyFrom);
+            StateHasChanged();
+        }
     }
 
     void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");

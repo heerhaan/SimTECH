@@ -104,25 +104,31 @@
                 {
                     @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
                     {
-                        <MudText Typo="Typo.body2">Lap @(lapEvent.Order): @(raceEvent.ToString())</MudText>
+                        <MudText Typo="Typo.body2">Lap @(lapEvent.Order): @(raceEvent.element.ToString())</MudText>
                     }
                 }
             </MudTd>
             <MudTd>
                 <MudStack Justify="Justify.SpaceAround" AlignItems="AlignItems.Stretch">
-                    <div style="width:100%">
+                    <div class="d-flex flex-row" style="width:100%">
                         @foreach (var lapEvent in context.LapResults)
                         {
-                            @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
-                            {
-                                <span>
-                                    <MudPopover OverflowBehavior="OverflowBehavior.FlipNever" Open="true" AnchorOrigin="Origin.TopLeft" TransformOrigin="Origin.BottomRight" Class="pa-2" Style="@SignalEventStyle(lapEvent.Order, raceEvent.index)">
-
-                                    </MudPopover>
-                                </span>
-                            }
+                            <MudBadge Dot="true" Overlap="true" Color="Color.Primary" Elevation="5" Style="@(SignalDotStyle(lapEvent.Order))">
+                                @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
+                                {
+                                    <span>
+                                        <MudPopover Open="true" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Class="pa-2" Style="@SignalEventStyle(lapEvent.Order, raceEvent.index)">
+                                            @*<MudText Typo="Typo.body2" Class="py-1">@raceEvent.element.ToString()</MudText>*@
+                                            <div class="@GetLocation()" style="top:0; left:0;">
+                                                <MudIcon Icon="@SignalIcon(raceEvent.element.ToString())" Color="Color.Tertiary" Class="" />
+                                            </div>
+                                        </MudPopover>
+                                    </span>
+                                }
+                            </MudBadge>
                         }
                     </div>
+                    @* Might be more fun to stop the value at the moment the driver DNFed *@
                     <MudProgressLinear Value="@racedLaps" Min="0" Max="@totalLaps" Size="Size.Medium" Class="my-2" />
                     <MudProgressLinear Value="@context.LapSum" Min="0" Max="@highestScore" Size="Size.Medium" Color="Color.Secondary" Class="my-2" />
                 </MudStack>
@@ -179,32 +185,32 @@
         loading = false;
     }
 
+    string SignalDotStyle(int lap)
+    {
+        var currentLap = NumberHelper.CalcLapCount(lap * 10, Model.TrackLength);
+        int lapPercentage = (currentLap * totalLaps) / 100;
+        return $"margin-left:{lapPercentage}";
+    }
+
     string SignalEventStyle(int lap, int index)
     {
-        int lapPercentage = ((lap * 10) * totalLaps) / 100;
+        var currentLap = NumberHelper.CalcLapCount(lap * 10, Model.TrackLength);
+        int lapPercentage = (currentLap * totalLaps) / 100;
         return $"margin-left:{lapPercentage}%;margin-right:-{(index * 2)}px;z-index:{(1 + index)}";
     }
 
-    string SignalIcon(string raceEvent)
+    string SignalIcon(string raceEvent) => raceEvent switch
     {
-        switch (raceEvent)
-        {
-            case "DriverDnf":
-                break;
-            case "CarDnf":
-                break;
-            case "EngineDnf":
-                break;
-            case "Mistake":
-                break;
-            case "Pitstop":
-                break;
-            case "Swap":
-                break;
-        }
+        "DriverDnf" => IconCollection.CarCrash,
+        "CarDnf" => Icons.Material.Filled.CarRepair,
+        "EngineDnf" => IconCollection.Engine,
+        "Mistake" => Icons.Material.Filled.TaxiAlert,
+        "Pitstop" => Icons.Material.Filled.LocalGasStation,
+        "Swap" => @Icons.Material.Filled.SwapVert,
+        _ => Icons.Material.Filled.QuestionMark
+    };
 
-        return "";
-    }
+    string GetLocation() => "absolute mud-height-full mud-width-full d-flex align-start justify-center";
 
     void Advance()
     {

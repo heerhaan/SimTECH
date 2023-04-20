@@ -12,8 +12,8 @@
         @if (Season.State == State.Concept)
         {
             <MudButtonGroup Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large">
-                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRaces">Add races</MudButton>
-                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRaces">Copy races of season</MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRace">Add race</MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRaces">Add multiple races</MudButton>
             </MudButtonGroup>
         }
     </ToolBarContent>
@@ -125,6 +125,44 @@
         _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? null;
     }
 
+    private async Task AddRace()
+    {
+        var item = new Race();
+        var seasonLeague = await LeagueService.GetLeagueById(Season.LeagueId);
+        var availableTracks = (await TrackService.GetTracks())
+            .Where(e => !RaceCalendar.Select(r => r.TrackId).Contains(e.Id))
+            .ToList();
+
+        if (seasonLeague == null)
+        {
+            Snackbar.Add("how in the hell is it unknown which league this is, cant do shit now?!", Severity.Error);
+            return;
+        }
+
+        if (!availableTracks.Any() && item.Id == 0)
+        {
+            Snackbar.Add("there aren't any tracks left to add to this season, ya absolute willy", Severity.Error);
+            return;
+        }
+
+        var parameters = new DialogParameters
+            {
+                ["Race"] = item,
+                ["Tracks"] = availableTracks,
+                ["SeasonId"] = Season.Id,
+                ["IncomingRound"] = (RaceCalendar.Count + 1),
+                ["DefaultRaceLength"] = seasonLeague.RaceLength,
+            };
+
+        var dialog = await DialogService.ShowAsync<RaceEditor>("Modify Race", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
+        {
+            await RaceService.UpdateRace(updatedRace);
+            RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
+        }
+    }
     private async Task UpdateRace(long raceId)
     {
         var item = await RaceService.GetRaceById(raceId);
