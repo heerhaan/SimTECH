@@ -134,7 +134,8 @@ namespace SimTECH.Data.Services
             var usedParts = await GetPartsUsageModel(seasonId);
 
             // Should be set in either config or league settings(!)
-            int accidentLimit = 3;
+            int commonLimit = 3;
+            //int accidentLimit = 3;
             //int collisionLimit = 3;
             //int engineLimit = 3;
             //int electricsLimit = 3;
@@ -156,7 +157,7 @@ namespace SimTECH.Data.Services
                     case Incident.Engine:
                     case Incident.Electrics:
                     case Incident.Hydraulics:
-                        if (componentUsage.Accidents > accidentLimit)
+                        if (componentUsage.Accidents > commonLimit)
                         {
                             newPenalties.Add(new Penalty
                             {
@@ -184,9 +185,12 @@ namespace SimTECH.Data.Services
                 }
             }
 
-            context.AddRange(newPenalties);
+            if (newPenalties.Any())
+            {
+                context.AddRange(newPenalties);
 
-            await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
         }
 
         #region page models
@@ -344,6 +348,11 @@ namespace SimTECH.Data.Services
                 .Where(e => e.Race.SeasonId == seasonId)
                 .ToListAsync();
 
+            var penalties = await context.Penalty
+                .Where(e => e.Race.SeasonId == seasonId)
+                .Include(e => e.Race)
+                .ToListAsync();
+
             var partsUsedList = new List<PartsUsageModel>(drivers.Count);
 
             foreach (var driver in drivers)
@@ -366,6 +375,16 @@ namespace SimTECH.Data.Services
                     Hydraulics = driverResults.Count(e => e.Incident == Incident.Hydraulics),
                     TotalDnf = driverResults.Count(e => e.Status == RaceStatus.Dnf),
                     TotalDsq = driverResults.Count(e => e.Status == RaceStatus.Dsq),
+
+                    GivenPenalties = penalties
+                        .Where(e => e.SeasonDriverId == driver.Id)
+                        .Select(e => new GivenPenalties
+                        {
+                            Round = e.Race.Round,
+                            Reason = e.Reason,
+                            Punishment = e.Punishment
+                        })
+                        .ToList(),
                 });
             }
 

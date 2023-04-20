@@ -16,5 +16,14 @@
         public int Hydraulics { get; set; }
         public int TotalDnf { get; set; }
         public int TotalDsq { get; set; }
+
+        public List<GivenPenalties> GivenPenalties { get; set; }
+    }
+
+    public class GivenPenalties
+    {
+        public int Round { get; set; }
+        public string Reason { get; set; }
+        public int Punishment { get; set; }
     }
 }

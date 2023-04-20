@@ -125,8 +125,10 @@ namespace SimTECH.PageModels
         public double GapQ3 { get; set; }
 
         public int Position { get; set; }
+        public double PenaltyPunishment { get; set; }
 
         public int GetQualifyingResult(int maxRng) => Power + NumberHelper.RandomInt(maxRng);
+        public double PenaltyPosition() => Position + PenaltyPunishment;
     }
 
     public class QualySession

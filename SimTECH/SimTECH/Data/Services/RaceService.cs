@@ -131,6 +131,7 @@ namespace SimTECH.Data.Services
             if (raceToAdvance != null && maximumRace == null)
                 throw new InvalidOperationException("oi fucker, include the maximum allowed too!");
 
+            var positionCount = driverPositions.Count;
             var driverResults = await context.Result.Where(e => driverPositions.Keys.Contains(e.Id)).ToListAsync();
 
             foreach (var result in driverResults)
@@ -412,6 +413,8 @@ namespace SimTECH.Data.Services
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
 
+            var penalties = await context.Penalty.Where(e => e.RaceId == raceId).ToListAsync();
+
             var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
 
             var driverResults = await context.Result
@@ -447,13 +450,8 @@ namespace SimTECH.Data.Services
             {
                 var driverTraits = new List<Trait>(trackTraits);
 
-                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId);
-                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId);
-
-                if (driver == null)
-                    throw new InvalidOperationException("Could not find matching seasondriver for result");
-                if (team == null)
-                    throw new InvalidOperationException("Could not find matching seasonteam for result");
+                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId) ?? throw new InvalidOperationException("Could not find matching seasondriver for result");
+                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId) ?? throw new InvalidOperationException("Could not find matching seasonteam for result");
 
                 var baseSpeed = driver.Skill + team.BaseValue + team.SeasonEngine.Power;
                 var teamModifiers = (team.Aero * race.Track.AeroMod)
@@ -482,6 +480,7 @@ namespace SimTECH.Data.Services
                     Accent = team.Accent,
 
                     Power = driverPower + traitEffect.QualifyingPace,
+                    PenaltyPunishment = penalties.Any() ? penalties.Find(e => e.SeasonDriverId == driver.Id)?.DoubledPunishment() ?? 0 : 0,
 
                     RunValuesQ1 = new int[season.RunAmountSession],
                     RunValuesQ2 = new int[season.RunAmountSession],

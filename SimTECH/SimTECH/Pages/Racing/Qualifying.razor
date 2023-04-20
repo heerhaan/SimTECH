@@ -265,7 +265,11 @@ else
 
     private async Task Finish()
     {
-        var positionResults = Model.QualifyingDrivers.ToDictionary(e => e.ResultId, e => e.Position);
+        // Check for the possible penalties and consider them when making the positions
+        int positionIndexer = 0;
+        var positionResults = Model.QualifyingDrivers
+            .OrderBy(e => e.PenaltyPosition())
+            .ToDictionary(e => e.ResultId, e => ++positionIndexer);
 
         await _raceService.PersistGridPositions(positionResults, RaceId, Model.MaximumRaceDrivers);
 
