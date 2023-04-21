@@ -9,7 +9,7 @@
 
 @if (!loading)
 {
-    <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" id="race-display-elem">
+    <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" id="race-display">
         <ToolBarContent>
             <MudStack Row="true" Justify="Justify.SpaceBetween" Style="width:100%">
                 <MudText>
@@ -128,7 +128,7 @@
         <FooterContent>
             <MudTd colspan="20">
                 <MudStack Row="true" Justify="Justify.SpaceBetween">
-                    <MudIconButton Icon="@Icons.Material.Outlined.Image" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowImage" />
+                    <ScreenshotButton TargetId="race-display" />
                     <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowGraph" />
                 </MudStack>
             </MudTd>
