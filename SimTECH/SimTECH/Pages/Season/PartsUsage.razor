@@ -63,7 +63,7 @@
                                     <MudText Typo="Typo.body2">Round @penalty.Round</MudText>
                                     <MudText>@driver.Name</MudText>
                                     <MudText>+@(penalty.Punishment)</MudText>
-                                    </MudListItem>
+                                </MudListItem>
                             }
                         }
                     </MudList>
@@ -85,7 +85,7 @@
             new BreadcrumbItem("Home", href: "/"),
             new BreadcrumbItem("Seasons", href: "seasons}"),
             new BreadcrumbItem("Overview", href: $"overview/{SeasonId}"),
-            new BreadcrumbItem("Components", href: $"components/{SeasonId}"),
+            new BreadcrumbItem("Components", href: $"components/{SeasonId}", disabled: true),
         });
 
         PartsPerDriver = await _seasonService.GetPartsUsageModel(SeasonId);

@@ -120,7 +120,7 @@
                         }
                     </div>
                     @* Might be more fun to stop the value at the moment the driver DNFed *@
-                    <MudProgressLinear Value="@racedLaps" Min="0" Max="@totalLaps" Size="Size.Medium" Class="my-2" />
+                    <MudProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLap * 10, Model.TrackLength))" Min="0" Max="@totalLaps" Size="Size.Medium" Class="my-2" />
                     <MudProgressLinear Value="@context.LapSum" Min="0" Max="@highestScore" Size="Size.Medium" Color="Color.Secondary" Class="my-2" />
                 </MudStack>
             </MudTd>
@@ -204,6 +204,7 @@
         // Every i in this instance is relative to 10km of racing
         for (int i = 0; i < calculationsPerAdvance; i++)
         {
+            ++calculated;
             long? newFastestLapScorer = null;
 
             // Iterate through all still running drivers
@@ -266,8 +267,6 @@
 
             // Determine new positions (keep team role in mind here!)
             PostProcessAdvance(newFastestLapScorer);
-
-            ++calculated;
 
             // Last brace before going to the next advance
         }
