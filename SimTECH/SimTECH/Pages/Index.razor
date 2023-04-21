@@ -61,10 +61,14 @@
 
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 100%">
-                <MudText Typo="Typo.h6">Last races</MudText>
                 @if (recentRaces != null)
                 {
                     <MudTable id="recent-race-table" Items="@recentRaces" Dense="true">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Last races</MudText>
+                            <MudSpacer />
+                            <ScreenshotButton TargetId="recent-race-table" />
+                        </ToolBarContent>
                         <HeaderContent>
                             <MudTh>League</MudTh>
                             <MudTh>Round</MudTh>
@@ -97,13 +101,6 @@
                                 </MudText>
                             </MudTd>
                         </RowTemplate>
-                        <FooterContent>
-                            <MudTFootRow>
-                                <MudTd colspan="10">
-                                    <ScreenshotButton TargetId="recent-race-table" />
-                                </MudTd>
-                            </MudTFootRow>
-                        </FooterContent>
                     </MudTable>
                 }
             </MudPaper>

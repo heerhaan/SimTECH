@@ -194,10 +194,9 @@
 
     int _activeTabIndex = 0;
 
-    //private SeasonOverviewAvailability OverviewAvailability { get; set; } = new();
-
     protected override async Task OnInitializedAsync()
     {
+        _activeTabIndex = TabIndex;
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
@@ -205,20 +204,10 @@
             new BreadcrumbItem("Overview", href: $"overview/{SeasonId}", disabled: true),
         });
 
-        _activeTabIndex = TabIndex;
-
         Season = await _seasonService.GetSeasonById(SeasonId);
-
-        //OverviewAvailability = SeasonService.GetOverviewAvailability(SeasonId);
 
         if (Season != null)
             NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
-    }
-
-    void AddAllEntrants()
-    {
-        // TODO: Check if there are already any entrants added, if so then remove
-        _nav.NavigateTo($"/addentrants/{SeasonId}");
     }
 
     async Task CopyEntrants()
@@ -236,8 +225,6 @@
             StateHasChanged();
         }
     }
-
-    void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");
 
     async Task GoToNextRace()
     {
@@ -302,4 +289,7 @@
             _nav.NavigateTo("/seasons");
         }
     }
+
+    void AddAllEntrants() => _nav.NavigateTo($"/addentrants/{SeasonId}");
+    void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");
 }

@@ -12,21 +12,21 @@
 
 <MudLayout>
     <MudAppBar Elevation="5" Dense="true">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Primary" Edge="Edge.Start" OnClick="ToggleSidebar" />
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Tertiary" Edge="Edge.Start" OnClick="ToggleSidebar" />
         <Breadcrumbs />
 
         <MudSpacer />
 
-        <MudIconButton Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" Href="/guide" />
         <MudToggleIconButton @bind-Toggled="@isDarkTheme"
             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
         
-        <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Primary">
+        <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Tertiary">
             <MudMenuItem OnClick="SetDefaultTheme">Default</MudMenuItem>
             <MudMenuItem OnClick="SetSynthTheme">Synth</MudMenuItem>
         </MudMenu>
 
+        <MudIconButton Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" Href="/guide" />
         @*<MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <ActivatorContent>
                 <MudAvatar Color="Color.Secondary">AB</MudAvatar>
@@ -68,9 +68,7 @@
 
     protected override void OnInitialized()
     {
-        // NavState (breadcrumbs, etc) is Scoped, so it lives as long as our connection lives.
         // So when a new page is visited, we need to clear navigation to prevent breadcrumbs from bleed-over, etc.
-        // This also makes the navbar invisible by default.
 
         // doesnt seem to work btw lol
         //Bread.Reset();

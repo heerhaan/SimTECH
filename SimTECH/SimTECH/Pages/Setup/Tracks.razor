@@ -16,10 +16,10 @@
             <MudTh>Name</MudTh>
             <MudTh>Country</MudTh>
             <MudTh>Length</MudTh>
-            <MudTh>AeroMod</MudTh>
-            <MudTh>ChassisMod</MudTh>
-            <MudTh>PowerMod</MudTh>
-            <MudTh>QualifyingMod</MudTh>
+            <MudTh>Aero</MudTh>
+            <MudTh>Chassis</MudTh>
+            <MudTh>Powertrain</MudTh>
+            <MudTh>Qualifying</MudTh>
             <MudTh>State</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
@@ -28,11 +28,11 @@
             <MudTd>
                 <CountryFlag Code="@context.Country" Size="FlagSize.Small" IncludeName="true" />
             </MudTd>
-            <MudTd>@context.Length</MudTd>
-            <MudTd>@context.AeroMod</MudTd>
-            <MudTd>@context.ChassisMod</MudTd>
-            <MudTd>@context.PowerMod</MudTd>
-            <MudTd>@context.QualifyingMod</MudTd>
+            <MudTd>@(context.Length)x</MudTd>
+            <MudTd>@(context.AeroMod)x</MudTd>
+            <MudTd>@(context.ChassisMod)x</MudTd>
+            <MudTd>@(context.PowerMod)x</MudTd>
+            <MudTd>@(context.QualifyingMod)x</MudTd>
             <MudTd>@context.State</MudTd>
             <MudTd Class="d-flex justify-end">
                 <MudButtonGroup>
@@ -44,9 +44,10 @@
 </MudContainer>
 
 @code {
-    private bool _readOnly = false;
-    private List<Track> TrackData = new();
-
+    List<Track> TrackData = new();
+    
+    bool _readOnly = false;
+    
     protected override async Task OnInitializedAsync()
     {
         TrackData = await TrackService.GetTracks();
