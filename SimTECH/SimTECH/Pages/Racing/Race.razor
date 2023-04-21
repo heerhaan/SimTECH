@@ -104,28 +104,19 @@
                 {
                     @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
                     {
-                        <MudText Typo="Typo.body2">Lap @(lapEvent.Order): @(raceEvent.element.ToString())</MudText>
+                        <MudText Typo="Typo.body2">Lap @(NumberHelper.CalcLapCount(lapEvent.Order * 10, Model.TrackLength)): @(raceEvent.element.ToString())</MudText>
                     }
                 }
             </MudTd>
             <MudTd>
                 <MudStack Justify="Justify.SpaceAround" AlignItems="AlignItems.Stretch">
-                    <div class="d-flex flex-row" style="width:100%">
+                    <div class="relative" style="height:8px;width:100%">
                         @foreach (var lapEvent in context.LapResults)
                         {
-                            <MudBadge Dot="true" Overlap="true" Color="Color.Primary" Elevation="5" Style="@(SignalDotStyle(lapEvent.Order))">
-                                @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
-                                {
-                                    <span>
-                                        <MudPopover Open="true" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Class="pa-2" Style="@SignalEventStyle(lapEvent.Order, raceEvent.index)">
-                                            @*<MudText Typo="Typo.body2" Class="py-1">@raceEvent.element.ToString()</MudText>*@
-                                            <div class="@GetLocation()" style="top:0; left:0;">
-                                                <MudIcon Icon="@SignalIcon(raceEvent.element.ToString())" Color="Color.Tertiary" Class="" />
-                                            </div>
-                                        </MudPopover>
-                                    </span>
-                                }
-                            </MudBadge>
+                            @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
+                            {
+                                <MudIcon Icon="@SignalIcon(raceEvent.element.ToString())" Color="Color.Tertiary" Class="absolute overflow-visible" Style="@SignalStyle(lapEvent.Order, raceEvent.index)" />
+                            }
                         }
                     </div>
                     @* Might be more fun to stop the value at the moment the driver DNFed *@
@@ -185,14 +176,7 @@
         loading = false;
     }
 
-    string SignalDotStyle(int lap)
-    {
-        var currentLap = NumberHelper.CalcLapCount(lap * 10, Model.TrackLength);
-        int lapPercentage = (currentLap * totalLaps) / 100;
-        return $"margin-left:{lapPercentage}";
-    }
-
-    string SignalEventStyle(int lap, int index)
+    string SignalStyle(int lap, int index)
     {
         var currentLap = NumberHelper.CalcLapCount(lap * 10, Model.TrackLength);
         int lapPercentage = (currentLap * totalLaps) / 100;
@@ -206,7 +190,7 @@
         "EngineDnf" => IconCollection.Engine,
         "Mistake" => Icons.Material.Filled.TaxiAlert,
         "Pitstop" => Icons.Material.Filled.LocalGasStation,
-        "Swap" => @Icons.Material.Filled.SwapVert,
+        "Swap" => Icons.Material.Filled.SwapVert,
         _ => Icons.Material.Filled.QuestionMark
     };
 
