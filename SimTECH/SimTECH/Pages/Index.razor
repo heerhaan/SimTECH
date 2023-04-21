@@ -1,10 +1,8 @@
 ﻿@page "/"
 @inject RaceService RaceService
 @inject ProtectedLocalStorage LocalStorage
-@inject SimAuthenticationStateProvider AuthenticationProvider
 @inject NavigationManager Nav
 @inject IOptions<SimConfig> _config
-@attribute [AllowAnonymous]
 
 <PageTitle>Home</PageTitle>
 
@@ -52,51 +50,11 @@
                             <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">Set store</MudButton>
                             <MudText>@_exampleStore</MudText>
                         </div>
-                        <div>
-                            <!-- Authenticate by policy -->
-                            <AuthorizeView>
-                                <Authorized>
-                                    <p>Damn @(AuthenticationProvider.CurrentUser?.FullName ?? "wtf who"), good to see you logged in.</p>
-                                </Authorized>
-                                <NotAuthorized>
-                                    <p>What are you doing here, mate. You aren't even logged in!</p>
-                                </NotAuthorized>
-                            </AuthorizeView>
-
-                            <AuthorizeView Roles="admin">
-                                <Authorized>
-                                    <p>O damn, hello Mr. Admin! Love yo see ya :)</p>
-                                </Authorized>
-                            </AuthorizeView>
-                        </div>
                     </MudPaper>
                 </MudItem>
 
                 <MudItem xs="12">
-                    <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-                        <MudStack>
-                            <div>
-                                <!-- Authenticate by policy -->
-                                <AuthorizeView Policy="CoolOnly">
-                                    <Authorized>
-                                        <p>Good to see some cool dudes here</p>
-                                    </Authorized>
-                                    <NotAuthorized>
-                                        <p>No offense, but you're kinda cringe... lol</p>
-                                    </NotAuthorized>
-                                </AuthorizeView>
-
-                                <AuthorizeView Policy="ChoicePolicy" Resource="3">
-                                    <Authorized>
-                                        <p>But man, you wouldn't believe the cringe-worthy dudes that show up here.</p>
-                                    </Authorized>
-                                    <NotAuthorized>
-                                        <p>Christ mate, why are you like the way you are.</p>
-                                    </NotAuthorized>
-                                </AuthorizeView>
-                            </div>
-                        </MudStack>
-                    </MudPaper>
+                    <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
                 </MudItem>
             </MudGrid>
         </MudItem>

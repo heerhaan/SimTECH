@@ -3,6 +3,7 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Requirements
 {
+    // Authentication & authorization has been disabled for now
     public class ChoiceRequirement : IAuthorizationRequirement
     {
     }

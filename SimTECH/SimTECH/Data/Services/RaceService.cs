@@ -624,11 +624,7 @@ namespace SimTECH.Data.Services
                 .Where(trait => trait.TrackTraits.Any(tt => tt.TrackId == race.TrackId))
                 .ToListAsync();
 
-            var strategiesForRace = await context.Strategy
-                .Include(e => e.StrategyTyres)
-                    .ThenInclude(e => e.Tyre)
-                .ToListAsync();
-
+            // Prepare the drivers for this weekend
             var weekendDrivers = await context.Result
                 .Include(e => e.SeasonDriver)
                     .ThenInclude(e => e.Driver)
@@ -655,11 +651,32 @@ namespace SimTECH.Data.Services
                 })
                 .ToListAsync();
 
+            if (weekendDrivers?.Any() != true)
+                throw new InvalidOperationException("We're going to need some actual drivers too");
+
+            // Set strategies
+            var strategiesForRace = await context.Strategy
+                .Include(e => e.StrategyTyres)
+                    .ThenInclude(e => e.Tyre)
+                .ToListAsync();
+
             foreach (var driver in weekendDrivers)
                 driver.Strategy = strategiesForRace.Find(e => e.Id == driver.StrategyId);
 
-            if (weekendDrivers?.Any() != true)
-                throw new InvalidOperationException("We're going to need some actual drivers too");
+            // Set eventual penalties
+            var penalties = await context.Penalty.Where(e => e.RaceId == raceId).ToListAsync();
+            if (penalties?.Any() == true)
+            {
+                foreach (var penalty in penalties)
+                {
+                    var matchingDriver = weekendDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.SeasonDriverId);
+                    if (matchingDriver != null)
+                    {
+                        matchingDriver.Penalty = penalty.Punishment;
+                        matchingDriver.Reason = penalty.Reason;
+                    }
+                }
+            }
 
             return new RaceWeekModel
             {

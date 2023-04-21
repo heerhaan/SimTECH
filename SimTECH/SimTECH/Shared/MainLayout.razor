@@ -1,6 +1,5 @@
 ﻿@inherits LayoutComponentBase
 @inject BreadcrumbProvider Bread
-@inject SimAuthenticationStateProvider SimAuthenticationStateProvider
 
 <MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="@theme" />
 <MudDialogProvider
@@ -15,7 +14,9 @@
     <MudAppBar Elevation="5" Dense="true">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Primary" Edge="Edge.Start" OnClick="ToggleSidebar" />
         <Breadcrumbs />
+
         <MudSpacer />
+
         <MudIconButton Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" Href="/guide" />
         <MudToggleIconButton @bind-Toggled="@isDarkTheme"
             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
@@ -26,7 +27,7 @@
             <MudMenuItem OnClick="SetSynthTheme">Synth</MudMenuItem>
         </MudMenu>
 
-        <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+        @*<MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <ActivatorContent>
                 <MudAvatar Color="Color.Secondary">AB</MudAvatar>
             </ActivatorContent>
@@ -45,7 +46,7 @@
                     </NotAuthorized>
                 </AuthorizeView>
             </ChildContent>
-        </MudMenu>
+        </MudMenu>*@
     </MudAppBar>
     <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Responsive">
         <MudDrawerHeader>
@@ -61,8 +62,7 @@
 </MudLayout>
 
 @code {
-    MudTheme theme = new();
-    string notification = string.Empty;
+    MudTheme theme = Constants.DefaultTheme;
     bool drawerOpen = true;
     bool isDarkTheme = true;
 
@@ -73,7 +73,7 @@
         // This also makes the navbar invisible by default.
 
         // doesnt seem to work btw lol
-        Bread.Reset();
+        //Bread.Reset();
     }
 
     void ToggleSidebar()
@@ -81,41 +81,6 @@
         drawerOpen = !drawerOpen;
     }
 
-    async Task LogoutAsync()
-    {
-        await SimAuthenticationStateProvider.LogoutAsync();
-
-        notification = "Logged out!";
-    }
-
-    void SetDefaultTheme() => theme = defaultTheme;
-    void SetSynthTheme() => theme = synthTheme;
-
-    // TODO: Synth theme is not worked out yet, this exists as a showcase for which theme we're using here
-    private MudTheme defaultTheme = new();
-    private MudTheme synthTheme = new()
-        {
-            Palette = new PaletteLight()
-            {
-                Primary = Colors.DeepPurple.Default,
-                Secondary = Colors.Pink.Default,
-                Tertiary = Colors.Orange.Accent3,
-                AppbarBackground = Colors.DeepPurple.Default,
-
-                // prim: #6002ee /
-                // seco: #ee0290 | #021aee
-                // teri: #ee6002 | #d602ee
-            },
-            PaletteDark = new PaletteDark()
-            {
-                Primary = Colors.DeepPurple.Lighten1,
-                //Analogous
-                //Secondary = Colors.Indigo.Darken1,
-                //Tertiary = Colors.Purple.Darken1,
-
-                // Triadic
-                //Secondary = Colors.Pink.Darken2,
-                //Tertiary = Colors.Yellow.Darken2,
-            },
-        };
+    void SetDefaultTheme() => theme = Constants.DefaultTheme;
+    void SetSynthTheme() => theme = Constants.SynthTheme;
 }

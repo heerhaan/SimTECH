@@ -1,12 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MudBlazor;
 using MudBlazor.Services;
 using MudExtensions.Services;
 using SimTECH.Data;
-using SimTECH.Data.Requirements;
 using SimTECH.Data.Services;
 using SimTECH.Providers;
 
@@ -45,12 +42,6 @@ namespace SimTECH
 
             // Provider services
             builder.Services.AddScoped<BreadcrumbProvider>();
-            builder.Services.AddScoped<SimAuthenticationStateProvider>();
-            builder.Services.AddScoped<AuthenticationStateProvider>(e => e.GetRequiredService<SimAuthenticationStateProvider>());
-
-            // Authentication requirement services
-            builder.Services.AddScoped<IAuthorizationHandler, CoolRequirementHandler>();
-            builder.Services.AddScoped<IAuthorizationHandler, ChoiceRequirementHandler>();
 
             // Data services
             builder.Services.AddScoped<DriverService>();
@@ -64,19 +55,25 @@ namespace SimTECH
             builder.Services.AddScoped<TeamService>();
             builder.Services.AddScoped<TrackService>();
             builder.Services.AddScoped<TraitService>();
-            builder.Services.AddScoped<UserService>();
+
+            // Authentication services
+            //builder.Services.AddScoped<SimAuthenticationStateProvider>();
+            //builder.Services.AddScoped<AuthenticationStateProvider>(e => e.GetRequiredService<SimAuthenticationStateProvider>());
+            //builder.Services.AddScoped<IAuthorizationHandler, CoolRequirementHandler>();
+            //builder.Services.AddScoped<IAuthorizationHandler, ChoiceRequirementHandler>();
+            //builder.Services.AddScoped<UserService>();
 
             // Add authorization policies
-            builder.Services.AddAuthorizationCore(config =>
-            {
-                config.AddPolicy("CoolOnly", policy => policy.AddRequirements(new CoolRequirement()));
-                config.AddPolicy("CoolAdminOnly", policy =>
-                {
-                    policy.AddRequirements(new CoolRequirement());
-                    policy.RequireRole("admin");
-                });
-                config.AddPolicy("ChoicePolicy", policy => policy.AddRequirements(new ChoiceRequirement()));
-            });
+            //builder.Services.AddAuthorizationCore(config =>
+            //{
+            //    config.AddPolicy("CoolOnly", policy => policy.AddRequirements(new CoolRequirement()));
+            //    config.AddPolicy("CoolAdminOnly", policy =>
+            //    {
+            //        policy.AddRequirements(new CoolRequirement());
+            //        policy.RequireRole("admin");
+            //    });
+            //    config.AddPolicy("ChoicePolicy", policy => policy.AddRequirements(new ChoiceRequirement()));
+            //});
 
             var app = builder.Build();
 

@@ -1,23 +1,23 @@
 ﻿<MudDialog>
     <TitleContent>
         <MudText>Modify tyre manufacturer</MudText>
-        <MudText Color="Color.Warning">@_validation</MudText>
+        <MudText Color="Color.Warning">@validation</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@model">
-            <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
-            <MudColorPicker @bind-Text="model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" Class="field-sm" />
-            <MudColorPicker @bind-Text="model.Accent" Label="Accent" Placeholder="Select accent" DisableAlpha="true" Class="field-sm" />
-            <MudNumericField T="int" @bind-Value="model.Pace" Label="Pace" Class="field-sm" />
+        <MudForm Model="@Model">
+            <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
+            <MudColorPicker @bind-Text="Model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" Class="field-sm" />
+            <MudColorPicker @bind-Text="Model.Accent" Label="Accent" Placeholder="Select accent" DisableAlpha="true" Class="field-sm" />
+            <MudNumericField T="int" @bind-Value="Model.Pace" Label="Pace" Class="field-sm" />
             <MudStack Row="true" Spacing="4">
-                <MudNumericField T="int" @bind-Value="model.WearMax" Label="WearMax" Class="field-sm" />
-                <MudNumericField T="int" @bind-Value="model.WearMin" Label="WearMin" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.WearMax" Label="WearMax" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.WearMin" Label="WearMin" Class="field-sm" />
             </MudStack>
         </MudForm>
         <MudPaper Height="100px" Class="d-flex flex-column">
             <MudText Typo="Typo.h6" Class="flex-initial">Preview</MudText>
-            <div class="flex-auto d-flex justify-center align-center" style="background-color:@(model.Colour); color:@(model.Accent)">
-                <MudText Class="ma-auto">@model.Name</MudText>
+            <div class="flex-auto d-flex justify-center align-center" style="background-color:@(Model.Colour); color:@(Model.Accent)">
+                <MudText Class="ma-auto">@Model.Name</MudText>
             </div>
         </MudPaper>
     </DialogContent>
@@ -31,27 +31,27 @@
     [CascadingParameter] protected MudDialogInstance? ManufacturerDialog { get; set; }
     [Parameter] public Manufacturer? Manufacturer { get; set; }
 
-    string _validation = string.Empty;
+    string validation = string.Empty;
 
-    private EditManufacturerModel model = new();
+    private EditManufacturerModel Model = new();
     
     protected override void OnInitialized()
     {
         if (Manufacturer != null)
-            model = new EditManufacturerModel(Manufacturer);
+            Model = new EditManufacturerModel(Manufacturer);
     }
 
     private void Submit()
     {
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            var modItem = model.Record;
+            var modItem = Model.Record;
 
             ManufacturerDialog?.Close(DialogResult.Ok(modItem));
         }
         else
         {
-            _validation = "No changes detected!";
+            validation = "No changes detected!";
         }
     }
 

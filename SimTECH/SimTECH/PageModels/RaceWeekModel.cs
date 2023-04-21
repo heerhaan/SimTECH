@@ -7,10 +7,10 @@ namespace SimTECH.PageModels
         public Race Race { get; set; }
 
         public List<RaceWeekDriver> RaceWeekDrivers { get; set; }
-
         public List<Strategy>? AvailableStrategies { get; set; }
-
         public List<Trait>? TrackTraits { get; set; }
+
+        public bool AnyPenalties => RaceWeekDrivers?.Any(e => e.Penalty.HasValue) ?? false;
     }
 
     public class RaceWeekDriver
@@ -35,5 +35,9 @@ namespace SimTECH.PageModels
         public RaceStatus Status { get; set; }
         public long StrategyId { get; set; }
         public Strategy? Strategy { get; set; }
+
+        // Whether the driver has a penalty for this race
+        public int? Penalty { get; set; }
+        public string? Reason { get; set; }
     }
 }
