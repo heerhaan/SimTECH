@@ -1,6 +1,7 @@
 ﻿@page "/drivers"
 @inject DriverService DriverService
 @inject TraitService TraitService
+@inject NavigationManager _nav
 @inject IDialogService DialogService
 
 <PageTitle>Drivers</PageTitle>
@@ -10,6 +11,7 @@
         <ToolBarContent>
             <MudText Typo="Typo.h4">Drivers</MudText>
             <MudSpacer />
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="GoToHumanGenerator">Generate</MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddDriver">New</MudButton>
         </ToolBarContent>
         <Columns>
@@ -78,4 +80,6 @@
     }
 
     async Task DeleteDriver(Driver driver) => await DriverService.DeleteDriver(driver);
+
+    void GoToHumanGenerator() => _nav.NavigateTo("humanbeinggenerator");
 }

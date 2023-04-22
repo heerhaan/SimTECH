@@ -1,0 +1,112 @@
+﻿@page "/humanbeinggenerator"
+
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@inject HumanBeingProvider _humanProvider
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Elevation="15" Height="100px" Class="d-flex flex-row justify-center pa-4">
+            <MudText Typo="Typo.h4">Human Being Generator</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="3">
+        <MudPaper Elevation="15" Class="d-flex flex-column justify-space-between pa-4">
+            <MudStack>
+                <MudCountrySelect @bind-Value="@selectedCountry" />
+                <MudNumericField @bind-Value="@generateAmount" />
+            </MudStack>
+            <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="GenerateHumans">Generate</MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="9">
+        <MudPaper>
+            @if (humanBeans != null)
+            {
+                <MudTable Items="@humanBeans">
+                    <ToolBarContent>
+                        <MudText>Text</MudText>
+                        <MudSpacer />
+                        <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="SaveHumanBeings">Persist</MudButton>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Nation</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Gender</MudTh>
+                        <MudTh>DOB</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" IncludeName="true" />
+                        </MudTd>
+                        <MudTd>@context.Name</MudTd>
+                        <MudTd>@context.Gender</MudTd>
+                        <MudTd>@context.Dob.ToShortDateString()</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="3">
+        @if (langNames != null)
+        {
+            @foreach (var fname in langNames)
+            {
+                <MudText Typo="Typo.body2">@fname</MudText>
+            }
+        }
+    </MudItem>
+    <MudItem xs="3">
+        @if (codeNames != null)
+        {
+            @foreach (var fname in codeNames)
+            {
+                <MudText Typo="Typo.body2">@fname</MudText>
+            }
+        }
+    </MudItem>
+</MudGrid>
+
+@code {
+    HumanBeing[]? humanBeans;
+    Country selectedCountry = EnumHelper.GetDefaultCountry();
+    int generateAmount;
+    string[]? langNames;
+    string[]? codeNames;
+
+    protected override void OnInitialized()
+    {
+        langNames = _humanProvider.GetLanguageTypes();
+        codeNames = _humanProvider.GetNationalityCodes();
+    }
+
+    void GenerateHumans()
+    {
+        humanBeans = _humanProvider.GetHumanBeings(Country.BR);
+    }
+
+    //void HumanBeanify(PersonDatabank databank)
+    //{
+    //    HumanBeans = new List<HumanBeing>(5);
+
+    //    var combinedNames = databank.Male.Concat(databank.Female).ToArray();
+
+    //    for (int i = 0; i < 5; i++)
+    //    {
+    //        var nameIndex = NumberHelper.RandomInt(combinedNames.Length - 1);
+    //        var surIndex = NumberHelper.RandomInt(databank.Family.Length - 1);
+
+    //        HumanBeans.Add(new HumanBeing
+    //        {
+    //            Name = $"{combinedNames[nameIndex]} {databank.Family[surIndex]}",
+    //            Gender = "o",
+    //            Nationality = Country.BR,
+    //            Dob = DateTime.Now,
+    //        });
+    //    }
+    //}
+
+    async Task SaveHumanBeings()
+    {
+    }
+}
