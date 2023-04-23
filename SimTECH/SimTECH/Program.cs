@@ -42,6 +42,7 @@ namespace SimTECH
 
             // Provider services
             builder.Services.AddScoped<BreadcrumbProvider>();
+            builder.Services.AddScoped<HumanBeingProvider>();
 
             // Data services
             builder.Services.AddScoped<DriverService>();

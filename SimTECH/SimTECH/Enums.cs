@@ -32,6 +32,8 @@ namespace SimTECH
 
     public enum TargetDevelop { Main, Reliability }
 
+    public enum Gender { All, Male, Female, Other }
+
     [Flags]
     public enum SeasonToggles
     {
