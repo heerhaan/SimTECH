@@ -2,25 +2,89 @@
 
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@inject DriverService _driverService
+@inject BreadcrumbProvider _bread
 @inject HumanBeingProvider _humanProvider
+@inject NavigationManager _nav
+@inject ISnackbar _snack
 
 <MudGrid>
     <MudItem xs="12">
-        <MudPaper Elevation="15" Height="100px" Class="d-flex flex-row justify-center pa-4">
+        <MudPaper Elevation="15" Height="75px" Class="d-flex flex-row justify-center pa-4">
             <MudText Typo="Typo.h4">Human Being Generator</MudText>
         </MudPaper>
     </MudItem>
-    <MudItem xs="3">
-        <MudPaper Elevation="15" Class="d-flex flex-column justify-space-between pa-4">
-            <MudStack>
-                <MudCountrySelect @bind-Value="@selectedCountry" />
-                <MudNumericField @bind-Value="@generateAmount" />
-            </MudStack>
-            <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="GenerateHumans">Generate</MudButton>
-        </MudPaper>
+    <MudItem xs="6">
+        <MudStack>
+            <MudPaper Elevation="15" Class="d-flex flex-column justify-space-between pa-4">
+                <MudStack>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">Generation settings</MudText>
+                        <MudDivider />
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.overline">Gender</MudText>
+                        <MudChipSet SelectedChipChanged="GenderChange" Mandatory="true">
+                            <MudChip Value="Gender.All" Icon="@ViewHelper.GetGenderIcon(Gender.All)" Default="true">All</MudChip>
+                            <MudChip Value="Gender.Male" Icon="@ViewHelper.GetGenderIcon(Gender.Male)">Male</MudChip>
+                            <MudChip Value="Gender.Female" Icon="@ViewHelper.GetGenderIcon(Gender.Female)">Female</MudChip>
+                            <MudChip Value="Gender.Other" Icon="@ViewHelper.GetGenderIcon(Gender.Other)">French</MudChip>
+                        </MudChipSet>
+                    </div>
+                    <MudNumericField @bind-Value="@generateAmount" Label="Amount generated" Class="field-md" />
+                    <MudDateRangePicker Label="Date of Birth range" @bind-DateRange="dateRange" Editable="true" />
+                    <!-- One option to add is to generate either on nationality or language type -->
+                    @if (availableLanguages != null && genderFilter != Gender.Other)
+                    {
+                        <MudSelect MultiSelection="true" T="Country" @bind-SelectedValues="SelectedCountries" Label="Select nations" Variant="Variant.Outlined">
+                            @foreach (var lang in availableLanguages.Select(e => e.Country).Distinct().Order())
+                            {
+                                <MudSelectItem T="Country" Value="lang">
+                                    @lang.CountryCodeToEmoji()
+                                    @lang.GetDescription()
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
+                </MudStack>
+                <MudDivider Class="my-1" />
+                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="GenerateHumans">Generate</MudButton>
+            </MudPaper>
+            <MudPaper Elevation="15" Class="pa-4">
+                @if (availableLanguages != null)
+                {
+                    <MudGrid>
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.h6">Language data (by language type)</MudText>
+                        </MudItem>
+                        @for (int index = 0; index < 4; index++)
+                        {
+                            var j = index;
+                            <MudItem xs="3">
+                                <MudList Clickable="true" Dense="true">
+                                    @foreach (var languageType in availableLanguages.GroupBy(e => e.LanguageType).Skip((langTypeAmount / 4) * j).Take(langTypeAmount / 4))
+                                    {
+                                        <MudListItem Text="@languageType.Key">
+                                            <NestedList>
+                                                @foreach (var nationality in languageType)
+                                                {
+                                                    <MudListItem>
+                                                        <CountryFlag Code="nationality.Country" Size="FlagSize.Small" IncludeName="true" />
+                                                    </MudListItem>
+                                                }
+                                            </NestedList>
+                                        </MudListItem>
+                                    }
+                                </MudList>
+                            </MudItem>
+                        }
+                    </MudGrid>
+                }
+            </MudPaper>
+        </MudStack>
     </MudItem>
-    <MudItem xs="9">
-        <MudPaper>
+    <MudItem xs="6">
+        <MudPaper Elevation="15" Class="mud-height-full">
             @if (humanBeans != null)
             {
                 <MudTable Items="@humanBeans">
@@ -30,83 +94,90 @@
                         <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="SaveHumanBeings">Persist</MudButton>
                     </ToolBarContent>
                     <HeaderContent>
-                        <MudTh>Nation</MudTh>
                         <MudTh>Name</MudTh>
                         <MudTh>Gender</MudTh>
                         <MudTh>DOB</MudTh>
+                        <MudTh>Nation</MudTh>
                     </HeaderContent>
                     <RowTemplate>
+                        <MudTd>@context.FullName</MudTd>
+                        <MudTd>@context.Gender</MudTd>
+                        <MudTd>@context.Dob.ToShortDateString()</MudTd>
                         <MudTd>
                             <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" IncludeName="true" />
                         </MudTd>
-                        <MudTd>@context.Name</MudTd>
-                        <MudTd>@context.Gender</MudTd>
-                        <MudTd>@context.Dob.ToShortDateString()</MudTd>
                     </RowTemplate>
                 </MudTable>
             }
         </MudPaper>
     </MudItem>
-    <MudItem xs="3">
-        @if (langNames != null)
-        {
-            @foreach (var fname in langNames)
-            {
-                <MudText Typo="Typo.body2">@fname</MudText>
-            }
-        }
-    </MudItem>
-    <MudItem xs="3">
-        @if (codeNames != null)
-        {
-            @foreach (var fname in codeNames)
-            {
-                <MudText Typo="Typo.body2">@fname</MudText>
-            }
-        }
-    </MudItem>
 </MudGrid>
 
 @code {
+    private enum GenerateBy { Language, Nationality }
+
+    IEnumerable<Country> SelectedCountries { get; set; } = new HashSet<Country>();
+
+    LanguageInfo[]? availableLanguages;
     HumanBeing[]? humanBeans;
-    Country selectedCountry = EnumHelper.GetDefaultCountry();
-    int generateAmount;
-    string[]? langNames;
-    string[]? codeNames;
+    DateRange dateRange = new DateRange(DateTime.Now.AddYears(-10).Date, DateTime.Now.Date);
+    Gender genderFilter = Gender.All;
+    int generateAmount = 5;
+
+    int langTypeAmount => availableLanguages == null ? 0 : availableLanguages.GroupBy(e => e.LanguageType).Count();
 
     protected override void OnInitialized()
     {
-        langNames = _humanProvider.GetLanguageTypes();
-        codeNames = _humanProvider.GetNationalityCodes();
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Drivers", href: "drivers"),
+        });
+
+        availableLanguages = _humanProvider.GetLanguageHumanInfo();
+    }
+
+    void GenderChange(MudChip? genderChip)
+    {
+        if (genderChip != null)
+            genderFilter = (Gender)genderChip.Value;
     }
 
     void GenerateHumans()
     {
-        humanBeans = _humanProvider.GetHumanBeings(Country.BR);
+        if (availableLanguages == null)
+        {
+            _snack.Add("There aren't any available languages to generate from! HOW?!", Severity.Error);
+            return;
+        }
+
+        LanguageInfo[]? selectedLanguages;
+
+        if (genderFilter.HasFlag(Gender.Other))
+            selectedLanguages = availableLanguages.Where(e => e.LanguageType == "fr").ToArray();
+        else
+            selectedLanguages = availableLanguages.Where(e => SelectedCountries.Contains(e.Country)).ToArray();
+
+        if (selectedLanguages == null || selectedLanguages.Length == 0)
+        {
+            _snack.Add("No languages have been selected, you moron", Severity.Error);
+            return;
+        }
+
+        humanBeans = _humanProvider.GetHumanBeings(generateAmount, selectedLanguages, genderFilter, dateRange);
     }
-
-    //void HumanBeanify(PersonDatabank databank)
-    //{
-    //    HumanBeans = new List<HumanBeing>(5);
-
-    //    var combinedNames = databank.Male.Concat(databank.Female).ToArray();
-
-    //    for (int i = 0; i < 5; i++)
-    //    {
-    //        var nameIndex = NumberHelper.RandomInt(combinedNames.Length - 1);
-    //        var surIndex = NumberHelper.RandomInt(databank.Family.Length - 1);
-
-    //        HumanBeans.Add(new HumanBeing
-    //        {
-    //            Name = $"{combinedNames[nameIndex]} {databank.Family[surIndex]}",
-    //            Gender = "o",
-    //            Nationality = Country.BR,
-    //            Dob = DateTime.Now,
-    //        });
-    //    }
-    //}
 
     async Task SaveHumanBeings()
     {
+        if (humanBeans != null)
+        {
+            var drivers = humanBeans.Select(e => e.ToDriver).ToArray();
+            await _driverService.AddNewDrivers(drivers);
+            _nav.NavigateTo("/drivers");
+        }
+        else
+        {
+            _snack.Add("No human beings have been generated, you fucked that up nicely", Severity.Error);
+        }
     }
 }

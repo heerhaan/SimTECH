@@ -9,11 +9,6 @@ namespace SimTECH.Extensions
             return Enum.GetValues(e.GetType()).Cast<Enum>().Where(e.HasFlag);
         }
 
-        public static string CountryCodeToEmoji(this Country countryCode)
-        {
-            return string.Concat(countryCode.ToString().Select(e => char.ConvertFromUtf32(e + 0x1F1A5)));
-        }
-
         public static Country GetDefaultCountry() => Country.FM;
 
         public static Weather GetRandomWeather()
@@ -29,15 +24,6 @@ namespace SimTECH.Extensions
                 _ => Weather.Sunny,
             };
         }
-
-        public static string GetWeatherIcon(this Weather weather) => weather switch
-        {
-            Weather.Sunny       => Icons.Material.Filled.WbSunny,
-            Weather.Overcast    => Icons.Material.Filled.Cloud,
-            Weather.Rain        => Icons.Material.Filled.WaterDrop,
-            Weather.Storm       => Icons.Material.Filled.Tsunami,
-            _ => Icons.Material.Filled.QuestionMark
-        };
 
         public static Incident[] GetDriverIncidents => new Incident[] { Incident.Damage, Incident.Collision, Incident.Accident, Incident.Puncture };
         public static Incident[] GetCarIncidents => new Incident[] { Incident.Electrics, Incident.Exhaust, Incident.Clutch, Incident.Hydraulics, Incident.Wheel, Incident.Brakes };

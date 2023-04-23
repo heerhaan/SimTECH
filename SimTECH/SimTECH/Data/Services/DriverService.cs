@@ -57,6 +57,15 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task AddNewDrivers(Driver[] drivers)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.AddRange(drivers);
+
+            await context.SaveChangesAsync();
+        }
+
         public async Task DeleteDriver(Driver driver)
         {
             using var context = _dbFactory.CreateDbContext();
