@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using SimTECH.PageModels;
+
+namespace SimTECH.Data.Models
 {
     public class SeasonDriver
     {

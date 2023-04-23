@@ -1,4 +1,7 @@
-﻿namespace SimTECH.Data.Models
+﻿using SimTECH.PageModels;
+using System.Runtime.CompilerServices;
+
+namespace SimTECH.Data.Models
 {
     public class Result
     {

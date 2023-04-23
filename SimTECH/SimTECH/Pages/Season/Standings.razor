@@ -1,5 +1,6 @@
 ﻿@inject SeasonEntrantService EntrantService
 @inject RaceService RaceService
+@inject IDialogService _dialog
 
 @if (loading)
 {
@@ -71,14 +72,14 @@ else
 
         <MudTabPanel Text="WDC results">
             <MudPaper Elevation="15">
-                <MudTable Items="@DriverResultsModel">
+                <MudTable Items="@DriverResultsModel" id="wdc-team-results">
                     <ToolBarContent>
                         <MudText Typo="Typo.h4">WDC results</MudText>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh Class="number-col">#</MudTh>
                         <MudTh>Driver</MudTh>
-                        <MudTh Class="number-col">No</MudTh>
+                        <MudTh Class="number-col">No.</MudTh>
                         <MudTh>PTS</MudTh>
                         @foreach (var race in Races.OrderBy(e => e.Round))
                         {
@@ -104,7 +105,7 @@ else
                             if (i < context.ResultCells.Count)
                             {
                                 var result = context.ResultCells[i];
-                                <MudTd Class="number-col" Style="@(GetResultStyle(result))">@(GetResultText(result))</MudTd>
+                                <MudTd Class="number-col" Style="@(GetResultStyle(result))">@result.GetResultText()</MudTd>
                             }
                             else
                             {
@@ -113,12 +114,20 @@ else
                         }
                         <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
                     </RowTemplate>
+                    <FooterContent>
+                        <MudTd colspan="20">
+                            <MudStack Row="true" Justify="Justify.SpaceBetween">
+                                <ScreenshotButton TargetId="wdc-team-results" />
+                                <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowWdcResultGraph" />
+                            </MudStack>
+                        </MudTd>
+                    </FooterContent>
                 </MudTable>
             </MudPaper>
         </MudTabPanel>
 
         <MudTabPanel Text="WCC results">
-            <MudTable Items="@TeamResultsModel">
+            <MudTable Items="@TeamResultsModel" id="wcc-team-results">
                 <ToolBarContent>
                     <MudText Typo="Typo.h4">WCC results</MudText>
                 </ToolBarContent>
@@ -154,7 +163,7 @@ else
                                     @foreach (var result in teamResults)
                                     {
                                         <MudChip Style="@(GetResultStyle(result))">
-                                            @(GetResultText(result))
+                                            @result.GetResultText()
                                         </MudChip>
                                     }
                                 </MudStack>
@@ -167,6 +176,14 @@ else
                     }
                     <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
                 </RowTemplate>
+                <FooterContent>
+                    <MudTd colspan="20">
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <ScreenshotButton TargetId="wcc-team-results" />
+                            <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowWccResultGraph" />
+                        </MudStack>
+                    </MudTd>
+                </FooterContent>
             </MudTable>
         </MudTabPanel>
     </MudTabs>
@@ -212,6 +229,16 @@ else
         loading = false;
     }
 
+    async Task ShowWdcResultGraph()
+    {
+
+    }
+
+    async Task ShowWccResultGraph()
+    {
+        
+    }
+
     private string GetResultStyle(StandingResultCell cell)
     {
         var cellStyle = "";
@@ -253,30 +280,12 @@ else
         return cellStyle;
     }
 
-    private string GetResultText(StandingResultCell cell)
-    {
-        var cellText = string.Empty;
-
-        switch (cell.Status)
-        {
-            case RaceStatus.Dnq: cellText = "DNQ";
-                break;
-            case RaceStatus.Dsq: cellText = "DSQ";
-                break;
-            case RaceStatus.Dnf: cellText = "DNF";
-                break;
-            default: cellText = cell.Position.ToString();
-                break;
-        }
-
-        return cellText;
-    }
-
     private StandingDriverModel ToDriverResultModel(SeasonDriver driver, int position)
     {
         var driverTeam = SeasonTeams.Find(e => e.Id == driver.SeasonTeamId);
         return new StandingDriverModel
             {
+                Id = driver.Id,
                 Position = position,
                 Name = driver.Driver.FullName,
                 Number = driver.Number,
@@ -285,6 +294,7 @@ else
                 Accent = driverTeam?.Accent ?? "var(--mud-palette-secondary-text)",
                 Points = driver.Points,
                 HiddenPoints = driver.HiddenPoints,
+                SeasonTeamId = driver.SeasonTeamId,
 
                 ResultCells = driver.Results.Select(e => ToResultCell(e)).ToList(),
             };
@@ -294,6 +304,7 @@ else
     {
         return new StandingTeamModel
             {
+                Id = team.Id,
                 Position = position,
                 Name = team.Name,
                 Principal = team.Principal,
@@ -316,40 +327,5 @@ else
             Round = Races.Single(e => e.Id == result.RaceId).Round,
             Pole = result.Grid == 1,
         };
-    }
-
-    private abstract class StandingEntrantBase
-    {
-        public int Position { get; set; }
-        public string Name { get; set; }
-        public Country Nationality { get; set; }
-        public int Points { get; set; }
-        public int HiddenPoints { get; set; }
-
-        public string Colour { get; set; }
-        public string Accent { get; set; }
-
-        public List<StandingResultCell> ResultCells { get; set; }
-    }
-
-    private class StandingDriverModel : StandingEntrantBase
-    {
-        public int Number { get; set; }
-        public TeamRole TeamRole { get; set; }
-    }
-
-    private class StandingTeamModel : StandingEntrantBase
-    {
-        public string Principal { get; set; }
-    }
-
-    private class StandingResultCell
-    {
-        public int Position { get; set; }
-        public RaceStatus Status { get; set; }
-        public int Round { get; set; }
-
-        public bool Pole { get; set; }
-        public bool FL { get; set; }
     }
 }
