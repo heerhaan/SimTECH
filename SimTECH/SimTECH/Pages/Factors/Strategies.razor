@@ -11,19 +11,19 @@
                 <ToolBarContent>
                     <MudText Typo="Typo.h4">Strategies</MudText>
                     <MudSpacer />
-                    <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="AddStrategy">New</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddStrategy">New</MudButton>
                 </ToolBarContent>
                 <Columns>
                     <TemplateColumn Title="Tyres" Sortable="false">
                         <CellTemplate>
                             @if (context.Item.StrategyTyres?.Count > 0)
                             {
-                                foreach (var strategyTyre in context.Item.StrategyTyres)
-                                {
-                                    <span class="tyre" style="border-color:@(strategyTyre.Tyre.Colour)">
-                                        @strategyTyre.Tyre.Name.ElementAt(0)
-                                    </span>
-                                }
+                                <div class="d-flex flex-row gap-2">
+                                    @foreach (var strategyTyre in context.Item.StrategyTyres)
+                                    {
+                                    <span class="tyre" style="border-color:@(strategyTyre.Tyre.Colour)">@strategyTyre.Tyre.Name.ElementAt(0)</span>
+                                    }
+                                </div>
                             }
                             else
                             {
@@ -44,6 +44,7 @@
                         <CellTemplate>
                             <MudButtonGroup>
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateStrategy(context.Item))" />
+                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteStrategy(context.Item))" />
                             </MudButtonGroup>
                         </CellTemplate>
                     </TemplateColumn>
@@ -59,7 +60,7 @@
                 <ToolBarContent>
                     <MudText Typo="Typo.h4">Tyres</MudText>
                     <MudSpacer />
-                    <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTyre">New</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTyre">New</MudButton>
                 </ToolBarContent>
                 <Columns>
                     <PropertyColumn Property="e => e.Name" CellStyleFunc="_applyTyreColouring" />
@@ -117,6 +118,7 @@
             StrategyData = await StrategyService.GetStrategies();
         }
     }
+    async Task DeleteStrategy(Strategy strategy) => await StrategyService.DeleteStrategy(strategy);
 
     async Task AddTyre() => await UpdateTyre(new Tyre());
     async Task UpdateTyre(Tyre item)
@@ -132,4 +134,5 @@
             TyreData = await StrategyService.GetTyres();
         }
     }
+    async Task DeleteTyre(Tyre tyre) => await StrategyService.DeleteTyre(tyre);
 }

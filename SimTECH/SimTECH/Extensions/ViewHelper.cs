@@ -1,9 +1,11 @@
-﻿using SimTECH.Data.Models;
+﻿using MudBlazor;
+using SimTECH.Data.Models;
 
 namespace SimTECH.Extensions
 {
     public static class ViewHelper
     {
+        // Styling stuff
         public static string SetGradientTriangleStyle(string colour, string accent)
             => $"background: linear-gradient(to top left, var(--mud-palette-surface) 49.5%, {colour} 50.5%); color: {accent}";
 
@@ -34,5 +36,29 @@ namespace SimTECH.Extensions
         public static Func<SeasonTeam, string> TeamFullStyleFunc => team => SetFullColourstyle(team.Colour, team.Accent);
 
         public static Func<SeasonTeam, string> TeamBorderRightStyleFunc => team => SetBorderRightStyle(team.Colour);
+
+        // Visual stuff based on enums
+        public static string CountryCodeToEmoji(this Country countryCode)
+        {
+            return string.Concat(countryCode.ToString().Select(e => char.ConvertFromUtf32(e + 0x1F1A5)));
+        }
+
+        public static string GetGenderIcon(this Gender gender) => gender switch
+        {
+            Gender.All => Icons.Material.Filled.AllInclusive,
+            Gender.Male => Icons.Material.Filled.Male,
+            Gender.Female => Icons.Material.Filled.Female,
+            Gender.Other => Icons.Custom.Uncategorized.Baguette,
+            _ => Icons.Material.Filled.QuestionMark
+        };
+
+        public static string GetWeatherIcon(this Weather weather) => weather switch
+        {
+            Weather.Sunny => Icons.Material.Filled.WbSunny,
+            Weather.Overcast => Icons.Material.Filled.Cloud,
+            Weather.Rain => Icons.Material.Filled.WaterDrop,
+            Weather.Storm => Icons.Material.Filled.Tsunami,
+            _ => Icons.Material.Filled.QuestionMark
+        };
     }
 }

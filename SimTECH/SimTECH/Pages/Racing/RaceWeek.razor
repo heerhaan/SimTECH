@@ -1,16 +1,10 @@
 ﻿@page "/raceweek/{RaceId:long}"
 
 @inject RaceService RaceService
-@inject BreadcrumbProvider Bread
+@inject BreadcrumbProvider _bread
 @inject NavigationManager Nav
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
-
-<style type="text/css">
-    .test-dialog-shadow {
-        box-shadow: var(--mud-palette-secondary) 0 0 2em;
-    }
-</style>
 
 @if (loading)
 {
@@ -24,14 +18,13 @@
 else
 {
     <MudGrid>
-        <MudItem xs="4">
-            <MudPaper Class="pa-4" Style="height: 100%">
-                <MudTable Items="@ViewModel.RaceWeekDrivers.OrderBy(e => e.Grid)" Dense="true">
+        <MudItem xs="3">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudTable Items="@Model.RaceWeekDrivers.OrderBy(e => e.Grid)" Dense="true">
                     <HeaderContent>
                         <MudTh>Grid</MudTh>
                         <MudTh>Name</MudTh>
                         <MudTh>Strategy</MudTh>
-                        <MudTh>Penalty</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
@@ -57,25 +50,24 @@ else
                                 }
                             </MudLink>
                         </MudTd>
-                        <MudTd>todo</MudTd>
                     </RowTemplate>
                 </MudTable>
             </MudPaper>
         </MudItem>
 
-        <MudItem xs="8">
+        <MudItem xs="9">
             <MudGrid>
                 <MudItem xs="6">
                     <MudPaper Class="pa-4">
                         <MudText Typo="Typo.h4">
-                            <CountryFlag Code="@ViewModel.Race.Track.Country" Size="FlagSize.Normal" />
-                            @ViewModel.Race.Name
+                            <CountryFlag Code="@Model.Race.Track.Country" Size="FlagSize.Normal" />
+                            @Model.Race.Name
                         </MudText>
-                        @if (ViewModel.TrackTraits?.Any() == true)
+                        @if (Model.TrackTraits?.Any() == true)
                         {
                             <MudList>
                                 <MudListSubheader>Traits of this circuit</MudListSubheader>
-                                @foreach (var trait in ViewModel.TrackTraits)
+                                @foreach (var trait in Model.TrackTraits)
                                 {
                                     <MudListItem>
                                         @trait.Name - @trait.Description
@@ -85,30 +77,61 @@ else
                         }
                     </MudPaper>
                 </MudItem>
-
                 <MudItem xs="6">
                     <MudPaper Class="pa-4">
+                        <MudText Typo="Typo.h5">Track information</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, innit?</MudText>
                         <MudList>
-                            <MudListSubheader>Track info</MudListSubheader>
-                            <MudListItem>Length: @ViewModel.Race.Track.Length</MudListItem>
-                            <MudListItem>Aero mod: @ViewModel.Race.Track.AeroMod</MudListItem>
-                            <MudListItem>Chassis mod: @ViewModel.Race.Track.ChassisMod</MudListItem>
-                            <MudListItem>Power mod: @ViewModel.Race.Track.PowerMod</MudListItem>
-                            <MudListItem>Qualy mod: @ViewModel.Race.Track.QualifyingMod</MudListItem>
-                            <MudListItem>Weather: @ViewModel.Race.Weather</MudListItem>
+                            <MudListItem>Length: @(Model.Race.Track.Length)km</MudListItem>
+                            <MudListItem>Laps: @(NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length))</MudListItem>
+                            <MudListItem>Aero mod: @Model.Race.Track.AeroMod</MudListItem>
+                            <MudListItem>Chassis mod: @Model.Race.Track.ChassisMod</MudListItem>
+                            <MudListItem>Power mod: @Model.Race.Track.PowerMod</MudListItem>
+                            <MudListItem>Qualy mod: @Model.Race.Track.QualifyingMod</MudListItem>
+                            <MudListItem>Weather: @Model.Race.Weather</MudListItem>
                         </MudList>
                     </MudPaper>
                 </MudItem>
-
+                <MudItem xs="6">
+                    <MudPaper Class="pa-4">
+                        <MudText Typo="Typo.h5">Penalties</MudText>
+                        @if (Model.AnyPenalties)
+                        {
+                            <MudSimpleTable Dense="true">
+                                <thead>
+                                    <tr>
+                                        <th>Driver</th>
+                                        <th>Reason</th>
+                                        <th>Penalty</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var penalizedDriver in Model.RaceWeekDrivers.Where(e => e.Penalty.HasValue))
+                                    {
+                                        <tr>
+                                            <td>@penalizedDriver.FullName</td>
+                                            <td>@penalizedDriver.Reason</td>
+                                            <td>+@(penalizedDriver.Penalty)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </MudSimpleTable>
+                        }
+                        else
+                        {
+                            <MudText>No penalties for this race</MudText>
+                        }
+                    </MudPaper>
+                </MudItem>
                 <MudItem xs="6">
                     <MudPaper Class="pa-4">
                         <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined" VerticalAlign="true">
-                            @if (ViewModel.Race.State == State.Active)
+                            @if (Model.Race.State == State.Active)
                             {
-                                <MudButton OnClick="GoToPractice">Prac</MudButton>
-                                <MudButton OnClick="GoToQualifying">Qual</MudButton>
+                                <MudButton OnClick="GoToPractice">Practice</MudButton>
+                                <MudButton OnClick="GoToQualifying">Qualifying</MudButton>
                             }
-                            else if (ViewModel.Race.State != State.Concept)
+                            else if (Model.Race.State != State.Concept)
                             {
                                 <MudButton OnClick="GoToRace">Race</MudButton>
                             }
@@ -123,19 +146,19 @@ else
 @code {
     [Parameter] public long RaceId { get; set; }
 
-    private RaceWeekModel ViewModel { get; set; }
+    RaceWeekModel Model { get; set; }
 
-    private bool loading = true;
+    bool loading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        ViewModel = await RaceService.GetRaceWeekModel(RaceId);
+        Model = await RaceService.GetRaceWeekModel(RaceId);
 
-        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Seasons", href: "seasons"),
-            new BreadcrumbItem("Overview", href: $"overview/{ViewModel.Race.SeasonId}"),
+            new BreadcrumbItem("Overview", href: $"overview/{Model.Race.SeasonId}"),
             new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
         });
 
@@ -151,7 +174,7 @@ else
         var parameters = new DialogParameters 
             {
                 ["ResultId"] = resultId,
-                ["Strategies"] = ViewModel.AvailableStrategies,
+                ["Strategies"] = Model.AvailableStrategies,
             };
 
         var dialog = await DialogService.ShowAsync<StrategyPicker>("Set strategy", parameters);
@@ -161,7 +184,7 @@ else
         {
             await RaceService.PickStrategy(resultId, newStrategy.Id, newStrategy.StrategyTyres[0].Tyre.Pace);
 
-            ViewModel.RaceWeekDrivers.Single(e => e.ResultId == resultId).Strategy = newStrategy;
+            Model.RaceWeekDrivers.Single(e => e.ResultId == resultId).Strategy = newStrategy;
         }
     }
 }

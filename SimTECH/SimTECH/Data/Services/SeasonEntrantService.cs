@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
@@ -177,7 +178,32 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            await context.AddRangeAsync(rootEngines);
+            context.AddRange(rootEngines);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task CopyEntrantsFromSeason(long seasonId, long copiedSeasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var rootEngines = await context.SeasonEngine
+                .Where(e => e.SeasonId == copiedSeasonId)
+                .Include(e => e.SeasonTeams)
+                    .ThenInclude(e => e.SeasonDrivers)
+                .ToListAsync();
+
+            var editModels = rootEngines.Select(e => new EditSeasonEngineModel(e)).ToList();
+
+            foreach (var editModel in editModels)
+            {
+                editModel.ResetIdentifierFields();
+                editModel.SetSeasonIdForAll(seasonId);
+            }
+
+            var rootEntrants = editModels.Select(e => e.Record).ToList();
+
+            context.AddRange(rootEntrants);
 
             await context.SaveChangesAsync();
         }

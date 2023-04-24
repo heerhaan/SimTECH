@@ -9,11 +9,11 @@
         public string League { get; set; }
 
         public string DriverName { get; set; }
+        public int DriverNumber { get; set; }
         public Country DriverNationality { get; set; }
 
         public string TeamName { get; set; }
         public string TeamColour { get; set; }
-        public string TeamAccent { get; set; }
         public Country TeamNationality { get; set; }
     }
 }

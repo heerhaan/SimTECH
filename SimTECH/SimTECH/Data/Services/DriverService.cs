@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
+using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services
 {
@@ -13,11 +14,13 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
-        public async Task<List<Driver>> GetDrivers()
+        public async Task<List<Driver>> GetDrivers() => await GetDrivers(StateFilter.Default);
+        public async Task<List<Driver>> GetDrivers(StateFilter filter)
         {
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Driver
+                .Where(e => filter.StatesForFilter().Contains(e.State))
                 .Include(e => e.DriverTraits)
                 .ToListAsync();
         }
@@ -53,6 +56,15 @@ namespace SimTECH.Data.Services
 
                 context.Update(driver);
             }
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task AddNewDrivers(Driver[] drivers)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.AddRange(drivers);
 
             await context.SaveChangesAsync();
         }

@@ -1,4 +1,5 @@
 ﻿using SimTECH.Data.Models;
+using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.EditModels
 {
@@ -34,6 +35,15 @@ namespace SimTECH.Data.EditModels
 
             _seasonDriver = seasonDriver;
         }
+
+        public void ResetIdentifierFields()
+        {
+            Id = default;
+            SeasonId = default;
+            SeasonTeamId = default;
+        }
+
+        public void SetSeasonId(long seasonId) => SeasonId = seasonId;
 
         public SeasonDriver Record =>
             new()

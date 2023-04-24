@@ -10,17 +10,16 @@
         <ToolBarContent>
             <MudText Typo="Typo.h4">Leagues</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddLeague">New</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddLeague">New</MudButton>
         </ToolBarContent>
         <Columns>
             <HierarchyColumn T="League" />
             <PropertyColumn Property="e => e.Name" />
-            <PropertyColumn Property="e => e.RaceLength" />
+            <PropertyColumn Property="e => e.RaceLength" Title="Length (Km)" />
             <PropertyColumn Property="e => e.State" />
             <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">
-                        @*<MudIconButton Icon="@Icons.Material.Filled.ElectricBolt" OnClick="@(async () => await ActivateLeague(context.Item))" />*@
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context.Item))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteLeague(context.Item))" />
                     </MudButtonGroup>
@@ -28,27 +27,45 @@
             </TemplateColumn>
         </Columns>
         <ChildRowContent>
-            @if (context.Item.DevelopmentRanges != null)
-            {
-                <MudStack Spacing="2" Row="true">
-                    @foreach (var rangeGroup in context.Item.DevelopmentRanges.GroupBy(e => e.Type))
-                    {
-                        <MudPaper Elevation="15">
-                            <MudList>
-                                <MudListSubheader>Development ranges for @rangeGroup.Key.ToString()</MudListSubheader>
-                                @foreach (var range in rangeGroup)
-                                {
-                                    <MudListItem>@range.Comparer | @range.Minimum ↔ @range.Maximum</MudListItem>
-                                }
-                            </MudList>
-                        </MudPaper>
-                    }
-                </MudStack>
-            }
-            else
-            {
-                <MudText>There aren't any development ranges set at all!</MudText>
-            }
+            <MudPaper Elevation="15" Class="pa-2">
+                <MudText Typo="Typo.h5">Detail information</MudText>
+                <MudDivider />
+                @if (context.Item.DevelopmentRanges != null)
+                {
+                    <MudText Typo="Typo.h6">Development ranges</MudText>
+                    <MudStack Spacing="2" Row="true" Justify="Justify.SpaceBetween">
+                        @foreach (var rangeGroup in context.Item.DevelopmentRanges.GroupBy(e => e.Type))
+                        {
+                            <MudStack>
+                                <MudText Typo="Typo.overline">@rangeGroup.Key</MudText>
+                                <MudSimpleTable>
+                                    <thead>
+                                        <tr>
+                                            <th>Less than</th>
+                                            <th>Lower</th>
+                                            <th>Upper</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var range in rangeGroup)
+                                        {
+                                            <tr>
+                                                <td>@range.Comparer</td>
+                                                <td>@range.Minimum</td>
+                                                <td>@range.Maximum</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </MudSimpleTable>
+                            </MudStack>
+                        }
+                    </MudStack>
+                }
+                else
+                {
+                    <MudText>There aren't any development ranges set at all!</MudText>
+                }
+            </MudPaper>
         </ChildRowContent>
     </MudDataGrid>
 </MudContainer>
@@ -58,7 +75,6 @@
     List<League> LeagueData = new List<League>();
 
     bool _loading = true;
-    //private long activeLeagueId { get; set; } = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,21 +87,8 @@
         _loading = false;
     }
 
-    //protected override async Task OnAfterRenderAsync(bool firstRender)
-    //{
-    //    var storedLeagueId = await LocalStorage.GetAsync<long>("activeleague");
-    //    if (storedLeagueId.Success)
-    //    {
-    //        activeLeagueId = storedLeagueId.Value;
-    //    }
-    //}
-
-    //async Task ActivateLeague(League item)
-    //{
-    //    await LocalStorage.SetAsync("activeleague", item.Id);
-    //}
-
     async Task AddLeague() => await UpdateLeague(new League());
+
     async Task UpdateLeague(League item)
     {
         var parameters = new DialogParameters { ["League"] = (item) };

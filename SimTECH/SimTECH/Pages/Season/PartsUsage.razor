@@ -1,22 +1,22 @@
 ﻿@page "/components/{SeasonId:long}"
-@inject BreadcrumbProvider Bread
-@inject SeasonService SeasonService
+@inject BreadcrumbProvider _bread
+@inject SeasonService _seasonService
 
 <PageTitle>Components</PageTitle>
 
 <MudContainer>
-    <MudGrid>
-        <MudItem xs="9">
-            <MudPaper Class="mud-height-full">
-                @if (PartsPerDriver != null)
-                {
+    @if (PartsPerDriver != null)
+    {
+        <MudGrid>
+            <MudItem xs="9">
+                <MudPaper Class="mud-height-full">
                     <MudTable Items="@PartsPerDriver">
                         <ToolBarContent>
                             <MudText Typo="Typo.h4">Components</MudText>
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>Name</MudTh>
-                            <MudTh Class="number-col">No.</MudTh>
+                            <MudTh Class="number-col">No</MudTh>
                             <MudTh>Accidents</MudTh>
                             <MudTh>Collisions</MudTh>
                             <MudTh>Engines</MudTh>
@@ -40,28 +40,37 @@
                         </RowTemplate>
                         <FooterContent>
                             <MudTd>LIMIT</MudTd>
-                            <MudTd>0</MudTd>
-                            <MudTd>0</MudTd>
-                            <MudTd>0</MudTd>
-                            <MudTd>0</MudTd>
+                            <MudTd>3</MudTd>
+                            <MudTd>3</MudTd>
+                            <MudTd>3</MudTd>
+                            <MudTd>3</MudTd>
+                            <MudTd>3</MudTd>
                             <MudTd>-</MudTd>
                             <MudTd>-</MudTd>
                         </FooterContent>
                     </MudTable>
-                }
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="3">
-            <MudPaper Class="mud-height-full">
-                <MudText Typo="Typo.h4">Other</MudText>
-                <MudText Typo="Typo.body2">
-                    ... Something related to this? I had an idea... but what?
-                    Optionally make the kind of incidents and such settable, including the penalties.
-                    Furthermore I suspect the upcoming penalty's and such were what I wanted to put here.
-                </MudText>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="3">
+                <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.h4">Penalties</MudText>
+                    <MudList>
+                        @foreach (var driver in PartsPerDriver.Where(e => e.GivenPenalties?.Any() == true))
+                        {
+                            @foreach (var penalty in driver.GivenPenalties)
+                            {
+                                <MudListItem>
+                                    <MudText Typo="Typo.body2">Round @penalty.Round</MudText>
+                                    <MudText>@driver.Name</MudText>
+                                    <MudText>+@(penalty.Punishment)</MudText>
+                                </MudListItem>
+                            }
+                        }
+                    </MudList>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
 </MudContainer>
 
 @code {
@@ -71,12 +80,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Seasons", href: "seasons}"),
             new BreadcrumbItem("Overview", href: $"overview/{SeasonId}"),
-            new BreadcrumbItem("Components", href: $"components/{SeasonId}"),
+            new BreadcrumbItem("Components", href: $"components/{SeasonId}", disabled: true),
         });
 
-        PartsPerDriver = await SeasonService.GetPartsUsageModel(SeasonId);
+        PartsPerDriver = await _seasonService.GetPartsUsageModel(SeasonId);
     }
 }

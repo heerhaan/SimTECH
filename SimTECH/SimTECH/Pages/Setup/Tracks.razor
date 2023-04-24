@@ -6,47 +6,45 @@
 <PageTitle>Tracks</PageTitle>
 
 <MudContainer>
-    <MudTable Items="@TrackData" ReadOnly="@_readOnly" Bordered="true" Class="mt-2">
+    <MudDataGrid T="Track" Items="TrackData" Bordered="true" Class="my-2">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Tracks</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="AddTrack">New</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTrack">New</MudButton>
         </ToolBarContent>
-        <HeaderContent>
-            <MudTh>Name</MudTh>
-            <MudTh>Country</MudTh>
-            <MudTh>Length</MudTh>
-            <MudTh>AeroMod</MudTh>
-            <MudTh>ChassisMod</MudTh>
-            <MudTh>PowerMod</MudTh>
-            <MudTh>QualifyingMod</MudTh>
-            <MudTh>State</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>@context.Name</MudTd>
-            <MudTd>
-                <CountryFlag Code="@context.Country" Size="FlagSize.Small" IncludeName="true" />
-            </MudTd>
-            <MudTd>@context.Length</MudTd>
-            <MudTd>@context.AeroMod</MudTd>
-            <MudTd>@context.ChassisMod</MudTd>
-            <MudTd>@context.PowerMod</MudTd>
-            <MudTd>@context.QualifyingMod</MudTd>
-            <MudTd>@context.State</MudTd>
-            <MudTd Class="d-flex justify-end">
-                <MudButtonGroup>
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrack(context))" />
-                </MudButtonGroup>
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
+        <Columns>
+            <HierarchyColumn T="Track" />
+            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.Country" />
+            <PropertyColumn Property="e => e.Length" Title="Length (Km)" />
+            <TemplateColumn Title="Aero">
+                <CellTemplate>@(context.Item.AeroMod)x</CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Chassis">
+                <CellTemplate>@(context.Item.ChassisMod)x</CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Powertrain">
+                <CellTemplate>@(context.Item.PowerMod)x</CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Qualifying">
+                <CellTemplate>@(context.Item.QualifyingMod)x</CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Class="d-flex justify-end">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrack(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
 </MudContainer>
 
 @code {
-    private bool _readOnly = false;
-    private List<Track> TrackData = new();
-
+    List<Track> TrackData = new();
+    
+    bool _readOnly = false;
+    
     protected override async Task OnInitializedAsync()
     {
         TrackData = await TrackService.GetTracks();
@@ -70,4 +68,6 @@
             TrackData = await TrackService.GetTracks();
         }
     }
+
+    //async Task DeleteTrack() => await TrackService.De
 }

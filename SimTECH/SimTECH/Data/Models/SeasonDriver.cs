@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using SimTECH.PageModels;
+
+namespace SimTECH.Data.Models
 {
     public class SeasonDriver
     {
@@ -19,5 +21,15 @@
         public SeasonTeam? SeasonTeam { get; set; }
 
         public IList<Result> Results { get; set; } = default!;
+    }
+
+    public static class ExtendSeasonDriver
+    {
+        public static int RetrieveStatusBonus(this SeasonDriver driver, int modifier) => driver.TeamRole switch
+        {
+            TeamRole.Main => modifier,
+            TeamRole.Support => modifier * -1,
+            _ => 0,
+        };
     }
 }

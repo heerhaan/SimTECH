@@ -5,6 +5,7 @@ using System.Security.Claims;
 
 namespace SimTECH.Providers
 {
+    // Authentication has been disabled in this project, keeping this provider here though if we want it back!
     public sealed class SimAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
     {
         private readonly UserService userService;

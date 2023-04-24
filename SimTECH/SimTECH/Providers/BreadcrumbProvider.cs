@@ -18,7 +18,7 @@ namespace SimTECH.Providers
         public void Reset()
         {
             Breadcrumbs.Clear();
-            Visible= false;
+            Visible = false;
 
             NotifyStateChanged();
         }

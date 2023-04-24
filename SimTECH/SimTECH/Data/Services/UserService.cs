@@ -4,6 +4,7 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services
 {
+    // Authentication & authorization has been disabled for now
     public class UserService
     {
         /* NOTE: Local storage (aka browser storage is used in this situation but we should evaluate if it is actually the best option.

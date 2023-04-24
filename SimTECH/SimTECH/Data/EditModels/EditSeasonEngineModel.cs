@@ -1,4 +1,5 @@
 ﻿using SimTECH.Data.Models;
+using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.EditModels
 {
@@ -28,7 +29,33 @@ namespace SimTECH.Data.EditModels
             EngineId = seasonEngine.EngineId;
             SeasonId = seasonEngine.SeasonId;
 
+            if (seasonEngine.SeasonTeams?.Any() == true)
+                SeasonTeams = seasonEngine.SeasonTeams.Select(e => new EditSeasonTeamModel(e)).ToList();
+
             _seasonEngine = seasonEngine;
+        }
+
+        public void ResetIdentifierFields()
+        {
+            Id = default;
+            SeasonId = default;
+
+            if (SeasonTeams?.Any() == true)
+            {
+                foreach (var team in SeasonTeams)
+                    team.ResetIdentifierFields();
+            }
+        }
+
+        public void SetSeasonIdForAll(long seasonId)
+        {
+            SeasonId = seasonId;
+
+            if (SeasonTeams?.Any() == true)
+            {
+                foreach (var team in SeasonTeams)
+                    team.SetSeasonIdForAll(seasonId);
+            }
         }
 
         public SeasonEngine Record =>

@@ -2,7 +2,10 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText>Driver comparison</MudText>
+        <MudStack Row="true" Justify="@Justify.SpaceBetween">
+            <MudText>Driver comparison</MudText>
+            <MudText>Toggler placeholder</MudText>
+        </MudStack>
     </TitleContent>
     <DialogContent>
         <MudContainer Fixed="true" Class="pa-2">
@@ -82,7 +85,6 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
-    [CascadingParameter] public bool isDarkTheme { get; set; }
 
     ApexCharts.ApexChart<DataPoint>? chart;
     ApexCharts.ApexChartOptions<DataPoint> options;
@@ -107,7 +109,7 @@
                 },
                 Theme = new ApexCharts.Theme
                 {
-                    Mode = isDarkTheme ? ApexCharts.Mode.Dark : ApexCharts.Mode.Light,
+                    Mode = ApexCharts.Mode.Dark,
                 },
             };
     }

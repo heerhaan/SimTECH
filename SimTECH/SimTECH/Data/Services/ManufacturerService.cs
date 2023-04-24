@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
+using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services
 {
@@ -13,11 +14,14 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
-        public async Task<List<Manufacturer>> GetManufacturers()
+        public async Task<List<Manufacturer>> GetManufacturers() => await GetManufacturers(StateFilter.Default);
+        public async Task<List<Manufacturer>> GetManufacturers(StateFilter filter)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Manufacturer.ToListAsync();
+            return await context.Manufacturer
+                .Where(e => filter.StatesForFilter().Contains(e.State))
+                .ToListAsync();
         }
 
         public async Task UpdateManufacturer(Manufacturer manufacturer)

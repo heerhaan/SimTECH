@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using SimTECH.Extensions;
+
+namespace SimTECH.Data.Models
 {
     public class LapScore
     {
@@ -9,5 +11,11 @@
 
         public long ResultId { get; set; }
         public Result Result { get; set; }
+    }
+
+    public static class ExtendLapScore
+    {
+        public static IEnumerable<Enum> ListOfDubiousEvents(this LapScore lapScore) =>
+            lapScore.RacerEvents.GetFlagged().Where(e => e.ToString() != "Unknown" && e.ToString() != "Racing");
     }
 }

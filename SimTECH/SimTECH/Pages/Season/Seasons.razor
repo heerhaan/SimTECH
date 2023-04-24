@@ -2,6 +2,7 @@
 @inject NavigationManager Nav
 @inject LeagueService LeagueService
 @inject SeasonService SeasonService
+@inject BreadcrumbProvider _bread
 @inject IDialogService DialogService
 
 <PageTitle>Seasons</PageTitle>
@@ -13,11 +14,11 @@
             <ToolBarContent>
                 <MudText Typo="Typo.h4">Seasons</MudText>
                 <MudSpacer />
-                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="NewSeason">New</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="NewSeason">New</MudButton>
             </ToolBarContent>
             <Columns>
                 <PropertyColumn Property="e => e.Year" />
-                <PropertyColumn Property="e => e.State" />
+                <PropertyColumn Property="e => e.DriverNumber" Title="No." />
                 <TemplateColumn Title="Leading driver">
                     <CellTemplate>
                         <CountryFlag Code="context.Item.DriverNationality" Size="FlagSize.Small" />
@@ -31,6 +32,7 @@
                     </CellTemplate>
                 </TemplateColumn>
                 <PropertyColumn Property="e => e.League" />
+                <PropertyColumn Property="e => e.State" />
                 <TemplateColumn CellClass="d-flex justify end">
                     <CellTemplate>
                         <MudButtonGroup Size="@Size.Small">
@@ -51,29 +53,38 @@
 </MudContainer>
 
 @code {
-    private List<Season> SeasonData;
-    private List<League> LeagueData;
-    private List<SeasonListModel> SeasonList;
+    List<Season> SeasonData;
+    List<League> LeagueData;
+    List<SeasonListModel> SeasonList;
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons", disabled: true),
+        });
+
         SeasonData = await SeasonService.GetSeasons();
         LeagueData = await LeagueService.GetLeagues();
 
         SeasonList = await SeasonService.GetSeasonList();
     }
 
-    // Arguably delete the copy, use by default the last season as a base
-    //private async Task CopySeason(Season season) => await UpdateSeason(season, true);
-    private async Task EditSeason(long seasonId)
+    private async Task NewSeason()
     {
-        var season = SeasonData.Single(e => e.Id == seasonId);
-        await UpdateSeason(season);
-    }
-    private async Task NewSeason() => await UpdateSeason(new Season());
-    private async Task UpdateSeason(Season item, bool isCopied = false)
-    {
-        var parameters = new DialogParameters { ["Season"] = item, ["Leagues"] = LeagueData, ["Copied"] = isCopied };
+        EditSeasonModel? model = null;
+
+        var previousSeason = SeasonData.OrderByDescending(e => e.Year).FirstOrDefault();
+
+        if (previousSeason != null)
+        {
+            model = new EditSeasonModel(previousSeason);
+            model.ResetIdentifierFields();
+            model.Year++;
+        }
+
+        var parameters = new DialogParameters { ["Model"] = (model ?? new()), ["Leagues"] = LeagueData };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
@@ -100,5 +111,5 @@
     }
 
     private static Func<SeasonListModel, string> LeadingTeamStyleFunc => model 
-        => ViewHelper.SetFullColourstyle(model.TeamColour, model.TeamAccent);
+        => ViewHelper.SetBorderLeftStyle(model.TeamColour);
 }

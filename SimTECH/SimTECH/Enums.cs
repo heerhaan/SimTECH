@@ -8,9 +8,11 @@ namespace SimTECH
         Active,
         Closed,
         Archived,
-        // NOTE: additional states are found underneath, used for some entities to control behaviur
+        // NOTE: additional states are found underneath, used for some entities to control specific behaviour
         Advanced,
     }
+
+    public enum StateFilter { All, Default, Closed, Archived }
 
     public enum Entrant
     {
@@ -31,6 +33,15 @@ namespace SimTECH
     }
 
     public enum TargetDevelop { Main, Reliability }
+
+    public enum Gender { All, Male, Female, Other }
+
+    [Flags]
+    public enum SeasonToggles
+    {
+        None = 0,
+        EnablePenalty = 1,
+    }
 
     #region racing
 
@@ -60,13 +71,6 @@ namespace SimTECH
         Engine,
         Electrics, Exhaust, Clutch, Hydraulics, Wheel, Brakes,
         Illegal, Fuel, Dangerous
-    }
-
-    [Flags]
-    public enum StintEvent
-    {
-        None = 0,
-        Driver = 1, Car = 2, Engine = 4, Reliability = 8
     }
 
     [Flags]

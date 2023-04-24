@@ -1,4 +1,5 @@
 ﻿using SimTECH.Data.Models;
+using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.EditModels
 {
@@ -46,7 +47,34 @@ namespace SimTECH.Data.EditModels
             ManufacturerId = seasonTeam.ManufacturerId;
             Team = seasonTeam.Team;
 
+            if (seasonTeam.SeasonDrivers?.Any() == true)
+                SeasonDrivers = seasonTeam.SeasonDrivers.Select(e => new EditSeasonDriverModel(e)).ToList();
+
             _seasonTeam = seasonTeam;
+        }
+
+        public void ResetIdentifierFields()
+        {
+            Id = default;
+            SeasonId = default;
+            SeasonEngineId = default;
+
+            if (SeasonDrivers?.Any() == true)
+            {
+                foreach (var driver in SeasonDrivers)
+                    driver.ResetIdentifierFields();
+            }
+        }
+
+        public void SetSeasonIdForAll(long seasonId)
+        {
+            SeasonId = seasonId;
+
+            if (SeasonDrivers?.Any() == true)
+            {
+                foreach (var driver in SeasonDrivers)
+                    driver.SetSeasonId(seasonId);
+            }
         }
 
         public SeasonTeam Record =>
@@ -70,12 +98,5 @@ namespace SimTECH.Data.EditModels
             };
 
         public bool IsDirty => _seasonTeam != Record;
-
-        public void ResetIdentifierFields()
-        {
-            Id = default;
-            SeasonId = default;
-            SeasonEngineId = default;
-        }
     }
 }

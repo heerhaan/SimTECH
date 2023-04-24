@@ -23,8 +23,8 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Race
-                .Include(e => e.Track)
                 .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Track)
                 .ToListAsync();
         }
 
@@ -43,8 +43,8 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Race
-                .Include(e => e.Track)
                 .Where(e => e.SeasonId == seasonId && (e.State == State.Concept || e.State == State.Active || e.State == State.Advanced))
+                .Include(e => e.Track)
                 .OrderBy(e => e.Round)
                 .FirstOrDefaultAsync();
         }
@@ -131,6 +131,7 @@ namespace SimTECH.Data.Services
             if (raceToAdvance != null && maximumRace == null)
                 throw new InvalidOperationException("oi fucker, include the maximum allowed too!");
 
+            var positionCount = driverPositions.Count;
             var driverResults = await context.Result.Where(e => driverPositions.Keys.Contains(e.Id)).ToListAsync();
 
             foreach (var result in driverResults)
@@ -412,6 +413,8 @@ namespace SimTECH.Data.Services
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
 
+            var penalties = await context.Penalty.Where(e => e.RaceId == raceId).ToListAsync();
+
             var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
 
             var driverResults = await context.Result
@@ -447,13 +450,8 @@ namespace SimTECH.Data.Services
             {
                 var driverTraits = new List<Trait>(trackTraits);
 
-                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId);
-                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId);
-
-                if (driver == null)
-                    throw new InvalidOperationException("Could not find matching seasondriver for result");
-                if (team == null)
-                    throw new InvalidOperationException("Could not find matching seasonteam for result");
+                var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId) ?? throw new InvalidOperationException("Could not find matching seasondriver for result");
+                var team = teams.Find(e => e.Id == driverResult.SeasonTeamId) ?? throw new InvalidOperationException("Could not find matching seasonteam for result");
 
                 var baseSpeed = driver.Skill + team.BaseValue + team.SeasonEngine.Power;
                 var teamModifiers = (team.Aero * race.Track.AeroMod)
@@ -468,6 +466,8 @@ namespace SimTECH.Data.Services
                 if (team.Team.TeamTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
+                var traitEffect = NumberHelper.SumTraitEffects(driverTraits);
+
                 raceDrivers.Add(new QualifyingDriver
                 {
                     ResultId = driverResult.Id,
@@ -479,9 +479,9 @@ namespace SimTECH.Data.Services
                     Colour = team.Colour,
                     Accent = team.Accent,
 
-                    Power = driverPower,
+                    Power = driverPower + traitEffect.QualifyingPace,
+                    PenaltyPunishment = penalties.Any() ? penalties.Find(e => e.SeasonDriverId == driver.Id)?.DoubledPunishment() ?? 0 : 0,
 
-                    TraitEffect = NumberHelper.SumTraitEffects(driverTraits),
                     RunValuesQ1 = new int[season.RunAmountSession],
                     RunValuesQ2 = new int[season.RunAmountSession],
                     RunValuesQ3 = new int[season.RunAmountSession],
@@ -495,14 +495,15 @@ namespace SimTECH.Data.Services
                 Country = race.Track.Country,
                 Weather = race.Weather,
 
-                AmountRuns = season.RunAmountSession,
-
                 QualifyingDrivers = raceDrivers,
 
+                AmountRuns = season.RunAmountSession,
                 MaximumRaceDrivers = season.MaximumDriversInRace,
                 QualyRng = season.QualifyingRNG,
                 QualyAmountQ2 = season.QualifyingAmountQ2,
                 QualyAmountQ3 = season.QualifyingAmountQ3,
+
+                GapMarge = _config.GapMarge,
             };
         }
 
@@ -514,6 +515,8 @@ namespace SimTECH.Data.Services
                 .Include(e => e.Track)
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
+
+            var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
 
             var driverResults = await context.Result
                 .Where(e => e.RaceId == raceId)
@@ -534,7 +537,7 @@ namespace SimTECH.Data.Services
 
             // Excludes wet traits if the race isn't wet either
             var allTraits = await context.Trait
-                .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.IsWet)
+                .Where(e => !e.ForWetConditions)
                 .ToListAsync();
 
             // Do we feel secure about these null refs?
@@ -543,8 +546,6 @@ namespace SimTECH.Data.Services
                 .ToList();
 
             var practiceDrivers = new List<PracticeDriver>();
-
-            var amountRuns = 2;
 
             foreach (var driverResult in driverResults)
             {
@@ -583,7 +584,7 @@ namespace SimTECH.Data.Services
 
                     Power = driverPower,
 
-                    RunValues = new int[amountRuns],
+                    RunValues = new int[season.RunAmountSession],
                 });
             }
 
@@ -594,9 +595,12 @@ namespace SimTECH.Data.Services
                 Country = race.Track.Country,
                 Weather = race.Weather,
 
-                AmountRuns = amountRuns,
+                AmountRuns = season.RunAmountSession,
+                PracticeRng = season.QualifyingRNG / 2,
 
                 PracticeDrivers = practiceDrivers,
+
+                GapMarge = _config.GapMarge,
             };
         }
 
@@ -620,11 +624,7 @@ namespace SimTECH.Data.Services
                 .Where(trait => trait.TrackTraits.Any(tt => tt.TrackId == race.TrackId))
                 .ToListAsync();
 
-            var strategiesForRace = await context.Strategy
-                .Include(e => e.StrategyTyres)
-                    .ThenInclude(e => e.Tyre)
-                .ToListAsync();
-
+            // Prepare the drivers for this weekend
             var weekendDrivers = await context.Result
                 .Include(e => e.SeasonDriver)
                     .ThenInclude(e => e.Driver)
@@ -651,11 +651,32 @@ namespace SimTECH.Data.Services
                 })
                 .ToListAsync();
 
+            if (weekendDrivers?.Any() != true)
+                throw new InvalidOperationException("We're going to need some actual drivers too");
+
+            // Set strategies
+            var strategiesForRace = await context.Strategy
+                .Include(e => e.StrategyTyres)
+                    .ThenInclude(e => e.Tyre)
+                .ToListAsync();
+
             foreach (var driver in weekendDrivers)
                 driver.Strategy = strategiesForRace.Find(e => e.Id == driver.StrategyId);
 
-            if (weekendDrivers?.Any() != true)
-                throw new InvalidOperationException("We're going to need some actual drivers too");
+            // Set eventual penalties
+            var penalties = await context.Penalty.Where(e => e.RaceId == raceId).ToListAsync();
+            if (penalties?.Any() == true)
+            {
+                foreach (var penalty in penalties)
+                {
+                    var matchingDriver = weekendDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.SeasonDriverId);
+                    if (matchingDriver != null)
+                    {
+                        matchingDriver.Penalty = penalty.Punishment;
+                        matchingDriver.Reason = penalty.Reason;
+                    }
+                }
+            }
 
             return new RaceWeekModel
             {

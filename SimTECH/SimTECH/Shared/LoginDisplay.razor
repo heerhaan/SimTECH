@@ -1,25 +1,22 @@
 ﻿@page "/login"
-@inject SimAuthenticationStateProvider SimAuthenticationStateProvider
-@attribute [AllowAnonymous]
 
-<h3>Login</h3>
-<button type="button" class="btn btn-primary" @onclick=LoginAsync>Login</button>
-
-@if (!string.IsNullOrEmpty(notification))
-{
-    <p>@notification</p>
-}
+<MudContainer>
+    <MudPaper>
+        <MudText Typo="Typo.h4">Login</MudText>
+        <MudText>Account functionality has been disabled!</MudText>
+    </MudPaper>
+</MudContainer>
 
 @code {
-    private string notification = string.Empty;
+    //private string notification = string.Empty;
 
-    public async Task LoginAsync()
-    {
-        var exampleName = "belial";
-        var examplePass = "theredking";
+    //public async Task LoginAsync()
+    //{
+    //    var exampleName = "belial";
+    //    var examplePass = "theredking";
 
-        await SimAuthenticationStateProvider.LoginAsync(exampleName, examplePass);
+    //    await SimAuthenticationStateProvider.LoginAsync(exampleName, examplePass);
 
-        notification = "Goed ingelogd, jongen!";
-    }
+    //    notification = "Goed ingelogd, jongen!";
+    //}
 }

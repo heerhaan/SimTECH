@@ -1,6 +1,6 @@
 ﻿@inherits InputBase<Country>
 
-<MudSelect @bind-Value="HandleSelection" Label="Select a country" Variant="Variant.Outlined" Class="@Class">
+<MudSelect @bind-Value="HandleSelection" Label="Nations" Variant="Variant.Outlined" Class="@Class">
     @ChildContent
     @foreach (var country in CountrySelectItems)
     {
@@ -13,12 +13,7 @@
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public string Class { get; set; } = string.Empty;
-
-    public Country HandleSelection
-    {
-        get { return CurrentValue; }
-        set { CurrentValue = value; }
-    }
+    [Parameter] public Country[] Countries { get; set; } = Enum.GetValues<Country>();
 
     private List<CountrySelectItem> CountrySelectItems => Countries
         .Select(e => new CountrySelectItem
@@ -29,7 +24,11 @@
             })
         .ToList();
 
-    private Country[] Countries = Enum.GetValues<Country>();
+    public Country HandleSelection
+    {
+        get { return CurrentValue; }
+        set { CurrentValue = value; }
+    }
 
     protected override bool TryParseValueFromString(string? value, out Country result, out string validationErrorMessage)
     {

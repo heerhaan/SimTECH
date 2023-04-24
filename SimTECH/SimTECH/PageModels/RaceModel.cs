@@ -10,6 +10,7 @@ namespace SimTECH.PageModels
         public Weather Weather { get; set; }
 
         public int AmountRuns { get; set; }//Can be used for both runs in qualy and stints in race
+        public double GapMarge { get; set; }
     }
 
     public class RaceModel : SessionBase
@@ -28,7 +29,6 @@ namespace SimTECH.PageModels
         public int MistakeRolls { get; set; }
         public int MistakeMinCost { get; set; }
         public int MistakeMaxCost { get; set; }
-        public double GapMarge { get; set; }
 
         public Race ToFinishedRace()// arguably it might be easier to just store a Race entity object
         {
@@ -57,6 +57,8 @@ namespace SimTECH.PageModels
 
     public class PracticeModel : SessionBase
     {
+        public int PracticeRng { get; set; }
+
         public List<PracticeDriver> PracticeDrivers { get; set; }
     }
 }

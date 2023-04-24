@@ -1,12 +1,13 @@
 ﻿@page "/overview/{SeasonId:long}"
 @page "/overview/{SeasonId:long}/{TabIndex:int}"
-@inject LeagueService LeagueService
-@inject RaceService RaceService
-@inject SeasonService SeasonService
-@inject BreadcrumbProvider Bread
-@inject NavigationManager Nav
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
+@inject LeagueService _leagueService
+@inject RaceService _raceService
+@inject SeasonService _seasonService
+@inject SeasonEntrantService _entrantService
+@inject BreadcrumbProvider _bread
+@inject NavigationManager _nav
+@inject IDialogService _dialogService
+@inject ISnackbar _snackbar
 
 <PageTitle>Overview</PageTitle>
 
@@ -19,22 +20,30 @@
                 <MudGrid Spacing="4">
                     <MudItem xs="12">
                         <MudPaper Class="pa-4">
+                            <MudText Typo="Typo.h5">Season @Season.Year</MudText>
                             <MudStack Row="true">
-                                <div>
-                                    <MudText>Hello, the season year is @Season.Year</MudText>
-                                    <MudText>Currenly in status: @Season.State.ToString()</MudText>
-                                    <MudText>Development status: season configuration is done</MudText>
-                                </div>
+                                <MudText>Currenly in status: @Season.State.ToString()</MudText>
                                 <MudSpacer />
-                                <div>-</div>
-                                @if (Season.State == State.Concept)
-                                {
-                                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                                        <MudButton OnClick="StartSeason">Start season</MudButton>
-                                        <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
-                                    </MudButtonGroup>
-                                }
+                                <MudText>Hello from the other side</MudText>
                             </MudStack>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="6">
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudText Typo="Typo.h6">Controls</MudText>
+                            @if (Season.State == State.Concept)
+                            {
+                                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                                    <MudButton OnClick="StartSeason">Start season</MudButton>
+                                    <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
+                                    <MudButton OnClick="CopyEntrants">Copy entrants</MudButton>
+                                </MudButtonGroup>
+                            }
+                            else if (Season.State == State.Active)
+                            {
+                                <MudButton Variant="Variant.Outlined" OnClick="FinishSeason">Finish season</MudButton>
+                            }
                         </MudPaper>
                     </MudItem>
 
@@ -66,6 +75,17 @@
 
                     <MudItem xs="6">
                         <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudText Typo="Typo.h6">Season statistics</MudText>
+                            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small">
+                                <MudButton>Qualy battles</MudButton>
+                                <MudButton>Additional button</MudButton>
+                                <MudButton>Additional button</MudButton>
+                            </MudButtonGroup>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="6">
+                        <MudPaper Height="200px" Elevation="15" Class="pa-4">
                             <MudStack>
                                 <MudText Typo="Typo.h6">Components</MudText>
                                 <MudText>
@@ -75,14 +95,6 @@
                                 <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="GoToComponentUsage">Go to</MudButton>
                             </MudStack>
                         </MudPaper>
-                    </MudItem>
-
-                    <MudItem xs="6">
-                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
-                    </MudItem>
-
-                    <MudItem xs="6">
-                        <MudPaper Height="200px" Elevation="15" Class="pa-4"></MudPaper>
                     </MudItem>
                 </MudGrid>
             </MudTabPanel>
@@ -182,80 +194,102 @@
 
     int _activeTabIndex = 0;
 
-    //private SeasonOverviewAvailability OverviewAvailability { get; set; } = new();
-
     protected override async Task OnInitializedAsync()
     {
-        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        _activeTabIndex = TabIndex;
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Seasons", href: "seasons"),
-            new BreadcrumbItem("Overview", href: $"overview/{SeasonId}"),
+            new BreadcrumbItem("Overview", href: $"overview/{SeasonId}", disabled: true),
         });
 
-        _activeTabIndex = TabIndex;
-
-        Season = await SeasonService.GetSeasonById(SeasonId);
-
-        //OverviewAvailability = SeasonService.GetOverviewAvailability(SeasonId);
+        Season = await _seasonService.GetSeasonById(SeasonId);
 
         if (Season != null)
-            NextRace = await RaceService.GetNextRaceOfSeason(SeasonId);
+            NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
     }
 
-    private async Task StartSeason()
+    async Task CopyEntrants()
     {
-        if (Season != null)
-        {
-            var error = await SeasonService.ActivateSeason(Season.Id);
+        var seasons = await _seasonService.GetSeasons();
 
-            if (error == null)
-            {
-                Season.State = State.Active; // NOTE: It always changes to active if started
-                Snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
-            }
-            else
-            {
-                Snackbar.Add(error, Severity.Error);
-            }
+        var dialogParameters = new DialogParameters { ["Seasons"] = seasons };
+
+        var dialog = await _dialogService.ShowAsync<CopyEntrants>("Copy entrants", dialogParameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is long seasonToCopyFrom)
+        {
+            await _entrantService.CopyEntrantsFromSeason(SeasonId, seasonToCopyFrom);
+            StateHasChanged();
         }
     }
 
-    private void AddAllEntrants()
-    {
-        // TODO: Check if there are already any entrants added, if so then remove
-        Nav.NavigateTo($"/addentrants/{SeasonId}");
-    }
-
-    private void GoToComponentUsage() => Nav.NavigateTo($"/components/{SeasonId}");
-
-    private async Task GoToNextRace()
+    async Task GoToNextRace()
     {
         if (NextRace is null)
         {
-            Snackbar.Add("can't find the next race, you sure it exists lad?");
+            _snackbar.Add("can't find the next race, you sure it exists lad?");
             return;
         }
 
         if (NextRace.State == State.Concept)
-            await RaceService.ActivateRace(NextRace.Id);
+            await _raceService.ActivateRace(NextRace.Id);
 
-        Nav.NavigateTo($"/raceweek/{NextRace.Id}");
+        _nav.NavigateTo($"/raceweek/{NextRace.Id}");
+    }
+
+    async Task StartSeason()
+    {
+        if (Season != null)
+        {
+            var error = await _seasonService.ActivateSeason(Season.Id);
+
+            if (error == null)
+            {
+                Season.State = State.Active; // NOTE: It always changes to active if started
+                _snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
+            }
+            else
+            {
+                _snackbar.Add(error, Severity.Error);
+            }
+        }
     }
 
     async Task UpdateSeason()
     {
+        var editModel = new EditSeasonModel(Season);
         // unless I see a reason to retrieve this for a reason elsewhere on this page
-        var leagues = await LeagueService.GetLeagues();
-        var parameters = new DialogParameters { ["Season"] = Season, ["Leagues"] = leagues, ["Copied"] = false };
+        var leagues = await _leagueService.GetLeagues();
 
-        var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
+        var parameters = new DialogParameters { ["Model"] = editModel, ["Leagues"] = leagues };
+
+        var dialog = await _dialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
         {
-            await SeasonService.UpdateSeason(updatedItem);
+            await _seasonService.UpdateSeason(updatedItem);
             Season = updatedItem;
         }
     }
+
+    async Task FinishSeason()
+    {
+        bool? confirm = await _dialogService.ShowMessageBox(
+            "Warning",
+            "Are you sure you want to finish this season, this action cannot be undone!",
+            yesText: "Yep", cancelText: "Nope");
+
+        if (confirm == true)
+        {
+            await _seasonService.FinishSeason(Season.Id);
+            _nav.NavigateTo("/seasons");
+        }
+    }
+
+    void AddAllEntrants() => _nav.NavigateTo($"/addentrants/{SeasonId}");
+    void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");
 }

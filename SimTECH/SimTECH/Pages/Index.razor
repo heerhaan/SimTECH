@@ -1,11 +1,9 @@
 ﻿@page "/"
-@inject BreadcrumbProvider Bread
 @inject RaceService RaceService
+@inject BreadcrumbProvider _bread
 @inject ProtectedLocalStorage LocalStorage
-@inject SimAuthenticationStateProvider AuthenticationProvider
 @inject NavigationManager Nav
-@inject IOptions<SimConfig> Config
-@attribute [AllowAnonymous]
+@inject IOptions<SimConfig> _config
 
 <PageTitle>Home</PageTitle>
 
@@ -13,13 +11,13 @@
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-                <MudText Typo="Typo.overline">Config:</MudText>
-                <MudText Typo="Typo.body2">Dsq chance: @Config.Value.DisqualifyChance</MudText>
-                <MudText Typo="Typo.body2">Rain RNG: @Config.Value.RainAdditionalRNG</MudText>
-                <MudText Typo="Typo.body2">Storm RNG: @Config.Value.StormAdditionalRNG</MudText>
-                <MudText Typo="Typo.body2">Rain reliability: @Config.Value.RainDriverReliabilityModifier</MudText>
-                <MudText Typo="Typo.body2">Storm reliability: @Config.Value.StormDriverReliabilityModifier</MudText>
-                <MudText Typo="Typo.body2">Team status car mod: @Config.Value.CarDriverStatusModifier</MudText>
+                <MudText Typo="Typo.overline">_config:</MudText>
+                <MudText Typo="Typo.body2">Dsq chance: @_config.Value.DisqualifyChance</MudText>
+                <MudText Typo="Typo.body2">Gap marge p/s: @_config.Value.GapMarge</MudText>
+                <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
+                <MudText Typo="Typo.body2">Mistake rolls: @_config.Value.MistakeAmountRolls</MudText>
+                <MudText Typo="Typo.body2">Mistake min rng: @_config.Value.MistakeLowerValue</MudText>
+                <MudText Typo="Typo.body2">Mistake max rng: @_config.Value.MistakeUpperValue</MudText>
             </MudPaper>
         </MudItem>
 
@@ -31,13 +29,14 @@
 
         <MudItem xs="12" sm="12" md="4">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-                <MudText Typo="Typo.overline">Config:</MudText>
-                <MudText Typo="Typo.body2">Sunny engine multiplier: @Config.Value.SunnyEngineMultiplier</MudText>
-                <MudText Typo="Typo.body2">Overcast engine multiplier: @Config.Value.OvercastEngineMultiplier</MudText>
-                <MudText Typo="Typo.body2">Wet engine multiplier: @Config.Value.WetEngineMultiplier</MudText>
-                <MudText Typo="Typo.body2">Mistake rolls: @Config.Value.MistakeAmountRolls</MudText>
-                <MudText Typo="Typo.body2">Mistake min rng: @Config.Value.MistakeLowerValue</MudText>
-                <MudText Typo="Typo.body2">Mistake max rng: @Config.Value.MistakeUpperValue</MudText>
+                <MudText Typo="Typo.overline">_config:</MudText>
+                <MudText Typo="Typo.body2">Sunny engine multiplier: @_config.Value.SunnyEngineMultiplier</MudText>
+                <MudText Typo="Typo.body2">Overcast engine multiplier: @_config.Value.OvercastEngineMultiplier</MudText>
+                <MudText Typo="Typo.body2">Wet engine multiplier: @_config.Value.WetEngineMultiplier</MudText>
+                <MudText Typo="Typo.body2">Rain RNG: @_config.Value.RainAdditionalRNG</MudText>
+                <MudText Typo="Typo.body2">Storm RNG: @_config.Value.StormAdditionalRNG</MudText>
+                <MudText Typo="Typo.body2">Rain reliability: @_config.Value.RainDriverReliabilityModifier</MudText>
+                <MudText Typo="Typo.body2">Storm reliability: @_config.Value.StormDriverReliabilityModifier</MudText>
             </MudPaper>
         </MudItem>
 
@@ -50,63 +49,27 @@
                         <div>
                             <!-- Local storage value -->
                             <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">Set store</MudButton>
-                            <MudText>@_exampleStore</MudText>
-                        </div>
-                        <div>
-                            <!-- Authenticate by policy -->
-                            <AuthorizeView>
-                                <Authorized>
-                                    <p>Damn @(AuthenticationProvider.CurrentUser?.FullName ?? "wtf who"), good to see you logged in.</p>
-                                </Authorized>
-                                <NotAuthorized>
-                                    <p>What are you doing here, mate. You aren't even logged in!</p>
-                                </NotAuthorized>
-                            </AuthorizeView>
-
-                            <AuthorizeView Roles="admin">
-                                <Authorized>
-                                    <p>O damn, hello Mr. Admin! Love yo see ya :)</p>
-                                </Authorized>
-                            </AuthorizeView>
+                            <MudText>@exampleStore</MudText>
                         </div>
                     </MudPaper>
                 </MudItem>
 
                 <MudItem xs="12">
-                    <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
-                        <MudStack>
-                            <div>
-                                <!-- Authenticate by policy -->
-                                <AuthorizeView Policy="CoolOnly">
-                                    <Authorized>
-                                        <p>Good to see some cool dudes here</p>
-                                    </Authorized>
-                                    <NotAuthorized>
-                                        <p>No offense, but you're kinda cringe... lol</p>
-                                    </NotAuthorized>
-                                </AuthorizeView>
-
-                                <AuthorizeView Policy="ChoicePolicy" Resource="3">
-                                    <Authorized>
-                                        <p>But man, you wouldn't believe the cringe-worthy dudes that show up here.</p>
-                                    </Authorized>
-                                    <NotAuthorized>
-                                        <p>Christ mate, why are you like the way you are.</p>
-                                    </NotAuthorized>
-                                </AuthorizeView>
-                            </div>
-                        </MudStack>
-                    </MudPaper>
+                    <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
                 </MudItem>
             </MudGrid>
         </MudItem>
 
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 100%">
-                <MudText Typo="Typo.h6">Last races</MudText>
                 @if (recentRaces != null)
                 {
-                    <MudTable Items="recentRaces" Dense="true">
+                    <MudTable id="recent-race-table" Items="@recentRaces" Dense="true">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h6">Last races</MudText>
+                            <MudSpacer />
+                            <ScreenshotButton TargetId="recent-race-table" />
+                        </ToolBarContent>
                         <HeaderContent>
                             <MudTh>League</MudTh>
                             <MudTh>Round</MudTh>
@@ -154,36 +117,39 @@
 @code {
     List<FinishedRaceModel> recentRaces;
     Color[] cycleColours = (Color[])Enum.GetValues(typeof(Color));
-    string? _exampleStore = "nothing stored yo";
-    string _newExampleString = "this is a new example string for storage";
-    int _raceAmount = 5;
-    int _cycler = 0;
+    string? exampleStore = "nothing stored yo";
+    string newExampleString = "this is a new example string for storage";
+    int raceAmount = 5;
+    int cycler = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
         });
 
-        recentRaces = await RaceService.GetRecentlyFinishedCalendarRaces(_raceAmount);
+        recentRaces = await RaceService.GetRecentlyFinishedCalendarRaces(raceAmount);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var storedExample = await LocalStorage.GetAsync<string>("example");
-        _exampleStore = storedExample.Success ? storedExample.Value : "yikes, really nothing stored yo";
+        exampleStore = storedExample.Success ? storedExample.Value : "yikes, really nothing stored yo";
     }
 
     Color NextColour()
     {
-        _cycler++;
-        _cycler %= cycleColours.Length;
+        cycler++;
+        cycler %= cycleColours.Length;
 
-        return cycleColours[_cycler];
+        return cycleColours[cycler];
     }
 
-    private async Task SetExample() => await LocalStorage.SetAsync("example", _newExampleString);
+    private async Task SetExample()
+    {
+        await LocalStorage.SetAsync("example", newExampleString);
+    }
 
     private void NavigateHome()
     {

@@ -1,0 +1,38 @@
+﻿@inject IJSRuntime JS
+
+<MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Image" Disabled="@disabled" OnClick="TakeScreenshot">
+    @buttonText
+</MudButton>
+
+@code {
+    [Parameter] public string TargetId { get; set; }
+
+    private bool disabled = false;
+    private string buttonText = "Screenshot";
+
+    async Task TakeScreenshot()
+    {
+        await JS.InvokeVoidAsync("takeScreenshot", TargetId);
+
+        // Notice how we don't await this bad boi? This runs the task while not halting the page
+        ShowClicked();
+    }
+
+    async void ShowClicked()
+    {
+        buttonText = "Copied!";
+        disabled = true;
+
+        int secondsDelay = 5;
+
+        while (secondsDelay > 0)
+        {
+            secondsDelay--;
+            StateHasChanged();
+            await Task.Delay(1000);
+        }
+
+        buttonText = "Screenshot";
+        disabled = false;
+    }
+}
