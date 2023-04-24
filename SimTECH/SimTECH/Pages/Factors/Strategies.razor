@@ -44,6 +44,7 @@
                         <CellTemplate>
                             <MudButtonGroup>
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateStrategy(context.Item))" />
+                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteStrategy(context.Item))" />
                             </MudButtonGroup>
                         </CellTemplate>
                     </TemplateColumn>
@@ -117,6 +118,7 @@
             StrategyData = await StrategyService.GetStrategies();
         }
     }
+    async Task DeleteStrategy(Strategy strategy) => await StrategyService.DeleteStrategy(strategy);
 
     async Task AddTyre() => await UpdateTyre(new Tyre());
     async Task UpdateTyre(Tyre item)
@@ -132,4 +134,5 @@
             TyreData = await StrategyService.GetTyres();
         }
     }
+    async Task DeleteTyre(Tyre tyre) => await StrategyService.DeleteTyre(tyre);
 }

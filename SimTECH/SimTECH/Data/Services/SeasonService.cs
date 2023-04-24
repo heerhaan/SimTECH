@@ -19,11 +19,13 @@ namespace SimTECH.Data.Services
             _config = config.Value;
         }
 
-        public async Task<List<Season>> GetSeasons()
+        public async Task<List<Season>> GetSeasons() => await GetSeasons(StateFilter.Default);
+        public async Task<List<Season>> GetSeasons(StateFilter filter)
         {
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Season
+                .Where(e => filter.StatesForFilter().Contains(e.State))
                 .Include(e => e.PointAllotments)
                 .ToListAsync();
         }

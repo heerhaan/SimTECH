@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
+using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services
 {
@@ -12,12 +14,14 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
-        public async Task<List<Strategy>> GetStrategies()
+        public async Task<List<Strategy>> GetStrategies() => await GetStrategies(StateFilter.Default);
+        public async Task<List<Strategy>> GetStrategies(StateFilter filter)
         {
             using var context = _dbFactory.CreateDbContext();
 
             // WARNING: Underneath could have a noteable performance impact, if so then refactor
             return await context.Strategy
+                .Where(e => filter.StatesForFilter().Contains(e.State))
                 .Include(e => e.StrategyTyres)
                     .ThenInclude(e => e.Tyre)
                 .ToListAsync();
@@ -47,11 +51,35 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task<List<Tyre>> GetTyres()
+        public async Task DeleteStrategy(Strategy strategy)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Tyre.ToListAsync();
+            if (context.Result.Any(e => e.StrategyId == strategy.Id))
+            {
+                var editModel = new EditStrategyModel(strategy)
+                {
+                    State = State.Archived
+                };
+                var modified = editModel.Record;
+
+                context.Update(modified);
+            }
+            else
+            {
+                context.Remove(context.StrategyTyre.Where(e => e.StrategyId == strategy.Id));
+                context.Remove(strategy);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<List<Tyre>> GetTyres() => await GetTyres(StateFilter.Default);
+        public async Task<List<Tyre>> GetTyres(StateFilter filter)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Tyre.Where(e => filter.StatesForFilter().Contains(e.State)).ToListAsync();
         }
 
         public async Task UpdateTyre(Tyre tyre)
@@ -62,6 +90,28 @@ namespace SimTECH.Data.Services
                 context.Add(tyre);
             else
                 context.Update(tyre);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteTyre(Tyre tyre)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            if (context.StrategyTyre.Any(e => e.TyreId == tyre.Id))
+            {
+                var editModel = new EditTyreModel(tyre)
+                {
+                    State = State.Archived
+                };
+                var modified = editModel.Record;
+
+                context.Update(modified);
+            }
+            else
+            {
+                context.Remove(tyre);
+            }
 
             await context.SaveChangesAsync();
         }

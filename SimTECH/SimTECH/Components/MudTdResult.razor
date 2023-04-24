@@ -1,0 +1,87 @@
+﻿<MudTd Class="number-col result-cell" Style="@_cellStyles">
+    <MudText Typo="Typo.body2">
+        @_resultDisplay
+        @if (_hasPole)
+        {
+            <sup>P</sup>
+        }
+        @if (_hasFastestLap)
+        {
+            <sup>F</sup>
+        }
+    </MudText>
+</MudTd>
+
+@code {
+    [Parameter] public StandingResultCell Result { get; set; }
+    [Parameter] public int LowestScoringPosition { get; set; }
+
+    private string _resultDisplay
+    {
+        get
+        {
+            return Result.GetResultText();
+        }
+    }
+
+    private bool _hasPole
+    {
+        get
+        {
+            return Result.Pole;
+        }
+    }
+
+    private bool _hasFastestLap
+    {
+        get
+        {
+            // this is never calculated yet I believe
+            return Result.FL;
+        }
+    }
+
+    private string _cellStyles
+    {
+        get
+        {
+            var cellStyle = "";
+
+            if (Result.Status == RaceStatus.Dnq)
+            {
+                cellStyle = "background-color: rebeccapurple;";
+            }
+            else if (Result.Status == RaceStatus.Dsq)
+            {
+                cellStyle = "background-color: black;";
+            }
+            else if (Result.Status == RaceStatus.Dnf)
+            {
+                cellStyle = "background-color: red;";
+            }
+            else
+            {
+                switch (Result.Position)
+                {
+                    case 1:
+                        cellStyle = "background-color: gold;";
+                        break;
+                    case 2:
+                        cellStyle = "background-color: silver;";
+                        break;
+                    case 3:
+                        cellStyle = "background-color: burlywood;";
+                        break;
+                    case int n when n <= LowestScoringPosition:
+                        cellStyle = "background-color: lightgreen;";
+                        break;
+                    default:
+                        cellStyle = "background-color: cornflowerblue";
+                        break;
+                }
+            }
+            // Possibly can return immediatly depending on whether we want to do more with this or not
+            return cellStyle;
+        }
+    }
+}

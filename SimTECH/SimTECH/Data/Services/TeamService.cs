@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
+using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services
 {
@@ -12,11 +13,13 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
-        public async Task<List<Team>> GetTeams()
+        public async Task<List<Team>> GetTeams() => await GetTeams(StateFilter.Default);
+        public async Task<List<Team>> GetTeams(StateFilter filter)
         {
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Team
+                .Where(e => filter.StatesForFilter().Contains(e.State))
                 .Include(e => e.TeamTraits)
                 .ToListAsync();
         }

@@ -72,7 +72,7 @@ else
 
         <MudTabPanel Text="WDC results">
             <MudPaper Elevation="15">
-                <MudTable Items="@DriverResultsModel" id="wdc-team-results">
+                <MudTable Items="@DriverResultsModel" id="wdc-season-results">
                     <ToolBarContent>
                         <MudText Typo="Typo.h4">WDC results</MudText>
                     </ToolBarContent>
@@ -80,12 +80,12 @@ else
                         <MudTh Class="number-col">#</MudTh>
                         <MudTh>Driver</MudTh>
                         <MudTh Class="number-col">No.</MudTh>
+                        <MudTh>Team</MudTh>
                         <MudTh>PTS</MudTh>
                         @foreach (var race in Races.OrderBy(e => e.Round))
                         {
                             <MudTh Class="number-col">
-                                <CountryFlag Code="@race.Track.Country" Size="FlagSize.Tiny" />
-                                @(race.Track.Name.Substring(0, 3))
+                                <CountryFlag Code="@race.Track.Country" Size="FlagSize.Small" />
                             </MudTh>
                         }
                         <MudTh class="number-col">AVG</MudTh>
@@ -99,13 +99,14 @@ else
                             @context.Name
                         </MudTd>
                         <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">@context.Number</MudTd>
+                        <MudTd>@context.Team</MudTd>
                         <MudTd>@context.Points</MudTd>
                         @for (int i = 0; i < Races.Count; i++)
                         {
                             if (i < context.ResultCells.Count)
                             {
                                 var result = context.ResultCells[i];
-                                <MudTd Class="number-col" Style="@(GetResultStyle(result))">@result.GetResultText()</MudTd>
+                                <MudTdResult Result="result" LowestScoringPosition="@lowestScoringPosition" />
                             }
                             else
                             {
@@ -117,7 +118,7 @@ else
                     <FooterContent>
                         <MudTd colspan="20">
                             <MudStack Row="true" Justify="Justify.SpaceBetween">
-                                <ScreenshotButton TargetId="wdc-team-results" />
+                                <ScreenshotButton TargetId="wdc-season-results" />
                                 <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowWdcResultGraph" />
                             </MudStack>
                         </MudTd>
@@ -127,9 +128,14 @@ else
         </MudTabPanel>
 
         <MudTabPanel Text="WCC results">
-            <MudTable Items="@TeamResultsModel" id="wcc-team-results">
+            <MudTable Items="@TeamResultsModel" id="wcc-season-results">
                 <ToolBarContent>
                     <MudText Typo="Typo.h4">WCC results</MudText>
+                    <MudSpacer />
+                    <MudButtonGroup>
+                        <ScreenshotButton TargetId="wcc-season-results" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowWccResultGraph" />
+                    </MudButtonGroup>
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh Class="number-col">#</MudTh>
@@ -139,8 +145,7 @@ else
                     @foreach (var race in Races.OrderBy(e => e.Round))
                     {
                         <MudTh Class="number-col-lg">
-                            <CountryFlag Code="@race.Track.Country" Size="FlagSize.Tiny" />
-                            @(race.Track.Name.Substring(0, 3))
+                            <CountryFlag Code="@race.Track.Country" Size="FlagSize.Small" />
                         </MudTh>
                     }
                     <MudTh>AVG</MudTh>
@@ -176,14 +181,6 @@ else
                     }
                     <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
                 </RowTemplate>
-                <FooterContent>
-                    <MudTd colspan="20">
-                        <MudStack Row="true" Justify="Justify.SpaceBetween">
-                            <ScreenshotButton TargetId="wcc-team-results" />
-                            <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowWccResultGraph" />
-                        </MudStack>
-                    </MudTd>
-                </FooterContent>
             </MudTable>
         </MudTabPanel>
     </MudTabs>
@@ -198,7 +195,7 @@ else
     List<StandingDriverModel> DriverResultsModel { get; set; }
     List<StandingTeamModel> TeamResultsModel { get; set; }
 
-    int lowestScoringPosition = 3;
+    public int lowestScoringPosition = 3;
     bool loading = true;
 
     protected override async Task OnInitializedAsync()
@@ -298,6 +295,7 @@ else
                 Points = driver.Points,
                 HiddenPoints = driver.HiddenPoints,
                 SeasonTeamId = driver.SeasonTeamId,
+                Team = driverTeam?.Name ?? "None",
 
                 ResultCells = driver.Results.Select(e => ToResultCell(e)).ToList(),
             };

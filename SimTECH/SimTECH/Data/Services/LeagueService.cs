@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
+using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services
 {
@@ -12,11 +13,14 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
-        public async Task<List<League>> GetLeagues()
+
+        public async Task<List<League>> GetLeagues() => await GetLeagues(StateFilter.Default);
+        public async Task<List<League>> GetLeagues(StateFilter filter)
         {
             using var context = _dbFactory.CreateDbContext();
 
             return await context.League
+                .Where(e => filter.StatesForFilter().Contains(e.State))
                 .Include(e => e.DevelopmentRanges)
                 .ToListAsync();
         }
