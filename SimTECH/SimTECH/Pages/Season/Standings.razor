@@ -231,12 +231,15 @@ else
 
     async Task ShowWdcResultGraph()
     {
-
+        var parameters = new DialogParameters { ["Drivers"] = DriverResultsModel, ["Season"] = Season };
+        // _ = await DialogService.ShowAsync<DriverCompareStat>("Compare drivers", dialogOptions);
+        _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters);
     }
 
     async Task ShowWccResultGraph()
     {
-        
+        var parameters = new DialogParameters { ["Teams"] = TeamResultsModel, ["Season"] = Season };
+        _ = await _dialog.ShowAsync<WccResultChart>("WCC results chart", parameters);
     }
 
     private string GetResultStyle(StandingResultCell cell)

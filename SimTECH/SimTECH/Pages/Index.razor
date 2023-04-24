@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject RaceService RaceService
+@inject BreadcrumbProvider _bread
 @inject ProtectedLocalStorage LocalStorage
 @inject NavigationManager Nav
 @inject IOptions<SimConfig> _config
@@ -48,7 +49,7 @@
                         <div>
                             <!-- Local storage value -->
                             <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">Set store</MudButton>
-                            <MudText>@_exampleStore</MudText>
+                            <MudText>@exampleStore</MudText>
                         </div>
                     </MudPaper>
                 </MudItem>
@@ -116,33 +117,38 @@
 @code {
     List<FinishedRaceModel> recentRaces;
     Color[] cycleColours = (Color[])Enum.GetValues(typeof(Color));
-    string? _exampleStore = "nothing stored yo";
-    string _newExampleString = "this is a new example string for storage";
-    int _raceAmount = 5;
-    int _cycler = 0;
+    string? exampleStore = "nothing stored yo";
+    string newExampleString = "this is a new example string for storage";
+    int raceAmount = 5;
+    int cycler = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        recentRaces = await RaceService.GetRecentlyFinishedCalendarRaces(_raceAmount);
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+        });
+
+        recentRaces = await RaceService.GetRecentlyFinishedCalendarRaces(raceAmount);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var storedExample = await LocalStorage.GetAsync<string>("example");
-        _exampleStore = storedExample.Success ? storedExample.Value : "yikes, really nothing stored yo";
+        exampleStore = storedExample.Success ? storedExample.Value : "yikes, really nothing stored yo";
     }
 
     Color NextColour()
     {
-        _cycler++;
-        _cycler %= cycleColours.Length;
+        cycler++;
+        cycler %= cycleColours.Length;
 
-        return cycleColours[_cycler];
+        return cycleColours[cycler];
     }
 
     private async Task SetExample()
     {
-        await LocalStorage.SetAsync("example", _newExampleString);
+        await LocalStorage.SetAsync("example", newExampleString);
     }
 
     private void NavigateHome()

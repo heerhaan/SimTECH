@@ -1,0 +1,83 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudIcon Icon="@Icons.Material.Filled.SsidChart" Class="mr-3 mb-n1"></MudIcon>
+        WCC Chart
+    </TitleContent>
+    <DialogContent>
+        <MudContainer Class="pa-2">
+            @if (!loading)
+            {
+                <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="1000">
+                    @foreach (var result in DataSets)
+                    {
+                        <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                            Items="@result.DataPoints"
+                                            Name="@result.Label"
+                                            SeriesType="ApexCharts.SeriesType.Line"
+                                            XValue="@(e => e.XData)"
+                                            YValue="@(e => e.YData)"
+                                            OrderBy="e => e.X"
+                                            Stroke="@result.Stroke" />
+                    }
+                </ApexCharts.ApexChart>
+            }
+        </MudContainer>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
+    [Parameter] public List<StandingTeamModel>? Teams { get; set; }
+    [Parameter] public Season Season { get; set; }
+
+    ApexCharts.ApexChartOptions<DataPoint> options;
+    List<DataSet> DataSets = new();
+
+    bool loading = true;
+
+    protected override void OnInitialized()
+    {
+        options = new ApexCharts.ApexChartOptions<DataPoint>
+            {
+                Theme = new ApexCharts.Theme
+                {
+                    Mode = ApexCharts.Mode.Dark,
+                }
+            };
+
+        var allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new Dictionary<int, int>();
+
+        if (Teams != null)
+        {
+            foreach (var team in Teams)
+            {
+                var dataSet = new DataSet { Label = team.Name };
+                var points = 0;
+
+                foreach (var result in team.ResultCells.GroupBy(e => e.Round))
+                {
+                    foreach (var teamDriverResult in result)
+                    {
+                        if (allotments.TryGetValue(teamDriverResult.Position, out int allotedPoints))
+                            points += allotedPoints;
+
+                        if (teamDriverResult.Pole)
+                            points += Season.PointsPole;
+
+                        //if (teamDriverResult.FL)
+                        //    points += Season.PointsFastestLap;
+                    }
+
+                    dataSet.DataPoints.Add(new DataPoint(result.Key, points));
+                }
+
+
+                dataSet.Stroke = new ApexCharts.SeriesStroke { Color = team.Colour, Width = 3 };
+
+                DataSets.Add(dataSet);
+            }
+
+            loading = false;
+        }
+    }
+}

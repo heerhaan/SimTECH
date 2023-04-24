@@ -4,10 +4,10 @@
         WDC Chart
     </TitleContent>
     <DialogContent>
-        <MudContainer Fixed="true" Class="pa-4">
+        <MudContainer Class="pa-2">
             @if (!loading)
             {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options">
+                <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="1000">
                     @foreach (var result in DataSets)
                     {
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
@@ -27,10 +27,8 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
-    [Parameter]
-    public List<StandingDriverModel>? Drivers { get; set; }
-    [Parameter]
-    public Season Season { get; set; }
+    [Parameter] public List<StandingDriverModel>? Drivers { get; set; }
+    [Parameter] public Season Season { get; set; }
 
     ApexCharts.ApexChartOptions<DataPoint> options;
     List<DataSet> DataSets = new();
@@ -47,7 +45,7 @@
                 }
             };
 
-        var allotments = Season.PointAllotments.ToDictionary(e => e.Position, e => e.Points);
+        var allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new Dictionary<int, int>();
 
         if (Drivers != null)
         {
@@ -63,11 +61,11 @@
                     if (allotments.TryGetValue(result.Position, out int allotedPoints))
                         points += allotedPoints;
 
-                    //if (Grid == 1)
-                    //    points += polePoints;
+                    if (result.Pole)
+                        points += Season.PointsPole;
 
-                    //if (HasFastestLap)
-                    //    points += fastLapPoints;
+                    //if (result.FL)
+                    //    points += Season.PointsFastestLap;
 
                     dataSet.DataPoints.Add(new DataPoint(result.Round, points));
                 }
