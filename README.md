@@ -6,6 +6,7 @@ Idea of the project: simple simulation of motorsport championships, based on mot
 
 ## Reguirements
 With a shared .exe release file, one should immediatly be able to run it. Altough there might still be a dependency on SQL Server.
+Note: this is still very much in development so there are no actual releases yet.
 
 ## Setup
 Probably something with the appsettings.json.
