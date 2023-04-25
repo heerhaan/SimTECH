@@ -9,8 +9,11 @@
         <MudForm Model="@model" @ref="form">
             <MudGrid>
                 <MudItem xs="9">
+                    <MudText Typo="Typo.subtitle1">League settings</MudText>
+                    <MudDivider />
                     <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
                     <MudNumericField T="int" @bind-Value="model.RaceLength" Step="10" Label="RaceLength" HelperText="Should round to nearest ten" Validation="@(new Func<int, string>(LengthValidator))" Class="field-md" />
+                    <MudCheckBox @bind-Checked="model.UsePenalty" Label="Use penalty feature?" Color="Color.Secondary" />
                 </MudItem>
 
                 <MudItem xs="3">

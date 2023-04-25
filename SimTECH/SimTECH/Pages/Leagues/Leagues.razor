@@ -16,7 +16,6 @@
             <HierarchyColumn T="League" />
             <PropertyColumn Property="e => e.Name" />
             <PropertyColumn Property="e => e.RaceLength" Title="Length (Km)" />
-            <PropertyColumn Property="e => e.State" />
             <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">
@@ -28,8 +27,16 @@
         </Columns>
         <ChildRowContent>
             <MudPaper Elevation="15" Class="pa-2">
-                <MudText Typo="Typo.h5">Detail information</MudText>
+                <MudText Typo="Typo.h5">League info</MudText>
                 <MudDivider />
+
+                <MudPaper Class="pa-2">
+                    <MudText Typo="Typo.subtitle1">Options</MudText>
+                    <MudText Typo="Typo.body2">
+                        Penalties are @(context.Item.Options.HasFlag(LeagueOptions.UsePenalty) ? "enabled" : "disabled")
+                    </MudText>
+                </MudPaper>
+
                 @if (context.Item.DevelopmentRanges != null)
                 {
                     <MudText Typo="Typo.h6">Development ranges</MudText>

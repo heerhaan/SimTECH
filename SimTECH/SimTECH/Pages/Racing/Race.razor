@@ -119,7 +119,6 @@
                             }
                         }
                     </div>
-                    @* Might be more fun to stop the value at the moment the driver DNFed *@
                     <MudProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLap * 10, Model.TrackLength))" Min="0" Max="@totalLaps" Size="Size.Medium" Class="my-2" />
                     <MudProgressLinear Value="@context.LapSum" Min="0" Max="@highestScore" Size="Size.Medium" Color="Color.Secondary" Class="my-2" />
                 </MudStack>
@@ -237,13 +236,6 @@
                             break;
                         }
                     }
-
-                    /*var mistake = false;
-                    for (int i = 0; i < settings.MistakeAmountRolls; i++)
-                    {// Determines if the racing driver made a mistake during it's respective stint
-                        mistake = DidReliabilityFail(modEffect.DriverReliability);
-                        if (!mistake) { break; }
-                    }*/
 
                     // Strategy
                     lapValue += HandleStrategy(driver, lapScore);
@@ -381,11 +373,6 @@
 
     static int GetQualifyingBonus(int grid, int driverCount, int bonus) => (driverCount * bonus) - ((grid - 1) * bonus);
 
-    void ShowImage()
-    {
-        _snackbar.Add("Not implemented yet", Severity.Warning);
-    }
-
     async Task ShowGraph()
     {
         var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
@@ -410,8 +397,11 @@
         // Todo: check if this doesnt mess with the lapscores
         await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints);
 
-        var nextRound = Model.Round + 1;
-        await _seasonService.CheckPenalties(Model.Season.Id, finishedResults, nextRound);
+        if (Model.LeagueOptions.HasFlag(LeagueOptions.UsePenalty))
+        {
+            var nextRound = Model.Round + 1;
+            await _seasonService.CheckPenalties(Model.Season.Id, finishedResults, nextRound);
+        }
 
         _nav.NavigateTo($"/overview/{Model.Season.Id}/2"); // 2 = standingspanel
     }

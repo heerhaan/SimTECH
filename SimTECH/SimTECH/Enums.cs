@@ -37,10 +37,10 @@ namespace SimTECH
     public enum Gender { All, Male, Female, Other }
 
     [Flags]
-    public enum SeasonToggles
+    public enum LeagueOptions
     {
         None = 0,
-        EnablePenalty = 1,
+        UsePenalty = 1,
     }
 
     #region racing

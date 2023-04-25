@@ -252,6 +252,7 @@ namespace SimTECH.Data.Services
                 .SingleAsync(e => e.Id == raceId);
 
             var season = await context.Season
+                .Include(e => e.League)
                 .Include(e => e.PointAllotments)
                 .SingleAsync(e => e.Id == race.SeasonId);
 
@@ -395,6 +396,7 @@ namespace SimTECH.Data.Services
                 RaceDrivers = raceDrivers,
 
                 Season = season,
+                LeagueOptions = season.League.Options,
 
                 DisqualifyChance = _config.DisqualifyChance,
                 MistakeRolls = _config.MistakeAmountRolls,

@@ -23,6 +23,7 @@ namespace SimTECH.PageModels
         public List<RaceDriver> RaceDrivers { get; set; }
 
         public Season Season { get; set; }//pick values intead of whole object?
+        public LeagueOptions LeagueOptions { get; set; }
 
         // Values read from the configuration
         public int DisqualifyChance { get; set; }
