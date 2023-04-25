@@ -90,7 +90,7 @@ else
                 highestScore = result;
         }
 
-        foreach (var driver in Model.PracticeDrivers)
+        foreach (var driver in Model.PracticeDrivers.OrderBy(e => e.MaxScore))
         {
             driver.Gap = highestScore - driver.MaxScore;
             driver.Position = ++positionIndex;

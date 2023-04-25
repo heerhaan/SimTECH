@@ -8,15 +8,20 @@
     <DialogContent>
         <MudForm Model="@model" @ref="form">
             <MudGrid>
-                <MudItem xs="9">
+                <MudItem xs="12">
                     <MudText Typo="Typo.subtitle1">League settings</MudText>
                     <MudDivider />
-                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
-                    <MudNumericField T="int" @bind-Value="model.RaceLength" Step="10" Label="RaceLength" HelperText="Should round to nearest ten" Validation="@(new Func<int, string>(LengthValidator))" Class="field-md" />
-                    <MudCheckBox @bind-Checked="model.UsePenalty" Label="Use penalty feature?" Color="Color.Secondary" />
                 </MudItem>
 
-                <MudItem xs="3">
+                <MudItem xs="4">
+                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
+                    <MudNumericField T="int" @bind-Value="model.RaceLength" Step="10" Label="RaceLength" HelperText="Should round to nearest ten" Validation="@(new Func<int, string>(LengthValidator))" Class="field-md" />
+                </MudItem>
+                <MudItem xs="4">
+                    <MudText Typo="Typo.subtitle1">Options</MudText>
+                    <MudCheckBox @bind-Checked="model.UsePenalty" Label="Use penalty feature?" Color="Color.Secondary" />
+                </MudItem>
+                <MudItem xs="4">
                     @if (errorValidations.Any())
                     {
                         <MudList>
@@ -33,33 +38,25 @@
 
                 <MudItem xs="6">
                     <MudPaper Elevation="5">
-                        <RangeInput Items="_skillRanges" RangeType="RangeType.Skill">
-                            <MudText Typo="Typo.h6">Skill</MudText>
-                        </RangeInput>
+                        <RangeInput Items="_skillRanges" RangeType="RangeType.Skill"></RangeInput>
                     </MudPaper>
                 </MudItem>
 
                 <MudItem xs="6">
                     <MudPaper Elevation="5">
-                        <RangeInput Items="_ageRanges" RangeType="RangeType.Age">
-                            <MudText Typo="Typo.h6">Age</MudText>
-                        </RangeInput>
+                        <RangeInput Items="_ageRanges" RangeType="RangeType.Age"></RangeInput>
                     </MudPaper>
                 </MudItem>
 
                 <MudItem xs="6">
                     <MudPaper Elevation="5">
-                        <RangeInput Items="_teamRanges" RangeType="RangeType.Team">
-                            <MudText Typo="Typo.h6">Team</MudText>
-                        </RangeInput>
+                        <RangeInput Items="_teamRanges" RangeType="RangeType.Team"></RangeInput>
                     </MudPaper>
                 </MudItem>
 
                 <MudItem xs="6">
                     <MudPaper Elevation="5">
-                        <RangeInput Items="_engineRanges" RangeType="RangeType.Engine">
-                            <MudText Typo="Typo.h6">Engine</MudText>
-                        </RangeInput>
+                        <RangeInput Items="_engineRanges" RangeType="RangeType.Engine"></RangeInput>
                     </MudPaper>
                 </MudItem>
             </MudGrid>
