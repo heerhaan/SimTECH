@@ -394,8 +394,8 @@
         var allLapScores = Model.RaceDrivers.SelectMany(e => e.LapResults).Where(e => e.Id == 0).ToList();
         await PersistLapScores(allLapScores);
 
-        // Todo: check if this doesnt mess with the lapscores
-        await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints);
+        // Todo: check if this doesnt mess with the lapscores if those are persisted per advance
+        await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints, Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality));
 
         if (Model.LeagueOptions.HasFlag(LeagueOptions.UsePenalty))
         {

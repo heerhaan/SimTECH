@@ -40,7 +40,7 @@ namespace SimTECH
     public enum LeagueOptions
     {
         None = 0,
-        UsePenalty = 1,
+        UsePenalty = 1, EnableFatality = 2,
     }
 
     #region racing
@@ -60,7 +60,7 @@ namespace SimTECH
     public enum RaceStatus
     {
         Unknown = 0,
-        Racing, Dnf, Dsq, Dnq
+        Racing, Dnf, Dsq, Dnq, Fatal,
     }
 
     // TODO: You might want to rethink this enum
@@ -70,7 +70,8 @@ namespace SimTECH
         Damage, Collision, Accident, Puncture,
         Engine,
         Electrics, Exhaust, Clutch, Hydraulics, Wheel, Brakes,
-        Illegal, Fuel, Dangerous
+        Illegal, Fuel, Dangerous,
+        Death
     }
 
     [Flags]
@@ -79,7 +80,8 @@ namespace SimTECH
         Unknown = 0,
         Racing = 1,
         DriverDnf = 2, CarDnf = 4, EngineDnf = 8,
-        Mistake = 16, Pitstop = 32, Swap = 64
+        Mistake = 16, Pitstop = 32, Swap = 64,
+        Death = 128,
     }
 
     #endregion racing

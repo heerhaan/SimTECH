@@ -14,6 +14,7 @@ namespace SimTECH.Data.EditModels
         public DateTime DateOfBirth { get; set; }
         public Country Country { get; set; }
         public string? Biography { get; set; }
+        public bool Alive { get; set; }
         public State State { get; set; }
 
         public IList<EditDriverTraitModel> DriverTraits { get; set; } = new List<EditDriverTraitModel>();
@@ -23,6 +24,7 @@ namespace SimTECH.Data.EditModels
             DateOfBirth = DateTime.Today;
             Country = EnumHelper.GetDefaultCountry();
             State = State.Active;
+            Alive = true;
 
             _driver = new Driver();
         }
@@ -35,6 +37,7 @@ namespace SimTECH.Data.EditModels
             DateOfBirth = driver.DateOfBirth;
             Country = driver.Country;
             Biography = driver.Biography;
+            Alive = driver.Alive;
             State = driver.State;
 
             if (driver.DriverTraits != null)
@@ -53,6 +56,7 @@ namespace SimTECH.Data.EditModels
                 DateOfBirth = DateOfBirth,
                 Country = Country,
                 Biography = Biography ?? string.Empty,
+                Alive = Alive,
                 State = State,
 
                 DriverTraits = DriverTraits.Select(e => e.Record).ToList()

@@ -170,7 +170,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task FinishRace(Race finishedRace, List<Result> finishedResults, List<ScoredPoints> scoredPoints)
+        public async Task FinishRace(Race finishedRace, List<Result> finishedResults, List<ScoredPoints> scoredPoints, bool confirmDeath = false)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -183,6 +183,7 @@ namespace SimTECH.Data.Services
 
             var seasonDrivers = await context.SeasonDriver
                 .Where(e => scoredPoints.Select(s => s.SeasonDriverId).Contains(e.Id))
+                .Include(e => e.Driver)
                 .ToListAsync();
 
             foreach (var scoredTeam in scoredPoints.GroupBy(e => e.SeasonTeamId))
@@ -199,6 +200,21 @@ namespace SimTECH.Data.Services
                     seasonDriver.Points += scoredDriver.Points;
                     seasonDriver.HiddenPoints += scoredDriver.HiddenPoints;
                 }
+            }
+
+            if (confirmDeath && finishedResults.Any(e => e.Incident == Incident.Death))
+            {
+                //var drivers = await context.Driver.ToListAsync();
+
+                foreach (var death in finishedResults.Where(e => e.Incident == Incident.Death))
+                {
+                    var ripSeasonDriver = seasonDrivers.Single(e => e.Id == death.SeasonDriverId);
+                    ripSeasonDriver.SeasonTeamId = null;
+                    ripSeasonDriver.Driver.Alive = false;
+                }
+                
+                // Confirm whether updating the driver through the seasondriver works
+                //context.UpdateRange(drivers);
             }
 
             context.UpdateRange(seasonTeams);

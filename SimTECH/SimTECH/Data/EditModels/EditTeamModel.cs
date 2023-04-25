@@ -7,9 +7,9 @@ namespace SimTECH.Data.EditModels
         private readonly Team _team;
 
         public long Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; }
         public Country Country { get; set; }
-        public string Biography { get; set; } = string.Empty;
+        public string? Biography { get; set; }
         public State State { get; set; }
 
         public IList<EditTeamTraitModel> TeamTraits { get; set; } = new List<EditTeamTraitModel>();
@@ -35,7 +35,7 @@ namespace SimTECH.Data.EditModels
                 Id = Id,
                 Name = Name,
                 Country = Country,
-                Biography = Biography,
+                Biography = Biography ?? string.Empty,
                 State = State,
 
                 TeamTraits = TeamTraits.Select(e => e.Record).ToList()
