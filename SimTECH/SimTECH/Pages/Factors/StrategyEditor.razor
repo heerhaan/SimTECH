@@ -1,60 +1,58 @@
-﻿<MudDialog>
+﻿<MudDialog Style="width:800px">
     <TitleContent>
         <MudText>Modify strategy</MudText>
     </TitleContent>
     <DialogContent>
-        <MudGrid>
-            <MudItem xs="6">
-                <MudPaper Elevation="15" Class="pa-4">
-                    <MudTable T="EditStrategyTyreModel" Items="@model.StrategyTyres">
+        <MudStack Row="true" Justify="Justify.SpaceEvenly">
+            <MudPaper Elevation="15" Class="pa-4">
+                <MudTable T="EditStrategyTyreModel" Items="@model.StrategyTyres">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.body2">Good for a length of @(_strategyLength)km</MudText>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Order</MudTh>
+                        <MudTh>Tyres</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Order">@context.Order</MudTd>
+                        <MudTd DataLabel="Tyres">
+                            <span class="tyre" style="border-color:@(context.Tyre.Colour)">
+                                @context.Tyre.Name.ElementAt(0)
+                            </span>
+                        </MudTd>
+                        <MudTd>
+                            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveTyreFromStrategy(context))" />
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+            <MudPaper Elevation="15" Class="pa-4">
+                @if (Tyres == null || Tyres.Count == 0)
+                {
+                    <MudAlert>Consider making some tyres before attempting to create a strategy, idiot</MudAlert>
+                }
+                else
+                {
+                    <MudTable T="Tyre" Items="@Tyres" Hover="true" OnRowClick="AppendTyreToStrategy">
                         <HeaderContent>
-                            <MudTh>Order</MudTh>
-                            <MudTh>Tyres</MudTh>
-                            <MudTh></MudTh>
+                            <MudTh>Tyre</MudTh>
+                            <MudTh>Length</MudTh>
+                            <MudTh>Pace</MudTh>
+                            <MudTh>Wear</MudTh>
                         </HeaderContent>
                         <RowTemplate>
-                            <MudTd DataLabel="Order">@context.Order</MudTd>
-                            <MudTd DataLabel="Tyres">
-                                <span class="tyre" style="border-color:@(context.Tyre.Colour)">
-                                    @context.Tyre.Name.ElementAt(0)
-                                </span>
-                            </MudTd>
                             <MudTd>
-                                <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveTyreFromStrategy(context))" />
+                                <span class="tyre" style="border-color:@(context.Colour)">@context.Name.ElementAt(0)</span>
                             </MudTd>
+                            <MudTd DataLabel="Length">@context.Length</MudTd>
+                            <MudTd DataLabel="Pace">@context.Pace</MudTd>
+                            <MudTd>@context.WearMax ↔ @context.WearMin</MudTd>
                         </RowTemplate>
                     </MudTable>
-                </MudPaper>
-            </MudItem>
-
-            <MudItem xs="6">
-                <MudPaper Elevation="15" Class="pa-4">
-                    @if (Tyres == null || Tyres.Count == 0)
-                    {
-                        <MudAlert>Consider making some tyres before attempting to create a strategy, idiot</MudAlert>
-                    }
-                    else
-                    {
-                        <MudTable T="Tyre" Items="@Tyres" Hover="true" OnRowClick="AppendTyreToStrategy">
-                            <HeaderContent>
-                                <MudTh>Tyre</MudTh>
-                                <MudTh>Length</MudTh>
-                                <MudTh>Pace</MudTh>
-                                <MudTh>Wear</MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd>
-                                    <span class="tyre" style="border-color:@(context.Colour)">@context.Name.ElementAt(0)</span>
-                                </MudTd>
-                                <MudTd DataLabel="Length">@context.Length</MudTd>
-                                <MudTd DataLabel="Pace">@context.Pace</MudTd>
-                                <MudTd>@context.WearMax ↔ @context.WearMin</MudTd>
-                            </RowTemplate>
-                        </MudTable>
-                    }
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
+                }
+            </MudPaper>
+        </MudStack>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -70,6 +68,7 @@
 
     private EditStrategyModel model = new();
     private int orderMax = 0;
+    private int _strategyLength;
 
     protected override void OnInitialized()
     {
@@ -78,7 +77,10 @@
             model = new EditStrategyModel(Strategy);
 
             if (model.StrategyTyres?.Any() == true)
+            {
                 orderMax = model.StrategyTyres.Max(e => e.Order);
+                _strategyLength = model.StrategyTyres.Sum(e => e.Tyre?.Length ?? 0);
+            }
         }
     }
 
@@ -95,6 +97,7 @@
         };
 
         model.StrategyTyres.Add(appendedStrategyTyre);
+        _strategyLength += tyre.Length;
     }
 
     private void RemoveTyreFromStrategy(EditStrategyTyreModel strategyTyre)
@@ -103,6 +106,7 @@
             --orderMax;
 
         model.StrategyTyres.Remove(strategyTyre);
+        _strategyLength -= strategyTyre.Tyre?.Length ?? 0;
 
         ReorderTyres();
     }
