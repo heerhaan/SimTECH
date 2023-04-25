@@ -29,7 +29,10 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             if (manufacturer.Id == 0)
+            {
+                manufacturer.State = State.Active;
                 context.Add(manufacturer);
+            }
             else
                 context.Update(manufacturer);
 

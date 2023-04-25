@@ -40,7 +40,7 @@ namespace SimTECH
     public enum LeagueOptions
     {
         None = 0,
-        UsePenalty = 1, EnableFatality = 2,
+        EnablePenalty = 1, EnableFatality = 2,
     }
 
     #region racing
@@ -63,7 +63,7 @@ namespace SimTECH
         Racing, Dnf, Dsq, Dnq, Fatal,
     }
 
-    // TODO: You might want to rethink this enum
+    // TODO: You might want to rethink this enum, consider making penalties custom settable
     public enum Incident
     {
         None = 0,

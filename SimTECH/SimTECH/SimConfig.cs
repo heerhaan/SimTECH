@@ -4,6 +4,7 @@
     {
         public const string SectionKey = "SimConfig";
 
+        public int FatalityChance { get; set; }
         public int DisqualifyChance { get; set; }
         public double GapMarge { get; set; }
 

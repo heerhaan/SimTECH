@@ -19,7 +19,7 @@ namespace SimTECH.Data.EditModels
             Id = league.Id;
             Name = league.Name;
             RaceLength = league.RaceLength;
-            UsePenalty = league.Options.HasFlag(LeagueOptions.UsePenalty);
+            UsePenalty = league.Options.HasFlag(LeagueOptions.EnablePenalty);
             State = league.State;
             DevelopmentRanges = league.DevelopmentRanges?
                 .Select(range => new EditRangeModel(range))
@@ -50,7 +50,7 @@ namespace SimTECH.Data.EditModels
             var baseOptions = LeagueOptions.None;
 
             if (UsePenalty)
-                baseOptions |= LeagueOptions.UsePenalty;
+                baseOptions |= LeagueOptions.EnablePenalty;
 
             return baseOptions;
         }

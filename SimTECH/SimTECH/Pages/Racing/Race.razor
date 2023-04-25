@@ -144,6 +144,7 @@
 
     bool loading = true;
 
+    int fatalityOdds;
     int disqualifyChance;
     int participatingDrivers;
     int fastestLap;
@@ -164,8 +165,8 @@
         minLapRng = Model.Season.RngMinimum;
         maxLapRng = Model.Season.RngMaximum;
 
-        // Chance is calculated by dividing the set value with 100, making it a "reference"
-        disqualifyChance = 100 / Model.DisqualifyChance;
+        fatalityOdds = Model.FatalityOdds;
+        disqualifyChance = Model.DisqualifyOdds;
         participatingDrivers = Model.RaceDrivers.Count;
         calculationCount = Model.RaceLength / 10;
 
@@ -224,7 +225,7 @@
 
                     // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
                     if (calculated == 0)
-                        lapValue += GetQualifyingBonus(driver.Grid);
+                        lapValue += Model.QualifyingBonus(driver.Grid);
 
                     // Check if driver made a mistake, if so then it's going to cost him
                     for (int j = 0; j < Model.MistakeRolls; j++)
@@ -271,33 +272,82 @@
         //PersistLapScores(lapScoresToPersist);
     }
 
-    int GetQualifyingBonus(int grid) => (participatingDrivers * Model.Season.GridBonus) - ((grid - 1) * Model.Season.GridBonus);
-
     void CheckReliability(RaceDriver driver, LapScore lapScore)
     {
-        var wouldDisqualify = NumberHelper.RandomInt(disqualifyChance) == 0;
+        RacerEvent reason;
 
         if (DidReliabilityFail(driver.DriverReliability))
         {
-            driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-            driver.Incident = wouldDisqualify ? Incident.Dangerous : EnumHelper.GetDriverIncidents.TakeRandomItem();
-            lapScore.RacerEvents |= RacerEvent.DriverDnf;
+            reason = RacerEvent.CarDnf;
         }
         else if (DidReliabilityFail(driver.CarReliability))
         {
-            driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-            driver.Incident = wouldDisqualify ? Incident.Illegal : EnumHelper.GetCarIncidents.TakeRandomItem();
-            lapScore.RacerEvents |= RacerEvent.CarDnf;
+            reason = RacerEvent.DriverDnf;
         }
         else if (DidReliabilityFail(driver.EngineReliability))
         {
-            driver.Status = wouldDisqualify ? RaceStatus.Dsq : RaceStatus.Dnf;
-            driver.Incident = wouldDisqualify ? Incident.Fuel : Incident.Engine;
-            lapScore.RacerEvents |= RacerEvent.EngineDnf;
+            reason = RacerEvent.EngineDnf;
+        }
+        else { return; }
+
+        // First check if we're dealing with a fatal crash
+        if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
+        {
+            driver.Status = RaceStatus.Fatal;
+            driver.Incident = Incident.Death;
+            lapScore.RacerEvents |= RacerEvent.Death;
+            return;
+        }
+
+        var isDisqualified = NumberHelper.RandomInt(disqualifyChance) == 0;
+
+        driver.Status = isDisqualified ? RaceStatus.Dsq : RaceStatus.Dnf;
+        lapScore.RacerEvents |= reason;
+
+        // Switch statement assumes engine incident if it isnt either driver or car
+        switch (reason)
+        {
+            case RacerEvent.DriverDnf:
+                driver.Incident = isDisqualified ? Incident.Dangerous : EnumHelper.GetDriverIncidents.TakeRandomItem();
+                break;
+            case RacerEvent.CarDnf:
+                driver.Incident = isDisqualified ? Incident.Illegal : EnumHelper.GetCarIncidents.TakeRandomItem();
+                break;
+            default:
+                driver.Incident = isDisqualified ? Incident.Fuel : Incident.Engine;
+                break;
         }
     }
 
     bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
+
+    void NonFinishResult(RaceDriver driver, LapScore lapScore, RacerEvent reason)
+    {
+        // First check if we're dealing with a fatal crash
+        if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
+        {
+            driver.Status = RaceStatus.Fatal;
+            driver.Incident = Incident.Death;
+            lapScore.RacerEvents |= RacerEvent.Death;
+            return;
+        }
+
+        var isDisqualified = NumberHelper.RandomInt(disqualifyChance) == 0;
+        driver.Status = isDisqualified ? RaceStatus.Dsq : RaceStatus.Dnf;
+        // Switch statement assumes engine incident if it isnt either driver or car
+        switch (reason)
+        {
+            case RacerEvent.DriverDnf:
+                driver.Incident = isDisqualified ? Incident.Dangerous : EnumHelper.GetDriverIncidents.TakeRandomItem();
+                return;
+            case RacerEvent.CarDnf:
+                driver.Incident = isDisqualified ? Incident.Illegal : EnumHelper.GetCarIncidents.TakeRandomItem();
+                return;
+            default:
+                driver.Incident = isDisqualified ? Incident.Fuel : Incident.Engine;
+                return;
+        }
+    }
 
     int HandleStrategy(RaceDriver driver, LapScore lapScore)
     {
@@ -397,7 +447,7 @@
         // Todo: check if this doesnt mess with the lapscores if those are persisted per advance
         await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints, Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality));
 
-        if (Model.LeagueOptions.HasFlag(LeagueOptions.UsePenalty))
+        if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
         {
             var nextRound = Model.Round + 1;
             await _seasonService.CheckPenalties(Model.Season.Id, finishedResults, nextRound);

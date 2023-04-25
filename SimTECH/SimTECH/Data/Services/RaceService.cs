@@ -76,6 +76,7 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
 
             var strategiesForRace = await context.Strategy
+                .Where(e => e.State == State.Active)
                 .Include(e => e.StrategyTyres)
                     .ThenInclude(e => e.Tyre)
                 .ToListAsync();
@@ -414,7 +415,8 @@ namespace SimTECH.Data.Services
                 Season = season,
                 LeagueOptions = season.League.Options,
 
-                DisqualifyChance = _config.DisqualifyChance,
+                FatalityOdds = _config.FatalityChance,
+                DisqualifyOdds = _config.DisqualifyChance,
                 MistakeRolls = _config.MistakeAmountRolls,
                 MistakeMinCost = _config.MistakeLowerValue,
                 MistakeMaxCost = _config.MistakeUpperValue,

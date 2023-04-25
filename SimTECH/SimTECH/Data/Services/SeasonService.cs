@@ -44,7 +44,10 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             if (season.Id == 0)
+            {
+                season.State = State.Active;
                 context.Add(season);
+            }
             else
                 context.Update(season);
 

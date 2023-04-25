@@ -32,6 +32,7 @@ namespace SimTECH.Data.Services
 
             if (track.Id == 0)
             {
+                track.State = State.Active;
                 context.Add(track);
             }
             else

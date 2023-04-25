@@ -44,6 +44,14 @@
                         <CellTemplate>
                             <MudButtonGroup>
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateStrategy(context.Item))" />
+                                @if (context.Item.State == State.Closed)
+                                {
+                                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.CheckCircleOutline" Color="Color.Success" OnClick="@(async () => await StateChangerStrategy(context.Item, State.Active))" />
+                                }
+                                else
+                                {
+                                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.Block" Color="Color.Warning" OnClick="@(async () => await StateChangerStrategy(context.Item, State.Closed))" />
+                                }
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteStrategy(context.Item))" />
                             </MudButtonGroup>
                         </CellTemplate>
@@ -95,6 +103,12 @@
         TyreData = await StrategyService.GetTyres();
     }
 
+    /*Tyres	Name	Pace	Max	Min	WearAvg	Length
+	Soft	200			-20	10
+	Medium	180			-12	15
+	Hard	160			-8	20
+*/
+
     private Func<Tyre, string> _applyTyreColouring => e =>
     {
         return $"border-color: {e.Colour}";
@@ -118,7 +132,18 @@
             StrategyData = await StrategyService.GetStrategies();
         }
     }
-    async Task DeleteStrategy(Strategy strategy) => await StrategyService.DeleteStrategy(strategy);
+
+    async Task StateChangerStrategy(Strategy strategy, State targetState)
+    {
+        await StrategyService.ChangeStrategyState(strategy, targetState);
+        StrategyData = await StrategyService.GetStrategies();
+    }
+
+    async Task DeleteStrategy(Strategy strategy)
+    {
+        await StrategyService.DeleteStrategy(strategy);
+        StrategyData = await StrategyService.GetStrategies();
+    }
 
     async Task AddTyre() => await UpdateTyre(new Tyre());
     async Task UpdateTyre(Tyre item)
@@ -134,5 +159,10 @@
             TyreData = await StrategyService.GetTyres();
         }
     }
-    async Task DeleteTyre(Tyre tyre) => await StrategyService.DeleteTyre(tyre);
+
+    async Task DeleteTyre(Tyre tyre)
+    {
+        await StrategyService.DeleteTyre(tyre);
+        TyreData = await StrategyService.GetTyres();
+    }
 }

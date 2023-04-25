@@ -40,6 +40,7 @@ namespace SimTECH.Data.Services
 
             if (driver.Id == 0)
             {
+                driver.State = State.Active;
                 context.Add(driver);
             }
             else

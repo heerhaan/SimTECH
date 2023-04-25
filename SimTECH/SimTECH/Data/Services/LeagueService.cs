@@ -39,7 +39,10 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             if (league.Id == 0)
+            {
+                league.State = State.Active;
                 context.Add(league);
+            }
             else
                 context.Update(league);
 
