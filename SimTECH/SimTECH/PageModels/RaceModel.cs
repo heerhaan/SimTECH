@@ -8,6 +8,7 @@ namespace SimTECH.PageModels
         public string Name { get; set; }
         public Country Country { get; set; }
         public Weather Weather { get; set; }
+        public bool IsFinished { get; set; }
 
         public int AmountRuns { get; set; }//Can be used for both runs in qualy and stints in race
         public double GapMarge { get; set; }

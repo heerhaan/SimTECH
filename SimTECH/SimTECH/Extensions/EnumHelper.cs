@@ -34,6 +34,7 @@
 
         public static Incident[] GetDriverIncidents => new Incident[] { Incident.Damage, Incident.Collision, Incident.Accident, Incident.Puncture };
         public static Incident[] GetCarIncidents => new Incident[] { Incident.Electrics, Incident.Exhaust, Incident.Clutch, Incident.Hydraulics, Incident.Wheel, Incident.Brakes };
+        public static Incident[] GetDisqualifications => new Incident[] { Incident.Dangerous, Incident.Illegal, Incident.Fuel };
 
         // Dictionary selectors underneath
         public static Dictionary<Entrant, string> GetEntrantSelection() => new()

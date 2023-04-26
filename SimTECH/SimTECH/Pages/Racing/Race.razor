@@ -20,17 +20,20 @@
 
                 <MudChip Color="Color.Dark" DisableRipple="true" Label="true">@(racedLaps) / @(totalLaps)</MudChip>
 
-                    <div>
+                <div>
+                    @if (!Model.IsFinished)
+                    {
                         @if (calculated >= calculationCount)
-                    {
-                        <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
-                    }
-                    else
-                    {
-                        @* The following seems a bit too clumsy  to implement, so it isn't implemented
-                        <MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" Class="field-md" />
-                        *@
-                        <MudButton Color="Color.Tertiary" Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
+                        {
+                            <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
+                        }
+                        else
+                        {
+                            @* The following seems a bit too clumsy  to implement, so it isn't implemented
+                            <MudNumericField T="int" @bind-Value="calculationsPerAdvance" Label="Laps to advance x10" Class="field-md" />
+                            *@
+                            <MudButton Color="Color.Tertiary" Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
+                        }
                     }
                 </div>
             </MudStack>
@@ -274,80 +277,37 @@
 
     void CheckReliability(RaceDriver driver, LapScore lapScore)
     {
-        RacerEvent reason;
-
         if (DidReliabilityFail(driver.DriverReliability))
         {
-            reason = RacerEvent.CarDnf;
+            lapScore.RacerEvents = RacerEvent.CarDnf;
+            driver.Incident = EnumHelper.GetDriverIncidents.TakeRandomItem();
+            driver.Status = RaceStatus.Dnf;
         }
         else if (DidReliabilityFail(driver.CarReliability))
         {
-            reason = RacerEvent.DriverDnf;
+            lapScore.RacerEvents = RacerEvent.DriverDnf;
+            driver.Incident = EnumHelper.GetCarIncidents.TakeRandomItem();
+            driver.Status = RaceStatus.Dnf;
         }
         else if (DidReliabilityFail(driver.EngineReliability))
         {
-            reason = RacerEvent.EngineDnf;
+            lapScore.RacerEvents = RacerEvent.EngineDnf;
+            driver.Incident = Incident.Engine;
+            driver.Status = RaceStatus.Dnf;
         }
         else { return; }
 
-        // First check if we're dealing with a fatal crash
+        // If enabled, then we're also going to check if anyone experienced a fatal crash
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
         {
             driver.Status = RaceStatus.Fatal;
             driver.Incident = Incident.Death;
             lapScore.RacerEvents |= RacerEvent.Death;
             return;
-        }
-
-        var isDisqualified = NumberHelper.RandomInt(disqualifyChance) == 0;
-
-        driver.Status = isDisqualified ? RaceStatus.Dsq : RaceStatus.Dnf;
-        lapScore.RacerEvents |= reason;
-
-        // Switch statement assumes engine incident if it isnt either driver or car
-        switch (reason)
-        {
-            case RacerEvent.DriverDnf:
-                driver.Incident = isDisqualified ? Incident.Dangerous : EnumHelper.GetDriverIncidents.TakeRandomItem();
-                break;
-            case RacerEvent.CarDnf:
-                driver.Incident = isDisqualified ? Incident.Illegal : EnumHelper.GetCarIncidents.TakeRandomItem();
-                break;
-            default:
-                driver.Incident = isDisqualified ? Incident.Fuel : Incident.Engine;
-                break;
         }
     }
 
     bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
-
-    void NonFinishResult(RaceDriver driver, LapScore lapScore, RacerEvent reason)
-    {
-        // First check if we're dealing with a fatal crash
-        if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
-        {
-            driver.Status = RaceStatus.Fatal;
-            driver.Incident = Incident.Death;
-            lapScore.RacerEvents |= RacerEvent.Death;
-            return;
-        }
-
-        var isDisqualified = NumberHelper.RandomInt(disqualifyChance) == 0;
-        driver.Status = isDisqualified ? RaceStatus.Dsq : RaceStatus.Dnf;
-        // Switch statement assumes engine incident if it isnt either driver or car
-        switch (reason)
-        {
-            case RacerEvent.DriverDnf:
-                driver.Incident = isDisqualified ? Incident.Dangerous : EnumHelper.GetDriverIncidents.TakeRandomItem();
-                return;
-            case RacerEvent.CarDnf:
-                driver.Incident = isDisqualified ? Incident.Illegal : EnumHelper.GetCarIncidents.TakeRandomItem();
-                return;
-            default:
-                driver.Incident = isDisqualified ? Incident.Fuel : Incident.Engine;
-                return;
-        }
-    }
 
     int HandleStrategy(RaceDriver driver, LapScore lapScore)
     {
@@ -432,8 +392,29 @@
 
     async Task PersistLapScores(List<LapScore> lapScores) => await _raceService.PersistLapScores(lapScores);
 
+    void PreProcessFinish()
+    {
+        bool anyoneDisqualified = false;
+
+        foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
+        {
+            if (NumberHelper.RandomInt(disqualifyChance) == 0)
+            {
+                driver.Incident = EnumHelper.GetDisqualifications.TakeRandomItem();
+                driver.Status = RaceStatus.Dsq;
+
+                anyoneDisqualified = true;
+            }
+        }
+
+        if (anyoneDisqualified)
+            PostProcessAdvance(null);
+    }
+
     async Task Finish()
     {
+        PreProcessFinish();
+
         var finishedRace = Model.ToFinishedRace();
         var finishedResults = Model.RaceDrivers.Select(e => e.ToResult(RaceId)).ToList();
         var scoredPoints = Model.RaceDrivers
@@ -445,8 +426,7 @@
         await PersistLapScores(allLapScores);
 
         // Todo: check if this doesnt mess with the lapscores if those are persisted per advance
-        // Also todo: implement disqualification as a postprocess moment
-        await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints, Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality));
+        await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints);
 
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
         {

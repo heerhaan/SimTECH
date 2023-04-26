@@ -1,48 +1,107 @@
 ﻿@page "/postrace/{RaceId:long}"
 @inject NavigationManager _nav
+@inject RaceService _raceService
 
 <PageTitle>Post Race</PageTitle>
 
-<MudGrid>
-    <MudItem xs=12>
-        <MudPaper Elevation="15" Height="100px" Class="d-flex flex-row justify-center pa-4">
-            <MudText Typo="Typo.h4">Post race</MudText>
-            <MudText Typo="Typo.caption">Is there more info to show here?</MudText>
-        </MudPaper>
-    </MudItem>
+@if (!loading)
+{
+    <MudGrid>
+        <MudItem xs=12>
+            <MudPaper Elevation="15" Height="100px" Class="d-flex flex-row justify-center pa-4">
+                <MudText Typo="Typo.h4">Post race</MudText>
+                <MudText Typo="Typo.caption">Is there more info to show here?</MudText>
+            </MudPaper>
+        </MudItem>
 
-    <MudItem xs="4">
-        <MudPaper>
-            <MudText>Final standings</MudText>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="4">
-        <MudCard>
-            <MudCardHeader>
-                <MudText>Podium</MudText>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudStack Row="true" Justify="Justify.SpaceBetween">
-                    <MudText>P3</MudText>
-                    <MudText>P1</MudText>
-                    <MudText>P2</MudText>
+        <MudItem xs="4">
+            <MudPaper Class="mud-height-full">
+                <MudText>Final standings</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="4">
+            <MudCard>
+                <MudCardHeader>
+                    <MudText>Podium</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudStack Row="true" Justify="Justify.SpaceBetween">
+                        <MudText>P3</MudText>
+                        <MudText>P1</MudText>
+                        <MudText>P2</MudText>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="4">
+            <MudPaper Class="mud-height-full">
+                <MudText>Incidents during the race</MudText>
+                @if (results.Any())
+                {
+                    <MudSimpleTable>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Incident</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var result in results)
+                            {
+                                <tr>
+                                    <td></td>
+                                    <td>@result.Incident</td>
+                                    <td>@result.Status</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                }
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="3">
+            <MudPaper>
+                <MudButton Variant="Variant.Outlined" OnClick="GoToStandings">Standings</MudButton>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper>
+                <MudStack Spacing="6">
+                    <DriverGraphic FirstName="Mr." LastName="Mister" Abbreviation="MIS" Number="77"
+                               Team="Racing Team" Colour="@Color.Secondary.ToString()" Position="3" />
+                    <DriverGraphic FirstName="Dr." LastName="Bloke" Abbreviation="BLO" Number="33"
+                               Team="Racing Team" Colour="@Color.Primary.ToString()" Position="1" />
+                    <DriverGraphic FirstName="Ms." LastName="Lady" Abbreviation="LAD" Number="55"
+                               Team="Racing Team" Colour="@Color.Tertiary.ToString()" Position="2" />
                 </MudStack>
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
-    <MudItem xs="4">
-        <MudPaper>
-            <MudText>Post-race disqualifications hehe</MudText>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="3">
+            <MudPaper>
+
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
 
 @code {
     [Parameter] public long RaceId { get; set; }
 
+    List<Result> results;
+
+    bool loading = true;
     int seasonId;
 
-    void GoToStanding()
+    protected override async Task OnInitializedAsync()
+    {
+        results = await _raceService.GetResultsOfRace(RaceId);
+
+        loading = false;
+    }
+
+    void GoToStandings()
     {
         _nav.NavigateTo($"/overview/{seasonId}/2");
     }

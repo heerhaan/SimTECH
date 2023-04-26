@@ -49,6 +49,15 @@ namespace SimTECH.Data.Services
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<List<Result>> GetResultsOfRace(long raceId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Result
+                .Where(e => e.RaceId == raceId)
+                .ToListAsync();
+        }
+
         public async Task UpdateRace(Race race)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -171,7 +180,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task FinishRace(Race finishedRace, List<Result> finishedResults, List<ScoredPoints> scoredPoints, bool confirmDeath = false)
+        public async Task FinishRace(Race finishedRace, List<Result> finishedResults, List<ScoredPoints> scoredPoints)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -203,7 +212,7 @@ namespace SimTECH.Data.Services
                 }
             }
 
-            if (confirmDeath && finishedResults.Any(e => e.Incident == Incident.Death))
+            if (finishedResults.Any(e => e.Incident == Incident.Death))
             {
                 //var drivers = await context.Driver.ToListAsync();
 
@@ -222,6 +231,177 @@ namespace SimTECH.Data.Services
             context.UpdateRange(seasonDrivers);
 
             await context.SaveChangesAsync();
+        }
+
+        #region single-purpose calls
+        public async Task<RaceWeekModel> GetRaceWeekModel(long raceId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var race = await context.Race
+                .Include(e => e.Penalties)
+                .Include(e => e.Track)
+                .SingleAsync(e => e.Id == raceId);
+
+            if (race.State == State.Concept)
+                throw new InvalidOperationException("wrong state, reee. Activate first!!!");
+
+            var trackTraits = await context.Trait
+                .Where(trait => trait.TrackTraits.Any(tt => tt.TrackId == race.TrackId))
+                .ToListAsync();
+
+            // Prepare the drivers for this weekend
+            var weekendDrivers = await context.Result
+                .Include(e => e.SeasonDriver)
+                    .ThenInclude(e => e.Driver)
+                .Include(e => e.SeasonTeam)
+                .Where(e => e.RaceId == raceId)
+                .Select(result => new RaceWeekDriver
+                {
+                    SeasonDriverId = result.SeasonDriverId,
+                    FullName = result.SeasonDriver.Driver.FullName,
+                    Number = result.SeasonDriver.Number,
+                    Role = result.SeasonDriver.TeamRole,
+                    Country = result.SeasonDriver.Driver.Country,
+
+                    SeasonTeamId = result.SeasonTeamId,
+                    TeamName = result.SeasonTeam.Name,
+                    Colour = result.SeasonTeam.Colour,
+                    Accent = result.SeasonTeam.Accent,
+
+                    ResultId = result.Id,
+                    Grid = result.Grid,
+                    Position = result.Position,
+                    Status = result.Status,
+                    StrategyId = result.StrategyId,
+                })
+                .ToListAsync();
+
+            if (weekendDrivers?.Any() != true)
+                throw new InvalidOperationException("We're going to need some actual drivers too");
+
+            // Set strategies
+            var strategiesForRace = await context.Strategy
+                .Include(e => e.StrategyTyres)
+                    .ThenInclude(e => e.Tyre)
+                .ToListAsync();
+
+            foreach (var driver in weekendDrivers)
+                driver.Strategy = strategiesForRace.Find(e => e.Id == driver.StrategyId);
+
+            // Set eventual penalties
+            var penalties = await context.Penalty.Where(e => e.RaceId == raceId).ToListAsync();
+            if (penalties?.Any() == true)
+            {
+                foreach (var penalty in penalties)
+                {
+                    var matchingDriver = weekendDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.SeasonDriverId);
+                    if (matchingDriver != null)
+                    {
+                        matchingDriver.Penalty = penalty.Punishment;
+                        matchingDriver.Reason = penalty.Reason;
+                    }
+                }
+            }
+
+            return new RaceWeekModel
+            {
+                Race = race,
+                RaceWeekDrivers = weekendDrivers,
+                AvailableStrategies = strategiesForRace,
+                TrackTraits = trackTraits,
+            };
+        }
+
+        public async Task<List<CalendarRaceModel>> GetRaceCalendar(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var races = await context.Race
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Track)
+                .Include(e => e.Results)
+                .ToListAsync();
+
+            var drivers = await context.SeasonDriver
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Driver)
+                .ToListAsync();
+
+            var teams = await context.SeasonTeam
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Team)
+                .ToListAsync();
+
+            var calendar = new List<CalendarRaceModel>(races.Count);
+
+            foreach (var race in races.OrderBy(e => e.Round))
+            {
+                var calendarModel = new CalendarRaceModel
+                {
+                    Id = race.Id,
+                    Round = race.Round,
+                    Name = race.Name,
+                    Country = race.Track.Country,
+                    Weather = race.Weather,
+                    State = race.State,
+                    TrackId = race.TrackId,
+                };
+
+                if (race.Results?.Any() == true)
+                {
+                    var poleResult = race.Results.FirstOrDefault(e => e.Grid == 1);
+
+                    if (poleResult != null)
+                    {
+                        var poleDriver = drivers.Single(e => e.Id == poleResult.SeasonDriverId);
+                        var poleTeam = teams.Single(e => e.Id == poleResult.SeasonTeamId);
+
+                        calendarModel.PoleSitter = new DriverWinner
+                        {
+                            Name = poleDriver.Driver.FullName,
+                            Country = poleDriver.Driver.Country,
+                            Number = poleDriver.Number,
+                            Colour = poleTeam.Colour,
+                            Accent = poleTeam.Accent
+                        };
+                    }
+
+                    var winningResult = race.Results.FirstOrDefault(e => e.Position == 1);
+
+                    if (winningResult != null)
+                    {
+                        var winningDriver = drivers.Single(d => winningResult.SeasonDriverId == d.Id);
+                        var driverTeam = teams.Find(e => e.Id == winningDriver.SeasonTeamId.GetValueOrDefault());
+
+                        calendarModel.DriverWinner = new DriverWinner
+                        {
+                            Name = winningDriver.Driver.FullName,
+                            Country = winningDriver.Driver.Country,
+                            Number = winningDriver.Number,
+                        };
+
+                        if (driverTeam != null)
+                        {
+                            calendarModel.DriverWinner.Colour = driverTeam.Colour;
+                            calendarModel.DriverWinner.Accent = driverTeam.Accent;
+                        }
+
+                        var winningTeam = teams.Single(t => winningResult.SeasonTeamId == t.Id);
+
+                        calendarModel.TeamWinner = new TeamWinner
+                        {
+                            Name = winningTeam.Name,
+                            Colour = winningTeam.Colour,
+                            Accent = winningTeam.Accent,
+                        };
+                    }
+                }
+
+                calendar.Add(calendarModel);
+            }
+
+            return calendar;
         }
 
         public async Task<List<FinishedRaceModel>> GetRecentlyFinishedCalendarRaces(int amount)
@@ -257,6 +437,9 @@ namespace SimTECH.Data.Services
                 })
                 .ToListAsync();
         }
+
+        // TODO: Initially I wanted to make the racemodel more generic, can we still do that after all the changes?
+        //private async Task<RaceModel> FillRaceModelBase<TDriver>(long raceId, List<DriverBase> participatingDrivers) { }
 
         // Race, qualy and practice models are nearly the same but a generic solution did not came to me
         public async Task<RaceModel> RetrieveRaceModel(long raceId)
@@ -409,6 +592,7 @@ namespace SimTECH.Data.Services
                 Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
                 Weather = race.Weather,
                 Round = race.Round,
+                IsFinished = race.State == State.Closed,
 
                 RaceDrivers = raceDrivers,
 
@@ -622,180 +806,6 @@ namespace SimTECH.Data.Services
 
                 GapMarge = _config.GapMarge,
             };
-        }
-
-        // TODO: I want to make the reacemodel more generic, but how?!
-        //private async Task<RaceModel> FillRaceModelBase<TDriver>(long raceId, List<DriverBase> participatingDrivers) { }
-
-        #region single-purpose calls
-        public async Task<RaceWeekModel> GetRaceWeekModel(long raceId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var race = await context.Race
-                .Include(e => e.Penalties)
-                .Include(e => e.Track)
-                .SingleAsync(e => e.Id == raceId);
-
-            if (race.State == State.Concept)
-                throw new InvalidOperationException("wrong state, reee. Activate first!!!");
-
-            var trackTraits = await context.Trait
-                .Where(trait => trait.TrackTraits.Any(tt => tt.TrackId == race.TrackId))
-                .ToListAsync();
-
-            // Prepare the drivers for this weekend
-            var weekendDrivers = await context.Result
-                .Include(e => e.SeasonDriver)
-                    .ThenInclude(e => e.Driver)
-                .Include(e => e.SeasonTeam)
-                .Where(e => e.RaceId == raceId)
-                .Select(result => new RaceWeekDriver
-                {
-                    SeasonDriverId = result.SeasonDriverId,
-                    FullName = result.SeasonDriver.Driver.FullName,
-                    Number = result.SeasonDriver.Number,
-                    Role = result.SeasonDriver.TeamRole,
-                    Country = result.SeasonDriver.Driver.Country,
-
-                    SeasonTeamId = result.SeasonTeamId,
-                    TeamName = result.SeasonTeam.Name,
-                    Colour = result.SeasonTeam.Colour,
-                    Accent = result.SeasonTeam.Accent,
-
-                    ResultId = result.Id,
-                    Grid = result.Grid,
-                    Position = result.Position,
-                    Status = result.Status,
-                    StrategyId = result.StrategyId,
-                })
-                .ToListAsync();
-
-            if (weekendDrivers?.Any() != true)
-                throw new InvalidOperationException("We're going to need some actual drivers too");
-
-            // Set strategies
-            var strategiesForRace = await context.Strategy
-                .Include(e => e.StrategyTyres)
-                    .ThenInclude(e => e.Tyre)
-                .ToListAsync();
-
-            foreach (var driver in weekendDrivers)
-                driver.Strategy = strategiesForRace.Find(e => e.Id == driver.StrategyId);
-
-            // Set eventual penalties
-            var penalties = await context.Penalty.Where(e => e.RaceId == raceId).ToListAsync();
-            if (penalties?.Any() == true)
-            {
-                foreach (var penalty in penalties)
-                {
-                    var matchingDriver = weekendDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.SeasonDriverId);
-                    if (matchingDriver != null)
-                    {
-                        matchingDriver.Penalty = penalty.Punishment;
-                        matchingDriver.Reason = penalty.Reason;
-                    }
-                }
-            }
-
-            return new RaceWeekModel
-            {
-                Race = race,
-                RaceWeekDrivers = weekendDrivers,
-                AvailableStrategies = strategiesForRace,
-                TrackTraits = trackTraits,
-            };
-        }
-
-        public async Task<List<CalendarRaceModel>> GetRaceCalendar(long seasonId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var races = await context.Race
-                .Where(e => e.SeasonId == seasonId)
-                .Include(e => e.Track)
-                .Include(e => e.Results)
-                .ToListAsync();
-
-            var drivers = await context.SeasonDriver
-                .Where(e => e.SeasonId == seasonId)
-                .Include(e => e.Driver)
-                .ToListAsync();
-
-            var teams = await context.SeasonTeam
-                .Where(e => e.SeasonId == seasonId)
-                .Include(e => e.Team)
-                .ToListAsync();
-
-            var calendar = new List<CalendarRaceModel>(races.Count);
-
-            foreach (var race in races.OrderBy(e => e.Round))
-            {
-                var calendarModel = new CalendarRaceModel
-                {
-                    Id = race.Id,
-                    Round = race.Round,
-                    Name = race.Name,
-                    Country = race.Track.Country,
-                    Weather = race.Weather,
-                    State = race.State,
-                    TrackId = race.TrackId,
-                };
-
-                if (race.Results?.Any() == true)
-                {
-                    var poleResult = race.Results.FirstOrDefault(e => e.Grid == 1);
-
-                    if (poleResult != null)
-                    {
-                        var poleDriver = drivers.Single(e => e.Id == poleResult.SeasonDriverId);
-                        var poleTeam = teams.Single(e => e.Id == poleResult.SeasonTeamId);
-
-                        calendarModel.PoleSitter = new DriverWinner
-                        {
-                            Name = poleDriver.Driver.FullName,
-                            Country = poleDriver.Driver.Country,
-                            Number = poleDriver.Number,
-                            Colour = poleTeam.Colour,
-                            Accent = poleTeam.Accent
-                        };
-                    }
-
-                    var winningResult = race.Results.FirstOrDefault(e => e.Position == 1);
-
-                    if (winningResult != null)
-                    {
-                        var winningDriver = drivers.Single(d => winningResult.SeasonDriverId == d.Id);
-                        var driverTeam = teams.Find(e => e.Id == winningDriver.SeasonTeamId.GetValueOrDefault());
-
-                        calendarModel.DriverWinner = new DriverWinner
-                        {
-                            Name = winningDriver.Driver.FullName,
-                            Country = winningDriver.Driver.Country,
-                            Number = winningDriver.Number,
-                        };
-
-                        if (driverTeam != null)
-                        {
-                            calendarModel.DriverWinner.Colour = driverTeam.Colour;
-                            calendarModel.DriverWinner.Accent = driverTeam.Accent;
-                        }
-
-                        var winningTeam = teams.Single(t => winningResult.SeasonTeamId == t.Id);
-
-                        calendarModel.TeamWinner = new TeamWinner
-                        {
-                            Name = winningTeam.Name,
-                            Colour = winningTeam.Colour,
-                            Accent = winningTeam.Accent,
-                        };
-                    }
-                }
-
-                calendar.Add(calendarModel);
-            }
-
-            return calendar;
         }
         #endregion
     }
