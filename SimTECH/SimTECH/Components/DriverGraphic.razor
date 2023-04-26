@@ -1,0 +1,39 @@
+﻿<!-- Credits to lolsokje for the graphics inside this component -->
+
+<div id="driver-graphic">
+    <div id="position">@Position</div>
+    <div id="divider"></div>
+
+    <div id="details">
+        <div id="name">
+            <span id="firstName">@FirstName</span> <span id="lastName">@_upperLastname</span>
+        </div>
+
+        <div id="team">@Team</div>
+    </div>
+
+    <div id="extra">
+        <div id="number">@Number</div>
+
+        <div id="tla">@Abbreviation</div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string FirstName { get; set; } = "Firstname";
+    [Parameter] public string LastName { get; set; } = "Lastname";
+    [Parameter] public string Abbreviation { get; set; } = "XXX";
+    [Parameter] public string Team { get; set; } = "Team";
+    [Parameter] public int Number { get; set; }
+    [Parameter] public int Position { get; set; }
+    [Parameter] public string Colour { get; set; } = Constants.DefaultColour;
+    [Parameter] public bool Eliminated { get; set; }
+
+    private string _upperLastname
+    {
+        get
+        {
+            return LastName.ToUpperInvariant();
+        }
+    }
+}
