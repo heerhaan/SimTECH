@@ -1,4 +1,5 @@
 ﻿@page "/postrace/{RaceId:long}"
+@inject NavigationManager _nav
 
 <PageTitle>Post Race</PageTitle>
 
@@ -6,20 +7,43 @@
     <MudItem xs=12>
         <MudPaper Elevation="15" Height="100px" Class="d-flex flex-row justify-center pa-4">
             <MudText Typo="Typo.h4">Post race</MudText>
+            <MudText Typo="Typo.caption">Is there more info to show here?</MudText>
         </MudPaper>
     </MudItem>
 
     <MudItem xs="4">
-
+        <MudPaper>
+            <MudText>Final standings</MudText>
+        </MudPaper>
     </MudItem>
     <MudItem xs="4">
-
+        <MudCard>
+            <MudCardHeader>
+                <MudText>Podium</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudStack Row="true" Justify="Justify.SpaceBetween">
+                    <MudText>P3</MudText>
+                    <MudText>P1</MudText>
+                    <MudText>P2</MudText>
+                </MudStack>
+            </MudCardContent>
+        </MudCard>
     </MudItem>
     <MudItem xs="4">
-
+        <MudPaper>
+            <MudText>Post-race disqualifications hehe</MudText>
+        </MudPaper>
     </MudItem>
 </MudGrid>
 
 @code {
+    [Parameter] public long RaceId { get; set; }
 
+    int seasonId;
+
+    void GoToStanding()
+    {
+        _nav.NavigateTo($"/overview/{seasonId}/2");
+    }
 }
