@@ -10,6 +10,7 @@ namespace SimTECH.Data.EditModels
         public string Name { get; set; } = string.Empty;
         public int RaceLength { get; set; }
         public bool UsePenalty { get; set; }
+        public bool EnableFatality { get; set; }
         public State State { get; set; }
         public IList<EditRangeModel> DevelopmentRanges { get; set; } = new List<EditRangeModel>();
 
@@ -20,6 +21,7 @@ namespace SimTECH.Data.EditModels
             Name = league.Name;
             RaceLength = league.RaceLength;
             UsePenalty = league.Options.HasFlag(LeagueOptions.EnablePenalty);
+            UsePenalty = league.Options.HasFlag(LeagueOptions.EnableFatality);
             State = league.State;
             DevelopmentRanges = league.DevelopmentRanges?
                 .Select(range => new EditRangeModel(range))
@@ -51,6 +53,8 @@ namespace SimTECH.Data.EditModels
 
             if (UsePenalty)
                 baseOptions |= LeagueOptions.EnablePenalty;
+            if (EnableFatality)
+                baseOptions |= LeagueOptions.EnableFatality;
 
             return baseOptions;
         }

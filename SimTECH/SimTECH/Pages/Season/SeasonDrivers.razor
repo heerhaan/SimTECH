@@ -9,7 +9,7 @@
         <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterDriver">New</MudButton>
     </ToolBarContent>
     <Columns>
-        <TemplateColumn Title="Name" Sortable="false">
+        <TemplateColumn T="SeasonDriver" Title="Name" SortBy="e => e.Driver.FirstName">
             <CellTemplate>
                 <MudText Typo="Typo.body2">
                     <CountryFlag Code="@context.Item.Driver.Country" Size="FlagSize.Small" />
@@ -17,11 +17,11 @@
                 </MudText>
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="e => e.Number" Title="Nr." CellStyleFunc="@ViewHelper.DriverTeamStyleFunc" HeaderClass="number-col" CellClass="number-col" Sortable="false" />
+        <PropertyColumn Property="e => e.Number" SortBy="e => e.Number" Title="Nr." CellStyleFunc="@ViewHelper.DriverTeamStyleFunc" HeaderClass="number-col" CellClass="number-col" />
         <PropertyColumn Property="e => e.Skill" />
         <PropertyColumn Property="e => e.Reliability" Title="Rel." />
         <PropertyColumn Property="e => e.TeamRole" Title="Role" />
-        <TemplateColumn Title="Team">
+        <TemplateColumn T="SeasonDriver" Title="Team">
             <CellTemplate>
                 @if (context.Item.SeasonTeam == null)
                 {
@@ -33,7 +33,7 @@
                 }
             </CellTemplate>
         </TemplateColumn>
-        <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
+        <TemplateColumn T="SeasonDriver" Sortable="false" CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudButtonGroup>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriverEntrant(context.Item))" />

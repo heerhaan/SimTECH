@@ -8,8 +8,8 @@ namespace SimTECH.Data.Models
         public int Number { get; set; }
         public int Points { get; set; }
         public int HiddenPoints { get; set; }
-        public int Skill { get; set; }
-        public int Reliability { get; set; }
+        public int Skill { get; set; } = 50;
+        public int Reliability { get; set; } = 1000;
         public TeamRole TeamRole { get; set; }
 
         public long SeasonId { get; set; }

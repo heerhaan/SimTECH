@@ -385,7 +385,14 @@
                     foreach (var engine in Model.BaseEngines)
                     {
                         // TODO: Retrieve stats from previous season engine
-                        Model.SeasonEngines.Add(new EditSeasonEngineModel() { EngineId = engine.Id, Name = engine.Name, SeasonId = Season.Id });
+                        Model.SeasonEngines.Add(new EditSeasonEngineModel() 
+                        { 
+                            EngineId = engine.Id, 
+                            Name = engine.Name, 
+                            Reliability = 1000,
+                            Power = 50,
+                            SeasonId = Season.Id,
+                        });
                     }
                     Snackbar.Add("The following engines are selected for the upcoming season, if you wish so then the info can be edited in-line", Severity.Info);
                 }
@@ -395,17 +402,38 @@
                     foreach (var team in Model.BaseTeams)
                     {
                         // TODO: Retrieve stats from previous season team
-                        Model.SeasonTeams.Add(new EditSeasonTeamModel() { TeamId = team.Id, SeasonId = Season.Id, Team = team });
+                        Model.SeasonTeams.Add(new EditSeasonTeamModel() 
+                        { 
+                            TeamId = team.Id, 
+                            SeasonId = Season.Id,
+                            Name = team.Name,
+                            Principal = team.Name,
+                            BaseValue = 100,
+                            Aero = 20,
+                            Chassis = 20,
+                            Powertrain = 20,
+                            Reliability = 1000,
+                            Team = team,
+                        });
                     }
                     Snackbar.Add("The following teams are selected for the upcoming season, if you wish so then the info can be edited in-line", Severity.Info);
                 }
                 break;
             case 3:
                 {
+                    int indexer = 0;
                     foreach (var driver in Model.BaseDrivers)
                     {
                         // TODO: Retrieve stats from previous season driver
-                        Model.SeasonDrivers.Add(new EditSeasonDriverModel() { DriverId = driver.Id, SeasonId = Season.Id, Driver = driver });
+                        Model.SeasonDrivers.Add(new EditSeasonDriverModel() 
+                        { 
+                            DriverId = driver.Id, 
+                            SeasonId = Season.Id, 
+                            Driver = driver, 
+                            Number = ++indexer,
+                            Skill = 50,
+                            Reliability = 1000,
+                        });
                     }
                     Snackbar.Add("The following drivers are selected for the upcoming season, if you wish so then the info can be edited in-line", Severity.Info);
                 }

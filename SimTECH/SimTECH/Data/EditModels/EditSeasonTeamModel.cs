@@ -93,7 +93,7 @@ namespace SimTECH.Data.EditModels
                 TeamId = TeamId,
                 SeasonId = SeasonId,
                 SeasonEngineId = SeasonEngineId,
-                ManufacturerId = ManufacturerId,
+                ManufacturerId = ManufacturerId == 0 ? 1 : ManufacturerId,
                 SeasonDrivers = SeasonDrivers?.Select(e => e.Record).ToList()
             };
 

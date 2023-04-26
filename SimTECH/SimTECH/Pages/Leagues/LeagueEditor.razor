@@ -15,11 +15,14 @@
 
                 <MudItem xs="4">
                     <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
-                    <MudNumericField T="int" @bind-Value="model.RaceLength" Step="10" Label="RaceLength" HelperText="Should round to nearest ten" Validation="@(new Func<int, string>(LengthValidator))" Class="field-md" />
+                    <MudNumericField T="int" @bind-Value="model.RaceLength" Min="0" Step="10" Label="Length (Km)" HelperText="Should round to nearest ten" Validation="@(new Func<int, string?>(LengthValidator))" Class="field-md" />
                 </MudItem>
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">Options</MudText>
-                    <MudCheckBox @bind-Checked="model.UsePenalty" Label="Use penalty feature?" Color="Color.Secondary" />
+                    <MudStack>
+                        <MudSwitchM3 @bind-Checked="model.UsePenalty" ThumbIcon="@Icons.Material.Filled.Done" ThumbOffIcon="@Icons.Material.Filled.Close" Label="Enable Penalties" Color="Color.Secondary" />
+                        <MudSwitchM3 @bind-Checked="model.EnableFatality" ThumbIcon="@Icons.Material.Filled.Done" ThumbOffIcon="@Icons.Material.Filled.Close" Label="Enable Fatalities" Color="Color.Secondary" />
+                    </MudStack>
                 </MudItem>
                 <MudItem xs="4">
                     @if (errorValidations.Any())

@@ -11,11 +11,11 @@
         public int Points { get; set; }
         public int HiddenPoints { get; set; }
 
-        public int BaseValue { get; set; }
-        public int Aero { get; set; }
-        public int Chassis { get; set; }
-        public int Powertrain { get; set; }//More like a "drivetrain" in this instance
-        public int Reliability { get; set; }
+        public int BaseValue { get; set; } = 100;
+        public int Aero { get; set; } = 10;
+        public int Chassis { get; set; } = 10;
+        public int Powertrain { get; set; } = 10;//More like a "drivetrain" in this instance
+        public int Reliability { get; set; } = 1000;
 
         //public int StandingsGoal { get; set; }
 
