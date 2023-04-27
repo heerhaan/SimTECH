@@ -10,7 +10,7 @@
 else
 {
     <MudContainer>
-        <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)">
+        <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)" id="practice-table">
             <ToolBarContent>
                 <MudText Typo="Typo.h6">
                     <CountryFlag Code="@Model.Country" />
@@ -25,6 +25,7 @@ else
                 {
                     <MudButton Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
                 }
+                <ScreenshotButton TargetId="practice-table" />
             </ToolBarContent>
             <HeaderContent>
                 <MudTh>#</MudTh>
@@ -41,21 +42,33 @@ else
                 <MudTh>Gap</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd>@context.Position</MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.h6">@context.Position</MudText>
+                </MudTd>
                 <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                    @context.Number
+                    <MudText Typo="Typo.h6">@context.Number</MudText>
                 </MudTd>
-                <MudTd>@context.FullName</MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.body1">@context.FullName</MudText>
+                </MudTd>
                 <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">
-                    @context.TeamName
+                    <MudText Typo="Typo.body1">@context.TeamName</MudText>
                 </MudTd>
-                <MudTd>@context.Power</MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.h6">@context.Power</MudText>
+                </MudTd>
                 @foreach (var runResult in context.RunValues)
                 {
-                    <MudTd Class="number-col">@runResult</MudTd>
+                    <MudTd Class="number-col">
+                        <MudText Typo="Typo.h6">@runResult</MudText>
+                    </MudTd>
                 }
-                <MudTd>@context.MaxScore</MudTd>
-                <MudTd>+@(context.TimedGap(Model.GapMarge))</MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.h6">@context.MaxScore</MudText>
+                </MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.h6">+@(context.TimedGap(Model.GapMarge))</MudText>
+                </MudTd>
             </RowTemplate>
         </MudTable>
     </MudContainer>
@@ -90,7 +103,7 @@ else
                 highestScore = result;
         }
 
-        foreach (var driver in Model.PracticeDrivers.OrderBy(e => e.MaxScore))
+        foreach (var driver in Model.PracticeDrivers.OrderByDescending(e => e.MaxScore))
         {
             driver.Gap = highestScore - driver.MaxScore;
             driver.Position = ++positionIndex;

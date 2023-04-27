@@ -15,7 +15,8 @@
         await JS.InvokeVoidAsync("takeScreenshot", TargetId);
 
         // Notice how we don't await this bad boi? This runs the task while not halting the page
-        ShowClicked();
+        // Doesnt change back so its cringe
+        //ShowClicked();
     }
 
     async void ShowClicked()
@@ -23,13 +24,13 @@
         buttonText = "Copied!";
         disabled = true;
 
-        int secondsDelay = 5;
+        int secondsDelay = 3;
 
         while (secondsDelay > 0)
         {
             secondsDelay--;
             StateHasChanged();
-            await Task.Delay(1000);
+            await Task.Delay(100);
         }
 
         buttonText = "Screenshot";

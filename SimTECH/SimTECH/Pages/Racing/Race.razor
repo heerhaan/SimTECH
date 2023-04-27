@@ -66,14 +66,14 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
-                @context.Position
+                <MudText Typo="Typo.h6">@context.Position</MudText>
             </MudTd>
             <MudTd>
                 <GridChange Change="@context.GridChange" />
             </MudTd>
             <MudTd>
                 <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
-                @context.FullName
+                <MudText>@context.FullName</MudText>
                 <span>
                     @if (context.HasFastestLap)
                     {
@@ -81,33 +81,39 @@
                     }
                 </span>
             </MudTd>
-            <MudTd>@context.Number</MudTd>
-            <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
-                @context.TeamName
+            <MudTd>
+                <MudText Typo="Typo.h6">@context.Number</MudText>
             </MudTd>
-            <MudTd>@context.Power</MudTd>
+            <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
+                <MudText>@context.TeamName</MudText>
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.h6">@context.Power</MudText>
+            </MudTd>
             <MudTd>
                 <span class="tyre" style="border-color:@(context.CurrentTyre.Colour)">
                     @context.TyreLife
                 </span>
             </MudTd>
-            <MudTd>@context.LapSum</MudTd>
+            <MudTd>
+                <MudText Typo="Typo.h6">@context.LapSum</MudText>
+            </MudTd>
             <MudTd>
                 @if (context.Status == RaceStatus.Racing)
                 {
-                    <MudText Typo="Typo.body2">+@(context.TimedGap(Model.GapMarge))</MudText>
+                    <MudText Typo="Typo.h6">+@(context.TimedGap(Model.GapMarge))</MudText>
                 }
                 else
                 {
-                    <MudText Typo="Typo.body2" Color="Color.Error">@context.Incident</MudText>
+                    <MudText Color="Color.Error">@context.Incident</MudText>
                 }
             </MudTd>
             <MudTd>
                 @foreach (var lapEvent in context.LapResults)
                 {
-                    @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
+                    @foreach (var raceEvent in lapEvent.ListOfDubiousEvents())
                     {
-                        <MudText Typo="Typo.body2">Lap @(NumberHelper.CalcLapCount(lapEvent.Order * 10, Model.TrackLength)): @(raceEvent.element.ToString())</MudText>
+                        <MudText Typo="Typo.caption">L:@(NumberHelper.CalcLapCount(lapEvent.Order * 10, Model.TrackLength)): @(raceEvent.ToString())</MudText>
                     }
                 }
             </MudTd>
@@ -194,6 +200,7 @@
         "Mistake" =>        Icons.Material.Filled.TaxiAlert,
         "Pitstop" =>        Icons.Material.Filled.LocalGasStation,
         "Swap" =>           Icons.Material.Filled.SwapVert,
+        "Death" =>          IconCollection.Cross,
         _ =>                Icons.Material.Filled.QuestionMark
     };
 
@@ -265,6 +272,8 @@
             PostProcessAdvance(newFastestLapScorer);
 
             // Last brace before going to the next advance
+            if (calculated >= calculationCount)
+                break;
         }
 
         racedLaps = NumberHelper.CalcLapCount(calculated * 10, Model.TrackLength);
