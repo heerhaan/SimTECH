@@ -241,6 +241,7 @@ namespace SimTECH.Data.Services
             var race = await context.Race
                 .Include(e => e.Penalties)
                 .Include(e => e.Track)
+                .Include(e => e.Season)
                 .SingleAsync(e => e.Id == raceId);
 
             if (race.State == State.Concept)
@@ -307,6 +308,7 @@ namespace SimTECH.Data.Services
             return new RaceWeekModel
             {
                 Race = race,
+                MaximumInRace = race.Season.MaximumDriversInRace,
                 RaceWeekDrivers = weekendDrivers,
                 AvailableStrategies = strategiesForRace,
                 TrackTraits = trackTraits,

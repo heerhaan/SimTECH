@@ -13,6 +13,17 @@
         public string Accent { get; set; }
 
         public List<StandingResultCell> ResultCells { get; set; }
+        public double Average
+        {
+            get
+            {
+                var finishedResults = ResultCells.Where(e => e.Status == RaceStatus.Racing);
+                if (finishedResults.Any())
+                    return Math.Round(finishedResults.Select(e => e.Position).Average(), 2);
+
+                return 0;
+            }
+        }
     }
 
     public class StandingDriverModel : StandingEntrantBase

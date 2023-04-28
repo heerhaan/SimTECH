@@ -21,7 +21,7 @@ namespace SimTECH.Data.EditModels
             Name = league.Name;
             RaceLength = league.RaceLength;
             UsePenalty = league.Options.HasFlag(LeagueOptions.EnablePenalty);
-            UsePenalty = league.Options.HasFlag(LeagueOptions.EnableFatality);
+            EnableFatality = league.Options.HasFlag(LeagueOptions.EnableFatality);
             State = league.State;
             DevelopmentRanges = league.DevelopmentRanges?
                 .Select(range => new EditRangeModel(range))

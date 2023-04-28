@@ -22,6 +22,9 @@ namespace SimTECH.Data.EditModels
         public long SeasonEngineId { get; set; }
         public long ManufacturerId { get; set; }
 
+        private int Points { get; set; }
+        private int HiddenPoints { get; set; }
+
         public IList<EditSeasonDriverModel>? SeasonDrivers { get; set; }
 
         // Supportive properties
@@ -47,6 +50,9 @@ namespace SimTECH.Data.EditModels
             ManufacturerId = seasonTeam.ManufacturerId;
             Team = seasonTeam.Team;
 
+            Points = seasonTeam.Points;
+            HiddenPoints = seasonTeam.HiddenPoints;
+
             if (seasonTeam.SeasonDrivers?.Any() == true)
                 SeasonDrivers = seasonTeam.SeasonDrivers.Select(e => new EditSeasonDriverModel(e)).ToList();
 
@@ -58,6 +64,8 @@ namespace SimTECH.Data.EditModels
             Id = default;
             SeasonId = default;
             SeasonEngineId = default;
+            Points = default;
+            HiddenPoints = default;
 
             if (SeasonDrivers?.Any() == true)
             {
@@ -94,7 +102,10 @@ namespace SimTECH.Data.EditModels
                 SeasonId = SeasonId,
                 SeasonEngineId = SeasonEngineId,
                 ManufacturerId = ManufacturerId == 0 ? 1 : ManufacturerId,
-                SeasonDrivers = SeasonDrivers?.Select(e => e.Record).ToList()
+                SeasonDrivers = SeasonDrivers?.Select(e => e.Record).ToList(),
+
+                Points = Points,
+                HiddenPoints = HiddenPoints,
             };
 
         public bool IsDirty => _seasonTeam != Record;

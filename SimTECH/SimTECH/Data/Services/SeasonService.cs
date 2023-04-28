@@ -150,7 +150,7 @@ namespace SimTECH.Data.Services
 
             foreach (var dnfResult in raceResults.Where(e => e.Incident != Incident.None))
             {
-                var componentUsage = usedParts.Single(e => e.SeasonDriverId == dnfResult.Id);
+                var componentUsage = usedParts.Single(e => e.SeasonDriverId == dnfResult.SeasonDriverId);
 
                 switch (dnfResult.Incident)
                 {

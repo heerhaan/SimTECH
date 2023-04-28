@@ -16,6 +16,9 @@ namespace SimTECH.Data.EditModels
         public long DriverId { get; set; }
         public long? SeasonTeamId { get; set; }
 
+        private int Points { get; set; }
+        private int HiddenPoints { get; set; }
+
         // Supportive properties
         public long BaseTeamId { get; set; }
         public Driver? Driver { get; set; }
@@ -33,6 +36,9 @@ namespace SimTECH.Data.EditModels
             SeasonTeamId = seasonDriver.SeasonTeamId;
             Driver = seasonDriver.Driver;
 
+            Points = seasonDriver.Points;
+            HiddenPoints = seasonDriver.HiddenPoints;
+
             _seasonDriver = seasonDriver;
         }
 
@@ -41,6 +47,8 @@ namespace SimTECH.Data.EditModels
             Id = default;
             SeasonId = default;
             SeasonTeamId = default;
+            Points = default;
+            HiddenPoints = default;
         }
 
         public void SetSeasonId(long seasonId) => SeasonId = seasonId;
@@ -56,6 +64,8 @@ namespace SimTECH.Data.EditModels
                 SeasonId = SeasonId,
                 DriverId = DriverId,
                 SeasonTeamId = SeasonTeamId,
+                Points = Points,
+                HiddenPoints = HiddenPoints,
             };
 
         public bool IsDirty => _seasonDriver != Record;
