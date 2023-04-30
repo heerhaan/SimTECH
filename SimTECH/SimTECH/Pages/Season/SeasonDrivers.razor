@@ -70,7 +70,7 @@
         var parameters = new DialogParameters
             {
                 ["SeasonId"] = Season.Id,
-                ["Drivers"] = DriverData,
+                ["Drivers"] = DriverData.Where(e => !SeasonDriverEntrants.Select(sd => sd.DriverId).Contains(e.Id)).ToList(),
                 ["SeasonTeams"] = TeamEntrants,
                 ["SeasonDriver"] = item,
             };
