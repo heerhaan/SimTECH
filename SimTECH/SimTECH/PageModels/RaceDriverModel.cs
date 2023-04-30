@@ -21,8 +21,7 @@ namespace SimTECH.PageModels
 
         public int Power { get; set; }
 
-        public int Gap { get; set; }
-        public double TimedGap(double marge) => Math.Round(Gap * marge, 2);
+        public double TimedGap(int gap, double marge) => Math.Round(gap * marge, 2);
     }
 
     public class RaceDriver : DriverBase

@@ -71,7 +71,7 @@ else
                     <MudText>@context.MaxScore</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText>+@(context.TimedGap(Model.GapMarge))</MudText>
+                    <MudText>+@(context.TimedGap((highestScore - context.MaxScore), Model.GapMarge))</MudText>
                 </MudTd>
             </RowTemplate>
         </MudTable>
@@ -109,7 +109,6 @@ else
 
         foreach (var driver in Model.PracticeDrivers.OrderByDescending(e => e.MaxScore))
         {
-            driver.Gap = highestScore - driver.MaxScore;
             driver.Position = ++positionIndex;
         }
 

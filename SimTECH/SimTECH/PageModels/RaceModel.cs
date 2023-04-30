@@ -43,6 +43,7 @@ namespace SimTECH.PageModels
                 Round = Round,
                 Name = Name,
                 Weather = Weather,
+                RaceLength = RaceLength,
                 State = State.Closed,
                 SeasonId = Season.Id,
                 TrackId = TrackId

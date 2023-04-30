@@ -20,7 +20,7 @@
 
                 <MudChip Color="Color.Dark" DisableRipple="true" Label="true">@(racedLaps) / @(totalLaps)</MudChip>
 
-                <MudButtonGroup Variant="Variant.Outlined">
+                <MudButtonGroup>
                     <ScreenshotButton TargetId="race-display" />
                     <MudButton StartIcon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" OnClick="ShowGraph">Chart</MudButton>
                     @if (!Model.IsFinished)
@@ -48,8 +48,7 @@
             <col style="width: 50px" />
             <col style="width: 50px" />
             <col style="width: 75px" />
-            <col style="width: 400px" />
-            <col style="width: 400px" />
+            <col style="width: 500px" />
         </ColGroup>
         <HeaderContent>
             <MudTh>#</MudTh>
@@ -62,7 +61,6 @@
             <MudTh>Score</MudTh>
             <MudTh>Status</MudTh>
             <MudTh>Progression</MudTh>
-            <MudTh>Gap</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
@@ -105,7 +103,7 @@
             <MudTd>
                 @if (context.Status == RaceStatus.Racing)
                 {
-                    <MudText>+@(context.TimedGap(Model.GapMarge))</MudText>
+                    <MudText>+@(context.TimedGap((highestScore - context.LapSum), Model.GapMarge))</MudText>
                 }
                 else
                 {
@@ -123,9 +121,6 @@
                     }
                 </div>
                 <MudProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLap * 10, Model.TrackLength))" Min="0" Max="@totalLaps" Size="Size.Medium" Color="Color.Primary" Class="my-2" />
-            </MudTd>
-            <MudTd>
-                <MudProgressLinear Value="@context.LapSum" Min="0" Max="@highestScore" Size="Size.Medium" Color="Color.Secondary" Class="my-2" />
             </MudTd>
         </RowTemplate>
         <FooterContent>
@@ -376,9 +371,6 @@
         foreach (var driver in racingDrivers)
         {
             driver.Position = ++position;
-
-            // Portrays the gap to the current race leader
-            driver.Gap = highestScore - driver.LapSum;
 
             if (newFastestLapHolder != null)
             {
