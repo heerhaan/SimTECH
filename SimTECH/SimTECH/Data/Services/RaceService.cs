@@ -460,6 +460,7 @@ namespace SimTECH.Data.Services
 
             var driverResults = await context.Result
                 .Where(e => e.RaceId == raceId && e.Status != RaceStatus.Dnq)
+                .Include(e => e.LapScores)
                 .ToListAsync();
 
             var drivers = await context.SeasonDriver
@@ -581,6 +582,8 @@ namespace SimTECH.Data.Services
                     RngMaxMod = sumTraits.MaxRNG + team.Manufacturer.Pace + weatherRng,
 
                     Position = driverResult.Position,
+
+                    LapScores = driverResult.LapScores?.ToList() ?? new(),
                 });
             }
 

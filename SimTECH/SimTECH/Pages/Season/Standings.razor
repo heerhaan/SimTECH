@@ -101,16 +101,16 @@ else
                         <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">@context.Number</MudTd>
                         <MudTd>@context.Team</MudTd>
                         <MudTd>@context.Points</MudTd>
-                        @for (int i = 0; i < Races.Count; i++)
+                        @foreach (var round in Races.OrderBy(e => e.Round))
                         {
-                            if (i < context.ResultCells.Count)
+                            var result = context.ResultCells.Find(e => e.Round == round.Round);
+                            if (result == null)
                             {
-                                var result = context.ResultCells[i];
-                                <MudTdResult Result="result" LowestScoringPosition="@lowestScoringPosition" />
+                                <MudTd Class="number-col">-</MudTd>
                             }
                             else
                             {
-                                <MudTd Class="number-col">-</MudTd>
+                                <MudTdResult Result="result" LowestScoringPosition="@lowestScoringPosition" />
                             }
                         }
                         <MudTd>@context.Average</MudTd>

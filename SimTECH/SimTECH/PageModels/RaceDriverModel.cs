@@ -50,11 +50,11 @@ namespace SimTECH.PageModels
 
         public bool HasFastestLap { get; set; }
 
-        public List<LapScore> LapResults { get; set; } = new();
+        public List<LapScore> LapScores { get; set; }
 
-        public int LapSum => LapResults.Sum(e => e.Score);
+        public int LapSum => LapScores.Sum(e => e.Score);
         public int GridChange => Grid - Position;
-        public int LastLap => LapResults.Any() ? LapResults.Max(e => e.Order) : 0;
+        public int LastLap => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
 
         public Result ToResult(long raceId)
         {

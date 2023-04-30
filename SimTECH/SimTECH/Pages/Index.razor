@@ -88,13 +88,15 @@
                             </MudTd>
                             <MudTd>@context.Name</MudTd>
                             <MudTd>
-                                <MudText Typo="Typo.body2">
-                                    <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
-                                    @context.WinningDriver.Name
+                                <MudStack Row="true">
+                                    <MudText Typo="Typo.body2">
+                                        <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
+                                        @context.WinningDriver.Name
+                                    </MudText>
                                     <MudChip Variant="Variant.Text" Size="Size.Small" Color="NextColour()" DisableRipple="true">
                                         @context.WinningDriver.Number
                                     </MudChip>
-                                </MudText>
+                                </MudStack>
                             </MudTd>
                             <MudTd Style="@ViewHelper.SetBorderLeftStyle(context.WinningTeam.Colour)">
                                 <MudText Typo="Typo.body2">
@@ -131,6 +133,7 @@
         });
 
         recentRaces = await RaceService.GetRecentlyFinishedCalendarRaces(raceAmount);
+        recentRaces.Reverse();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

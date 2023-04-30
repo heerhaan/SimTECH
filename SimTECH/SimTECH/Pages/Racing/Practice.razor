@@ -16,16 +16,20 @@ else
                     <CountryFlag Code="@Model.Country" />
                     @Model.Name - PRACTICE
                 </MudText>
+
                 <MudSpacer />
-                @if (advancedRuns == Model.AmountRuns)
-                {
-                    <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
-                }
-                else
-                {
-                    <MudButton Variant="Variant.Outlined" OnClick="Advance">Advance</MudButton>
-                }
-                <ScreenshotButton TargetId="practice-table" />
+
+                <MudButtonGroup Variant="Variant.Outlined">
+                    <ScreenshotButton TargetId="practice-table" />
+                    @if (advancedRuns == Model.AmountRuns)
+                    {
+                        <MudButton OnClick="Finish">Finish</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton OnClick="Advance">Advance</MudButton>
+                    }
+                </MudButtonGroup>
             </ToolBarContent>
             <HeaderContent>
                 <MudTh>#</MudTh>
@@ -43,31 +47,31 @@ else
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
-                    <MudText Typo="Typo.h6">@context.Position</MudText>
+                    <MudText>@context.Position</MudText>
                 </MudTd>
                 <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                    <MudText Typo="Typo.h6">@context.Number</MudText>
+                    <MudText>@context.Number</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText Typo="Typo.body1">@context.FullName</MudText>
+                    <MudText>@context.FullName</MudText>
                 </MudTd>
                 <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">
-                    <MudText Typo="Typo.body1">@context.TeamName</MudText>
+                    <MudText>@context.TeamName</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText Typo="Typo.h6">@context.Power</MudText>
+                    <MudText>@context.Power</MudText>
                 </MudTd>
                 @foreach (var runResult in context.RunValues)
                 {
                     <MudTd Class="number-col">
-                        <MudText Typo="Typo.h6">@runResult</MudText>
+                        <MudText>@runResult</MudText>
                     </MudTd>
                 }
                 <MudTd>
-                    <MudText Typo="Typo.h6">@context.MaxScore</MudText>
+                    <MudText>@context.MaxScore</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText Typo="Typo.h6">+@(context.TimedGap(Model.GapMarge))</MudText>
+                    <MudText>+@(context.TimedGap(Model.GapMarge))</MudText>
                 </MudTd>
             </RowTemplate>
         </MudTable>

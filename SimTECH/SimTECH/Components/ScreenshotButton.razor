@@ -1,39 +1,48 @@
 ﻿@inject IJSRuntime JS
 
 <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Image" Disabled="@disabled" OnClick="TakeScreenshot">
-    @buttonText
+    @if (disabled)
+    {
+        <span>Copied!</span>
+    }
+    else
+    {
+        <span>Copy</span>
+    }
 </MudButton>
 
 @code {
     [Parameter] public string TargetId { get; set; }
 
     private bool disabled = false;
-    private string buttonText = "Screenshot";
 
     async Task TakeScreenshot()
     {
+        disabled = true;
         await JS.InvokeVoidAsync("takeScreenshot", TargetId);
 
         // Notice how we don't await this bad boi? This runs the task while not halting the page
         // Doesnt change back so its cringe
         //ShowClicked();
-    }
 
-    async void ShowClicked()
-    {
-        buttonText = "Copied!";
-        disabled = true;
-
-        int secondsDelay = 3;
-
-        while (secondsDelay > 0)
-        {
-            secondsDelay--;
-            StateHasChanged();
-            await Task.Delay(100);
-        }
-
-        buttonText = "Screenshot";
+        await Task.Delay(2000);
         disabled = false;
+        StateHasChanged();
     }
+
+    //async void ShowClicked()
+    //{
+    //    disabled = true;
+
+    //    int secondsDelay = 3;
+
+    //    while (secondsDelay > 0)
+    //    {
+    //        secondsDelay--;
+    //        StateHasChanged();
+    //        await Task.Delay(100);
+    //    }
+
+    //    disabled = false;
+    //}
 }
