@@ -431,7 +431,6 @@
     MudDropContainer<EditSeasonDriverModel> _dropperDrivers;
     private bool _loading = false;
     private bool _disableNext = false;
-    private int _currentStep = 0;
     string? _feedbackValidation;
 
     protected override async Task OnInitializedAsync()
@@ -447,7 +446,6 @@
         manufacturers = await ManufacturerService.GetManufacturers();
 
         _loading = false;
-        _currentStep++;
     }
 
     private async Task<bool> StepValidator(StepChangeDirection direction)
@@ -455,20 +453,99 @@
         if (direction == StepChangeDirection.Backward)
             return false;
 
+        _loading = true;
+
         switch (_stepper.GetActiveIndex())
         {
-            case 0:
+            case 0: //Step: adding engines to season
                 {
                     if (Model.BaseEngines?.Any() == true)
-                        return false;
+                    {
+                        foreach (var engine in Model.BaseEngines)
+                        {
+                            // TODO: Retrieve stats from previous season engine
+                            Model.SeasonEngines.Add(new EditSeasonEngineModel()
+                                {
+                                    EngineId = engine.Id,
+                                    Name = engine.Name,
+                                    Reliability = 1000,
+                                    Power = 50,
+                                    SeasonId = Season.Id,
+                                });
+                        }
+                        break;
+                    }
                     else
                         return true;
                 }
-            case 1:
+            case 1: //Step: editing entered engines
                 return ValidateEngines();
+            case 2: //Step: adding teams to season
+                {
+                    if (Model.BaseTeams?.Any() == true)
+                    {
+                        foreach (var team in Model.BaseTeams)
+                        {
+                            // TODO: Retrieve stats from previous season team
+                            Model.SeasonTeams.Add(new EditSeasonTeamModel()
+                                {
+                                    TeamId = team.Id,
+                                    SeasonId = Season.Id,
+                                    Name = team.Name,
+                                    Principal = team.Name,
+                                    BaseValue = 100,
+                                    Aero = 20,
+                                    Chassis = 20,
+                                    Powertrain = 20,
+                                    Reliability = 1000,
+                                    Team = team,
+                                });
+                        }
+                        break;
+                    }
+                    else
+                        return true;
+                }
+            case 3: //Step: editing teams
+                break;
+            case 4: //Step: team assignment
+                RefreshTeamEngine();
+                break;
+            case 5: //Step: adding drivers
+                {
+                    if (Model.BaseDrivers?.Any() == true)
+                    {
+                        int indexer = 0;
+                        foreach (var driver in Model.BaseDrivers)
+                        {
+                            // TODO: Retrieve stats from previous season driver
+                            Model.SeasonDrivers.Add(new EditSeasonDriverModel()
+                                {
+                                    DriverId = driver.Id,
+                                    SeasonId = Season.Id,
+                                    Driver = driver,
+                                    Number = ++indexer,
+                                    Skill = 50,
+                                    Reliability = 1000,
+                                });
+                        }
+                        break;
+                    }
+                    else
+                        return true;
+                }
+            case 6: //Step: editing drivers
+                break;
+            case 7: //Step: driver assignment
+                RefreshDriverTeam();
+                break;
             default:
-                return false;
+                break;
         }
+
+        _loading = false;
+        StateHasChanged();
+        return false;
     }
 
     private bool ValidateEngines()
@@ -495,7 +572,8 @@
 
     private void TeamEngineDropped(MudItemDropInfo<EditSeasonTeamModel> dropItem)
     {
-        dropItem.Item.BaseEngineId = long.Parse(dropItem.DropzoneIdentifier);
+        if (dropItem.Item != null)
+            dropItem.Item.BaseEngineId = long.Parse(dropItem.DropzoneIdentifier);
     }
 
     private void RefreshTeamEngine()
@@ -509,7 +587,8 @@
 
     private void DriverTeamDropped(MudItemDropInfo<EditSeasonDriverModel> dropItem)
     {
-        dropItem.Item.BaseTeamId = long.Parse(dropItem.DropzoneIdentifier);
+        if (dropItem.Item != null)
+            dropItem.Item.BaseTeamId = long.Parse(dropItem.DropzoneIdentifier);
     }
 
     private void RefreshDriverTeam()
