@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject BreadcrumbProvider _bread
 @inject RaceService RaceService
 @inject ProtectedLocalStorage LocalStorage
 @inject NavigationManager Nav
@@ -11,8 +12,9 @@
         <MudItem xs="12" sm="6" md="4">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
                 <MudText Typo="Typo.overline">_config:</MudText>
-                <MudText Typo="Typo.body2">Dsq chance: @_config.Value.DisqualifyChance</MudText>
-                <MudText Typo="Typo.body2">Gap marge p/s: @_config.Value.GapMarge</MudText>
+                <MudText Typo="Typo.body2">Fatal odds: @_config.Value.FatalityChance</MudText>
+                <MudText Typo="Typo.body2">Dsq odds: @_config.Value.DisqualifyChance</MudText>
+                <MudText Typo="Typo.body2">Gap marge p/pt: @_config.Value.GapMarge</MudText>
                 <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
                 <MudText Typo="Typo.body2">Mistake rolls: @_config.Value.MistakeAmountRolls</MudText>
                 <MudText Typo="Typo.body2">Mistake min rng: @_config.Value.MistakeLowerValue</MudText>

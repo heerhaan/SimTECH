@@ -3,6 +3,7 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.PageModels
 {
+    // Clean this one up please, its so ugly
     public sealed class AddEntrantsModel
     {
         // Entrant data properties
