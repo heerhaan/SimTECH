@@ -2,7 +2,7 @@
 
 namespace SimTECH.Data.Models
 {
-    public record Driver
+    public sealed class Driver
     {
         public long Id { get; set; }
         public string FirstName { get; set; } = default!;

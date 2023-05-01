@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record Tyre
+    public sealed class Tyre
     {
         public long Id { get; set; }
         public string Name { get; set; } = default!;

@@ -56,6 +56,15 @@
 
                 <MudItem xs="12">
                     <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
+                        <MudStack Row="true">
+                            <MudText Typo="Typo.h6">Custom Icon Cycler</MudText>
+                            <MudSpacer />
+                            <MudButton OnClick="CycleCustomIcon">Cycle</MudButton>
+                        </MudStack>
+                        <MudIcon Icon="@activeCustomIcon" Color="Color.Primary" Size="Size.Large" />
+                        <MudIcon Icon="@activeCustomIcon" Color="Color.Secondary" Size="Size.Small" />
+                        <MudIcon Icon="@activeCustomIcon" Style="color:green" />
+                        <MudIcon Icon="@activeCustomIcon" />
                     </MudPaper>
                 </MudItem>
             </MudGrid>
@@ -120,10 +129,13 @@
 @code {
     List<FinishedRaceModel> recentRaces;
     Color[] cycleColours = (Color[])Enum.GetValues(typeof(Color));
-    string? exampleStore = "nothing stored yo";
-    string newExampleString = "this is a new example string for storage";
+    string? exampleStore;
+    string newExampleString = "Stored and retrieved from the local storage";
     int raceAmount = 5;
     int cycler = 0;
+    string[] customIcons = new[] { IconCollection.CarCrash, IconCollection.CrossFilled, IconCollection.Engine, IconCollection.Helmet, IconCollection.Skull, IconCollection.SteeringWheel, IconCollection.TrafficCone, };
+    int iconCycler = 0;
+    string activeCustomIcon = IconCollection.CarCrash;
 
     protected override async Task OnInitializedAsync()
     {
@@ -139,7 +151,8 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var storedExample = await LocalStorage.GetAsync<string>("example");
-        exampleStore = storedExample.Success ? storedExample.Value : "yikes, really nothing stored yo";
+        if (storedExample.Success)
+            exampleStore = storedExample.Value;
     }
 
     Color NextColour()
@@ -148,6 +161,14 @@
         cycler %= cycleColours.Length;
 
         return cycleColours[cycler];
+    }
+
+    void CycleCustomIcon()
+    {
+        iconCycler++;
+        iconCycler %= customIcons.Length;
+
+        activeCustomIcon = customIcons[iconCycler];
     }
 
     private async Task SetExample()

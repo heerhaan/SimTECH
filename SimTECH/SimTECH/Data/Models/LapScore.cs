@@ -2,7 +2,7 @@
 
 namespace SimTECH.Data.Models
 {
-    public class LapScore
+    public sealed class LapScore
     {
         public long Id { get; set; }
         public int Order { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record TrackTrait
+    public class TrackTrait
     {
         public long TraitId { get; set; }
         public Trait Trait { get; set; } = default!;
