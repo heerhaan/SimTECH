@@ -26,8 +26,6 @@ namespace SimTECH.Data.Services
 
         public async Task UpdateTrack(Track track)
         {
-            ValidateTrack(track);
-
             using var context = _dbFactory.CreateDbContext();
 
             if (track.Id == 0)
@@ -69,15 +67,5 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
-
-        #region validation
-
-        private static void ValidateTrack(Track track)
-        {
-            if (track == null)
-                throw new NullReferenceException("Track is very null here, yes");
-        }
-
-        #endregion
     }
 }

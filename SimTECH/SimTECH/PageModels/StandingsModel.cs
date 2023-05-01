@@ -55,7 +55,7 @@
                 RaceStatus.Dnq => "DNQ",
                 RaceStatus.Dsq => "DSQ",
                 RaceStatus.Dnf => "DNF",
-                RaceStatus.Fatal => "FATAL",
+                RaceStatus.Fatal => "RIP",
                 _ => Position.ToString(),
             };
         }

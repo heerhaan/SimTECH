@@ -12,7 +12,7 @@
     <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" id="race-display">
         <ToolBarContent>
             <MudStack Row="true" Justify="Justify.SpaceBetween" Style="width:100%">
-                <MudText>
+                <MudText Typo="Typo.h6">
                     <CountryFlag Code="@Model.Country" />
                     @Model.Name - ROUND @Model.Round
                     <MudIcon Icon="@(Model.Weather.GetWeatherIcon())" />
@@ -41,6 +41,7 @@
         <ColGroup>
             <col style="width: 15px" />
             <col style="width: 40px" />
+            <col style="width: 5px" />
             <col style="width: 220px" />
             <col style="width: 30px" />
             <col style="width: 220px" />
@@ -53,6 +54,7 @@
         <HeaderContent>
             <MudTh>#</MudTh>
             <MudTh>Grid</MudTh>
+            <MudTh></MudTh>
             <MudTh>Name</MudTh>
             <MudTh>No</MudTh>
             <MudTh>Team</MudTh>
@@ -64,10 +66,13 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
-                <MudText>@context.Position</MudText>
+                <MudText Typo="Typo.caption">@context.Position</MudText>
             </MudTd>
             <MudTd>
                 <GridChange Change="@context.GridChange" />
+            </MudTd>
+            <MudTd>
+                <span class="smol-bloke"></span>
             </MudTd>
             <MudTd Class="overflow-hider">
                 <MudStack Row="true">
@@ -84,13 +89,13 @@
                 </MudStack>
             </MudTd>
             <MudTd Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                <MudText>@context.Number</MudText>
+                <MudText Typo="Typo.caption">@context.Number</MudText>
             </MudTd>
             <MudTd Class="overflow-hider" Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
                 <MudText>@context.TeamName</MudText>
             </MudTd>
             <MudTd>
-                <MudText>@context.Power</MudText>
+                <MudText Typo="Typo.caption">@context.Power</MudText>
             </MudTd>
             <MudTd>
                 <span class="tyre" style="border-color:@(context.CurrentTyre.Colour)">
@@ -98,7 +103,7 @@
                 </span>
             </MudTd>
             <MudTd>
-                <MudText>@context.LapSum</MudText>
+                <MudText Typo="Typo.caption">@context.LapSum</MudText>
             </MudTd>
             <MudTd>
                 @if (context.Status == RaceStatus.Racing)

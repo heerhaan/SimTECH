@@ -193,7 +193,7 @@ namespace SimTECH.Data.Services
                     .ThenInclude(e => e.SeasonDrivers)
                 .ToListAsync();
 
-            var editModels = rootEngines.Select(e => new EditSeasonEngineModel(e)).ToList();
+            var editModels = rootEngines.ConvertAll(e => new EditSeasonEngineModel(e));
 
             foreach (var editModel in editModels)
             {
@@ -201,7 +201,7 @@ namespace SimTECH.Data.Services
                 editModel.SetSeasonIdForAll(seasonId);
             }
 
-            var rootEntrants = editModels.Select(e => e.Record).ToList();
+            var rootEntrants = editModels.ConvertAll(e => e.Record);
 
             context.AddRange(rootEntrants);
 

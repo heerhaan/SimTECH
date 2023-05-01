@@ -1,5 +1,4 @@
 ﻿using SimTECH.Data.Models;
-using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.EditModels
 {
@@ -12,9 +11,9 @@ namespace SimTECH.Data.EditModels
         public int Skill { get; set; }
         public int Reliability { get; set; }
         public TeamRole TeamRole { get; set; }
+        public long? SeasonTeamId { get; set; }
         public long SeasonId { get; set; }
         public long DriverId { get; set; }
-        public long? SeasonTeamId { get; set; }
 
         private int Points { get; set; }
         private int HiddenPoints { get; set; }

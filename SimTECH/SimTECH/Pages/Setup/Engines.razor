@@ -27,6 +27,33 @@
             </MudTd>
         </RowTemplate>
     </MudTable>
+    <MudDataGrid T="Engine" Items="@EngineNames" Bordered="true" Class="my-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Engines</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddEngine">New</MudButton>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.State" />
+            <TemplateColumn T="Engine">
+                <CellTemplate>
+                    <MudButtonGroup Size="@Size.Small">
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context.Item))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteEngine(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <ChildRowContent>
+            <MudPaper>
+                <MudText>@context.Item.Name</MudText>
+            </MudPaper>
+        </ChildRowContent>
+        <PagerContent>
+            <MudDataGridPager T="Engine" />
+        </PagerContent>
+    </MudDataGrid>
 </MudContainer>
 
 @code {

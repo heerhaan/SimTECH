@@ -1,4 +1,5 @@
 ﻿using SimTECH.Data.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace SimTECH.Data.EditModels
 {
@@ -16,9 +17,9 @@ namespace SimTECH.Data.EditModels
         public int Chassis { get; set; }
         public int Powertrain { get; set; }
         public int Reliability { get; set; }
+        public long SeasonEngineId { get; set; }
         public long TeamId { get; set; }
         public long SeasonId { get; set; }
-        public long SeasonEngineId { get; set; }
         public long ManufacturerId { get; set; }
 
         private int Points { get; set; }
