@@ -1,23 +1,41 @@
-﻿@inject BreadcrumbProvider Bread
+﻿@inject BreadcrumbProvider _bread
+@inject NavigationManager _nav
 @implements IDisposable
 
-@*
-    Navigation provider for breadcrumbs (https://stackoverflow.com/questions/64473844/how-can-i-modify-the-layout-from-a-blazor-page)
-*@
-
-@if (Bread.Visible)
+@if (breadcrumbItems.Any())
 {
-    <MudBreadcrumbs Items="Bread.Breadcrumbs" />
+    <MudBreadcrumbs Items="_bread.Breadcrumbs" />
 }
 
 @code {
+    private List<BreadcrumbItem> breadcrumbItems { get; set; } = new();
+
     protected override void OnInitialized()
     {
-        Bread.OnChange += StateHasChanged;
+        _bread.OnChange += StateHasChanged;
     }
 
     public void Dispose()
     {
-        Bread.OnChange -= StateHasChanged;
+        _bread.OnChange -= StateHasChanged;
     }
+
+    /* Alt solution: determine from page uri
+     * var breadCrumbs = new List<BreadcrumbItem>()
+            {
+            new BreadcrumbItem("Home", href: ""),
+        };
+
+        var path = _nav.Uri.Substring(_nav.BaseUri.Length);
+        if (path.Contains("/"))
+            {
+            var pages = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
+            if (pages?.Any() == true)
+                {
+                foreach (var page in pages)
+                {
+
+            }
+        }
+    }*/
 }

@@ -1,6 +1,5 @@
 ﻿@page "/"
 @inject RaceService RaceService
-@inject BreadcrumbProvider _bread
 @inject ProtectedLocalStorage LocalStorage
 @inject NavigationManager Nav
 @inject IOptions<SimConfig> _config
@@ -128,20 +127,20 @@
 
 @code {
     List<FinishedRaceModel> recentRaces;
-    Color[] cycleColours = (Color[])Enum.GetValues(typeof(Color));
-    string? exampleStore;
-    string newExampleString = "Stored and retrieved from the local storage";
     int raceAmount = 5;
+    Color[] cycleColours = (Color[])Enum.GetValues(typeof(Color));
     int cycler = 0;
+    string activeCustomIcon = IconCollection.BrandToyota;
     string[] customIcons = IconCollection.ArrayOfIcons;
     int iconCycler = 0;
-    string activeCustomIcon = IconCollection.BrandToyota;
+    string? exampleStore;
+    string newExampleString = "Stored and retrieved from the local storage";
 
     protected override async Task OnInitializedAsync()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
-            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Home", href: "/"),
         });
 
         recentRaces = await RaceService.GetRecentlyFinishedCalendarRaces(raceAmount);
@@ -174,10 +173,5 @@
     private async Task SetExample()
     {
         await LocalStorage.SetAsync("example", newExampleString);
-    }
-
-    private void NavigateHome()
-    {
-        Nav.NavigateTo("/drivers");
     }
 }

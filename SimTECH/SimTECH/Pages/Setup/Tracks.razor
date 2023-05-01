@@ -37,6 +37,7 @@
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrack(context.Item))" />
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteTrack(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -46,9 +47,9 @@
 
 @code {
     List<Track> TrackData = new();
-    
+
     bool _readOnly = false;
-    
+
     protected override async Task OnInitializedAsync()
     {
         TrackData = await TrackService.GetTracks();
@@ -73,5 +74,9 @@
         }
     }
 
-    //async Task DeleteTrack() => await TrackService.De
+    async Task DeleteTrack(Track track)
+    {
+        await TrackService.DeleteTrack(track);
+        TrackData = await TrackService.GetTracks();
+    }
 }

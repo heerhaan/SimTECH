@@ -53,6 +53,23 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task DeleteTrack(Track track)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            if (context.Race.Any(e => e.TrackId == track.Id))
+            {
+                track.State = State.Archived;
+                context.Update(track);
+            }
+            else
+            {
+                context.Remove(track);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
         #region validation
 
         private static void ValidateTrack(Track track)
