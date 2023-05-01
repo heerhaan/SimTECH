@@ -3,8 +3,38 @@
     // Small = 24px
     public static class IconCollection
     {
+        public static string[] ArrayOfIcons => new[]
+        {
+            BrandCupra, BrandMercedes, BrandToyota, BrandVolkswagen,
+            CarCrash, CrossFilled, Engine, Helmet, Skull, SteeringWheel, TrafficCone
+        };
+
         // A
         // B
+        public static string BrandCupra => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-brand-cupra"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M4.5 10l-2.5 -4l15.298 6.909a.2 .2 0 0 1 .09 .283l-3.388 5.808""></path>
+           <path d=""M10 19l-3.388 -5.808a.2 .2 0 0 1 .09 -.283l15.298 -6.909l-2.5 4""></path>
+        </svg>";
+        public static string BrandMercedes => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-brand-mercedes"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0""></path>
+           <path d=""M12 3v9""></path>
+           <path d=""M12 12l7 5""></path>
+           <path d=""M12 12l-7 5""></path>
+        </svg>";
+        public static string BrandToyota => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-brand-toyota"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M12 12m-10 0a10 7 0 1 0 20 0a10 7 0 1 0 -20 0""></path>
+           <path d=""M9 12c0 3.866 1.343 7 3 7s3 -3.134 3 -7s-1.343 -7 -3 -7s-3 3.134 -3 7z""></path>
+           <path d=""M6.415 6.191c-.888 .503 -1.415 1.13 -1.415 1.809c0 1.657 3.134 3 7 3s7 -1.343 7 -3c0 -.678 -.525 -1.304 -1.41 -1.806""></path>
+        </svg>";
+        public static string BrandVolkswagen => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-brand-volkswagen"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M12 21a9 9 0 0 0 9 -9a9 9 0 0 0 -9 -9a9 9 0 0 0 -9 9a9 9 0 0 0 9 9z""></path>
+           <path d=""M5 7l4.5 11l1.5 -5h2l1.5 5l4.5 -11""></path>
+           <path d=""M9 4l2 6h2l2 -6""></path>
+        </svg>";
         // C
         public static string CarCrash => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-car-crash"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
@@ -28,6 +58,15 @@
            <path d=""M10 5h4""></path>
            <path d=""M5 13h-2""></path>
            <path d=""M6 10h2l2 -2h3.382a1 1 0 0 1 .894 .553l1.448 2.894a1 1 0 0 0 .894 .553h1.382v-2h2a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-2v-2h-3v2a1 1 0 0 1 -1 1h-3.465a1 1 0 0 1 -.832 -.445l-1.703 -2.555h-2v-6z""></path>
+        </svg>";
+        public static string EngineOff => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-engine-off"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M3 10v6""></path>
+           <path d=""M12 5v3""></path>
+           <path d=""M10 5h4""></path>
+           <path d=""M5 13h-2""></path>
+           <path d=""M16 16h-1v2a1 1 0 0 1 -1 1h-3.465a1 1 0 0 1 -.832 -.445l-1.703 -2.555h-2v-6h2l.99 -.99m3.01 -1.01h1.382a1 1 0 0 1 .894 .553l1.448 2.894a1 1 0 0 0 .894 .553h1.382v-2h2a1 1 0 0 1 1 1v6""></path>
+           <path d=""M3 3l18 18""></path>
         </svg>";
         // F
         // G
