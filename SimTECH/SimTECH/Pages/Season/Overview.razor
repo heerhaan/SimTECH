@@ -78,8 +78,6 @@
                             <MudText Typo="Typo.h6">Season statistics</MudText>
                             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small">
                                 <MudButton>Qualy battles</MudButton>
-                                <MudButton>Additional button</MudButton>
-                                <MudButton>Additional button</MudButton>
                             </MudButtonGroup>
                         </MudPaper>
                     </MudItem>
@@ -152,7 +150,7 @@
 
                     <MudItem xs="4">
                         <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-                            <MudText Typo="Typo.subtitle1">Points per position</MudText>
+                            <MudText Typo="Typo.subtitle2">Points per position</MudText>
                             @if (Season.PointAllotments != null)
                             {
                                 <MudSimpleTable Dense="true">
@@ -166,8 +164,8 @@
                                         @foreach (var allotment in Season.PointAllotments)
                                         {
                                             <tr>
-                                                <td>@allotment.Position</td>
-                                                <td>@allotment.Points</td>
+                                                <td class="font-caption">@allotment.Position</td>
+                                                <td class="font-caption">@allotment.Points</td>
                                             </tr>
                                         }
                                     </tbody>

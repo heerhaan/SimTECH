@@ -2,20 +2,23 @@
 @inject RaceService RaceService
 @inject IDialogService _dialog
 
-@if (loading)
-{
-    <MudAlert Severity="Severity.Warning">Eyo this bad boi is loading, here it comes!</MudAlert>
-}
-else
+@if (!loading)
 {
     <MudTabs Outlined="true" Centered="true">
         <MudTabPanel Text="Standings">
             <MudGrid Spacing="4">
+                <MudItem xs="12">
+                    <MudPaper Height="200px">
+                        <MudStack Row="true" Justify="Justify.Center">
+                            <MudText Typo="Typo.h5">Season standings</MudText>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
                 <MudItem xs="6">
                     <MudPaper Elevation="15" Class="pa-4 mud-height-full">
                         <MudTable Items="@DriverResultsModel" Dense="true">
                             <ToolBarContent>
-                                <MudText Typo="Typo.h5">Drivers</MudText>
+                                <MudText Typo="Typo.h6">Drivers</MudText>
                             </ToolBarContent>
                             <HeaderContent>
                                 <MudTh Class="number-col">#</MudTh>
@@ -45,7 +48,7 @@ else
                     <MudPaper Elevation="15" Class="pa-4 mud-height-full">
                         <MudTable Items="@TeamResultsModel" Dense="true">
                             <ToolBarContent>
-                                <MudText Typo="Typo.h5">Teams</MudText>
+                                <MudText Typo="Typo.h6">Constructors</MudText>
                             </ToolBarContent>
                             <HeaderContent>
                                 <MudTh Class="number-col">#</MudTh>
@@ -55,14 +58,21 @@ else
                             </HeaderContent>
                             <RowTemplate>
                                 <MudTd DataLabel="#" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))" Class="number-col">
-                                    @context.Position
+                                    <MudText Typo="Typo.caption">@context.Position</MudText>
                                 </MudTd>
-                                <MudTd>@context.Principal</MudTd>
+                                <MudTd>
+                                    <MudText>@context.Principal</MudText>
+                                </MudTd>
                                 <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
-                                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
-                                    @context.Name
+                                    <MudStack Row="true" Spacing="1" Class="align-center">
+                                        <MudText Typo="Typo.body1">@context.Name</MudText>
+                                        <MudSpacer />
+                                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                                    </MudStack>
                                 </MudTd>
-                                <MudTd>@context.Points</MudTd>
+                                <MudTd>
+                                    <MudText Typo="Typo.caption">@context.Points</MudText>
+                                </MudTd>
                             </RowTemplate>
                         </MudTable>
                     </MudPaper>
@@ -75,9 +85,15 @@ else
                 <MudTable Items="@DriverResultsModel" id="wdc-season-results">
                     <ToolBarContent>
                         <MudText Typo="Typo.h4">WDC results</MudText>
+                        <MudSpacer />
+                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                            <ScreenshotButton TargetId="wdc-season-results" />
+                            <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" />
+                        </MudButtonGroup>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh Class="number-col">#</MudTh>
+                        <MudTh Class="pa-0"></MudTh>
                         <MudTh>Driver</MudTh>
                         <MudTh Class="number-col">No.</MudTh>
                         <MudTh>Team</MudTh>
@@ -92,15 +108,27 @@ else
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd Class="number-col" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
-                            @context.Position
+                            <MudText Typo="Typo.caption">@context.Position</MudText>
+                        </MudTd>
+                        <MudTd Class="pa-0">
+                            <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
                         </MudTd>
                         <MudTd>
-                            <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
-                            @context.Name
+                            <MudStack Row="true" Spacing="1" Class="align-center">
+                                <MudText Typo="Typo.body1">@context.Name</MudText>
+                                <MudSpacer />
+                                <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                            </MudStack>
                         </MudTd>
-                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">@context.Number</MudTd>
-                        <MudTd>@context.Team</MudTd>
-                        <MudTd>@context.Points</MudTd>
+                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                            <MudText Typo="Typo.caption">@context.Number</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@context.Team</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText Typo="Typo.caption">@context.Points</MudText>
+                        </MudTd>
                         @foreach (var round in Races.OrderBy(e => e.Round))
                         {
                             var result = context.ResultCells.Find(e => e.Round == round.Round);
@@ -113,16 +141,10 @@ else
                                 <MudTdResult Result="result" LowestScoringPosition="@lowestScoringPosition" />
                             }
                         }
-                        <MudTd>@context.Average</MudTd>
-                    </RowTemplate>
-                    <FooterContent>
-                        <MudTd colspan="20">
-                            <MudStack Row="true" Justify="Justify.SpaceBetween">
-                                <ScreenshotButton TargetId="wdc-season-results" />
-                                <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowWdcResultGraph" />
-                            </MudStack>
+                        <MudTd>
+                            <MudText Typo="Typo.caption">@context.Average</MudText>
                         </MudTd>
-                    </FooterContent>
+                    </RowTemplate>
                 </MudTable>
             </MudPaper>
         </MudTabPanel>
@@ -151,13 +173,22 @@ else
                     <MudTh>AVG</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd Class="number-col" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">@context.Position</MudTd>
-                    <MudTd>@context.Principal</MudTd>
-                    <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
-                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
-                        @context.Name
+                    <MudTd Class="number-col" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
+                        <MudText Typo="Typo.caption">@context.Position</MudText>
                     </MudTd>
-                    <MudTd>@context.Points</MudTd>
+                    <MudTd>
+                        <MudText Typo="Typo.body1">@context.Principal</MudText>
+                    </MudTd>
+                    <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
+                        <MudStack Row="true" Spacing="1" Class="align-center">
+                            <MudText Typo="Typo.body1">@context.Name</MudText>
+                            <MudSpacer />
+                            <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                        </MudStack>
+                    </MudTd>
+                    <MudTd>
+                        <MudText Typo="Typo.caption">@context.Points</MudText>
+                    </MudTd>
                     @foreach (var round in Races.OrderBy(e => e.Round))
                     {
                         var teamResults = context.ResultCells.Where(e => e.Round == round.Round).ToList();
@@ -179,7 +210,9 @@ else
                             <MudTd>-</MudTd>
                         }
                     }
-                    <MudTd>@context.Average</MudTd>
+                    <MudTd>
+                        <MudText Typo="Typo.caption">@context.Average</MudText>
+                    </MudTd>
                 </RowTemplate>
             </MudTable>
         </MudTabPanel>
@@ -230,13 +263,13 @@ else
     {
         var parameters = new DialogParameters { ["Drivers"] = DriverResultsModel, ["Season"] = Season };
         // _ = await DialogService.ShowAsync<DriverCompareStat>("Compare drivers", dialogOptions);
-        _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters);
+        _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters, Constants.DefaultChartDialogSettings);
     }
 
     async Task ShowWccResultGraph()
     {
         var parameters = new DialogParameters { ["Teams"] = TeamResultsModel, ["Season"] = Season };
-        _ = await _dialog.ShowAsync<WccResultChart>("WCC results chart", parameters);
+        _ = await _dialog.ShowAsync<WccResultChart>("WCC results chart", parameters, Constants.DefaultChartDialogSettings);
     }
 
     private string GetResultStyle(StandingResultCell cell)

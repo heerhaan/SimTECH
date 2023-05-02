@@ -11,18 +11,19 @@
 
             <MudSpacer />
 
-            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="RunDevelop">Run</MudButton>
-            
-            @if (_ranDevelop)
-            {
-                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="SaveDevelopment">Save</MudButton>
-            }
+            <MudButtonGroup Variant="Variant.Filled">
+                @if (_ranDevelop)
+                {
+                    <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="SaveDevelopment">Save</MudButton>
+                }
+                <MudButton StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="RunDevelop">Run</MudButton>
+            </MudButtonGroup>
         </MudStack>
         <MudTable Items="@DevelopedEntrants" Dense="true">
             <ToolBarContent>
                 <div class="mx-1 my-auto">
                     <MudTooltip Text="For whom the development is run">
-                        <MudText Typo="Typo.overline">Entrant</MudText>
+                        <MudText Typo="Typo.subtitle1">Entrant</MudText>
                     </MudTooltip>
                     <MudChipSet SelectedChipChanged="EntrantChipChanged" Mandatory="true">
                         <MudChip Color="Color.Primary" Value="Entrant.Driver" Default="true">Driver</MudChip>
@@ -33,7 +34,7 @@
                 
                 <div class="pa-1 mx-1">
                     <MudTooltip Text="How the development ranges are determined">
-                        <MudText Typo="Typo.overline">Type</MudText>
+                        <MudText Typo="Typo.subtitle1">Type</MudText>
                     </MudTooltip>
                     <MudChipSet SelectedChipChanged="TypeChipChanged" Mandatory="true">
                         <MudChip Color="Color.Secondary" Value="TypeDevelop.Range" Default="true">Range</MudChip>
@@ -44,7 +45,7 @@
 
                 <div class="pa-1 mx-1">
                     <MudTooltip Text="Which aspect is going to be developed">
-                        <MudText Typo="Typo.overline">Target</MudText>
+                        <MudText Typo="Typo.subtitle1">Target</MudText>
                     </MudTooltip>
                     <MudChipSet SelectedChipChanged="TargetChipChanged" Mandatory="true">
                         <MudChip Color="Color.Tertiary" Value="TargetDevelop.Main" Default="true">@_mainTypeName</MudChip>
@@ -73,19 +74,30 @@
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
-                    @if (context.Nationality.HasValue)
-                    {
-                        <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Tiny" />
-                    }
-                    @context.Name
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                        <MudText>@context.Name</MudText>
+                        <MudSpacer />
+                        @if (context.Nationality.HasValue)
+                        {
+                            <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Tiny" />
+                        }
+                    </MudStack>
                 </MudTd>
                 @if (_optionalColTitle != null)
                 {
-                    <MudTd>@(context.Optional.HasValue ? context.Optional.Value : "?")</MudTd>
+                    <MudTd>
+                        <MudText Typo="Typo.caption">@(context.Optional.HasValue ? context.Optional.Value : "?")</MudText>
+                    </MudTd>
                 }
-                <MudTd>@context.Old</MudTd>
-                <MudTd>@context.Change</MudTd>
-                <MudTd>@context.New</MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.caption">@context.Old</MudText>
+                </MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.caption">@context.Change</MudText>
+                </MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.caption">@context.New</MudText>
+                </MudTd>
                 <MudTd>
                     <MudStack Row="true">
                         <MudNumericField T="int" @bind-Value="context.Min" Label="Min" ReadOnly="_selectedType != TypeDevelop.Direct" Class="field-sm" />

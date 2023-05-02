@@ -31,20 +31,20 @@
         <col />
     </ColGroup>
     <HeaderContent>
-        <MudTh>Round</MudTh>
+        <MudTh Class="pa-0">Round</MudTh>
         <MudTh>Country</MudTh>
         <MudTh>Name</MudTh>
         <MudTh>Weather</MudTh>
-        <MudTh></MudTh>
+        <MudTh Class="pa-0"></MudTh>
         <MudTh>Pole</MudTh>
-        <MudTh></MudTh>
+        <MudTh Class="pa-0"></MudTh>
         <MudTh>Winning driver</MudTh>
         <MudTh>Winning team</MudTh>
         <MudTh>Status</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd>@context.Round</MudTd>
+        <MudTd Class="pa-0">@context.Round</MudTd>
         <MudTd>
             <CountryFlag Code="context.Country" Size="FlagSize.Normal" IncludeName="true" />
         </MudTd>
@@ -52,7 +52,7 @@
         <MudTd>@context.Weather</MudTd>
         @if (context.PoleSitter != null)
         {
-            <MudTd Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
+            <MudTd Class="pa-0" Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
                 <span>@(context.PoleSitter.Number)</span>
             </MudTd>
             <MudTd>
@@ -62,13 +62,13 @@
         }
         else
         {
-            <MudTd></MudTd>
+            <MudTd Class="pa-0"></MudTd>
             <MudTd></MudTd>
         }
 
         @if (context.DriverWinner != null)
         {
-            <MudTd Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
+            <MudTd Class="pa-0" Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
                 <span>@(context.DriverWinner.Number)</span>
             </MudTd>
             <MudTd>
@@ -78,9 +78,10 @@
         }
         else
         {
-            <MudTd></MudTd>
+            <MudTd Class="pa-0"></MudTd>
             <MudTd></MudTd>
         }
+
         @if (context.TeamWinner != null)
         {
             <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.TeamWinner.Colour))">

@@ -9,11 +9,12 @@
         <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterEngine">New</MudButton>
     </ToolBarContent>
     <Columns>
+        <HierarchyColumn T="SeasonEngine" />
         <PropertyColumn Property="e => e.Name" />
         <PropertyColumn Property="e => e.Power" />
         <PropertyColumn Property="e => e.Reliability" />
         <PropertyColumn Property="e => e.Rebadged" />
-        <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
+        <TemplateColumn Sortable="false">
             <CellTemplate>
                 <MudButtonGroup>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context.Item))" />

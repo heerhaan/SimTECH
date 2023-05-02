@@ -21,19 +21,25 @@
                 <PropertyColumn Property="e => e.DriverNumber" Title="No." />
                 <TemplateColumn Title="Leading driver">
                     <CellTemplate>
-                        <CountryFlag Code="context.Item.DriverNationality" Size="FlagSize.Small" />
-                        <span>@context.Item.DriverName</span>
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudText>@context.Item.DriverName</MudText>
+                            <MudSpacer />
+                            <CountryFlag Code="context.Item.DriverNationality" Size="FlagSize.Small" />
+                        </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
                 <TemplateColumn Title="Leading team" CellStyleFunc="@LeadingTeamStyleFunc" >
                     <CellTemplate>
-                        <CountryFlag Code="context.Item.TeamNationality" Size="FlagSize.Small" />
-                        <span>@context.Item.TeamName</span>
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudText>@context.Item.TeamName</MudText>
+                            <MudSpacer />
+                            <CountryFlag Code="context.Item.TeamNationality" Size="FlagSize.Small" />
+                        </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
                 <PropertyColumn Property="e => e.League" />
                 <PropertyColumn Property="e => e.State" />
-                <TemplateColumn CellClass="d-flex justify end">
+                <TemplateColumn T="SeasonListModel">
                     <CellTemplate>
                         <MudButtonGroup Size="@Size.Small">
                             <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />

@@ -10,6 +10,7 @@
         <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterTeam">New</MudButton>
     </ToolBarContent>
     <Columns>
+        <HierarchyColumn T="SeasonTeam" />
         <PropertyColumn Property="e => e.Name" CellStyleFunc="@ViewHelper.TeamBorderRightStyleFunc" />
         <TemplateColumn T="SeasonTeam" SortBy="e => e.Team.Country" Title="Country">
             <CellTemplate>
@@ -23,29 +24,29 @@
                 }
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="e => e.Principal" />
-        <PropertyColumn Property="e => e.BaseValue" />
+        <PropertyColumn Property="e => e.Principal" CellClass="font-subtitle2" />
+        <PropertyColumn Property="e => e.BaseValue" CellClass="font-caption" />
         <TemplateColumn T="SeasonTeam" Title="A/C/P" Sortable="false">
             <CellTemplate>
-                <MudText>@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
+                <MudText Typo="Typo.caption">@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="e => e.Reliability" />
+        <PropertyColumn Property="e => e.Reliability" CellClass="font-caption" />
         <TemplateColumn T="SeasonTeam" SortBy="e => e.SeasonEngine.Name" Title="Engine">
             <CellTemplate>
                 <MudText>
-                    @(SeasonEngineData.Find(e => e.Id == context.Item.SeasonEngineId)?.Name ?? "[error: wtf where engine?]")
+                    @(SeasonEngineData.Find(e => e.Id == context.Item.SeasonEngineId)?.Name ?? "WTF WHERE ENGINE?")
                 </MudText>
             </CellTemplate>
         </TemplateColumn>
         <TemplateColumn T="SeasonTeam" SortBy="e => e.Manufacturer.Name" Title="Manufacturer">
             <CellTemplate>
                 <MudText>
-                    @(ManufacturerData.Find(e => e.Id == context.Item.ManufacturerId)?.Name ?? "[error: wtf where manufacturer?]")
+                    @(ManufacturerData.Find(e => e.Id == context.Item.ManufacturerId)?.Name ?? "WTF WHERE TYRE?")
                 </MudText>
             </CellTemplate>
         </TemplateColumn>
-        <TemplateColumn T="SeasonTeam" Sortable="false" CellClass="d-flex justify-end">
+        <TemplateColumn T="SeasonTeam" Sortable="false">
             <CellTemplate>
                 <MudButtonGroup>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeamEntrant(context.Item))" />

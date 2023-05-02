@@ -16,7 +16,7 @@
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>Name</MudTh>
-                            <MudTh Class="number-col">No</MudTh>
+                            <MudTh Class="pa-0">No</MudTh>
                             <MudTh>Accidents</MudTh>
                             <MudTh>Collisions</MudTh>
                             <MudTh>Engines</MudTh>
@@ -26,17 +26,33 @@
                             <MudTh>DSQ</MudTh>
                         </HeaderContent>
                         <RowTemplate>
-                            <MudTd>@context.Name</MudTd>
-                            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                                @context.Number
+                            <MudTd>
+                                <MudText>@context.Name</MudText>
                             </MudTd>
-                            <MudTd>@context.Accidents</MudTd>
-                            <MudTd>@context.Collisions</MudTd>
-                            <MudTd>@context.Engines</MudTd>
-                            <MudTd>@context.Electrics</MudTd>
-                            <MudTd>@context.Hydraulics</MudTd>
-                            <MudTd>@context.TotalDnf</MudTd>
-                            <MudTd>@context.TotalDsq</MudTd>
+                            <MudTd Class="pa-0" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                                <MudText Typo="Typo.caption">@context.Number</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@context.Accidents</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@context.Collisions</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@context.Engines</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@context.Electrics</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@context.Hydraulics</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@context.TotalDnf</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@context.TotalDsq</MudText>
+                            </MudTd>
                         </RowTemplate>
                         <FooterContent>
                             <MudTd>LIMIT</MudTd>
@@ -60,9 +76,11 @@
                             @foreach (var penalty in driver.GivenPenalties)
                             {
                                 <MudListItem>
-                                    <MudText Typo="Typo.body2">Round @penalty.Round</MudText>
-                                    <MudText>@driver.Name</MudText>
-                                    <MudText>+@(penalty.Punishment)</MudText>
+                                    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                                        <MudText Typo="Typo.body2">Round @penalty.Round</MudText>
+                                        <MudText>@driver.Name</MudText>
+                                        <MudText>+@(penalty.Punishment)</MudText>
+                                    </MudStack>
                                 </MudListItem>
                             }
                         }
