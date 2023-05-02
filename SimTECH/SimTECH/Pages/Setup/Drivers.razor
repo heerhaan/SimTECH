@@ -11,8 +11,10 @@
         <ToolBarContent>
             <MudText Typo="Typo.h4">Drivers</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="GoToHumanGenerator">Generate</MudButton>
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddDriver">New</MudButton>
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="GoToHumanGenerator">Generate</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddDriver">New</MudButton>
+            </MudButtonGroup>
         </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Driver" />
@@ -24,6 +26,7 @@
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
             </TemplateColumn>
+            <PropertyColumn Property="e => e.Alive" />
             <TemplateColumn T="Driver" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small" Class="ml-auto">
@@ -41,7 +44,6 @@
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
-                    <MudText>Item is currently: @context.Item.State</MudText>
                     <MudText>@(context.Item.Alive ? "Still alive" : "Died")</MudText>
                 </MudCardContent>
             </MudCard>

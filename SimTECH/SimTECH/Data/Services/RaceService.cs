@@ -424,7 +424,9 @@ namespace SimTECH.Data.Services
                     {
                         Name = d.SeasonDriver.Driver.FullName,
                         Country = d.SeasonDriver.Driver.Country,
-                        Number = d.SeasonDriver.Number
+                        Number = d.SeasonDriver.Number,
+                        Colour = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultColour : d.SeasonDriver.SeasonTeam.Colour,
+                        Accent = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultAccent : d.SeasonDriver.SeasonTeam.Accent
                     })
                     .First(),
 
