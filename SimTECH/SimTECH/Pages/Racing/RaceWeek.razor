@@ -20,7 +20,12 @@ else
     <MudGrid>
         <MudItem xs="3">
             <MudPaper Class="pa-4 mud-height-full">
-                <MudTable Items="@Model.RaceWeekDrivers.OrderBy(e => e.Grid)" Dense="true">
+                <MudTable Items="@Model.RaceWeekDrivers.OrderBy(e => e.Grid)" Dense="true" id="race-week-grid">
+                    <ToolBarContent>
+                        <MudText>Grid</MudText>
+                        <MudSpacer />
+                        <ScreenshotButton TargetId="race-week-grid" />
+                    </ToolBarContent>
                     <HeaderContent>
                         <MudTh>Grid</MudTh>
                         <MudTh>Name</MudTh>
@@ -28,7 +33,14 @@ else
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
-                            @context.Grid
+                            @if (context.Grid > Model.MaximumInRace)
+                            {
+                                <MudText Typo="Typo.caption">DNQ</MudText>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.caption">@context.Grid</MudText>
+                            }
                         </MudTd>
                         <MudTd>@context.FullName</MudTd>
                         <MudTd>

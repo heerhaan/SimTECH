@@ -8,6 +8,7 @@ namespace SimTECH.PageModels
         public string Name { get; set; }
         public Country Country { get; set; }
         public Weather Weather { get; set; }
+        public bool IsFinished { get; set; }
 
         public int AmountRuns { get; set; }//Can be used for both runs in qualy and stints in race
         public double GapMarge { get; set; }
@@ -23,12 +24,16 @@ namespace SimTECH.PageModels
         public List<RaceDriver> RaceDrivers { get; set; }
 
         public Season Season { get; set; }//pick values intead of whole object?
+        public LeagueOptions LeagueOptions { get; set; }
 
         // Values read from the configuration
-        public int DisqualifyChance { get; set; }
+        public int FatalityOdds { get; set; }
+        public int DisqualifyOdds { get; set; }
         public int MistakeRolls { get; set; }
         public int MistakeMinCost { get; set; }
         public int MistakeMaxCost { get; set; }
+
+        public int QualifyingBonus(int grid) => (RaceDrivers.Count * Season.GridBonus) - ((grid - 1) * Season.GridBonus);
 
         public Race ToFinishedRace()// arguably it might be easier to just store a Race entity object
         {
@@ -38,6 +43,7 @@ namespace SimTECH.PageModels
                 Round = Round,
                 Name = Name,
                 Weather = Weather,
+                RaceLength = RaceLength,
                 State = State.Closed,
                 SeasonId = Season.Id,
                 TrackId = TrackId

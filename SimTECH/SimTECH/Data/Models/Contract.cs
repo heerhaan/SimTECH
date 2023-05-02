@@ -1,8 +1,7 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record Contract
+    public sealed class Contract : ModelBase
     {
-        public long Id { get; set; }
         public int Duration { get; set; }
         // TODO: Field {Cost} are related to finance functionality, which isn't implemented yet
         //public int Cost { get; set; }

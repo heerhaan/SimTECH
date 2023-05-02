@@ -49,7 +49,7 @@
 
         if (Drivers != null)
         {
-            LeaderScores = Drivers.First(e => e.Position == 1).LapResults;
+            LeaderScores = Drivers.First(e => e.Position == 1).LapScores;
 
             if (LeaderScores != null)
             {
@@ -60,10 +60,10 @@
                     var dataSet = new DataSet { Label = driver.FullName };
 
                     int gap = 0;
-                    for (int i = 0; i < driver.LapResults.Count; i++)
+                    for (int i = 0; i < driver.LapScores.Count; i++)
                     {
                         var compareSet = LeaderScores[i];
-                        var driverScore = driver.LapResults[i];
+                        var driverScore = driver.LapScores[i];
 
                         gap += compareSet.Score - driverScore.Score;
 

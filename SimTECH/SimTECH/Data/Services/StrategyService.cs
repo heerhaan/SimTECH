@@ -33,6 +33,7 @@ namespace SimTECH.Data.Services
 
             if (strategy.Id == 0)
             {
+                strategy.State = State.Active;
                 context.Add(strategy);
             }
             else
@@ -74,6 +75,21 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task ChangeStrategyState(Strategy strategy, State targetState)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var editModel = new EditStrategyModel(strategy)
+            {
+                State = targetState
+            };
+            var modified = editModel.Record;
+
+            context.Update(modified);
+
+            await context.SaveChangesAsync();
+        }
+
         public async Task<List<Tyre>> GetTyres() => await GetTyres(StateFilter.Default);
         public async Task<List<Tyre>> GetTyres(StateFilter filter)
         {
@@ -87,7 +103,10 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             if (tyre.Id == 0)
+            {
+                tyre.State = State.Active;
                 context.Add(tyre);
+            }
             else
                 context.Update(tyre);
 

@@ -11,7 +11,7 @@
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="e => e.Name" CellStyleFunc="@ViewHelper.TeamBorderRightStyleFunc" />
-        <TemplateColumn Title="Country">
+        <TemplateColumn T="SeasonTeam" SortBy="e => e.Team.Country" Title="Country">
             <CellTemplate>
                 @if (context.Item.Team is not null)
                 {
@@ -25,27 +25,27 @@
         </TemplateColumn>
         <PropertyColumn Property="e => e.Principal" />
         <PropertyColumn Property="e => e.BaseValue" />
-        <TemplateColumn Title="A/C/P" Sortable="false">
+        <TemplateColumn T="SeasonTeam" Title="A/C/P" Sortable="false">
             <CellTemplate>
                 <MudText>@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="e => e.Reliability" />
-        <TemplateColumn Title="Engine">
+        <TemplateColumn T="SeasonTeam" SortBy="e => e.SeasonEngine.Name" Title="Engine">
             <CellTemplate>
                 <MudText>
                     @(SeasonEngineData.Find(e => e.Id == context.Item.SeasonEngineId)?.Name ?? "[error: wtf where engine?]")
                 </MudText>
             </CellTemplate>
         </TemplateColumn>
-        <TemplateColumn Title="Manufacturer">
+        <TemplateColumn T="SeasonTeam" SortBy="e => e.Manufacturer.Name" Title="Manufacturer">
             <CellTemplate>
                 <MudText>
                     @(ManufacturerData.Find(e => e.Id == context.Item.ManufacturerId)?.Name ?? "[error: wtf where manufacturer?]")
                 </MudText>
             </CellTemplate>
         </TemplateColumn>
-        <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
+        <TemplateColumn T="SeasonTeam" Sortable="false" CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudButtonGroup>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeamEntrant(context.Item))" />

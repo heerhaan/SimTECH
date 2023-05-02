@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace SimTECH.Data.Models
 {
-    public class Result
+    public sealed class Result
     {
         public long Id { get; set; }
         public int Grid { get; set; }

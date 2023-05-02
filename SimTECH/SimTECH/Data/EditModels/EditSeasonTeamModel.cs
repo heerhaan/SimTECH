@@ -1,5 +1,5 @@
 ﻿using SimTECH.Data.Models;
-using SimTECH.Pages.Season;
+using System.ComponentModel.DataAnnotations;
 
 namespace SimTECH.Data.EditModels
 {
@@ -17,10 +17,13 @@ namespace SimTECH.Data.EditModels
         public int Chassis { get; set; }
         public int Powertrain { get; set; }
         public int Reliability { get; set; }
+        public long SeasonEngineId { get; set; }
         public long TeamId { get; set; }
         public long SeasonId { get; set; }
-        public long SeasonEngineId { get; set; }
         public long ManufacturerId { get; set; }
+
+        private int Points { get; set; }
+        private int HiddenPoints { get; set; }
 
         public IList<EditSeasonDriverModel>? SeasonDrivers { get; set; }
 
@@ -47,6 +50,9 @@ namespace SimTECH.Data.EditModels
             ManufacturerId = seasonTeam.ManufacturerId;
             Team = seasonTeam.Team;
 
+            Points = seasonTeam.Points;
+            HiddenPoints = seasonTeam.HiddenPoints;
+
             if (seasonTeam.SeasonDrivers?.Any() == true)
                 SeasonDrivers = seasonTeam.SeasonDrivers.Select(e => new EditSeasonDriverModel(e)).ToList();
 
@@ -58,6 +64,8 @@ namespace SimTECH.Data.EditModels
             Id = default;
             SeasonId = default;
             SeasonEngineId = default;
+            Points = default;
+            HiddenPoints = default;
 
             if (SeasonDrivers?.Any() == true)
             {
@@ -93,8 +101,11 @@ namespace SimTECH.Data.EditModels
                 TeamId = TeamId,
                 SeasonId = SeasonId,
                 SeasonEngineId = SeasonEngineId,
-                ManufacturerId = ManufacturerId,
-                SeasonDrivers = SeasonDrivers?.Select(e => e.Record).ToList()
+                ManufacturerId = ManufacturerId == 0 ? 1 : ManufacturerId,
+                SeasonDrivers = SeasonDrivers?.Select(e => e.Record).ToList(),
+
+                Points = Points,
+                HiddenPoints = HiddenPoints,
             };
 
         public bool IsDirty => _seasonTeam != Record;

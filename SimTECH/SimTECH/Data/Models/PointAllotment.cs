@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record PointAllotment
+    public sealed class PointAllotment
     {
         public long Id { get; set; }
         public int Position { get; set; }

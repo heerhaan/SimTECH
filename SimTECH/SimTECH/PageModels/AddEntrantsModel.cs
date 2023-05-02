@@ -3,6 +3,7 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.PageModels
 {
+    // Clean this one up please, its so ugly
     public sealed class AddEntrantsModel
     {
         // Entrant data properties
@@ -11,9 +12,9 @@ namespace SimTECH.PageModels
         public List<EditSeasonDriverModel> SeasonDrivers { get; set; } = new();
 
         // Supportive properties
-        public List<Engine> BaseEngines { get; set; } = new();
-        public List<Team> BaseTeams { get; set; } = new();
-        public List<Driver> BaseDrivers { get; set; } = new();
+        public HashSet<Engine> BaseEngines { get; set; } = new();
+        public HashSet<Team> BaseTeams { get; set; } = new();
+        public HashSet<Driver> BaseDrivers { get; set; } = new();
 
         public void CombineEntrantModels()
         {

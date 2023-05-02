@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record Track
+    public sealed class Track
     {
         public long Id { get; set; }
         public string Name { get; set; } = default!;

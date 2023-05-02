@@ -15,13 +15,13 @@
         <Columns>
             <HierarchyColumn T="Team" />
             <PropertyColumn Property="e => e.Name" />
-            <TemplateColumn Title="Country" Sortable="false">
+            <TemplateColumn T="Team" Title="Country" SortBy="e => e.Country">
                 <CellTemplate>
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="e => e.State" />
-            <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
+            <TemplateColumn T="Team" Sortable="false" CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeam(context.Item))" />

@@ -86,7 +86,12 @@
     }
 
     private void Submit()
-    {
+    {//_selectedType = (TypeDevelop)typeChip.Value;
+        if (weatherChip != null)
+            Model.Weather = (Weather)weatherChip.Value;
+        else if (Model.Weather == Weather.Unknown)
+            Model.Weather = EnumHelper.GetRandomWeather();
+
         if (!RunValidations())
             return;
 

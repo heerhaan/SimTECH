@@ -2,7 +2,7 @@
 
 namespace SimTECH.Data.Models
 {
-    public record Driver
+    public sealed class Driver
     {
         public long Id { get; set; }
         public string FirstName { get; set; } = default!;
@@ -11,6 +11,7 @@ namespace SimTECH.Data.Models
         public DateTime DateOfBirth { get; set; }
         public Country Country { get; set; }
         public string? Biography { get; set; }
+        public bool Alive { get; set; } = true;
         public State State { get; set; }
 
         public IList<SeasonDriver>? SeasonDrivers { get; set; }

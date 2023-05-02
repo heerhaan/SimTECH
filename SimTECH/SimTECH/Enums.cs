@@ -37,10 +37,10 @@ namespace SimTECH
     public enum Gender { All, Male, Female, Other }
 
     [Flags]
-    public enum SeasonToggles
+    public enum LeagueOptions
     {
         None = 0,
-        EnablePenalty = 1,
+        EnablePenalty = 1, EnableFatality = 2,
     }
 
     #region racing
@@ -60,17 +60,18 @@ namespace SimTECH
     public enum RaceStatus
     {
         Unknown = 0,
-        Racing, Dnf, Dsq, Dnq
+        Racing, Dnf, Dsq, Dnq, Fatal,
     }
 
-    // TODO: You might want to rethink this enum
+    // TODO: You might want to rethink this enum, consider making penalties custom settable
     public enum Incident
     {
         None = 0,
         Damage, Collision, Accident, Puncture,
         Engine,
         Electrics, Exhaust, Clutch, Hydraulics, Wheel, Brakes,
-        Illegal, Fuel, Dangerous
+        Illegal, Fuel, Dangerous,
+        Death
     }
 
     [Flags]
@@ -79,7 +80,8 @@ namespace SimTECH
         Unknown = 0,
         Racing = 1,
         DriverDnf = 2, CarDnf = 4, EngineDnf = 8,
-        Mistake = 16, Pitstop = 32, Swap = 64
+        Mistake = 16, Pitstop = 32, Swap = 64,
+        Death = 128,
     }
 
     #endregion racing

@@ -1,0 +1,74 @@
+﻿<!-- Credits to lolsokje for the graphics inside this component -->
+
+<div id="driver-graphic">
+    <div id="position" class="@_positionClass" style="@_positionStyles">
+        @Position
+    </div>
+    <div id="divider" style="@_dividerStyles"></div>
+
+    <div id="details">
+        <div id="name">
+            <span id="firstName">@FirstName</span> <span id="lastName">@_upperLastname</span>
+        </div>
+
+        <div id="team">@Team</div>
+    </div>
+
+    <div id="extra" style="@_extraStyles">
+        <div id="number">@Number</div>
+
+        <div id="tla">@Abbreviation</div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string FirstName { get; set; } = "Firstname";
+    [Parameter] public string LastName { get; set; } = "Lastname";
+    [Parameter] public string Abbreviation { get; set; } = "XXX";
+    [Parameter] public int Number { get; set; }
+    [Parameter] public string Team { get; set; } = "Team";
+    [Parameter] public string Colour { get; set; } = Constants.DefaultColour;
+    [Parameter] public int Position { get; set; }
+    [Parameter] public bool Eliminated { get; set; }
+
+    private string _upperLastname
+    {
+        get
+        {
+            return LastName.ToUpperInvariant();
+        }
+    }
+
+    private string _positionClass
+    {
+        get
+        {
+            return Eliminated ? "eliminated" : string.Empty;
+        }
+    }
+
+    private string _positionStyles
+    {
+        get
+        {
+            var fontSize = Position > 9 ? 48 : 33;
+            return $"font-size:{fontSize}px";
+        }
+    }
+
+    private string _dividerStyles
+    {
+        get
+        {
+            return $"background-color:{Colour}";
+        }
+    }
+
+    private string _extraStyles
+    {
+        get
+        {
+            return $"color:{Colour}";
+        }
+    }
+}

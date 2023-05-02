@@ -95,6 +95,9 @@ namespace SimTECH.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<bool>("Alive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Biography")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -196,6 +199,9 @@ namespace SimTECH.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Options")
+                        .HasColumnType("int");
 
                     b.Property<int>("RaceLength")
                         .HasColumnType("int");

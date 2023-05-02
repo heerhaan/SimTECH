@@ -2,7 +2,7 @@
 
 namespace SimTECH.Data.Models
 {
-    public record Race
+    public sealed class Race
     {
         public long Id { get; set; }
         public int Round { get; set; }

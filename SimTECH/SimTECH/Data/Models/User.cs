@@ -5,7 +5,7 @@ using System.Security.Claims;
 namespace SimTECH.Data.Models
 {
     // Authentication & authorization has been disabled for now
-    public class User
+    public sealed class User
     {
         public long Id { get; set; }
         public string Username { get; set; } = default!;

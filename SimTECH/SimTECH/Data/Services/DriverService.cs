@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 
@@ -40,6 +39,7 @@ namespace SimTECH.Data.Services
 
             if (driver.Id == 0)
             {
+                driver.State = State.Active;
                 context.Add(driver);
             }
             else
@@ -75,14 +75,8 @@ namespace SimTECH.Data.Services
 
             if (context.SeasonDriver.Any(e => e.DriverId == driver.Id))
             {
-                // Looks a bit clumsy, but the model behind driver is record which are immutable
-                var editModel = new EditDriverModel(driver)
-                {
-                    State = State.Archived
-                };
-                var modified = editModel.Record;
-
-                context.Update(modified);
+                driver.State = State.Archived;
+                context.Update(driver);
             }
             else
             {
@@ -99,11 +93,6 @@ namespace SimTECH.Data.Services
             return await context.Result
                 .Where(e => e.Race.State == State.Closed && e.SeasonDriver.Driver.Id == driverId)
                 .ToListAsync();
-        }
-
-        public static void ValidateDriver(Driver driver)
-        {
-            throw new NotImplementedException();
         }
     }
 }

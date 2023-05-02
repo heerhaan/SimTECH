@@ -2,6 +2,7 @@
 
 namespace SimTECH.Providers
 {
+    //Navigation provider for breadcrumbs (https://stackoverflow.com/questions/64473844/how-can-i-modify-the-layout-from-a-blazor-page)
     public class BreadcrumbProvider
     {
         public List<BreadcrumbItem> Breadcrumbs { get; set; } = new();

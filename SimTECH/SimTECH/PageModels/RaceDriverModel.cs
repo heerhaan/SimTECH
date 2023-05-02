@@ -10,6 +10,8 @@ namespace SimTECH.PageModels
         public long SeasonDriverId { get; set; }
         public long SeasonTeamId { get; set; }
 
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string FullName { get; set; }
         public int Number { get; set; }
         public TeamRole Role { get; set; }
@@ -21,8 +23,7 @@ namespace SimTECH.PageModels
 
         public int Power { get; set; }
 
-        public int Gap { get; set; }
-        public double TimedGap(double marge) => Math.Round(Gap * marge, 2);
+        public double TimedGap(int gap, double marge) => Math.Round(gap * marge, 2);
     }
 
     public class RaceDriver : DriverBase
@@ -50,11 +51,11 @@ namespace SimTECH.PageModels
 
         public bool HasFastestLap { get; set; }
 
-        public List<LapScore> LapResults { get; set; } = new();
+        public List<LapScore> LapScores { get; set; }
 
-        public int LapSum => LapResults.Sum(e => e.Score);
+        public int LapSum => LapScores.Sum(e => e.Score);
         public int GridChange => Grid - Position;
-        public int LastLap => LapResults.Any() ? LapResults.Max(e => e.Order) : 0;
+        public int LastLap => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
 
         public Result ToResult(long raceId)
         {

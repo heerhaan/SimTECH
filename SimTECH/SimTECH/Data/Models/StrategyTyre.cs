@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record StrategyTyre
+    public class StrategyTyre
     {
         public long Id { get; set; }
         public int Order { get; set; }

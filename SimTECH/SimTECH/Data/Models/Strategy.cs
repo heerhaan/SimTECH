@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record Strategy
+    public sealed class Strategy
     {
         public long Id { get; set; }
         public State State { get; set; }

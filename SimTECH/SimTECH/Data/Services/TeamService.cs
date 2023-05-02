@@ -30,6 +30,7 @@ namespace SimTECH.Data.Services
 
             if (team.Id == 0)
             {
+                team.State = State.Active;
                 context.Add(team);
             }
             else

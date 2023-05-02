@@ -1,11 +1,11 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class SeasonEngine
+    public sealed class SeasonEngine
     {
         public long Id { get; set; }
         public string Name { get; set; } = default!;
-        public int Power { get; set; }
-        public int Reliability { get; set; }
+        public int Power { get; set; } = 50;
+        public int Reliability { get; set; } = 1000;
         public bool Rebadged { get; set; }
 
         public long EngineId { get; set; }

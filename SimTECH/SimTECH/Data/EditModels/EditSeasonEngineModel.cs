@@ -1,5 +1,4 @@
 ﻿using SimTECH.Data.Models;
-using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.EditModels
 {

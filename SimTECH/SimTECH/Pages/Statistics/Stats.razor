@@ -58,8 +58,6 @@
 </MudGrid>
 
 @code {
-    private DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.ExtraLarge };
-
     protected override void OnInitialized()
     {
         Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -68,5 +66,5 @@
         });
     }
 
-    async Task ShowDriverCompare() => _ = await DialogService.ShowAsync<DriverCompareStat>("Compare drivers", dialogOptions);
+    async Task ShowDriverCompare() => _ = await DialogService.ShowAsync<DriverCompareStat>("Compare drivers", Constants.DefaultChartDialogSettings);
 }

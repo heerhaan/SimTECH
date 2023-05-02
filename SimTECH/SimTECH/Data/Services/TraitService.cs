@@ -37,7 +37,10 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             if (trait.Id == 0)
+            {
+                trait.State = State.Active;
                 context.Add(trait);
+            }
             else
                 context.Update(trait);
 

@@ -31,7 +31,10 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             if (engine.Id == 0)
+            {
+                engine.State = State.Active;
                 context.Add(engine);
+            }
             else
                 context.Update(engine);
 

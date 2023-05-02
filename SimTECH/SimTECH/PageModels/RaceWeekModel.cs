@@ -5,6 +5,7 @@ namespace SimTECH.PageModels
     public class RaceWeekModel
     {
         public Race Race { get; set; }
+        public int MaximumInRace { get; set; }
 
         public List<RaceWeekDriver> RaceWeekDrivers { get; set; }
         public List<Strategy>? AvailableStrategies { get; set; }

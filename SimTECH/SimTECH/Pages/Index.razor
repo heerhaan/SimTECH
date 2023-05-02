@@ -1,6 +1,6 @@
 ﻿@page "/"
-@inject RaceService RaceService
 @inject BreadcrumbProvider _bread
+@inject RaceService RaceService
 @inject ProtectedLocalStorage LocalStorage
 @inject NavigationManager Nav
 @inject IOptions<SimConfig> _config
@@ -10,10 +10,11 @@
 <MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
                 <MudText Typo="Typo.overline">_config:</MudText>
-                <MudText Typo="Typo.body2">Dsq chance: @_config.Value.DisqualifyChance</MudText>
-                <MudText Typo="Typo.body2">Gap marge p/s: @_config.Value.GapMarge</MudText>
+                <MudText Typo="Typo.body2">Fatal odds: @_config.Value.FatalityChance</MudText>
+                <MudText Typo="Typo.body2">Dsq odds: @_config.Value.DisqualifyChance</MudText>
+                <MudText Typo="Typo.body2">Gap marge p/pt: @_config.Value.GapMarge</MudText>
                 <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
                 <MudText Typo="Typo.body2">Mistake rolls: @_config.Value.MistakeAmountRolls</MudText>
                 <MudText Typo="Typo.body2">Mistake min rng: @_config.Value.MistakeLowerValue</MudText>
@@ -22,13 +23,13 @@
         </MudItem>
 
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
                 <MudText Typo="Typo.h2">SimTECH</MudText>
             </MudPaper>
         </MudItem>
 
         <MudItem xs="12" sm="12" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
                 <MudText Typo="Typo.overline">_config:</MudText>
                 <MudText Typo="Typo.body2">Sunny engine multiplier: @_config.Value.SunnyEngineMultiplier</MudText>
                 <MudText Typo="Typo.body2">Overcast engine multiplier: @_config.Value.OvercastEngineMultiplier</MudText>
@@ -43,7 +44,7 @@
         <MudItem xs="12" sm="6">
             <MudGrid>
                 <MudItem xs="12">
-                    <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;">
+                    <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
                         <MudText Typo="Typo.h6">Examples</MudText>
                         
                         <div>
@@ -55,13 +56,23 @@
                 </MudItem>
 
                 <MudItem xs="12">
-                    <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+                    <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
+                        <MudStack Row="true">
+                            <MudText Typo="Typo.h6">Custom Icon Cycler</MudText>
+                            <MudSpacer />
+                            <MudButton OnClick="CycleCustomIcon">Cycle</MudButton>
+                        </MudStack>
+                        <MudIcon Icon="@activeCustomIcon" Color="Color.Primary" Size="Size.Large" />
+                        <MudIcon Icon="@activeCustomIcon" Color="Color.Secondary" Size="Size.Small" />
+                        <MudIcon Icon="@activeCustomIcon" Style="color:green" />
+                        <MudIcon Icon="@activeCustomIcon" />
+                    </MudPaper>
                 </MudItem>
             </MudGrid>
         </MudItem>
 
         <MudItem xs="12" sm="6">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 100%">
+            <MudPaper Elevation="2" Class="pa-4 mud-height-full">
                 @if (recentRaces != null)
                 {
                     <MudTable id="recent-race-table" Items="@recentRaces" Dense="true">
@@ -87,13 +98,15 @@
                             </MudTd>
                             <MudTd>@context.Name</MudTd>
                             <MudTd>
-                                <MudText Typo="Typo.body2">
-                                    <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
-                                    @context.WinningDriver.Name
+                                <MudStack Row="true">
+                                    <MudText Typo="Typo.body2">
+                                        <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
+                                        @context.WinningDriver.Name
+                                    </MudText>
                                     <MudChip Variant="Variant.Text" Size="Size.Small" Color="NextColour()" DisableRipple="true">
                                         @context.WinningDriver.Number
                                     </MudChip>
-                                </MudText>
+                                </MudStack>
                             </MudTd>
                             <MudTd Style="@ViewHelper.SetBorderLeftStyle(context.WinningTeam.Colour)">
                                 <MudText Typo="Typo.body2">
@@ -109,6 +122,15 @@
 
         <MudItem xs="12">
             <MudPaper>
+                <MudStack>
+                    <MudText Typo="Typo.body1">Quick brown fox does quick brown fox things</MudText>
+                    <MudText Typo="Typo.button">Quick brown fox does quick brown fox things</MudText>
+                    <MudText Typo="Typo.subtitle1">Quick brown fox does quick brown fox things</MudText>
+                    <MudText Typo="Typo.subtitle2">Quick brown fox does quick brown fox things</MudText>
+                    <MudText Typo="Typo.h6">Quick brown fox does quick brown fox things</MudText>
+                    <MudText Typo="Typo.overline">Quick brown fox does quick brown fox things</MudText>
+                    <MudText Typo="Typo.caption">Quick brown fox does quick brown fox things</MudText>
+                </MudStack>
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -116,26 +138,31 @@
 
 @code {
     List<FinishedRaceModel> recentRaces;
-    Color[] cycleColours = (Color[])Enum.GetValues(typeof(Color));
-    string? exampleStore = "nothing stored yo";
-    string newExampleString = "this is a new example string for storage";
     int raceAmount = 5;
+    Color[] cycleColours = (Color[])Enum.GetValues(typeof(Color));
     int cycler = 0;
+    string activeCustomIcon = IconCollection.BrandToyota;
+    string[] customIcons = IconCollection.ArrayOfIcons;
+    int iconCycler = 0;
+    string? exampleStore;
+    string newExampleString = "Stored and retrieved from the local storage";
 
     protected override async Task OnInitializedAsync()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
-            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Home", href: "/"),
         });
 
         recentRaces = await RaceService.GetRecentlyFinishedCalendarRaces(raceAmount);
+        recentRaces.Reverse();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var storedExample = await LocalStorage.GetAsync<string>("example");
-        exampleStore = storedExample.Success ? storedExample.Value : "yikes, really nothing stored yo";
+        if (storedExample.Success)
+            exampleStore = storedExample.Value;
     }
 
     Color NextColour()
@@ -146,13 +173,16 @@
         return cycleColours[cycler];
     }
 
+    void CycleCustomIcon()
+    {
+        iconCycler++;
+        iconCycler %= customIcons.Length;
+
+        activeCustomIcon = customIcons[iconCycler];
+    }
+
     private async Task SetExample()
     {
         await LocalStorage.SetAsync("example", newExampleString);
-    }
-
-    private void NavigateHome()
-    {
-        Nav.NavigateTo("/drivers");
     }
 }

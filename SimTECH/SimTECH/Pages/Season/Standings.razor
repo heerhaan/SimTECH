@@ -101,19 +101,19 @@ else
                         <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">@context.Number</MudTd>
                         <MudTd>@context.Team</MudTd>
                         <MudTd>@context.Points</MudTd>
-                        @for (int i = 0; i < Races.Count; i++)
+                        @foreach (var round in Races.OrderBy(e => e.Round))
                         {
-                            if (i < context.ResultCells.Count)
-                            {
-                                var result = context.ResultCells[i];
-                                <MudTdResult Result="result" LowestScoringPosition="@lowestScoringPosition" />
-                            }
-                            else
+                            var result = context.ResultCells.Find(e => e.Round == round.Round);
+                            if (result == null)
                             {
                                 <MudTd Class="number-col">-</MudTd>
                             }
+                            else
+                            {
+                                <MudTdResult Result="result" LowestScoringPosition="@lowestScoringPosition" />
+                            }
                         }
-                        <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
+                        <MudTd>@context.Average</MudTd>
                     </RowTemplate>
                     <FooterContent>
                         <MudTd colspan="20">
@@ -179,7 +179,7 @@ else
                             <MudTd>-</MudTd>
                         }
                     }
-                    <MudTd>@Math.Round(context.ResultCells.Select(e => e.Position).Average(), 2)</MudTd>
+                    <MudTd>@context.Average</MudTd>
                 </RowTemplate>
             </MudTable>
         </MudTabPanel>
@@ -249,11 +249,15 @@ else
         }
         else if (cell.Status == RaceStatus.Dsq)
         {
-            cellStyle = "background-color: black;";
+            cellStyle = "background-color: black;color:white";
         }
         else if (cell.Status == RaceStatus.Dnf)
         {
             cellStyle = "background-color: red;";
+        }
+        else if (cell.Status == RaceStatus.Fatal)
+        {
+            cellStyle = "background-color: black;color:white";
         }
         else
         {

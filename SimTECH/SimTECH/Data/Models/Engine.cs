@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public record Engine
+    public sealed class Engine
     {
         public long Id { get; set; }
         public string Name { get; set; } = default!;

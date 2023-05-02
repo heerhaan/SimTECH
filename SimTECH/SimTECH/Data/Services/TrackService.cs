@@ -26,12 +26,11 @@ namespace SimTECH.Data.Services
 
         public async Task UpdateTrack(Track track)
         {
-            ValidateTrack(track);
-
             using var context = _dbFactory.CreateDbContext();
 
             if (track.Id == 0)
             {
+                track.State = State.Active;
                 context.Add(track);
             }
             else
@@ -52,14 +51,21 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        #region validation
-
-        private static void ValidateTrack(Track track)
+        public async Task DeleteTrack(Track track)
         {
-            if (track == null)
-                throw new NullReferenceException("Track is very null here, yes");
-        }
+            using var context = _dbFactory.CreateDbContext();
 
-        #endregion
+            if (context.Race.Any(e => e.TrackId == track.Id))
+            {
+                track.State = State.Archived;
+                context.Update(track);
+            }
+            else
+            {
+                context.Remove(track);
+            }
+
+            await context.SaveChangesAsync();
+        }
     }
 }

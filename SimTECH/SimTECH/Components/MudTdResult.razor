@@ -49,34 +49,38 @@
 
             if (Result.Status == RaceStatus.Dnq)
             {
-                cellStyle = "background-color: rebeccapurple;";
+                cellStyle = "background-color:mediumpurple;";
             }
             else if (Result.Status == RaceStatus.Dsq)
             {
-                cellStyle = "background-color: black;";
+                cellStyle = "background-color:black;color:white !important";
             }
             else if (Result.Status == RaceStatus.Dnf)
             {
-                cellStyle = "background-color: red;";
+                cellStyle = "background-color:red;";
+            }
+            else if (Result.Status == RaceStatus.Fatal)
+            {
+                cellStyle = "background-color:black;color:white !important";
             }
             else
             {
                 switch (Result.Position)
                 {
                     case 1:
-                        cellStyle = "background-color: gold;";
+                        cellStyle = "background-color:gold;";
                         break;
                     case 2:
-                        cellStyle = "background-color: silver;";
+                        cellStyle = "background-color:silver;";
                         break;
                     case 3:
-                        cellStyle = "background-color: burlywood;";
+                        cellStyle = "background-color:burlywood;";
                         break;
                     case int n when n <= LowestScoringPosition:
-                        cellStyle = "background-color: lightgreen;";
+                        cellStyle = "background-color:lightgreen;";
                         break;
                     default:
-                        cellStyle = "background-color: cornflowerblue";
+                        cellStyle = "background-color:cornflowerblue";
                         break;
                 }
             }

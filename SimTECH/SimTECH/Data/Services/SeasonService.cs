@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MudBlazor;
-using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
@@ -150,7 +149,7 @@ namespace SimTECH.Data.Services
 
             foreach (var dnfResult in raceResults.Where(e => e.Incident != Incident.None))
             {
-                var componentUsage = usedParts.Single(e => e.SeasonDriverId == dnfResult.Id);
+                var componentUsage = usedParts.Single(e => e.SeasonDriverId == dnfResult.SeasonDriverId);
 
                 switch (dnfResult.Incident)
                 {

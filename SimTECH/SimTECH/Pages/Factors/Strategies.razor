@@ -31,11 +31,11 @@
                             }
                         </CellTemplate>
                     </TemplateColumn>
-                    <TemplateColumn Title="Length">
+                    <TemplateColumn Title="Length" Style="font-family: var(--mud-typography-caption-family)">
                         <CellTemplate>
                             @if (context.Item.StrategyTyres?.Count > 0)
                             {
-                                <span>@context.Item.StrategyTyres.Sum(e => e.Tyre.PredictedLength())</span>
+                                <span>@context.Item.StrategyTyres.Sum(e => e.Tyre.PredictedLength())Km</span>
                             }
                         </CellTemplate>
                     </TemplateColumn>
@@ -43,8 +43,29 @@
                     <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
                         <CellTemplate>
                             <MudButtonGroup>
-                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateStrategy(context.Item))" />
-                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteStrategy(context.Item))" />
+                                @if (context.Item.State == State.Closed)
+                                {
+                                    <MudIconButton Size="@Size.Small"
+                                        Icon="@Icons.Material.Filled.Block"
+                                        Color="Color.Warning"
+                                        Title="Unavailable"
+                                        OnClick="@(async () => await ToggleStrategyState(context.Item, State.Active))" />
+                                }
+                                else
+                                {
+                                    <MudIconButton
+                                        Size="@Size.Small"
+                                        Icon="@Icons.Material.Filled.CheckCircleOutline"
+                                        Color="Color.Success"
+                                        Title="Available"
+                                        OnClick="@(async () => await ToggleStrategyState(context.Item, State.Closed))" />
+                                }
+                                <MudIconButton Size="@Size.Small"
+                                    Icon="@Icons.Material.Outlined.Edit"
+                                    OnClick="@(async () => await UpdateStrategy(context.Item))" />
+                                <MudIconButton Size="@Size.Small" 
+                                    Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" 
+                                    OnClick="@(async () => await DeleteStrategy(context.Item))" />
                             </MudButtonGroup>
                         </CellTemplate>
                     </TemplateColumn>
@@ -64,12 +85,12 @@
                 </ToolBarContent>
                 <Columns>
                     <PropertyColumn Property="e => e.Name" CellStyleFunc="_applyTyreColouring" />
-                    <PropertyColumn Property="e => e.Pace" />
-                    <PropertyColumn Property="e => e.WearMax" />
-                    <PropertyColumn Property="e => e.WearMin" />
-                    <PropertyColumn Property="e => e.Length" />
+                    <PropertyColumn Property="e => e.Pace" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e.WearMax" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e.WearMin" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e.Length" Style="font-family: var(--mud-typography-caption-family)" />
                     <PropertyColumn Property="e => e.State" />
-                    <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
+                    <TemplateColumn Sortable="false">
                         <CellTemplate>
                             <MudButtonGroup>
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTyre(context.Item))" />
@@ -118,7 +139,18 @@
             StrategyData = await StrategyService.GetStrategies();
         }
     }
-    async Task DeleteStrategy(Strategy strategy) => await StrategyService.DeleteStrategy(strategy);
+
+    async Task ToggleStrategyState(Strategy strategy, State targetState)
+    {
+        await StrategyService.ChangeStrategyState(strategy, targetState);
+        StrategyData = await StrategyService.GetStrategies();
+    }
+
+    async Task DeleteStrategy(Strategy strategy)
+    {
+        await StrategyService.DeleteStrategy(strategy);
+        StrategyData = await StrategyService.GetStrategies();
+    }
 
     async Task AddTyre() => await UpdateTyre(new Tyre());
     async Task UpdateTyre(Tyre item)
@@ -134,5 +166,10 @@
             TyreData = await StrategyService.GetTyres();
         }
     }
-    async Task DeleteTyre(Tyre tyre) => await StrategyService.DeleteTyre(tyre);
+
+    async Task DeleteTyre(Tyre tyre)
+    {
+        await StrategyService.DeleteTyre(tyre);
+        TyreData = await StrategyService.GetTyres();
+    }
 }

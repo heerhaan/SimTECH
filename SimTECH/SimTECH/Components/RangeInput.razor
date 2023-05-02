@@ -1,6 +1,11 @@
 ﻿<MudContainer>
     @ChildContent
     <MudTable Items="@Items" Dense="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">@_displayTitle</MudText>
+            <MudSpacer />
+            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendRangeRow"></MudIconButton>
+        </ToolBarContent>
         <HeaderContent>
             <MudTh>Comparer</MudTh>
             <MudTh>Minimum</MudTh>
@@ -17,13 +22,6 @@
                 <MudNumericField @bind-Value="@context.Maximum" />
             </MudTd>
         </RowTemplate>
-        <FooterContent>
-            <MudTFootRow>
-                <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendRangeRow"></MudIconButton>
-                </MudTd>
-            </MudTFootRow>
-        </FooterContent>
     </MudTable>
 </MudContainer>
 
@@ -31,7 +29,8 @@
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public IList<EditRangeModel> Items { get; set; } = new List<EditRangeModel>();
     [Parameter] public RangeType RangeType { get; set; }
-    
+    [Parameter] public string? Title { get; set; }
+
     private void AppendRangeRow()
     {
         Items.Add(new EditRangeModel()
@@ -41,5 +40,16 @@
                 Minimum = -2,
                 Maximum = 2
             });
+    }
+
+    private string _displayTitle
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(Title))
+                return Title;
+
+            return RangeType.ToString();
+        }
     }
 }
