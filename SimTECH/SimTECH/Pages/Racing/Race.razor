@@ -11,16 +11,18 @@
 {
     <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" id="race-display">
         <ToolBarContent>
-            <MudStack Row="true" Justify="Justify.SpaceBetween" Style="width:100%">
-                <MudText Typo="Typo.h6">
-                    <CountryFlag Code="@Model.Country" />
-                    @Model.Name - ROUND @Model.Round
-                    <MudIcon Icon="@(Model.Weather.GetWeatherIcon())" />
-                </MudText>
+            <MudStack Row="true" Spacing="4" AlignItems="AlignItems.Center" Class="mud-width-full">
+                <CountryFlag Code="@Model.Country" />
+                <MudText Typo="Typo.h6">@Model.Name - ROUND @Model.Round</MudText>
+                <MudIcon Icon="@(Model.Weather.GetWeatherIcon())" />
+
+                <MudSpacer />
 
                 <MudChip Color="Color.Dark" DisableRipple="true" Label="true">
                     <MudText Typo="Typo.overline">@(racedLaps) / @(totalLaps)</MudText>
                 </MudChip>
+
+                <MudSpacer />
 
                 <MudButtonGroup Color="Color.Primary">
                     <ScreenshotButton TargetId="race-display" />
@@ -61,7 +63,7 @@
             <MudTh Class="number-col">No</MudTh>
             <MudTh>Team</MudTh>
             <MudTh Class="number-col">PWR</MudTh>
-            <MudTh>TYRE</MudTh>
+            <MudTh Class="number-col-lg">TYRE</MudTh>
             <MudTh Class="number-col">Score</MudTh>
             <MudTh>Status</MudTh>
             <MudTh>Progression</MudTh>
@@ -97,7 +99,7 @@
             <MudTd Class="number-col">
                 <MudText Typo="Typo.caption">@context.Power</MudText>
             </MudTd>
-            <MudTd>
+            <MudTd Class="number-col-lg">
                 <TyreElement Colour="@context.CurrentTyre.Colour">@context.TyreLife</TyreElement>
             </MudTd>
             <MudTd Class="number-col">
@@ -119,11 +121,18 @@
                     {
                         @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
                         {
-                            <SignalIcon LapPercentage="@(CalculateLapPercentage(lapEvent.Order))" Signal="@raceEvent.element.ToString()" Index="@raceEvent.index" />
+                            <SignalIcon LapPercentage="@(CalculateLapPercentage(lapEvent.Order))"
+                                Signal="@raceEvent.element.ToString()"
+                                Index="@raceEvent.index" />
                         }
                     }
                 </div>
-                <MudProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLap * 10, Model.TrackLength))" Min="0" Max="@totalLaps" Size="Size.Medium" Color="Color.Primary" Class="my-2" />
+                <MudProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLap * 10, Model.TrackLength))"
+                                   Min="0"
+                                   Max="@totalLaps"
+                                   Size="Size.Medium"
+                                   Color="Color.Tertiary"
+                                   Class="my-2" />
             </MudTd>
         </RowTemplate>
         <FooterContent>

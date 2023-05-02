@@ -1,9 +1,8 @@
-﻿<MudIcon
-    Icon="@_signalIcon"
-    Size="@Size"
-    Color="@_signalColour"
-    Class="absolute overflow-visible"
-    Style="@_styles" />
+﻿<MudPaper Class="absolute overflow-visible" Style="@_styles">
+    <MudIcon Icon="@_signalIcon"
+             Size="@Size"
+             Color="@_signalColour" />
+</MudPaper>
 
 @code {
     [Parameter]
@@ -71,7 +70,7 @@
     {
         get
         {
-            var styles = $"margin-left:{LapPercentage}%;margin-right:-{(Index * 2)}px;z-index:{(1 + Index)}";
+            var styles = $"margin-left:{LapPercentage}%;margin-right:-{(Index * 2)}px;z-index:{(1 + Index)};line-height:0";
 
             if (Signal == "Death")
                 styles += ";color: white";
