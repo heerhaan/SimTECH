@@ -98,9 +98,7 @@
                 <MudText Typo="Typo.caption">@context.Power</MudText>
             </MudTd>
             <MudTd>
-                <span class="tyre" style="border-color:@(context.CurrentTyre.Colour)">
-                    @context.TyreLife
-                </span>
+                <TyreElement Colour="@context.CurrentTyre.Colour">@context.TyreLife</TyreElement>
             </MudTd>
             <MudTd Class="number-col">
                 <MudText Typo="Typo.caption">@context.LapSum</MudText>
@@ -121,7 +119,7 @@
                     {
                         @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
                         {
-                            <MudIcon Icon="@SignalIcon(raceEvent.element.ToString())" Color="Color.Tertiary" Class="absolute overflow-visible" Style="@SignalStyle(lapEvent.Order, raceEvent.index)" />
+                            <SignalIcon LapPercentage="@(CalculateLapPercentage(lapEvent.Order))" Signal="@raceEvent.element.ToString()" Index="@raceEvent.index" />
                         }
                     }
                 </div>
@@ -131,15 +129,31 @@
         <FooterContent>
             <MudTd colspan="20">
                 <MudStack Row="true">
-                    <MudText>Event Legend</MudText>
-                    <MudChip Icon="@IconCollection.HelmetOff" IconColor="Color.Tertiary" Size="Size.Small" DisableRipple="true" Label="true">DNF Driver</MudChip>
-                    <MudChip Icon="@IconCollection.CarCrash" IconColor="Color.Tertiary" Size="Size.Small" DisableRipple="true" Label="true">DNF Car</MudChip>
-                    <MudChip Icon="@IconCollection.EngineOff" IconColor="Color.Tertiary" Size="Size.Small" DisableRipple="true" Label="true">DNF Engine</MudChip>
-                    <MudChip Icon="@Icons.Material.Filled.ErrorOutline" IconColor="Color.Tertiary" Size="Size.Small" DisableRipple="true" Label="true">Mistake</MudChip>
-                    <MudChip Icon="@Icons.Material.Filled.LocalGasStation" IconColor="Color.Tertiary" Size="Size.Small" DisableRipple="true" Label="true">Pitstop</MudChip>
-                    <MudChip Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Tertiary" Size="Size.Small" DisableRipple="true" Label="true">Driver Swap</MudChip>
-                    <MudChip Icon="@IconCollection.Skull" IconColor="Color.Tertiary" Size="Size.Small" DisableRipple="true" Label="true">Fatality</MudChip>
-                    <MudChip Icon="@Icons.Material.Filled.QuestionMark" IconColor="Color.Tertiary" Size="Size.Small" DisableRipple="true" Label="true">Undetermined</MudChip>
+                    <MudText>Event legend</MudText>
+                    <MudChip Icon="@IconCollection.HelmetOff" IconColor="Color.Error" Size="Size.Small" DisableRipple="true" Label="true">
+                        DNF Driver
+                    </MudChip>
+                    <MudChip Icon="@IconCollection.CarCrash" IconColor="Color.Error" Size="Size.Small" DisableRipple="true" Label="true">
+                        DNF Car
+                    </MudChip>
+                    <MudChip Icon="@IconCollection.EngineOff" IconColor="Color.Error" Size="Size.Small" DisableRipple="true" Label="true">
+                        DNF Engine
+                    </MudChip>
+                    <MudChip Icon="@Icons.Material.Filled.ErrorOutline" IconColor="Color.Warning" Size="Size.Small" DisableRipple="true" Label="true">
+                        Mistake
+                    </MudChip>
+                    <MudChip Icon="@Icons.Material.Filled.LocalGasStation" IconColor="Color.Success" Size="Size.Small" DisableRipple="true" Label="true">
+                        Pitstop
+                    </MudChip>
+                    <MudChip Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Info" Size="Size.Small" DisableRipple="true" Label="true">
+                        Driver Swap
+                    </MudChip>
+                    <MudChip Icon="@IconCollection.Skull" IconColor="Color.Inherit" Size="Size.Small" DisableRipple="true" Label="true" Style="color: white">
+                        Fatality
+                    </MudChip>
+                    <MudChip Icon="@Icons.Material.Filled.QuestionMark" IconColor="Color.Warning" Size="Size.Small" DisableRipple="true" Label="true">
+                        Undetermined
+                    </MudChip>
                 </MudStack>
             </MudTd>
         </FooterContent>
@@ -193,26 +207,18 @@
         loading = false;
     }
 
-    string SignalStyle(int lap, int index)
+    int CalculateLapPercentage(int lap)
     {
         var currentLap = NumberHelper.CalcLapCount(lap * 10, Model.TrackLength);
-        int lapPercentage = (currentLap * totalLaps) / 100;
-        return $"margin-left:{lapPercentage}%;margin-right:-{(index * 2)}px;z-index:{(1 + index)}";
+        return (currentLap * totalLaps) / 100;
     }
 
-    string SignalIcon(string raceEvent) => raceEvent switch
+    async Task ShowGraph()
     {
-        "DriverDnf"     => IconCollection.HelmetOff,
-        "CarDnf"        => IconCollection.CarCrash,
-        "EngineDnf"     => IconCollection.EngineOff,
-        "Mistake"       => Icons.Material.Filled.ErrorOutline,
-        "Pitstop"       => Icons.Material.Filled.LocalGasStation,
-        "Swap"          => Icons.Material.Filled.SwapVert,
-        "Death"         => IconCollection.Skull,
-        _               => Icons.Material.Filled.QuestionMark
-    };
+        var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
 
-    string GetLocation() => "absolute mud-height-full mud-width-full d-flex align-start justify-center";
+        _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters, Constants.DefaultChartDialogSettings);
+    }
 
     void Advance()
     {
@@ -396,13 +402,6 @@
     }
 
     static int GetQualifyingBonus(int grid, int driverCount, int bonus) => (driverCount * bonus) - ((grid - 1) * bonus);
-
-    async Task ShowGraph()
-    {
-        var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
-
-        _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters, Constants.DefaultChartDialogSettings);
-    }
 
     async Task PersistLapScores(List<LapScore> lapScores) => await _raceService.PersistLapScores(lapScores);
 

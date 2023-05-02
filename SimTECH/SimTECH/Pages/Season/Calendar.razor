@@ -31,61 +31,67 @@
         <col />
     </ColGroup>
     <HeaderContent>
-        <MudTh Class="pa-0">Round</MudTh>
+        <MudTh Class="number-col">Round</MudTh>
         <MudTh>Country</MudTh>
-        <MudTh>Name</MudTh>
+        <MudTh>Race</MudTh>
         <MudTh>Weather</MudTh>
-        <MudTh Class="pa-0"></MudTh>
-        <MudTh>Pole</MudTh>
-        <MudTh Class="pa-0"></MudTh>
-        <MudTh>Winning driver</MudTh>
-        <MudTh>Winning team</MudTh>
+        <MudTh>Polesitter</MudTh>
+        <MudTh Class="number-col"></MudTh>
+        <MudTh>Winner</MudTh>
+        <MudTh Class="number-col"></MudTh>
+        <MudTh>Winner</MudTh>
         <MudTh>Status</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd Class="pa-0">@context.Round</MudTd>
+        <MudTd Class="number-col">@context.Round</MudTd>
         <MudTd>
-            <CountryFlag Code="context.Country" Size="FlagSize.Normal" IncludeName="true" />
+            <CountryFlag Code="context.Country" Size="FlagSize.Small" IncludeName="true" />
         </MudTd>
         <MudTd>@context.Name</MudTd>
         <MudTd>@context.Weather</MudTd>
         @if (context.PoleSitter != null)
         {
-            <MudTd Class="pa-0" Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
-                <span>@(context.PoleSitter.Number)</span>
-            </MudTd>
             <MudTd>
-                <CountryFlag Code="context.PoleSitter.Country" Size="FlagSize.Small" />
-                <span>@context.PoleSitter.Name</span>
+                <MudStack Row="true" AlignItems="AlignItems.Center">
+                    <MudText>@context.PoleSitter.Name</MudText>
+                    <MudSpacer />
+                    <CountryFlag Code="context.PoleSitter.Country" Size="FlagSize.Small" />
+                </MudStack>
+            </MudTd>
+            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
+                <MudText Typo="Typo.caption">@(context.PoleSitter.Number)</MudText>
             </MudTd>
         }
         else
         {
-            <MudTd Class="pa-0"></MudTd>
             <MudTd></MudTd>
+            <MudTd Class="number-col"></MudTd>
         }
 
         @if (context.DriverWinner != null)
         {
-            <MudTd Class="pa-0" Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
-                <span>@(context.DriverWinner.Number)</span>
-            </MudTd>
             <MudTd>
-                <CountryFlag Code="context.DriverWinner.Country" Size="FlagSize.Small" />
-                <span>@context.DriverWinner.Name</span>
+                <MudStack Row="true" AlignItems="AlignItems.Center">
+                    <MudText>@context.DriverWinner.Name</MudText>
+                    <MudSpacer />
+                    <CountryFlag Code="context.DriverWinner.Country" Size="FlagSize.Small" />
+                </MudStack>
+            </MudTd>
+            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
+                <MudText Typo="Typo.caption">@(context.DriverWinner.Number)</MudText>
             </MudTd>
         }
         else
         {
-            <MudTd Class="pa-0"></MudTd>
+            <MudTd Class="number-col"></MudTd>
             <MudTd></MudTd>
         }
 
         @if (context.TeamWinner != null)
         {
-            <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.TeamWinner.Colour))">
-                <span>@context.TeamWinner.Name</span>
+            <MudTd>
+                <MudText Typo="Typo.button">@context.TeamWinner.Name</MudText>
             </MudTd>
         }
         else

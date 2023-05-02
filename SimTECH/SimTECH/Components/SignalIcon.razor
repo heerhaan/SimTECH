@@ -1,0 +1,82 @@
+﻿<MudIcon
+    Icon="@_signalIcon"
+    Size="@Size"
+    Color="@_signalColour"
+    Class="absolute overflow-visible"
+    Style="@_styles" />
+
+@code {
+    [Parameter]
+    public int LapPercentage { get; set; }
+    [Parameter]
+    public string Signal { get; set; }
+    [Parameter]
+    public int Index { get; set; }
+    [Parameter]
+    public Size Size { get; set; } = Size.Small;
+
+    private string _signalIcon
+    {
+        get
+        {
+            switch (Signal)
+            {
+                case "DriverDnf":
+                    return IconCollection.HelmetOff;
+                case "CarDnf":
+                    return IconCollection.CarCrash;
+                case "EngineDnf":
+                    return IconCollection.EngineOff;
+                case "Mistake":
+                    return Icons.Material.Filled.ErrorOutline;
+                case "Pitstop":
+                    return Icons.Material.Filled.LocalGasStation;
+                case "Swap":
+                    return Icons.Material.Filled.SwapVert;
+                case "Death":
+                    return IconCollection.Skull;
+                default:
+                    return Icons.Material.Filled.QuestionMark;
+            }
+        }
+    }
+
+    private Color _signalColour
+    {
+        get
+        {
+            switch (Signal)
+            {
+                case "DriverDnf":
+                    return Color.Error;
+                case "CarDnf":
+                    return Color.Error;
+                case "EngineDnf":
+                    return Color.Error;
+                case "Mistake":
+                    return Color.Warning;
+                case "Pitstop":
+                    return Color.Success;
+                case "Swap":
+                    return Color.Info;
+                case "Death":
+                    return Color.Inherit;
+                default:
+                    return Color.Warning;
+            }
+        }
+    }
+
+    private string _styles
+    {
+        get
+        {
+            var styles = $"margin-left:{LapPercentage}%;margin-right:-{(Index * 2)}px;z-index:{(1 + Index)}";
+
+            if (Signal == "Death")
+                styles += ";color: white";
+
+            return styles;
+        }
+    }
+}

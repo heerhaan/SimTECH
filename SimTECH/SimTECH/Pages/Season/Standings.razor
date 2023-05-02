@@ -8,7 +8,7 @@
         <MudTabPanel Text="Standings">
             <MudGrid Spacing="4">
                 <MudItem xs="12">
-                    <MudPaper Height="200px">
+                    <MudPaper Height="100px" Class="py-2">
                         <MudStack Row="true" Justify="Justify.Center">
                             <MudText Typo="Typo.h5">Season standings</MudText>
                         </MudStack>
@@ -22,6 +22,7 @@
                             </ToolBarContent>
                             <HeaderContent>
                                 <MudTh Class="number-col">#</MudTh>
+                                <MudTh Class="accent-cell"></MudTh>
                                 <MudTh>Name</MudTh>
                                 <MudTh Class="number-col">No.</MudTh>
                                 <MudTh>
@@ -29,17 +30,25 @@
                                 </MudTh>
                             </HeaderContent>
                             <RowTemplate>
-                                <MudTd DataLabel="#" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))" Class="number-col">
-                                    @context.Position
+                                <MudTd Class="number-col" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
+                                    <MudText Typo="Typo.caption">@context.Position</MudText>
                                 </MudTd>
-                                <MudTd DataLabel="Name">
-                                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
-                                    @context.Name
+                                <MudTd Class="accent-cell">
+                                    <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
                                 </MudTd>
-                                <MudTd DataLabel="No." Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))" Class="number-col">
-                                    @context.Number
+                                <MudTd>
+                                    <MudStack Row="true">
+                                        <MudText>@context.Name</MudText>
+                                        <MudSpacer></MudSpacer>
+                                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                                    </MudStack>
                                 </MudTd>
-                                <MudTd DataLabel="PTS">@context.Points</MudTd>
+                                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                                    <MudText Typo="Typo.caption">@context.Number</MudText>
+                                </MudTd>
+                                <MudTd>
+                                    <MudText Typo="Typo.caption">@context.Points</MudText>
+                                </MudTd>
                             </RowTemplate>
                         </MudTable>
                     </MudPaper>
@@ -52,6 +61,7 @@
                             </ToolBarContent>
                             <HeaderContent>
                                 <MudTh Class="number-col">#</MudTh>
+                                <MudTh Class="accent-cell"></MudTh>
                                 <MudTh>Principal</MudTh>
                                 <MudTh>Name</MudTh>
                                 <MudTh>PTS</MudTh>
@@ -60,11 +70,14 @@
                                 <MudTd DataLabel="#" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))" Class="number-col">
                                     <MudText Typo="Typo.caption">@context.Position</MudText>
                                 </MudTd>
+                                <MudTd Class="accent-cell">
+                                    <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
+                                </MudTd>
                                 <MudTd>
                                     <MudText>@context.Principal</MudText>
                                 </MudTd>
-                                <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
-                                    <MudStack Row="true" Spacing="1" Class="align-center">
+                                <MudTd>
+                                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                         <MudText Typo="Typo.body1">@context.Name</MudText>
                                         <MudSpacer />
                                         <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
@@ -93,7 +106,7 @@
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh Class="number-col">#</MudTh>
-                        <MudTh Class="pa-0"></MudTh>
+                        <MudTh Class="accent-cell"></MudTh>
                         <MudTh>Driver</MudTh>
                         <MudTh Class="number-col">No.</MudTh>
                         <MudTh>Team</MudTh>
@@ -110,7 +123,7 @@
                         <MudTd Class="number-col" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
                             <MudText Typo="Typo.caption">@context.Position</MudText>
                         </MudTd>
-                        <MudTd Class="pa-0">
+                        <MudTd Class="accent-cell">
                             <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
                         </MudTd>
                         <MudTd>
@@ -161,6 +174,7 @@
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh Class="number-col">#</MudTh>
+                    <MudTh Class="accent-cell"></MudTh>
                     <MudTh>Principal</MudTh>
                     <MudTh>Team</MudTh>
                     <MudTh>PTS</MudTh>
@@ -176,11 +190,14 @@
                     <MudTd Class="number-col" Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
                         <MudText Typo="Typo.caption">@context.Position</MudText>
                     </MudTd>
+                    <MudTd Class="accent-cell">
+                        <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
+                    </MudTd>
                     <MudTd>
                         <MudText Typo="Typo.body1">@context.Principal</MudText>
                     </MudTd>
                     <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
-                        <MudStack Row="true" Spacing="1" Class="align-center">
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                             <MudText Typo="Typo.body1">@context.Name</MudText>
                             <MudSpacer />
                             <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
@@ -199,7 +216,7 @@
                                     @foreach (var result in teamResults)
                                     {
                                         <MudChip Style="@(GetResultStyle(result))">
-                                            @result.GetResultText()
+                                            <MudText Typo="Typo.subtitle1">@result.GetResultText()</MudText>
                                         </MudChip>
                                     }
                                 </MudStack>
