@@ -5,7 +5,7 @@
 <PageTitle>Traits</PageTitle>
 
 <MudContainer>
-    <MudDataGrid T="Trait" Items="TraitNames" Bordered="true" Dense="true" Class="mt-2">
+    <MudDataGrid T="Trait" Items="TraitData" Bordered="true" Dense="true" Class="mt-2">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Traits</MudText>
             <MudSpacer />
@@ -52,32 +52,32 @@
                         </MudItem>
                         <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                    <MudText Typo="Typo.caption">Car reliability: @(context.Item.CarReliability)</MudText>
+                                <MudText Typo="Typo.caption">Car reliability: @(context.Item.CarReliability)</MudText>
                             </MudPaper>
                         </MudItem>
                         <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText>Engine reliability: @(context.Item.EngineReliability)</MudText>
+                                <MudText Typo="Typo.caption">Engine reliability: @(context.Item.EngineReliability)</MudText>
                             </MudPaper>
                         </MudItem>
                         <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText>Wear max: @(context.Item.WearMax)</MudText>
+                                <MudText Typo="Typo.caption">Wear max: @(context.Item.WearMax)</MudText>
                             </MudPaper>
                         </MudItem>
                         <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText>Wear min: @(context.Item.WearMin)</MudText>
+                                <MudText Typo="Typo.caption">Wear min: @(context.Item.WearMin)</MudText>
                             </MudPaper>
                         </MudItem>
                         <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText>RNG min: @(context.Item.RngMin)</MudText>
+                                <MudText Typo="Typo.caption">RNG min: @(context.Item.RngMin)</MudText>
                             </MudPaper>
                         </MudItem>
                         <MudItem xs="3">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText>RNG max: @(context.Item.RngMax)</MudText>
+                                <MudText Typo="Typo.caption">RNG max: @(context.Item.RngMax)</MudText>
                             </MudPaper>
                         </MudItem>
                         <MudItem xs="3">
@@ -104,11 +104,11 @@
 </MudContainer>
 
 @code {
-    private List<Trait> TraitNames = new();
+    List<Trait> TraitData = new();
 
     protected override async Task OnInitializedAsync()
     {
-        TraitNames = await TraitService.GetTraits();
+        TraitData = await TraitService.GetTraits();
     }
 
     async Task AddTrait() => await UpdateTrait(new Trait());
@@ -122,7 +122,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Trait updatedItem)
         {
             await TraitService.UpdateTrait(updatedItem);
-            TraitNames = await TraitService.GetTraits();
+            TraitData = await TraitService.GetTraits();
         }
     }
 }

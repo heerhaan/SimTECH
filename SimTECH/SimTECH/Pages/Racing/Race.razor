@@ -22,9 +22,9 @@
                     <MudText Typo="Typo.overline">@(racedLaps) / @(totalLaps)</MudText>
                 </MudChip>
 
-                <MudButtonGroup>
+                <MudButtonGroup Color="Color.Primary">
                     <ScreenshotButton TargetId="race-display" />
-                    <MudButton StartIcon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" OnClick="ShowGraph">Chart</MudButton>
+                    <MudButton StartIcon="@Icons.Material.Outlined.InsertChart" OnClick="ShowGraph">Chart</MudButton>
                     @if (!Model.IsFinished)
                     {
                         @if (calculated >= calculationCount)
@@ -401,7 +401,7 @@
     {
         var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
 
-        _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters);
+        _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters, Constants.DefaultChartDialogSettings);
     }
 
     async Task PersistLapScores(List<LapScore> lapScores) => await _raceService.PersistLapScores(lapScores);
