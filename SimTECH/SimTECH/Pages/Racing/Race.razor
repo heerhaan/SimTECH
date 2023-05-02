@@ -18,7 +18,9 @@
                     <MudIcon Icon="@(Model.Weather.GetWeatherIcon())" />
                 </MudText>
 
-                <MudChip Color="Color.Dark" DisableRipple="true" Label="true">@(racedLaps) / @(totalLaps)</MudChip>
+                <MudChip Color="Color.Dark" DisableRipple="true" Label="true">
+                    <MudText Typo="Typo.overline">@(racedLaps) / @(totalLaps)</MudText>
+                </MudChip>
 
                 <MudButtonGroup>
                     <ScreenshotButton TargetId="race-display" />
@@ -54,13 +56,13 @@
         <HeaderContent>
             <MudTh>#</MudTh>
             <MudTh>Grid</MudTh>
-            <MudTh></MudTh>
+            <MudTh Class="pa-0"></MudTh>
             <MudTh>Name</MudTh>
-            <MudTh>No</MudTh>
+            <MudTh Class="number-col">No</MudTh>
             <MudTh>Team</MudTh>
-            <MudTh>PWR</MudTh>
+            <MudTh Class="number-col">PWR</MudTh>
             <MudTh>TYRE</MudTh>
-            <MudTh>Score</MudTh>
+            <MudTh Class="number-col">Score</MudTh>
             <MudTh>Status</MudTh>
             <MudTh>Progression</MudTh>
         </HeaderContent>
@@ -71,30 +73,28 @@
             <MudTd>
                 <GridChange Change="@context.GridChange" />
             </MudTd>
-            <MudTd>
-                <span class="smol-bloke"></span>
+            <MudTd Class="pa-0">
+                <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
             </MudTd>
             <MudTd Class="overflow-hider">
                 <MudStack Row="true">
-                    <MudText>
-                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Tiny" />
-                        @context.FullName
-                    </MudText>
-                    <span>
-                        @if (context.HasFastestLap)
-                        {
-                            <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
-                        }
-                    </span>
+                    <MudText Typo="Typo.body1">@context.FirstName</MudText>
+                    <MudText Typo="Typo.button">@context.LastName</MudText>
+                    @if (context.HasFastestLap)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
+                    }
+                    <MudSpacer />
+                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
                 </MudStack>
             </MudTd>
-            <MudTd Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
                 <MudText Typo="Typo.caption">@context.Number</MudText>
             </MudTd>
-            <MudTd Class="overflow-hider" Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
-                <MudText>@context.TeamName</MudText>
+            <MudTd Class="overflow-hider">
+                <MudText Typo="Typo.button">@context.TeamName</MudText>
             </MudTd>
-            <MudTd>
+            <MudTd Class="number-col">
                 <MudText Typo="Typo.caption">@context.Power</MudText>
             </MudTd>
             <MudTd>
@@ -102,7 +102,7 @@
                     @context.TyreLife
                 </span>
             </MudTd>
-            <MudTd>
+            <MudTd Class="number-col">
                 <MudText Typo="Typo.caption">@context.LapSum</MudText>
             </MudTd>
             <MudTd>

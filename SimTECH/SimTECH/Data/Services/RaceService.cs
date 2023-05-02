@@ -552,6 +552,8 @@ namespace SimTECH.Data.Services
                     ResultId = driverResult.Id,
                     SeasonDriverId = driverResult.SeasonDriverId,
                     SeasonTeamId = driverResult.SeasonTeamId,
+                    FirstName = driver.Driver.FirstName,
+                    LastName = driver.Driver.LastName,
                     FullName = driver.Driver.FullName,
                     Number = driver.Number,
                     Role = driver.TeamRole,
@@ -680,6 +682,8 @@ namespace SimTECH.Data.Services
                 raceDrivers.Add(new QualifyingDriver
                 {
                     ResultId = driverResult.Id,
+                    FirstName = driver.Driver.FirstName,
+                    LastName = driver.Driver.LastName,
                     FullName = driver.Driver.FullName,
                     Number = driver.Number,
                     Role = driver.TeamRole,
@@ -783,6 +787,8 @@ namespace SimTECH.Data.Services
                 practiceDrivers.Add(new PracticeDriver
                 {
                     ResultId = driverResult.Id,
+                    FirstName = driver.Driver.FirstName,
+                    LastName = driver.Driver.LastName,
                     FullName = driver.Driver.FullName,
                     Number = driver.Number,
                     Role = driver.TeamRole,

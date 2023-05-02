@@ -10,6 +10,8 @@ namespace SimTECH.PageModels
         public long SeasonDriverId { get; set; }
         public long SeasonTeamId { get; set; }
 
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string FullName { get; set; }
         public int Number { get; set; }
         public TeamRole Role { get; set; }

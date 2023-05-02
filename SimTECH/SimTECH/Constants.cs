@@ -1,4 +1,5 @@
 ﻿using MudBlazor;
+using MudBlazor.Utilities;
 
 namespace SimTECH
 {
@@ -8,7 +9,10 @@ namespace SimTECH
 
         public static string DefaultAccent => "var(--mud-palette-text-primary)";
 
-        public static Typography CommonTypo = new Typography()
+        public static DialogOptions DefaultChartDialogSettings => new() { MaxWidth = MaxWidth.ExtraLarge, CloseButton = true };
+
+        #region themes
+        private static readonly Typography CommonTypo = new()
         {
             Default = new Default()
             {
@@ -16,31 +20,31 @@ namespace SimTECH
             },
             Button = new Button()
             {
-                FontFamily = new[] { "NovaBlack" }
+                FontFamily = new[] { "NovaBold" }
             },
             H1 = new H1()
             {
-                FontFamily = new[] { "F1Regular" }
+                FontFamily = new[] { "F1Bold" }
             },
             H2 = new H2()
             {
-                FontFamily = new[] { "F1Regular" }
+                FontFamily = new[] { "F1Bold" }
             },
             H3 = new H3()
             {
-                FontFamily = new[] { "F1Regular" }
+                FontFamily = new[] { "F1Bold" }
             },
             H4 = new H4()
             {
-                FontFamily = new[] { "F1Regular" }
+                FontFamily = new[] { "F1Bold" }
             },
             H5 = new H5()
             {
-                FontFamily = new[] { "F1Regular" }
+                FontFamily = new[] { "F1Bold" }
             },
             H6 = new H6()
             {
-                FontFamily = new[] { "F1Regular" }
+                FontFamily = new[] { "F1Bold" }
             },
             Caption = new Caption()
             {
@@ -56,13 +60,15 @@ namespace SimTECH
             },
             Subtitle2 = new Subtitle2()
             {
-                FontFamily = new[] { "F1Regular" }
+                FontFamily = new[] { "NovaBlack" }
             },
         };
 
-        public static DialogOptions DefaultChartDialogSettings => new() { MaxWidth = MaxWidth.ExtraLarge, CloseButton = true };
+        private static readonly MudColor VeryDeepDarkPurple = new("#0d0612");
+        private static readonly MudColor DarkFadedPurple = new("#19141f"); // Background
+        private static readonly MudColor DeepDarkFadedPurple = new("#100d14"); // Gray
+        private static readonly MudColor AltDarkFadedPurple = new("#16121c"); // Surface
 
-        #region themes
         public static MudTheme DefaultTheme => new()
         {
             Typography = CommonTypo,
@@ -94,7 +100,11 @@ namespace SimTECH
                 Secondary = Colors.Pink.Darken2,
                 Tertiary = Colors.Yellow.Darken2,
 
-                AppbarBackground = Colors.DeepPurple.Lighten1,
+                Background = DarkFadedPurple,
+                BackgroundGrey = DeepDarkFadedPurple,
+                Surface = AltDarkFadedPurple,
+                DrawerBackground = DeepDarkFadedPurple,
+                AppbarBackground = DeepDarkFadedPurple
             },
             Typography = CommonTypo,
         };
