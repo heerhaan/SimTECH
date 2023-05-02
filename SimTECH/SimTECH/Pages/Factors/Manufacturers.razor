@@ -21,11 +21,23 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd Style="@ViewHelper.SetFullColourstyle(context.Colour, context.Accent)">@context.Name</MudTd>
-            <MudTd>@context.Pace</MudTd>
-            <MudTd>@context.WearMax</MudTd>
-            <MudTd>@context.WearMin</MudTd>
-            <MudTd>@context.State</MudTd>
-            <MudTd Class="d-flex justify-end">
+            <MudTd>
+                <MudText Typo="Typo.caption"></MudText>
+                @context.Pace
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.caption"></MudText>
+                @context.WearMax
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.caption"></MudText>
+                @context.WearMin
+            </MudTd>
+            <MudTd>
+                <MudText></MudText>
+                @context.State
+            </MudTd>
+            <MudTd>
                 <MudButtonGroup Size="@Size.Small">
                     <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateManufacturer(context))" />
                     <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteManufacturer(context))" />

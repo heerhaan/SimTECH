@@ -17,9 +17,9 @@ else
             *@
             <MudTable Items="@DriversInQ1.OrderBy(e => e.PositionQ1)" id="q1-result-table">
                 <ToolBarContent>
-                    <MudText>
-                        <CountryFlag Code="@Model.Country" />
+                    <MudText Typo="Typo.h6">
                         @Model.Name - QUALIFYING Q1
+                        <CountryFlag Code="@Model.Country" />
                     </MudText>
 
                     <MudSpacer />
@@ -34,45 +34,54 @@ else
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh>#</MudTh>
-                    <MudTh>No.</MudTh>
+                    <MudTh Class="pa-0"></MudTh>
                     <MudTh>Driver</MudTh>
+                    <MudTh Class="number-col">No.</MudTh>
                     <MudTh>Team</MudTh>
-                    <MudTh>PWR</MudTh>
+                    <MudTh Class="number-col">PWR</MudTh>
                     @for (int i = 1; i <= Model.AmountRuns; i++)
                     {
                         var j = i;
-                        <MudTh>@j</MudTh>
+                        <MudTh Class="number-col">@j</MudTh>
                     }
-                    <MudTh>Score</MudTh>
+                    <MudTh Class="number-col">Score</MudTh>
                     <MudTh>Gap</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd Style="@PositionCutoffStyles(context.PositionQ1, Model.QualyAmountQ2, Model.MaximumRaceDrivers)">
-                        <MudText Typo="Typo.h6">@context.PositionQ1</MudText>
+                    <MudTd Class="number-col" Style="@PositionCutoffStyles(context.PositionQ1, Model.QualyAmountQ2, Model.MaximumRaceDrivers)">
+                        <MudText Typo="Typo.caption">@context.PositionQ1</MudText>
                     </MudTd>
-                    <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                        <MudText Typo="Typo.h6">@context.Number</MudText>
+                    <MudTd Class="pa-0">
+                        <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
                     </MudTd>
                     <MudTd>
-                        <MudText>@context.FullName</MudText>
+                        <MudStack Row="true" Spacing="1" Class="align-center">
+                            <MudText Typo="Typo.body1">@context.FirstName</MudText>
+                            <MudText Typo="Typo.button">@context.LastName</MudText>
+                            <MudSpacer />
+                            <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                        </MudStack>
+                    </MudTd>
+                    <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                        <MudText Typo="Typo.caption">@context.Number</MudText>
                     </MudTd>
                     <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">
                         <MudText>@context.TeamName</MudText>
                     </MudTd>
-                    <MudTd>
-                        <MudText Typo="Typo.h6">@context.Power</MudText>
+                    <MudTd Class="number-col">
+                        <MudText Typo="Typo.caption">@context.Power</MudText>
                     </MudTd>
                     @foreach (var runResult in context.RunValuesQ1)
                     {
-                        <MudTd>
-                            <MudText Typo="Typo.h6">@runResult</MudText>
+                        <MudTd Class="number-col">
+                            <MudText Typo="Typo.caption">@runResult</MudText>
                         </MudTd>
                     }
-                    <MudTd>
-                        <MudText Typo="Typo.h6">@context.MaxScoreQ1</MudText>
+                    <MudTd Class="number-col">
+                        <MudText Typo="Typo.caption">@context.MaxScoreQ1</MudText>
                     </MudTd>
                     <MudTd>
-                        <MudText Typo="Typo.h6">+@(context.GapQ1)</MudText>
+                        <MudText>+@(context.GapQ1)</MudText>
                     </MudTd>
                 </RowTemplate>
             </MudTable>
@@ -82,7 +91,7 @@ else
             {
                 <MudTable Items="@DriversInQ2.OrderBy(e => e.PositionQ2)" id="q2-result-table">
                     <ToolBarContent>
-                        <MudText>
+                        <MudText Typo="Typo.h6">
                             <CountryFlag Code="@Model.Country" />
                             @Model.Name - QUALIFYING Q2
                         </MudText>
@@ -95,8 +104,9 @@ else
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>#</MudTh>
-                        <MudTh>No.</MudTh>
+                        <MudTh Class="pa-0"></MudTh>
                         <MudTh>Driver</MudTh>
+                        <MudTh>No.</MudTh>
                         <MudTh>Team</MudTh>
                         <MudTh>PWR</MudTh>
                         @for (int i = 1; i <= Model.AmountRuns; i++)
@@ -109,31 +119,39 @@ else
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd Style="@PositionCutoffStyles(context.PositionQ2, Model.QualyAmountQ3)">
-                            <MudText Typo="Typo.h6">@context.PositionQ2</MudText>
+                            <MudText Typo="Typo.caption">@context.PositionQ2</MudText>
                         </MudTd>
-                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                            <MudText Typo="Typo.h6">@context.Number</MudText>
+                        <MudTd Class="pa-0">
+                            <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
                         </MudTd>
                         <MudTd>
-                            <MudText>@context.FullName</MudText>
+                            <MudStack Row="true" Spacing="1" Class="align-center">
+                                <MudText Typo="Typo.body1">@context.FirstName</MudText>
+                                <MudText Typo="Typo.button">@context.LastName</MudText>
+                                <MudSpacer />
+                                <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                            </MudStack>
+                        </MudTd>
+                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                            <MudText Typo="Typo.caption">@context.Number</MudText>
                         </MudTd>
                         <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">
                             <MudText>@context.TeamName</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText Typo="Typo.h6">@context.Power</MudText>
+                            <MudText Typo="Typo.caption">@context.Power</MudText>
                         </MudTd>
                         @foreach (var runResult in context.RunValuesQ2)
                         {
                             <MudTd>
-                                <MudText Typo="Typo.h6">@runResult</MudText>
+                                <MudText Typo="Typo.caption">@runResult</MudText>
                             </MudTd>
                         }
                         <MudTd>
-                            <MudText Typo="Typo.h6">@context.MaxScoreQ2</MudText>
+                            <MudText Typo="Typo.caption">@context.MaxScoreQ2</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText Typo="Typo.h6">+@(context.GapQ2)</MudText>
+                            <MudText>+@(context.GapQ2)</MudText>
                         </MudTd>
                         </RowTemplate>
                 </MudTable>
@@ -144,7 +162,7 @@ else
             {
                 <MudTable Items="@DriversInQ3.OrderBy(e => e.PositionQ3)" id="q3-result-table">
                     <ToolBarContent>
-                        <MudText>
+                        <MudText Typo="Typo.h6">
                             <CountryFlag Code="@Model.Country" />
                             @Model.Name - QUALIFYING Q3
                         </MudText>
@@ -161,8 +179,9 @@ else
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>#</MudTh>
-                        <MudTh>No.</MudTh>
+                        <MudTh Class="pa-0"></MudTh>
                         <MudTh>Driver</MudTh>
+                        <MudTh>No.</MudTh>
                         <MudTh>Team</MudTh>
                         <MudTh>PWR</MudTh>
                         @for (int i = 1; i <= Model.AmountRuns; i++)
@@ -175,31 +194,39 @@ else
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>
-                            <MudText Typo="Typo.h6">@context.PositionQ3</MudText>
+                            <MudText Typo="Typo.caption">@context.PositionQ3</MudText>
                         </MudTd>
-                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                            <MudText Typo="Typo.h6">@context.Number</MudText>
+                        <MudTd Class="pa-0">
+                            <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
                         </MudTd>
                         <MudTd>
-                            <MudText>@context.FullName</MudText>
+                            <MudStack Row="true" Spacing="1" Class="align-center">
+                                <MudText Typo="Typo.body1">@context.FirstName</MudText>
+                                <MudText Typo="Typo.button">@context.LastName</MudText>
+                                <MudSpacer />
+                                <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                            </MudStack>
+                        </MudTd>
+                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                            <MudText Typo="Typo.caption">@context.Number</MudText>
                         </MudTd>
                         <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">
                             <MudText>@context.TeamName</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText Typo="Typo.h6">@context.Power</MudText>
+                            <MudText Typo="Typo.caption">@context.Power</MudText>
                         </MudTd>
                         @foreach (var runResult in context.RunValuesQ3)
                         {
                             <MudTd>
-                                <MudText Typo="Typo.h6">@runResult</MudText>
+                                <MudText Typo="Typo.caption">@runResult</MudText>
                             </MudTd>
                         }
                         <MudTd>
-                            <MudText Typo="Typo.h6">@context.MaxScoreQ3</MudText>
+                            <MudText Typo="Typo.caption">@context.MaxScoreQ3</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText Typo="Typo.h6">+@(context.GapQ3)</MudText>
+                            <MudText>+@(context.GapQ3)</MudText>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>

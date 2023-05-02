@@ -31,7 +31,7 @@
                             }
                         </CellTemplate>
                     </TemplateColumn>
-                    <TemplateColumn Title="Length">
+                    <TemplateColumn Title="Length" Style="font-family: var(--mud-typography-caption-family)">
                         <CellTemplate>
                             @if (context.Item.StrategyTyres?.Count > 0)
                             {
@@ -85,12 +85,12 @@
                 </ToolBarContent>
                 <Columns>
                     <PropertyColumn Property="e => e.Name" CellStyleFunc="_applyTyreColouring" />
-                    <PropertyColumn Property="e => e.Pace" />
-                    <PropertyColumn Property="e => e.WearMax" />
-                    <PropertyColumn Property="e => e.WearMin" />
-                    <PropertyColumn Property="e => e.Length" />
+                    <PropertyColumn Property="e => e.Pace" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e.WearMax" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e.WearMin" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e.Length" Style="font-family: var(--mud-typography-caption-family)" />
                     <PropertyColumn Property="e => e.State" />
-                    <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
+                    <TemplateColumn Sortable="false">
                         <CellTemplate>
                             <MudButtonGroup>
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTyre(context.Item))" />
