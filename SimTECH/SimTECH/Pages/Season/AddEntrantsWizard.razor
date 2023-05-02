@@ -18,14 +18,19 @@
     <MudStepper @ref="_stepper" Loading="_loading" Variant="Variant.Outlined" Linear="true" DisableSkipButton="true"
                 PreventStepChangeAsync="new Func<StepChangeDirection, Task<bool>>(StepValidator)">
         <StaticContent>
-            <MudText>In this field you'll see any sort of feedback on the current step</MudText>
-            @if (_feedbackValidation != null)
-            {
-                <MudText Color="Color.Error">@_feedbackValidation</MudText>
-            }
+            <MudPaper>
+                <MudText>In this field you'll see any sort of feedback on the current step</MudText>
+                @if (_feedbackValidations != null)
+                {
+                    @foreach (var feedback in _feedbackValidations)
+                    {
+                        <MudAlert Severity="Severity.Error">@feedback</MudAlert>
+                    }
+                }
+            </MudPaper>
         </StaticContent>
         <ChildContent>
-            <MudStep Title="Participating engines">
+            <MudStep Title="Participating engines" Icon="@IconCollection.Engine">
                 <ChildContent>
                     <MudPaper>
                         @if (!_loading)
@@ -42,7 +47,7 @@
                     </MudPaper>
                 </ChildContent>
             </MudStep>
-            <MudStep Title="Modify engines">
+            <MudStep Title="Modify engines" Icon="@IconCollection.Engine">
                 <ChildContent>
                     <MudPaper>
                         @if (!_loading)
@@ -79,7 +84,7 @@
                     </MudPaper>
                 </ChildContent>
             </MudStep>
-            <MudStep Title="Participating teams">
+            <MudStep Title="Participating teams" Icon="@IconCollection.Car">
                 <ChildContent>
                     <MudPaper>
                         @if (!_loading)
@@ -99,7 +104,7 @@
                     </MudPaper>
                 </ChildContent>
             </MudStep>
-            <MudStep Title="Modify teams">
+            <MudStep Title="Modify teams" Icon="@IconCollection.Car">
                 <ChildContent>
                     <MudForm Model="@Model.SeasonTeams" @ref="_teamForm">
                         <MudPaper>
@@ -181,7 +186,7 @@
                     </MudForm>
                 </ChildContent>
             </MudStep>
-            <MudStep Title="Assign engines to teams">
+            <MudStep Title="Assign engines to teams" Icon="@IconCollection.Car">
                 <ChildContent>
                     <MudPaper>
                         @if (!_loading)
@@ -221,7 +226,7 @@
                     </MudPaper>
                 </ChildContent>
             </MudStep>
-            <MudStep Title="Participating drivers">
+            <MudStep Title="Participating drivers" Icon="@IconCollection.Helmet">
                 <ChildContent>
                     <MudPaper>
                         @if (!_loading)
@@ -241,7 +246,7 @@
                     </MudPaper>
                 </ChildContent>
             </MudStep>
-            <MudStep Title="Modify drivers">
+            <MudStep Title="Modify drivers" Icon="@IconCollection.Helmet">
                 <ChildContent>
                     <MudPaper>
                         @if (!_loading)
@@ -465,7 +470,7 @@
     MudDropContainer<EditSeasonTeamModel> _dropperTeams;
     MudDropContainer<EditSeasonDriverModel> _dropperDrivers;
     bool _loading = false;
-    string? _feedbackValidation;
+    string[]? _feedbackValidations;
 
     protected override async Task OnInitializedAsync()
     {
@@ -558,6 +563,10 @@
                 {
                     validationMessages.Add("You fucked up a field somewhere, try again");
                 }
+                else if (Model.SeasonTeams.Any(e => e.ManufacturerId == 0))
+                {
+                    validationMessages.Add("Not all teams have a tyre manufacturer, considering this isn't a boat race means you're going to have to add that also");
+                }
                 RefreshTeamEngine();
                 break;
             case 4: //Step: team assignment
@@ -607,6 +616,14 @@
 
         _loading = false;
         StateHasChanged();
+
+        if (validationMessages.Any())
+        {
+            _feedbackValidations = validationMessages.ToArray();
+            return true;
+        }
+
+        _feedbackValidations = null;
         return false;
     }
 
@@ -657,6 +674,6 @@
         if (manufacturer != null)
             return manufacturer.Name;
 
-        return "Undetermined";
+        return "None";
     }
 }
