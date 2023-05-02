@@ -33,21 +33,21 @@
 
             if (trait.QualifyingPace != 0)
                 assignedValues.Add("Qualifying pace", trait.QualifyingPace);
-            if (trait.QualifyingPace != 0)
+            if (trait.RacePace != 0)
                 assignedValues.Add("Race pace", trait.RacePace);
-            if (trait.QualifyingPace != 0)
+            if (trait.DriverReliability != 0)
                 assignedValues.Add("Driver reliability", trait.DriverReliability);
-            if (trait.QualifyingPace != 0)
+            if (trait.CarReliability != 0)
                 assignedValues.Add("Car reliability", trait.CarReliability);
-            if (trait.QualifyingPace != 0)
+            if (trait.EngineReliability != 0)
                 assignedValues.Add("Engine reliability", trait.EngineReliability);
-            if (trait.QualifyingPace != 0)
+            if (trait.WearMax != 0)
                 assignedValues.Add("Wear max", trait.WearMax);
-            if (trait.QualifyingPace != 0)
+            if (trait.WearMin != 0)
                 assignedValues.Add("Wear min", trait.WearMin);
-            if (trait.QualifyingPace != 0)
+            if (trait.RngMin != 0)
                 assignedValues.Add("Rng min", trait.RngMin);
-            if (trait.QualifyingPace != 0)
+            if (trait.RngMax != 0)
                 assignedValues.Add("Rng max", trait.RngMax);
 
             return assignedValues;
