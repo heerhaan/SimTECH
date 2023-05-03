@@ -79,19 +79,7 @@
                 </MudItem>
                 <MudItem xs="12">
                     <MudPaper Elevation="2" Class="pa-4" Style="height: 200px">
-                        <MudProgressLinear Value="50"
-                                           Min="0"
-                                           Max="100"
-                                           Size="Size.Medium"
-                                           Color="Color.Default"
-                                           Class="my-2" />
 
-                        <BobProgressLinear Colour="#16f5e2"
-                                           Value="50"
-                                           Min="0"
-                                           Max="100"
-                                           Size="Size.Medium"
-                                           Class="my-2" />
                     </MudPaper>
                 </MudItem>
             </MudGrid>
@@ -111,9 +99,9 @@
                             <MudTh>Round</MudTh>
                             <MudTh>Race</MudTh>
                             <MudTh Class="pa-0"></MudTh>
+                            <MudTh>Dub team</MudTh>
                             <MudTh>Dub driver</MudTh>
                             <MudTh Class="number-col">No.</MudTh>
-                            <MudTh>Dub team</MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd>
@@ -134,6 +122,13 @@
                             </MudTd>
                             <MudTd>
                                 <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                    <MudText Typo="Typo.body2">@context.WinningTeam.Name</MudText>
+                                    <MudSpacer />
+                                    <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
+                                </MudStack>
+                            </MudTd>
+                            <MudTd>
+                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                     <MudText Typo="Typo.body2">@context.WinningDriver.Name</MudText>
                                     <MudSpacer />
                                     <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
@@ -141,13 +136,6 @@
                             </MudTd>
                             <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.WinningDriver.Colour, context.WinningDriver.Accent))">
                                 <MudText Typo="Typo.caption">@context.WinningDriver.Number</MudText>
-                            </MudTd>
-                            <MudTd>
-                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                    <MudText Typo="Typo.body2">@context.WinningTeam.Name</MudText>
-                                    <MudSpacer />
-                                    <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
-                                </MudStack>
                             </MudTd>
                         </RowTemplate>
                     </MudTable>

@@ -70,6 +70,15 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task InsertRaces(List<Race> races)
+        {//TODO: Validations?
+            using var context = _dbFactory.CreateDbContext();
+
+            context.AddRange(races);
+
+            await context.SaveChangesAsync();
+        }
+
         public async Task ActivateRace(long raceId)
         {
             using var context = _dbFactory.CreateDbContext();

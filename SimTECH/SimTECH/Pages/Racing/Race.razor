@@ -112,7 +112,7 @@
                 }
                 else
                 {
-                    <MudText Color="Color.Error">@context.Incident</MudText>
+                    <MudText Typo="Typo.button" Color="Color.Error">@context.Incident</MudText>
                 }
             </MudTd>
             <MudTd>
@@ -127,11 +127,11 @@
                         }
                     }
                 </div>
-                <BobProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLap * 10, Model.TrackLength))"
+                <MudProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLap * 10, Model.TrackLength))"
                                    Min="0"
                                    Max="@totalLaps"
                                    Size="Size.Medium"
-                                   Colour="@context.CurrentTyre.Colour"
+                                   Color="@Color.Primary"
                                    Class="my-2" />
             </MudTd>
         </RowTemplate>

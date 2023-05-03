@@ -1,6 +1,6 @@
 ﻿<MudDialog>
     <TitleContent>
-
+        <MudText>Adding multiple of these bad boys</MudText>
     </TitleContent>
     <DialogContent>
         <MudContainer Class="@(lastStep ? "d-none" : string.Empty)">
@@ -30,7 +30,7 @@
             </MudPaper>
         </MudContainer>
         <MudContainer Class="@(lastStep ? string.Empty : "d-none")">
-            <MudPaper>
+            <MudPaper MinWidth="1000px">
                 <MudTable T="EditRaceModel" Items="addedRaces.OrderBy(e => e.Round)" EditTrigger="TableEditTrigger.RowClick" Hover="true">
                     <HeaderContent>
                         <MudTh>Round</MudTh>
@@ -54,7 +54,7 @@
                     </RowTemplate>
                     <RowEditingTemplate>
                         <MudTd>
-                            <MudNumericField @bind-Value="context.Round" Min="OffsetRound" />
+                            <MudText Typo="Typo.caption">@context.Round</MudText>
                         </MudTd>
                         <MudTd>
                             <MudTextField @bind-Value="context.Name" />
@@ -121,7 +121,9 @@
 
     private void Submit()
     {
-        
+        var raceRecords = addedRaces.Select(e => e.Record).ToList();
+
+        RaceDialog?.Close(DialogResult.Ok(raceRecords));
     }
 
     private void Cancel() => RaceDialog?.Cancel();
