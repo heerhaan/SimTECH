@@ -69,7 +69,7 @@
             <MudTh>Progression</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
+            <MudTd Style="@(ViewHelper.SetAccentColour(context.Accent))">
                 <MudText Typo="Typo.caption">@context.Position</MudText>
             </MudTd>
             <MudTd>
@@ -447,7 +447,7 @@
         var allLapScores = Model.RaceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();
         await PersistLapScores(allLapScores);
 
-        // Todo: check if this doesnt mess with the lapscores if those are persisted per advance
+        // TODO: check if this doesnt mess with the lapscores if those are persisted per advance
         await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints);
 
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
@@ -456,6 +456,6 @@
             await _seasonService.CheckPenalties(Model.Season.Id, finishedResults, nextRound);
         }
 
-        _nav.NavigateTo($"/overview/{Model.Season.Id}/2"); // 2 = standingspanel
+        _nav.NavigateTo($"/postrace/{RaceId}");
     }
 }

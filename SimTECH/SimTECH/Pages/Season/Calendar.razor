@@ -43,12 +43,18 @@
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd Class="number-col">@context.Round</MudTd>
+        <MudTd Class="number-col">
+            <MudText>@context.Round</MudText>
+        </MudTd>
         <MudTd>
             <CountryFlag Code="context.Country" Size="FlagSize.Small" IncludeName="true" />
         </MudTd>
-        <MudTd>@context.Name</MudTd>
-        <MudTd>@context.Weather</MudTd>
+        <MudTd>
+            <MudText>@context.Name</MudText>
+        </MudTd>
+        <MudTd>
+            <MudText>@context.Weather</MudText>
+        </MudTd>
         @if (context.PoleSitter != null)
         {
             <MudTd>
@@ -97,15 +103,12 @@
         {
             <MudTd></MudTd>
         }
-        <MudTd>@context.State</MudTd>
+        <MudTd>
+            <MudText>@context.State</MudText>
+        </MudTd>
         <MudTd>
             <MudButtonGroup Size="@Size.Small">
-                @if (Season.State == State.Concept)
-                {
-                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.Id))" />
-                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.Id))" />
-                }
-                else if (Season.State == State.Active && (context.Round == _nextRound))
+                @if (Season.State == State.Active && (context.Round == _nextRound))
                 {
                     <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRaceWeek(context))" />
                 }
@@ -116,6 +119,7 @@
                 else
                 {
                     <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.Id))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.Id))" />
                 }
             </MudButtonGroup>
         </MudTd>
@@ -133,45 +137,6 @@
         RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
 
         _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? 0;
-    }
-
-    private async Task UpdateRace(long raceId)
-    {
-        var item = await RaceService.GetRaceById(raceId);
-        var seasonLeague = await LeagueService.GetLeagueById(Season.LeagueId);
-        var availableTracks = (await TrackService.GetTracks())
-            .Where(e => !RaceCalendar.Select(r => r.TrackId).Contains(e.Id))
-            .ToList();
-
-        if (seasonLeague == null)
-        {
-            Snackbar.Add("how in the hell is it unknown which league this is, cant do shit now?!", Severity.Error);
-            return;
-        }
-
-        if (!availableTracks.Any() && item.Id == 0)
-        {
-            Snackbar.Add("there aren't any tracks left to add to this season, ya absolute willy", Severity.Error);
-            return;
-        }
-
-        var parameters = new DialogParameters 
-            {
-                ["Race"] = item,
-                ["Tracks"] = availableTracks,
-                ["SeasonId"] = Season.Id,
-                ["IncomingRound"] = item.Round,
-                ["DefaultRaceLength"] = seasonLeague.RaceLength,
-            };
-
-        var dialog = await DialogService.ShowAsync<RaceEditor>("Modify Race", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
-        {
-            await RaceService.UpdateRace(updatedRace);
-            RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
-        }
     }
 
     private async Task AddRaces()
@@ -211,10 +176,39 @@
         }
     }
 
+    private async Task UpdateRace(long raceId)
+    {
+        var item = await RaceService.GetRaceById(raceId);
+        var seasonLeague = await LeagueService.GetLeagueById(Season.LeagueId);
+
+        if (seasonLeague == null)
+        {
+            Snackbar.Add("how in the hell is it unknown which league this is, cant do shit now?!", Severity.Error);
+            return;
+        }
+
+        var parameters = new DialogParameters 
+            {
+                ["Race"] = item,
+                ["SeasonId"] = Season.Id,
+                ["IncomingRound"] = item.Round,
+                ["DefaultRaceLength"] = seasonLeague.RaceLength,
+            };
+
+        var dialog = await DialogService.ShowAsync<RaceEditor>("Modify Race", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
+        {
+            await RaceService.UpdateRace(updatedRace);
+            RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
+        }
+    }
+
     private async Task DeleteRace(long raceId)
     {
-        // TODO: implement delete action
-        Snackbar.Add("functionality has not been implemented yet!!! :3", Severity.Error);
+        await RaceService.DeleteRace(raceId);
+        RaceCalendar.Remove(RaceCalendar.First(e => e.Id == raceId));
     }
 
     private async Task GoToRaceWeek(CalendarRaceModel race)

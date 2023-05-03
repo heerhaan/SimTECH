@@ -47,6 +47,10 @@
                             {
                                 <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async() => await DeleteSeason(context.Item.Id))" />
                             }
+                            else if (context.Item.State == State.Closed)
+                            {
+                                <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
+                            }
                         </MudButtonGroup>
                     </CellTemplate>
                 </TemplateColumn>
@@ -102,6 +106,12 @@
         }
     }
 
+    private void CopySeason()
+    {
+        // not yet implemented but i have done so in the past, this is a good suggestion for just taking all the season settings
+        // and perhaps even immediatly storing them.
+    }
+
     private async Task DeleteSeason(long seasonId)
     {
         var result = await SeasonService.DeleteSeason(seasonId);
@@ -116,6 +126,5 @@
         Nav.NavigateTo($"/overview/{seasonId}");
     }
 
-    private static Func<SeasonListModel, string> LeadingTeamStyleFunc => model 
-        => ViewHelper.SetBorderLeftStyle(model.TeamColour);
+    private static Func<SeasonListModel, string> LeadingTeamStyleFunc => model => ViewHelper.SetBorderLeftStyle(model.TeamColour);
 }

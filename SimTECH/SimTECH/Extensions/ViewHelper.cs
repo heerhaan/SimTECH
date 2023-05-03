@@ -13,6 +13,8 @@ namespace SimTECH.Extensions
 
         public static string SetBackgroundColour(string colour) => $"background-color:{colour}";
 
+        public static string SetAccentColour(string accent) => $"color:{accent}";
+
         public static string SetBorderLeftStyle(string colour) => $"border-left:solid 10px {colour};";
 
         public static string SetBorderRightStyle(string colour) => $"border-right:solid 10px {colour};";

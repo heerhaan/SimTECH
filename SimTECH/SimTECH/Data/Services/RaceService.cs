@@ -79,6 +79,19 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task DeleteRace(long raceId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var race = await context.Race.FirstAsync(e => e.Id == raceId);
+
+            // Technically it's possible that this fails when penalties would be assigned, so yeah
+            if (race.State == State.Concept)
+                context.Remove(race);
+
+            await context.SaveChangesAsync();
+        }
+
         public async Task ActivateRace(long raceId)
         {
             using var context = _dbFactory.CreateDbContext();
