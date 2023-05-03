@@ -26,6 +26,11 @@
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
             </TemplateColumn>
+            <TemplateColumn T="Driver" Title="Racing in" Sortable="false">
+                <CellTemplate>
+                    
+                </CellTemplate>
+            </TemplateColumn>
             <PropertyColumn Property="e => e.Alive" />
             <TemplateColumn T="Driver" Sortable="false">
                 <CellTemplate>
@@ -54,12 +59,19 @@
     </MudDataGrid>
 </MudContainer>
 
-@code {
+    @code {
     private List<Driver> DriverData = new();
+    private List<CurrentDriver> CurrentDrivers = new();
 
     protected override async Task OnInitializedAsync()
     {
+        CurrentDrivers = await DriverService.GetCurrentDrivers();
         DriverData = await DriverService.GetDrivers();
+    }
+
+    string ReadActiveLeague(long driverId)
+    {
+        return CurrentDrivers.Find(e => e.DriverId == driverId)?.League ?? "None";
     }
 
     async Task AddDriver() => await UpdateDriver(new Driver());

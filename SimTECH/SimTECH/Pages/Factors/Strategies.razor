@@ -10,6 +10,7 @@
             <MudDataGrid T="Strategy" Items="@StrategyData" Bordered="true" Dense="true">
                 <ToolBarContent>
                     <MudText Typo="Typo.h4">Strategies</MudText>
+                    <sup>PS: Keep in mind that "Avg. Pace" does NOT include the score cost a pitstop would bring!</sup>
                     <MudSpacer />
                     <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddStrategy">New</MudButton>
                 </ToolBarContent>
@@ -39,6 +40,7 @@
                             }
                         </CellTemplate>
                     </TemplateColumn>
+                    <PropertyColumn Property="e => e.AveragePace()" Title="Avg. Pace" />
                     <PropertyColumn Property="e => e.State" />
                     <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
                         <CellTemplate>

@@ -202,6 +202,7 @@
         fatalityOdds = Model.FatalityOdds;
         disqualifyChance = Model.DisqualifyOdds;
         participatingDrivers = Model.RaceDrivers.Count;
+        calculated = Model.RaceDrivers.Select(e => e.LapScores.Count()).Max();
         calculationCount = Model.RaceLength / 10;
 
         racedLaps = NumberHelper.CalcLapCount(calculated * 10, Model.TrackLength);
@@ -218,8 +219,12 @@
 
     int CalculateLapPercentage(int lap)
     {
+        if (lap > 17)
+        {
+            Console.WriteLine("hello");
+        }
         var currentLap = NumberHelper.CalcLapCount(lap * 10, Model.TrackLength);
-        return (currentLap * totalLaps) / 100;
+        return (int)Math.Round((double)(100 * currentLap) / totalLaps);
     }
 
     async Task ShowGraph()
@@ -339,7 +344,7 @@
         }
     }
 
-    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
+    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(999) > reliability;
 
     int HandleStrategy(RaceDriver driver, LapScore lapScore)
     {
@@ -354,7 +359,7 @@
         }
 
         // Maximum wear is more than the tyre can handle, it's time for a pitstop!
-        if (tyreMaxWear > driver.TyreLife)
+        if (Math.Abs(tyreMinWear) > driver.TyreLife)
         {
             var nextOrder = driver.CurrentTyreOrder + 1;
             var nextTyre = driver.Strategy.StrategyTyres.FirstOrDefault(e => e.Order == nextOrder);

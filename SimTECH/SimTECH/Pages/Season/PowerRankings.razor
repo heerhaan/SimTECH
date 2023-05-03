@@ -22,13 +22,15 @@
         <Columns>
             <TemplateColumn T="PowerRankModel" SortBy="e => e.DriverName" Title="Driver">
                 <CellTemplate>
-                    <MudText Typo="Typo.body2">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
+                        <MudText Typo="Typo.body2">
+                            @context.Item.DriverName
+                        </MudText>
                         <CountryFlag Code="@context.Item.Nationality" Size="FlagSize.Small" />
-                        @context.Item.DriverName
-                    </MudText>
+                    </MudStack>
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.DriverNumber" SortBy="e => e.DriverNumber" Title="No." CellClass="number-col" CellStyleFunc="FullStyleFunc" />
+            <PropertyColumn Property="e => e.DriverNumber" SortBy="e => e.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" CellStyleFunc="FullStyleFunc" />
             <PropertyColumn Property="e => e.TeamName" Title="Team" CellStyleFunc="@SimpleCellStyle" />
             <PropertyColumn Property="e => e.Engine" />
             <PropertyColumn Property="e => e.Manufacturer" />

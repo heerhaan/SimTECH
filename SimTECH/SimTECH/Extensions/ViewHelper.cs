@@ -5,7 +5,6 @@ namespace SimTECH.Extensions
 {
     public static class ViewHelper
     {
-        // Styling stuff
         public static string SetGradientTriangleStyle(string colour, string accent)
             => $"background: linear-gradient(to top left, var(--mud-palette-surface) 49.5%, {colour} 50.5%); color: {accent}";
 

@@ -56,7 +56,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var result in results)
+                            @foreach (var result in results.Where(e => e.Incident != Incident.None))
                             {
                                 <tr>
                                     <td></td>
@@ -98,13 +98,14 @@
 @code {
     [Parameter] public long RaceId { get; set; }
 
+    SimTECH.Data.Models.Race race;
     List<Result> results;
 
     bool loading = true;
-    int seasonId;
 
     protected override async Task OnInitializedAsync()
     {
+        race = await _raceService.GetRaceById(RaceId);
         results = await _raceService.GetResultsOfRace(RaceId);
 
         loading = false;
@@ -112,6 +113,6 @@
 
     void GoToStandings()
     {
-        _nav.NavigateTo($"/overview/{seasonId}/2");
+        _nav.NavigateTo($"/overview/{race.SeasonId}/2");
     }
 }
