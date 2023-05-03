@@ -1,0 +1,128 @@
+﻿<MudDialog>
+    <TitleContent>
+
+    </TitleContent>
+    <DialogContent>
+        <MudContainer Class="@(lastStep ? "d-none" : string.Empty)">
+            <MudPaper>
+                <MudTable T="Track" @bind-SelectedItems="selectedTracks" Items="Tracks" MultiSelection="true" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Country</MudTh>
+                        <MudTh>Length</MudTh>
+                        <MudTh>Modifiers (A/C/P/Q)</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText>@context.Name</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <CountryFlag Code="@context.Country" Size="FlagSize.Small" IncludeName="true" />
+                        </MudTd>
+                        <MudTd>
+                            <MudText Typo="Typo.caption">@(context.Length)Km</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@(context.AeroMod)x | @(context.ChassisMod)x | @(context.PowerMod)x | @(context.QualifyingMod)x</MudText>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudContainer>
+        <MudContainer Class="@(lastStep ? string.Empty : "d-none")">
+            <MudPaper>
+                <MudTable T="EditRaceModel" Items="addedRaces.OrderBy(e => e.Round)" EditTrigger="TableEditTrigger.RowClick" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Round</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Length</MudTh>
+                        <MudTh>Weather</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText Typo="Typo.caption">@context.Round</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@context.Name</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@(context.RaceLength)Km</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@context.Weather</MudText>
+                        </MudTd>
+                    </RowTemplate>
+                    <RowEditingTemplate>
+                        <MudTd>
+                            <MudNumericField @bind-Value="context.Round" Min="OffsetRound" />
+                        </MudTd>
+                        <MudTd>
+                            <MudTextField @bind-Value="context.Name" />
+                        </MudTd>
+                        <MudTd>
+                            <MudNumericField T="int" @bind-Value="context.RaceLength" Step="10" Label="RaceLength" HelperText="Should round to nearest ten" Class="field-md" />
+                        </MudTd>
+                        <MudTd>
+                            <MudSelect T="Weather" @bind-Value="context.Weather">
+                                @foreach (var select in EnumHelper.GetWeatherSelection())
+                                {
+                                    <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudTd>
+                    </RowEditingTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        @if (!lastStep)
+        {
+            <MudButton Color="Color.Primary" OnClick="Next">Next</MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? RaceDialog { get; set; }
+
+    [Parameter] public List<Track> Tracks { get; set; }
+    [Parameter] public long SeasonId { get; set; }
+    [Parameter] public int OffsetRound { get; set; }
+    [Parameter] public int DefaultRaceLength { get; set; }
+
+    private HashSet<Track> selectedTracks = new();
+    private List<EditRaceModel> addedRaces = new();
+
+    bool lastStep = false;
+
+    private void Next()
+    {
+        foreach (var track in selectedTracks)
+        {
+            addedRaces.Add(new EditRaceModel
+            {
+                Round = OffsetRound++,
+                Name = track.Name, // TODO: find previously used name for this track, perhaps
+                Weather = EnumHelper.GetRandomWeather(),
+                RaceLength = DefaultRaceLength,
+                TrackId = track.Id,
+                SeasonId = SeasonId,
+            });
+        }
+
+        lastStep = true;
+    }
+
+    private void Submit()
+    {
+        
+    }
+
+    private void Cancel() => RaceDialog?.Cancel();
+}
