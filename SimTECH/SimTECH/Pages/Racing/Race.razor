@@ -122,16 +122,16 @@
                         @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
                         {
                             <SignalIcon LapPercentage="@(CalculateLapPercentage(lapEvent.Order))"
-                                Signal="@raceEvent.element.ToString()"
-                                Index="@raceEvent.index" />
+                                        Signal="@raceEvent.element.ToString()"
+                                        Index="@raceEvent.index" />
                         }
                     }
                 </div>
-                <MudProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLap * 10, Model.TrackLength))"
+                <BobProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLap * 10, Model.TrackLength))"
                                    Min="0"
                                    Max="@totalLaps"
                                    Size="Size.Medium"
-                                   Color="Color.Tertiary"
+                                   Colour="@context.CurrentTyre.Colour"
                                    Class="my-2" />
             </MudTd>
         </RowTemplate>

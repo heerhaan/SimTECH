@@ -1,0 +1,64 @@
+﻿@using MudBlazor.Extensions;
+@inherits MudComponentBase
+
+<div @attributes="UserAttributes" class="@DivClassname" style="@Style" role="progressbar" aria-valuenow="@_value.ToInvariantString()" aria-valuemin="@_min.ToInvariantString()" aria-valuemax="@_max.ToInvariantString()">
+    <div class="mud-progress-linear-bars">
+        <div class="mud-progress-linear-bar" style="@GetStyleBarTransform()"></div>
+    </div>
+    @if (ChildContent != null)
+    {
+        <div class="mud-progress-linear-content">
+            @ChildContent
+        </div>
+    }
+</div>
+
+@*
+    .mud-progress-linear.mud-progress-linear-color-inherit:not(.mud-progress-linear-buffer)::before {
+    background-color: var(--mud-palette-action-disabled);
+}
+
+.mud-progress-linear.mud-progress-linear-color-inherit:not(.mud-progress-linear-buffer) .mud-progress-linear-bar {
+    background-color: var(--mud-palette-action-default);
+}
+
+
+<style type="text/css">
+    .mud-progress-linear.mud-progress-linear-color-inherit::before {
+        background-color: @Colour !important;
+    }
+
+    .mud-progress-linear.mud-progress-linear-color-inherit .mud-progress-linear-bar {
+        background-color: @Colour !important;
+    }
+</style>
+
+//Attempt at setting the colour of the linear bar dynamically, currently fails in the sense of that it applies the color to all
+
+<MudProgressLinear Value="@Value"
+                   Min="@Min"
+                   Max="@Max"
+                   Size="@Size"
+                   Color="Color.Inherit"
+                   Class="@_linearClass" />
+
+code {
+    [Parameter] public string Colour { get; set; } = Constants.DefaultAccent;
+    [Parameter] public double Value { get; set; }
+    [Parameter] public double Min { get; set; }
+    [Parameter] public double Max { get; set; }
+    [Parameter] public Size Size { get; set; } = Size.Medium;
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private static string _uniqueLinearClass => $"bobber{NumberHelper.RandomInt(1000)}";
+
+    private string _linearClass
+    {
+    get
+    {
+    return $"{_uniqueLinearClass} {Class}";
+    }
+    }
+
+
+*@
