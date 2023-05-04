@@ -6,4 +6,9 @@
     {
         public long Id { get; set; }
     }
+
+    public abstract class ModelState : ModelBase
+    {
+        public State State { get; set; }
+    }
 }

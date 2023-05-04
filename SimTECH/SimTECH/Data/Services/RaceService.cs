@@ -234,11 +234,11 @@ namespace SimTECH.Data.Services
                 }
             }
 
-            if (finishedResults.Any(e => e.Incident == Incident.Death))
+            if (finishedResults.Any(e => e.Incident == RaceIncident.Death))
             {
                 //var drivers = await context.Driver.ToListAsync();
 
-                foreach (var death in finishedResults.Where(e => e.Incident == Incident.Death))
+                foreach (var death in finishedResults.Where(e => e.Incident == RaceIncident.Death))
                 {
                     var ripSeasonDriver = seasonDrivers.Single(e => e.Id == death.SeasonDriverId);
                     ripSeasonDriver.SeasonTeamId = null;

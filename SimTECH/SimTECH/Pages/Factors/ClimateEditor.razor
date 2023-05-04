@@ -1,0 +1,34 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">Climate editor</MudText>
+    </TitleContent>
+    <DialogContent>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
+    [Parameter] public Climate? Climate { get; set; }
+
+    EditClimate Model;
+
+    protected override void OnInitialized()
+    {
+        Model = new EditClimate(Climate);
+    }
+
+    private void Submit()
+    {
+        if (Model.IsDirty)
+        {
+            EditDialog?.Close(DialogResult.Ok(Model.Record));
+        }
+    }
+
+    private void Cancel() => EditDialog?.Cancel();
+}

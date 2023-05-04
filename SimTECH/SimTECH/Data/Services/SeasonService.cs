@@ -147,17 +147,17 @@ namespace SimTECH.Data.Services
 
             var newPenalties = new List<Penalty>();
 
-            foreach (var dnfResult in raceResults.Where(e => e.Incident != Incident.None))
+            foreach (var dnfResult in raceResults.Where(e => e.Incident != RaceIncident.None))
             {
                 var componentUsage = usedParts.Single(e => e.SeasonDriverId == dnfResult.SeasonDriverId);
 
                 switch (dnfResult.Incident)
                 {
-                    case Incident.Accident:
-                    case Incident.Collision:
-                    case Incident.Engine:
-                    case Incident.Electrics:
-                    case Incident.Hydraulics:
+                    case RaceIncident.Accident:
+                    case RaceIncident.Collision:
+                    case RaceIncident.Engine:
+                    case RaceIncident.Electrics:
+                    case RaceIncident.Hydraulics:
                         if (componentUsage.Accidents > commonLimit)
                         {
                             newPenalties.Add(new Penalty
@@ -169,9 +169,9 @@ namespace SimTECH.Data.Services
                             });
                         }
                         break;
-                    case Incident.Illegal:
-                    case Incident.Dangerous:
-                    case Incident.Fuel:
+                    case RaceIncident.Illegal:
+                    case RaceIncident.Dangerous:
+                    case RaceIncident.Fuel:
                         newPenalties.Add(new Penalty
                         {
                             Reason = $"Disqualified due to {dnfResult.Incident}",
@@ -369,11 +369,11 @@ namespace SimTECH.Data.Services
                     Colour = driver.SeasonTeam?.Colour ?? Constants.DefaultColour,
                     Accent = driver.SeasonTeam?.Accent ?? Constants.DefaultAccent,
 
-                    Accidents = driverResults.Count(e => e.Incident == Incident.Accident),
-                    Collisions = driverResults.Count(e => e.Incident == Incident.Collision),
-                    Engines = driverResults.Count(e => e.Incident == Incident.Engine),
-                    Electrics = driverResults.Count(e => e.Incident == Incident.Electrics),
-                    Hydraulics = driverResults.Count(e => e.Incident == Incident.Hydraulics),
+                    Accidents = driverResults.Count(e => e.Incident == RaceIncident.Accident),
+                    Collisions = driverResults.Count(e => e.Incident == RaceIncident.Collision),
+                    Engines = driverResults.Count(e => e.Incident == RaceIncident.Engine),
+                    Electrics = driverResults.Count(e => e.Incident == RaceIncident.Electrics),
+                    Hydraulics = driverResults.Count(e => e.Incident == RaceIncident.Hydraulics),
                     TotalDnf = driverResults.Count(e => e.Status == RaceStatus.Dnf),
                     TotalDsq = driverResults.Count(e => e.Status == RaceStatus.Dsq),
 

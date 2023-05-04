@@ -16,7 +16,7 @@ namespace SimTECH
 
     public enum Entrant
     {
-        Unknown = 0,
+        None = 0,
         Driver,
         Team,
         Track,
@@ -25,7 +25,7 @@ namespace SimTECH
 
     public enum RangeType
     {
-        Unknown = 0,
+        None = 0,
         Skill,
         Age,
         Team,
@@ -44,10 +44,9 @@ namespace SimTECH
     }
 
     #region racing
-
     public enum Weather
     {
-        Unknown = 0,
+        None = 0,
         Sunny, Overcast, Rain, Storm
     }
 
@@ -59,12 +58,12 @@ namespace SimTECH
 
     public enum RaceStatus
     {
-        Unknown = 0,
+        None = 0,
         Racing, Dnf, Dsq, Dnq, Fatal,
     }
 
     // TODO: You might want to rethink this enum, consider making penalties custom settable
-    public enum Incident
+    public enum RaceIncident
     {
         None = 0,
         Damage, Collision, Accident, Puncture,
@@ -83,7 +82,6 @@ namespace SimTECH
         Mistake = 16, Pitstop = 32, Swap = 64,
         Death = 128,
     }
-
     #endregion racing
 
     #region countries

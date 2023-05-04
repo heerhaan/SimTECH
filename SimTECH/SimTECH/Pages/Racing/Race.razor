@@ -330,7 +330,7 @@
         else if (cycleReliabilty == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
         {
             lapScore.RacerEvents = RacerEvent.EngineDnf;
-            driver.Incident = Incident.Engine;
+            driver.Incident = RaceIncident.Engine;
             driver.Status = RaceStatus.Dnf;
         }
         else { return; }
@@ -339,7 +339,7 @@
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
         {
             driver.Status = RaceStatus.Fatal;
-            driver.Incident = Incident.Death;
+            driver.Incident = RaceIncident.Death;
             lapScore.RacerEvents |= RacerEvent.Death;
             return;
         }

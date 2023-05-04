@@ -32,9 +32,9 @@
             _ => new State[] { State.Concept, State.Active, State.Advanced, State.Closed }
         };
 
-        public static Incident[] GetDriverIncidents => new Incident[] { Incident.Damage, Incident.Collision, Incident.Accident, Incident.Puncture };
-        public static Incident[] GetCarIncidents => new Incident[] { Incident.Electrics, Incident.Exhaust, Incident.Clutch, Incident.Hydraulics, Incident.Wheel, Incident.Brakes };
-        public static Incident[] GetDisqualifications => new Incident[] { Incident.Dangerous, Incident.Illegal, Incident.Fuel };
+        public static RaceIncident[] GetDriverIncidents => new RaceIncident[] { RaceIncident.Damage, RaceIncident.Collision, RaceIncident.Accident, RaceIncident.Puncture };
+        public static RaceIncident[] GetCarIncidents => new RaceIncident[] { RaceIncident.Electrics, RaceIncident.Exhaust, RaceIncident.Clutch, RaceIncident.Hydraulics, RaceIncident.Wheel, RaceIncident.Brakes };
+        public static RaceIncident[] GetDisqualifications => new RaceIncident[] { RaceIncident.Dangerous, RaceIncident.Illegal, RaceIncident.Fuel };
 
         // Dictionary selectors underneath
         public static Dictionary<Entrant, string> GetEntrantSelection() => new()

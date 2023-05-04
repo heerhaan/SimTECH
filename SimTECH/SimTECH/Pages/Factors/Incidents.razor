@@ -1,0 +1,45 @@
+﻿@page "/incidents"
+@inject IDialogService DialogService
+
+<MudContainer>
+    <MudDataGrid T="Incident" Items="IncidentData">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Incident</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddItem">New</MudButton>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="e => e.Name" />
+            <TemplateColumn Sortable="false">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Tyre" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    List<Incident> IncidentData = new();
+
+    async Task AddItem() => await UpdateItem(null);
+    async Task UpdateItem(Incident? incident)
+    {
+        var parameters = new DialogParameters
+            {
+                ["Incident"] = incident,
+            };
+
+        var dialog = await DialogService.ShowAsync<IncidentEditor>("Modify incident", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Incident updatedItem)
+        {
+        }
+    }
+}
