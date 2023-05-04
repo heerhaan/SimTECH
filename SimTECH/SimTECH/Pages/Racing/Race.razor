@@ -187,10 +187,13 @@
     int totalLaps;
     int minLapRng;
     int maxLapRng;
+    int pitMin;
+    int pitMax;
 
     int calculated;
     int calculationCount;
     int calculationsPerAdvance = 5;
+    Entrant cycleReliabilty = Entrant.Driver;
 
     protected override async Task OnInitializedAsync()
     {
@@ -198,6 +201,8 @@
         allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
         minLapRng = Model.Season.RngMinimum;
         maxLapRng = Model.Season.RngMaximum;
+        pitMin = Model.Season.PitMinimum;
+        pitMax = Model.Season.PitMaximum;
 
         fatalityOdds = Model.FatalityOdds;
         disqualifyChance = Model.DisqualifyOdds;
@@ -219,10 +224,6 @@
 
     int CalculateLapPercentage(int lap)
     {
-        if (lap > 17)
-        {
-            Console.WriteLine("hello");
-        }
         var currentLap = NumberHelper.CalcLapCount(lap * 10, Model.TrackLength);
         return (int)Math.Round((double)(100 * currentLap) / totalLaps);
     }
@@ -314,19 +315,19 @@
 
     void CheckReliability(RaceDriver driver, LapScore lapScore)
     {
-        if (DidReliabilityFail(driver.DriverReliability))
+        if (cycleReliabilty == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
         {
-            lapScore.RacerEvents = RacerEvent.CarDnf;
+            lapScore.RacerEvents = RacerEvent.DriverDnf;
             driver.Incident = EnumHelper.GetDriverIncidents.TakeRandomItem();
             driver.Status = RaceStatus.Dnf;
         }
-        else if (DidReliabilityFail(driver.CarReliability))
+        else if (cycleReliabilty == Entrant.Team && DidReliabilityFail(driver.CarReliability))
         {
-            lapScore.RacerEvents = RacerEvent.DriverDnf;
+            lapScore.RacerEvents = RacerEvent.CarDnf;
             driver.Incident = EnumHelper.GetCarIncidents.TakeRandomItem();
             driver.Status = RaceStatus.Dnf;
         }
-        else if (DidReliabilityFail(driver.EngineReliability))
+        else if (cycleReliabilty == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
         {
             lapScore.RacerEvents = RacerEvent.EngineDnf;
             driver.Incident = Incident.Engine;
@@ -348,6 +349,8 @@
 
     int HandleStrategy(RaceDriver driver, LapScore lapScore)
     {
+        int valueScoreResult = driver.TyreLife;
+
         var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
         var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
 
@@ -372,15 +375,16 @@
                 driver.TyreLife = nextTyre.Tyre.Pace;
 
                 lapScore.RacerEvents |= RacerEvent.Pitstop;
+
+                valueScoreResult = driver.TyreLife;
+                valueScoreResult += NumberHelper.RandomInt(pitMin, pitMax);
             }
         }
-
-        int tyreLifeBeforeWear = driver.TyreLife;
 
         // Add wear to the tyre
         driver.TyreLife += NumberHelper.RandomInt(tyreMaxWear, tyreMinWear);
 
-        return tyreLifeBeforeWear;
+        return valueScoreResult;
     }
 
     void PostProcessAdvance(long? newFastestLapHolder)
@@ -389,6 +393,20 @@
 
         var position = 0;
         highestScore = racingDrivers.Max(e => e.LapSum);
+
+        // Cycle reliability checking
+        switch (cycleReliabilty)
+        {
+            case Entrant.Driver:
+                cycleReliabilty = Entrant.Team;
+                break;
+            case Entrant.Team:
+                cycleReliabilty = Entrant.Engine;
+                break;
+            case Entrant.Engine:
+                cycleReliabilty = Entrant.Driver;
+                break;
+        }
 
         // Only need to use the previous driver if we knew how to swap positions
         // var previousDriver = racingDrivers.First();
