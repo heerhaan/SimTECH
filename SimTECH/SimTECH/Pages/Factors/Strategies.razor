@@ -15,7 +15,7 @@
                     <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddStrategy">New</MudButton>
                 </ToolBarContent>
                 <Columns>
-                    <TemplateColumn Title="Tyres" Sortable="false">
+                    <TemplateColumn T="Strategy" Title="Tyres" Sortable="false">
                         <CellTemplate>
                             @if (context.Item.StrategyTyres?.Count > 0)
                             {
@@ -32,7 +32,7 @@
                             }
                         </CellTemplate>
                     </TemplateColumn>
-                    <TemplateColumn Title="Length" Style="font-family: var(--mud-typography-caption-family)">
+                    <TemplateColumn T="Strategy" Title="Length" Style="font-family: var(--mud-typography-caption-family)">
                         <CellTemplate>
                             @if (context.Item.StrategyTyres?.Count > 0)
                             {
@@ -42,7 +42,7 @@
                     </TemplateColumn>
                     <PropertyColumn Property="e => e.AveragePace()" Title="Avg. Pace" />
                     <PropertyColumn Property="e => e.State" />
-                    <TemplateColumn Sortable="false" CellClass="d-flex justify-end">
+                    <TemplateColumn T="Strategy" Sortable="false">
                         <CellTemplate>
                             <MudButtonGroup>
                                 @if (context.Item.State == State.Closed)
@@ -92,7 +92,7 @@
                     <PropertyColumn Property="e => e.WearMin" Style="font-family: var(--mud-typography-caption-family)" />
                     <PropertyColumn Property="e => e.Length" Style="font-family: var(--mud-typography-caption-family)" />
                     <PropertyColumn Property="e => e.State" />
-                    <TemplateColumn Sortable="false">
+                    <TemplateColumn T="Tyre" Sortable="false">
                         <CellTemplate>
                             <MudButtonGroup>
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTyre(context.Item))" />

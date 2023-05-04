@@ -50,7 +50,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.ToTable("Contract");
+                    b.ToTable("Contract", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.DevelopmentRange", b =>
@@ -80,7 +80,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("LeagueId");
 
-                    b.ToTable("DevelopmentRange");
+                    b.ToTable("DevelopmentRange", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Driver", b =>
@@ -123,7 +123,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Driver");
+                    b.ToTable("Driver", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.DriverTrait", b =>
@@ -138,7 +138,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("TraitId");
 
-                    b.ToTable("DriverTrait");
+                    b.ToTable("DriverTrait", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Engine", b =>
@@ -158,7 +158,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Engine");
+                    b.ToTable("Engine", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.LapScore", b =>
@@ -185,7 +185,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("ResultId");
 
-                    b.ToTable("LapScore");
+                    b.ToTable("LapScore", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.League", b =>
@@ -211,7 +211,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("League");
+                    b.ToTable("League", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Manufacturer", b =>
@@ -252,7 +252,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Manufacturer");
+                    b.ToTable("Manufacturer", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Penalty", b =>
@@ -282,7 +282,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("SeasonDriverId");
 
-                    b.ToTable("Penalty");
+                    b.ToTable("Penalty", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.PointAllotment", b =>
@@ -306,7 +306,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("SeasonId");
 
-                    b.ToTable("PointAllotment");
+                    b.ToTable("PointAllotment", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Race", b =>
@@ -345,7 +345,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("TrackId");
 
-                    b.ToTable("Race");
+                    b.ToTable("Race", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Result", b =>
@@ -399,7 +399,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("StrategyId");
 
-                    b.ToTable("Result");
+                    b.ToTable("Result", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Season", b =>
@@ -459,7 +459,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("LeagueId");
 
-                    b.ToTable("Season");
+                    b.ToTable("Season", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.SeasonDriver", b =>
@@ -505,7 +505,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("SeasonTeamId");
 
-                    b.ToTable("SeasonDriver");
+                    b.ToTable("SeasonDriver", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.SeasonEngine", b =>
@@ -541,7 +541,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("SeasonId");
 
-                    b.ToTable("SeasonEngine");
+                    b.ToTable("SeasonEngine", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.SeasonTeam", b =>
@@ -615,7 +615,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.ToTable("SeasonTeam");
+                    b.ToTable("SeasonTeam", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Sponsor", b =>
@@ -635,7 +635,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sponsor");
+                    b.ToTable("Sponsor", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Strategy", b =>
@@ -651,7 +651,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Strategy");
+                    b.ToTable("Strategy", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.StrategyTyre", b =>
@@ -677,7 +677,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("TyreId");
 
-                    b.ToTable("StrategyTyre");
+                    b.ToTable("StrategyTyre", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Team", b =>
@@ -706,7 +706,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Team");
+                    b.ToTable("Team", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.TeamTrait", b =>
@@ -721,7 +721,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("TraitId");
 
-                    b.ToTable("TeamTrait");
+                    b.ToTable("TeamTrait", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Track", b =>
@@ -759,7 +759,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Track");
+                    b.ToTable("Track", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.TrackTrait", b =>
@@ -774,7 +774,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("TraitId");
 
-                    b.ToTable("TrackTrait");
+                    b.ToTable("TrackTrait", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Trait", b =>
@@ -831,7 +831,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Trait");
+                    b.ToTable("Trait", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Tyre", b =>
@@ -869,7 +869,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tyre");
+                    b.ToTable("Tyre", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.User", b =>
@@ -897,7 +897,7 @@ namespace SimTECH.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Contract", b =>

@@ -45,7 +45,7 @@ namespace SimTECH
 
     #region racing
     public enum Weather
-    {
+    {// Deprecated
         None = 0,
         Sunny, Overcast, Rain, Storm
     }

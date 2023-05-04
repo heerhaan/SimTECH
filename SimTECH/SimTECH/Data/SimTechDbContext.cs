@@ -23,6 +23,7 @@ namespace SimTECH.Data
         public DbSet<Penalty> Penalty => Set<Penalty>();
         public DbSet<PointAllotment> PointAllotment => Set<PointAllotment>();
         public DbSet<Race> Race => Set<Race>();
+        public DbSet<RacePenalty> RacePenalty => Set<RacePenalty>();
         public DbSet<Result> Result => Set<Result>();
         public DbSet<Season> Season => Set<Season>();
         public DbSet<SeasonDriver> SeasonDriver => Set<SeasonDriver>();

@@ -503,7 +503,7 @@ namespace SimTECH.Data.Services
 
             // Excludes wet traits if the race isn't wet either
             var allTraits = await context.Trait
-                .Where(e => (!e.ForWetConditions) || e.ForWetConditions == race.IsWet)
+                .Where(e => (!e.ForWetConditions) || e.ForWetConditions == race.IsWet())
                 .ToListAsync();
 
             var allStrategies = await context.Strategy
@@ -596,6 +596,7 @@ namespace SimTECH.Data.Services
                     Strategy = strategy,
                     // We might want to store the current tyre ID too otherwise this makes little sense when opening an older rees
                     // Also this way one has to finish a started race
+                    // Alternatively determine the current tyre based on the state of the race
                     CurrentTyre = strategy.StrategyTyres[0].Tyre,
 
                     Power = totalPower,
@@ -671,7 +672,7 @@ namespace SimTECH.Data.Services
 
             // Excludes wet traits if the race isn't wet either
             var allTraits = await context.Trait
-                .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.IsWet)
+                .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.IsWet())
                 .ToListAsync();
 
             // Do we feel secure about these null refs?

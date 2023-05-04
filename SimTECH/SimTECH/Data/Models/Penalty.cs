@@ -1,5 +1,6 @@
 ﻿namespace SimTECH.Data.Models
 {
+    // Deprecated
     public sealed class Penalty
     {
         public long Id { get; set; }
