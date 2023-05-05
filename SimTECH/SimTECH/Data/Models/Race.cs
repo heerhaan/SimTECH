@@ -13,8 +13,8 @@
         public Season Season { get; set; } = default!;
         public long TrackId { get; set; }
         public Track Track { get; set; } = default!;
-        public long? ClimateId { get; set; }
-        public Climate? Climate { get; set; }
+        public long ClimateId { get; set; }
+        public Climate Climate { get; set; }
 
         public IList<Penalty> Penalties { get; set; } = default!;
         public IList<Result> Results { get; set; } = default!;
