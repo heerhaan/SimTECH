@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimTECH.Data;
 
@@ -11,9 +12,11 @@ using SimTECH.Data;
 namespace SimTECH.Migrations
 {
     [DbContext(typeof(SimTechDbContext))]
-    partial class SimTechDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230505074225_climates-and-givenpenalties-submigrate")]
+    partial class climatesandgivenpenaltiessubmigrate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -411,7 +414,7 @@ namespace SimTECH.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("ClimateId")
+                    b.Property<long?>("ClimateId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name")
@@ -1121,9 +1124,7 @@ namespace SimTECH.Migrations
                 {
                     b.HasOne("SimTECH.Data.Models.Climate", "Climate")
                         .WithMany()
-                        .HasForeignKey("ClimateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ClimateId");
 
                     b.HasOne("SimTECH.Data.Models.Season", "Season")
                         .WithMany("Races")

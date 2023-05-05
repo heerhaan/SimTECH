@@ -19,6 +19,7 @@
         public SeasonTeam? SeasonTeam { get; set; }
 
         public IList<Result> Results { get; set; } = default!;
+        public IList<GivenPenalty> GivenPenalties { get; set; } = default!;
     }
 
     public static class ExtendSeasonDriver
