@@ -10,7 +10,5 @@
         public Driver Driver { get; set; } = default!;
         public long TeamId { get; set; }
         public Team Team { get; set; } = default!;
-        public long LeagueId { get; set; }
-        public League League { get; set; } = default!;
     }
 }

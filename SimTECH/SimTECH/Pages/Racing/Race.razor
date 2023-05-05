@@ -340,7 +340,7 @@
         {
             driver.Status = RaceStatus.Fatal;
             driver.Incident = RaceIncident.Death;
-            lapScore.RacerEvents |= RacerEvent.Death;
+            lapScore.RacerEvents = RacerEvent.Death;
             return;
         }
     }
@@ -362,7 +362,7 @@
         }
 
         // Maximum wear is more than the tyre can handle, it's time for a pitstop!
-        if (Math.Abs(tyreMinWear) > driver.TyreLife)
+        if (Math.Abs(tyreMaxWear) > driver.TyreLife)
         {
             var nextOrder = driver.CurrentTyreOrder + 1;
             var nextTyre = driver.Strategy.StrategyTyres.FirstOrDefault(e => e.Order == nextOrder);

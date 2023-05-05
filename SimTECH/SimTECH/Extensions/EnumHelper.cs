@@ -9,6 +9,7 @@
 
         public static Country GetDefaultCountry() => Country.FM;
 
+        [Obsolete]
         public static Weather GetRandomWeather()
         {
             var randomNumber = NumberHelper.RandomInt(20);
@@ -32,9 +33,9 @@
             _ => new State[] { State.Concept, State.Active, State.Advanced, State.Closed }
         };
 
-        public static RaceIncident[] GetDriverIncidents => new RaceIncident[] { RaceIncident.Damage, RaceIncident.Collision, RaceIncident.Accident, RaceIncident.Puncture };
-        public static RaceIncident[] GetCarIncidents => new RaceIncident[] { RaceIncident.Electrics, RaceIncident.Exhaust, RaceIncident.Clutch, RaceIncident.Hydraulics, RaceIncident.Wheel, RaceIncident.Brakes };
-        public static RaceIncident[] GetDisqualifications => new RaceIncident[] { RaceIncident.Dangerous, RaceIncident.Illegal, RaceIncident.Fuel };
+        [Obsolete] public static RaceIncident[] GetDriverIncidents => new RaceIncident[] { RaceIncident.Damage, RaceIncident.Collision, RaceIncident.Accident, RaceIncident.Puncture };
+        [Obsolete] public static RaceIncident[] GetCarIncidents => new RaceIncident[] { RaceIncident.Electrics, RaceIncident.Exhaust, RaceIncident.Clutch, RaceIncident.Hydraulics, RaceIncident.Wheel, RaceIncident.Brakes };
+        [Obsolete] public static RaceIncident[] GetDisqualifications => new RaceIncident[] { RaceIncident.Dangerous, RaceIncident.Illegal, RaceIncident.Fuel };
 
         // Dictionary selectors underneath
         public static Dictionary<Entrant, string> GetEntrantSelection() => new()
@@ -44,6 +45,20 @@
             { Entrant.Track, "Track" },
         };
 
+        public static Dictionary<Entrant, string> GetParticipantSelection() => new()
+        {
+            { Entrant.Driver, "Driver" },
+            { Entrant.Team, "Team" },
+            { Entrant.Engine, "Engine" },
+        };
+
+        public static Dictionary<RaceStatus, string> GetStatusSelection() => new()
+        {
+            { RaceStatus.Dnf, "Dnf" },
+            { RaceStatus.Dsq, "Dsq" },
+            { RaceStatus.Fatal, "Fatal" },
+        };
+
         public static Dictionary<TeamRole, string> GetTeamRoleSelection() => new()
         {
             { TeamRole.None, "None" },
@@ -51,6 +66,7 @@
             { TeamRole.Support, "Support" },
         };
 
+        [Obsolete]
         public static Dictionary<Weather, string> GetWeatherSelection() => new()
         {
             { Weather.Sunny, "Sunny" },

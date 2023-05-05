@@ -10,6 +10,19 @@ namespace SimTECH
 
         public static DialogOptions DefaultChartDialogSettings => new() { MaxWidth = MaxWidth.ExtraLarge, CloseButton = true };
 
+        public static string[] AllWeatherIcons => new string[]
+        {
+            Icons.Material.Filled.WbSunny,
+            Icons.Material.Filled.Cloud,
+            Icons.Material.Filled.WaterDrop,
+            Icons.Material.Filled.Tsunami,
+            Icons.Material.Filled.Air,
+            Icons.Material.Filled.NightsStay,
+            IconCollection.Storm,
+            IconCollection.Snowflake,
+            IconCollection.CloudBolt,
+        };
+
         #region themes
         private static readonly Typography CommonTypo = new()
         {

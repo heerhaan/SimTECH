@@ -8,7 +8,9 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string Name { get; set; }
+        public int Odds { get; set; }
         public State State { get; set; }
+
         public Entrant ForEntrant { get; set; }
         public RaceStatus ForStatus { get; set; }
         public int Limit { get; set; }
@@ -24,6 +26,7 @@ namespace SimTECH.Data.EditModels
             {
                 Id = incident.Id;
                 Name = incident.Name;
+                Odds = incident.Odds;
                 State = incident.State;
                 ForEntrant = incident.ForEntrant;
                 ForStatus = incident.ForStatus;
@@ -39,6 +42,7 @@ namespace SimTECH.Data.EditModels
             {
                 Id = Id,
                 Name = Name,
+                Odds = Odds,
                 State = State,
                 ForEntrant = ForEntrant,
                 ForStatus = ForStatus,

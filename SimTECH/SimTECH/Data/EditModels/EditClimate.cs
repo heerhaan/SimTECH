@@ -9,6 +9,7 @@ namespace SimTECH.Data.EditModels
         public long Id { get; set; }
         public string Terminology { get; set; }
         public string Icon { get; set; }
+        public int Odds { get; set; }
         public bool IsWet { get; set; }
         public State State { get; set; }
 
@@ -27,6 +28,7 @@ namespace SimTECH.Data.EditModels
                 Id = climate.Id;
                 Terminology = climate.Terminology;
                 Icon = climate.Icon;
+                Odds = climate.Odds;
                 IsWet = climate.IsWet;
                 State = climate.State;
                 EngineMultiplier = climate.EngineMultiplier;
@@ -43,6 +45,7 @@ namespace SimTECH.Data.EditModels
                 Id = Id,
                 Terminology = Terminology,
                 Icon = Icon,
+                Odds = Odds,
                 IsWet = IsWet,
                 State = State,
                 EngineMultiplier = EngineMultiplier,

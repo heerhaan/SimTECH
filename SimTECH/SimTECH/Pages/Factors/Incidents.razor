@@ -1,8 +1,9 @@
 ﻿@page "/incidents"
+@inject IncidentService _incidentService
 @inject IDialogService DialogService
 
-<MudContainer>
-    <MudDataGrid T="Incident" Items="IncidentData">
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudDataGrid T="Incident" Items="@IncidentData">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Incident</MudText>
             <MudSpacer />
@@ -10,22 +11,48 @@
         </ToolBarContent>
         <Columns>
             <PropertyColumn Property="e => e.Name" />
-            <TemplateColumn Sortable="false">
+            <PropertyColumn Property="e => e.ForEntrant" Title="Entrant" />
+            <PropertyColumn Property="e => e.ForStatus" Title="Status" />
+            <PropertyColumn Property="e => e.Limit" />
+            <PropertyColumn Property="e => e.Punishment" />
+            <PropertyColumn Property="e => e.Odds" />
+            <TemplateColumn T="Incident" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
+                        @if (context.Item.State == State.Closed)
+                        {
+                            <MudIconButton Size="@Size.Small"
+                                       Icon="@Icons.Material.Filled.Block"
+                                       Color="Color.Warning"
+                                       Title="Unavailable"
+                                       OnClick="@(async () => await ToggleState(context.Item, State.Active))" />
+                        }
+                        else
+                        {
+                            <MudIconButton Size="@Size.Small"
+                                       Icon="@Icons.Material.Filled.CheckCircleOutline"
+                                       Color="Color.Success"
+                                       Title="Available"
+                                       OnClick="@(async () => await ToggleState(context.Item, State.Closed))" />
+                        }
                         <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
         <PagerContent>
-            <MudDataGridPager T="Tyre" />
+            <MudDataGridPager T="Incident" />
         </PagerContent>
     </MudDataGrid>
 </MudContainer>
 
 @code {
     List<Incident> IncidentData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        IncidentData = await _incidentService.GetIncidents(StateFilter.All);
+    }
 
     async Task AddItem() => await UpdateItem(null);
     async Task UpdateItem(Incident? incident)
@@ -40,6 +67,14 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Incident updatedItem)
         {
+            await _incidentService.UpdateIncident(updatedItem);
+            IncidentData = await _incidentService.GetIncidents(StateFilter.All);
         }
+    }
+
+    async Task ToggleState(Incident incident, State targetState)
+    {
+        await _incidentService.ChangeState(incident, targetState);
+        incident.State = targetState;
     }
 }

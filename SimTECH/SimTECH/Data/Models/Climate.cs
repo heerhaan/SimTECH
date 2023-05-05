@@ -9,5 +9,6 @@
         public double EngineMultiplier { get; set; }
         public int ReliablityModifier { get; set; }
         public int RngModifier { get; set; }
+        public int Odds { get; set; }
     }
 }

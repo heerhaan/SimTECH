@@ -18,8 +18,7 @@
             </ToolBarContent>
             <Columns>
                 <PropertyColumn Property="e => e.Year" />
-                <PropertyColumn Property="e => e.DriverNumber" Title="No." />
-                <TemplateColumn Title="Leading driver">
+                <TemplateColumn T="SeasonListModel" Title="Leading driver">
                     <CellTemplate>
                         <MudStack Row="true" AlignItems="AlignItems.Center">
                             <MudText>@context.Item.DriverName</MudText>
@@ -28,7 +27,8 @@
                         </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
-                <TemplateColumn Title="Leading team" CellStyleFunc="@LeadingTeamStyleFunc" >
+                <PropertyColumn Property="e => e.DriverNumber" SortBy="e => e.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" />
+                <TemplateColumn T="SeasonListModel" Title="Leading team" CellStyleFunc="LeadTeamStyleFunc">
                     <CellTemplate>
                         <MudStack Row="true" AlignItems="AlignItems.Center">
                             <MudText>@context.Item.TeamName</MudText>
@@ -49,7 +49,7 @@
                             }
                             else if (context.Item.State == State.Closed)
                             {
-                                <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
+                                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" OnClick="CopySeason" />
                             }
                         </MudButtonGroup>
                     </CellTemplate>
@@ -126,5 +126,5 @@
         Nav.NavigateTo($"/overview/{seasonId}");
     }
 
-    private static Func<SeasonListModel, string> LeadingTeamStyleFunc => model => ViewHelper.SetBorderLeftStyle(model.TeamColour);
+    private static Func<SeasonListModel, string> LeadTeamStyleFunc => model => ViewHelper.SetBorderLeftStyle(model.TeamColour);
 }

@@ -59,6 +59,11 @@
            <path d=""M17.5 15.5l1.5 1.5""></path>
            <path d=""M17.5 8.5l1.5 -1.5""></path>
         </svg>";
+        public static string CloudBolt => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-cloud-storm"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1""></path>
+           <path d=""M13 14l-2 4l3 0l-2 4""></path>
+        </svg>";
         public static string CrossFilled => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-cross-filled"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
            <path d=""M10 2l-.117 .007a1 1 0 0 0 -.883 .993v4h-4a1 1 0 0 0 -1 1v4l.007 .117a1 1 0 0 0 .993 .883h4v8a1 1 0 0 0 1 1h4l.117 -.007a1 1 0 0 0 .883 -.993v-8h4a1 1 0 0 0 1 -1v-4l-.007 -.117a1 1 0 0 0 -.993 -.883h-4v-4a1 1 0 0 0 -1 -1h-4z"" stroke-width=""0"" fill=""currentColor""></path>
@@ -112,6 +117,21 @@
         // Q
         // R
         // S
+        public static string Snowflake => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-snowflake"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M10 4l2 1l2 -1""></path>
+           <path d=""M12 2v6.5l3 1.72""></path>
+           <path d=""M17.928 6.268l.134 2.232l1.866 1.232""></path>
+           <path d=""M20.66 7l-5.629 3.25l.01 3.458""></path>
+           <path d=""M19.928 14.268l-1.866 1.232l-.134 2.232""></path>
+           <path d=""M20.66 17l-5.629 -3.25l-2.99 1.738""></path>
+           <path d=""M14 20l-2 -1l-2 1""></path>
+           <path d=""M12 22v-6.5l-3 -1.72""></path>
+           <path d=""M6.072 17.732l-.134 -2.232l-1.866 -1.232""></path>
+           <path d=""M3.34 17l5.629 -3.25l-.01 -3.458""></path>
+           <path d=""M4.072 9.732l1.866 -1.232l.134 -2.232""></path>
+           <path d=""M3.34 7l5.629 3.25l2.99 -1.738""></path>
+        </svg>";
         public static string Skull => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-skull"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
            <path d=""M12 4c4.418 0 8 3.358 8 7.5c0 1.901 -.755 3.637 -2 4.96l0 2.54a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-2.54c-1.245 -1.322 -2 -3.058 -2 -4.96c0 -4.142 3.582 -7.5 8 -7.5z""></path>
@@ -128,6 +148,13 @@
            <path d=""M10 12l-6.75 -2""></path>
            <path d=""M14 12l6.75 -2""></path>
         </svg>";
+        public static string Storm => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-storm"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0""></path>
+           <path d=""M12 12m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0""></path>
+           <path d=""M5.369 14.236c-1.839 -3.929 -1.561 -7.616 -.704 -11.236""></path>
+           <path d=""M18.63 9.76c1.837 3.928 1.561 7.615 .703 11.236""></path>
+        </svg>";
         // T
         public static string TrafficCone => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-traffic-cone"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
@@ -135,6 +162,17 @@
            <path d=""M9.4 10l5.2 0""></path>
            <path d=""M7.8 15l8.4 0""></path>
            <path d=""M6 20l5 -15h2l5 15""></path>
+        </svg>";
+        public static string TrafficLights => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-traffic-lights"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M7 2m0 5a5 5 0 0 1 5 -5h0a5 5 0 0 1 5 5v10a5 5 0 0 1 -5 5h0a5 5 0 0 1 -5 -5z""></path>
+           <path d=""M12 7m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0""></path>
+           <path d=""M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0""></path>
+           <path d=""M12 17m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0""></path>
+        </svg>";
+        public static string Trophy => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-trophy-filled"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M17 3a1 1 0 0 1 .993 .883l.007 .117v2.17a3 3 0 1 1 0 5.659v.171a6.002 6.002 0 0 1 -5 5.917v2.083h3a1 1 0 0 1 .117 1.993l-.117 .007h-8a1 1 0 0 1 -.117 -1.993l.117 -.007h3v-2.083a6.002 6.002 0 0 1 -4.996 -5.692l-.004 -.225v-.171a3 3 0 0 1 -3.996 -2.653l-.003 -.176l.005 -.176a3 3 0 0 1 3.995 -2.654l-.001 -2.17a1 1 0 0 1 1 -1h10zm-12 5a1 1 0 1 0 0 2a1 1 0 0 0 0 -2zm14 0a1 1 0 1 0 0 2a1 1 0 0 0 0 -2z"" stroke-width=""0"" fill=""currentColor""></path>
         </svg>";
         // U
         // V

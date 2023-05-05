@@ -44,6 +44,7 @@ namespace SimTECH
     }
 
     #region racing
+    [Obsolete]
     public enum Weather
     {// Deprecated
         None = 0,
@@ -63,6 +64,7 @@ namespace SimTECH
     }
 
     // TODO: You might want to rethink this enum, consider making penalties custom settable
+    [Obsolete]
     public enum RaceIncident
     {
         None = 0,

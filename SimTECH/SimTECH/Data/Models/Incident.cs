@@ -15,6 +15,7 @@
         public RaceStatus ForStatus { get; set; }
         public int Limit { get; set; }
         public int Punishment { get; set; }
+        public int Odds { get; set; }
     }
 
     public static class ExtendIncident

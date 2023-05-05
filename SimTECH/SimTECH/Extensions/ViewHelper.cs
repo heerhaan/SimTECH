@@ -53,6 +53,7 @@ namespace SimTECH.Extensions
             _ => Icons.Material.Filled.QuestionMark
         };
 
+        [Obsolete]
         public static string GetWeatherIcon(this Weather weather) => weather switch
         {
             Weather.Sunny => Icons.Material.Filled.WbSunny,
