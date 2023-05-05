@@ -8,36 +8,19 @@
                 <MudTextField T="string" @bind-Text="@Model.Name" Label="Name" />
 
                 <div>
-                    <MudText Typo="Typo.subtitle2">For entrant</MudText>
+                    <MudText Typo="Typo.subtitle2">Category</MudText>
                     @if (Model.Id == 0)
                     {
-                        <MudChipSet @bind-SelectedChip="entrantChip" Mandatory="true">
-                            @foreach (var entrant in EnumHelper.GetParticipantSelection())
+                        <MudChipSet @bind-SelectedChip="categoryChip" Mandatory="true">
+                            @foreach (var cat in EnumHelper.GetIncidentCategories())
                             {
-                                <MudChip Value="@entrant.Key">@entrant.Value</MudChip>
+                                <MudChip Value="@cat.Key">@cat.Value</MudChip>
                             }
                         </MudChipSet>
                     }
                     else
                     {
-                        <MudText>@Model.ForEntrant.ToString()</MudText>
-                    }
-                </div>
-
-                <div>
-                    <MudText Typo="Typo.subtitle2">For status</MudText>
-                    @if (Model.Id == 0)
-                    {
-                        <MudChipSet @bind-SelectedChip="statusChip" Mandatory="true">
-                            @foreach (var status in EnumHelper.GetStatusSelection())
-                            {
-                                <MudChip Value="@status.Key">@status.Value</MudChip>
-                            }
-                        </MudChipSet>
-                    }
-                    else
-                    {
-                        <MudText>@Model.ForStatus.ToString()</MudText>
+                        <MudText>@Model.Category.ToString()</MudText>
                     }
                 </div>
 
@@ -74,8 +57,7 @@
     [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
     [Parameter] public Incident? Incident { get; set; }
 
-    MudChip? entrantChip;
-    MudChip? statusChip;
+    MudChip? categoryChip;
     bool hasPunishment = false;
 
     EditIncident Model;
@@ -92,11 +74,10 @@
         if (Model.Id == 0)
         {
             // Perhaps own warning/validation message
-            if (entrantChip == null || statusChip == null)
+            if (categoryChip == null)
                 return;
 
-            Model.ForEntrant = (Entrant)entrantChip.Value;
-            Model.ForStatus = (RaceStatus)statusChip.Value;
+            Model.Category = (CategoryIncident)categoryChip.Value;
         }
 
         if (Model.IsDirty)

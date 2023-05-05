@@ -3,6 +3,7 @@
     public class GivenPenalty : ModelBase
     {
         public bool Consumed { get; set; }
+        public long? ConsumedAtRaceId { get; set; }
 
         public long SeasonDriverId { get; set; }
         public SeasonDriver SeasonDriver { get; set; }

@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Extensions
+﻿using SimTECH.Data.Models;
+
+namespace SimTECH.Extensions
 {
     public static class EnumHelper
     {
@@ -9,21 +11,6 @@
 
         public static Country GetDefaultCountry() => Country.FM;
 
-        [Obsolete]
-        public static Weather GetRandomWeather()
-        {
-            var randomNumber = NumberHelper.RandomInt(20);
-
-            return randomNumber switch
-            {
-                int n when n <= 8 => Weather.Sunny,
-                int n when n > 8 && n <= 16 => Weather.Overcast,
-                int n when n > 16 && n <= 19 => Weather.Rain,
-                int n when n > 19 => Weather.Storm,
-                _ => Weather.Sunny,
-            };
-        }
-
         public static State[] StatesForFilter(this StateFilter filter) => filter switch
         {
             StateFilter.All => new State[] { State.Concept, State.Active, State.Advanced, State.Closed, State.Archived },
@@ -33,10 +20,6 @@
             _ => new State[] { State.Concept, State.Active, State.Advanced, State.Closed }
         };
 
-        [Obsolete] public static RaceIncident[] GetDriverIncidents => new RaceIncident[] { RaceIncident.Damage, RaceIncident.Collision, RaceIncident.Accident, RaceIncident.Puncture };
-        [Obsolete] public static RaceIncident[] GetCarIncidents => new RaceIncident[] { RaceIncident.Electrics, RaceIncident.Exhaust, RaceIncident.Clutch, RaceIncident.Hydraulics, RaceIncident.Wheel, RaceIncident.Brakes };
-        [Obsolete] public static RaceIncident[] GetDisqualifications => new RaceIncident[] { RaceIncident.Dangerous, RaceIncident.Illegal, RaceIncident.Fuel };
-
         // Dictionary selectors underneath
         public static Dictionary<Entrant, string> GetEntrantSelection() => new()
         {
@@ -45,18 +28,13 @@
             { Entrant.Track, "Track" },
         };
 
-        public static Dictionary<Entrant, string> GetParticipantSelection() => new()
+        public static Dictionary<CategoryIncident, string> GetIncidentCategories() => new()
         {
-            { Entrant.Driver, "Driver" },
-            { Entrant.Team, "Team" },
-            { Entrant.Engine, "Engine" },
-        };
-
-        public static Dictionary<RaceStatus, string> GetStatusSelection() => new()
-        {
-            { RaceStatus.Dnf, "Dnf" },
-            { RaceStatus.Dsq, "Dsq" },
-            { RaceStatus.Fatal, "Fatal" },
+            { CategoryIncident.Driver, "Driver" },
+            { CategoryIncident.Car, "Car" },
+            { CategoryIncident.Engine, "Engine" },
+            { CategoryIncident.Disqualified, "Disqualified" },
+            { CategoryIncident.Lethal, "Lethal" },
         };
 
         public static Dictionary<TeamRole, string> GetTeamRoleSelection() => new()
@@ -64,15 +42,6 @@
             { TeamRole.None, "None" },
             { TeamRole.Main, "Main" },
             { TeamRole.Support, "Support" },
-        };
-
-        [Obsolete]
-        public static Dictionary<Weather, string> GetWeatherSelection() => new()
-        {
-            { Weather.Sunny, "Sunny" },
-            { Weather.Overcast, "Overcast" },
-            { Weather.Rain, "Rain" },
-            { Weather.Storm, "Storm" },
         };
     }
 }

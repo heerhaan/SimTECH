@@ -10,11 +10,11 @@ namespace SimTECH.Data.EditModels
         public int Round { get; set; }
         public string Name { get; set; } = string.Empty;
         public int RaceLength { get; set; }
-        public Weather Weather { get; set; }
         public State State { get; set; }
 
         public long SeasonId { get; set; }
         public long TrackId { get; set; }
+        public long ClimateId { get; set; }
 
         public EditRaceModel() { _race = new Race(); }
         public EditRaceModel(Race race)
@@ -23,10 +23,10 @@ namespace SimTECH.Data.EditModels
             Round = race.Round;
             Name = race.Name;
             RaceLength = race.RaceLength;
-            Weather = race.Weather;
             State = race.State;
             SeasonId = race.SeasonId;
             TrackId = race.TrackId;
+            ClimateId = race.ClimateId;
 
             _race = race;
         }
@@ -38,10 +38,10 @@ namespace SimTECH.Data.EditModels
                 Round = Round,
                 Name = Name,
                 RaceLength = RaceLength,
-                Weather = Weather,
                 State = State,
                 SeasonId = SeasonId,
                 TrackId = TrackId,
+                ClimateId = ClimateId,
             };
 
         public bool IsDirty => _race != Record;
@@ -49,8 +49,6 @@ namespace SimTECH.Data.EditModels
         public void ResetIdentifierFields()
         {
             Id = default;
-            Weather = default;
-            State = State.Concept;
             SeasonId = default;
         }
     }

@@ -65,7 +65,7 @@
                             <MudText>@(context.RaceLength)Km</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText>@context.Weather</MudText>
+                            <MudText>@context.ClimateId</MudText>
                         </MudTd>
                     </RowTemplate>
                     <RowEditingTemplate>
@@ -79,10 +79,12 @@
                             <MudNumericField T="int" @bind-Value="context.RaceLength" Step="10" Label="RaceLength" HelperText="Should round to nearest ten" Class="field-md" />
                         </MudTd>
                         <MudTd>
-                            <MudSelect T="Weather" @bind-Value="context.Weather">
-                                @foreach (var select in EnumHelper.GetWeatherSelection())
+                            <MudSelect T="long" @bind-Value="context.ClimateId">
+                                @foreach (var climate in Climates)
                                 {
-                                    <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                                    <MudSelectItem Value="climate.Id">
+                                        @climate.Terminology
+                                    </MudSelectItem>
                                 }
                             </MudSelect>
                         </MudTd>
@@ -111,6 +113,7 @@
     [Parameter] public long SeasonId { get; set; }
     [Parameter] public int OffsetRound { get; set; }
     [Parameter] public int DefaultRaceLength { get; set; }
+    [Parameter] public List<Climate> Climates { get; set; }
 
     private HashSet<Track> selectedTracks = new();
     private List<EditRaceModel> addedRaces = new();
@@ -120,16 +123,18 @@
 
     private void Next()
     {
+        var climateIdentifiers = Climates.Select(e => e.Id).ToArray();
+
         foreach (var track in selectedTracks)
         {
             addedRaces.Add(new EditRaceModel
             {
                 Round = OffsetRound++,
                 Name = track.Name, // TODO: find previously used name for this track, perhaps
-                Weather = EnumHelper.GetRandomWeather(),
                 RaceLength = DefaultRaceLength,
                 TrackId = track.Id,
                 SeasonId = SeasonId,
+                ClimateId = climateIdentifiers.TakeRandomItem(),
             });
         }
 

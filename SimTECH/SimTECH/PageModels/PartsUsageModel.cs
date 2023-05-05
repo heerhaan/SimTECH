@@ -9,21 +9,10 @@
         public string Colour { get; set; }
         public string Accent { get; set; }
 
-        public int Accidents { get; set; }
-        public int Collisions { get; set; }
-        public int Engines { get; set; }
-        public int Electrics { get; set; }
-        public int Hydraulics { get; set; }
         public int TotalDnf { get; set; }
         public int TotalDsq { get; set; }
 
-        public List<GivenPenalties> GivenPenalties { get; set; }
-    }
-
-    public class GivenPenalties
-    {
-        public int Round { get; set; }
-        public string Reason { get; set; }
-        public int Punishment { get; set; }
+        public Dictionary<long, int> DriverIncidents { get; set; } = new();
+        public List<string> ConsumedPenalties { get; set; }
     }
 }

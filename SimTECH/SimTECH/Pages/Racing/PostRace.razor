@@ -52,15 +52,17 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Incident</th>
+                                <th></th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var result in results.Where(e => e.Incident != RaceIncident.None))
+                            @foreach (var result in results.Where(e => e.IncidentId.HasValue))
                             {
                                 <tr>
                                     <td></td>
-                                    <td>@result.Incident</td>
+                                    <td>@result.IncidentId.GetValueOrDefault()</td>
+                                    <td>TODO</td>
                                     <td>@result.Status</td>
                                 </tr>
                             }
