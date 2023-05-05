@@ -14,7 +14,7 @@
 
 @* TODO: If you get this whole bad boy working, consider adding the process of adding races too! *@
 
-<MudContainer>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudStepper @ref="_stepper" Loading="_loading" Variant="Variant.Outlined" Linear="true" DisableSkipButton="true"
                 PreventStepChangeAsync="new Func<StepChangeDirection, Task<bool>>(StepValidator)">
         <StaticContent>
@@ -32,19 +32,21 @@
         <ChildContent>
             <MudStep Title="Participating engines" Icon="@IconCollection.Engine">
                 <ChildContent>
-                    <MudPaper>
-                        @if (!_loading)
-                        {
-                            <MudTable T="Engine" Items="@engines" @bind-SelectedItems="@Model.BaseEngines" MultiSelection="true" Hover="true">
-                                <ToolBarContent>
-                                    <MudText Typo="Typo.h5">Available engines</MudText>
-                                </ToolBarContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="Name">@context.Name</MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        }
-                    </MudPaper>
+                    <MudContainer MaxWidth="MaxWidth.Medium">
+                        <MudPaper>
+                            @if (!_loading)
+                            {
+                                <MudTable T="Engine" Items="@engines" @bind-SelectedItems="@Model.BaseEngines" MultiSelection="true" Hover="true">
+                                    <ToolBarContent>
+                                        <MudText Typo="Typo.h5">Available engines</MudText>
+                                    </ToolBarContent>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                                    </RowTemplate>
+                                </MudTable>
+                            }
+                        </MudPaper>
+                    </MudContainer>
                 </ChildContent>
             </MudStep>
             <MudStep Title="Modify engines" Icon="@IconCollection.Engine">
@@ -99,11 +101,15 @@
                                 <ToolBarContent>
                                     <MudText Typo="Typo.h5">Available teams</MudText>
                                 </ToolBarContent>
+                                <HeaderContent>
+                                    <MudTh>Name</MudTh>
+                                </HeaderContent>
                                 <RowTemplate>
                                     <MudTd DataLabel="Name">
-                                        <MudStack Row="true" Spacing="1" Class="align-center">
-                                            <CountryFlag Code="@context.Country" />
+                                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                             <MudText>@context.Name</MudText>
+                                            <MudSpacer />
+                                            <CountryFlag Code="@context.Country" />
                                         </MudStack>
                                     </MudTd>
                                 </RowTemplate>
@@ -164,7 +170,7 @@
                                             <MudText Typo="Typo.caption">@context.Reliability</MudText>
                                         </MudTd>
                                         <MudTd DataLabel="Manufacturer">
-                                            <MudText>@ReadManufacturerName(context.ManufacturerId);</MudText>
+                                            <MudText>@ReadManufacturerName(context.ManufacturerId)</MudText>
                                         </MudTd>
                                     </RowTemplate>
                                     <RowEditingTemplate>
@@ -221,30 +227,25 @@
                         {
                             <MudDropContainer T="EditSeasonTeamModel" @ref="_dropperTeams" Items="@Model.SeasonTeams" ItemsSelector="@((item,dropzone) => item.BaseEngineId.ToString() == dropzone)" ItemDropped="TeamEngineDropped" Class="d-flex flex-wrap flex-grow-1">
                                 <ChildContent>
-                                    <MudGrid>
-                                        <MudItem xs="3">
-                                            <MudPaper Class="ma-4 flex-grow-1" Width="225px">
-                                                <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
-                                                    <MudListSubheader>Unassigned teams</MudListSubheader>
-                                                    <MudDropZone T="EditSeasonTeamModel" Identifier="0" Class="flex-grow-1" Style="min-height: 150px;" />
+                                    <MudStack Row="true">
+                                        <MudPaper Class="ma-2" MinHeight="200px" Width="225px">
+                                            <MudList Clickable="true">
+                                                <MudListSubheader>Unassigned teams</MudListSubheader>
+                                                <MudDropZone T="EditSeasonTeamModel" Identifier="0" />
+                                            </MudList>
+                                        </MudPaper>
+                                        @foreach (var seasonEngine in Model.SeasonEngines)
+                                        {
+                                            <MudPaper Class="ma-2" MinHeight="200px" Width="225px">
+                                                <MudList Clickable="true">
+                                                    <MudListSubheader>
+                                                        Engine: @seasonEngine.Name
+                                                    </MudListSubheader>
+                                                    <MudDropZone T="EditSeasonTeamModel" Identifier="@seasonEngine.EngineId.ToString()" />
                                                 </MudList>
                                             </MudPaper>
-                                        </MudItem>
-                                        <MudItem xs="9">
-                                            @foreach (var seasonEngine in Model.SeasonEngines)
-                                            {
-                                                var dropzone = seasonEngine.EngineId.ToString();
-                                                <MudPaper Class="ma-4 flex-grow-1" Width="225px">
-                                                    <MudList Clickable="true" Class="d-flex flex-column">
-                                                        <MudListSubheader>
-                                                            Engine: @seasonEngine.Name
-                                                        </MudListSubheader>
-                                                        <MudDropZone T="EditSeasonTeamModel" Identifier="@dropzone" Class="flex-grow-1" Style="min-height: 150px;" />
-                                                    </MudList>
-                                                </MudPaper>
-                                            }
-                                        </MudItem>
-                                    </MudGrid>
+                                        }
+                                    </MudStack>
                                 </ChildContent>
                                 <ItemRenderer>
                                     <MudListItem Text="@context.Name" />
@@ -263,10 +264,15 @@
                                 <ToolBarContent>
                                     <MudText Typo="Typo.h5">Available drivers</MudText>
                                 </ToolBarContent>
+                                <HeaderContent>
+                                    <MudTh>Name</MudTh>
+                                </HeaderContent>
                                 <RowTemplate>
                                     <MudTd DataLabel="Name">
-                                        <CountryFlag Code="@context.Country" />
-                                        @context.FullName
+                                        <MudStack Row="true">
+                                            <MudText>@context.FullName</MudText>
+                                            <CountryFlag Code="@context.Country" />
+                                        </MudStack>
                                     </MudTd>
                                 </RowTemplate>
                             </MudTable>
@@ -353,24 +359,26 @@
                                 <ChildContent>
                                     <MudGrid>
                                         <MudItem xs="3">
-                                            <MudPaper Class="ma-4 flex-grow-1" Width="225px">
-                                                <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                                            <MudPaper Class="ma-2" MinHeight="200px" Width="225px">
+                                                <MudList Clickable="true">
                                                     <MudListSubheader>Unassigned drivers</MudListSubheader>
-                                                    <MudDropZone T="EditSeasonDriverModel" Identifier="0" Class="flex-grow-1" Style="min-height: 150px;" />
+                                                    <MudDropZone T="EditSeasonDriverModel" Identifier="0" />
                                                 </MudList>
                                             </MudPaper>
                                         </MudItem>
                                         <MudItem xs="9">
                                             @foreach (var seasonTeam in Model.SeasonTeams)
                                             {
-                                                var dropzone = seasonTeam.TeamId.ToString();
-                                                <MudPaper Class="ma-4 flex-grow-1" Width="225px">
-                                                    <MudList Clickable="true" Class="d-flex flex-column">
+                                                <MudPaper Class="ma-2" MinHeight="200px" Width="225px">
+                                                    <MudList Clickable="true">
                                                         <MudListSubheader>
-                                                            <CountryFlag Code="@seasonTeam.Team.Country" />
-                                                            @seasonTeam.Name
+                                                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                                                <MudText>@seasonTeam.Name</MudText>
+                                                                <MudSpacer />
+                                                                <CountryFlag Code="@seasonTeam.Team.Country" />
+                                                            </MudStack>
                                                         </MudListSubheader>
-                                                        <MudDropZone T="EditSeasonDriverModel" Identifier="@dropzone" Class="flex-grow-1" Style="min-height: 150px;" />
+                                                        <MudDropZone T="EditSeasonDriverModel" Identifier="@seasonTeam.TeamId.ToString()" />
                                                     </MudList>
                                                 </MudPaper>
                                             }
@@ -379,7 +387,7 @@
                                 </ChildContent>
                                 <ItemRenderer>
                                     <MudListItem>
-                                        <MudStack Row="true" Spacing="1" Class="align-center">
+                                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
                                             <MudText>@context.Driver.FullName</MudText>
                                             <MudSpacer />
                                             <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
@@ -529,6 +537,7 @@
     public Season Season = new();
     public AddEntrantsModel Model = new();
 
+    Season? PreviousSeason;
     List<Engine> engines;
     List<Team> teams;
     List<Driver> drivers;
@@ -548,11 +557,13 @@
         _loading = true;
 
         Season = await SeasonService.GetSeasonById(SeasonId);
+        PreviousSeason = await SeasonService.FindRecentClosedSeason(Season.LeagueId);
 
         // You might want to add these bad boys to the individual step actions instead of doing it all at once
+        // Retrieve the existing base engines
         engines = await EngineService.GetEngines();
-        teams = await TeamService.GetTeams();
-        drivers = await DriverService.GetDrivers();
+        //teams = await TeamService.GetTeams();
+        //drivers = await DriverService.GetDrivers();
         manufacturers = await ManufacturerService.GetManufacturers();
 
         _loading = false;
@@ -572,18 +583,7 @@
                 {
                     if (Model.BaseEngines?.Any() == true)
                     {
-                        foreach (var engine in Model.BaseEngines)
-                        {
-                            // TODO: Retrieve stats from previous season engine
-                            Model.SeasonEngines.Add(new EditSeasonEngineModel()
-                                {
-                                    EngineId = engine.Id,
-                                    Name = engine.Name,
-                                    Reliability = 1000,
-                                    Power = 50,
-                                    SeasonId = Season.Id,
-                                });
-                        }
+                        await SetDefaultEngines();
                     }
                     else
                     {
@@ -597,30 +597,16 @@
                 {
                     validationMessages.Add("You fucked up a field somewhere, try again");
                 }
+                else
+                {
+                    teams = await TeamService.GetTeams();
+                }
                 break;
             case 2: //Step: adding teams to season
                 {
                     if (Model.BaseTeams?.Any() == true)
                     {
-                        foreach (var team in Model.BaseTeams)
-                        {
-                            // TODO: Retrieve stats from previous season team
-                            Model.SeasonTeams.Add(new EditSeasonTeamModel()
-                                {
-                                    TeamId = team.Id,
-                                    SeasonId = Season.Id,
-                                    Name = team.Name,
-                                    Principal = $"Mr. {team.Name}",
-                                    Colour = "#ffffff",
-                                    Accent = "#000000",
-                                    BaseValue = 100,
-                                    Aero = 20,
-                                    Chassis = 20,
-                                    Powertrain = 20,
-                                    Reliability = 1000,
-                                    Team = team,
-                                });
-                        }
+                        await SetDefaultTeams();
                     }
                     else
                     {
@@ -645,25 +631,16 @@
                 {
                     validationMessages.Add("Oi oi mate, how is a team going to drive without an engine? Try again");
                 }
+                else
+                {
+                    drivers = await DriverService.GetDrivers();
+                }
                 break;
             case 5: //Step: adding drivers
                 {
                     if (Model.BaseDrivers?.Any() == true)
                     {
-                        int indexer = 0;
-                        foreach (var driver in Model.BaseDrivers)
-                        {
-                            // TODO: Retrieve stats from previous season driver
-                            Model.SeasonDrivers.Add(new EditSeasonDriverModel()
-                                {
-                                    DriverId = driver.Id,
-                                    SeasonId = Season.Id,
-                                    Driver = driver,
-                                    Number = ++indexer,
-                                    Skill = 50,
-                                    Reliability = 1000,
-                                });
-                        }
+                        await SetDefaultDrivers();
                     }
                     else
                     {
@@ -696,6 +673,75 @@
 
         _feedbackValidations = null;
         return false;
+    }
+
+    private async Task SetDefaultEngines()
+    {
+        List<SeasonEngine>? previousEngines = null;
+        if (PreviousSeason != null)
+            previousEngines = await EntrantService.GetSeasonEngines(PreviousSeason.Id);
+
+        foreach (var engine in Model.BaseEngines)
+        {
+            SeasonEngine? previousEngine = null;
+            if (previousEngines != null)
+                previousEngine = previousEngines.Find(e => e.EngineId == engine.Id);
+
+            var model = new EditSeasonEngineModel(previousEngine);
+            model.Id = default;
+            model.SeasonId = Season.Id;
+
+            Model.SeasonEngines.Add(model);
+        }
+    }
+
+    private async Task SetDefaultTeams()
+    {
+        List<SeasonTeam>? previousTeams = null;
+        if (PreviousSeason != null)
+            previousTeams = await EntrantService.GetSeasonTeams(PreviousSeason.Id);
+
+        foreach (var team in Model.BaseTeams)
+        {
+            SeasonTeam? previousTeam = null;
+            if (previousTeams != null)
+                previousTeam = previousTeams.Find(e => e.TeamId == team.Id);
+
+            var model = new EditSeasonTeamModel(previousTeam);
+            model.Id = default;
+            model.SeasonId = Season.Id;
+            model.SeasonEngineId = default;
+            model.Points = 0;
+            model.HiddenPoints = 0;
+            model.Team = team;
+
+            Model.SeasonTeams.Add(model);
+        }
+    }
+
+    private async Task SetDefaultDrivers()
+    {
+        List<SeasonDriver>? previousDrivers = null;
+        if (PreviousSeason != null)
+            previousDrivers = await EntrantService.GetSeasonDrivers(PreviousSeason.Id);
+
+        int indexer = 0;
+        foreach (var driver in Model.BaseDrivers)
+        {
+            SeasonDriver? previousDriver = null;
+            if (previousDrivers != null)
+                previousDriver = previousDrivers.Find(e => e.DriverId == driver.Id);
+
+            Model.SeasonDrivers.Add(new EditSeasonDriverModel()
+                {
+                    DriverId = driver.Id,
+                    SeasonId = Season.Id,
+                    Driver = driver,
+                    Number = ++indexer,
+                    Skill = 50,
+                    Reliability = 1000,
+                });
+        }
     }
 
     private async Task AddAllEntrants()

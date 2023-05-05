@@ -38,6 +38,16 @@ namespace SimTECH.Data.Services
                 .SingleAsync(e => e.Id == seasonId);
         }
 
+        public async Task<Season?> FindRecentClosedSeason(long leagueId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Season
+                .Where(e => e.LeagueId == leagueId && e.State == State.Closed)
+                .OrderByDescending(e => e.Id)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task UpdateSeason(Season season)
         {
             using var context = _dbFactory.CreateDbContext();
