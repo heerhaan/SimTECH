@@ -18,19 +18,6 @@
                 </MudButtonGroup>
             }
         </ToolBarContent>
-        <ColGroup>
-            <col class="number-col" />
-            <col />
-            <col />
-            <col />
-            <col class="number-col" />
-            <col />
-            <col class="number-col" />
-            <col />
-            <col />
-            <col />
-            <col />
-        </ColGroup>
         <HeaderContent>
             <MudTh Class="number-col">Round</MudTh>
             <MudTh>Country</MudTh>
@@ -55,7 +42,10 @@
                 <MudText>@context.Name</MudText>
             </MudTd>
             <MudTd>
-                <MudText>TODO climate</MudText>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
+                    <MudIcon Icon="@context.WeatherIcon" />
+                    <MudText>@context.Weather</MudText>
+                </MudStack>
             </MudTd>
             @if (context.PoleSitter != null)
             {
@@ -68,7 +58,7 @@
                 </MudTd>
                 <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
                     <MudText Typo="Typo.caption">@(context.PoleSitter.Number)</MudText>
-                    </MudTd>
+                </MudTd>
             }
             else
             {

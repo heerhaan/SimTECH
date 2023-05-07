@@ -61,7 +61,8 @@ namespace SimTECH.PageModels
         public int QualyAmountQ2 { get; set; }
         public int QualyAmountQ3 { get; set; }
 
-        public List<QualifyingDriver> QualifyingDrivers { get; set; }
+        public List<long> PenaltiesToConsume { get; set; } = new();
+        public List<QualifyingDriver> QualifyingDrivers { get; set; } = new();
     }
 
     public class PracticeModel : SessionBase

@@ -43,5 +43,7 @@ namespace SimTECH.Data.Models
 
             return weightedList.TakeRandomItem();
         }
+
+        public static double DoubledPunishment(this Incident incident) => Convert.ToDouble(incident.Punishment) + 0.2;
     }
 }

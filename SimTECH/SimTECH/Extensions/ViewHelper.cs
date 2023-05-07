@@ -1,5 +1,6 @@
 ﻿using MudBlazor;
 using SimTECH.Data.Models;
+using System.Drawing;
 
 namespace SimTECH.Extensions
 {
@@ -17,6 +18,10 @@ namespace SimTECH.Extensions
         public static string SetBorderLeftStyle(string colour) => $"border-left:solid 10px {colour};";
 
         public static string SetBorderRightStyle(string colour) => $"border-right:solid 10px {colour};";
+
+        public static string SetTextStroke(string colour, int size = 1) => $"-webkit-text-stroke: {size}px {colour}";
+
+        public static string SetTextColourStyle(string colour, string accent) => $"-webkit-text-stroke: 1px {accent}; color:{colour}";
 
         public static Func<SeasonDriver, string> DriverGradientStyleFunc => driver =>
         {

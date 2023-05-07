@@ -1,6 +1,4 @@
-﻿using SimTECH.Data.Models;
-
-namespace SimTECH.PageModels
+﻿namespace SimTECH.PageModels
 {
     public class CalendarRaceModel
     {

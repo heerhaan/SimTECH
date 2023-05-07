@@ -15,7 +15,6 @@
         public long ClimateId { get; set; }
         public Climate Climate { get; set; }
 
-        public IList<Penalty> Penalties { get; set; } = default!;
         public IList<Result> Results { get; set; } = default!;
     }
 }

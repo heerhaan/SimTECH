@@ -32,34 +32,27 @@ else
                         <MudTh>Strategy</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd Style="@(ViewHelper.SetAccentColour(context.Accent))">
+                        <MudTd>
                             @if (context.Grid > Model.MaximumInRace)
                             {
                                 <MudText Typo="Typo.caption">DNQ</MudText>
                             }
                             else
                             {
-                                <MudText Typo="Typo.caption">@context.Grid</MudText>
+                                <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextColourStyle(context.Colour, context.Accent))">@context.Grid</MudText>
                             }
                         </MudTd>
                         <MudTd>@context.FullName</MudTd>
                         <MudTd>
                             <MudLink OnClick="@(async () => await PickStrategy(context.ResultId))">
-                                @if (context.Strategy is null)
-                                {
-                                    <MudText>ferrari (no strategy)</MudText>
-                                }
-                                else
-                                {
-                                    <MudStack Spacing="1" Row="true">
-                                        @foreach (var tyreElem in context.Strategy.StrategyTyres)
-                                        {
-                                            <span class="tyre" style="border-color:@(tyreElem.Tyre.Colour)">
-                                                @tyreElem.Tyre.Name.ElementAt(0)
-                                            </span>
-                                        }
-                                    </MudStack>
-                                }
+                                <MudStack Spacing="2" Row="true">
+                                    @foreach (var tyreElem in context.Strategy.StrategyTyres)
+                                    {
+                                        <span class="tyre" style="border-color:@(tyreElem.Tyre.Colour)">
+                                            @tyreElem.Tyre.Name.ElementAt(0)
+                                        </span>
+                                    }
+                                </MudStack>
                             </MudLink>
                         </MudTd>
                     </RowTemplate>
@@ -71,10 +64,13 @@ else
             <MudGrid>
                 <MudItem xs="6">
                     <MudPaper Class="pa-4">
-                        <MudText Typo="Typo.h4">
-                            <CountryFlag Code="@Model.Race.Track.Country" Size="FlagSize.Normal" />
-                            @Model.Race.Name
-                        </MudText>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h4">@Model.Race.Name</MudText>
+                            <MudStack Row="true" AlignItems="AlignItems.Center">
+                                <MudIcon Icon="@Model.Race.Climate.Icon" />
+                                <MudText>@Model.Race.Climate.Terminology</MudText>
+                            </MudStack>
+                        </MudStack>
                         @if (Model.TrackTraits?.Any() == true)
                         {
                             <MudList>
@@ -94,13 +90,31 @@ else
                         <MudText Typo="Typo.h5">Track information</MudText>
                         <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, innit?</MudText>
                         <MudList>
-                            <MudListItem>Length: @(Model.Race.Track.Length)km</MudListItem>
-                            <MudListItem>Laps: @(NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length))</MudListItem>
-                            <MudListItem>Aero mod: @Model.Race.Track.AeroMod</MudListItem>
-                            <MudListItem>Chassis mod: @Model.Race.Track.ChassisMod</MudListItem>
-                            <MudListItem>Power mod: @Model.Race.Track.PowerMod</MudListItem>
-                            <MudListItem>Qualy mod: @Model.Race.Track.QualifyingMod</MudListItem>
-                            <MudListItem>Weather(TODO name): @Model.Race.ClimateId</MudListItem>
+                            <MudListItem>
+                                Country:
+                                <CountryFlag Code="@Model.Race.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
+                            </MudListItem>
+                            <MudListItem>
+                                Length: @(Model.Race.Track.Length)Km
+                            </MudListItem>
+                            <MudListItem>
+                                Laps: @(NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length))
+                                </MudListItem>
+                            <MudListItem>
+                                Aero mod: @Model.Race.Track.AeroMod
+                                </MudListItem>
+                            <MudListItem>
+                                Chassis mod: @Model.Race.Track.ChassisMod
+                                </MudListItem>
+                            <MudListItem>
+                                Power mod: @Model.Race.Track.PowerMod
+                                </MudListItem>
+                            <MudListItem>
+                                Qualy mod: @Model.Race.Track.QualifyingMod
+                                </MudListItem>
+                            <MudListItem>
+                                Weather: @Model.Race.Climate.Terminology
+                            </MudListItem>
                         </MudList>
                     </MudPaper>
                 </MudItem>
@@ -122,7 +136,7 @@ else
                                     {
                                         <tr>
                                             <td>@penalizedDriver.FullName</td>
-                                            <td>@penalizedDriver.Reason</td>
+                                            <td>@penalizedDriver.Reasons</td>
                                             <td>+@(penalizedDriver.Penalty)</td>
                                         </tr>
                                     }

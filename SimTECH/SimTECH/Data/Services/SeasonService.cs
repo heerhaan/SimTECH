@@ -132,7 +132,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task CheckPenalties(long seasonId, List<Result> raceResults, int nextRound)
+        public async Task CheckPenalties(List<Result> raceResults, int nextRound)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -142,15 +142,19 @@ namespace SimTECH.Data.Services
             if (nextRace == null)
                 return;
 
-            var usedParts = await GetPartsUsageModel(seasonId);
+            var newPenalties = new List<GivenPenalty>();
 
-            throw new NotImplementedException("rie");
-
-            var newPenalties = new List<Penalty>();
-
-            foreach (var dnfResult in raceResults.Where(e => e.Incident != null && e.Incident.HasLimit()))
+            foreach (var dnfResult in raceResults.Where(e => e.Incident?.HasLimit() == true))
             {
-                var componentUsage = usedParts.Single(e => e.SeasonDriverId == dnfResult.SeasonDriverId);
+                var incidentFrequency = await context.Result.Where(e => e.SeasonDriverId == dnfResult.SeasonDriverId && e.IncidentId == dnfResult.IncidentId).CountAsync();
+                if (incidentFrequency > dnfResult.Incident.Limit)
+                {
+                    newPenalties.Add(new GivenPenalty
+                    {
+                        SeasonDriverId = dnfResult.SeasonDriverId,
+                        IncidentId = dnfResult.IncidentId.Value,
+                    });
+                }
             }
 
             if (newPenalties.Any())

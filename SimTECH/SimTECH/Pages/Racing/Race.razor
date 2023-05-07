@@ -70,8 +70,8 @@
             <MudTh>Progression</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd Style="@(ViewHelper.SetAccentColour(context.Accent))">
-                <MudText Typo="Typo.caption">@context.Position</MudText>
+            <MudTd>
+                <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextColourStyle(context.Colour, context.Accent))">@context.Position</MudText>
             </MudTd>
             <MudTd>
                 <GridChange Change="@context.GridChange" />
@@ -360,7 +360,7 @@
         }
     }
 
-    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(999) > reliability;
+    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
     int HandleStrategy(RaceDriver driver, LapScore lapScore)
     {
@@ -491,7 +491,7 @@
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
         {
             var nextRound = Model.Round + 1;
-            await _seasonService.CheckPenalties(Model.Season.Id, finishedResults, nextRound);
+            await _seasonService.CheckPenalties(finishedResults, nextRound);
         }
 
         _nav.NavigateTo($"/postrace/{RaceId}");

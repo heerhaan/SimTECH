@@ -34,7 +34,6 @@ namespace SimTECH.Data.Services
 
             return await context.Race
                 .Include(e => e.Track)
-                .Include(e => e.Penalties)
                 .SingleAsync(e => e.Id == raceId);
         }
 
@@ -191,6 +190,19 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task ConsumePenalties(List<long> consumables, long raceId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            await context.GivenPenalty
+                .Where(e => consumables.Contains(e.Id))
+                .ExecuteUpdateAsync(e =>
+                    e.SetProperty(p => p.Consumed, p => true)
+                     .SetProperty(p => p.ConsumedAtRaceId, p => raceId));
+
+            await context.SaveChangesAsync();
+        }
+
         public async Task PersistLapScores(List<LapScore> lapscores)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -235,7 +247,7 @@ namespace SimTECH.Data.Services
             }
 
             // De-activate the drivers which had a lethal crash
-            foreach (var death in finishedResults.Where(e => e.Incident != null && e.Incident.Category == CategoryIncident.Lethal))
+            foreach (var death in finishedResults.Where(e => e.Incident?.Category == CategoryIncident.Lethal))
             {
                 var ripSeasonDriver = seasonDrivers.Single(e => e.Id == death.SeasonDriverId);
                 ripSeasonDriver.SeasonTeamId = null;
@@ -254,8 +266,8 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
-                .Include(e => e.Penalties)
                 .Include(e => e.Track)
+                .Include(e => e.Climate)
                 .Include(e => e.Season)
                 .SingleAsync(e => e.Id == raceId);
 
@@ -306,16 +318,16 @@ namespace SimTECH.Data.Services
                 driver.Strategy = strategiesForRace.Find(e => e.Id == driver.StrategyId);
 
             // Set eventual penalties
-            var penalties = await context.Penalty.Where(e => e.RaceId == raceId).ToListAsync();
-            if (penalties?.Any() == true)
+            var unconsumedPenalties = await context.GivenPenalty.Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId).ToListAsync();
+            if (unconsumedPenalties?.Any() == true)
             {
-                foreach (var penalty in penalties)
+                foreach (var penalty in unconsumedPenalties.GroupBy(e => e.SeasonDriverId))
                 {
-                    var matchingDriver = weekendDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.SeasonDriverId);
+                    var matchingDriver = weekendDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.Key);
                     if (matchingDriver != null)
                     {
-                        matchingDriver.Penalty = penalty.Punishment;
-                        matchingDriver.Reason = penalty.Reason;
+                        matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
+                        matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
                     }
                 }
             }
@@ -598,6 +610,7 @@ namespace SimTECH.Data.Services
                 RaceLength = race.RaceLength,
                 Name = race.Name,
                 Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
+                ClimateId = race.ClimateId,
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
                 Round = race.Round,
@@ -627,7 +640,7 @@ namespace SimTECH.Data.Services
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
 
-            var penalties = await context.Penalty.Where(e => e.RaceId == raceId).ToListAsync();
+            var unconsumedPenalties = await context.GivenPenalty.Where(e => !e.Consumed).Include(e => e.Incident).ToListAsync();
 
             var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
 
@@ -658,6 +671,23 @@ namespace SimTECH.Data.Services
                 .Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id))
                 .ToList();
 
+            var model = new QualifyingModel
+            {
+                RaceId = race.Id,
+                Name = race.Name,
+                Country = race.Track.Country,
+                Climate = race.Climate.Terminology,
+                ClimateIcon = race.Climate.Icon,
+
+                AmountRuns = season.RunAmountSession,
+                MaximumRaceDrivers = season.MaximumDriversInRace,
+                QualyRng = season.QualifyingRNG,
+                QualyAmountQ2 = season.QualifyingAmountQ2,
+                QualyAmountQ3 = season.QualifyingAmountQ3,
+
+                GapMarge = _config.GapMarge,
+            };
+
             var raceDrivers = new List<QualifyingDriver>();
 
             foreach (var driverResult in driverResults)
@@ -681,8 +711,12 @@ namespace SimTECH.Data.Services
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
                 var traitEffect = NumberHelper.SumTraitEffects(driverTraits);
+                var driverPenalties = unconsumedPenalties.Where(e => e.SeasonDriverId == driver.Id).ToArray();
 
-                raceDrivers.Add(new QualifyingDriver
+                if (driverPenalties.Any())
+                    model.PenaltiesToConsume.AddRange(driverPenalties.Select(e => e.Id));
+
+                model.QualifyingDrivers.Add(new QualifyingDriver
                 {
                     ResultId = driverResult.Id,
                     FirstName = driver.Driver.FirstName,
@@ -696,7 +730,7 @@ namespace SimTECH.Data.Services
                     Accent = team.Accent,
 
                     Power = driverPower + traitEffect.QualifyingPace,
-                    PenaltyPunishment = penalties.Any() ? penalties.Find(e => e.SeasonDriverId == driver.Id)?.DoubledPunishment() ?? 0 : 0,
+                    PenaltyPunishment = driverPenalties.Any() ? driverPenalties.Sum(e => e.Incident.DoubledPunishment()) : 0,
 
                     RunValuesQ1 = new int[season.RunAmountSession],
                     RunValuesQ2 = new int[season.RunAmountSession],
@@ -704,24 +738,7 @@ namespace SimTECH.Data.Services
                 });
             }
 
-            return new QualifyingModel
-            {
-                RaceId = race.Id,
-                Name = race.Name,
-                Country = race.Track.Country,
-                Climate = race.Climate.Terminology,
-                ClimateIcon = race.Climate.Icon,
-
-                QualifyingDrivers = raceDrivers,
-
-                AmountRuns = season.RunAmountSession,
-                MaximumRaceDrivers = season.MaximumDriversInRace,
-                QualyRng = season.QualifyingRNG,
-                QualyAmountQ2 = season.QualifyingAmountQ2,
-                QualyAmountQ3 = season.QualifyingAmountQ3,
-
-                GapMarge = _config.GapMarge,
-            };
+            return model;
         }
 
         public async Task<PracticeModel> RetrievePracticeModel(long raceId)
