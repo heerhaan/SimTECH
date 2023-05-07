@@ -11,8 +11,7 @@
 @inject ManufacturerService ManufacturerService
 @inject NavigationManager Nav
 @inject ISnackbar Snackbar
-
-@* TODO: If you get this whole bad boy working, consider adding the process of adding races too! *@
+@inject IOptions<SimConfig> _config
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudStepper @ref="_stepper" Loading="_loading" Variant="Variant.Outlined" Linear="true" DisableSkipButton="true"
@@ -36,10 +35,13 @@
                         <MudPaper>
                             @if (!_loading)
                             {
-                                <MudTable T="Engine" Items="@engines" @bind-SelectedItems="@Model.BaseEngines" MultiSelection="true" Hover="true">
+                                <MudTable T="Engine" Items="@engines" @bind-SelectedItems="@Model.BaseEngines" MultiSelection="true" Dense="true" Hover="true">
                                     <ToolBarContent>
                                         <MudText Typo="Typo.h5">Available engines</MudText>
                                     </ToolBarContent>
+                                    <HeaderContent>
+                                        <MudTh>Name</MudTh>
+                                    </HeaderContent>
                                     <RowTemplate>
                                         <MudTd DataLabel="Name">@context.Name</MudTd>
                                     </RowTemplate>
@@ -51,11 +53,387 @@
             </MudStep>
             <MudStep Title="Modify engines" Icon="@IconCollection.Engine">
                 <ChildContent>
-                    <MudPaper>
-                        @if (!_loading)
-                        {
-                            <MudForm Model="Model.SeasonEngines" @ref="_engineForm">
-                                <MudTable T="EditSeasonEngineModel" Items="@Model.SeasonEngines" Hover="true">
+                    <MudContainer MaxWidth="MaxWidth.Large">
+                        <MudPaper>
+                            @if (!_loading)
+                            {
+                                <MudForm Model="Model.SeasonEngines" @ref="_engineForm">
+                                    <MudTable T="EditSeasonEngineModel" Items="@Model.SeasonEngines" Hover="true">
+                                        <HeaderContent>
+                                            <MudTh>Name</MudTh>
+                                            <MudTh>Power</MudTh>
+                                            <MudTh>Reliability</MudTh>
+                                        </HeaderContent>
+                                        <RowTemplate>
+                                            <MudTd DataLabel="Name">
+                                                <MudText Typo="Typo.caption">@context.Name</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Power">
+                                                <MudText Typo="Typo.caption">@context.Power</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Reliability">
+                                                <MudText Typo="Typo.caption">@context.Reliability</MudText>
+                                            </MudTd>
+                                        </RowTemplate>
+                                        <RowEditingTemplate>
+                                            <MudTd DataLabel="Name">
+                                                <MudTextField @bind-Value="@context.Name" Required />
+                                            </MudTd>
+                                            <MudTd DataLabel="Power">
+                                                <MudNumericField @bind-Value="@context.Power" />
+                                            </MudTd>
+                                            <MudTd DataLabel="Reliability">
+                                                <MudNumericField @bind-Value="@context.Reliability" />
+                                            </MudTd>
+                                        </RowEditingTemplate>
+                                        <EditButtonContent Context="button">
+                                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+                                        </EditButtonContent>
+                                    </MudTable>
+                                </MudForm>
+                            }
+                        </MudPaper>
+                    </MudContainer>
+                </ChildContent>
+            </MudStep>
+            <MudStep Title="Participating teams" Icon="@IconCollection.Car">
+                <ChildContent>
+                    <MudContainer MaxWidth="MaxWidth.Medium">
+                        <MudPaper>
+                            @if (!_loading)
+                            {
+                                <MudTable T="Team" Items="@teams" @bind-SelectedItems="@Model.BaseTeams" MultiSelection="true" Dense="true" Hover="true">
+                                    <ToolBarContent>
+                                        <MudText Typo="Typo.h5">Available teams</MudText>
+                                    </ToolBarContent>
+                                    <HeaderContent>
+                                        <MudTh>Name</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="Name">
+                                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                                <MudText>@context.Name</MudText>
+                                                <MudSpacer />
+                                                <CountryFlag Code="@context.Country" />
+                                            </MudStack>
+                                        </MudTd>
+                                    </RowTemplate>
+                                </MudTable>
+                            }
+                        </MudPaper>
+                    </MudContainer>
+                </ChildContent>
+            </MudStep>
+            <MudStep Title="Modify teams" Icon="@IconCollection.Car">
+                <ChildContent>
+                    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+                        <MudForm Model="@Model.SeasonTeams" @ref="_teamForm">
+                            <MudPaper>
+                                @if (!_loading)
+                                {
+                                    <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true">
+                                        <HeaderContent>
+                                            <MudTh Style="min-width: 200px;">Team</MudTh>
+                                            <MudTh Style="min-width: 200px;">Name</MudTh>
+                                            <MudTh Style="min-width: 200px;">Principal</MudTh>
+                                            <MudTh Style="min-width: 100px;">Colour</MudTh>
+                                            <MudTh Style="min-width: 100px;">Accent</MudTh>
+                                            <MudTh Style="min-width: 50px;">Base</MudTh>
+                                            <MudTh Style="min-width: 50px;">Aero</MudTh>
+                                            <MudTh Style="min-width: 50px;">Chassis</MudTh>
+                                            <MudTh Style="min-width: 50px;">Powertrain</MudTh>
+                                            <MudTh Style="min-width: 50px;">Reliability</MudTh>
+                                            <MudTh Style="min-width: 200px;">Manufacturer</MudTh>
+                                        </HeaderContent>
+                                        <RowTemplate>
+                                            <MudTd DataLabel="Team">
+                                                <MudText>@(context.Team?.Name ?? "Unknown")</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Name">
+                                                <MudText>@context.Name</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Principal">
+                                                <MudText>@context.Principal</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Colour" Style="@ViewHelper.SetBackgroundColour(context.Colour)">
+                                                @context.Colour
+                                            </MudTd>
+                                            <MudTd DataLabel="Accent" Style="@ViewHelper.SetBackgroundColour(context.Accent)">
+                                                @context.Accent
+                                            </MudTd>
+                                            <MudTd DataLabel="Base">
+                                                <MudText Typo="Typo.caption">@context.BaseValue</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Aero">
+                                                <MudText Typo="Typo.caption">@context.Aero</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Chassis">
+                                                <MudText Typo="Typo.caption">@context.Chassis</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Powertrain">
+                                                <MudText Typo="Typo.caption">@context.Powertrain</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Reliability">
+                                                <MudText Typo="Typo.caption">@context.Reliability</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Manufacturer">
+                                                <MudText>@ReadManufacturerName(context.ManufacturerId)</MudText>
+                                            </MudTd>
+                                        </RowTemplate>
+                                        <RowEditingTemplate>
+                                            <MudTd DataLabel="Team">
+                                                <MudText>@(context.Team?.Name ?? "Unknown")</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Name">
+                                                <MudTextField @bind-Value="@context.Name" Required />
+                                            </MudTd>
+                                            <MudTd DataLabel="Principal">
+                                                <MudTextField @bind-Value="@context.Principal" Required />
+                                            </MudTd>
+                                            <MudTd DataLabel="Colour">
+                                                <MudColorPicker @bind-Text="@context.Colour" DisableAlpha="true" />
+                                            </MudTd>
+                                            <MudTd DataLabel="Accent">
+                                                <MudColorPicker @bind-Text="@context.Accent" DisableAlpha="true" />
+                                            </MudTd>
+                                            <MudTd DataLabel="Base">
+                                                <MudNumericField @bind-Value="@context.BaseValue" />
+                                            </MudTd>
+                                            <MudTd DataLabel="Aero">
+                                                <MudNumericField @bind-Value="@context.Aero" />
+                                            </MudTd>
+                                            <MudTd DataLabel="Chassis">
+                                                <MudNumericField @bind-Value="@context.Chassis" />
+                                            </MudTd>
+                                            <MudTd DataLabel="Powertrain">
+                                                <MudNumericField @bind-Value="@context.Powertrain" />
+                                            </MudTd>
+                                            <MudTd DataLabel="Reliability">
+                                                <MudNumericField @bind-Value="@context.Reliability" />
+                                            </MudTd>
+                                            <MudTd DataLabel="Manufacturer">
+                                                <MudSelect T="long" @bind-Value="@context.ManufacturerId" Required>
+                                                @foreach (var manufacturer in manufacturers)
+                                                    {
+                                                        <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                            </MudTd>
+                                        </RowEditingTemplate>
+                                        <EditButtonContent Context="button">
+                                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+                                        </EditButtonContent>
+                                    </MudTable>
+                                }
+                            </MudPaper>
+                        </MudForm>
+                    </MudContainer>
+                </ChildContent>
+            </MudStep>
+            <MudStep Title="Assign engines to teams" Icon="@IconCollection.Car">
+                <ChildContent>
+                    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+                        <MudPaper>
+                            @if (!_loading)
+                            {
+                                <MudDropContainer T="EditSeasonTeamModel" @ref="_dropperTeams" Items="@Model.SeasonTeams" ItemsSelector="@((item,dropzone) => item.BaseEngineId.ToString() == dropzone)" ItemDropped="TeamEngineDropped" Class="d-flex flex-wrap flex-grow-1">
+                                    <ChildContent>
+                                        <MudStack Row="true">
+                                            <MudPaper Class="ma-2" Width="225px">
+                                                <MudList Clickable="true">
+                                                    <MudListSubheader>Unassigned teams</MudListSubheader>
+                                                    <MudDropZone T="EditSeasonTeamModel" Identifier="0" Style="min-height:200px" />
+                                                </MudList>
+                                            </MudPaper>
+                                            @foreach (var seasonEngine in Model.SeasonEngines)
+                                            {
+                                                <MudPaper Class="ma-2" Width="225px">
+                                                    <MudList Clickable="true">
+                                                        <MudListSubheader>
+                                                            Engine: @seasonEngine.Name
+                                                        </MudListSubheader>
+                                                        <MudDropZone T="EditSeasonTeamModel" Identifier="@seasonEngine.EngineId.ToString()" Style="min-height:200px" />
+                                                    </MudList>
+                                                </MudPaper>
+                                            }
+                                        </MudStack>
+                                    </ChildContent>
+                                    <ItemRenderer>
+                                        <MudListItem Text="@context.Name" />
+                                    </ItemRenderer>
+                                </MudDropContainer>
+                            }
+                        </MudPaper>
+                    </MudContainer>
+                </ChildContent>
+            </MudStep>
+            <MudStep Title="Participating drivers" Icon="@IconCollection.Helmet">
+                <ChildContent>
+                    <MudContainer MaxWidth="MaxWidth.Medium">
+                        <MudPaper>
+                            @if (!_loading)
+                            {
+                                <MudTable T="Driver" @bind-SelectedItems="@Model.BaseDrivers" Items="@drivers" MultiSelection="true" Dense="true" Hover="true">
+                                    <ToolBarContent>
+                                        <MudText Typo="Typo.h5">Available drivers</MudText>
+                                    </ToolBarContent>
+                                    <HeaderContent>
+                                        <MudTh>Name</MudTh>
+                                        <MudTh>Age</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="Name">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center">
+                                                <MudText>@context.FullName</MudText>
+                                                <MudSpacer />
+                                                <CountryFlag Code="@context.Country" />
+                                            </MudStack>
+                                        </MudTd>
+                                        <MudTd>
+                                            <MudText Typo="Typo.caption">@(Season.Year - context.DateOfBirth.Year)</MudText>
+                                        </MudTd>
+                                    </RowTemplate>
+                                </MudTable>
+                            }
+                        </MudPaper>
+                    </MudContainer>
+                </ChildContent>
+            </MudStep>
+            <MudStep Title="Modify drivers" Icon="@IconCollection.Helmet">
+                <ChildContent>
+                    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+                        <MudPaper>
+                            @if (!_loading)
+                            {
+                                <MudForm @ref="_driverForm" Model="@Model.SeasonDrivers">
+                                    <MudTable T="EditSeasonDriverModel" Items="@Model.SeasonDrivers" Hover="true">
+                                        <HeaderContent>
+                                            <MudTh>Name</MudTh>
+                                            <MudTh>Number</MudTh>
+                                            <MudTh>Skill</MudTh>
+                                            <MudTh>Reliability</MudTh>
+                                            <MudTh>TeamRole</MudTh>
+                                        </HeaderContent>
+                                        <RowTemplate>
+                                            <MudTd DataLabel="Name">
+                                                <MudStack Row="true" Spacing="1" Class="align-center">
+                                                    <MudText>@context.Driver.FullName</MudText>
+                                                    <MudSpacer />
+                                                    <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                                                </MudStack>
+                                            </MudTd>
+                                            <MudTd DataLabel="Number">
+                                                <MudText Typo="Typo.caption">@context.Number</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Skill">
+                                                <MudText Typo="Typo.caption">@context.Skill</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="Reliability">
+                                                <MudText Typo="Typo.caption">@context.Reliability</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="TeamRole">
+                                                <MudText>@context.TeamRole</MudText>
+                                            </MudTd>
+                                        </RowTemplate>
+                                        <RowEditingTemplate>
+                                            <MudTd DataLabel="Name">
+                                                <MudStack Row="true" Spacing="1" Class="align-center">
+                                                    <MudText>@context.Driver.FullName</MudText>
+                                                    <MudSpacer />
+                                                    <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                                                </MudStack>
+                                            </MudTd>
+                                            <MudTd DataLabel="Number">
+                                                <MudNumericField @bind-Value="@context.Number" />
+                                            </MudTd>
+                                            <MudTd DataLabel="Skill">
+                                                <MudNumericField @bind-Value="@context.Skill" />
+                                            </MudTd>
+                                            <MudTd DataLabel="Reliability">
+                                                <MudNumericField @bind-Value="@context.Reliability" />
+                                            </MudTd>
+                                            <MudTd DataLabel="TeamRole">
+                                                <MudSelect T="TeamRole" @bind-Value="@context.TeamRole">
+                                                    @foreach (var select in EnumHelper.GetTeamRoleSelection())
+                                                    {
+                                                        <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                            </MudTd>
+                                        </RowEditingTemplate>
+                                        <EditButtonContent Context="button">
+                                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+                                        </EditButtonContent>
+                                    </MudTable>
+                                </MudForm>
+                            }
+                        </MudPaper>
+                    </MudContainer>
+                </ChildContent>
+            </MudStep>
+            <MudStep Title="Assign drivers to teams" Icon="@IconCollection.Helmet">
+                <ChildContent>
+                    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+                        <MudPaper>
+                            @if (!_loading)
+                            {
+                                <MudDropContainer T="EditSeasonDriverModel" @ref="_dropperDrivers" Items="@Model.SeasonDrivers" ItemsSelector="@((item,dropzone) => item.BaseTeamId.ToString() == dropzone)" ItemDropped="DriverTeamDropped" Class="d-flex flex-wrap flex-grow-1">
+                                    <ChildContent>
+                                        <MudStack Row="true">
+                                            <MudPaper Class="ma-2" Width="225px">
+                                                <MudList Clickable="true">
+                                                    <MudListSubheader>Unassigned drivers</MudListSubheader>
+                                                    <MudDropZone T="EditSeasonDriverModel" Identifier="0" Style="min-height:200px" />
+                                                </MudList>
+                                            </MudPaper>
+                                            @foreach (var seasonTeam in Model.SeasonTeams)
+                                            {
+                                                <MudPaper Class="ma-2" Width="225px">
+                                                    <MudList Clickable="true">
+                                                        <MudListSubheader>
+                                                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                                                <MudText>@seasonTeam.Name</MudText>
+                                                                <MudSpacer />
+                                                                <CountryFlag Code="@seasonTeam.Team.Country" />
+                                                            </MudStack>
+                                                        </MudListSubheader>
+                                                        <MudDropZone T="EditSeasonDriverModel" Identifier="@seasonTeam.TeamId.ToString()" Style="min-height:200px" />
+                                                    </MudList>
+                                                </MudPaper>
+                                            }
+                                        </MudStack>
+                                    </ChildContent>
+                                    <ItemRenderer>
+                                        <MudListItem>
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                                <MudText>@context.Driver.FullName</MudText>
+                                                <MudSpacer />
+                                                <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                                            </MudStack>
+                                        </MudListItem>
+                                    </ItemRenderer>
+                                </MudDropContainer>
+                            }
+                        </MudPaper>
+                    </MudContainer>
+                </ChildContent>
+            </MudStep>
+            <MudStep Title="Entries for season" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
+                <ChildContent>
+                    <MudContainer MaxWidth="MaxWidth.False">
+                        <MudPaper Class="mud-width-full">
+                            <MudStack>
+                                <MudText>Season participants</MudText>
+                                <MudSpacer />
+                                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="AddAllEntrants">Confirm and save</MudButton>
+                            </MudStack>
+                        </MudPaper>
+                        <MudStack Row="true">
+                            <MudPaper>
+                                <MudTable Items="@Model.SeasonEngines">
+                                    <ToolBarContent>
+                                        <MudText Typo="Typo.h6">Participating engines</MudText>
+                                    </ToolBarContent>
                                     <HeaderContent>
                                         <MudTh>Name</MudTh>
                                         <MudTh>Power</MudTh>
@@ -63,7 +441,7 @@
                                     </HeaderContent>
                                     <RowTemplate>
                                         <MudTd DataLabel="Name">
-                                            <MudText Typo="Typo.caption">@context.Name</MudText>
+                                            <MudText>@context.Name</MudText>
                                         </MudTd>
                                         <MudTd DataLabel="Power">
                                             <MudText Typo="Typo.caption">@context.Power</MudText>
@@ -72,78 +450,32 @@
                                             <MudText Typo="Typo.caption">@context.Reliability</MudText>
                                         </MudTd>
                                     </RowTemplate>
-                                    <RowEditingTemplate>
-                                        <MudTd DataLabel="Name">
-                                            <MudTextField @bind-Value="@context.Name" Required />
-                                        </MudTd>
-                                        <MudTd DataLabel="Power">
-                                            <MudNumericField @bind-Value="@context.Power" />
-                                        </MudTd>
-                                        <MudTd DataLabel="Reliability">
-                                            <MudNumericField @bind-Value="@context.Reliability" />
-                                        </MudTd>
-                                    </RowEditingTemplate>
-                                    <EditButtonContent Context="button">
-                                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
-                                    </EditButtonContent>
                                 </MudTable>
-                            </MudForm>
-                        }
-                    </MudPaper>
-                </ChildContent>
-            </MudStep>
-            <MudStep Title="Participating teams" Icon="@IconCollection.Car">
-                <ChildContent>
-                    <MudPaper>
-                        @if (!_loading)
-                        {
-                            <MudTable T="Team" Items="@teams" @bind-SelectedItems="@Model.BaseTeams" MultiSelection="true" Hover="true">
-                                <ToolBarContent>
-                                    <MudText Typo="Typo.h5">Available teams</MudText>
-                                </ToolBarContent>
-                                <HeaderContent>
-                                    <MudTh>Name</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="Name">
-                                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                            <MudText>@context.Name</MudText>
-                                            <MudSpacer />
-                                            <CountryFlag Code="@context.Country" />
-                                        </MudStack>
-                                    </MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        }
-                    </MudPaper>
-                </ChildContent>
-            </MudStep>
-            <MudStep Title="Modify teams" Icon="@IconCollection.Car">
-                <ChildContent>
-                    <MudForm Model="@Model.SeasonTeams" @ref="_teamForm">
-                        <MudPaper>
-                            @if (!_loading)
-                            {
-                                <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true">
+                            </MudPaper>
+
+                            <MudPaper>
+                                <MudTable Items="@Model.SeasonTeams">
+                                    <ToolBarContent>
+                                        <MudText Typo="Typo.h6">Participating teams</MudText>
+                                    </ToolBarContent>
                                     <HeaderContent>
-                                        <MudTh Style="min-width: 200px;">Team</MudTh>
-                                        <MudTh Style="min-width: 200px;">Name</MudTh>
-                                        <MudTh Style="min-width: 200px;">Principal</MudTh>
-                                        <MudTh Style="min-width: 100px;">Colour</MudTh>
-                                        <MudTh Style="min-width: 100px;">Accent</MudTh>
-                                        <MudTh Style="min-width: 50px;">Base</MudTh>
-                                        <MudTh Style="min-width: 50px;">Aero</MudTh>
-                                        <MudTh Style="min-width: 50px;">Chassis</MudTh>
-                                        <MudTh Style="min-width: 50px;">Powertrain</MudTh>
-                                        <MudTh Style="min-width: 50px;">Reliability</MudTh>
-                                        <MudTh Style="min-width: 200px;">Manufacturer</MudTh>
+                                        <MudTh>Name</MudTh>
+                                        <MudTh>Principal</MudTh>
+                                        <MudTh>Colour</MudTh>
+                                        <MudTh>Accent</MudTh>
+                                        <MudTh>BaseValue</MudTh>
+                                        <MudTh>Aero</MudTh>
+                                        <MudTh>Chassis</MudTh>
+                                        <MudTh>Powertrain</MudTh>
+                                        <MudTh>Reliability</MudTh>
                                     </HeaderContent>
                                     <RowTemplate>
-                                        <MudTd DataLabel="Team">
-                                            <MudText>@(context.Team?.Name ?? "Unknown")</MudText>
-                                        </MudTd>
                                         <MudTd DataLabel="Name">
-                                            <MudText>@context.Name</MudText>
+                                            <MudStack Row="true" Spacing="1" Class="align-center">
+                                                <MudText>@context.Name</MudText>
+                                                <MudSpacer />
+                                                <CountryFlag Code="@context.Team.Country" Size="FlagSize.Small" />
+                                            </MudStack>
                                         </MudTd>
                                         <MudTd DataLabel="Principal">
                                             <MudText>@context.Principal</MudText>
@@ -154,7 +486,7 @@
                                         <MudTd DataLabel="Accent">
                                             @context.Accent
                                         </MudTd>
-                                        <MudTd DataLabel="Base">
+                                        <MudTd DataLabel="BaseValue">
                                             <MudText Typo="Typo.caption">@context.BaseValue</MudText>
                                         </MudTd>
                                         <MudTd DataLabel="Aero">
@@ -169,124 +501,15 @@
                                         <MudTd DataLabel="Reliability">
                                             <MudText Typo="Typo.caption">@context.Reliability</MudText>
                                         </MudTd>
-                                        <MudTd DataLabel="Manufacturer">
-                                            <MudText>@ReadManufacturerName(context.ManufacturerId)</MudText>
-                                        </MudTd>
                                     </RowTemplate>
-                                    <RowEditingTemplate>
-                                        <MudTd DataLabel="Team">@(context.Team?.Name ?? "Unknown")</MudTd>
-                                        <MudTd DataLabel="Name">
-                                            <MudTextField @bind-Value="@context.Name" Required />
-                                        </MudTd>
-                                        <MudTd DataLabel="Principal">
-                                            <MudTextField @bind-Value="@context.Principal" Required />
-                                        </MudTd>
-                                        <MudTd DataLabel="Colour">
-                                            <MudColorPicker @bind-Text="@context.Colour" DisableAlpha="true" />
-                                        </MudTd>
-                                        <MudTd DataLabel="Accent">
-                                            <MudColorPicker @bind-Text="@context.Accent" DisableAlpha="true" />
-                                        </MudTd>
-                                        <MudTd DataLabel="Base">
-                                            <MudNumericField @bind-Value="@context.BaseValue" />
-                                        </MudTd>
-                                        <MudTd DataLabel="Aero">
-                                            <MudNumericField @bind-Value="@context.Aero" />
-                                        </MudTd>
-                                        <MudTd DataLabel="Chassis">
-                                            <MudNumericField @bind-Value="@context.Chassis" />
-                                        </MudTd>
-                                        <MudTd DataLabel="Powertrain">
-                                            <MudNumericField @bind-Value="@context.Powertrain" />
-                                        </MudTd>
-                                        <MudTd DataLabel="Reliability">
-                                            <MudNumericField @bind-Value="@context.Reliability" />
-                                        </MudTd>
-                                        <MudTd DataLabel="Manufacturer">
-                                            <MudSelect T="long" @bind-Value="@context.ManufacturerId" Required>
-                                                @foreach (var manufacturer in manufacturers)
-                                                {
-                                                    <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
-                                                }
-                                            </MudSelect>
-                                        </MudTd>
-                                    </RowEditingTemplate>
-                                    <EditButtonContent Context="button">
-                                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
-                                    </EditButtonContent>
                                 </MudTable>
-                            }
-                        </MudPaper>
-                    </MudForm>
-                </ChildContent>
-            </MudStep>
-            <MudStep Title="Assign engines to teams" Icon="@IconCollection.Car">
-                <ChildContent>
-                    <MudPaper>
-                        @if (!_loading)
-                        {
-                            <MudDropContainer T="EditSeasonTeamModel" @ref="_dropperTeams" Items="@Model.SeasonTeams" ItemsSelector="@((item,dropzone) => item.BaseEngineId.ToString() == dropzone)" ItemDropped="TeamEngineDropped" Class="d-flex flex-wrap flex-grow-1">
-                                <ChildContent>
-                                    <MudStack Row="true">
-                                        <MudPaper Class="ma-2" MinHeight="200px" Width="225px">
-                                            <MudList Clickable="true">
-                                                <MudListSubheader>Unassigned teams</MudListSubheader>
-                                                <MudDropZone T="EditSeasonTeamModel" Identifier="0" />
-                                            </MudList>
-                                        </MudPaper>
-                                        @foreach (var seasonEngine in Model.SeasonEngines)
-                                        {
-                                            <MudPaper Class="ma-2" MinHeight="200px" Width="225px">
-                                                <MudList Clickable="true">
-                                                    <MudListSubheader>
-                                                        Engine: @seasonEngine.Name
-                                                    </MudListSubheader>
-                                                    <MudDropZone T="EditSeasonTeamModel" Identifier="@seasonEngine.EngineId.ToString()" />
-                                                </MudList>
-                                            </MudPaper>
-                                        }
-                                    </MudStack>
-                                </ChildContent>
-                                <ItemRenderer>
-                                    <MudListItem Text="@context.Name" />
-                                </ItemRenderer>
-                            </MudDropContainer>
-                        }
-                    </MudPaper>
-                </ChildContent>
-            </MudStep>
-            <MudStep Title="Participating drivers" Icon="@IconCollection.Helmet">
-                <ChildContent>
-                    <MudPaper>
-                        @if (!_loading)
-                        {
-                            <MudTable T="Driver" @bind-SelectedItems="@Model.BaseDrivers" Items="@drivers" MultiSelection="true" Hover="true">
-                                <ToolBarContent>
-                                    <MudText Typo="Typo.h5">Available drivers</MudText>
-                                </ToolBarContent>
-                                <HeaderContent>
-                                    <MudTh>Name</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="Name">
-                                        <MudStack Row="true">
-                                            <MudText>@context.FullName</MudText>
-                                            <CountryFlag Code="@context.Country" />
-                                        </MudStack>
-                                    </MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        }
-                    </MudPaper>
-                </ChildContent>
-            </MudStep>
-            <MudStep Title="Modify drivers" Icon="@IconCollection.Helmet">
-                <ChildContent>
-                    <MudPaper>
-                        @if (!_loading)
-                        {
-                            <MudForm @ref="_driverForm" Model="@Model.SeasonDrivers">
-                                <MudTable T="EditSeasonDriverModel" Items="@Model.SeasonDrivers" Hover="true">
+                            </MudPaper>
+
+                            <MudPaper>
+                                <MudTable Items="@Model.SeasonDrivers">
+                                    <ToolBarContent>
+                                        <MudText Typo="Typo.h6">Participating drivers</MudText>
+                                    </ToolBarContent>
                                     <HeaderContent>
                                         <MudTh>Name</MudTh>
                                         <MudTh>Number</MudTh>
@@ -315,216 +538,10 @@
                                             <MudText>@context.TeamRole</MudText>
                                         </MudTd>
                                     </RowTemplate>
-                                    <RowEditingTemplate>
-                                        <MudTd DataLabel="Name">
-                                            <MudStack Row="true" Spacing="1" Class="align-center">
-                                                <MudText>@context.Driver.FullName</MudText>
-                                                <MudSpacer />
-                                                <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
-                                            </MudStack>
-                                        </MudTd>
-                                        <MudTd DataLabel="Number">
-                                            <MudNumericField @bind-Value="@context.Number" />
-                                        </MudTd>
-                                        <MudTd DataLabel="Skill">
-                                            <MudNumericField @bind-Value="@context.Skill" />
-                                        </MudTd>
-                                        <MudTd DataLabel="Reliability">
-                                            <MudNumericField @bind-Value="@context.Reliability" />
-                                        </MudTd>
-                                        <MudTd DataLabel="TeamRole">
-                                            <MudSelect T="TeamRole" @bind-Value="@context.TeamRole">
-                                                @foreach (var select in EnumHelper.GetTeamRoleSelection())
-                                                {
-                                                    <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
-                                                }
-                                            </MudSelect>
-                                        </MudTd>
-                                    </RowEditingTemplate>
-                                    <EditButtonContent Context="button">
-                                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
-                                    </EditButtonContent>
                                 </MudTable>
-                            </MudForm>
-                        }
-                    </MudPaper>
-                </ChildContent>
-            </MudStep>
-            <MudStep Title="Assign drivers to teams" Icon="@IconCollection.Helmet">
-                <ChildContent>
-                    <MudPaper>
-                        @if (!_loading)
-                        {
-                            <MudDropContainer T="EditSeasonDriverModel" @ref="_dropperDrivers" Items="@Model.SeasonDrivers" ItemsSelector="@((item,dropzone) => item.BaseTeamId.ToString() == dropzone)" ItemDropped="DriverTeamDropped" Class="d-flex flex-wrap flex-grow-1">
-                                <ChildContent>
-                                    <MudGrid>
-                                        <MudItem xs="3">
-                                            <MudPaper Class="ma-2" MinHeight="200px" Width="225px">
-                                                <MudList Clickable="true">
-                                                    <MudListSubheader>Unassigned drivers</MudListSubheader>
-                                                    <MudDropZone T="EditSeasonDriverModel" Identifier="0" />
-                                                </MudList>
-                                            </MudPaper>
-                                        </MudItem>
-                                        <MudItem xs="9">
-                                            @foreach (var seasonTeam in Model.SeasonTeams)
-                                            {
-                                                <MudPaper Class="ma-2" MinHeight="200px" Width="225px">
-                                                    <MudList Clickable="true">
-                                                        <MudListSubheader>
-                                                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                                                <MudText>@seasonTeam.Name</MudText>
-                                                                <MudSpacer />
-                                                                <CountryFlag Code="@seasonTeam.Team.Country" />
-                                                            </MudStack>
-                                                        </MudListSubheader>
-                                                        <MudDropZone T="EditSeasonDriverModel" Identifier="@seasonTeam.TeamId.ToString()" />
-                                                    </MudList>
-                                                </MudPaper>
-                                            }
-                                        </MudItem>
-                                    </MudGrid>
-                                </ChildContent>
-                                <ItemRenderer>
-                                    <MudListItem>
-                                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                            <MudText>@context.Driver.FullName</MudText>
-                                            <MudSpacer />
-                                            <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
-                                        </MudStack>
-                                    </MudListItem>
-                                </ItemRenderer>
-                            </MudDropContainer>
-                        }
-                    </MudPaper>
-                </ChildContent>
-            </MudStep>
-            <MudStep Title="Entries for season" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
-                <ChildContent>
-                    <MudGrid>
-                        <MudItem xs="12">
-                            <MudPaper>
-                                <MudStack>
-                                    <MudText>Season participants</MudText>
-                                    <MudSpacer />
-                                    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="AddAllEntrants">Confirm and save</MudButton>
-                                </MudStack>
                             </MudPaper>
-                        </MudItem>
-                    </MudGrid>
-                    <MudStack Row="true">
-                        <MudPaper>
-                            <MudTable Items="@Model.SeasonEngines">
-                                <ToolBarContent>
-                                    <MudText Typo="Typo.h6">Participating engines</MudText>
-                                </ToolBarContent>
-                                <HeaderContent>
-                                    <MudTh>Name</MudTh>
-                                    <MudTh>Power</MudTh>
-                                    <MudTh>Reliability</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="Name">
-                                        <MudText>@context.Name</MudText>
-                                    </MudTd>
-                                    <MudTd DataLabel="Power">
-                                        <MudText Typo="Typo.caption">@context.Power</MudText>
-                                    </MudTd>
-                                    <MudTd DataLabel="Reliability">
-                                        <MudText Typo="Typo.caption">@context.Reliability</MudText>
-                                    </MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        </MudPaper>
-
-                        <MudPaper>
-                            <MudTable Items="@Model.SeasonTeams">
-                                <ToolBarContent>
-                                    <MudText Typo="Typo.h6">Participating teams</MudText>
-                                </ToolBarContent>
-                                <HeaderContent>
-                                    <MudTh>Name</MudTh>
-                                    <MudTh>Principal</MudTh>
-                                    <MudTh>Colour</MudTh>
-                                    <MudTh>Accent</MudTh>
-                                    <MudTh>BaseValue</MudTh>
-                                    <MudTh>Aero</MudTh>
-                                    <MudTh>Chassis</MudTh>
-                                    <MudTh>Powertrain</MudTh>
-                                    <MudTh>Reliability</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="Name">
-                                        <MudStack Row="true" Spacing="1" Class="align-center">
-                                            <MudText>@context.Name</MudText>
-                                            <MudSpacer />
-                                            <CountryFlag Code="@context.Team.Country" Size="FlagSize.Small" />
-                                        </MudStack>
-                                    </MudTd>
-                                    <MudTd DataLabel="Principal">
-                                        <MudText>@context.Principal</MudText>
-                                    </MudTd>
-                                    <MudTd DataLabel="Colour">
-                                        @context.Colour
-                                    </MudTd>
-                                    <MudTd DataLabel="Accent">
-                                        @context.Accent
-                                    </MudTd>
-                                    <MudTd DataLabel="BaseValue">
-                                        <MudText Typo="Typo.caption">@context.BaseValue</MudText>
-                                    </MudTd>
-                                    <MudTd DataLabel="Aero">
-                                        <MudText Typo="Typo.caption">@context.Aero</MudText>
-                                    </MudTd>
-                                    <MudTd DataLabel="Chassis">
-                                        <MudText Typo="Typo.caption">@context.Chassis</MudText>
-                                    </MudTd>
-                                    <MudTd DataLabel="Powertrain">
-                                        <MudText Typo="Typo.caption">@context.Powertrain</MudText>
-                                    </MudTd>
-                                    <MudTd DataLabel="Reliability">
-                                        <MudText Typo="Typo.caption">@context.Reliability</MudText>
-                                    </MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        </MudPaper>
-
-                        <MudPaper>
-                            <MudTable Items="@Model.SeasonDrivers">
-                                <ToolBarContent>
-                                    <MudText Typo="Typo.h6">Participating drivers</MudText>
-                                </ToolBarContent>
-                                <HeaderContent>
-                                    <MudTh>Name</MudTh>
-                                    <MudTh>Number</MudTh>
-                                    <MudTh>Skill</MudTh>
-                                    <MudTh>Reliability</MudTh>
-                                    <MudTh>TeamRole</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="Name">
-                                        <MudStack Row="true" Spacing="1" Class="align-center">
-                                            <MudText>@context.Driver.FullName</MudText>
-                                            <MudSpacer />
-                                            <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
-                                        </MudStack>
-                                    </MudTd>
-                                    <MudTd DataLabel="Number">
-                                        <MudText Typo="Typo.caption">@context.Number</MudText>
-                                    </MudTd>
-                                    <MudTd DataLabel="Skill">
-                                        <MudText Typo="Typo.caption">@context.Skill</MudText>
-                                    </MudTd>
-                                    <MudTd DataLabel="Reliability">
-                                        <MudText Typo="Typo.caption">@context.Reliability</MudText>
-                                    </MudTd>
-                                    <MudTd DataLabel="TeamRole">
-                                        <MudText>@context.TeamRole</MudText>
-                                    </MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        </MudPaper>
-                    </MudStack>
+                        </MudStack>
+                    </MudContainer>
                 </ChildContent>
             </MudStep>
         </ChildContent>
@@ -688,7 +705,7 @@
                 previousEngine = previousEngines.Find(e => e.EngineId == engine.Id);
 
             var model = new EditSeasonEngineModel(previousEngine);
-            model.Id = default;
+            model.ResetIdentifierFields();
             model.SeasonId = Season.Id;
 
             Model.SeasonEngines.Add(model);
@@ -708,11 +725,8 @@
                 previousTeam = previousTeams.Find(e => e.TeamId == team.Id);
 
             var model = new EditSeasonTeamModel(previousTeam);
-            model.Id = default;
+            model.ResetIdentifierFields();
             model.SeasonId = Season.Id;
-            model.SeasonEngineId = default;
-            model.Points = 0;
-            model.HiddenPoints = 0;
             model.Team = team;
 
             Model.SeasonTeams.Add(model);
@@ -732,15 +746,11 @@
             if (previousDrivers != null)
                 previousDriver = previousDrivers.Find(e => e.DriverId == driver.Id);
 
-            Model.SeasonDrivers.Add(new EditSeasonDriverModel()
-                {
-                    DriverId = driver.Id,
-                    SeasonId = Season.Id,
-                    Driver = driver,
-                    Number = ++indexer,
-                    Skill = 50,
-                    Reliability = 1000,
-                });
+            var model = new EditSeasonDriverModel(previousDriver);
+            model.ResetIdentifierFields();
+
+            if (!_config.Value.PersonalNumbers)
+                model.Number = ++indexer;
         }
     }
 
