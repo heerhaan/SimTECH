@@ -7,7 +7,7 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-16 px-8">
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
@@ -32,6 +32,7 @@
                 <MudText Typo="Typo.body2">Gap marge p/pt: @_config.Value.GapMarge</MudText>
                 <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
                 <MudText Typo="Typo.body2">Use personal numbers: @_config.Value.PersonalNumbers</MudText>
+                <MudText Typo="Typo.body2">Calc distance ref: @_config.Value.CalculationDistance</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6">
@@ -42,7 +43,7 @@
                         <div>
                             <!-- Local storage value -->
                             <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">
-                                Set store
+                                Set local stored info
                             </MudButton>
                             <MudText>@exampleStore</MudText>
                         </div>
@@ -51,15 +52,47 @@
                             <MudSpacer />
                             <MudButton OnClick="CycleCustomIcon">Cycle</MudButton>
                         </MudStack>
-                        <MudIcon Icon="@activeCustomIcon" Color="Color.Primary" Size="Size.Large" />
-                        <MudIcon Icon="@activeCustomIcon" Color="Color.Secondary" Size="Size.Small" />
-                        <MudIcon Icon="@activeCustomIcon" Style="color:green" />
                         <MudIcon Icon="@activeCustomIcon" />
+                        <MudIcon Icon="@activeCustomIcon" Style="color:green" />
+                        <MudIcon Icon="@activeCustomIcon" Color="Color.Secondary" Size="Size.Small" />
+                        <MudIcon Icon="@activeCustomIcon" Color="Color.Primary" Size="Size.Large" />
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="12">
                     <MudPaper Elevation="2" Class="pa-4" Style="height: 200px">
+                        <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextColourStyle("red", "yellow"))">01</MudText>
+                        <MudText Typo="Typo.h6" Style="color:red; border: 1px solid yellow">02</MudText>
 
+                        <MudSimpleTable>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Looks rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextColourStyle("red", "yellow"))">01</MudText>
+                                    </td>
+                                    <td>2/5</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="pa-1" style="border: 1px solid yellow; border-radius: 5px">
+                                            <MudText Typo="Typo.h6" Style="color:red">02</MudText>
+                                        </span>
+                                    </td>
+                                    <td>0/5</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <MudText Typo="Typo.h6" Style="color:red; border: 1px solid yellow; border-radius: 5px">03</MudText>
+                                    </td>
+                                    <td>3/5</td>
+                                </tr>
+                            </tbody>
+                        </MudSimpleTable>
                     </MudPaper>
                 </MudItem>
             </MudGrid>

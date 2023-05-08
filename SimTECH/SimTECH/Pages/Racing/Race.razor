@@ -25,10 +25,14 @@
 
                 <MudSpacer />
 
+                <MudChipSet>
+                    <MudChip></MudChip>
+                    <MudChip></MudChip>
+                    <MudChip></MudChip>
+                </MudChipSet>
+
                 <MudButtonGroup Color="Color.Primary">
-                    <ScreenshotButton TargetId="race-display" />
-                    <MudButton StartIcon="@Icons.Material.Outlined.InsertChart" OnClick="ShowGraph">Chart</MudButton>
-                    @if (!Model.IsFinished)
+                        @if (!Model.IsFinished)
                     {
                         @if (calculated >= calculationCount)
                         {
@@ -36,10 +40,12 @@
                         }
                         else
                         {
-                            
+
                             <MudButton Color="Color.Tertiary" OnClick="Advance">Advance</MudButton>
                         }
                     }
+                    <ScreenshotButton TargetId="race-display" />
+                    <MudButton OnClick="ShowGraph">Chart</MudButton>
                 </MudButtonGroup>
             </MudStack>
         </ToolBarContent>
@@ -80,7 +86,7 @@
                 <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
             </MudTd>
             <MudTd Class="overflow-hider">
-                <MudStack Row="true" Spacing="1" Class="align-center">
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                     <MudText Typo="Typo.body1">@context.FirstName</MudText>
                     <MudText Typo="Typo.button">@context.LastName</MudText>
                     @if (context.HasFastestLap)
@@ -199,6 +205,7 @@
     int calculated;
     int calculationCount;
     int calculationsPerAdvance = 5;
+    int calculationDistance = 10;//Not implemented yet but this can be used to refer to how much kilometers distance a calculation offers
     Entrant cycleReliabilty = Entrant.Driver;
 
     protected override async Task OnInitializedAsync()
