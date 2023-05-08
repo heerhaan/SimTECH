@@ -1,6 +1,5 @@
 ﻿using MudBlazor;
 using SimTECH.Data.Models;
-using System.Drawing;
 
 namespace SimTECH.Extensions
 {
@@ -55,16 +54,6 @@ namespace SimTECH.Extensions
             Gender.Male => Icons.Material.Filled.Male,
             Gender.Female => Icons.Material.Filled.Female,
             Gender.Other => Icons.Custom.Uncategorized.Baguette,
-            _ => Icons.Material.Filled.QuestionMark
-        };
-
-        [Obsolete]
-        public static string GetWeatherIcon(this Weather weather) => weather switch
-        {
-            Weather.Sunny => Icons.Material.Filled.WbSunny,
-            Weather.Overcast => Icons.Material.Filled.Cloud,
-            Weather.Rain => Icons.Material.Filled.WaterDrop,
-            Weather.Storm => Icons.Material.Filled.Tsunami,
             _ => Icons.Material.Filled.QuestionMark
         };
     }

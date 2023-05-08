@@ -306,7 +306,7 @@ namespace SimTECH.Data.Services
             return powerDrivers;
         }
 
-        public async Task<List<PartsUsageModel>> GetPartsUsageModel(long seasonId)
+        public async Task<List<PartsUsedByDriver>> GetPartsUsageModel(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -321,11 +321,11 @@ namespace SimTECH.Data.Services
                 .Where(e => e.Race.SeasonId == seasonId)
                 .ToListAsync();
 
-            var partsUsedList = new List<PartsUsageModel>(drivers.Count);
+            var partsUsedList = new List<PartsUsedByDriver>(drivers.Count);
 
             foreach (var driver in drivers)
             {
-                var driverModel = new PartsUsageModel
+                var driverModel = new PartsUsedByDriver
                 {
                     SeasonDriverId = driver.Id,
                     Name = driver.Driver.FullName,

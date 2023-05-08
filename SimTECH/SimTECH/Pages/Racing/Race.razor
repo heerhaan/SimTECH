@@ -25,11 +25,14 @@
 
                 <MudSpacer />
 
-                <MudChipSet>
-                    <MudChip></MudChip>
-                    <MudChip></MudChip>
-                    <MudChip></MudChip>
-                </MudChipSet>
+                <div>
+                    <MudText>Calculated per advance</MudText>
+                    <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
+                        <MudChip Value="1">1</MudChip>
+                        <MudChip Value="5" Default="true">5</MudChip>
+                        <MudChip Value="10">10</MudChip>
+                    </MudChipSet>
+                </div>
 
                 <MudButtonGroup Color="Color.Primary">
                         @if (!Model.IsFinished)
@@ -205,7 +208,7 @@
     int calculated;
     int calculationCount;
     int calculationsPerAdvance = 5;
-    int calculationDistance = 10;//Not implemented yet but this can be used to refer to how much kilometers distance a calculation offers
+    int calculationDistance = 10;//Not implemented yet but this could be used to refer to how much kilometers distance a calculation offers
     Entrant cycleReliabilty = Entrant.Driver;
 
     protected override async Task OnInitializedAsync()
@@ -242,6 +245,12 @@
         }
 
         loading = false;
+    }
+
+    void ChangeCalculationPerAdvance(MudChip? calcChip)
+    {
+        if (calcChip != null)
+            calculationsPerAdvance = (int)calcChip.Value;
     }
 
     int CalculateLapPercentage(int lap)

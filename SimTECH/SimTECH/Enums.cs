@@ -44,35 +44,22 @@ namespace SimTECH
     }
 
     #region racing
-    [Obsolete]
-    public enum Weather
-    {// Deprecated
-        None = 0,
-        Sunny, Overcast, Rain, Storm
-    }
-
     public enum TeamRole
     {
         None = 0,
         Main, Support
     }
 
+    // TODO: Implement this bad boy
+    public enum QualyFormat
+    {
+        OneSession, TripleEliminate
+    }
+
     public enum RaceStatus
     {
         None = 0,
         Racing, Dnf, Dsq, Dnq, Fatal,
-    }
-
-    // TODO: You might want to rethink this enum, consider making penalties custom settable
-    [Obsolete]
-    public enum RaceIncident
-    {
-        None = 0,
-        Damage, Collision, Accident, Puncture,
-        Engine,
-        Electrics, Exhaust, Clutch, Hydraulics, Wheel, Brakes,
-        Illegal, Fuel, Dangerous,
-        Death
     }
 
     [Flags]
