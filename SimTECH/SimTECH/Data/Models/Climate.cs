@@ -18,17 +18,17 @@ namespace SimTECH.Data.Models
     {
         public static Climate TakeRandomClimate(this List<Climate> climates)
         {
-            var weightedList = new List<Climate>();
+            var weightedList = new List<long>();
 
             foreach (var climate in climates)
             {
                 for (int i = 0; i < climate.Odds; i++)
                 {
-                    weightedList.Add(climate);
+                    weightedList.Add(climate.Id);
                 }
             }
 
-            return weightedList.TakeRandomItem();
+            return climates.First(e => e.Id == weightedList.TakeRandomItem());
         }
     }
 }

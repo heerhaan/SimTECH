@@ -31,17 +31,17 @@ namespace SimTECH.Data.Models
 
         public static Incident TakeRandomIncident(this List<Incident> incidents)
         {
-            var weightedList = new List<Incident>();
+            var weightedList = new List<long>();
 
             foreach (var incident in incidents)
             {
                 for (int i = 0; i < incident.Odds; i++)
                 {
-                    weightedList.Add(incident);
+                    weightedList.Add(incident.Id);
                 }
             }
 
-            return weightedList.TakeRandomItem();
+            return incidents.First(e => e.Id == weightedList.TakeRandomItem());
         }
 
         public static double DoubledPunishment(this Incident incident) => Convert.ToDouble(incident.Punishment) + 0.2;
