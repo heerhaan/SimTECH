@@ -707,6 +707,7 @@
             var model = new EditSeasonEngineModel(previousEngine);
             model.ResetIdentifierFields();
             model.SeasonId = Season.Id;
+            model.EngineId = engine.Id;
 
             Model.SeasonEngines.Add(model);
         }
@@ -727,6 +728,7 @@
             var model = new EditSeasonTeamModel(previousTeam);
             model.ResetIdentifierFields();
             model.SeasonId = Season.Id;
+            model.TeamId = team.Id;
             model.Team = team;
 
             Model.SeasonTeams.Add(model);
@@ -748,9 +750,14 @@
 
             var model = new EditSeasonDriverModel(previousDriver);
             model.ResetIdentifierFields();
+            model.SeasonId = Season.Id;
+            model.DriverId = driver.Id;
+            model.Driver = driver;
 
             if (!_config.Value.PersonalNumbers)
                 model.Number = ++indexer;
+
+            Model.SeasonDrivers.Add(model);
         }
     }
 
