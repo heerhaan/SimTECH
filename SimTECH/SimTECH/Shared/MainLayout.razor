@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
-@inject BreadcrumbProvider Bread
+@inject BreadcrumbProvider _bread
+@implements IDisposable
 
 <MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="@theme" />
 <MudDialogProvider
@@ -68,6 +69,7 @@
 
     protected override void OnInitialized()
     {
+        _bread.OnChange += StateHasChanged;
     }
 
     void ToggleSidebar()
@@ -77,4 +79,9 @@
 
     void SetDefaultTheme() => theme = Constants.DefaultTheme;
     void SetSynthTheme() => theme = Constants.SynthTheme;
+
+    public void Dispose()
+    {
+        _bread.OnChange -= StateHasChanged;
+    }
 }

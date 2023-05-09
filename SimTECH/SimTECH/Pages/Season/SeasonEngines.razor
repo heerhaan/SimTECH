@@ -2,27 +2,28 @@
 @inject SeasonEntrantService EntrantService
 @inject IDialogService DialogService
 
-<MudDataGrid T="SeasonEngine" Items="SeasonEngineData" Class="my-2">
-    <ToolBarContent>
-        <MudText Typo="Typo.h4">Engines</MudText>
-        <MudSpacer />
-        <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterEngine">New</MudButton>
-    </ToolBarContent>
-    <Columns>
-        <HierarchyColumn T="SeasonEngine" />
-        <PropertyColumn Property="e => e.Name" />
-        <PropertyColumn Property="e => e.Power" />
-        <PropertyColumn Property="e => e.Reliability" />
-        <PropertyColumn Property="e => e.Rebadged" />
-        <TemplateColumn Sortable="false">
-            <CellTemplate>
-                <MudButtonGroup>
-                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context.Item))" />
-                </MudButtonGroup>
-            </CellTemplate>
-        </TemplateColumn>
-    </Columns>
-</MudDataGrid>
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudDataGrid T="SeasonEngine" Items="SeasonEngineData" Class="my-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Engines</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterEngine">New</MudButton>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.Power" />
+            <PropertyColumn Property="e => e.Reliability" />
+            <PropertyColumn Property="e => e.Rebadged" />
+            <TemplateColumn Sortable="false">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
 
 @code {
     [CascadingParameter] public Season Season { get; set; }

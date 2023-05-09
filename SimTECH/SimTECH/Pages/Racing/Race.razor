@@ -26,16 +26,16 @@
                 <MudSpacer />
 
                 <div>
-                    <MudText>Calculated per advance</MudText>
+                    <MudText>Laps per advance</MudText>
                     <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
-                        <MudChip Value="1">1</MudChip>
-                        <MudChip Value="5" Default="true">5</MudChip>
-                        <MudChip Value="10">10</MudChip>
+                        <MudChip Value="1">@NumberHelper.CalcLapCount(1 * 10, Model.TrackLength)</MudChip>
+                        <MudChip Value="5" Default="true">@NumberHelper.CalcLapCount(5 * 10, Model.TrackLength)</MudChip>
+                        <MudChip Value="10">@NumberHelper.CalcLapCount(10 * 10, Model.TrackLength)</MudChip>
                     </MudChipSet>
                 </div>
 
                 <MudButtonGroup Color="Color.Primary">
-                        @if (!Model.IsFinished)
+                    @if (!Model.IsFinished)
                     {
                         @if (calculated >= calculationCount)
                         {
@@ -61,8 +61,8 @@
             <col style="width: 220px" />
             <col style="width: 30px" />
             <col style="width: 50px" />
+            <col style="width: 30px" />
             <col style="width: 50px" />
-            <col style="width: 75px" />
             <col style="width: 500px" />
         </ColGroup>
         <HeaderContent>
@@ -75,7 +75,7 @@
             <MudTh Class="number-col">PWR</MudTh>
             <MudTh Class="number-col-lg">TYRE</MudTh>
             <MudTh Class="number-col">Score</MudTh>
-            <MudTh>Status</MudTh>
+            <MudTh Class="number-col-lg">Status</MudTh>
             <MudTh>Progression</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -115,7 +115,7 @@
             <MudTd Class="number-col">
                 <MudText Typo="Typo.caption">@context.LapSum</MudText>
             </MudTd>
-            <MudTd>
+            <MudTd Class="number-col-lg">
                 @if (context.Incident == null)
                 {
                     <MudText>+@(context.TimedGap((highestScore - context.LapSum), Model.GapMarge))</MudText>

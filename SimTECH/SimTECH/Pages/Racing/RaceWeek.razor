@@ -161,8 +161,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Model = await RaceService.GetRaceWeekModel(RaceId);
-
+        _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
@@ -170,6 +169,8 @@ else
             new BreadcrumbItem("Overview", href: $"overview/{Model.Race.SeasonId}"),
             new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
         });
+
+        Model = await RaceService.GetRaceWeekModel(RaceId);
 
         loading = false;
     }
