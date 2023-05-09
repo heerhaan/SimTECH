@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
+using SimTECH.PageModels;
 
 namespace SimTECH.Data.Services
 {
@@ -92,6 +93,22 @@ namespace SimTECH.Data.Services
 
             return await context.Result
                 .Where(e => e.Race.State == State.Closed && e.SeasonDriver.Driver.Id == driverId)
+                .ToListAsync();
+        }
+
+        public async Task<List<CurrentDriver>> GetCurrentDrivers()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonDriver
+                .Where(sd => sd.Season.State == State.Active)
+                .Select(sd => new CurrentDriver
+                {
+                    SeasonDriverId = sd.Id,
+                    DriverId = sd.DriverId,
+                    League = sd.Season.League.Name,
+                    Colour = sd.SeasonTeam == null ? Constants.DefaultColour : sd.SeasonTeam.Colour
+                })
                 .ToListAsync();
         }
     }

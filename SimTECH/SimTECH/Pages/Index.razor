@@ -7,70 +7,101 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-16 px-8">
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
-                <MudText Typo="Typo.overline">_config:</MudText>
+            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+                <MudText Typo="Typo.overline">Config</MudText>
                 <MudText Typo="Typo.body2">Fatal odds: @_config.Value.FatalityChance</MudText>
                 <MudText Typo="Typo.body2">Dsq odds: @_config.Value.DisqualifyChance</MudText>
-                <MudText Typo="Typo.body2">Gap marge p/pt: @_config.Value.GapMarge</MudText>
-                <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
                 <MudText Typo="Typo.body2">Mistake rolls: @_config.Value.MistakeAmountRolls</MudText>
                 <MudText Typo="Typo.body2">Mistake min rng: @_config.Value.MistakeLowerValue</MudText>
                 <MudText Typo="Typo.body2">Mistake max rng: @_config.Value.MistakeUpperValue</MudText>
+                ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+                ΩΩΩΩΩΩλλλλλλλλλλλλλλ
             </MudPaper>
         </MudItem>
-
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
+            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
                 <MudText Typo="Typo.h2">SimTECH</MudText>
             </MudPaper>
         </MudItem>
-
         <MudItem xs="12" sm="12" md="4">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
-                <MudText Typo="Typo.overline">_config:</MudText>
-                <MudText Typo="Typo.body2">Sunny engine multiplier: @_config.Value.SunnyEngineMultiplier</MudText>
-                <MudText Typo="Typo.body2">Overcast engine multiplier: @_config.Value.OvercastEngineMultiplier</MudText>
-                <MudText Typo="Typo.body2">Wet engine multiplier: @_config.Value.WetEngineMultiplier</MudText>
-                <MudText Typo="Typo.body2">Rain RNG: @_config.Value.RainAdditionalRNG</MudText>
-                <MudText Typo="Typo.body2">Storm RNG: @_config.Value.StormAdditionalRNG</MudText>
-                <MudText Typo="Typo.body2">Rain reliability: @_config.Value.RainDriverReliabilityModifier</MudText>
-                <MudText Typo="Typo.body2">Storm reliability: @_config.Value.StormDriverReliabilityModifier</MudText>
+            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+                <MudText Typo="Typo.overline">
+                    Config
+                </MudText>
+                <MudText Typo="Typo.body2">Gap marge p/pt: @_config.Value.GapMarge</MudText>
+                <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
+                <MudText Typo="Typo.body2">Use personal numbers: @_config.Value.PersonalNumbers</MudText>
+                <MudText Typo="Typo.body2">Calc distance ref: @_config.Value.CalculationDistance</MudText>
+                <MudStack Row="true">
+                    <MudText Typo="Typo.h6">Custom Icon Cycler</MudText>
+                    <MudSpacer />
+                    <MudButton OnClick="CycleCustomIcon">Cycle</MudButton>
+                </MudStack>
+                <MudIcon Icon="@activeCustomIcon" />
+                <MudIcon Icon="@activeCustomIcon" Style="color:green" />
+                <MudIcon Icon="@activeCustomIcon" Color="Color.Secondary" Size="Size.Small" />
+                <MudIcon Icon="@activeCustomIcon" Color="Color.Primary" Size="Size.Large" />
             </MudPaper>
         </MudItem>
-
         <MudItem xs="12" sm="6">
             <MudGrid>
                 <MudItem xs="12">
-                    <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
-                        <MudText Typo="Typo.h6">Examples</MudText>
-                        
+                    <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
+                        <MudText Typo="Typo.h5">Examples</MudText>
                         <div>
                             <!-- Local storage value -->
-                            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">Set store</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">
+                                Set local stored info
+                            </MudButton>
                             <MudText>@exampleStore</MudText>
                         </div>
+                        <MudText Typo="Typo.overline">Custom emblems</MudText>
+                        <MudStack Row="true">
+                            <Emblem Icon="@IconCollection.Polygon" Colour="#49f2e7" Accent="#bf34fa" />
+                        </MudStack>
                     </MudPaper>
                 </MudItem>
-
                 <MudItem xs="12">
-                    <MudPaper Elevation="2" Class="pa-4" Style="height: 300px;">
-                        <MudStack Row="true">
-                            <MudText Typo="Typo.h6">Custom Icon Cycler</MudText>
-                            <MudSpacer />
-                            <MudButton OnClick="CycleCustomIcon">Cycle</MudButton>
-                        </MudStack>
-                        <MudIcon Icon="@activeCustomIcon" Color="Color.Primary" Size="Size.Large" />
-                        <MudIcon Icon="@activeCustomIcon" Color="Color.Secondary" Size="Size.Small" />
-                        <MudIcon Icon="@activeCustomIcon" Style="color:green" />
-                        <MudIcon Icon="@activeCustomIcon" />
+                    <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
+                        <MudSimpleTable>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Looks rating</th>
+                                </tr>
+                            </thead>                                                                                 
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle("red", "yellow"))">01</MudText>
+                                    </td>
+                                    <td>4/5</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <MudText Typo="Typo.h6" Style="-webkit-text-stroke: 1px red; color:yellow">03</MudText>
+                                    </td>
+                                    <td>2/5</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <MudStack Row="true" Spacing="0" Class="mud-width-full pa-0" Style="height:8px">
+                                            <span class="py-1" style="width:25%; background-color:red"></span>
+                                            <span class="py-1" style="width:25%; background-color:green"></span>
+                                            <span class="py-1" style="width:25%; background-color:green"></span>
+                                            <span class="py-1" style="width:25%; background-color:yellow"></span>
+                                        </MudStack>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </MudSimpleTable>
                     </MudPaper>
                 </MudItem>
             </MudGrid>
         </MudItem>
-
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="2" Class="pa-4 mud-height-full">
                 @if (recentRaces != null)
@@ -84,53 +115,49 @@
                         <HeaderContent>
                             <MudTh>League</MudTh>
                             <MudTh>Round</MudTh>
-                            <MudTh>Name</MudTh>
-                            <MudTh>Winning driver</MudTh>
-                            <MudTh>Winning team</MudTh>
+                            <MudTh>Race</MudTh>
+                            <MudTh Class="pa-0"></MudTh>
+                            <MudTh>Team</MudTh>
+                            <MudTh>Driver</MudTh>
+                            <MudTh Class="number-col">No.</MudTh>
                         </HeaderContent>
                         <RowTemplate>
-                            <MudTd>@context.LeagueName</MudTd>
                             <MudTd>
-                                <MudText Typo="Typo.body2">
-                                    <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
-                                    Round: @context.Round
-                                </MudText>
+                                <MudText Typo="Typo.body2">@context.LeagueName</MudText>
                             </MudTd>
-                            <MudTd>@context.Name</MudTd>
                             <MudTd>
-                                <MudStack Row="true">
-                                    <MudText Typo="Typo.body2">
-                                        <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
-                                        @context.WinningDriver.Name
-                                    </MudText>
-                                    <MudChip Variant="Variant.Text" Size="Size.Small" Color="NextColour()" DisableRipple="true">
-                                        @context.WinningDriver.Number
-                                    </MudChip>
+                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                    <MudText Typo="Typo.body2">Round: @context.Round</MudText>
+                                    <MudSpacer />
+                                    <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
                                 </MudStack>
                             </MudTd>
-                            <MudTd Style="@ViewHelper.SetBorderLeftStyle(context.WinningTeam.Colour)">
-                                <MudText Typo="Typo.body2">
+                            <MudTd>
+                                <MudText Typo="Typo.body2">@context.Name</MudText>
+                            </MudTd>
+                            <MudTd Class="pa-0">
+                                <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.WinningDriver.Colour))"></span>
+                            </MudTd>
+                            <MudTd>
+                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                    <MudText Typo="Typo.body2">@context.WinningTeam.Name</MudText>
+                                    <MudSpacer />
                                     <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
-                                    @context.WinningTeam.Name
-                                </MudText>
+                                </MudStack>
+                            </MudTd>
+                            <MudTd>
+                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                    <MudText Typo="Typo.body2">@context.WinningDriver.Name</MudText>
+                                    <MudSpacer />
+                                    <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
+                                </MudStack>
+                            </MudTd>
+                            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.WinningDriver.Colour, context.WinningDriver.Accent))">
+                                <MudText Typo="Typo.caption">@context.WinningDriver.Number</MudText>
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
                 }
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12">
-            <MudPaper>
-                <MudStack>
-                    <MudText Typo="Typo.body1">Quick brown fox does quick brown fox things</MudText>
-                    <MudText Typo="Typo.button">Quick brown fox does quick brown fox things</MudText>
-                    <MudText Typo="Typo.subtitle1">Quick brown fox does quick brown fox things</MudText>
-                    <MudText Typo="Typo.subtitle2">Quick brown fox does quick brown fox things</MudText>
-                    <MudText Typo="Typo.h6">Quick brown fox does quick brown fox things</MudText>
-                    <MudText Typo="Typo.overline">Quick brown fox does quick brown fox things</MudText>
-                    <MudText Typo="Typo.caption">Quick brown fox does quick brown fox things</MudText>
-                </MudStack>
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -139,8 +166,6 @@
 @code {
     List<FinishedRaceModel> recentRaces;
     int raceAmount = 5;
-    Color[] cycleColours = (Color[])Enum.GetValues(typeof(Color));
-    int cycler = 0;
     string activeCustomIcon = IconCollection.BrandToyota;
     string[] customIcons = IconCollection.ArrayOfIcons;
     int iconCycler = 0;
@@ -163,14 +188,6 @@
         var storedExample = await LocalStorage.GetAsync<string>("example");
         if (storedExample.Success)
             exampleStore = storedExample.Value;
-    }
-
-    Color NextColour()
-    {
-        cycler++;
-        cycler %= cycleColours.Length;
-
-        return cycleColours[cycler];
     }
 
     void CycleCustomIcon()

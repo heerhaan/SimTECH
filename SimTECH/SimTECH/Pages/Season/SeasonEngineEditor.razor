@@ -34,15 +34,12 @@
     [Parameter] public List<Engine>? Engines { get; set; }
     [Parameter] public SeasonEngine? SeasonEngine { get; set; }
 
-    private EditSeasonEngineModel Model = new();
+    private EditSeasonEngineModel Model;
 
     protected override void OnInitialized()
     {
-        if (SeasonEngine != null)
-        {
-            Model = new EditSeasonEngineModel(SeasonEngine);
-            Model.SeasonId = SeasonId;
-        }
+        Model = new EditSeasonEngineModel(SeasonEngine);
+        Model.SeasonId = SeasonId;
     }
 
     private void Submit()

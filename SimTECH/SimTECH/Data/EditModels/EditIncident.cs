@@ -1,0 +1,52 @@
+﻿using SimTECH.Data.Models;
+
+namespace SimTECH.Data.EditModels
+{
+    public class EditIncident
+    {
+        private readonly Incident _incident;
+
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public int Odds { get; set; }
+        public State State { get; set; }
+
+        public CategoryIncident Category { get; set; }
+        public int Limit { get; set; }
+        public int Punishment { get; set; }
+
+        public EditIncident(Incident? incident)
+        {
+            if (incident == null)
+            {
+                _incident = new();
+            }
+            else
+            {
+                Id = incident.Id;
+                Name = incident.Name;
+                Odds = incident.Odds;
+                State = incident.State;
+                Category = incident.Category;
+                Limit = incident.Limit;
+                Punishment = incident.Punishment;
+
+                _incident = incident;
+            }
+        }
+
+        public Incident Record =>
+            new()
+            {
+                Id = Id,
+                Name = Name,
+                Odds = Odds,
+                State = State,
+                Category = Category,
+                Limit = Limit,
+                Punishment = Punishment
+            };
+
+        public bool IsDirty => _incident != Record;
+    }
+}

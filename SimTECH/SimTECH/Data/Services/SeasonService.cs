@@ -38,6 +38,16 @@ namespace SimTECH.Data.Services
                 .SingleAsync(e => e.Id == seasonId);
         }
 
+        public async Task<Season?> FindRecentClosedSeason(long leagueId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Season
+                .Where(e => e.LeagueId == leagueId && e.State == State.Closed)
+                .OrderByDescending(e => e.Id)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task UpdateSeason(Season season)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -122,7 +132,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task CheckPenalties(long seasonId, List<Result> raceResults, int nextRound)
+        public async Task CheckPenalties(List<Result> raceResults, int nextRound)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -132,57 +142,18 @@ namespace SimTECH.Data.Services
             if (nextRace == null)
                 return;
 
-            var usedParts = await GetPartsUsageModel(seasonId);
+            var newPenalties = new List<GivenPenalty>();
 
-            // Should be set in either config or league settings(!)
-            int commonLimit = 3;
-            //int accidentLimit = 3;
-            //int collisionLimit = 3;
-            //int engineLimit = 3;
-            //int electricsLimit = 3;
-            //int hydraulicsLimit = 3;
-            // Same for the punishments (and differing punishments)
-            int positionPunishment = 2;
-            int dsqPunishment = 10;
-
-            var newPenalties = new List<Penalty>();
-
-            foreach (var dnfResult in raceResults.Where(e => e.Incident != Incident.None))
+            foreach (var dnfResult in raceResults.Where(e => e.Incident?.HasLimit() == true))
             {
-                var componentUsage = usedParts.Single(e => e.SeasonDriverId == dnfResult.SeasonDriverId);
-
-                switch (dnfResult.Incident)
+                var incidentFrequency = await context.Result.Where(e => e.SeasonDriverId == dnfResult.SeasonDriverId && e.IncidentId == dnfResult.IncidentId).CountAsync();
+                if (incidentFrequency > dnfResult.Incident.Limit)
                 {
-                    case Incident.Accident:
-                    case Incident.Collision:
-                    case Incident.Engine:
-                    case Incident.Electrics:
-                    case Incident.Hydraulics:
-                        if (componentUsage.Accidents > commonLimit)
-                        {
-                            newPenalties.Add(new Penalty
-                            {
-                                Reason = $"Too many {dnfResult.Incident}",
-                                Punishment = positionPunishment,
-                                SeasonDriverId = dnfResult.Id,
-                                RaceId = dnfResult.RaceId,
-                            });
-                        }
-                        break;
-                    case Incident.Illegal:
-                    case Incident.Dangerous:
-                    case Incident.Fuel:
-                        newPenalties.Add(new Penalty
-                        {
-                            Reason = $"Disqualified due to {dnfResult.Incident}",
-                            Punishment = dsqPunishment,
-                            SeasonDriverId = dnfResult.Id,
-                            RaceId = dnfResult.RaceId,
-                        });
-                        break;
-                    default:
-                        // No need to do anything else if an incidents isn't one of the above
-                        break;
+                    newPenalties.Add(new GivenPenalty
+                    {
+                        SeasonDriverId = dnfResult.SeasonDriverId,
+                        IncidentId = dnfResult.IncidentId.Value,
+                    });
                 }
             }
 
@@ -335,7 +306,7 @@ namespace SimTECH.Data.Services
             return powerDrivers;
         }
 
-        public async Task<List<PartsUsageModel>> GetPartsUsageModel(long seasonId)
+        public async Task<List<PartsUsedByDriver>> GetPartsUsageModel(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -343,24 +314,18 @@ namespace SimTECH.Data.Services
                 .Where(e => e.SeasonId == seasonId)
                 .Include(e => e.Driver)
                 .Include(e => e.SeasonTeam)
+                .Include(e => e.GivenPenalties)
                 .ToListAsync();
 
             var results = await context.Result
                 .Where(e => e.Race.SeasonId == seasonId)
                 .ToListAsync();
 
-            var penalties = await context.Penalty
-                .Where(e => e.Race.SeasonId == seasonId)
-                .Include(e => e.Race)
-                .ToListAsync();
-
-            var partsUsedList = new List<PartsUsageModel>(drivers.Count);
+            var partsUsedList = new List<PartsUsedByDriver>(drivers.Count);
 
             foreach (var driver in drivers)
             {
-                var driverResults = results.Where(e => e.SeasonDriverId == driver.Id).ToList();
-
-                partsUsedList.Add(new PartsUsageModel
+                var driverModel = new PartsUsedByDriver
                 {
                     SeasonDriverId = driver.Id,
                     Name = driver.Driver.FullName,
@@ -369,24 +334,21 @@ namespace SimTECH.Data.Services
                     Colour = driver.SeasonTeam?.Colour ?? Constants.DefaultColour,
                     Accent = driver.SeasonTeam?.Accent ?? Constants.DefaultAccent,
 
-                    Accidents = driverResults.Count(e => e.Incident == Incident.Accident),
-                    Collisions = driverResults.Count(e => e.Incident == Incident.Collision),
-                    Engines = driverResults.Count(e => e.Incident == Incident.Engine),
-                    Electrics = driverResults.Count(e => e.Incident == Incident.Electrics),
-                    Hydraulics = driverResults.Count(e => e.Incident == Incident.Hydraulics),
-                    TotalDnf = driverResults.Count(e => e.Status == RaceStatus.Dnf),
-                    TotalDsq = driverResults.Count(e => e.Status == RaceStatus.Dsq),
+                    ConsumedPenalties = driver.GivenPenalties.Any()
+                                        ? driver.GivenPenalties.Select(e => $"cons:{e.Consumed}, inciID: {e.IncidentId}").ToList()
+                                        : new(),
+                };
 
-                    GivenPenalties = penalties
-                        .Where(e => e.SeasonDriverId == driver.Id)
-                        .Select(e => new GivenPenalties
-                        {
-                            Round = e.Race.Round,
-                            Reason = e.Reason,
-                            Punishment = e.Punishment
-                        })
-                        .ToList(),
-                });
+                var driverResults = results.Where(e => e.SeasonDriverId == driver.Id).ToList();
+                driverModel.TotalDnf = driverResults.Count(e => e.Status == RaceStatus.Dnf);
+                driverModel.TotalDsq = driverResults.Count(e => e.Status == RaceStatus.Dsq);
+
+                foreach (var driverResult in driverResults.Where(e => e.IncidentId.HasValue).GroupBy(e => e.IncidentId))
+                {
+                    driverModel.DriverIncidents.Add(driverResult.Key.GetValueOrDefault(), driverResult.Count());
+                }
+
+                partsUsedList.Add(driverModel);
             }
 
             return partsUsedList;

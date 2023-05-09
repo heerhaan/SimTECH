@@ -8,25 +8,21 @@
                 <MudItem xs="9">
                     <MudStack>
                         <MudTextField @bind-Value="Model.Name" Label="Name" Class="field-lg" />
-                        <MudSelect T="long" @bind-Value="Model.TrackId" Label="Track" ReadOnly="@(Model.Id != 0)">
-                            @foreach (var select in Tracks)
-                            {
-                                <MudSelectItem Value="select.Id">
-                                    <CountryFlag Code="@select.Country" Size="FlagSize.Small" />
-                                    @select.Name
-                                </MudSelectItem>
-                            }
-                        </MudSelect>
+
                         <div>
                             <MudText Typo="Typo.subtitle2">Weather</MudText>
-                            <MudChipSet @bind-SelectedChip="weatherChip">
-                                @foreach (var select in EnumHelper.GetWeatherSelection())
+                            <MudChipSet @bind-SelectedChip="climateChip" Mandatory="true">
+                                @foreach (var climate in Climates)
                                 {
-                                    <MudChip Value="@select.Key" Default="@(Model.Weather == select.Key)">@select.Value</MudChip>
+                                    <MudChip Value="@climate.Id" Icon="@climate.Icon" Default="@(Model.ClimateId == climate.Id)">
+                                        @climate.Terminology
+                                    </MudChip>
                                 }
                             </MudChipSet>
                         </div>
-                        <MudSwitch @bind-Checked="variableRaceLength" Label="Set variable race length"></MudSwitch>
+
+                        <MudSwitch @bind-Checked="variableRaceLength" Label="Set variable race length" />
+
                         @if (variableRaceLength)
                         {
                             <MudNumericField T="int" @bind-Value="Model.RaceLength" Step="10" Label="RaceLength" HelperText="Should round to nearest ten" Class="field-md" />
@@ -61,12 +57,12 @@
     [CascadingParameter] protected MudDialogInstance? RaceDialog { get; set; }
 
     [Parameter] public Race? Race { get; set; }
-    [Parameter] public List<Track> Tracks { get; set; } = new();
     [Parameter] public long SeasonId { get; set; }
     [Parameter] public int IncomingRound { get; set; }
     [Parameter] public int DefaultRaceLength { get; set; }
+    [Parameter] public List<Climate> Climates { get; set; }
 
-    private MudChip? weatherChip;
+    private MudChip? climateChip;
     private bool variableRaceLength { get; set; } = false;
     private List<string> errorValidations = new();
 
@@ -82,15 +78,18 @@
                 SeasonId = SeasonId,
                 RaceLength = DefaultRaceLength,
             };
+
+            if (Model.ClimateId == 0)
+                Model.ClimateId = Climates.TakeRandomClimate().Id;
         }
     }
 
     private void Submit()
-    {//_selectedType = (TypeDevelop)typeChip.Value;
-        if (weatherChip != null)
-            Model.Weather = (Weather)weatherChip.Value;
-        else if (Model.Weather == Weather.Unknown)
-            Model.Weather = EnumHelper.GetRandomWeather();
+    {
+        if (climateChip != null)
+            Model.ClimateId = (long)climateChip.Value;
+        else if (Model.ClimateId == 0)
+            Model.ClimateId = Climates.TakeRandomClimate().Id;
 
         if (!RunValidations())
             return;

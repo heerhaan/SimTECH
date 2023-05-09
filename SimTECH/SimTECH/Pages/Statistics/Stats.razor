@@ -1,5 +1,5 @@
 ﻿@page "/stats"
-@inject BreadcrumbProvider Bread
+@inject BreadcrumbProvider _bread
 @inject IDialogService DialogService
 
 <PageTitle>Statistics</PageTitle>
@@ -60,7 +60,8 @@
 @code {
     protected override void OnInitialized()
     {
-        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        _bread.Reset();
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
         });

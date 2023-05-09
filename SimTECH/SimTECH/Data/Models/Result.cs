@@ -1,7 +1,4 @@
-﻿using SimTECH.PageModels;
-using System.Runtime.CompilerServices;
-
-namespace SimTECH.Data.Models
+﻿namespace SimTECH.Data.Models
 {
     public sealed class Result
     {
@@ -10,18 +7,19 @@ namespace SimTECH.Data.Models
         public int Position { get; set; }
         public int Score { get; set; }
         public RaceStatus Status { get; set; }
-        public Incident Incident { get; set; }
         public int Setup { get; set; }
         public int TyreLife { get; set; }
 
         public long SeasonDriverId { get; set; }
-        public SeasonDriver SeasonDriver { get; set; } = default!;
+        public SeasonDriver SeasonDriver { get; set; }
         public long SeasonTeamId { get; set; }
-        public SeasonTeam SeasonTeam { get; set; } = default!;
+        public SeasonTeam SeasonTeam { get; set; }
         public long RaceId { get; set; }
-        public Race Race { get; set; } = default!;
+        public Race Race { get; set; }
         public long StrategyId { get; set; }
-        public Strategy Strategy { get; set; } = default!;
+        public Strategy Strategy { get; set; }
+        public long? IncidentId { get; set; }
+        public Incident? Incident { get; set; }
 
         public IList<LapScore> LapScores { get; set; } = new List<LapScore>();
     }

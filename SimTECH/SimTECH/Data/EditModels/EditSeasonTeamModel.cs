@@ -22,8 +22,8 @@ namespace SimTECH.Data.EditModels
         public long SeasonId { get; set; }
         public long ManufacturerId { get; set; }
 
-        private int Points { get; set; }
-        private int HiddenPoints { get; set; }
+        public int Points { get; set; }
+        public int HiddenPoints { get; set; }
 
         public IList<EditSeasonDriverModel>? SeasonDrivers { get; set; }
 
@@ -31,32 +31,47 @@ namespace SimTECH.Data.EditModels
         public long BaseEngineId { get; set; }
         public Team? Team { get; set; }
 
-        public EditSeasonTeamModel() { _seasonTeam = new SeasonTeam(); }
-        public EditSeasonTeamModel(SeasonTeam seasonTeam)
+        public EditSeasonTeamModel(SeasonTeam? seasonTeam)
         {
-            Id = seasonTeam.Id;
-            Name = seasonTeam.Name;
-            Principal = seasonTeam.Principal;
-            Colour = seasonTeam.Colour;
-            Accent = seasonTeam.Accent;
-            BaseValue = seasonTeam.BaseValue;
-            Aero = seasonTeam.Aero;
-            Chassis = seasonTeam.Chassis;
-            Powertrain = seasonTeam.Powertrain;
-            Reliability = seasonTeam.Reliability;
-            TeamId = seasonTeam.TeamId;
-            SeasonId = seasonTeam.SeasonId;
-            SeasonEngineId = seasonTeam.SeasonEngineId;
-            ManufacturerId = seasonTeam.ManufacturerId;
-            Team = seasonTeam.Team;
+            if (seasonTeam == null)
+            {
+                Principal = "Mr. Principal";
+                Colour = "#ffffff";
+                Accent = "#000000";
+                BaseValue = 100;
+                Aero = 20;
+                Chassis = 20;
+                Powertrain = 20;
+                Reliability = 1000;
 
-            Points = seasonTeam.Points;
-            HiddenPoints = seasonTeam.HiddenPoints;
+                _seasonTeam = new();
+            }
+            else
+            {
+                Id = seasonTeam.Id;
+                Name = seasonTeam.Name;
+                Principal = seasonTeam.Principal;
+                Colour = seasonTeam.Colour;
+                Accent = seasonTeam.Accent;
+                BaseValue = seasonTeam.BaseValue;
+                Aero = seasonTeam.Aero;
+                Chassis = seasonTeam.Chassis;
+                Powertrain = seasonTeam.Powertrain;
+                Reliability = seasonTeam.Reliability;
+                TeamId = seasonTeam.TeamId;
+                SeasonId = seasonTeam.SeasonId;
+                SeasonEngineId = seasonTeam.SeasonEngineId;
+                ManufacturerId = seasonTeam.ManufacturerId;
+                Team = seasonTeam.Team;
 
-            if (seasonTeam.SeasonDrivers?.Any() == true)
-                SeasonDrivers = seasonTeam.SeasonDrivers.Select(e => new EditSeasonDriverModel(e)).ToList();
+                Points = seasonTeam.Points;
+                HiddenPoints = seasonTeam.HiddenPoints;
 
-            _seasonTeam = seasonTeam;
+                if (seasonTeam.SeasonDrivers?.Any() == true)
+                    SeasonDrivers = seasonTeam.SeasonDrivers.Select(e => new EditSeasonDriverModel(e)).ToList();
+
+                _seasonTeam = seasonTeam;
+            }
         }
 
         public void ResetIdentifierFields()

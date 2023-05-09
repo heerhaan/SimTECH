@@ -6,10 +6,22 @@ namespace SimTECH
     public static class Constants
     {
         public static string DefaultColour => "var(--mud-palette-background)";
-
         public static string DefaultAccent => "var(--mud-palette-text-primary)";
 
         public static DialogOptions DefaultChartDialogSettings => new() { MaxWidth = MaxWidth.ExtraLarge, CloseButton = true };
+
+        public static string[] AllWeatherIcons => new string[]
+        {
+            Icons.Material.Filled.WbSunny,
+            Icons.Material.Filled.Cloud,
+            Icons.Material.Filled.WaterDrop,
+            Icons.Material.Filled.Tsunami,
+            Icons.Material.Filled.Air,
+            Icons.Material.Filled.NightsStay,
+            IconCollection.Storm,
+            IconCollection.Snowflake,
+            IconCollection.CloudBolt,
+        };
 
         #region themes
         private static readonly Typography CommonTypo = new()
@@ -44,7 +56,8 @@ namespace SimTECH
             },
             H6 = new H6()
             {
-                FontFamily = new[] { "F1Bold" }
+                FontFamily = new[] { "F1Bold" },
+                FontSize = "1rem",
             },
             Caption = new Caption()
             {
@@ -74,15 +87,11 @@ namespace SimTECH
             Typography = CommonTypo,
         };
 
-        public static MudTheme SynthTheme => new MudTheme()
+        public static MudTheme SynthTheme => new()
         {
             Palette = new PaletteLight()
             {
                 Primary = Colors.DeepPurple.Default,
-                // Analogous
-                //Secondary = Colors.Indigo.Default,
-                //Tertiary = Colors.Purple.Accent3,
-
                 //Triadic
                 Secondary = Colors.Pink.Default,
                 Tertiary = Colors.Orange.Accent3,
@@ -92,13 +101,36 @@ namespace SimTECH
             PaletteDark = new PaletteDark()
             {
                 Primary = Colors.DeepPurple.Lighten1,
-                // Analogous
-                //Secondary = Colors.Indigo.Darken1,
-                //Tertiary = Colors.Purple.Darken1,
-
                 // Triadic
                 Secondary = Colors.Pink.Darken2,
                 Tertiary = Colors.Yellow.Darken2,
+
+                Background = DarkFadedPurple,
+                BackgroundGrey = DeepDarkFadedPurple,
+                Surface = AltDarkFadedPurple,
+                DrawerBackground = DeepDarkFadedPurple,
+                AppbarBackground = DeepDarkFadedPurple
+            },
+            Typography = CommonTypo,
+        };
+
+        public static MudTheme SynthAnalTheme => new()
+        {
+            Palette = new PaletteLight()
+            {
+                Primary = Colors.DeepPurple.Default,
+                // Analogous
+                Secondary = Colors.Indigo.Default,
+                Tertiary = Colors.Purple.Accent3,
+
+                AppbarBackground = Colors.DeepPurple.Default,
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Primary = Colors.DeepPurple.Lighten1,
+                // Analogous
+                Secondary = Colors.Indigo.Darken1,
+                Tertiary = Colors.Purple.Darken1,
 
                 Background = DarkFadedPurple,
                 BackgroundGrey = DeepDarkFadedPurple,

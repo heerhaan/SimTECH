@@ -7,7 +7,7 @@
 
 <PageTitle>Seasons</PageTitle>
 
-<MudContainer>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
     @if (SeasonList != null)
     {
         <MudDataGrid T="SeasonListModel" Items="@SeasonList" Bordered="true" Dense="true" Class="my-2">
@@ -18,28 +18,38 @@
             </ToolBarContent>
             <Columns>
                 <PropertyColumn Property="e => e.Year" />
-                <PropertyColumn Property="e => e.DriverNumber" Title="No." />
-                <TemplateColumn Title="Leading driver">
+                <TemplateColumn T="SeasonListModel" Title="Leading driver">
                     <CellTemplate>
-                        <CountryFlag Code="context.Item.DriverNationality" Size="FlagSize.Small" />
-                        <span>@context.Item.DriverName</span>
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudText>@context.Item.DriverName</MudText>
+                            <MudSpacer />
+                            <CountryFlag Code="context.Item.DriverNationality" Size="FlagSize.Small" />
+                        </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
-                <TemplateColumn Title="Leading team" CellStyleFunc="@LeadingTeamStyleFunc" >
+                <PropertyColumn Property="e => e.DriverNumber" SortBy="e => e.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" />
+                <TemplateColumn T="SeasonListModel" Title="Leading team" CellStyleFunc="LeadTeamStyleFunc">
                     <CellTemplate>
-                        <CountryFlag Code="context.Item.TeamNationality" Size="FlagSize.Small" />
-                        <span>@context.Item.TeamName</span>
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudText>@context.Item.TeamName</MudText>
+                            <MudSpacer />
+                            <CountryFlag Code="context.Item.TeamNationality" Size="FlagSize.Small" />
+                        </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
                 <PropertyColumn Property="e => e.League" />
                 <PropertyColumn Property="e => e.State" />
-                <TemplateColumn CellClass="d-flex justify end">
+                <TemplateColumn T="SeasonListModel">
                     <CellTemplate>
                         <MudButtonGroup Size="@Size.Small">
                             <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
                             @if (context.Item.State == State.Concept)
                             {
                                 <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async() => await DeleteSeason(context.Item.Id))" />
+                            }
+                            else if (context.Item.State == State.Closed)
+                            {
+                                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" OnClick="CopySeason" />
                             }
                         </MudButtonGroup>
                     </CellTemplate>
@@ -59,6 +69,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
@@ -96,6 +107,12 @@
         }
     }
 
+    private void CopySeason()
+    {
+        // not yet implemented but i have done so in the past, this is a good suggestion for just taking all the season settings
+        // and perhaps even immediatly storing them.
+    }
+
     private async Task DeleteSeason(long seasonId)
     {
         var result = await SeasonService.DeleteSeason(seasonId);
@@ -110,6 +127,5 @@
         Nav.NavigateTo($"/overview/{seasonId}");
     }
 
-    private static Func<SeasonListModel, string> LeadingTeamStyleFunc => model 
-        => ViewHelper.SetBorderLeftStyle(model.TeamColour);
+    private static Func<SeasonListModel, string> LeadTeamStyleFunc => model => ViewHelper.SetBorderLeftStyle(model.TeamColour);
 }

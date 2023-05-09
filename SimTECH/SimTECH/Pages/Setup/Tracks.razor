@@ -5,7 +5,7 @@
 
 <PageTitle>Tracks</PageTitle>
 
-<MudContainer>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudDataGrid T="Track" Items="TrackData" Bordered="true" Class="my-2">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Tracks</MudText>
@@ -21,17 +21,25 @@
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="e => e.Length" Title="Length (Km)" />
-            <TemplateColumn T="Track" Title="Aero" Style="font-family: var(--mud-typography-caption-family)">
-                <CellTemplate>@(context.Item.AeroMod)x</CellTemplate>
+            <TemplateColumn T="Track" Title="Aero">
+                <CellTemplate>
+                    <MudText Typo="Typo.caption">@(context.Item.AeroMod)x</MudText>
+                </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="Track" Title="Chassis" Style="font-family: var(--mud-typography-caption-family)">
-                <CellTemplate>@(context.Item.ChassisMod)x</CellTemplate>
+            <TemplateColumn T="Track" Title="Chassis">
+                <CellTemplate>
+                    <MudText Typo="Typo.caption">@(context.Item.ChassisMod)x</MudText>
+                </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="Track" Title="Powertrain" Style="font-family: var(--mud-typography-caption-family)">
-                <CellTemplate>@(context.Item.PowerMod)x</CellTemplate>
+            <TemplateColumn T="Track" Title="Powertrain">
+                <CellTemplate>
+                    <MudText Typo="Typo.caption">@(context.Item.PowerMod)x</MudText>
+                </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="Track" Title="Qualifying" Style="font-family: var(--mud-typography-caption-family)">
-                <CellTemplate>@(context.Item.QualifyingMod)x</CellTemplate>
+            <TemplateColumn T="Track" Title="Qualifying">
+                <CellTemplate>
+                    <MudText Typo="Typo.caption">@(context.Item.QualifyingMod)x</MudText>
+                </CellTemplate>
             </TemplateColumn>
             <TemplateColumn T="Track">
                 <CellTemplate>
@@ -42,6 +50,14 @@
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
+        <ChildRowContent>
+            <MudPaper>
+                <MudText>@context.Item.Name</MudText>
+            </MudPaper>
+        </ChildRowContent>
+        <PagerContent>
+            <MudDataGridPager T="Track" />
+        </PagerContent>
     </MudDataGrid>
 </MudContainer>
 

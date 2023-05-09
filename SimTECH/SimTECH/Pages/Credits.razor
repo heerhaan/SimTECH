@@ -1,4 +1,7 @@
-﻿<h3>Credits</h3>
+﻿@page "/credits"
+@inject BreadcrumbProvider _bread
+
+<h3>Credits</h3>
 <p>sokje for human being generator-data and f1 graphics generator</p>
 <p>tabler icons for icons</p>
 <p>MudBlazor for the component framework</p>
@@ -14,5 +17,12 @@
 </MudGrid>
 
 @code {
-
+    protected override void OnInitialized()
+    {
+        _bread.Reset();
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+        });
+    }
 }

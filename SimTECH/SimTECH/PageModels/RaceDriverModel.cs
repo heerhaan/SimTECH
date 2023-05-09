@@ -29,7 +29,7 @@ namespace SimTECH.PageModels
     public class RaceDriver : DriverBase
     {
         public RaceStatus Status { get; set; }
-        public Incident Incident { get; set; }
+        public Incident? Incident { get; set; }
 
         public int Position { get; set; }
         public int Grid { get; set; }
@@ -74,6 +74,7 @@ namespace SimTECH.PageModels
                 SeasonTeamId = SeasonTeamId,
                 RaceId = raceId,
                 StrategyId = Strategy.Id,
+                IncidentId = Incident?.Id,
             };
         }
 

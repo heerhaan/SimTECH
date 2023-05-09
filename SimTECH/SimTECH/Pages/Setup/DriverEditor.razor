@@ -13,7 +13,7 @@
                         <MudStack>
                             <MudStack Row="true" Spacing="4">
                                 <MudTextField T="string" @bind-Value="model.FirstName" Label="First Name" Class="field-md" />
-                                <MudTextField T="string" @bind-Value="model.LastName" Label="Last Name" Class="field-md" />
+                                <MudTextField T="string" @bind-Value="model.LastName" Label="Last Name" Class="field-md" OnKeyUp="AutoUpdateAbbreviation" />
                             </MudStack>
                             <MudTextField T="string" @bind-Value="model.Abbreviation" Label="Abbreviation" Class="field-sm" />
                             <MudDatePicker @bind-Date="@dateSetter" Editable="true" Label="Date of Birth" Class="field-md" />
@@ -50,25 +50,21 @@
     [Parameter] public Driver? Driver { get; set; }
     [Parameter] public List<Trait> Traits { get; set; } = new();
 
-    private EditDriverModel model = new();
+    private EditDriverModel model;
     private DateTime? dateSetter { get; set; }
     private ICollection<object>? selectedTraits { get; set; }
 
     protected override void OnInitialized()
     {
-        if (Driver != null)
-        {
-            model = new EditDriverModel(Driver);
+        model = new EditDriverModel(Driver);
+        dateSetter = model.DateOfBirth;
+        selectedTraits = model.DriverTraits.Select(e => e.TraitId).Cast<object>().ToList();
+    }
 
-            selectedTraits = model.DriverTraits.Select(e => e.TraitId).Cast<object>().ToList();
-
-            dateSetter = model.DateOfBirth;
-        }
-        else
-        {
-            dateSetter = DateTime.Today;
-            selectedTraits = new List<long>() as ICollection<object>;
-        }
+    void AutoUpdateAbbreviation()
+    {
+        if (model.LastName?.Length >= 3 == true)
+            model.Abbreviation = model.LastName.Substring(0, 3).ToUpperInvariant();
     }
 
     private void Submit()

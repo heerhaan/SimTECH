@@ -57,18 +57,15 @@
     [Parameter] public List<SeasonTeam>? SeasonTeams { get; set; }
     [Parameter] public SeasonDriver? SeasonDriver { get; set; }
 
-    EditSeasonDriverModel Model = new();
+    EditSeasonDriverModel Model;
     long _seasonTeamId;
     bool _isDropped = false;
 
     protected override void OnInitialized()
     {
-        if (SeasonDriver != null)
-        {
-            Model = new EditSeasonDriverModel(SeasonDriver);
-            Model.SeasonId = SeasonId;
-            _seasonTeamId = Model.SeasonTeamId.GetValueOrDefault();
-        }
+        Model = new EditSeasonDriverModel(SeasonDriver);
+        Model.SeasonId = SeasonId;
+        _seasonTeamId = Model.SeasonTeamId.GetValueOrDefault();
     }
 
     private void Submit()

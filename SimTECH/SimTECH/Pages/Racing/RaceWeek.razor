@@ -2,7 +2,7 @@
 
 @inject RaceService RaceService
 @inject BreadcrumbProvider _bread
-@inject NavigationManager Nav
+@inject NavigationManager _nav
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
@@ -18,7 +18,7 @@
 else
 {
     <MudGrid>
-        <MudItem xs="3">
+        <MudItem xs="4">
             <MudPaper Class="pa-4 mud-height-full">
                 <MudTable Items="@Model.RaceWeekDrivers.OrderBy(e => e.Grid)" Dense="true" id="race-week-grid">
                     <ToolBarContent>
@@ -29,37 +29,39 @@ else
                     <HeaderContent>
                         <MudTh>Grid</MudTh>
                         <MudTh>Name</MudTh>
+                        <MudTh>Penalty</MudTh>
                         <MudTh>Strategy</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd Style="@(ViewHelper.SetGradientTriangleStyle(context.Colour, context.Accent))">
+                        <MudTd>
                             @if (context.Grid > Model.MaximumInRace)
                             {
                                 <MudText Typo="Typo.caption">DNQ</MudText>
                             }
                             else
                             {
-                                <MudText Typo="Typo.caption">@context.Grid</MudText>
+                                <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.Grid</MudText>
                             }
                         </MudTd>
-                        <MudTd>@context.FullName</MudTd>
+                        <MudTd>
+                            <MudText>@context.FullName</MudText>
+                        </MudTd>
+                        <MudTd>
+                            @if (context.Penalty.HasValue)
+                            {
+                                <MudText>+@(context.Penalty.Value)</MudText>
+                            }
+                        </MudTd>
                         <MudTd>
                             <MudLink OnClick="@(async () => await PickStrategy(context.ResultId))">
-                                @if (context.Strategy is null)
-                                {
-                                    <MudText>ferrari (no strategy)</MudText>
-                                }
-                                else
-                                {
-                                    <MudStack Spacing="1" Row="true">
-                                        @foreach (var tyreElem in context.Strategy.StrategyTyres)
-                                        {
-                                            <span class="tyre" style="border-color:@(tyreElem.Tyre.Colour)">
-                                                @tyreElem.Tyre.Name.ElementAt(0)
-                                            </span>
-                                        }
-                                    </MudStack>
-                                }
+                                <MudStack Row="true" Spacing="2">
+                                    @foreach (var tyreElem in context.Strategy.StrategyTyres)
+                                    {
+                                        <span class="tyre" style="border-color:@(tyreElem.Tyre.Colour)">
+                                            @tyreElem.Tyre.Name.ElementAt(0)
+                                        </span>
+                                    }
+                                </MudStack>
                             </MudLink>
                         </MudTd>
                     </RowTemplate>
@@ -67,14 +69,17 @@ else
             </MudPaper>
         </MudItem>
 
-        <MudItem xs="9">
+        <MudItem xs="8">
             <MudGrid>
                 <MudItem xs="6">
-                    <MudPaper Class="pa-4">
-                        <MudText Typo="Typo.h4">
-                            <CountryFlag Code="@Model.Race.Track.Country" Size="FlagSize.Normal" />
-                            @Model.Race.Name
-                        </MudText>
+                    <MudPaper Class="pa-4 mud-height-full">
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h4">@Model.Race.Name</MudText>
+                            <MudStack Row="true" AlignItems="AlignItems.Center">
+                                <MudIcon Icon="@Model.Race.Climate.Icon" />
+                                <MudText>@Model.Race.Climate.Terminology</MudText>
+                            </MudStack>
+                        </MudStack>
                         @if (Model.TrackTraits?.Any() == true)
                         {
                             <MudList>
@@ -90,52 +95,49 @@ else
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
-                    <MudPaper Class="pa-4">
+                    <MudPaper Class="pa-4 mud-height-full">
                         <MudText Typo="Typo.h5">Track information</MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, innit?</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
                         <MudList>
-                            <MudListItem>Length: @(Model.Race.Track.Length)km</MudListItem>
-                            <MudListItem>Laps: @(NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length))</MudListItem>
-                            <MudListItem>Aero mod: @Model.Race.Track.AeroMod</MudListItem>
-                            <MudListItem>Chassis mod: @Model.Race.Track.ChassisMod</MudListItem>
-                            <MudListItem>Power mod: @Model.Race.Track.PowerMod</MudListItem>
-                            <MudListItem>Qualy mod: @Model.Race.Track.QualifyingMod</MudListItem>
-                            <MudListItem>Weather: @Model.Race.Weather</MudListItem>
+                            <MudListItem>
+                                Country:
+                                <CountryFlag Code="@Model.Race.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
+                            </MudListItem>
+                            <MudListItem>
+                                Length: @(Model.Race.Track.Length)Km
+                            </MudListItem>
+                            <MudListItem>
+                                Laps: @(NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length))
+                            </MudListItem>
+                            <MudListItem>
+                                <MudText>Aero mod: @Model.Race.Track.AeroMod</MudText>
+                            </MudListItem>
+                            <MudListItem>
+                                Chassis mod: @Model.Race.Track.ChassisMod
+                            </MudListItem>
+                            <MudListItem>
+                                Power mod: @Model.Race.Track.PowerMod
+                            </MudListItem>
+                            <MudListItem>
+                                Qualy mod: @Model.Race.Track.QualifyingMod
+                            </MudListItem>
+                            <MudListItem>
+                                Weather: @Model.Race.Climate.Terminology
+                            </MudListItem>
                         </MudList>
                     </MudPaper>
                 </MudItem>
-                <MudItem xs="6">
-                    <MudPaper Class="pa-4">
-                        <MudText Typo="Typo.h5">Penalties</MudText>
-                        @if (Model.AnyPenalties)
-                        {
-                            <MudSimpleTable Dense="true">
-                                <thead>
-                                    <tr>
-                                        <th>Driver</th>
-                                        <th>Reason</th>
-                                        <th>Penalty</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var penalizedDriver in Model.RaceWeekDrivers.Where(e => e.Penalty.HasValue))
-                                    {
-                                        <tr>
-                                            <td>@penalizedDriver.FullName</td>
-                                            <td>@penalizedDriver.Reason</td>
-                                            <td>+@(penalizedDriver.Penalty)</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </MudSimpleTable>
-                        }
-                        else
-                        {
-                            <MudText>No penalties for this race</MudText>
-                        }
+                <MudItem xs="3">
+                    <MudPaper Class="pa-4 mud-height-full">
+
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
+                    <MudPaper Class="pa-4 mud-height-full">
+                        
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="3">
                     <MudPaper Class="pa-4">
                         <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined" VerticalAlign="true">
                             @if (Model.Race.State == State.Active)
@@ -166,6 +168,7 @@ else
     {
         Model = await RaceService.GetRaceWeekModel(RaceId);
 
+        _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
@@ -176,10 +179,6 @@ else
 
         loading = false;
     }
-
-    private void GoToPractice() => Nav.NavigateTo($"/practice/{RaceId}");
-    private void GoToQualifying() => Nav.NavigateTo($"/qualifying/{RaceId}");
-    private void GoToRace() => Nav.NavigateTo($"/race/{RaceId}");
 
     async Task PickStrategy(long resultId)
     {
@@ -199,4 +198,9 @@ else
             Model.RaceWeekDrivers.Single(e => e.ResultId == resultId).Strategy = newStrategy;
         }
     }
+
+    // Navigation links
+    private void GoToPractice() => _nav.NavigateTo($"/practice/{RaceId}");
+    private void GoToQualifying() => _nav.NavigateTo($"/qualifying/{RaceId}");
+    private void GoToRace() => _nav.NavigateTo($"/race/{RaceId}");
 }

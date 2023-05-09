@@ -16,7 +16,7 @@ namespace SimTECH
 
     public enum Entrant
     {
-        Unknown = 0,
+        None = 0,
         Driver,
         Team,
         Track,
@@ -25,14 +25,14 @@ namespace SimTECH
 
     public enum RangeType
     {
-        Unknown = 0,
+        None = 0,
         Skill,
         Age,
         Team,
         Engine
     }
 
-    public enum TargetDevelop { Main, Reliability }
+    public enum TargetDevelop { Main, Reliability, Aero, Chassis, Powertrain }
 
     public enum Gender { All, Male, Female, Other }
 
@@ -44,34 +44,22 @@ namespace SimTECH
     }
 
     #region racing
-
-    public enum Weather
-    {
-        Unknown = 0,
-        Sunny, Overcast, Rain, Storm
-    }
-
     public enum TeamRole
     {
         None = 0,
         Main, Support
     }
 
-    public enum RaceStatus
+    // TODO: Implement this bad boy
+    public enum QualyFormat
     {
-        Unknown = 0,
-        Racing, Dnf, Dsq, Dnq, Fatal,
+        OneSession, TripleEliminate
     }
 
-    // TODO: You might want to rethink this enum, consider making penalties custom settable
-    public enum Incident
+    public enum RaceStatus
     {
         None = 0,
-        Damage, Collision, Accident, Puncture,
-        Engine,
-        Electrics, Exhaust, Clutch, Hydraulics, Wheel, Brakes,
-        Illegal, Fuel, Dangerous,
-        Death
+        Racing, Dnf, Dsq, Dnq, Fatal,
     }
 
     [Flags]
@@ -83,7 +71,6 @@ namespace SimTECH
         Mistake = 16, Pitstop = 32, Swap = 64,
         Death = 128,
     }
-
     #endregion racing
 
     #region countries
@@ -106,7 +93,7 @@ namespace SimTECH
         [Description("Angola")] AO = 7,
         [Description("Anguilla")] AI = 8,
         [Description("Antarctica")] AQ = 9,
-        [Description("Antigua and Barbuda")] AG = 10,
+        [Description("Antigua")] AG = 10,
         [Description("Argentina")] AR = 11,
         [Description("Armenia")] AM = 12,
         [Description("Aruba")] AW = 13,
@@ -124,8 +111,8 @@ namespace SimTECH
         [Description("Bermuda")] BM = 25,
         [Description("Bhutan")] BT = 26,
         [Description("Bolivia")] BO = 27,
-        [Description("Bonaire, Sint Eustatius and Saba")] BQ = 28,
-        [Description("Bosnia and Herzegovina")] BA = 29,
+        [Description("Bonaire")] BQ = 28,
+        [Description("Bosnia")] BA = 29,
         [Description("Botswana")] BW = 30,
         [Description("Bouvet Island")] BV = 31,
         [Description("Brazil")] BR = 32,
@@ -194,7 +181,7 @@ namespace SimTECH
         [Description("Guinea-Bissau")] GW = 94,
         [Description("Guyana")] GY = 95,
         [Description("Haiti")] HT = 96,
-        [Description("Heard Island and McDonald Islands")] HM = 97,
+        [Description("Heard Island")] HM = 97,
         [Description("Holy See")] VA = 98,
         [Description("Honduras")] HN = 99,
         [Description("Hong Kong")] HK = 100,
@@ -220,7 +207,7 @@ namespace SimTECH
         [Description("South-Korea")] KR = 119,
         [Description("Kuwait")] KW = 120,
         [Description("Kyrgyzstan")] KG = 121,
-        [Description("Lao People's Democratic Republic")] LA = 122,
+        [Description("Laos")] LA = 122,
         [Description("Latvia")] LV = 123,
         [Description("Lebanon")] LB = 124,
         [Description("Lesotho")] LS = 125,
@@ -268,7 +255,7 @@ namespace SimTECH
         [Description("Oman")] OM = 167,
         [Description("Pakistan")] PK = 168,
         [Description("Palau")] PW = 169,
-        [Description("Palestine, State of")] PS = 170,
+        [Description("Palestine")] PS = 170,
         [Description("Panama")] PA = 171,
         [Description("Papua New Guinea")] PG = 172,
         [Description("Paraguay")] PY = 173,
@@ -281,18 +268,18 @@ namespace SimTECH
         [Description("Qatar")] QA = 180,
         [Description("Réunion")] RE = 181,
         [Description("Romania")] RO = 182,
-        [Description("Russian Federation")] RU = 183,
+        [Description("Russia")] RU = 183,
         [Description("Rwanda")] RW = 184,
         [Description("Saint Barthélemy")] BL = 185,
-        [Description("Saint Helena, Ascension and Tristan da Cunha")] SH = 186,
-        [Description("Saint Kitts and Nevis")] KN = 187,
+        [Description("Saint Helena")] SH = 186,
+        [Description("Saint Kitts")] KN = 187,
         [Description("Saint Lucia")] LC = 188,
-        [Description("Saint Martin (French part)")] MF = 189,
-        [Description("Saint Pierre and Miquelon")] PM = 190,
-        [Description("Saint Vincent and the Grenadines")] VC = 191,
+        [Description("Saint Martin")] MF = 189,
+        [Description("Saint Pierre")] PM = 190,
+        [Description("Saint Vincent")] VC = 191,
         [Description("Samoa")] WS = 192,
         [Description("San Marino")] SM = 193,
-        [Description("Sao Tome and Principe")] ST = 194,
+        [Description("Sao Tome")] ST = 194,
         [Description("Saudi Arabia")] SA = 195,
         [Description("Senegal")] SN = 196,
         [Description("Serbia")] RS = 197,
@@ -311,14 +298,14 @@ namespace SimTECH
         [Description("Sri Lanka")] LK = 210,
         [Description("Sudan")] SD = 211,
         [Description("Suriname")] SR = 212,
-        [Description("Svalbard and Jan Mayen")] SJ = 213,
+        [Description("Svalbard")] SJ = 213,
         [Description("Swaziland")] SZ = 214,
         [Description("Sweden")] SE = 215,
         [Description("Switzerland")] CH = 216,
-        [Description("Syrian Arab Republic")] SY = 217,
-        [Description("Taiwan, Province of China[a]")] TW = 218,
+        [Description("Syria")] SY = 217,
+        [Description("Taiwan")] TW = 218,
         [Description("Tajikistan")] TJ = 219,
-        [Description("Tanzania, United Republic of")] TZ = 220,
+        [Description("Tanzania")] TZ = 220,
         [Description("Thailand")] TH = 221,
         [Description("Timor-Leste")] TL = 222,
         [Description("Togo")] TG = 223,
@@ -332,11 +319,11 @@ namespace SimTECH
         [Description("Tuvalu")] TV = 231,
         [Description("Uganda")] UG = 232,
         [Description("Ukraine")] UA = 233,
-        [Description("United Arab Emirates")] AE = 234,
+        [Description("UAE")] AE = 234,
         [Description("United Kingdom")] GB = 235,
         [Description("United Nations")] UN = 252,
-        [Description("United States of America")] US = 236,
-        [Description("United States Minor Outlying Islands")] UM = 237,
+        [Description("USA")] US = 236,
+        [Description("USA Minor Islands")] UM = 237,
         [Description("Uruguay")] UY = 238,
         [Description("Uzbekistan")] UZ = 239,
         [Description("Vanuatu")] VU = 240,
@@ -352,6 +339,5 @@ namespace SimTECH
 
         // Last index is 252 (European Union)
     }
-
     #endregion countries
 }

@@ -39,6 +39,6 @@ namespace SimTECH.PageModels
 
         // Whether the driver has a penalty for this race
         public int? Penalty { get; set; }
-        public string? Reason { get; set; }
+        public string? Reasons { get; set; }
     }
 }

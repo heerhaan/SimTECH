@@ -6,8 +6,9 @@
         public int Round { get; set; }
         public string Name { get; set; }
         public Country Country { get; set; }
-        public Weather Weather { get; set; }
         public State State { get; set; }
+        public string Weather { get; set; }
+        public string WeatherIcon { get; set; }
         public long TrackId { get; set; }
 
         public DriverWinner PoleSitter { get; set; }

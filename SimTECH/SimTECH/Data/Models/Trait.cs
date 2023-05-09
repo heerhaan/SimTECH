@@ -24,4 +24,33 @@
         public IList<TeamTrait> TeamTraits { get; set; }
         public IList<TrackTrait> TrackTraits { get; set; }
     }
+
+    public static class ExtendTrait
+    {
+        public static Dictionary<string, int> RetrieveNotZeroValues(this Trait trait)
+        {
+            var assignedValues = new Dictionary<string, int>();
+
+            if (trait.QualifyingPace != 0)
+                assignedValues.Add("Qualifying pace", trait.QualifyingPace);
+            if (trait.RacePace != 0)
+                assignedValues.Add("Race pace", trait.RacePace);
+            if (trait.DriverReliability != 0)
+                assignedValues.Add("Driver reliability", trait.DriverReliability);
+            if (trait.CarReliability != 0)
+                assignedValues.Add("Car reliability", trait.CarReliability);
+            if (trait.EngineReliability != 0)
+                assignedValues.Add("Engine reliability", trait.EngineReliability);
+            if (trait.WearMax != 0)
+                assignedValues.Add("Wear max", trait.WearMax);
+            if (trait.WearMin != 0)
+                assignedValues.Add("Wear min", trait.WearMin);
+            if (trait.RngMin != 0)
+                assignedValues.Add("Rng min", trait.RngMin);
+            if (trait.RngMax != 0)
+                assignedValues.Add("Rng max", trait.RngMax);
+
+            return assignedValues;
+        }
+    }
 }

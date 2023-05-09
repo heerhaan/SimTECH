@@ -34,7 +34,6 @@ namespace SimTECH.Data.Services
 
             return await context.Race
                 .Include(e => e.Track)
-                .Include(e => e.Penalties)
                 .SingleAsync(e => e.Id == raceId);
         }
 
@@ -66,6 +65,28 @@ namespace SimTECH.Data.Services
                 context.Add(race);
             else
                 context.Update(race);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task InsertRaces(List<Race> races)
+        {//TODO: Validations?
+            using var context = _dbFactory.CreateDbContext();
+
+            context.AddRange(races);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteRace(long raceId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var race = await context.Race.FirstAsync(e => e.Id == raceId);
+
+            // Technically it's possible that this fails when penalties would be assigned, so yeah
+            if (race.State == State.Concept)
+                context.Remove(race);
 
             await context.SaveChangesAsync();
         }
@@ -169,6 +190,19 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task ConsumePenalties(List<long> consumables, long raceId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            await context.GivenPenalty
+                .Where(e => consumables.Contains(e.Id))
+                .ExecuteUpdateAsync(e =>
+                    e.SetProperty(p => p.Consumed, p => true)
+                     .SetProperty(p => p.ConsumedAtRaceId, p => raceId));
+
+            await context.SaveChangesAsync();
+        }
+
         public async Task PersistLapScores(List<LapScore> lapscores)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -212,19 +246,12 @@ namespace SimTECH.Data.Services
                 }
             }
 
-            if (finishedResults.Any(e => e.Incident == Incident.Death))
+            // De-activate the drivers which had a lethal crash
+            foreach (var death in finishedResults.Where(e => e.Incident?.Category == CategoryIncident.Lethal))
             {
-                //var drivers = await context.Driver.ToListAsync();
-
-                foreach (var death in finishedResults.Where(e => e.Incident == Incident.Death))
-                {
-                    var ripSeasonDriver = seasonDrivers.Single(e => e.Id == death.SeasonDriverId);
-                    ripSeasonDriver.SeasonTeamId = null;
-                    ripSeasonDriver.Driver.Alive = false;
-                }
-                
-                // Confirm whether updating the driver through the seasondriver works
-                //context.UpdateRange(drivers);
+                var ripSeasonDriver = seasonDrivers.Single(e => e.Id == death.SeasonDriverId);
+                ripSeasonDriver.SeasonTeamId = null;
+                ripSeasonDriver.Driver.Alive = false;
             }
 
             context.UpdateRange(seasonTeams);
@@ -239,8 +266,8 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
-                .Include(e => e.Penalties)
                 .Include(e => e.Track)
+                .Include(e => e.Climate)
                 .Include(e => e.Season)
                 .SingleAsync(e => e.Id == raceId);
 
@@ -291,16 +318,16 @@ namespace SimTECH.Data.Services
                 driver.Strategy = strategiesForRace.Find(e => e.Id == driver.StrategyId);
 
             // Set eventual penalties
-            var penalties = await context.Penalty.Where(e => e.RaceId == raceId).ToListAsync();
-            if (penalties?.Any() == true)
+            var unconsumedPenalties = await context.GivenPenalty.Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId).ToListAsync();
+            if (unconsumedPenalties?.Any() == true)
             {
-                foreach (var penalty in penalties)
+                foreach (var penalty in unconsumedPenalties.GroupBy(e => e.SeasonDriverId))
                 {
-                    var matchingDriver = weekendDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.SeasonDriverId);
+                    var matchingDriver = weekendDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.Key);
                     if (matchingDriver != null)
                     {
-                        matchingDriver.Penalty = penalty.Punishment;
-                        matchingDriver.Reason = penalty.Reason;
+                        matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
+                        matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
                     }
                 }
             }
@@ -321,6 +348,7 @@ namespace SimTECH.Data.Services
 
             var races = await context.Race
                 .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Climate)
                 .Include(e => e.Track)
                 .Include(e => e.Results)
                 .ToListAsync();
@@ -345,7 +373,8 @@ namespace SimTECH.Data.Services
                     Round = race.Round,
                     Name = race.Name,
                     Country = race.Track.Country,
-                    Weather = race.Weather,
+                    Weather = race.Climate.Terminology,
+                    WeatherIcon = race.Climate.Icon,
                     State = race.State,
                     TrackId = race.TrackId,
                 };
@@ -424,7 +453,9 @@ namespace SimTECH.Data.Services
                     {
                         Name = d.SeasonDriver.Driver.FullName,
                         Country = d.SeasonDriver.Driver.Country,
-                        Number = d.SeasonDriver.Number
+                        Number = d.SeasonDriver.Number,
+                        Colour = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultColour : d.SeasonDriver.SeasonTeam.Colour,
+                        Accent = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultAccent : d.SeasonDriver.SeasonTeam.Accent
                     })
                     .First(),
 
@@ -449,6 +480,7 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
+                .Include(e => e.Climate)
                 .Include(e => e.Track)
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
@@ -479,7 +511,7 @@ namespace SimTECH.Data.Services
 
             // Excludes wet traits if the race isn't wet either
             var allTraits = await context.Trait
-                .Where(e => (!e.ForWetConditions) || e.ForWetConditions == race.IsWet)
+                .Where(e => (!e.ForWetConditions) || e.ForWetConditions == race.Climate.IsWet)
                 .ToListAsync();
 
             var allStrategies = await context.Strategy
@@ -495,30 +527,10 @@ namespace SimTECH.Data.Services
 
             var raceDrivers = new List<RaceDriver>();
 
-            // Set weather multipliers defined in the configuration here
-            double engineMultiplier = 0;
-            int weatherRng = 0;
-            int weatherDnf = 0;
-
-            switch (race.Weather)
-            {
-                case Weather.Sunny:
-                    engineMultiplier = _config.SunnyEngineMultiplier;
-                    break;
-                case Weather.Overcast:
-                    engineMultiplier = _config.OvercastEngineMultiplier;
-                    break;
-                case Weather.Rain:
-                    engineMultiplier = _config.WetEngineMultiplier;
-                    weatherRng = _config.RainAdditionalRNG;
-                    weatherDnf = _config.RainDriverReliabilityModifier;
-                    break;
-                case Weather.Storm:
-                    engineMultiplier = _config.WetEngineMultiplier;
-                    weatherRng = _config.StormAdditionalRNG;
-                    weatherDnf = _config.StormDriverReliabilityModifier;
-                    break;
-            }
+            // Set weather multipliers defined in the climate here
+            var engineMultiplier = race.Climate.EngineMultiplier;
+            var weatherRng = race.Climate.RngModifier;
+            var weatherDnf = race.Climate.ReliablityModifier;
 
             // Iterate through all driver results for this raceweek, excluding the drivers which failed to qualify
             foreach (var driverResult in driverResults.Where(e => e.Status != RaceStatus.Dnq))
@@ -572,6 +584,7 @@ namespace SimTECH.Data.Services
                     Strategy = strategy,
                     // We might want to store the current tyre ID too otherwise this makes little sense when opening an older rees
                     // Also this way one has to finish a started race
+                    // Alternatively determine the current tyre based on the state of the race
                     CurrentTyre = strategy.StrategyTyres[0].Tyre,
 
                     Power = totalPower,
@@ -597,7 +610,9 @@ namespace SimTECH.Data.Services
                 RaceLength = race.RaceLength,
                 Name = race.Name,
                 Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
-                Weather = race.Weather,
+                ClimateId = race.ClimateId,
+                Climate = race.Climate.Terminology,
+                ClimateIcon = race.Climate.Icon,
                 Round = race.Round,
                 IsFinished = race.State == State.Closed,
 
@@ -620,11 +635,12 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
+                .Include(e => e.Climate)
                 .Include(e => e.Track)
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
 
-            var penalties = await context.Penalty.Where(e => e.RaceId == raceId).ToListAsync();
+            var unconsumedPenalties = await context.GivenPenalty.Where(e => !e.Consumed).Include(e => e.Incident).ToListAsync();
 
             var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
 
@@ -647,13 +663,30 @@ namespace SimTECH.Data.Services
 
             // Excludes wet traits if the race isn't wet either
             var allTraits = await context.Trait
-                .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.IsWet)
+                .Where(e => (!e.ForWetConditions) && e.ForWetConditions == race.Climate.IsWet)
                 .ToListAsync();
 
             // Do we feel secure about these null refs?
             var trackTraits = allTraits
                 .Where(e => race.Track.TrackTraits.Select(tt => tt.TraitId).Contains(e.Id))
                 .ToList();
+
+            var model = new QualifyingModel
+            {
+                RaceId = race.Id,
+                Name = race.Name,
+                Country = race.Track.Country,
+                Climate = race.Climate.Terminology,
+                ClimateIcon = race.Climate.Icon,
+
+                AmountRuns = season.RunAmountSession,
+                MaximumRaceDrivers = season.MaximumDriversInRace,
+                QualyRng = season.QualifyingRNG,
+                QualyAmountQ2 = season.QualifyingAmountQ2,
+                QualyAmountQ3 = season.QualifyingAmountQ3,
+
+                GapMarge = _config.GapMarge,
+            };
 
             var raceDrivers = new List<QualifyingDriver>();
 
@@ -678,8 +711,12 @@ namespace SimTECH.Data.Services
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
                 var traitEffect = NumberHelper.SumTraitEffects(driverTraits);
+                var driverPenalties = unconsumedPenalties.Where(e => e.SeasonDriverId == driver.Id).ToArray();
 
-                raceDrivers.Add(new QualifyingDriver
+                if (driverPenalties.Any())
+                    model.PenaltiesToConsume.AddRange(driverPenalties.Select(e => e.Id));
+
+                model.QualifyingDrivers.Add(new QualifyingDriver
                 {
                     ResultId = driverResult.Id,
                     FirstName = driver.Driver.FirstName,
@@ -693,7 +730,7 @@ namespace SimTECH.Data.Services
                     Accent = team.Accent,
 
                     Power = driverPower + traitEffect.QualifyingPace,
-                    PenaltyPunishment = penalties.Any() ? penalties.Find(e => e.SeasonDriverId == driver.Id)?.DoubledPunishment() ?? 0 : 0,
+                    PenaltyPunishment = driverPenalties.Any() ? driverPenalties.Sum(e => e.Incident.DoubledPunishment()) : 0,
 
                     RunValuesQ1 = new int[season.RunAmountSession],
                     RunValuesQ2 = new int[season.RunAmountSession],
@@ -701,23 +738,7 @@ namespace SimTECH.Data.Services
                 });
             }
 
-            return new QualifyingModel
-            {
-                RaceId = race.Id,
-                Name = race.Name,
-                Country = race.Track.Country,
-                Weather = race.Weather,
-
-                QualifyingDrivers = raceDrivers,
-
-                AmountRuns = season.RunAmountSession,
-                MaximumRaceDrivers = season.MaximumDriversInRace,
-                QualyRng = season.QualifyingRNG,
-                QualyAmountQ2 = season.QualifyingAmountQ2,
-                QualyAmountQ3 = season.QualifyingAmountQ3,
-
-                GapMarge = _config.GapMarge,
-            };
+            return model;
         }
 
         public async Task<PracticeModel> RetrievePracticeModel(long raceId)
@@ -725,6 +746,7 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
+                .Include(e => e.Climate)
                 .Include(e => e.Track)
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
@@ -808,7 +830,8 @@ namespace SimTECH.Data.Services
                 RaceId = race.Id,
                 Name = race.Name,
                 Country = race.Track.Country,
-                Weather = race.Weather,
+                Climate = race.Climate.Terminology,
+                ClimateIcon = race.Climate.Icon,
 
                 AmountRuns = season.RunAmountSession,
                 PracticeRng = season.QualifyingRNG / 2,

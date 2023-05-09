@@ -1,0 +1,84 @@
+﻿@page "/climates"
+@inject ClimateService _climateService
+@inject IDialogService DialogService
+
+<MudContainer>
+    <MudDataGrid T="Climate" Items="ClimateData">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Climate</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddItem">New</MudButton>
+        </ToolBarContent>
+        <Columns>
+            <TemplateColumn T="Climate" Title="Icon" Sortable="false">
+                <CellTemplate>
+                    <MudIcon Icon="@context.Item.Icon" />
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="e => e.Terminology" />
+            <PropertyColumn Property="e => e.IsWet" Title=" For wet" />
+            <PropertyColumn Property="e => e.EngineMultiplier" Title="Engine" />
+            <PropertyColumn Property="e => e.ReliablityModifier" Title="Reliability" />
+            <PropertyColumn Property="e => e.RngModifier" Title="RNG" />
+            <TemplateColumn T="Climate" Sortable="false">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        @if (context.Item.State == State.Closed)
+                        {
+                            <MudIconButton Size="@Size.Small"
+                                       Icon="@Icons.Material.Filled.Block"
+                                       Color="Color.Warning"
+                                       Title="Unavailable"
+                                       OnClick="@(async () => await ToggleState(context.Item, State.Active))" />
+                        }
+                        else
+                        {
+                            <MudIconButton Size="@Size.Small"
+                                       Icon="@Icons.Material.Filled.CheckCircleOutline"
+                                       Color="Color.Success"
+                                       Title="Available"
+                                       OnClick="@(async () => await ToggleState(context.Item, State.Closed))" />
+                        }
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Climate" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    List<Climate> ClimateData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ClimateData = await _climateService.GetClimates(StateFilter.All);
+    }
+
+    async Task AddItem() => await UpdateItem(null);
+    async Task UpdateItem(Climate? climate)
+    {
+        var parameters = new DialogParameters
+            {
+                ["Climate"] = climate,
+            };
+
+        var dialog = await DialogService.ShowAsync<ClimateEditor>("Modify climate", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Climate updatedItem)
+        {
+            await _climateService.UpdateClimate(updatedItem);
+            ClimateData = await _climateService.GetClimates();
+        }
+    }
+
+    async Task ToggleState(Climate climate, State targetState)
+    {
+        await _climateService.ChangeState(climate, targetState);
+        climate.State = targetState;
+    }
+}

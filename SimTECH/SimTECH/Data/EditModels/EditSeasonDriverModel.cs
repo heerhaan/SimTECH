@@ -22,23 +22,29 @@ namespace SimTECH.Data.EditModels
         public long BaseTeamId { get; set; }
         public Driver? Driver { get; set; }
 
-        public EditSeasonDriverModel() { _seasonDriver = new SeasonDriver(); }
-        public EditSeasonDriverModel(SeasonDriver seasonDriver)
+        public EditSeasonDriverModel(SeasonDriver? seasonDriver)
         {
-            Id = seasonDriver.Id;
-            Number = seasonDriver.Number;
-            Skill = seasonDriver.Skill;
-            Reliability = seasonDriver.Reliability;
-            TeamRole = seasonDriver.TeamRole;
-            SeasonId = seasonDriver.SeasonId;
-            DriverId = seasonDriver.DriverId;
-            SeasonTeamId = seasonDriver.SeasonTeamId;
-            Driver = seasonDriver.Driver;
+            if (seasonDriver == null)
+            {
+                _seasonDriver = new();
+            }
+            else
+            {
+                Id = seasonDriver.Id;
+                Number = seasonDriver.Number;
+                Skill = seasonDriver.Skill;
+                Reliability = seasonDriver.Reliability;
+                TeamRole = seasonDriver.TeamRole;
+                SeasonId = seasonDriver.SeasonId;
+                DriverId = seasonDriver.DriverId;
+                SeasonTeamId = seasonDriver.SeasonTeamId;
+                Driver = seasonDriver.Driver;
 
-            Points = seasonDriver.Points;
-            HiddenPoints = seasonDriver.HiddenPoints;
+                Points = seasonDriver.Points;
+                HiddenPoints = seasonDriver.HiddenPoints;
 
-            _seasonDriver = seasonDriver;
+                _seasonDriver = seasonDriver;
+            }
         }
 
         public void ResetIdentifierFields()

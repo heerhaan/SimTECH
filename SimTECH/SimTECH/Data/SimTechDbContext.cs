@@ -10,15 +10,17 @@ namespace SimTECH.Data
         {
         }
 
+        public DbSet<Climate> Climate => Set<Climate>();
         public DbSet<Contract> Contract => Set<Contract>();
         public DbSet<DevelopmentRange> DevelopmentRange => Set<DevelopmentRange>();
         public DbSet<Driver> Driver => Set<Driver>();
         public DbSet<DriverTrait> DriverTrait => Set<DriverTrait>();
         public DbSet<Engine> Engine => Set<Engine>();
+        public DbSet<GivenPenalty> GivenPenalty => Set<GivenPenalty>();
+        public DbSet<Incident> Incident => Set<Incident>();
         public DbSet<LapScore> LapScore => Set<LapScore>();
         public DbSet<League> League => Set<League>();
         public DbSet<Manufacturer> Manufacturer => Set<Manufacturer>();
-        public DbSet<Penalty> Penalty => Set<Penalty>();
         public DbSet<PointAllotment> PointAllotment => Set<PointAllotment>();
         public DbSet<Race> Race => Set<Race>();
         public DbSet<Result> Result => Set<Result>();

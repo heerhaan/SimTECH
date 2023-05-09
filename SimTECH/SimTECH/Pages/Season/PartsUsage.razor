@@ -1,5 +1,6 @@
 ﻿@page "/components/{SeasonId:long}"
 @inject BreadcrumbProvider _bread
+@inject IncidentService _incidentService
 @inject SeasonService _seasonService
 
 <PageTitle>Components</PageTitle>
@@ -16,37 +17,27 @@
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>Name</MudTh>
-                            <MudTh Class="number-col">No</MudTh>
-                            <MudTh>Accidents</MudTh>
-                            <MudTh>Collisions</MudTh>
-                            <MudTh>Engines</MudTh>
-                            <MudTh>Electrics</MudTh>
-                            <MudTh>Hydraulics</MudTh>
+                            <MudTh Class="pa-0">No</MudTh>
                             <MudTh>DNF</MudTh>
                             <MudTh>DSQ</MudTh>
                         </HeaderContent>
                         <RowTemplate>
-                            <MudTd>@context.Name</MudTd>
-                            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                                @context.Number
+                            <MudTd>
+                                <MudText>@context.Name</MudText>
                             </MudTd>
-                            <MudTd>@context.Accidents</MudTd>
-                            <MudTd>@context.Collisions</MudTd>
-                            <MudTd>@context.Engines</MudTd>
-                            <MudTd>@context.Electrics</MudTd>
-                            <MudTd>@context.Hydraulics</MudTd>
-                            <MudTd>@context.TotalDnf</MudTd>
-                            <MudTd>@context.TotalDsq</MudTd>
+                            <MudTd Class="pa-0" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                                <MudText Typo="Typo.caption">@context.Number</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@context.TotalDnf</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@context.TotalDsq</MudText>
+                            </MudTd>
                         </RowTemplate>
                         <FooterContent>
                             <MudTd>LIMIT</MudTd>
-                            <MudTd>3</MudTd>
-                            <MudTd>3</MudTd>
-                            <MudTd>3</MudTd>
-                            <MudTd>3</MudTd>
-                            <MudTd>3</MudTd>
-                            <MudTd>-</MudTd>
-                            <MudTd>-</MudTd>
+                            <MudTd>TODO</MudTd>
                         </FooterContent>
                     </MudTable>
                 </MudPaper>
@@ -55,14 +46,15 @@
                 <MudPaper Class="pa-4 mud-height-full">
                     <MudText Typo="Typo.h4">Penalties</MudText>
                     <MudList>
-                        @foreach (var driver in PartsPerDriver.Where(e => e.GivenPenalties?.Any() == true))
+                        @foreach (var driver in PartsPerDriver)
                         {
-                            @foreach (var penalty in driver.GivenPenalties)
+                            @foreach (var penalty in driver.ConsumedPenalties)
                             {
                                 <MudListItem>
-                                    <MudText Typo="Typo.body2">Round @penalty.Round</MudText>
-                                    <MudText>@driver.Name</MudText>
-                                    <MudText>+@(penalty.Punishment)</MudText>
+                                    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                                        <MudText>@driver.Name</MudText>
+                                        <MudText>@penalty</MudText>
+                                    </MudStack>
                                 </MudListItem>
                             }
                         }
@@ -76,7 +68,8 @@
 @code {
     [Parameter] public long SeasonId { get; set; }
 
-    List<PartsUsageModel> PartsPerDriver;
+    List<Incident> Incidents;
+    List<PartsUsedByDriver> PartsPerDriver;
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,6 +81,7 @@
             new BreadcrumbItem("Components", href: $"components/{SeasonId}", disabled: true),
         });
 
+        Incidents = await _incidentService.GetIncidents();
         PartsPerDriver = await _seasonService.GetPartsUsageModel(SeasonId);
     }
 }

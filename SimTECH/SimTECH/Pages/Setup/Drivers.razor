@@ -11,8 +11,10 @@
         <ToolBarContent>
             <MudText Typo="Typo.h4">Drivers</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="GoToHumanGenerator">Generate</MudButton>
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddDriver">New</MudButton>
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="GoToHumanGenerator">Generate</MudButton>
+                <MudButton OnClick="AddDriver">New</MudButton>
+            </MudButtonGroup>
         </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Driver" />
@@ -24,6 +26,14 @@
                     <CountryFlag Code="@context.Item.Country" Size="FlagSize.Small" IncludeName="true" />
                 </CellTemplate>
             </TemplateColumn>
+            <TemplateColumn T="Driver" Title="League" Sortable="false">
+                <CellTemplate>
+                    <MudText>
+                        @ReadActiveLeague(context.Item.Id)
+                    </MudText>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="e => e.Alive" />
             <TemplateColumn T="Driver" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small" Class="ml-auto">
@@ -41,7 +51,6 @@
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
-                    <MudText>Item is currently: @context.Item.State</MudText>
                     <MudText>@(context.Item.Alive ? "Still alive" : "Died")</MudText>
                 </MudCardContent>
             </MudCard>
@@ -54,12 +63,18 @@
 
 @code {
     private List<Driver> DriverData = new();
+    private List<CurrentDriver> CurrentDrivers = new();
 
     protected override async Task OnInitializedAsync()
     {
+        CurrentDrivers = await DriverService.GetCurrentDrivers();
         DriverData = await DriverService.GetDrivers();
     }
 
+    // Displayable helpers
+    string ReadActiveLeague(long driverId) => CurrentDrivers.Find(e => e.DriverId == driverId)?.League ?? "None";
+
+    // CRUD-actions
     async Task AddDriver() => await UpdateDriver(new Driver());
     async Task UpdateDriver(Driver item)
     {
@@ -79,8 +94,8 @@
             DriverData = await DriverService.GetDrivers();
         }
     }
-
     async Task DeleteDriver(Driver driver) => await DriverService.DeleteDriver(driver);
 
+    // Navigation links
     void GoToHumanGenerator() => _nav.NavigateTo("humanbeinggenerator");
 }

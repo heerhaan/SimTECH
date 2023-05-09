@@ -14,9 +14,8 @@
         <Columns>
             <HierarchyColumn T="Trait" />
             <PropertyColumn Property="e => e.Name" />
-            <PropertyColumn Property="e => e.Description" />
             <PropertyColumn Property="e => e.Type" />
-            <PropertyColumn Property="e => e.ForWetConditions" Title="Only when wet" />
+            <PropertyColumn Property="e => e.ForWetConditions" Title="For wet" />
             <PropertyColumn Property="e => e.State" />
             <TemplateColumn Sortable="false">
                 <CellTemplate>
@@ -30,57 +29,17 @@
             <MudCard>
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6">TODO: This detail page lol haha</MudText>
+                        <MudText Typo="Typo.h6">Details for @context.Item.Name</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
                     <MudGrid>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText Typo="Typo.caption">Qualifying pace: @(context.Item.QualifyingPace)</MudText>
+                        <MudItem xs="6">
+                            <MudPaper>
+                                <MudText>@(context.Item.Description)</MudText>
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText Typo="Typo.caption">Driver pace: @(context.Item.RacePace)</MudText>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText Typo="Typo.caption">Driver reliability: @(context.Item.DriverReliability)</MudText>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText Typo="Typo.caption">Car reliability: @(context.Item.CarReliability)</MudText>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText Typo="Typo.caption">Engine reliability: @(context.Item.EngineReliability)</MudText>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText Typo="Typo.caption">Wear max: @(context.Item.WearMax)</MudText>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText Typo="Typo.caption">Wear min: @(context.Item.WearMin)</MudText>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText Typo="Typo.caption">RNG min: @(context.Item.RngMin)</MudText>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="3">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText Typo="Typo.caption">RNG max: @(context.Item.RngMax)</MudText>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="3">
+                        <MudItem xs="6">
                             <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
                                 <MudText>For wet conditions:</MudText>
                                 @if (context.Item.ForWetConditions)
@@ -91,6 +50,23 @@
                                 {
                                     <MudIcon Icon="@Icons.Material.Filled.Block" Color="Color.Error"></MudIcon>
                                 }
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                                <MudText Typo="Typo.subtitle1">Assigned modifiers</MudText>
+                                @foreach (var modifier in context.Item.RetrieveNotZeroValues())
+                                {
+                                    <MudText Typo="Typo.caption">
+                                        @(modifier.Key): @(modifier.Value)
+                                    </MudText>
+                                }
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem>
+                            <MudPaper>
+                                <MudText Typo="Typo.subtitle1">Used by:</MudText>
+                                <MudText>Todo</MudText>
                             </MudPaper>
                         </MudItem>
                     </MudGrid>

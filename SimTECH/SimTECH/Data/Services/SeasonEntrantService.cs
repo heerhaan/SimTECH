@@ -106,10 +106,24 @@ namespace SimTECH.Data.Services
 
             foreach (var team in teams)
             {
-                if (target == TargetDevelop.Main)
-                    team.BaseValue = developmentDict[team.Id];
-                else
-                    team.Reliability = developmentDict[team.Id];
+                switch (target)
+                {
+                    case TargetDevelop.Main:
+                        team.BaseValue = developmentDict[team.Id];
+                        break;
+                    case TargetDevelop.Reliability:
+                        team.Reliability = developmentDict[team.Id];
+                        break;
+                    case TargetDevelop.Aero:
+                        team.Aero = developmentDict[team.Id];
+                        break;
+                    case TargetDevelop.Chassis:
+                        team.Chassis = developmentDict[team.Id];
+                        break;
+                    case TargetDevelop.Powertrain:
+                        team.Powertrain = developmentDict[team.Id];
+                        break;
+                }
             }
 
             context.UpdateRange(teams);

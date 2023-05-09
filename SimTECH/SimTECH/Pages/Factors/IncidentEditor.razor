@@ -1,0 +1,90 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">Incident editor</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@Model">
+            <MudStack>
+                <MudTextField T="string" @bind-Text="@Model.Name" Label="Name" />
+
+                <div>
+                    <MudText Typo="Typo.subtitle2">Category</MudText>
+                    @if (Model.Id == 0)
+                    {
+                        <MudChipSet @bind-SelectedChip="categoryChip" Mandatory="true">
+                            @foreach (var cat in EnumHelper.GetIncidentCategories())
+                            {
+                                <MudChip Value="@cat.Key">@cat.Value</MudChip>
+                            }
+                        </MudChipSet>
+                    }
+                    else
+                    {
+                        <MudText>@Model.Category.ToString()</MudText>
+                    }
+                </div>
+
+                <MudNumericField T="int" @bind-Value="@Model.Odds"
+                                 Min="0"
+                                 Label="Odds" />
+
+                <MudSwitchM3 @bind-Checked="@hasPunishment"
+                             Label="Has punishment"
+                             Color="Color.Secondary"
+                             ThumbIcon="@Icons.Material.Filled.Done"
+                             ThumbOffIcon="@Icons.Material.Filled.Close" />
+
+                @if (hasPunishment)
+                {
+                    <MudNumericField T="int" @bind-Value="@Model.Limit"
+                                 Min="0"
+                                 Label="Limit" />
+
+                    <MudNumericField T="int" @bind-Value="@Model.Punishment"
+                                 Min="0"
+                                 Label="Punishment" />
+                }
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
+    [Parameter] public Incident? Incident { get; set; }
+
+    MudChip? categoryChip;
+    bool hasPunishment = false;
+
+    EditIncident Model;
+
+    protected override void OnInitialized()
+    {
+        Model = new EditIncident(Incident);
+
+        hasPunishment = Model.Punishment > 0;
+    }
+
+    private void Submit()
+    {
+        if (Model.Id == 0)
+        {
+            // Perhaps own warning/validation message
+            if (categoryChip == null)
+                return;
+
+            Model.Category = (CategoryIncident)categoryChip.Value;
+        }
+
+        if (Model.IsDirty)
+        {
+            EditDialog?.Close(DialogResult.Ok(Model.Record));
+        }
+    }
+
+    private void Cancel() => EditDialog?.Cancel();
+}

@@ -19,31 +19,34 @@ namespace SimTECH.Data.EditModels
 
         public IList<EditDriverTraitModel> DriverTraits { get; set; } = new List<EditDriverTraitModel>();
 
-        public EditDriverModel()
+        public EditDriverModel(Driver? driver)
         {
-            DateOfBirth = DateTime.Today;
-            Country = EnumHelper.GetDefaultCountry();
-            State = State.Active;
-            Alive = true;
+            if (driver == null)
+            {
+                DateOfBirth = DateTime.Today;
+                Country = EnumHelper.GetDefaultCountry();
+                State = State.Active;
+                Alive = true;
 
-            _driver = new Driver();
-        }
-        public EditDriverModel(Driver driver)
-        {
-            Id = driver.Id;
-            FirstName = driver.FirstName;
-            LastName = driver.LastName;
-            Abbreviation = driver.Abbreviation;
-            DateOfBirth = driver.DateOfBirth;
-            Country = driver.Country;
-            Biography = driver.Biography;
-            Alive = driver.Alive;
-            State = driver.State;
+                _driver = new Driver();
+            }
+            else
+            {
+                Id = driver.Id;
+                FirstName = driver.FirstName;
+                LastName = driver.LastName;
+                Abbreviation = driver.Abbreviation;
+                DateOfBirth = driver.DateOfBirth;
+                Country = driver.Country;
+                Biography = driver.Biography;
+                Alive = driver.Alive;
+                State = driver.State;
 
-            if (driver.DriverTraits != null)
-                DriverTraits = driver.DriverTraits.Select(e => new EditDriverTraitModel(e)).ToList();
+                if (driver.DriverTraits != null)
+                    DriverTraits = driver.DriverTraits.Select(e => new EditDriverTraitModel(e)).ToList();
 
-            _driver = driver;
+                _driver = driver;
+            }
         }
 
         public Driver Record =>

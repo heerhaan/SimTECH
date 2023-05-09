@@ -15,23 +15,29 @@ namespace SimTECH.Data.EditModels
 
         public IList<EditSeasonTeamModel>? SeasonTeams { get; set; }
 
-        // Supportive properties
-        public string Identifier { get; set; } = new Guid().ToString();
-
-        public EditSeasonEngineModel() { _seasonEngine = new SeasonEngine(); }
-        public EditSeasonEngineModel(SeasonEngine seasonEngine)
+        public EditSeasonEngineModel(SeasonEngine? seasonEngine)
         {
-            Id = seasonEngine.Id;
-            Name = seasonEngine.Name;
-            Power = seasonEngine.Power;
-            Reliability = seasonEngine.Reliability;
-            EngineId = seasonEngine.EngineId;
-            SeasonId = seasonEngine.SeasonId;
+            if (seasonEngine == null)
+            {
+                Reliability = 1000;
+                Power = 100;
 
-            if (seasonEngine.SeasonTeams?.Any() == true)
-                SeasonTeams = seasonEngine.SeasonTeams.Select(e => new EditSeasonTeamModel(e)).ToList();
+                _seasonEngine = new();
+            }
+            else
+            {
+                Id = seasonEngine.Id;
+                Name = seasonEngine.Name;
+                Power = seasonEngine.Power;
+                Reliability = seasonEngine.Reliability;
+                EngineId = seasonEngine.EngineId;
+                SeasonId = seasonEngine.SeasonId;
 
-            _seasonEngine = seasonEngine;
+                if (seasonEngine.SeasonTeams?.Any() == true)
+                    SeasonTeams = seasonEngine.SeasonTeams.Select(e => new EditSeasonTeamModel(e)).ToList();
+
+                _seasonEngine = seasonEngine;
+            }
         }
 
         public void ResetIdentifierFields()

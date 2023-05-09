@@ -1,0 +1,19 @@
+﻿<MudElement HtmlTag="span" Class="tyre" Style="@_styles">
+    @ChildContent
+</MudElement>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Colour { get; set; }
+
+    private string _styles
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(Colour))
+                return "border-color: red";
+
+            return $"border-color: {Colour}";
+        }
+    }
+}

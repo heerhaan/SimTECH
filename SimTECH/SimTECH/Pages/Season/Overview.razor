@@ -36,8 +36,7 @@
                             {
                                 <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                                     <MudButton OnClick="StartSeason">Start season</MudButton>
-                                    <MudButton OnClick="AddAllEntrants">Add all entrants</MudButton>
-                                    <MudButton OnClick="CopyEntrants">Copy entrants</MudButton>
+                                    <MudButton OnClick="AddAllEntrants">Add participants</MudButton>
                                 </MudButtonGroup>
                             }
                             else if (Season.State == State.Active)
@@ -78,8 +77,6 @@
                             <MudText Typo="Typo.h6">Season statistics</MudText>
                             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small">
                                 <MudButton>Qualy battles</MudButton>
-                                <MudButton>Additional button</MudButton>
-                                <MudButton>Additional button</MudButton>
                             </MudButtonGroup>
                         </MudPaper>
                     </MudItem>
@@ -152,7 +149,7 @@
 
                     <MudItem xs="4">
                         <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-                            <MudText Typo="Typo.subtitle1">Points per position</MudText>
+                            <MudText Typo="Typo.subtitle2">Points per position</MudText>
                             @if (Season.PointAllotments != null)
                             {
                                 <MudSimpleTable Dense="true">
@@ -166,8 +163,8 @@
                                         @foreach (var allotment in Season.PointAllotments)
                                         {
                                             <tr>
-                                                <td>@allotment.Position</td>
-                                                <td>@allotment.Points</td>
+                                                <td class="font-caption">@allotment.Position</td>
+                                                <td class="font-caption">@allotment.Points</td>
                                             </tr>
                                         }
                                     </tbody>
@@ -210,21 +207,22 @@
             NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
     }
 
-    async Task CopyEntrants()
-    {
-        var seasons = await _seasonService.GetSeasons();
+    // Clean the following up, its not needed
+    //async Task CopyEntrants()
+    //{
+    //    var seasons = await _seasonService.GetSeasons();
 
-        var dialogParameters = new DialogParameters { ["Seasons"] = seasons };
+    //    var dialogParameters = new DialogParameters { ["Seasons"] = seasons };
 
-        var dialog = await _dialogService.ShowAsync<CopyEntrants>("Copy entrants", dialogParameters);
-        var result = await dialog.Result;
+    //    var dialog = await _dialogService.ShowAsync<CopyEntrants>("Copy entrants", dialogParameters);
+    //    var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is long seasonToCopyFrom)
-        {
-            await _entrantService.CopyEntrantsFromSeason(SeasonId, seasonToCopyFrom);
-            StateHasChanged();
-        }
-    }
+    //    if (!result.Canceled && result.Data != null && result.Data is long seasonToCopyFrom)
+    //    {
+    //        await _entrantService.CopyEntrantsFromSeason(SeasonId, seasonToCopyFrom);
+    //        StateHasChanged();
+    //    }
+    //}
 
     async Task GoToNextRace()
     {

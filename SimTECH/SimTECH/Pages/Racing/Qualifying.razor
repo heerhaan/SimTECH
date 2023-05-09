@@ -17,20 +17,18 @@ else
             *@
             <MudTable Items="@DriversInQ1.OrderBy(e => e.PositionQ1)" id="q1-result-table">
                 <ToolBarContent>
-                    <MudText Typo="Typo.h6">
-                        @Model.Name - QUALIFYING Q1
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                         <CountryFlag Code="@Model.Country" />
-                    </MudText>
-
-                    <MudSpacer />
-
-                    <MudButtonGroup Variant="Variant.Outlined">
-                        <ScreenshotButton TargetId="q1-result-table" />
-                        @if (advancedQ1 != Model.AmountRuns)
-                        {
-                            <MudButton OnClick="AdvanceQ1">Advance</MudButton>
-                        }
-                    </MudButtonGroup>
+                        <MudText Typo="Typo.h6">@Model.Name - QUALIFYING Q1</MudText>
+                        <MudSpacer />
+                        <MudButtonGroup Variant="Variant.Outlined">
+                            <ScreenshotButton TargetId="q1-result-table" />
+                            @if (advancedQ1 != Model.AmountRuns)
+                            {
+                                <MudButton OnClick="AdvanceQ1">Advance</MudButton>
+                            }
+                        </MudButtonGroup>
+                    </MudStack>
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh>#</MudTh>
@@ -49,7 +47,7 @@ else
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd Class="number-col" Style="@PositionCutoffStyles(context.PositionQ1, Model.QualyAmountQ2, Model.MaximumRaceDrivers)">
-                        <MudText Typo="Typo.caption">@context.PositionQ1</MudText>
+                        <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.PositionQ1</MudText>
                     </MudTd>
                     <MudTd Class="pa-0">
                         <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
@@ -91,18 +89,18 @@ else
             {
                 <MudTable Items="@DriversInQ2.OrderBy(e => e.PositionQ2)" id="q2-result-table">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                             <CountryFlag Code="@Model.Country" />
-                            @Model.Name - QUALIFYING Q2
-                        </MudText>
-                        <MudSpacer />
-                        <MudButtonGroup Variant="Variant.Outlined">
-                            <ScreenshotButton TargetId="q2-result-table" />
-                            @if (advancedQ1 != Model.AmountRuns)
-                            {
-                                <MudButton OnClick="AdvanceQ2">Advance</MudButton>
-                            }
-                        </MudButtonGroup>
+                            <MudText Typo="Typo.h6">@Model.Name - QUALIFYING Q2</MudText>
+                            <MudSpacer />
+                            <MudButtonGroup Variant="Variant.Outlined">
+                                <ScreenshotButton TargetId="q2-result-table" />
+                                @if (advancedQ2 != Model.AmountRuns)
+                                {
+                                    <MudButton OnClick="AdvanceQ2">Advance</MudButton>
+                                }
+                            </MudButtonGroup>
+                        </MudStack>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>#</MudTh>
@@ -121,7 +119,7 @@ else
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd Style="@PositionCutoffStyles(context.PositionQ2, Model.QualyAmountQ3)">
-                            <MudText Typo="Typo.caption">@context.PositionQ2</MudText>
+                            <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.PositionQ2</MudText>
                         </MudTd>
                         <MudTd Class="pa-0">
                             <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
@@ -164,24 +162,22 @@ else
             {
                 <MudTable Items="@DriversInQ3.OrderBy(e => e.PositionQ3)" id="q3-result-table">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                             <CountryFlag Code="@Model.Country" />
-                            @Model.Name - QUALIFYING Q3
-                        </MudText>
-
-                        <MudSpacer />
-                        
-                        <MudButtonGroup Variant="Variant.Outlined">
-                            <ScreenshotButton TargetId="q3-result-table" />
-                            @if (advancedQ3 == Model.AmountRuns)
-                            {
-                                <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
-                            }
-                            else
-                            {
-                                <MudButton Variant="Variant.Outlined" OnClick="AdvanceQ3">Advance</MudButton>
-                            }
-                        </MudButtonGroup>
+                            <MudText Typo="Typo.h6">@Model.Name - QUALIFYING Q3</MudText>
+                            <MudSpacer />
+                            <MudButtonGroup Variant="Variant.Outlined">
+                                <ScreenshotButton TargetId="q3-result-table" />
+                                @if (advancedQ3 == Model.AmountRuns)
+                                {
+                                    <MudButton Variant="Variant.Outlined" OnClick="Finish">Finish</MudButton>
+                                }
+                                else
+                                {
+                                    <MudButton Variant="Variant.Outlined" OnClick="AdvanceQ3">Advance</MudButton>
+                                }
+                            </MudButtonGroup>
+                        </MudStack>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>#</MudTh>
@@ -200,7 +196,7 @@ else
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>
-                            <MudText Typo="Typo.caption">@context.PositionQ3</MudText>
+                            <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.PositionQ3</MudText>
                         </MudTd>
                         <MudTd Class="pa-0">
                             <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
@@ -363,13 +359,14 @@ else
 
     private async Task Finish()
     {
-        // Check for the possible penalties and consider them when making the positions
+        // Check for the possible penalties and apply assigning new positions
         int positionIndexer = 0;
         var positionResults = Model.QualifyingDrivers
             .OrderBy(e => e.PenaltyPosition())
             .ToDictionary(e => e.ResultId, e => ++positionIndexer);
 
         await _raceService.PersistGridPositions(positionResults, RaceId, Model.MaximumRaceDrivers);
+        await _raceService.ConsumePenalties(Model.PenaltiesToConsume, RaceId);
 
         _nav.NavigateTo("/raceweek/" + RaceId);
     }

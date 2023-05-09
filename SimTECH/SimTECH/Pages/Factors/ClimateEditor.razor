@@ -1,0 +1,71 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">Climate editor</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@Model">
+            <MudStack>
+                <MudStack Row="true" Spacing="6">
+                    <MudSelect T="string" @bind-Value="@Model.Icon" Label="Icon" Class="field-xs">
+                        @foreach (var wIcon in weatherIcons)
+                        {
+                            <MudSelectItem Value="wIcon">
+                                <MudIcon Icon="@wIcon" />
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudTextField T="string" @bind-Text="@Model.Terminology" Label="Terminology" />
+                </MudStack>
+
+                <MudSwitchM3 @bind-Checked="@Model.IsWet"
+                             Label="Is wet"
+                             Color="Color.Secondary"
+                             ThumbIcon="@Icons.Material.Filled.Done"
+                             ThumbOffIcon="@Icons.Material.Filled.Close" />
+
+                <MudNumericField T="int" @bind-Value="@Model.Odds"
+                                 Min="0"
+                                 Label="Odds" />
+
+                <MudNumericField T="double" @bind-Value="@Model.EngineMultiplier"
+                                 Step="0.1"
+                                 Min="0"
+                                 Label="Engine multiplier" />
+
+                <MudNumericField T="int" @bind-Value="@Model.ReliablityModifier"
+                                 Label="Reliability modifier" />
+
+                <MudNumericField T="int" @bind-Value="@Model.RngModifier"
+                                 Label="RNG modifier" />
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
+    [Parameter] public Climate? Climate { get; set; }
+
+    private string[] weatherIcons = Constants.AllWeatherIcons;
+
+    EditClimate Model;
+
+    protected override void OnInitialized()
+    {
+        Model = new EditClimate(Climate);
+    }
+
+    private void Submit()
+    {
+        if (Model.IsDirty)
+        {
+            EditDialog?.Close(DialogResult.Ok(Model.Record));
+        }
+    }
+
+    private void Cancel() => EditDialog?.Cancel();
+}
