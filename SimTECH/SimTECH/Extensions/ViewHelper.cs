@@ -16,9 +16,7 @@ namespace SimTECH.Extensions
 
         public static string SetBorderRightStyle(string colour) => $"border-right:solid 10px {colour};";
 
-        public static string SetTextColourStyle(string colour, string accent) => $"-webkit-text-stroke: 1px {accent}; color:{colour}";
-
-        public static string SetTextNumberStyle(string colour, string accent) => $"color:{colour}; border: 1px solid {accent}; border-radius: 5px";
+        public static string SetTextNumberStyle(string colour, string accent) => $"color:{colour}; text-shadow: 2px 1px 2px {accent}";
 
         public static Func<SeasonDriver, string> DriverTeamStyleFunc => driver =>
         {

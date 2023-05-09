@@ -25,29 +25,10 @@
         <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Tertiary">
             <MudMenuItem OnClick="SetDefaultTheme">Default</MudMenuItem>
             <MudMenuItem OnClick="SetSynthTheme">Synth</MudMenuItem>
+            <MudMenuItem OnClick="SetSynthAltTheme">Alt synth</MudMenuItem>
         </MudMenu>
 
         <MudIconButton Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" Href="/guide" />
-        @*<MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-            <ActivatorContent>
-                <MudAvatar Color="Color.Secondary">AB</MudAvatar>
-            </ActivatorContent>
-            <ChildContent>
-                <AuthorizeView>
-                    <Authorized>
-                        <MudMenuItem>
-                            <MudNavLink Href="/admin" Match="NavLinkMatch.Prefix">Admin</MudNavLink>
-                        </MudMenuItem>
-                        <MudMenuItem OnClick="LogoutAsync">Logout</MudMenuItem>
-                    </Authorized>
-                    <NotAuthorized>
-                        <MudMenuItem>
-                            <MudNavLink Href="/login" Match="NavLinkMatch.Prefix">Login</MudNavLink>
-                        </MudMenuItem>
-                    </NotAuthorized>
-                </AuthorizeView>
-            </ChildContent>
-        </MudMenu>*@
     </MudAppBar>
     <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Responsive">
         <MudDrawerHeader>
@@ -79,6 +60,7 @@
 
     void SetDefaultTheme() => theme = Constants.DefaultTheme;
     void SetSynthTheme() => theme = Constants.SynthTheme;
+    void SetSynthAltTheme() => theme = Constants.SynthAnalTheme;
 
     public void Dispose()
     {

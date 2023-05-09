@@ -2,7 +2,7 @@
 
 @inject RaceService RaceService
 @inject BreadcrumbProvider _bread
-@inject NavigationManager Nav
+@inject NavigationManager _nav
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
@@ -18,7 +18,7 @@
 else
 {
     <MudGrid>
-        <MudItem xs="3">
+        <MudItem xs="4">
             <MudPaper Class="pa-4 mud-height-full">
                 <MudTable Items="@Model.RaceWeekDrivers.OrderBy(e => e.Grid)" Dense="true" id="race-week-grid">
                     <ToolBarContent>
@@ -29,7 +29,7 @@ else
                     <HeaderContent>
                         <MudTh>Grid</MudTh>
                         <MudTh>Name</MudTh>
-                        <MudTh>Addendum</MudTh>
+                        <MudTh>Penalty</MudTh>
                         <MudTh>Strategy</MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -40,7 +40,7 @@ else
                             }
                             else
                             {
-                                <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextColourStyle(context.Colour, context.Accent))">@context.Grid</MudText>
+                                <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.Grid</MudText>
                             }
                         </MudTd>
                         <MudTd>
@@ -69,7 +69,7 @@ else
             </MudPaper>
         </MudItem>
 
-        <MudItem xs="9">
+        <MudItem xs="8">
             <MudGrid>
                 <MudItem xs="6">
                     <MudPaper Class="pa-4 mud-height-full">
@@ -127,12 +127,17 @@ else
                         </MudList>
                     </MudPaper>
                 </MudItem>
+                <MudItem xs="3">
+                    <MudPaper Class="pa-4 mud-height-full">
+
+                    </MudPaper>
+                </MudItem>
                 <MudItem xs="6">
                     <MudPaper Class="pa-4 mud-height-full">
                         
                     </MudPaper>
                 </MudItem>
-                <MudItem xs="6">
+                <MudItem xs="3">
                     <MudPaper Class="pa-4">
                         <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined" VerticalAlign="true">
                             @if (Model.Race.State == State.Active)
@@ -161,6 +166,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        Model = await RaceService.GetRaceWeekModel(RaceId);
+
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -170,14 +177,8 @@ else
             new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
         });
 
-        Model = await RaceService.GetRaceWeekModel(RaceId);
-
         loading = false;
     }
-
-    private void GoToPractice() => Nav.NavigateTo($"/practice/{RaceId}");
-    private void GoToQualifying() => Nav.NavigateTo($"/qualifying/{RaceId}");
-    private void GoToRace() => Nav.NavigateTo($"/race/{RaceId}");
 
     async Task PickStrategy(long resultId)
     {
@@ -197,4 +198,9 @@ else
             Model.RaceWeekDrivers.Single(e => e.ResultId == resultId).Strategy = newStrategy;
         }
     }
+
+    // Navigation links
+    private void GoToPractice() => _nav.NavigateTo($"/practice/{RaceId}");
+    private void GoToQualifying() => _nav.NavigateTo($"/qualifying/{RaceId}");
+    private void GoToRace() => _nav.NavigateTo($"/race/{RaceId}");
 }

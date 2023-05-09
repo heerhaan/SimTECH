@@ -6,23 +6,73 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     @if (DevelopedEntrants != null)
     {
-        <MudPaper>
-            <MudStack Row="true" Class="px-4 py-2">
-                <MudText Typo="Typo.h4">Development</MudText>
+        <MudStack Row="true">
+            <MudPaper>
+                <MudTable Items="@DevelopedEntrants" Dense="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h4">Development</MudText>
 
-                <MudSpacer />
+                        <MudSpacer />
 
-                <MudButtonGroup Variant="Variant.Filled">
-                    @if (_ranDevelop)
-                    {
-                        <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="SaveDevelopment">Save</MudButton>
-                    }
-                    <MudButton StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="RunDevelop">Run</MudButton>
-                </MudButtonGroup>
-            </MudStack>
-            <MudTable Items="@DevelopedEntrants" Dense="true">
-                <ToolBarContent>
-                    <div class="mx-1 my-auto">
+                        <MudButtonGroup Variant="Variant.Filled">
+                            @if (_ranDevelop)
+                            {
+                                <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="SaveDevelopment">Save</MudButton>
+                            }
+                            <MudButton StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="RunDevelop">Run</MudButton>
+                        </MudButtonGroup>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        @if (_optionalColTitle != null)
+                        {
+                            <MudTh>@_optionalColTitle</MudTh>
+                        }
+                        <MudTh>Old</MudTh>
+                        <MudTh>Change</MudTh>
+                        <MudTh>New</MudTh>
+                        <MudTh>Range</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                <MudText>@context.Name</MudText>
+                                <MudSpacer />
+                                @if (context.Nationality.HasValue)
+                                {
+                                    <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Tiny" />
+                                }
+                            </MudStack>
+                        </MudTd>
+                        @if (_optionalColTitle != null)
+                        {
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@(context.Optional.HasValue ? context.Optional.Value : "?")</MudText>
+                                </MudTd>
+                        }
+                        <MudTd>
+                            <MudText Typo="Typo.caption">@context.Old</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText Typo="Typo.caption">@context.Change</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText Typo="Typo.caption">@context.New</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Class="pa-0">
+                                <MudNumericField T="int" @bind-Value="context.Min" Label="Min" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
+                                <MudNumericField T="int" @bind-Value="context.Max" Label="Max" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
+                            </MudStack>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+            <MudPaper Class="pa-2" Width="225px">
+                <MudStack>
+                    <MudText Typo="Typo.h6">Settings</MudText>
+                    <MudDivider />
+                    <div>
                         <MudTooltip Text="For whom the development is run">
                             <MudText Typo="Typo.subtitle1">Entrant</MudText>
                         </MudTooltip>
@@ -32,8 +82,7 @@
                             <MudChip Color="Color.Primary" Value="Entrant.Engine">Engine</MudChip>
                         </MudChipSet>
                     </div>
-
-                    <div class="pa-1 mx-1">
+                    <div>
                         <MudTooltip Text="How the development ranges are determined">
                             <MudText Typo="Typo.subtitle1">Type</MudText>
                         </MudTooltip>
@@ -43,8 +92,7 @@
                             <MudChip Color="Color.Secondary" Value="TypeDevelop.Direct">Direct</MudChip>
                         </MudChipSet>
                     </div>
-
-                    <div class="pa-1 mx-1">
+                    <div>
                         <MudTooltip Text="Which aspect is going to be developed">
                             <MudText Typo="Typo.subtitle1">Target</MudText>
                         </MudTooltip>
@@ -59,61 +107,14 @@
                             }
                         </MudChipSet>
                     </div>
-
-                    <MudSpacer />
-
                     @if (_selectedType == TypeDevelop.Range)
                     {
                         <MudNumericField T="int" Label="Min" ValueChanged="ApplyMinRange" Class="field-sm" />
                         <MudNumericField T="int" Label="Max" ValueChanged="ApplyMaxRange" Class="field-sm" />
                     }
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    @if (_optionalColTitle != null)
-                    {
-                        <MudTh>@_optionalColTitle</MudTh>
-                    }
-                    <MudTh>Old</MudTh>
-                    <MudTh>Change</MudTh>
-                    <MudTh>New</MudTh>
-                    <MudTh>Range</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                            <MudText>@context.Name</MudText>
-                            <MudSpacer />
-                            @if (context.Nationality.HasValue)
-                            {
-                                <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Tiny" />
-                            }
-                        </MudStack>
-                    </MudTd>
-                    @if (_optionalColTitle != null)
-                    {
-                        <MudTd>
-                            <MudText Typo="Typo.caption">@(context.Optional.HasValue ? context.Optional.Value : "?")</MudText>
-                            </MudTd>
-                    }
-                    <MudTd>
-                        <MudText Typo="Typo.caption">@context.Old</MudText>
-                    </MudTd>
-                    <MudTd>
-                        <MudText Typo="Typo.caption">@context.Change</MudText>
-                    </MudTd>
-                    <MudTd>
-                        <MudText Typo="Typo.caption">@context.New</MudText>
-                    </MudTd>
-                    <MudTd>
-                        <MudStack Row="true" Class="pa-0">
-                            <MudNumericField T="int" @bind-Value="context.Min" Label="Min" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-sm" />
-                            <MudNumericField T="int" @bind-Value="context.Max" Label="Max" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-sm" />
-                        </MudStack>
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
-        </MudPaper>
+                </MudStack>
+            </MudPaper>
+        </MudStack>
     }
 </MudContainer>
 

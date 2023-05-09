@@ -43,7 +43,7 @@
             <TemplateColumn T="SeasonDriver" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriverEntrant(context.Item))" />
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -72,8 +72,8 @@
         _loading = false;
     }
 
-    async Task EnterDriver() => await UpdateDriverEntrant(new SeasonDriver());
-    async Task UpdateDriverEntrant(SeasonDriver item)
+    async Task EnterDriver() => await UpdateDriver(null);
+    async Task UpdateDriver(SeasonDriver? item)
     {
         var parameters = new DialogParameters
             {

@@ -31,6 +31,9 @@ namespace SimTECH.Extensions
         public static int CalcLapCount(int raceLength, double trackLength)
             => (int)Math.Round(raceLength / trackLength);
 
+        public static int Percentage(int number, int max) => Percentage(number, (double)max);
+        public static int Percentage(int number, double max) => (int)Math.Round(100 * number / max);
+
         public static TraitEffect SumTraitEffects(IEnumerable<Trait> traits)
         {
             return new TraitEffect
