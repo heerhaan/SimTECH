@@ -141,7 +141,7 @@
                             }
                         }
                     </div>
-                    <MudProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLap * 10, Model.TrackLength))"
+                    <MudProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLapOrder * 10, Model.TrackLength))"
                                    Min="0"
                                    Max="@totalLaps"
                                    Size="Size.Medium"
@@ -214,6 +214,7 @@
     int calculationCount;
     int calculationsPerAdvance = 5;
     int calculationDistance = 10;//Not implemented yet but this could be used to refer to how much kilometers distance a calculation offers
+    bool safetyCarOut = false;
     Entrant cycleReliabilty = Entrant.Driver;
 
     protected override async Task OnInitializedAsync()
@@ -270,11 +271,16 @@
         // Use this variable to persist the lap scores which were generated in this advance
         var lapScoresToPersist = new List<LapScore>();
 
-        // Every i in this instance is relative to 10km of racing
+        // Every i in this instance is relative to 10km of racing aka a calculation
         for (int i = 0; i < calculationsPerAdvance; i++)
         {
             ++calculated;
             long? newFastestLapScorer = null;
+
+            if (safetyCarOut)
+            {
+                // TODO: handle something to deal with an active safety car
+            }
 
             // Iterate through all still running drivers
             foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
@@ -282,7 +288,7 @@
                 var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
                 // Determine if either driver, car or engine has failed
-                CheckReliability(driver, lapScore);
+                safetyCarOut = CheckReliability(driver, lapScore);
 
                 // Calculate the score for drivers which are still racing
                 if (driver.Status == RaceStatus.Racing)
@@ -321,10 +327,15 @@
 
                     // Finally add the score to the lap results
                     lapScore.Score = lapValue;
-
-                    driver.LapScores.Add(lapScore);
-                    lapScoresToPersist.Add(lapScore);
                 }
+                else if (safetyCarOut)
+                {
+
+                }
+
+                driver.LapScores.Add(lapScore);//comment out when implementing att/def
+                driver.LastScore = lapScore;
+                lapScoresToPersist.Add(lapScore);
             }
 
             // Determine new positions (keep team role in mind here!)
@@ -343,8 +354,10 @@
         //PersistLapScores(lapScoresToPersist);
     }
 
-    void CheckReliability(RaceDriver driver, LapScore lapScore)
+    bool CheckReliability(RaceDriver driver, LapScore lapScore)
     {
+        var safetyCar = false;
+
         if (cycleReliabilty == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents = RacerEvent.DriverDnf;
@@ -363,7 +376,7 @@
             driver.Incident = engineIncidents.TakeRandomIncident();
             driver.Status = RaceStatus.Dnf;
         }
-        else { return; }
+        else { return safetyCar; }
 
         // If enabled, then we're also going to check if anyone experienced a fatal crash
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
@@ -371,8 +384,12 @@
             driver.Status = RaceStatus.Fatal;
             driver.Incident = lethalIncidents.TakeRandomIncident();
             lapScore.RacerEvents = RacerEvent.Death;
-            return;
+            safetyCar = true;
+            return safetyCar;
         }
+
+        // TODO: Randomly determine SC-chance
+        return NumberHelper.RandomInt(10) == 0;
     }
 
     bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
@@ -420,9 +437,27 @@
     void PostProcessAdvance(long? newFastestLapHolder)
     {
         var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum).ToList();
+        //var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSumWithLast).ToList();
+
+        //foreach (var driver in racingDrivers)
+        //{
+        //    // do attack / defense thing here
+        //}
 
         var position = 0;
         highestScore = racingDrivers.Max(e => e.LapSum);
+
+        foreach (var driver in racingDrivers)
+        {
+            driver.Position = ++position;
+
+            if (newFastestLapHolder != null)
+            {
+                driver.HasFastestLap = false;
+                if (driver.ResultId == newFastestLapHolder)
+                    driver.HasFastestLap = true;
+            }
+        }
 
         // Cycle reliability checking
         switch (cycleReliabilty)
@@ -436,18 +471,6 @@
             case Entrant.Engine:
                 cycleReliabilty = Entrant.Driver;
                 break;
-        }
-
-        foreach (var driver in racingDrivers)
-        {
-            driver.Position = ++position;
-
-            if (newFastestLapHolder != null)
-            {
-                driver.HasFastestLap = false;
-                if (driver.ResultId == newFastestLapHolder)
-                    driver.HasFastestLap = true;
-            }
         }
     }
 
