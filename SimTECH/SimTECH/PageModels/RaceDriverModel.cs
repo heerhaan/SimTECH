@@ -50,6 +50,7 @@ namespace SimTECH.PageModels
         public int RngMaxMod { get; set; }
 
         public bool HasFastestLap { get; set; }
+        public bool InstantOvertaken { get; set; }
 
         public List<LapScore> LapScores { get; set; }
         public LapScore? LastScore { get; set; }

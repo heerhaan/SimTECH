@@ -33,4 +33,17 @@
     string ActiveTopic { get; set; }
     bool folderOneExpanded;
     bool folderTwoExpanded;
+
+    private string GuideContent() => ActiveTopic switch
+    {
+        _ => "Aight, something went wrong!",
+    };
+
+    private Dictionary<int, string> Contents = new()
+    {
+        { 0, "How did you even do this, what the hell" },
+        { 1, "How did you even do this, what the hell" },
+        { 2, "How did you even do this, what the hell" },
+        { 3, "How did you even do this, what the hell" },
+    };
 }

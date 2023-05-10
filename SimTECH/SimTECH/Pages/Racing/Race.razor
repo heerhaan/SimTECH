@@ -285,6 +285,8 @@
             // Iterate through all still running drivers
             foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
             {
+                driver.InstantOvertaken = false;
+
                 var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
                 // Determine if either driver, car or engine has failed
@@ -309,6 +311,7 @@
                         {
                             lapValue += NumberHelper.RandomInt(Model.MistakeMinCost, Model.MistakeMaxCost);
                             lapScore.RacerEvents |= RacerEvent.Mistake;
+                            driver.InstantOvertaken = true;
                             break;
                         }
                     }
@@ -333,7 +336,7 @@
 
                 }
 
-                driver.LapScores.Add(lapScore);//comment out when implementing att/def
+                driver.LapScores.Add(lapScore);//comment out when implementing att/def.. maybe!
                 driver.LastScore = lapScore;
                 lapScoresToPersist.Add(lapScore);
             }
@@ -378,6 +381,8 @@
         }
         else { return safetyCar; }
 
+        driver.InstantOvertaken = true;
+
         // If enabled, then we're also going to check if anyone experienced a fatal crash
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
         {
@@ -420,6 +425,7 @@
                 driver.CurrentTyre = nextTyre.Tyre;
                 driver.CurrentTyreOrder = nextOrder;
                 driver.TyreLife = nextTyre.Tyre.Pace;
+                driver.InstantOvertaken = true;
 
                 lapScore.RacerEvents |= RacerEvent.Pitstop;
 
@@ -436,22 +442,13 @@
 
     void PostProcessAdvance(long? newFastestLapHolder)
     {
-        var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum).ToList();
-        //var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSumWithLast).ToList();
+        DeterminePositions();
 
-        //foreach (var driver in racingDrivers)
-        //{
-        //    // do attack / defense thing here
-        //}
+        highestScore = Model.RaceDrivers.Max(e => e.LapSum);
 
-        var position = 0;
-        highestScore = racingDrivers.Max(e => e.LapSum);
-
-        foreach (var driver in racingDrivers)
+        if (newFastestLapHolder != null)
         {
-            driver.Position = ++position;
-
-            if (newFastestLapHolder != null)
+            foreach (var driver in Model.RaceDrivers)
             {
                 driver.HasFastestLap = false;
                 if (driver.ResultId == newFastestLapHolder)
@@ -471,6 +468,51 @@
             case Entrant.Engine:
                 cycleReliabilty = Entrant.Driver;
                 break;
+        }
+    }
+
+    void DeterminePositions()
+    {
+        var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum).ToList();
+
+        int tempCommonDefense = 30;
+        int tempCommonAttack = 15;
+
+        int positionIndex = 0;
+        foreach (var driver in racingDrivers)
+        {
+            var lastScore = driver.LapScores.Last();
+
+            int gainedPositions = driver.Position - ++positionIndex;
+
+            while (gainedPositions > 0)
+            {
+                var abovePosition = driver.Position - 1;
+                if (abovePosition == 0)
+                    break;
+
+                var aboveDriver = racingDrivers.First(e => e.Position == abovePosition);
+
+                if (!aboveDriver.InstantOvertaken)
+                {
+                    // Should actually be: defense of above driver and attack of attacking driver
+                    var battleCost = tempCommonDefense - tempCommonAttack;
+                    if (battleCost > 0)
+                        lastScore.Score -= battleCost;
+
+                    // check quickly here if lapsum is the same as lapsumwithlast
+                    if (aboveDriver.LapSum > driver.LapSum)
+                    {
+                        // Overtake failed
+                        break;
+                    }
+                }
+
+                // Overtake succeeded, driver gains a position!
+                (driver.Position, aboveDriver.Position) = (aboveDriver.Position, driver.Position);
+
+                gainedPositions--;
+            }
         }
     }
 
