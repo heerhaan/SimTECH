@@ -42,6 +42,8 @@ namespace SimTECH.Extensions
             {
                 QualifyingPace          = traits.Sum(e => e.QualifyingPace),
                 RacePace                = traits.Sum(e => e.RacePace),
+                Attack                  = traits.Sum(e => e.Attack),
+                Defense                 = traits.Sum(e => e.Defense),
                 DriverReliability       = traits.Sum(e => e.DriverReliability),
                 CarReliability          = traits.Sum(e => e.CarReliability),
                 EngineReliability       = traits.Sum(e => e.EngineReliability),

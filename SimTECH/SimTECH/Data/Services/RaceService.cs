@@ -559,6 +559,8 @@ namespace SimTECH.Data.Services
                 var enginePower = (team.SeasonEngine.Power * engineMultiplier).RoundDouble();
                 var totalPower = driverPower + carPower + enginePower + sumTraits.RacePace;
 
+                var actualDefense = ((driver.Defense + sumTraits.Defense) * race.Track?.DefenseMod ?? 1.0).RoundDouble();
+
                 raceDrivers.Add(new RaceDriver
                 {
                     ResultId = driverResult.Id,
@@ -588,13 +590,15 @@ namespace SimTECH.Data.Services
                     CurrentTyre = strategy.StrategyTyres[0].Tyre,
 
                     Power = totalPower,
-                    DriverReliability = sumTraits.DriverReliability + driver.Reliability + weatherDnf,
-                    CarReliability = sumTraits.CarReliability + team.Reliability,
-                    EngineReliability = sumTraits.EngineReliability + team.SeasonEngine.Reliability,
-                    WearMaxMod = sumTraits.WearMaximum + team.Manufacturer.WearMax,
-                    WearMinMod = sumTraits.WearMinimum + team.Manufacturer.WearMin,
-                    RngMinMod = sumTraits.MinRNG + team.Manufacturer.Pace,
-                    RngMaxMod = sumTraits.MaxRNG + team.Manufacturer.Pace + weatherRng,
+                    Attack = driver.Attack + sumTraits.Attack,
+                    Defense = actualDefense,
+                    DriverReliability = driver.Reliability + sumTraits.DriverReliability + weatherDnf,
+                    CarReliability = team.Reliability + sumTraits.CarReliability,
+                    EngineReliability = team.SeasonEngine.Reliability + sumTraits.EngineReliability,
+                    WearMaxMod = team.Manufacturer.WearMax + sumTraits.WearMaximum,
+                    WearMinMod = team.Manufacturer.WearMin + sumTraits.WearMinimum,
+                    RngMinMod = team.Manufacturer.Pace + sumTraits.MinRNG,
+                    RngMaxMod = team.Manufacturer.Pace + sumTraits.MaxRNG + weatherRng,
 
                     Position = driverResult.Position,
 

@@ -20,7 +20,6 @@ namespace SimTECH.PageModels
         public long ClimateId { get; set; }
         public long TrackId { get; set; }
         public double TrackLength { get; set; }
-        public double DefenseMod { get; set; }
         public int Round { get; set; }
         public int RaceLength { get; set; }
 

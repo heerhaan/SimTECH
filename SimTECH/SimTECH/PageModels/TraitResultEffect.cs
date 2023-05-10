@@ -4,6 +4,8 @@
     {
         public int QualifyingPace { get; set; }
         public int RacePace { get; set; }
+        public int Attack { get; set; }
+        public int Defense { get; set; }
         public int DriverReliability { get; set; }
         public int CarReliability { get; set; }
         public int EngineReliability { get; set; }

@@ -13,6 +13,8 @@ namespace SimTECH.Data.EditModels
         public State State { get; set; }
         public int QualifyingPace { get; set; }
         public int RacePace { get; set; }
+        public int Attack { get; set; }
+        public int Defense { get; set; }
         public int DriverReliability { get; set; }
         public int CarReliability { get; set; }
         public int EngineReliability { get; set; }
@@ -32,6 +34,8 @@ namespace SimTECH.Data.EditModels
             State = trait.State;
             QualifyingPace = trait.QualifyingPace;
             RacePace = trait.RacePace;
+            Attack = trait.Attack;
+            Defense = trait.Defense;
             DriverReliability = trait.DriverReliability;
             CarReliability = trait.CarReliability;
             EngineReliability = trait.EngineReliability;
@@ -54,6 +58,8 @@ namespace SimTECH.Data.EditModels
                 State = State,
                 QualifyingPace = QualifyingPace,
                 RacePace = RacePace,
+                Attack = Attack,
+                Defense = Defense,
                 DriverReliability = DriverReliability,
                 CarReliability = CarReliability,
                 EngineReliability = EngineReliability,

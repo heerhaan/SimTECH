@@ -120,7 +120,7 @@
                         <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
                         <MudText Typo="Typo.caption">@context.Attack</MudText>
                         <MudDivider Vertical="true" />
-                        <MudText Typo="Typo.caption">@context.ModifiedDefense(Model.DefenseMod)</MudText>
+                        <MudText Typo="Typo.caption">@context.Defense</MudText>
                         <MudIcon Icon="@IconCollection.ShieldChevron" Size="Size.Small" />
                     </MudStack>
                 </MudTd>
@@ -497,7 +497,7 @@
                 if (!aboveDriver.InstantOvertaken)
                 {
                     // Should actually be: defense of above driver and attack of attacking driver
-                    var battleCost = aboveDriver.ModifiedDefense(Model.DefenseMod) - driver.Attack;
+                    var battleCost = aboveDriver.Defense - driver.Attack;
                     if (battleCost > 0)
                         lastScore.Score -= battleCost;
 

@@ -10,6 +10,8 @@
 
         public int QualifyingPace { get; set; }
         public int RacePace { get; set; }
+        public int Attack { get; set; }
+        public int Defense { get; set; }
         public int DriverReliability { get; set; }
         public int CarReliability { get; set; }
         public int EngineReliability { get; set; }
@@ -35,6 +37,10 @@
                 assignedValues.Add("Qualifying pace", trait.QualifyingPace);
             if (trait.RacePace != 0)
                 assignedValues.Add("Race pace", trait.RacePace);
+            if (trait.Attack != 0)
+                assignedValues.Add("Attack", trait.Attack);
+            if (trait.Defense != 0)
+                assignedValues.Add("Defense", trait.Defense);
             if (trait.DriverReliability != 0)
                 assignedValues.Add("Driver reliability", trait.DriverReliability);
             if (trait.CarReliability != 0)

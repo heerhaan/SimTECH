@@ -60,8 +60,6 @@ namespace SimTECH.PageModels
         public int GridChange => Grid - Position;
         public int LastLapOrder => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
 
-        public int ModifiedDefense(double mod) => (Defense * mod).RoundDouble();
-
         public Result ToResult(long raceId)
         {
             return new Result
