@@ -1,10 +1,6 @@
-﻿<MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-    <span class="@flagIconClass">@flagIcon</span>
-    @if (IncludeName)
-    {
-        <MudText Class="ml-2">@flagNationName</MudText>
-    }
-</MudStack>
+﻿<MudElement HtmlTag="span" Class="@flagIconClass">
+    @flagIcon
+</MudElement>
 
 @code {
     [Parameter]
@@ -12,9 +8,6 @@
 
     [Parameter]
     public FlagSize Size { get; set; } = FlagSize.Normal;
-
-    [Parameter]
-    public bool IncludeName { get; set; } = false;
 
     [Parameter]
     public string Class { get; set; } = string.Empty;
@@ -50,19 +43,6 @@
         get
         {
             return Code.CountryCodeToEmoji();
-        }
-    }
-
-    private string flagNationName
-    {
-        get
-        {
-            if (this.IncludeName)
-            {
-                return Code.GetDescription();
-            }
-
-            return string.Empty;
         }
     }
 }

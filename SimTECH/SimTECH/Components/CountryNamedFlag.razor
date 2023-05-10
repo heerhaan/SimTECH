@@ -1,0 +1,23 @@
+﻿<MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+    <CountryFlag Code="@Code" Size="@Size" Class="@Class" />
+    <MudText Class="ml-2">@flagNationName</MudText>
+</MudStack>
+
+@code {
+    [Parameter]
+    public Country Code { get; set; }
+
+    [Parameter]
+    public FlagSize Size { get; set; } = FlagSize.Normal;
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    private string flagNationName
+    {
+        get
+        {
+            return Code.GetDescription();
+        }
+    }
+}
