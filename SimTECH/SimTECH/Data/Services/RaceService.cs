@@ -607,6 +607,7 @@ namespace SimTECH.Data.Services
                 RaceId = race.Id,
                 TrackId = race.TrackId,
                 TrackLength = race.Track?.Length ?? 0,
+                DefenseMod = race.Track?.DefenseMod ?? 1.0,
                 RaceLength = race.RaceLength,
                 Name = race.Name,
                 Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),

@@ -32,7 +32,7 @@ namespace SimTECH
         Engine
     }
 
-    public enum TargetDevelop { Main, Reliability, Aero, Chassis, Powertrain }
+    public enum TargetDevelop { Main, Reliability, Aero, Chassis, Powertrain, Attack, Defense }
 
     public enum Gender { All, Male, Female, Other }
 

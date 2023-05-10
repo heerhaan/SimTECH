@@ -22,6 +22,8 @@ namespace SimTECH.PageModels
         public string Accent { get; set; }
 
         public int Power { get; set; }
+        public int Attack { get; set; }
+        public int Defense { get; set; }
     }
 
     public class RaceDriver : DriverBase
@@ -57,6 +59,8 @@ namespace SimTECH.PageModels
         public int LapSumWithLast => LastScore != null ? LastScore.Score + LapSum : LapSum;
         public int GridChange => Grid - Position;
         public int LastLapOrder => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
+
+        public int ModifiedDefense(double mod) => (Defense * mod).RoundDouble();
 
         public Result ToResult(long raceId)
         {

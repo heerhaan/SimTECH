@@ -10,6 +10,8 @@ namespace SimTECH.Data.EditModels
         public int Number { get; set; }
         public int Skill { get; set; }
         public int Reliability { get; set; }
+        public int Attack { get; set; }
+        public int Defense { get; set; }
         public TeamRole TeamRole { get; set; }
         public long? SeasonTeamId { get; set; }
         public long SeasonId { get; set; }
@@ -34,6 +36,8 @@ namespace SimTECH.Data.EditModels
                 Number = seasonDriver.Number;
                 Skill = seasonDriver.Skill;
                 Reliability = seasonDriver.Reliability;
+                Attack = seasonDriver.Attack;
+                Defense = seasonDriver.Defense;
                 TeamRole = seasonDriver.TeamRole;
                 SeasonId = seasonDriver.SeasonId;
                 DriverId = seasonDriver.DriverId;
@@ -65,6 +69,8 @@ namespace SimTECH.Data.EditModels
                 Number = Number,
                 Skill = Skill,
                 Reliability = Reliability,
+                Attack = Attack,
+                Defense = Defense,
                 TeamRole = TeamRole,
                 SeasonId = SeasonId,
                 DriverId = DriverId,
