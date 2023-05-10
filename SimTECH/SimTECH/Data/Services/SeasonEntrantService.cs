@@ -182,10 +182,6 @@ namespace SimTECH.Data.Services
                     case TargetDevelop.Defense: driver.Defense = developmentDict[driver.Id]; break;
                     default: throw new InvalidOperationException("thats the wrong enum value buddy");
                 }
-                if (target == TargetDevelop.Main)
-                    driver.Skill = developmentDict[driver.Id];
-                else
-                    driver.Reliability = developmentDict[driver.Id];
             }
 
             context.UpdateRange(drivers);

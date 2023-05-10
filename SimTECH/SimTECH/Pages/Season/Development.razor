@@ -105,6 +105,11 @@
                                 <MudChip Color="Color.Tertiary" Value="TargetDevelop.Chassis">Chassis</MudChip>
                                 <MudChip Color="Color.Tertiary" Value="TargetDevelop.Powertrain">Powertrain</MudChip>
                             }
+                            else if (_activeEntrant == Entrant.Driver)
+                            {
+                                <MudChip Color="Color.Tertiary" Value="TargetDevelop.Attack">Attack</MudChip>
+                                <MudChip Color="Color.Tertiary" Value="TargetDevelop.Defense">Defense</MudChip>
+                            }
                         </MudChipSet>
                     </div>
                     @if (_selectedType == TypeDevelop.Range)
@@ -167,7 +172,7 @@
                     Name = e.Driver.FullName,
                     Nationality = e.Driver.Country,
                     Optional = Season.Year - e.Driver.DateOfBirth.Year,
-                    Old = _selectedTarget == TargetDevelop.Main ? e.Skill : e.Reliability,
+                    Old = ReadDriverOldTarget(e),
                 })
             .ToList();
 
@@ -183,14 +188,23 @@
                 Name = e.Name,
                 Nationality = e.Team.Country,
                 Optional = null,
-                Old = ReadOldTarget(e),
+                Old = ReadTeamOldTarget(e),
             })
             .ToList();
 
         _optionalColTitle = null;
     }
 
-    int ReadOldTarget(SeasonTeam team) => _selectedTarget switch
+    int ReadDriverOldTarget(SeasonDriver driver) => _selectedTarget switch
+    {
+        TargetDevelop.Main => driver.Skill,
+        TargetDevelop.Reliability => driver.Reliability,
+        TargetDevelop.Attack => driver.Attack,
+        TargetDevelop.Defense => driver.Defense,
+        _ => throw new InvalidOperationException("One of the wrong target develops just got in the driver target reader"),
+    };
+
+    int ReadTeamOldTarget(SeasonTeam team) => _selectedTarget switch
     {
         TargetDevelop.Main => team.BaseValue,
         TargetDevelop.Reliability => team.Reliability,
@@ -199,20 +213,6 @@
         TargetDevelop.Powertrain => team.Powertrain,
         _ => throw new InvalidOperationException("Somehow neither of the 5 possible develops"),
     };
-
-    /*switch (_selectedTarget)
-    {
-        case TargetDevelop.Main:
-            return team.BaseValue;
-        case TargetDevelop.Reliability:
-            return team.BaseValue;
-        case TargetDevelop.Aero:
-            return team.BaseValue;
-        case TargetDevelop.Chassis:
-            return team.BaseValue;
-        case TargetDevelop.Powertrain:
-            return team.BaseValue;
-    }*/
 
     void DevelopEngines()
     {
