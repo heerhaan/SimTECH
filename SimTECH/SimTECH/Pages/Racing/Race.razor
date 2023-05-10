@@ -116,7 +116,7 @@
                     <MudText Typo="Typo.caption">@context.Power</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Class="mud-width-full">
+                    <MudStack Row="true" Spacing="2" Justify="Justify.Center" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
                         <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
                         <MudText Typo="Typo.caption">@context.Attack</MudText>
                         <MudDivider Vertical="true" />
@@ -126,6 +126,7 @@
                 </MudTd>
                 <MudTd Class="number-col-lg">
                     <TyreElement Colour="@context.CurrentTyre.Colour">@context.TyreLife</TyreElement>
+                    @*<BadgeWrapper Colours="@(context.Strategy.StrategyTyres.Select(e => e.Tyre.Colour).ToArray())" />*@
                 </MudTd>
                 <MudTd Class="number-col">
                     <MudText Typo="Typo.caption">@context.LapSum</MudText>
@@ -420,7 +421,7 @@
         // Maximum wear is more than the tyre can handle, it's time for a pitstop!
         if (Math.Abs(tyreMaxWear) > driver.TyreLife)
         {
-            var nextOrder = driver.CurrentTyreOrder + 1;
+            var nextOrder = ++driver.CurrentTyreOrder;
             var nextTyre = driver.Strategy.StrategyTyres.FirstOrDefault(e => e.Order == nextOrder);
 
             // If there is another tyre left in the strategy then we're installing it

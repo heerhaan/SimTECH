@@ -588,6 +588,7 @@ namespace SimTECH.Data.Services
                     // Also this way one has to finish a started race
                     // Alternatively determine the current tyre based on the state of the race
                     CurrentTyre = strategy.StrategyTyres[0].Tyre,
+                    CurrentTyreOrder = 1,
 
                     Power = totalPower,
                     Attack = driver.Attack + sumTraits.Attack,
