@@ -22,8 +22,6 @@ namespace SimTECH.PageModels
         public string Accent { get; set; }
 
         public int Power { get; set; }
-
-        public double TimedGap(int gap, double marge) => Math.Round(gap * marge, 2);
     }
 
     public class RaceDriver : DriverBase

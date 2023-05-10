@@ -122,7 +122,7 @@
                 <MudTd Class="number-col-lg">
                     @if (context.Incident == null)
                     {
-                        <MudText>+@(context.TimedGap((highestScore - context.LapSum), Model.GapMarge))</MudText>
+                        <MudText>+@(Math.Round((highestScore - context.LapSum) * Model.GapMarge, 2))</MudText>
                     }
                     else
                     {
@@ -257,13 +257,6 @@
     {
         if (calcChip != null)
             calculationsPerAdvance = (int)calcChip.Value;
-    }
-
-    async Task ShowGraph()
-    {
-        var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
-
-        _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters, Constants.DefaultChartDialogSettings);
     }
 
     void Advance()
@@ -516,10 +509,6 @@
         }
     }
 
-    static int GetQualifyingBonus(int grid, int driverCount, int bonus) => (driverCount * bonus) - ((grid - 1) * bonus);
-
-    async Task PersistLapScores(List<LapScore> lapScores) => await _raceService.PersistLapScores(lapScores);
-
     void PreProcessFinish()
     {
         bool anyoneDisqualified = false;
@@ -538,6 +527,8 @@
         if (anyoneDisqualified)
             PostProcessAdvance(null);
     }
+
+    async Task PersistLapScores(List<LapScore> lapScores) => await _raceService.PersistLapScores(lapScores);
 
     async Task Finish()
     {
@@ -563,5 +554,12 @@
         }
 
         _nav.NavigateTo($"/postrace/{RaceId}");
+    }
+
+    async Task ShowGraph()
+    {
+        var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
+
+        _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters, Constants.DefaultChartDialogSettings);
     }
 }
