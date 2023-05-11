@@ -52,5 +52,5 @@ namespace SimTECH.Extensions
                 MaxRNG                  = traits.Sum(e => e.RngMax),
                 MinRNG                  = traits.Sum(e => e.RngMin),
             };
-}
+    }
 }

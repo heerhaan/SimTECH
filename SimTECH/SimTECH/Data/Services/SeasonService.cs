@@ -64,12 +64,9 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            var season = await context.Season.SingleAsync(e => e.Id == seasonId);
-
-            if (season == null)
-                throw new InvalidOperationException("No season related to ID found");
+            var season = await context.Season.SingleAsync(e => e.Id == seasonId) ?? throw new InvalidOperationException("No season related to ID found");
             if (season.State != State.Concept)
-                throw new InvalidOperationException("Can only delete seasons which are in concept");
+                throw new InvalidOperationException("Can only delete seasons which are in a concept state");
 
             var seasonDrivers = await context.SeasonDriver.Where(e => e.SeasonId == season.Id).ToListAsync();
             var seasonTeams = await context.SeasonTeam.Where(e => e.SeasonId == season.Id).ToListAsync();
@@ -334,6 +331,7 @@ namespace SimTECH.Data.Services
                     Colour = driver.SeasonTeam?.Colour ?? Constants.DefaultColour,
                     Accent = driver.SeasonTeam?.Accent ?? Constants.DefaultAccent,
 
+                    // Underneath is ugly as hell and therefore temporarily
                     ConsumedPenalties = driver.GivenPenalties.Any()
                                         ? driver.GivenPenalties.Select(e => $"cons:{e.Consumed}, inciID: {e.IncidentId}").ToList()
                                         : new(),

@@ -53,10 +53,8 @@ namespace SimTECH.PageModels
         public bool InstantOvertaken { get; set; }
 
         public List<LapScore> LapScores { get; set; }
-        public LapScore? LastScore { get; set; }
 
         public int LapSum => LapScores.Sum(e => e.Score);
-        public int LapSumWithLast => LastScore != null ? LastScore.Score + LapSum : LapSum;
         public int GridChange => Grid - Position;
         public int LastLapOrder => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
 
