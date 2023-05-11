@@ -1,5 +1,7 @@
 ﻿@page "/traits"
 @inject TraitService TraitService
+@inject BreadcrumbProvider _bread
+@inject NavigationManager _nav
 @inject IDialogService DialogService
 
 <PageTitle>Traits</PageTitle>
@@ -9,7 +11,10 @@
         <ToolBarContent>
             <MudText Typo="Typo.h4">Traits</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTrait">New</MudButton>
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="GoToTraitAssign">Assign</MudButton>
+                <MudButton OnClick="AddTrait">New</MudButton>
+            </MudButtonGroup>
         </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Trait" />
@@ -52,15 +57,19 @@
                                 }
                             </MudPaper>
                         </MudItem>
-                        <MudItem xs="6">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                        <MudItem xs="12">
+                            <MudPaper Class="mud-width-full py-8">
                                 <MudText Typo="Typo.subtitle1">Assigned modifiers</MudText>
-                                @foreach (var modifier in context.Item.RetrieveNotZeroValues())
-                                {
-                                    <MudText Typo="Typo.caption">
-                                        @(modifier.Key): @(modifier.Value)
-                                    </MudText>
-                                }
+                                <MudStack Row="true" AlignItems="AlignItems.Center">
+                                    @foreach (var modifier in context.Item.RetrieveNotZeroValues())
+                                    {
+                                        <div>
+                                            <MudText Typo="Typo.caption">
+                                                @(modifier.Key): @(modifier.Value)
+                                            </MudText>
+                                        </div>
+                                    }
+                                </MudStack>
                             </MudPaper>
                         </MudItem>
                         <MudItem>
@@ -80,10 +89,16 @@
 </MudContainer>
 
 @code {
-    List<Trait> TraitData = new();
+    List<Trait> TraitData;
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.Reset();
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+        });
+
         TraitData = await TraitService.GetTraits();
     }
 
@@ -101,4 +116,6 @@
             TraitData = await TraitService.GetTraits();
         }
     }
+
+    void GoToTraitAssign() => _nav.NavigateTo("traitassign");
 }
