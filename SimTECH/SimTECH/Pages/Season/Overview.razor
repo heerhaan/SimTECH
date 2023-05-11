@@ -36,7 +36,7 @@
                             {
                                 <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                                     <MudButton OnClick="StartSeason">Start season</MudButton>
-                                    <MudButton OnClick="AddAllEntrants">Add participants</MudButton>
+                                    <MudButton OnClick="GoToAddEntrants">Add participants</MudButton>
                                 </MudButtonGroup>
                             }
                             else if (Season.State == State.Active)
@@ -98,7 +98,7 @@
             <MudTabPanel Text="Calendar">
                 <Calendar />
             </MudTabPanel>
-            <MudTabPanel Text="Standings" BadgeData='"S"' BadgeColor="Color.Tertiary">
+            <MudTabPanel Text="Standings">
                 <Standings />
             </MudTabPanel>
             <MudTabPanel Text="Entrants">
@@ -107,10 +107,10 @@
             @if (Season.State == State.Active)
             {
                 <MudTabPanel Text="Development">
-                    <Development />
+                    <DevelopmentEntrants />
                 </MudTabPanel>
             }
-            <MudTabPanel Text="Settings" BadgeDot="true" BadgeColor="Color.Primary">
+            <MudTabPanel Text="Settings">
                 <MudGrid>
                     <MudItem xs="12">
                         <MudPaper Elevation="15" Class="pa-4">
@@ -207,37 +207,6 @@
             NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
     }
 
-    // Clean the following up, its not needed
-    //async Task CopyEntrants()
-    //{
-    //    var seasons = await _seasonService.GetSeasons();
-
-    //    var dialogParameters = new DialogParameters { ["Seasons"] = seasons };
-
-    //    var dialog = await _dialogService.ShowAsync<CopyEntrants>("Copy entrants", dialogParameters);
-    //    var result = await dialog.Result;
-
-    //    if (!result.Canceled && result.Data != null && result.Data is long seasonToCopyFrom)
-    //    {
-    //        await _entrantService.CopyEntrantsFromSeason(SeasonId, seasonToCopyFrom);
-    //        StateHasChanged();
-    //    }
-    //}
-
-    async Task GoToNextRace()
-    {
-        if (NextRace is null)
-        {
-            _snackbar.Add("can't find the next race, you sure it exists lad?");
-            return;
-        }
-
-        if (NextRace.State == State.Concept)
-            await _raceService.ActivateRace(NextRace.Id);
-
-        _nav.NavigateTo($"/raceweek/{NextRace.Id}");
-    }
-
     async Task StartSeason()
     {
         if (Season != null)
@@ -288,6 +257,20 @@
         }
     }
 
-    void AddAllEntrants() => _nav.NavigateTo($"/addentrantswizard/{SeasonId}");
+    async Task GoToNextRace()
+    {
+        if (NextRace is null)
+        {
+            _snackbar.Add("can't find the next race, you sure it exists lad?");
+            return;
+        }
+
+        if (NextRace.State == State.Concept)
+            await _raceService.ActivateRace(NextRace.Id);
+
+        _nav.NavigateTo($"/raceweek/{NextRace.Id}");
+    }
+
+    void GoToAddEntrants() => _nav.NavigateTo($"/addentrantswizard/{SeasonId}");
     void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");
 }

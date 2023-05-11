@@ -25,30 +25,36 @@ namespace SimTECH.Data.EditModels
         public long LeagueId { get; set; }
         public IList<EditPointAllotmentModel> PointAllotments { get; set; } = new List<EditPointAllotmentModel>();
 
-        public EditSeasonModel() { _season = new Season(); }
-        public EditSeasonModel(Season season)
+        public EditSeasonModel(Season? season)
         {
-            Id = season.Id;
-            State = season.State;
-            Year = season.Year;
-            MaximumDriversInRace = season.MaximumDriversInRace;
-            QualifyingAmountQ2 = season.QualifyingAmountQ2;
-            QualifyingAmountQ3 = season.QualifyingAmountQ3;
-            QualifyingRNG = season.QualifyingRNG;
-            RunAmountSession = season.RunAmountSession;
-            GridBonus = season.GridBonus;
-            PitMinimum = season.PitMinimum;
-            PitMaximum = season.PitMaximum;
-            RngMinimum = season.RngMinimum;
-            RngMaximum = season.RngMaximum;
-            PointsPole = season.PointsPole;
-            PointsFastestLap = season.PointsFastestLap;
-            LeagueId = season.LeagueId;
+            if (season == null)
+            {
+                _season = new Season();
+            }
+            else
+            {
+                Id = season.Id;
+                State = season.State;
+                Year = season.Year;
+                MaximumDriversInRace = season.MaximumDriversInRace;
+                QualifyingAmountQ2 = season.QualifyingAmountQ2;
+                QualifyingAmountQ3 = season.QualifyingAmountQ3;
+                QualifyingRNG = season.QualifyingRNG;
+                RunAmountSession = season.RunAmountSession;
+                GridBonus = season.GridBonus;
+                PitMinimum = season.PitMinimum;
+                PitMaximum = season.PitMaximum;
+                RngMinimum = season.RngMinimum;
+                RngMaximum = season.RngMaximum;
+                PointsPole = season.PointsPole;
+                PointsFastestLap = season.PointsFastestLap;
+                LeagueId = season.LeagueId;
 
-            if (season.PointAllotments != null)
-                PointAllotments = season.PointAllotments.Select(e => new EditPointAllotmentModel(e)).ToList();
+                if (season.PointAllotments != null)
+                    PointAllotments = season.PointAllotments.Select(e => new EditPointAllotmentModel(e)).ToList();
 
-            _season = season;
+                _season = season;
+            }
         }
 
         public Season Record =>

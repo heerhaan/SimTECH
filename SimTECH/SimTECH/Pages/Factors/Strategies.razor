@@ -5,7 +5,7 @@
 <PageTitle>Strategies</PageTitle>
 
 <MudContainer>
-    <MudTabs>
+    <MudTabs Outlined="true" Centered="true">
         <MudTabPanel Text="Strategies">
             <MudDataGrid T="Strategy" Items="@StrategyData" Bordered="true" Dense="true">
                 <ToolBarContent>
@@ -48,26 +48,25 @@
                                 @if (context.Item.State == State.Closed)
                                 {
                                     <MudIconButton Size="@Size.Small"
-                                        Icon="@Icons.Material.Filled.Block"
-                                        Color="Color.Warning"
-                                        Title="Unavailable"
-                                        OnClick="@(async () => await ToggleStrategyState(context.Item, State.Active))" />
+                                                   Icon="@Icons.Material.Filled.Block"
+                                                   Color="Color.Warning"
+                                                   Title="Unavailable"
+                                                   OnClick="@(async () => await ToggleStrategyState(context.Item, State.Active))" />
                                 }
                                 else
                                 {
-                                    <MudIconButton
-                                        Size="@Size.Small"
-                                        Icon="@Icons.Material.Filled.CheckCircleOutline"
-                                        Color="Color.Success"
-                                        Title="Available"
-                                        OnClick="@(async () => await ToggleStrategyState(context.Item, State.Closed))" />
+                                    <MudIconButton Size="@Size.Small"
+                                                   Icon="@Icons.Material.Filled.CheckCircleOutline"
+                                                   Color="Color.Success"
+                                                   Title="Available"
+                                                   OnClick="@(async () => await ToggleStrategyState(context.Item, State.Closed))" />
                                 }
                                 <MudIconButton Size="@Size.Small"
-                                    Icon="@Icons.Material.Outlined.Edit"
-                                    OnClick="@(async () => await UpdateStrategy(context.Item))" />
+                                               Icon="@Icons.Material.Outlined.Edit"
+                                               OnClick="@(async () => await UpdateStrategy(context.Item))" />
                                 <MudIconButton Size="@Size.Small" 
-                                    Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" 
-                                    OnClick="@(async () => await DeleteStrategy(context.Item))" />
+                                               Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" 
+                                               OnClick="@(async () => await DeleteStrategy(context.Item))" />
                             </MudButtonGroup>
                         </CellTemplate>
                     </TemplateColumn>

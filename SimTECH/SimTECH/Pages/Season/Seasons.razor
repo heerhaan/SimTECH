@@ -39,17 +39,13 @@
                 </TemplateColumn>
                 <PropertyColumn Property="e => e.League" />
                 <PropertyColumn Property="e => e.State" />
-                <TemplateColumn T="SeasonListModel">
+                <TemplateColumn T="SeasonListModel" Sortable="false">
                     <CellTemplate>
                         <MudButtonGroup Size="@Size.Small">
                             <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
                             @if (context.Item.State == State.Concept)
                             {
                                 <MudIconButton Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async() => await DeleteSeason(context.Item.Id))" />
-                            }
-                            else if (context.Item.State == State.Closed)
-                            {
-                                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" OnClick="CopySeason" />
                             }
                         </MudButtonGroup>
                     </CellTemplate>
@@ -84,7 +80,7 @@
 
     private async Task NewSeason()
     {
-        EditSeasonModel? model = null;
+        EditSeasonModel model;
 
         var previousSeason = SeasonData.OrderByDescending(e => e.Year).FirstOrDefault();
 
@@ -94,8 +90,12 @@
             model.ResetIdentifierFields();
             model.Year++;
         }
+        else
+        {
+            model = new EditSeasonModel(null);
+        }
 
-        var parameters = new DialogParameters { ["Model"] = (model ?? new()), ["Leagues"] = LeagueData };
+        var parameters = new DialogParameters { ["Model"] = model, ["Leagues"] = LeagueData };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
@@ -107,12 +107,6 @@
         }
     }
 
-    private void CopySeason()
-    {
-        // not yet implemented but i have done so in the past, this is a good suggestion for just taking all the season settings
-        // and perhaps even immediatly storing them.
-    }
-
     private async Task DeleteSeason(long seasonId)
     {
         var result = await SeasonService.DeleteSeason(seasonId);
@@ -122,10 +116,7 @@
         }
     }
 
-    private void GoToOverview(long seasonId)
-    {
-        Nav.NavigateTo($"/overview/{seasonId}");
-    }
-
     private static Func<SeasonListModel, string> LeadTeamStyleFunc => model => ViewHelper.SetBorderLeftStyle(model.TeamColour);
+
+    private void GoToOverview(long seasonId) => Nav.NavigateTo($"/overview/{seasonId}");
 }

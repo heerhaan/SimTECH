@@ -89,6 +89,11 @@ namespace SimTECH.Data.Services
                 context.Remove(race);
 
             await context.SaveChangesAsync();
+
+            var otherRaces = await context.Race
+                .Where(e => e.SeasonId == race.SeasonId && e.Round > race.Round)
+                .ExecuteUpdateAsync(e =>
+                    e.SetProperty(prop => prop.Round, prop => prop.Round - 1));
         }
 
         public async Task ActivateRace(long raceId)

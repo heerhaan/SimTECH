@@ -1,12 +1,12 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText>Create a new season with the following settings</MudText>
+        <MudText>Modify a season</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm Model="@Model">
             <MudGrid Spacing="2">
                 <MudItem xs="8">
-                    <MudPaper Elevation="5" Class="pa-4">
+                    <MudPaper Elevation="5" Class="pa-4 mud-height-full">
                         <MudStack Spacing="6">
                             <div>
                                 <MudText Typo="Typo.subtitle1">Season information</MudText>
@@ -58,13 +58,16 @@
                 </MudItem>
 
                 <MudItem xs="4">
-                    <MudPaper Elevation="5" Class="pa-4">
+                    <MudPaper Elevation="5" Class="pa-4 mud-height-full">
                         <MudText Typo="Typo.subtitle1">Achieved points per position</MudText>
                         <MudDivider />
 
                         <MudTable Items="@Model.PointAllotments" Dense="true" ReadOnly="false"
                                   RowEditPreview="BackupAllotment" RowEditCancel="ResetAllotment" ApplyButtonPosition="TableApplyButtonPosition.End"
                                   EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
+                            <ToolBarContent>
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendAllotment" />
+                            </ToolBarContent>
                             <HeaderContent>
                                 <MudTh>
                                     <MudTableSortLabel SortBy="new Func<EditPointAllotmentModel, object>(e => e.Position)">Position</MudTableSortLabel>
@@ -83,13 +86,6 @@
                                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveAllotment(context))" />
                                 </MudTd>
                             </RowTemplate>
-                            <FooterContent>
-                                <MudTFootRow>
-                                    <MudTd>
-                                        <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendAllotment"></MudIconButton>
-                                    </MudTd>
-                                </MudTFootRow>
-                            </FooterContent>
                             <EditButtonContent Context="button">
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
                             </EditButtonContent>
