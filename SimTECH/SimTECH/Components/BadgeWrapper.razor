@@ -1,9 +1,11 @@
-﻿@foreach (var colour in Colours)
+﻿@for (int i = 0; i < Colours.Length; i++)
 {
-    <span></span>
+    <span class="badger dot" style="@(Styles(i, Colours[i]))"></span>
 }
 
 @code {
     [Parameter]
     public string[] Colours { get; set; }
+
+    public string Styles(int index, string colour) => $"margin-left:{(index * 10)}px; background-color: {colour}";
 }

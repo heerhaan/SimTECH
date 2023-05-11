@@ -293,9 +293,12 @@ namespace SimTECH.Data.Services
                     Country = result.SeasonDriver.Driver.Country,
 
                     SeasonTeamId = result.SeasonTeamId,
-                    TeamName = result.SeasonTeam.Name,
+                    TeamName = result.SeasonTeam.Team.Name,
                     Colour = result.SeasonTeam.Colour,
                     Accent = result.SeasonTeam.Accent,
+                    ManufacturerName = result.SeasonTeam.Manufacturer.Name,
+                    ManufacturerColour = result.SeasonTeam.Manufacturer.Colour,
+                    ManufacturerAccent = result.SeasonTeam.Manufacturer.Accent,
 
                     ResultId = result.Id,
                     Grid = result.Grid,
