@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
@@ -47,8 +48,20 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task ChangeState(Trait trait, State target)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            trait.State = target;
+
+            context.Update(trait);
+
+            await context.SaveChangesAsync();
+        }
+
+        #region assigner methods
         // I suspect the following three methods are a good target for generics, if i implemented those
-        public async Task AssignDriverTraits(List<TraitAssigner> assignedDrivers)
+        public async Task AssignDriverTraits(List<EntrantAssignee> assignedDrivers)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -71,7 +84,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task AssignTeamTraits(List<TraitAssigner> assignedTeams)
+        public async Task AssignTeamTraits(List<EntrantAssignee> assignedTeams)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -94,7 +107,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task AssignTrackTraits(List<TraitAssigner> assignedTracks)
+        public async Task AssignTrackTraits(List<EntrantAssignee> assignedTracks)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -116,5 +129,6 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+        #endregion
     }
 }

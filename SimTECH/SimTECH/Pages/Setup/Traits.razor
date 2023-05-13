@@ -10,7 +10,9 @@
     <MudDataGrid T="Trait" Items="TraitData" Bordered="true" Dense="true" Class="mt-2">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Traits</MudText>
+
             <MudSpacer />
+
             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                 <MudButton OnClick="GoToTraitAssign">Assign</MudButton>
                 <MudButton OnClick="AddTrait">New</MudButton>
@@ -20,11 +22,27 @@
             <HierarchyColumn T="Trait" />
             <PropertyColumn Property="e => e.Name" />
             <PropertyColumn Property="e => e.Type" />
-            <PropertyColumn Property="e => e.ForWetConditions" Title="For wet" />
+            <PropertyColumn Property="e => e.ForWetConditions" Title="Wet" />
             <PropertyColumn Property="e => e.State" />
-            <TemplateColumn Sortable="false">
+            <TemplateColumn T="Trait" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
+                        @if (context.Item.State == State.Closed)
+                        {
+                            <MudIconButton Size="@Size.Small"
+                                       Icon="@Icons.Material.Filled.Block"
+                                       Color="Color.Warning"
+                                       Title="Unavailable"
+                                       OnClick="@(async () => await ToggleState(context.Item, State.Active))" />
+                        }
+                        else
+                        {
+                            <MudIconButton Size="@Size.Small"
+                                       Icon="@Icons.Material.Filled.CheckCircleOutline"
+                                       Color="Color.Success"
+                                       Title="Available"
+                                       OnClick="@(async () => await ToggleState(context.Item, State.Closed))" />
+                        }
                         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrait(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
@@ -63,11 +81,11 @@
                                 <MudStack Row="true" AlignItems="AlignItems.Center">
                                     @foreach (var modifier in context.Item.RetrieveNotZeroValues())
                                     {
-                                        <div>
+                                        <MudPaper Class="pa-2">
                                             <MudText Typo="Typo.caption">
                                                 @(modifier.Key): @(modifier.Value)
                                             </MudText>
-                                        </div>
+                                        </MudPaper>
                                     }
                                 </MudStack>
                             </MudPaper>
@@ -99,6 +117,12 @@
             new BreadcrumbItem("Home", href: ""),
         });
 
+        TraitData = await TraitService.GetTraits();
+    }
+
+    async Task ToggleState(Trait trait, State target)
+    {
+        await TraitService.ChangeState(trait, target);
         TraitData = await TraitService.GetTraits();
     }
 

@@ -12,7 +12,7 @@ namespace SimTECH
         Advanced,
     }
 
-    public enum StateFilter { All, Default, Closed, Archived }
+    public enum StateFilter { All, Default, Active, Closed, Archived }
 
     public enum Entrant
     {

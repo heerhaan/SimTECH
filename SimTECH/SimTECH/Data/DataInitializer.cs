@@ -9,9 +9,9 @@ namespace SimTECH.Data
         {
             var temp = new List<Tyre>
             {
-                new Tyre { Name = "Soft", Colour = "#FFFFFF", Pace = 160, WearMax = -25, WearMin = -15, Length = 10, State = State.Active, },
+                new Tyre { Name = "Soft", Colour = "#FFFFFF", Pace = 200, WearMax = -25, WearMin = -15, Length = 10, State = State.Active, },
                 new Tyre { Name = "Medium", Colour = "#FFFFFF", Pace = 180, WearMax = -15, WearMin = -9, Length = 15, State = State.Active, },
-                new Tyre { Name = "Hard", Colour = "#FFFFFF", Pace = 200, WearMax = -10, WearMin = -6, Length = 20, State = State.Active, },
+                new Tyre { Name = "Hard", Colour = "#FFFFFF", Pace = 160, WearMax = -10, WearMin = -6, Length = 20, State = State.Active, },
                 new Tyre { Name = "Grooved", Colour = "#FFFFFF", Pace = 60, WearMax = -3, WearMin = -1, Length = 60, State = State.Closed, },
             };
 
