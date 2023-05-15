@@ -31,8 +31,8 @@
                                     <MudNumericField T="int" @bind-Value="Model.RngMaximum" Label="Race Max. RNG" Class="field-md" />
                                 </MudStack>
                                 <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="Model.PitMinimum" Label="Pit Min. RNG" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="Model.PitMaximum" Label="Pit Max. RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.PitMinimum" Min="0" Max="@(Model.PitMaximum)" Label="Pit Min. RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.PitMaximum" Min="@(Model.PitMinimum)" Label="Pit Max. RNG" Class="field-md" />
                                 </MudStack>
                                 <MudNumericField T="int" @bind-Value="Model.MaximumDriversInRace" Label="Maximum allowed drivers in race" Class="field-md" />
                                 <MudNumericField T="int" @bind-Value="Model.GridBonus" Label="Bonus per grid position" Class="field-md" />

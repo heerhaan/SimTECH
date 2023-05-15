@@ -13,7 +13,7 @@
     {
         <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" id="race-display">
             <ToolBarContent>
-                <MudStack Row="true" Spacing="4" AlignItems="AlignItems.Center" Class="mud-width-full">
+                <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Center" Class="mud-width-full">
                     <CountryFlag Code="@Model.Country" />
                     <MudText Typo="Typo.h6">@Model.Name - ROUND @Model.Round</MudText>
                     <MudIcon Icon="@Model.ClimateIcon" />
@@ -23,7 +23,7 @@
                     <MudStack Spacing="0" AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.subtitle2">Lap</MudText>
                         <MudChip Color="Color.Dark" DisableRipple="true" Label="true">
-                            <MudText Typo="Typo.subtitle1">@(racedLaps) / @(totalLaps)</MudText>
+                            <MudText Typo="Typo.subtitle1">@(lapIndicator)</MudText>
                         </MudChip>
                     </MudStack>
 
@@ -209,6 +209,7 @@
     List<Incident> lethalIncidents;
 
     bool loading = true;
+    string lapIndicator = "0/0";
 
     int fatalityOdds;
     int disqualifyChance;
@@ -314,7 +315,7 @@
                     {
                         if (DidReliabilityFail(driver.DriverReliability))
                         {
-                            lapValue += NumberHelper.RandomInt(Model.MistakeMinCost, Model.MistakeMaxCost);
+                            lapValue -= NumberHelper.RandomInt(Model.MistakeMinCost, Model.MistakeMaxCost);
                             lapScore.RacerEvents |= RacerEvent.Mistake;
                             driver.InstantOvertaken = true;
                             break;
@@ -354,6 +355,7 @@
         }
 
         racedLaps = NumberHelper.CalcLapCount(calculated * 10, Model.TrackLength);
+        lapIndicator = $"{racedLaps} / {totalLaps}";
 
         StateHasChanged();
 
@@ -390,15 +392,16 @@
         // If enabled, then we're also going to check if anyone experienced a fatal crash
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
         {
+            safetyCar = true;
             driver.Status = RaceStatus.Fatal;
             driver.Incident = lethalIncidents.TakeRandomIncident();
             lapScore.RacerEvents = RacerEvent.Death;
-            safetyCar = true;
             return safetyCar;
         }
 
         // TODO: Randomly determine SC-chance
-        return NumberHelper.RandomInt(10) == 0;
+        safetyCar = NumberHelper.RandomInt(10) == 0;
+        return safetyCar;
     }
 
     bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
@@ -410,15 +413,17 @@
         var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
         var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
 
+        if (tyreMaxWear < 0)
+            _snackbar.Add("ayo, wear should not be below 0 anymore");
         // Ensures maximum wear is always at least one less than the minimum wear
-        if (tyreMinWear <= tyreMaxWear)
+        if (tyreMaxWear >= tyreMinWear)
         {
             tyreMaxWear = tyreMinWear - 1;
             _snackbar.Add("A situation occurred where the maximum wear was higher than the minimum wear, please reconsider some set tyre wear values!");
         }
 
         // Maximum wear is more than the tyre can handle, it's time for a pitstop!
-        if (Math.Abs(tyreMaxWear) > driver.TyreLife)
+        if (tyreMaxWear > driver.TyreLife)
         {
             var nextOrder = ++driver.CurrentTyreOrder;
             var nextTyre = driver.Strategy.StrategyTyres.FirstOrDefault(e => e.Order == nextOrder);
@@ -434,12 +439,12 @@
                 lapScore.RacerEvents |= RacerEvent.Pitstop;
 
                 valueScoreResult = driver.TyreLife;
-                valueScoreResult += NumberHelper.RandomInt(pitMin, pitMax);
+                valueScoreResult -= NumberHelper.RandomInt(pitMin, pitMax);
             }
         }
 
-        // Add wear to the tyre
-        driver.TyreLife += NumberHelper.RandomInt(tyreMaxWear, tyreMinWear);
+        // Adds wear to the tyre
+        driver.TyreLife -= NumberHelper.RandomInt(tyreMaxWear, tyreMinWear);
 
         return valueScoreResult;
     }

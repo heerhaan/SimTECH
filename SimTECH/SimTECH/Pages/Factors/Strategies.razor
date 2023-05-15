@@ -51,7 +51,7 @@
                                                    Icon="@Icons.Material.Filled.Block"
                                                    Color="Color.Warning"
                                                    Title="Unavailable"
-                                                   OnClick="@(async () => await ToggleStrategyState(context.Item, State.Active))" />
+                                                   OnClick="@(async () => await ToggleState(context.Item, State.Active))" />
                                 }
                                 else
                                 {
@@ -59,7 +59,7 @@
                                                    Icon="@Icons.Material.Filled.CheckCircleOutline"
                                                    Color="Color.Success"
                                                    Title="Available"
-                                                   OnClick="@(async () => await ToggleStrategyState(context.Item, State.Closed))" />
+                                                   OnClick="@(async () => await ToggleState(context.Item, State.Closed))" />
                                 }
                                 <MudIconButton Size="@Size.Small"
                                                Icon="@Icons.Material.Outlined.Edit"
@@ -71,9 +71,6 @@
                         </CellTemplate>
                     </TemplateColumn>
                 </Columns>
-                <PagerContent>
-                    <MudDataGridPager T="Strategy" />
-                </PagerContent>
             </MudDataGrid>
         </MudTabPanel>
 
@@ -99,9 +96,6 @@
                         </CellTemplate>
                     </TemplateColumn>
                 </Columns>
-                <PagerContent>
-                    <MudDataGridPager T="Tyre" />
-                </PagerContent>
             </MudDataGrid>
         </MudTabPanel>
     </MudTabs>
@@ -141,7 +135,7 @@
         }
     }
 
-    async Task ToggleStrategyState(Strategy strategy, State targetState)
+    async Task ToggleState(Strategy strategy, State targetState)
     {
         await StrategyService.ChangeStrategyState(strategy, targetState);
         StrategyData = await StrategyService.GetStrategies();

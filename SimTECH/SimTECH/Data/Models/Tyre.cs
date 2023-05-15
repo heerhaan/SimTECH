@@ -19,7 +19,7 @@
             if (Pace == 0 || (WearMax == 0 && WearMin == 0))
                 return 0;
 
-            var wearAverage = ((WearMax + WearMin) / 2) * -1;
+            var wearAverage = (WearMax + WearMin) / 2;
 
             return (Pace / wearAverage) * 10;
         }
