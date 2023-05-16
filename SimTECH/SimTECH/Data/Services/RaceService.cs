@@ -54,6 +54,9 @@ namespace SimTECH.Data.Services
 
             return await context.Result
                 .Where(e => e.RaceId == raceId)
+                .Include(e => e.Incident)
+                .Include(e => e.SeasonDriver)
+                    .ThenInclude(e => e.Driver)
                 .ToListAsync();
         }
 

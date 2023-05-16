@@ -18,22 +18,8 @@
             <TemplateColumn T="Incident" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        @if (context.Item.State == State.Closed)
-                        {
-                            <MudIconButton Size="@Size.Small"
-                                       Icon="@Icons.Material.Filled.Block"
-                                       Color="Color.Warning"
-                                       Title="Unavailable"
-                                       OnClick="@(async () => await ToggleState(context.Item, State.Active))" />
-                        }
-                        else
-                        {
-                            <MudIconButton Size="@Size.Small"
-                                       Icon="@Icons.Material.Filled.CheckCircleOutline"
-                                       Color="Color.Success"
-                                       Title="Available"
-                                       OnClick="@(async () => await ToggleState(context.Item, State.Closed))" />
-                        }
+                        <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
+                                            Default="@(context.Item.State == State.Active)" />
                         <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
@@ -71,6 +57,7 @@
         }
     }
 
+    async Task OnToggleChange(Incident incident, bool toggled) => await ToggleState(incident, (toggled ? State.Active : State.Closed));
     async Task ToggleState(Incident incident, State targetState)
     {
         await _incidentService.ChangeState(incident, targetState);

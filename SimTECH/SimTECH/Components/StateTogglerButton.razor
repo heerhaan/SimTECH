@@ -1,0 +1,19 @@
+﻿<MudToggleIconButton Size="@Size.Small"
+                     Icon="@Icons.Material.Filled.Block"
+                     Color="Color.Warning"
+                     Title="Unavailable"
+                     Toggled="@Default"
+                     ToggledSize="Size.Small"
+                     ToggledIcon="@Icons.Material.Filled.CheckCircleOutline"
+                     ToggledColor="Color.Success"
+                     ToggledTitle="Available"
+                     ToggledChanged="ToggleChanged" />
+
+@code {
+    [Parameter, EditorRequired]
+    public EventCallback<bool> CallbackToggled { get; set; }
+    [Parameter]
+    public bool Default { get; set; }
+
+    private async Task ToggleChanged(bool toggled) => await CallbackToggled.InvokeAsync(toggled);
+}

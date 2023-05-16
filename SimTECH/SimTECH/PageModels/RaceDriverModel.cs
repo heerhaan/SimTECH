@@ -96,7 +96,6 @@ namespace SimTECH.PageModels
             if (Status == RaceStatus.Racing)
             {
                 double positionCalc = 200000 / Position;
-
                 hiddenPoints = positionCalc.RoundDouble();
             }
 

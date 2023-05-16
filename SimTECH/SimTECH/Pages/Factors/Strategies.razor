@@ -10,7 +10,7 @@
             <MudDataGrid T="Strategy" Items="@StrategyData" Bordered="true" Dense="true">
                 <ToolBarContent>
                     <MudText Typo="Typo.h4">Strategies</MudText>
-                    <sup>PS: Keep in mind that "Avg. Pace" does NOT include the score cost a pitstop would bring!</sup>
+                    <sup>PS: "Avg. Pace" excludes at pitstop cost!</sup>
                     <MudSpacer />
                     <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddStrategy">New</MudButton>
                 </ToolBarContent>
@@ -22,13 +22,13 @@
                                 <div class="d-flex flex-row gap-2">
                                     @foreach (var strategyTyre in context.Item.StrategyTyres)
                                     {
-                                    <span class="tyre" style="border-color:@(strategyTyre.Tyre.Colour)">@strategyTyre.Tyre.Name.ElementAt(0)</span>
+                                        <TyreElement Colour="@(strategyTyre.Tyre.Colour)">@strategyTyre.Tyre.Name.ElementAt(0)</TyreElement>
                                     }
                                 </div>
                             }
                             else
                             {
-                                <span>No tyres in strategy found!</span>
+                                <MudText>No tyres in strategy found!</MudText>
                             }
                         </CellTemplate>
                     </TemplateColumn>
@@ -36,7 +36,7 @@
                         <CellTemplate>
                             @if (context.Item.StrategyTyres?.Count > 0)
                             {
-                                <span>@context.Item.StrategyTyres.Sum(e => e.Tyre.PredictedLength())Km</span>
+                                <MudText>@context.Item.StrategyTyres.Sum(e => e.Tyre.PredictedLength())Km</MudText>
                             }
                         </CellTemplate>
                     </TemplateColumn>
@@ -45,23 +45,8 @@
                     <TemplateColumn T="Strategy" Sortable="false">
                         <CellTemplate>
                             <MudButtonGroup>
-                                @if (context.Item.State == State.Closed)
-                                {
-                                    <MudIconButton Size="@Size.Small"
-                                                   Icon="@Icons.Material.Filled.Block"
-                                                   Color="Color.Warning"
-                                                   Title="Unavailable"
-                                                   OnClick="@(async () => await ToggleState(context.Item, State.Active))" />
-                                }
-                                else
-                                {
-                                    <MudIconButton Size="@Size.Small"
-                                                   Icon="@Icons.Material.Filled.CheckCircleOutline"
-                                                   Color="Color.Success"
-                                                   Title="Available"
-                                                   OnClick="@(async () => await ToggleState(context.Item, State.Closed))" />
-                                }
-
+                                <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
+                                                    Default="@(context.Item.State == State.Active)" />
                                 <MudIconButton Size="@Size.Small"
                                                Icon="@Icons.Material.Outlined.Edit"
                                                OnClick="@(async () => await UpdateStrategy(context.Item))" />
@@ -85,8 +70,8 @@
                 <Columns>
                     <PropertyColumn Property="e => e.Name" CellStyleFunc="_applyTyreColouring" />
                     <PropertyColumn Property="e => e.Pace" Style="font-family: var(--mud-typography-caption-family)" />
-                    <PropertyColumn Property="e => e.WearMax" Style="font-family: var(--mud-typography-caption-family)" />
                     <PropertyColumn Property="e => e.WearMin" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e.WearMax" Style="font-family: var(--mud-typography-caption-family)" />
                     <PropertyColumn Property="e => e.Length" Style="font-family: var(--mud-typography-caption-family)" />
                     <PropertyColumn Property="e => e.State" />
                     <TemplateColumn T="Tyre" Sortable="false">
@@ -136,6 +121,7 @@
         }
     }
 
+    async Task OnToggleChange(Strategy strategy, bool toggled) => await ToggleState(strategy, (toggled ? State.Active : State.Closed));
     async Task ToggleState(Strategy strategy, State targetState)
     {
         await _strategyService.ChangeStrategyState(strategy, targetState);

@@ -3,7 +3,7 @@
 @inject IDialogService _dialogService
 
 <MudContainer>
-    <MudDataGrid T="Climate" Items="ClimateData">
+    <MudDataGrid T="Climate" Items="@ClimateData">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Climate</MudText>
             <MudSpacer />
@@ -24,23 +24,11 @@
             <TemplateColumn T="Climate" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        @if (context.Item.State == State.Closed)
-                        {
-                            <MudIconButton Size="@Size.Small"
-                                       Icon="@Icons.Material.Filled.Block"
-                                       Color="Color.Warning"
-                                       Title="Unavailable"
-                                       OnClick="@(async () => await ToggleState(context.Item, State.Active))" />
-                        }
-                        else
-                        {
-                            <MudIconButton Size="@Size.Small"
-                                       Icon="@Icons.Material.Filled.CheckCircleOutline"
-                                       Color="Color.Success"
-                                       Title="Available"
-                                       OnClick="@(async () => await ToggleState(context.Item, State.Closed))" />
-                        }
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
+                        <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
+                                            Default="@(context.Item.State == State.Active)" />
+                        <MudIconButton Size="@Size.Small"
+                                       Icon="@Icons.Material.Outlined.Edit"
+                                       OnClick="@(async () => await UpdateItem(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -77,6 +65,7 @@
         }
     }
 
+    async Task OnToggleChange(Climate climate, bool toggled) => await ToggleState(climate, (toggled ? State.Active : State.Closed));
     async Task ToggleState(Climate climate, State targetState)
     {
         await _climateService.ChangeState(climate, targetState);

@@ -28,7 +28,7 @@
             <MudMenuItem OnClick="SetSynthAltTheme">Alt synth</MudMenuItem>
         </MudMenu>
 
-        <MudIconButton Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" Href="/guide" />
+        <MudIconButton Href="/guide" Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" />
     </MudAppBar>
     <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Responsive">
         <MudDrawerHeader>
@@ -53,10 +53,7 @@
         _bread.OnChange += StateHasChanged;
     }
 
-    void ToggleSidebar()
-    {
-        drawerOpen = !drawerOpen;
-    }
+    void ToggleSidebar() => drawerOpen = !drawerOpen;
 
     void SetDefaultTheme() => theme = Constants.DefaultTheme;
     void SetSynthTheme() => theme = Constants.SynthTheme;

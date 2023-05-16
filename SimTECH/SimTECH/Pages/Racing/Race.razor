@@ -22,7 +22,7 @@
 
                     <MudStack Spacing="0" AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.subtitle2">Lap</MudText>
-                        <MudChip Color="Color.Dark" DisableRipple="true" Label="true">
+                        <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
                             <MudText Typo="Typo.subtitle1">@(lapIndicator)</MudText>
                         </MudChip>
                     </MudStack>
@@ -230,6 +230,7 @@
     int calculationsPerAdvance = 5;
     int calculationDistance = 10;//Not implemented yet but this could be used to refer to how much kilometers distance a calculation offers
     bool safetyCarOut = false;
+    Color lapIndicatorColor = Color.Dark;
     Entrant cycleReliabilty = Entrant.Driver;
 
     protected override async Task OnInitializedAsync()
@@ -285,9 +286,11 @@
             ++calculated;
             long? newFastestLapScorer = null;
 
+            // TODO: Use this condition to check whether the SC is done or not, for now it will be immediatly
             if (safetyCarOut)
             {
-                // TODO: handle something to deal with an active safety car
+                lapIndicatorColor = Color.Dark;
+                safetyCarOut = false;
             }
 
             // Iterate through all still running drivers
@@ -298,7 +301,7 @@
                 var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
                 // Determine if either driver, car or engine has failed
-                safetyCarOut = CheckReliability(driver, lapScore);
+                var safetyCarOccurrence = CheckReliability(driver, lapScore);
 
                 // Calculate the score for drivers which are still racing
                 if (driver.Status == RaceStatus.Racing)
@@ -339,9 +342,10 @@
                     // Finally add the score to the lap results
                     lapScore.Score = lapValue;
                 }
-                else if (safetyCarOut)
+                else if (safetyCarOccurrence)
                 {
-
+                    // all sort of calculations to do here in relation to the current driver who caused a SC
+                    safetyCarOut = safetyCarOccurrence;
                 }
 
                 driver.LapScores.Add(lapScore);
@@ -350,6 +354,14 @@
 
             // Determine new positions (keep team role in mind here!)
             PostProcessAdvance(newFastestLapScorer);
+
+            // TODO: handle something to deal with an active safety car which occurred in a previous advance
+            if (safetyCarOut)
+            {
+                lapIndicatorColor = Color.Warning;
+                // Stop iterating through all advances since SC occurrence
+                break;
+            }
 
             // Last brace before going to the next advance
             if (calculated >= calculationCount)
@@ -418,10 +430,10 @@
         if (tyreMaxWear < 0)
             _snackbar.Add("ayo, wear should not be below 0 anymore");
         // Ensures maximum wear is always at least one less than the minimum wear
-        if (tyreMaxWear >= tyreMinWear)
+        if (tyreMinWear >= tyreMaxWear)
         {
-            tyreMaxWear = tyreMinWear - 1;
-            _snackbar.Add("A situation occurred where the maximum wear was higher than the minimum wear, please reconsider some set tyre wear values!");
+            tyreMaxWear = tyreMinWear + 1;
+            _snackbar.Add("A situation occurred where the maximum wear was lower than the minimum wear, please reconsider some set tyre wear values!");
         }
 
         // Maximum wear is more than the tyre can handle, it's time for a pitstop!
@@ -446,7 +458,7 @@
         }
 
         // Adds wear to the tyre
-        driver.TyreLife -= NumberHelper.RandomInt(tyreMaxWear, tyreMinWear);
+        driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
         return valueScoreResult;
     }
@@ -539,7 +551,12 @@
         }
 
         if (anyoneDisqualified)
-            PostProcessAdvance(null);
+        {
+            var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum).ToList();
+            int positionIndex = 0;
+            foreach (var driver in racingDrivers)
+                driver.Position = ++positionIndex;
+        }
     }
 
     async Task PersistLapScores(List<LapScore> lapScores) => await _raceService.PersistLapScores(lapScores);
@@ -558,7 +575,6 @@
         var allLapScores = Model.RaceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();
         await PersistLapScores(allLapScores);
 
-        // TODO: check if this doesnt mess with the lapscores if those are persisted per advance
         await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints);
 
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
