@@ -277,7 +277,13 @@ namespace SimTECH.Data.Services
                 .SingleAsync(e => e.Id == raceId);
 
             if (race.State == State.Concept)
-                throw new InvalidOperationException("wrong state, reee. Activate first!!!");
+            {
+                var nextRace = await GetNextRaceOfSeason(race.SeasonId);
+                if (nextRace?.Id == race.Id)
+                    await ActivateRace(race.Id);
+                else
+                    throw new InvalidOperationException("Can only open the race week page for the upcoming race!");
+            }
 
             var trackTraits = await context.Trait
                 .Where(trait => trait.TrackTraits.Any(tt => tt.TrackId == race.TrackId))

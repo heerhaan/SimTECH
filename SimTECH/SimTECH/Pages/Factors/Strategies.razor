@@ -1,5 +1,5 @@
 ﻿@page "/strategies"
-@inject StrategyService StrategyService
+@inject StrategyService _strategyService
 @inject IDialogService DialogService
 
 <PageTitle>Strategies</PageTitle>
@@ -61,6 +61,7 @@
                                                    Title="Available"
                                                    OnClick="@(async () => await ToggleState(context.Item, State.Closed))" />
                                 }
+
                                 <MudIconButton Size="@Size.Small"
                                                Icon="@Icons.Material.Outlined.Edit"
                                                OnClick="@(async () => await UpdateStrategy(context.Item))" />
@@ -107,8 +108,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        StrategyData = await StrategyService.GetStrategies();
-        TyreData = await StrategyService.GetTyres();
+        StrategyData = await _strategyService.GetStrategies();
+        TyreData = await _strategyService.GetTyres();
     }
 
     private Func<Tyre, string> _applyTyreColouring => e =>
@@ -130,21 +131,21 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Strategy updatedItem)
         {
-            await StrategyService.UpdateStrategy(updatedItem);
-            StrategyData = await StrategyService.GetStrategies();
+            await _strategyService.UpdateStrategy(updatedItem);
+            StrategyData = await _strategyService.GetStrategies();
         }
     }
 
     async Task ToggleState(Strategy strategy, State targetState)
     {
-        await StrategyService.ChangeStrategyState(strategy, targetState);
-        StrategyData = await StrategyService.GetStrategies();
+        await _strategyService.ChangeStrategyState(strategy, targetState);
+        StrategyData = await _strategyService.GetStrategies();
     }
 
     async Task DeleteStrategy(Strategy strategy)
     {
-        await StrategyService.DeleteStrategy(strategy);
-        StrategyData = await StrategyService.GetStrategies();
+        await _strategyService.DeleteStrategy(strategy);
+        StrategyData = await _strategyService.GetStrategies();
     }
 
     async Task AddTyre() => await UpdateTyre(new Tyre());
@@ -157,14 +158,14 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Tyre updatedItem)
         {
-            await StrategyService.UpdateTyre(updatedItem);
-            TyreData = await StrategyService.GetTyres();
+            await _strategyService.UpdateTyre(updatedItem);
+            TyreData = await _strategyService.GetTyres();
         }
     }
 
     async Task DeleteTyre(Tyre tyre)
     {
-        await StrategyService.DeleteTyre(tyre);
-        TyreData = await StrategyService.GetTyres();
+        await _strategyService.DeleteTyre(tyre);
+        TyreData = await _strategyService.GetTyres();
     }
 }

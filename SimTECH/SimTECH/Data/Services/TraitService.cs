@@ -92,17 +92,17 @@ namespace SimTECH.Data.Services
 
             // Assume we aren't removing traits
 
-            var assignedDriverTraits = new List<DriverTrait>();
+            var teamTraits = new List<TeamTrait>();
 
-            foreach (var driver in assignedTeams)
+            foreach (var team in assignedTeams)
             {
-                foreach (var trait in driver.AssignedTraitIds)
+                foreach (var trait in team.AssignedTraitIds)
                 {
-                    assignedDriverTraits.Add(new DriverTrait { DriverId = driver.Id, TraitId = trait });
+                    teamTraits.Add(new TeamTrait { TeamId = team.Id, TraitId = trait });
                 }
             }
 
-            context.AddRange(assignedDriverTraits);
+            context.AddRange(teamTraits);
 
             await context.SaveChangesAsync();
         }
@@ -115,17 +115,17 @@ namespace SimTECH.Data.Services
 
             // Assume we aren't removing traits
 
-            var assignedDriverTraits = new List<DriverTrait>();
+            var trackTraits = new List<TrackTrait>();
 
-            foreach (var driver in assignedTracks)
+            foreach (var track in assignedTracks)
             {
-                foreach (var trait in driver.AssignedTraitIds)
+                foreach (var trait in track.AssignedTraitIds)
                 {
-                    assignedDriverTraits.Add(new DriverTrait { DriverId = driver.Id, TraitId = trait });
+                    trackTraits.Add(new TrackTrait { TrackId = track.Id, TraitId = trait });
                 }
             }
 
-            context.AddRange(assignedDriverTraits);
+            context.AddRange(trackTraits);
 
             await context.SaveChangesAsync();
         }

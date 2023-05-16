@@ -1,8 +1,9 @@
 ﻿@page "/"
 @inject BreadcrumbProvider _bread
-@inject RaceService RaceService
-@inject ProtectedLocalStorage LocalStorage
-@inject NavigationManager Nav
+@inject RaceService _raceService
+@inject SeasonService _seasonService
+@inject ProtectedLocalStorage _localStorage
+@inject NavigationManager _nav
 @inject IOptions<SimConfig> _config
 
 <PageTitle>Home</PageTitle>
@@ -17,8 +18,10 @@
                 <MudText Typo="Typo.body2">Mistake rolls: @_config.Value.MistakeAmountRolls</MudText>
                 <MudText Typo="Typo.body2">Mistake min rng: @_config.Value.MistakeLowerValue</MudText>
                 <MudText Typo="Typo.body2">Mistake max rng: @_config.Value.MistakeUpperValue</MudText>
-                ΩΩΩΩΩΩλλλλλλλλλλλλλλ
-                ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+                <MudText Typo="Typo.body2">Gap marge p/pt: @_config.Value.GapMarge</MudText>
+                <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
+                <MudText Typo="Typo.body2">Use personal numbers: @_config.Value.PersonalNumbers</MudText>
+                <MudText Typo="Typo.body2">Calc distance ref: @_config.Value.CalculationDistance</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
@@ -28,22 +31,8 @@
         </MudItem>
         <MudItem xs="12" sm="12" md="4">
             <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
-                <MudText Typo="Typo.overline">
-                    Config
-                </MudText>
-                <MudText Typo="Typo.body2">Gap marge p/pt: @_config.Value.GapMarge</MudText>
-                <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
-                <MudText Typo="Typo.body2">Use personal numbers: @_config.Value.PersonalNumbers</MudText>
-                <MudText Typo="Typo.body2">Calc distance ref: @_config.Value.CalculationDistance</MudText>
-                <MudStack Row="true">
-                    <MudText Typo="Typo.h6">Custom Icon Cycler</MudText>
-                    <MudSpacer />
-                    <MudButton OnClick="CycleCustomIcon">Cycle</MudButton>
-                </MudStack>
-                <MudIcon Icon="@activeCustomIcon" />
-                <MudIcon Icon="@activeCustomIcon" Style="color:green" />
-                <MudIcon Icon="@activeCustomIcon" Color="Color.Secondary" Size="Size.Small" />
-                <MudIcon Icon="@activeCustomIcon" Color="Color.Primary" Size="Size.Large" />
+                ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+                ΩΩΩΩΩΩλλλλλλλλλλλλλλ
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6">
@@ -160,9 +149,35 @@
                 }
             </MudPaper>
         </MudItem>
-        <MudItem>
+        <MudItem xs="6">
             <MudPaper>
-                Upcoming races from active leagues
+                <MudTable T="Race" Items="@upcomingRaces" Dense="true">
+                    <HeaderContent>
+                        <MudTh>Round</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Controls</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>R: @(context.Round)</MudTd>
+                        <MudTd>@(context.Name)</MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.Id))">Go To</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper>
+                    <MudStack Row="true">
+                        <MudText Typo="Typo.h6">Custom Icon Cycler</MudText>
+                        <MudSpacer />
+                        <MudButton OnClick="CycleCustomIcon">Cycle</MudButton>
+                    </MudStack>
+                    <MudIcon Icon="@activeCustomIcon" />
+                    <MudIcon Icon="@activeCustomIcon" Style="color:green" />
+                    <MudIcon Icon="@activeCustomIcon" Color="Color.Secondary" Size="Size.Small" />
+                    <MudIcon Icon="@activeCustomIcon" Color="Color.Primary" Size="Size.Large" />
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -170,6 +185,7 @@
 
 @code {
     List<FinishedRaceModel> recentRaces;
+    List<Race> upcomingRaces = new();
     int raceAmount = 5;
     string activeCustomIcon = IconCollection.BrandToyota;
     string[] customIcons = IconCollection.ArrayOfIcons;
@@ -184,15 +200,24 @@
             new BreadcrumbItem("Home", href: "/"),
         });
 
-        recentRaces = await RaceService.GetRecentlyFinishedCalendarRaces(raceAmount);
+        recentRaces = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
         recentRaces.Reverse();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var storedExample = await LocalStorage.GetAsync<string>("example");
+        var storedExample = await _localStorage.GetAsync<string>("example");
         if (storedExample.Success)
             exampleStore = storedExample.Value;
+    }
+
+    private async Task RetrieveUpcomingRaces()
+    {
+        var seasons = await _seasonService.GetSeasons(StateFilter.Active);
+        foreach (var season in seasons)
+        {
+            var upcomingRace = await _raceService.GetNextRaceOfSeason(season.Id);
+        }
     }
 
     void CycleCustomIcon()
@@ -205,6 +230,8 @@
 
     private async Task SetExample()
     {
-        await LocalStorage.SetAsync("example", newExampleString);
+        await _localStorage.SetAsync("example", newExampleString);
     }
+
+    private void GoToRaceWeek(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");
 }

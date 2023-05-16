@@ -36,6 +36,18 @@ namespace SimTECH.Extensions
             return string.Concat(countryCode.ToString().Select(e => char.ConvertFromUtf32(e + 0x1F1A5)));
         }
 
+        public static string GetRacerEventIcon(this RacerEvent racerEvent) => racerEvent switch
+        {
+            RacerEvent.DriverDnf => IconCollection.HelmetOff,
+            RacerEvent.CarDnf => IconCollection.CarCrash,
+            RacerEvent.EngineDnf => IconCollection.EngineOff,
+            RacerEvent.Mistake => Icons.Material.Filled.ErrorOutline,
+            RacerEvent.Pitstop => Icons.Material.Filled.LocalGasStation,
+            RacerEvent.Swap => Icons.Material.Filled.SwapVert,
+            RacerEvent.Death => IconCollection.Skull,
+            _ => Icons.Material.Filled.QuestionMark
+        };
+
         public static string GetGenderIcon(this Gender gender) => gender switch
         {
             Gender.All => Icons.Material.Filled.AllInclusive,
