@@ -1,0 +1,118 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Position change chart
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudContainer Fixed="true" Class="pa-4">
+            @if (!loading)
+            {
+                <ApexCharts.ApexChart TItem="DataPoint" Title="Gapper chart" Options="@options">
+                    @foreach (var driver in DataSets)
+                    {
+                        <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                            Items="@driver.DataPoints"
+                                            Name="@driver.Label"
+                                            SeriesType="ApexCharts.SeriesType.Line"
+                                            XValue="@(e => e.XData)"
+                                            YValue="@(e => e.YData)"
+                                            OrderBy="e => e.X"
+                                            Stroke="@driver.Stroke" />
+                    }
+                </ApexCharts.ApexChart>
+            }
+        </MudContainer>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected MudDialogInstance? ChartDialog { get; set; }
+    [Parameter, EditorRequired]
+    public List<RaceDriver> Drivers { get; set; }
+
+    ApexCharts.ApexChartOptions<DataPoint> options;
+    List<DataSet> DataSets = new();
+
+    bool loading = true;
+
+    protected override void OnInitialized()
+    {
+        var positionData = DetermineLapPositions();
+
+        var seenTeamIdentifiers = new List<long>(Drivers.Count);
+
+        foreach (var driver in Drivers)
+        {
+            var dataSet = new DataSet { Label = driver.FullName };
+
+            foreach (var driverPosition in positionData.Where(e => e.ResultId == driver.ResultId))
+            {
+                dataSet.DataPoints.Add(new DataPoint(driverPosition.Order, driverPosition.Position));
+            }
+
+            var sameSeenTeams = seenTeamIdentifiers.Count(e => e == driver.SeasonTeamId);
+
+            dataSet.Stroke = new ApexCharts.SeriesStroke { Color = driver.Colour, DashSpace = (2 * sameSeenTeams), Width = 3 };
+
+            seenTeamIdentifiers.Add(driver.SeasonTeamId);
+            DataSets.Add(dataSet);
+        }
+
+        loading = false;
+    }
+
+    private List<DriverLapPosition> DetermineLapPositions()
+    {
+        var positionData = new List<DriverLapPosition>();
+
+        foreach (var driver in Drivers)
+        {
+            int total = 0;
+            foreach (var lap in driver.LapScores.OrderBy(e => e.Order))
+            {
+                total += lap.Score;
+                positionData.Add(new DriverLapPosition
+                    {
+                        ResultId = driver.ResultId,
+                        Order = lap.Order,
+                        TotalScore = total,
+                        DidNotFinish = FailedToFinish(lap.RacerEvents)
+                    });
+            }
+        }
+
+        foreach (var lapData in positionData.GroupBy(e => e.Order))
+        {
+            int indexer = 0;
+            foreach (var driverLap in lapData.OrderBy(e => e.DidNotFinish).ThenByDescending(e => e.TotalScore))
+                driverLap.Position = ++indexer;
+        }
+
+        return positionData;
+    }
+
+    private bool FailedToFinish(RacerEvent racerEvents)
+    {
+        if (racerEvents.HasFlag(RacerEvent.DriverDnf))
+            return true;
+        if (racerEvents.HasFlag(RacerEvent.CarDnf))
+            return true;
+        if (racerEvents.HasFlag(RacerEvent.EngineDnf))
+            return true;
+        if (racerEvents.HasFlag(RacerEvent.Death))
+            return true;
+
+        return false;
+    }
+
+    internal class DriverLapPosition
+    {
+        public long ResultId { get; set; }
+        public int Order { get; set; }
+        public int TotalScore { get; set; }
+        public int Position { get; set; }
+        public bool DidNotFinish { get; set; }
+    }
+}

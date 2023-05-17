@@ -52,7 +52,8 @@
                             }
                         }
                         <ScreenshotButton TargetId="race-display" />
-                        <MudButton OnClick="ShowGraph">Chart</MudButton>
+                        <MudButton OnClick="ShowGapperChart">GapChart</MudButton>
+                        <MudButton OnClick="ShowPositionChart">PosChart</MudButton>
                     </MudButtonGroup>
                 </MudStack>
             </ToolBarContent>
@@ -586,10 +587,17 @@
         _nav.NavigateTo($"/postrace/{RaceId}");
     }
 
-    async Task ShowGraph()
+    async Task ShowGapperChart()
     {
         var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
 
         _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters, Constants.DefaultChartDialogSettings);
+    }
+
+    async Task ShowPositionChart()
+    {
+        var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
+
+        _ = await _dialogService.ShowAsync<PositionChangeChart>("Position chart", parameters, Constants.DefaultChartDialogSettings);
     }
 }
