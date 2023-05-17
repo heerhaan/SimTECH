@@ -645,6 +645,7 @@ namespace SimTECH.Data.Services
 
                 FatalityOdds = _config.FatalityChance,
                 DisqualifyOdds = _config.DisqualifyChance,
+                SafetyCarOdds = _config.SafetyCarChance,
                 MistakeRolls = _config.MistakeAmountRolls,
                 MistakeMinCost = _config.MistakeLowerValue,
                 MistakeMaxCost = _config.MistakeUpperValue,

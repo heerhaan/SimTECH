@@ -60,7 +60,9 @@ namespace SimTECH.Providers
                     nameSet.AddRange(databank.Male.Select(e => (e, lang.Country, Gender.Male)));
                     nameSet.AddRange(databank.Female.Select(e => (e, lang.Country, Gender.Female)));
                 }
-                familySet.AddRange(databank.Family.Select(e => (e, lang.Country)));
+
+                familySet.AddRange(
+                    databank.Family.Where(e => e.Length >= 3).Select(e => (e, lang.Country)));
             }
 
             for (int i = 0; i < amount; i++)

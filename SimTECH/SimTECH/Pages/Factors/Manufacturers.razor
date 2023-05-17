@@ -14,33 +14,32 @@
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Pace</MudTh>
-            <MudTh>Max. wear</MudTh>
             <MudTh>Min. wear</MudTh>
+            <MudTh>Max. wear</MudTh>
             <MudTh>State</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd Style="@ViewHelper.SetFullColourstyle(context.Colour, context.Accent)">@context.Name</MudTd>
             <MudTd>
-                <MudText Typo="Typo.caption"></MudText>
-                @context.Pace
+                <MudText Typo="Typo.caption">@context.Pace</MudText>
             </MudTd>
             <MudTd>
-                <MudText Typo="Typo.caption"></MudText>
-                @context.WearMax
+                <MudText Typo="Typo.caption">@context.WearMin</MudText>
             </MudTd>
             <MudTd>
-                <MudText Typo="Typo.caption"></MudText>
-                @context.WearMin
+                <MudText Typo="Typo.caption">@context.WearMax</MudText>
             </MudTd>
             <MudTd>
-                <MudText></MudText>
-                @context.State
+                <MudText>@context.State</MudText>
             </MudTd>
             <MudTd>
                 <MudButtonGroup Size="@Size.Small">
-                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateManufacturer(context))" />
-                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteManufacturer(context))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                                   OnClick="@(async () => await UpdateManufacturer(context))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                   Color="Color.Error"
+                                   OnClick="@(async () => await DeleteManufacturer(context))" />
                 </MudButtonGroup>
             </MudTd>
         </RowTemplate>

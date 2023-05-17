@@ -1,5 +1,4 @@
 ﻿@page "/guide"
-@using SimTECH.Pages.UserManual
 @using SimTECH.Pages.UserManual.Topics
 @using SimTECH.Pages.UserManual.Topics.Race
 @using SimTECH.Pages.UserManual.Topics.Setup
@@ -15,11 +14,11 @@
     <MudItem xs="3">
         <MudPaper Class="mud-height-full">
             <MudTreeView T="string" Color="Color.Secondary" Hover="true" SelectedValueChanged="ActiveTopicChanged">
-                <MudTreeViewItem @bind-Expanded="@folderOneExpanded" Value="@("Setup")" Icon="@(folderOneExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
+                <MudTreeViewItem @bind-Expanded="@setupFolderExpanded" Value="@("Setup")" Icon="@(setupFolderExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
                     <MudTreeViewItem Value="@("Drivers")" Icon="@Icons.Custom.FileFormats.FileImage" />
                     <MudTreeViewItem Value="@("Subtopic 2")" Icon="@Icons.Custom.FileFormats.FileVideo" />
                 </MudTreeViewItem>
-                <MudTreeViewItem @bind-Expanded="@folderTwoExpanded" Value="@("Racing")" Icon="@(folderTwoExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
+                <MudTreeViewItem @bind-Expanded="@racingFolderExpanded" Value="@("Racing")" Icon="@(racingFolderExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
                     <MudTreeViewItem Value="@("Overtaking")" Icon="@Icons.Custom.FileFormats.FileExcel" />
                 </MudTreeViewItem>
             </MudTreeView>
@@ -35,9 +34,10 @@
 
 @code {
     Type TopicContent { get; set; } = typeof(Hello);
+
     string currentTopic = "None";
-    bool folderOneExpanded;
-    bool folderTwoExpanded;
+    bool setupFolderExpanded;
+    bool racingFolderExpanded;
 
     void ActiveTopicChanged(string activeTopic)
     {

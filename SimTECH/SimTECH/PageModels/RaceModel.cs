@@ -31,6 +31,7 @@ namespace SimTECH.PageModels
         // Values read from the configuration
         public int FatalityOdds { get; set; }
         public int DisqualifyOdds { get; set; }
+        public int SafetyCarOdds { get; set; }
         public int MistakeRolls { get; set; }
         public int MistakeMinCost { get; set; }
         public int MistakeMaxCost { get; set; }
