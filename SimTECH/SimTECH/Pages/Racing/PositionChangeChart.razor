@@ -5,10 +5,10 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudContainer Fixed="true" Class="pa-4">
+        <MudContainer Class="pa-4" Style="min-width: 800px">
             @if (!loading)
             {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="Gapper chart" Options="@options">
+                <ApexCharts.ApexChart TItem="DataPoint" Title="Position progression" Options="@options" Height="550">
                     @foreach (var driver in DataSets)
                     {
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
@@ -39,6 +39,8 @@
 
     protected override void OnInitialized()
     {
+        SetOptions();
+
         var positionData = DetermineLapPositions();
 
         var seenTeamIdentifiers = new List<long>(Drivers.Count);
@@ -61,6 +63,17 @@
         }
 
         loading = false;
+    }
+
+    private void SetOptions()
+    {
+        options = new ApexCharts.ApexChartOptions<DataPoint>
+            {
+                Theme = new ApexCharts.Theme
+                {
+                    Mode = ApexCharts.Mode.Dark,
+                }
+            };
     }
 
     private List<DriverLapPosition> DetermineLapPositions()
