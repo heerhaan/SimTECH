@@ -514,9 +514,15 @@
 
                 var aboveDriver = racingDrivers.First(e => e.Position == abovePosition);
 
-                if (!aboveDriver.InstantOvertaken)
+                // Driver above is teammate AND support driver AND attacker is main driver, swap time!
+                if (aboveDriver.SeasonTeamId == driver.SeasonTeamId && driver.Role == TeamRole.Main && aboveDriver.Role == TeamRole.Support)
                 {
-                    // Should actually be: defense of above driver and attack of attacking driver
+                    lastScore.RacerEvents |= RacerEvent.Swap;
+                    aboveDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
+                }
+                else if (!aboveDriver.InstantOvertaken)
+                {
+                    // Subtract attack value from defense, what's left is how much the attacker is hindered
                     var battleCost = aboveDriver.Defense - driver.Attack;
                     if (battleCost > 0)
                         lastScore.Score -= battleCost;
