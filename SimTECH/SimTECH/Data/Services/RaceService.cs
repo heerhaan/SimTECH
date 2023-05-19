@@ -461,6 +461,7 @@ namespace SimTECH.Data.Services
                 .TakeLastSpecial(amount)
                 .Select(e => new FinishedRaceModel
                 {
+                    RaceId = e.Id,
                     Round = e.Round,
                     Name = e.Name,
                     Country = e.Track.Country,

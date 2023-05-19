@@ -20,7 +20,7 @@
                 <MudText Typo="Typo.body2">Mistake max rng: @_config.Value.MistakeUpperValue</MudText>
                 <MudText Typo="Typo.body2">Gap marge p/pt: @_config.Value.GapMarge</MudText>
                 <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
-                <MudText Typo="Typo.body2">Use personal numbers: @_config.Value.PersonalNumbers</MudText>
+                <MudText Typo="Typo.body2">Use personal numbers: @_config.Value.PersonalNumbersEnabled</MudText>
                 <MudText Typo="Typo.body2">Calc distance ref: @_config.Value.CalculationDistance</MudText>
             </MudPaper>
         </MudItem>
@@ -109,6 +109,7 @@
                             <MudTh>Team</MudTh>
                             <MudTh>Driver</MudTh>
                             <MudTh Class="number-col">No.</MudTh>
+                            <MudTh>Controls</MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd>
@@ -143,6 +144,9 @@
                             </MudTd>
                             <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.WinningDriver.Colour, context.WinningDriver.Accent))">
                                 <MudText Typo="Typo.caption">@context.WinningDriver.Number</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">Go To</MudButton>
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -183,7 +187,7 @@
     </MudGrid>
 </MudContainer>
 
-    @code {
+@code {
     List<FinishedRaceModel> recentRaces;
     List<Race> upcomingRaces = new();
     int raceAmount = 5;

@@ -143,13 +143,15 @@ namespace SimTECH.Data.Services
 
             foreach (var dnfResult in raceResults.Where(e => e.Incident?.HasLimit() == true))
             {
-                var incidentFrequency = await context.Result.Where(e => e.SeasonDriverId == dnfResult.SeasonDriverId && e.IncidentId == dnfResult.IncidentId).CountAsync();
-                if (incidentFrequency > dnfResult.Incident.Limit)
+                var incidentFrequency = await context.Result
+                    .Where(e => e.SeasonDriverId == dnfResult.SeasonDriverId && e.IncidentId == dnfResult.IncidentId)
+                    .CountAsync();
+                if (incidentFrequency > dnfResult.Incident!.Limit)
                 {
                     newPenalties.Add(new GivenPenalty
                     {
                         SeasonDriverId = dnfResult.SeasonDriverId,
-                        IncidentId = dnfResult.IncidentId.Value,
+                        IncidentId = dnfResult.IncidentId!.Value,
                     });
                 }
             }
@@ -157,7 +159,6 @@ namespace SimTECH.Data.Services
             if (newPenalties.Any())
             {
                 context.AddRange(newPenalties);
-
                 await context.SaveChangesAsync();
             }
         }
@@ -171,12 +172,12 @@ namespace SimTECH.Data.Services
             var seasons = await context.Season
                 .Include(e => e.League)
                 .Include(
-                    s => s.SeasonDrivers
+                    s => s.SeasonDrivers!
                         .OrderByDescending(d => d.Points)
                         .Take(1))
                     .ThenInclude(d => d.Driver)
                 .Include(
-                    s => s.SeasonTeams
+                    s => s.SeasonTeams!
                         .OrderByDescending(t => t.Points)
                         .Take(1))
                     .ThenInclude(t => t.Team)
@@ -207,7 +208,7 @@ namespace SimTECH.Data.Services
 
             return new SeasonOverviewAvailability
             {
-                HasPointAllotment = context.Season.Single(e => e.Id == seasonId).PointAllotments.Any(),
+                HasPointAllotment = context.Season.Single(e => e.Id == seasonId).PointAllotments?.Any() ?? true,
                 HasEngines = false,
                 HasTeams = false,
                 HasDrivers = false,
@@ -331,7 +332,7 @@ namespace SimTECH.Data.Services
                     Colour = driver.SeasonTeam?.Colour ?? Constants.DefaultColour,
                     Accent = driver.SeasonTeam?.Accent ?? Constants.DefaultAccent,
 
-                    // Underneath is ugly as hell and therefore temporarily
+                    // TODO: Underneath is ugly as hell and therefore temporarily
                     ConsumedPenalties = driver.GivenPenalties.Any()
                                         ? driver.GivenPenalties.Select(e => $"cons:{e.Consumed}, inciID: {e.IncidentId}").ToList()
                                         : new(),

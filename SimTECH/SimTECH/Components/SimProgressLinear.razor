@@ -1,0 +1,15 @@
+﻿<div class="d-flex flex-row gap-0 pa-0 mud-width-full sim-progress-bar">
+    @foreach (var bar in Bars)
+    {
+        <span class="py-1" style="@(_barStyle(bar.Item1, bar.Item2))"></span>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public List<(int, string)> Bars { get; set; }
+
+    private string _barStyle(int size, string colour)
+    {
+        return $"width: {size}%; background-color: {colour}";
+    }
+}
