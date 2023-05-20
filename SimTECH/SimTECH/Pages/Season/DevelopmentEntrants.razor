@@ -6,8 +6,8 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     @if (DevelopedEntrants != null)
     {
-        <MudStack Row="true">
-            <MudPaper Class="pa-2" Width="300px">
+        <MudStack Row="true" Class="mud-width-full">
+            <MudPaper Class="pa-2" Width="25%">
                 <MudStack>
                     <MudText Typo="Typo.h6">Settings</MudText>
                     <MudDivider />
@@ -82,9 +82,9 @@
                         {
                             <MudTh>@_optionalColTitle</MudTh>
                         }
-                        <MudTh>Old</MudTh>
-                        <MudTh>Change</MudTh>
-                        <MudTh>New</MudTh>
+                        <MudTh Class="number-col-lg">Old</MudTh>
+                        <MudTh Class="number-col-lg">Change</MudTh>
+                        <MudTh Class="number-col-lg">New</MudTh>
                         <MudTh>Range</MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -104,13 +104,13 @@
                                 <MudText Typo="Typo.caption">@(context.Optional.HasValue ? context.Optional.Value : "?")</MudText>
                             </MudTd>
                         }
-                        <MudTd>
+                        <MudTd Class="number-col-lg">
                             <MudText Typo="Typo.caption">@context.Old</MudText>
                         </MudTd>
-                        <MudTd>
+                        <MudTd Class="number-col-lg">
                             <MudText Typo="Typo.caption">@context.Change</MudText>
                         </MudTd>
-                        <MudTd>
+                        <MudTd Class="number-col-lg">
                             <MudText Typo="Typo.caption">@context.New</MudText>
                         </MudTd>
                         <MudTd>
@@ -122,7 +122,7 @@
                     </RowTemplate>
                 </MudTable>
             </MudPaper>
-            <MudPaper Class="pa-2">
+            <MudPaper Width="25%" Class="pa-2">
                 <MudText Typo="Typo.h6">Set dev. ranges</MudText>
                 <MudDivider />
                 

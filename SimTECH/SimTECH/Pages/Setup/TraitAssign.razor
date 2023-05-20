@@ -32,7 +32,7 @@
 
                     <MudText Color="Color.Warning">Todo select which traits to assign</MudText>
                     <MudText Color="Color.Warning">Todo select how many traits</MudText>
-                    <MudText Color="Color.Warning">Todo removal setting</MudText>
+                    <MudText Color="Color.Warning">Todo random removal option</MudText>
 
                     <MudDivider />
                     @if (RelevantTraits?.Any() == true)
@@ -40,7 +40,9 @@
                         <MudText Color="Color.Success">Relevant traits</MudText>
                         @foreach (var trait in RelevantTraits)
                         {
-                            <MudText Color="Color.Primary">@(trait.Name) - [@(trait.Id)]</MudText>
+                            <MudTooltip Text="@(trait.Description)" Color="Color.Primary">
+                                <MudText Color="Color.Primary">@(trait.Name) - [@(trait.Id)]</MudText>
+                            </MudTooltip>
                         }
                     }
                 </MudStack>
@@ -157,7 +159,11 @@
     }
 
     private void OnClickAssignRandomTrait(TableRowClickEventArgs<EntrantAssignee> rowItem) => AssignRandomTrait(rowItem.Item);
-    private void RandomEntrantAssignTrait() => AssignRandomTrait(Entrants.TakeRandomItem());
+    private void RandomEntrantAssignTrait()
+    {
+        if (Entrants != null)
+            AssignRandomTrait(Entrants.TakeRandomItem());
+    }
     private void AssignRandomTrait(EntrantAssignee item)
     {
         if (RelevantTraits == null)

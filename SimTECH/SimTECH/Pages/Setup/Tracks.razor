@@ -6,7 +6,7 @@
 <PageTitle>Tracks</PageTitle>
 
 <MudContainer>
-    <MudDataGrid T="Track" Items="@TrackData" Bordered="true" Class="my-2">
+    <MudDataGrid T="Track" Items="@TrackData" Class="my-2">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Tracks</MudText>
             <MudSpacer />
@@ -14,7 +14,7 @@
         </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Track" />
-            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e!.Name" />
             <TemplateColumn T="Track" Title="Country" SortBy="e => e.Country">
                 <CellTemplate>
                     <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" />

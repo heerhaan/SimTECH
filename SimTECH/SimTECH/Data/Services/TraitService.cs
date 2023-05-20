@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
-using SimTECH.Pages.Setup;
 
 namespace SimTECH.Data.Services
 {

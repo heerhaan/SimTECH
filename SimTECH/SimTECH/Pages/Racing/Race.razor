@@ -11,7 +11,7 @@
 <MudContainer MaxWidth="MaxWidth.False">
     @if (!loading)
     {
-        <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" id="race-display">
+        <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" Class="extra-dense overflow-x-hide" id="race-display">
             <ToolBarContent>
                 <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Center" Class="mud-width-full">
                     <CountryFlag Code="@Model.Country" />
@@ -96,7 +96,7 @@
                 <MudTd Class="overflow-hider">
                     <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.body1">@context.FirstName</MudText>
-                        <MudText Typo="Typo.subtitle1">@context.LastName</MudText>
+                        <MudText Typo="Typo.button">@context.LastName</MudText>
                         @if (context.HasFastestLap)
                         {
                             <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
@@ -194,6 +194,9 @@
                         <MudChip Icon="@IconCollection.Skull" IconColor="Color.Inherit" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" Style="color: white">
                             Fatality
                         </MudChip>
+                        <MudChip Icon="@IconCollection.AlertTriangle" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                            Caution (TEMP?)
+                        </MudChip>
                         <MudChip Icon="@Icons.Material.Filled.QuestionMark" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
                             Undetermined
                         </MudChip>
@@ -242,7 +245,7 @@
     int calculated;
     int calculationCount;
     int calculationsPerAdvance = 5;
-    int calculationDistance = 10;//Not implemented yet but this could be used to refer to how much kilometers distance a calculation offers
+    int calculationDistance = 10;
     bool safetyCarOut = false;
     Color lapIndicatorColor = Color.Dark;
     Entrant cycleReliabilty = Entrant.Driver;
@@ -336,7 +339,7 @@
                         int lapValue = NumberHelper.RandomInt(minRng, maxRng);
 
                         // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
-                        if (calculated == 0)
+                        if (calculated == 1)
                             lapValue += Model.QualifyingBonus(driver.Grid);
 
                         // Check if driver made a mistake, if so then it's going to cost him
@@ -443,6 +446,7 @@
         return safetyCar;
     }
 
+    // Returns a number which will be added to the users lap score
     int HandleStrategy(RaceDriver driver, LapScore lapScore)
     {
         int valueScoreResult = driver.TyreLife;
@@ -450,7 +454,7 @@
         var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
         var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
 
-        if (tyreMaxWear < 0 || tyreMinWear < 0)
+        if (tyreMinWear < 0 || tyreMaxWear < 0)
             _snackbar.Add("ayo, wear should not be below 0");
         // Ensures maximum wear is always at least one less than the minimum wear
         if (tyreMinWear > tyreMaxWear)

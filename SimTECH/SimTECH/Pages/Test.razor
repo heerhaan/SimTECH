@@ -1,0 +1,150 @@
+﻿@page "/test"
+@inject BreadcrumbProvider _bread
+@inject ProtectedLocalStorage _localStorage
+@inject NavigationManager _nav
+@inject IOptions<SimConfig> _config
+
+<PageTitle>Home</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-16 px-8">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+                <MudText Typo="Typo.overline">Config</MudText>
+                <MudDivider />
+                <MudStack Row="true" Justify="Justify.SpaceBetween">
+                    <div>
+                        <MudText Typo="Typo.body2">Fatal odds: @_config.Value.FatalityChance</MudText>
+                        <MudText Typo="Typo.body2">Dsq odds: @_config.Value.DisqualifyChance</MudText>
+                        <MudText Typo="Typo.body2">Mistake rolls: @_config.Value.MistakeAmountRolls</MudText>
+                        <MudText Typo="Typo.body2">Mistake min rng: @_config.Value.MistakeLowerValue</MudText>
+                        <MudText Typo="Typo.body2">Mistake max rng: @_config.Value.MistakeUpperValue</MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.body2">Gap marge p/pt: @_config.Value.GapMarge</MudText>
+                        <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
+                        <MudText Typo="Typo.body2">Use personal numbers: @_config.Value.PersonalNumbersEnabled</MudText>
+                        <MudText Typo="Typo.body2">Calc distance ref: @_config.Value.CalculationDistance</MudText>
+                    </div>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4"></MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="12" md="4">
+            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+                ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+                ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
+                        <MudText Typo="Typo.h5">Examples</MudText>
+                        <div>
+                            <!-- Local storage value -->
+                            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">
+                                Set local stored info
+                            </MudButton>
+                            <MudText>@exampleStore</MudText>
+                        </div>
+                        <MudText Typo="Typo.overline">Custom emblems</MudText>
+                        <MudStack Row="true">
+                            <Emblem Icon="@IconCollection.Polygon" Colour="#49f2e7" Accent="#bf34fa" />
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
+                        <MudSimpleTable>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Looks rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle("red", "yellow"))">01</MudText>
+                                    </td>
+                                    <td>3.5/5</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <MudText Typo="Typo.h6" Style="-webkit-text-stroke: 1px red; color:yellow">03</MudText>
+                                    </td>
+                                    <td>2/5</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <MudStack Row="true" Spacing="0" Class="mud-width-full pa-0" Style="height:8px">
+                                            <span class="py-1" style="width:25%; background-color:red"></span>
+                                            <span class="py-1" style="width:25%; background-color:green"></span>
+                                            <span class="py-1" style="width:25%; background-color:green"></span>
+                                            <span class="py-1" style="width:25%; background-color:yellow"></span>
+                                        </MudStack>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudPaper Elevation="2" Class="pa-4 mud-height-full">
+                <MudStack Row="true">
+                    <MudText Typo="Typo.h6">Custom Icon Cycler</MudText>
+                    <MudSpacer />
+                    <MudButton OnClick="CycleCustomIcon">Cycle</MudButton>
+                </MudStack>
+                <MudIcon Icon="@activeCustomIcon" />
+                <MudIcon Icon="@activeCustomIcon" Style="color:green" />
+                <MudIcon Icon="@activeCustomIcon" Color="Color.Secondary" Size="Size.Small" />
+                <MudIcon Icon="@activeCustomIcon" Color="Color.Primary" Size="Size.Large" />
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    string activeCustomIcon = IconCollection.BrandToyota;
+    string[] customIcons = IconCollection.ArrayOfIcons;
+    int iconCycler = 0;
+    string? exampleStore;
+    string newExampleString = "Stored and retrieved from the local storage";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var storedExample = await _localStorage.GetAsync<string>("example");
+            if (storedExample.Success)
+                exampleStore = storedExample.Value;
+        }
+    }
+
+    void CycleCustomIcon()
+    {
+        iconCycler++;
+        iconCycler %= customIcons.Length;
+
+        activeCustomIcon = customIcons[iconCycler];
+    }
+
+    private async Task SetExample()
+    {
+        await _localStorage.SetAsync("example", newExampleString);
+    }
+}
