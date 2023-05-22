@@ -12,11 +12,7 @@
                 <MudStack Row="true" AlignItems="AlignItems.Center">
                     <MudStack>
                         <MudText Typo="Typo.h4">Post race</MudText>
-                        <MudText Typo="Typo.caption">Is there more info to show here?</MudText>
-                        <MudText Color="Color.Warning">Sorry this page is quite unfinished, still. You can go to the standings though with a following button</MudText>
-                        <MudText>
-                            Points for FL aren't shown here yet, they will be assigned though
-                        </MudText>
+                        <MudText Color="Color.Warning">This page is quite unfinished, you can go to the standings though with a following button</MudText>
                     </MudStack>
 
                     <MudSpacer />
@@ -28,7 +24,10 @@
         <MudItem xs="4">
             <MudPaper Class="mud-height-full">
                 <MudText>Final standings</MudText>
-                <MudTable T="Result" Items="@Results.OrderBy(e => e.Position)" Dense="true">
+                <MudText>
+                    Points for FL aren't shown here yet, they will be assigned though
+                </MudText>
+                <MudTable T="Result" Items="@Results.OrderBy(e => e.Position)" Dense="true" Class="extra-dense">
                     <HeaderContent>
                         <MudTh>#</MudTh>
                         <MudTh>Name</MudTh>
@@ -63,18 +62,14 @@
             </MudPaper>
         </MudItem>
         <MudItem xs="4">
-            <MudCard>
-                <MudCardHeader>
-                    <MudText>Podium</MudText>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudStack Row="true" Justify="Justify.SpaceBetween">
-                        <MudText>P3</MudText>
-                        <MudText>P1</MudText>
-                        <MudText>P2</MudText>
-                    </MudStack>
-                </MudCardContent>
-            </MudCard>
+            <MudPaper>
+                <MudText>Todo for this page:</MudText>
+                <MudList Color="Color.Warning">
+                    <MudListItem>Design in general</MudListItem>
+                    <MudListItem>Podium with graphic</MudListItem>
+                    <MudListItem>Assigned penalties due to this race</MudListItem>
+                </MudList>
+            </MudPaper>
         </MudItem>
         <MudItem xs="4">
             <MudPaper Class="mud-height-full">

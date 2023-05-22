@@ -85,7 +85,9 @@
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
-                    <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.Position</MudText>
+                    <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">
+                        @context.Position
+                    </MudText>
                 </MudTd>
                 <MudTd>
                     <GridChange Change="@context.GridChange" />
@@ -137,7 +139,7 @@
                     }
                     else
                     {
-                        <MudBadge Icon="@IconCollection.HelmetOff" Color="Color.Error" Overlap="true" Bordered="true" Class="ma-1">
+                        <MudBadge Icon="@IconCollection.HelmetOff" Color="Color.Primary" Overlap="true" Bordered="true" Class="ma-1">
                             <MudText Typo="Typo.button" Color="Color.Error">@context.Incident.Name</MudText>
                         </MudBadge>
                     }
@@ -649,14 +651,12 @@
     async Task ShowGapperChart()
     {
         var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
-
         _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters, Constants.DefaultChartDialogSettings);
     }
 
     async Task ShowPositionChart()
     {
         var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
-
         _ = await _dialogService.ShowAsync<PositionChangeChart>("Position chart", parameters, Constants.DefaultChartDialogSettings);
     }
 }

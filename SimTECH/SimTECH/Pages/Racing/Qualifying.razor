@@ -1,5 +1,4 @@
 ﻿@page "/qualifying/{RaceId:long}"
-
 @inject RaceService _raceService
 @inject NavigationManager _nav
 
@@ -15,7 +14,7 @@ else
                 Table underneath is a good target for a refactor to a component, perhaps even a nested component! 
                 Nested as in a component QualifyingSession implements a component Session (which can be implemented by practice!)
             *@
-            <MudTable Items="@DriversInQ1.OrderBy(e => e.PositionQ1)" id="q1-result-table">
+            <MudTable Items="@DriversInQ1.OrderBy(e => e.PositionQ1)" id="q1-result-table" Dense="true" Class="extra-dense">
                 <ToolBarContent>
                     <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                         <CountryFlag Code="@Model.Country" />
@@ -53,7 +52,7 @@ else
                         <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
                     </MudTd>
                     <MudTd>
-                        <MudStack Row="true" Spacing="1" Class="align-center">
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                             <MudText Typo="Typo.body1">@context.FirstName</MudText>
                             <MudText Typo="Typo.button">@context.LastName</MudText>
                             <MudSpacer />
@@ -87,7 +86,7 @@ else
         <MudTabPanel Text="Q2" Disabled="@(advancedQ1 != Model.AmountRuns)">
             @if (DriversInQ2 != null)
             {
-                <MudTable Items="@DriversInQ2.OrderBy(e => e.PositionQ2)" id="q2-result-table">
+                <MudTable Items="@DriversInQ2.OrderBy(e => e.PositionQ2)" id="q2-result-table" Dense="true" Class="extra-dense">
                     <ToolBarContent>
                         <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                             <CountryFlag Code="@Model.Country" />
@@ -125,7 +124,7 @@ else
                             <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
                         </MudTd>
                         <MudTd>
-                            <MudStack Row="true" Spacing="1" Class="align-center">
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText Typo="Typo.body1">@context.FirstName</MudText>
                                 <MudText Typo="Typo.button">@context.LastName</MudText>
                                 <MudSpacer />
@@ -160,7 +159,7 @@ else
         <MudTabPanel Text="Q3" Disabled="@(advancedQ2 != Model.AmountRuns)">
             @if (DriversInQ3 != null)
             {
-                <MudTable Items="@DriversInQ3.OrderBy(e => e.PositionQ3)" id="q3-result-table">
+                <MudTable Items="@DriversInQ3.OrderBy(e => e.PositionQ3)" id="q3-result-table" Dense="true" Class="extra-dense">
                     <ToolBarContent>
                         <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                             <CountryFlag Code="@Model.Country" />
@@ -202,7 +201,7 @@ else
                             <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
                         </MudTd>
                         <MudTd>
-                            <MudStack Row="true" Spacing="1" Class="align-center">
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText Typo="Typo.body1">@context.FirstName</MudText>
                                 <MudText Typo="Typo.button">@context.LastName</MudText>
                                 <MudSpacer />
