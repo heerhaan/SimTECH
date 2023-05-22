@@ -50,5 +50,22 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+
+        public async Task DeleteTeam(Team team)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            if (context.SeasonTeam.Any(e => e.TeamId == team.Id))
+            {
+                team.State = State.Archived;
+                context.Update(team);
+            }
+            else
+            {
+                context.Remove(team);
+            }
+
+            await context.SaveChangesAsync();
+        }
     }
 }

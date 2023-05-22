@@ -22,8 +22,8 @@ namespace SimTECH.PageModels
         public string Accent { get; set; }
 
         public int Power { get; set; }
-
-        public double TimedGap(int gap, double marge) => Math.Round(gap * marge, 2);
+        public int Attack { get; set; }
+        public int Defense { get; set; }
     }
 
     public class RaceDriver : DriverBase
@@ -50,12 +50,13 @@ namespace SimTECH.PageModels
         public int RngMaxMod { get; set; }
 
         public bool HasFastestLap { get; set; }
+        public bool InstantOvertaken { get; set; }
 
         public List<LapScore> LapScores { get; set; }
 
         public int LapSum => LapScores.Sum(e => e.Score);
         public int GridChange => Grid - Position;
-        public int LastLap => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
+        public int LastLapOrder => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
 
         public Result ToResult(long raceId)
         {
@@ -95,7 +96,6 @@ namespace SimTECH.PageModels
             if (Status == RaceStatus.Racing)
             {
                 double positionCalc = 200000 / Position;
-
                 hiddenPoints = positionCalc.RoundDouble();
             }
 

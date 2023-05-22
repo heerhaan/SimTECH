@@ -13,6 +13,7 @@
         //public double GearMod { get; set; }
         public double PowerMod { get; set; }//should be used for the engine
         public double QualifyingMod { get; set; }
+        public double DefenseMod { get; set; }
 
         public IList<Race>? Races { get; set; }
         public IList<TrackTrait>? TrackTraits { get; set; }

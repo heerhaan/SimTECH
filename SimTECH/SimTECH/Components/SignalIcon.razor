@@ -14,6 +14,7 @@
     [Parameter]
     public Size Size { get; set; } = Size.Small;
 
+    // We might want to make the following common somewhere
     private string _signalIcon
     {
         get
@@ -32,6 +33,8 @@
                     return Icons.Material.Filled.LocalGasStation;
                 case "Swap":
                     return Icons.Material.Filled.SwapVert;
+                case "Caution":
+                    return IconCollection.AlertTriangle;
                 case "Death":
                     return IconCollection.Skull;
                 default:
@@ -40,6 +43,7 @@
         }
     }
 
+    // We might want to make the following common somewhere
     private Color _signalColour
     {
         get
@@ -51,6 +55,7 @@
                 case "EngineDnf":
                     return Color.Error;
                 case "Mistake":
+                case "Caution":
                     return Color.Warning;
                 case "Pitstop":
                     return Color.Success;

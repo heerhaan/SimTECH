@@ -10,7 +10,7 @@
 else
 {
     <MudContainer>
-        <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)" id="practice-table">
+        <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)" id="practice-table" Dense="true" Class="extra-dense">
             <ToolBarContent>
                 <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                     <CountryFlag Code="@Model.Country" />
@@ -78,7 +78,7 @@ else
                     <MudText Typo="Typo.caption">@context.MaxScore</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText>+@(context.TimedGap((highestScore - context.MaxScore), Model.GapMarge))</MudText>
+                    <MudText>+@(Math.Round((highestScore - context.MaxScore) * Model.GapMarge, 2))</MudText>
                 </MudTd>
             </RowTemplate>
         </MudTable>

@@ -24,7 +24,7 @@
                     while (mimicLife > Math.Abs(strategyTyre.Tyre.WearMin))
                     {
                         pace += mimicLife;
-                        mimicLife += averageWear;
+                        mimicLife -= averageWear;
                     }
                 }
             }

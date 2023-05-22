@@ -8,6 +8,8 @@
         public int HiddenPoints { get; set; }
         public int Skill { get; set; } = 50;
         public int Reliability { get; set; } = 1000;
+        public int Attack { get; set; }
+        public int Defense { get; set; }
         public TeamRole TeamRole { get; set; }
 
         public long SeasonId { get; set; }

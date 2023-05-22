@@ -12,7 +12,7 @@ namespace SimTECH
         Advanced,
     }
 
-    public enum StateFilter { All, Default, Closed, Archived }
+    public enum StateFilter { All, Default, Active, Closed, Archived }
 
     public enum Entrant
     {
@@ -32,7 +32,7 @@ namespace SimTECH
         Engine
     }
 
-    public enum TargetDevelop { Main, Reliability, Aero, Chassis, Powertrain }
+    public enum TargetDevelop { Main, Reliability, Aero, Chassis, Powertrain, Attack, Defense }
 
     public enum Gender { All, Male, Female, Other }
 
@@ -40,7 +40,8 @@ namespace SimTECH
     public enum LeagueOptions
     {
         None = 0,
-        EnablePenalty = 1, EnableFatality = 2,
+        EnablePenalty = 1,
+        EnableFatality = 2,
     }
 
     #region racing
@@ -67,19 +68,20 @@ namespace SimTECH
     {
         Unknown = 0,
         Racing = 1,
-        DriverDnf = 2, CarDnf = 4, EngineDnf = 8,
-        Mistake = 16, Pitstop = 32, Swap = 64,
+        DriverDnf = 2,
+        CarDnf = 4,
+        EngineDnf = 8,
+        Mistake = 16,
+        Pitstop = 32,
+        Swap = 64,
         Death = 128,
+        Caution = 256,
     }
     #endregion racing
 
     #region countries
 
-    public enum FlagSize
-    {
-        Normal = 0,
-        Tiny, Small, Large
-    }
+    public enum FlagSize { Normal, Tiny, Small, Large }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1154:Sort enum members.", Justification = "I don't care")]
     public enum Country
@@ -91,7 +93,6 @@ namespace SimTECH
         [Description("American Samoa")] AS = 5,
         [Description("Andorra")] AD = 6,
         [Description("Angola")] AO = 7,
-        [Description("Anguilla")] AI = 8,
         [Description("Antarctica")] AQ = 9,
         [Description("Antigua")] AG = 10,
         [Description("Argentina")] AR = 11,
@@ -114,9 +115,7 @@ namespace SimTECH
         [Description("Bonaire")] BQ = 28,
         [Description("Bosnia")] BA = 29,
         [Description("Botswana")] BW = 30,
-        [Description("Bouvet Island")] BV = 31,
         [Description("Brazil")] BR = 32,
-        [Description("British Indian Ocean Territory")] IO = 33,
         [Description("Brunei Darussalam")] BN = 34,
         [Description("Bulgaria")] BG = 35,
         [Description("Burkina Faso")] BF = 36,
@@ -125,18 +124,15 @@ namespace SimTECH
         [Description("Cambodia")] KH = 39,
         [Description("Cameroon")] CM = 40,
         [Description("Canada")] CA = 41,
-        [Description("Cayman Islands")] KY = 42,
         [Description("Central African Republic")] CF = 43,
         [Description("Chad")] TD = 44,
         [Description("Chile")] CL = 45,
         [Description("China")] CN = 46,
         [Description("Christmas Island")] CX = 47,
-        [Description("Cocos Islands")] CC = 48,
         [Description("Colombia")] CO = 49,
         [Description("Comoros")] KM = 50,
         [Description("Congo")] CG = 51,
         [Description("Democratic Republic of Congo")] CD = 52,
-        [Description("Cook Islands")] CK = 53,
         [Description("Costa Rica")] CR = 54,
         [Description("Côte d'Ivoire")] CI = 55,
         [Description("Croatia")] HR = 56,
@@ -146,7 +142,6 @@ namespace SimTECH
         [Description("Czechia")] CZ = 60,
         [Description("Denmark")] DK = 61,
         [Description("Djibouti")] DJ = 62,
-        [Description("Dominica")] DM = 63,
         [Description("Dominican Republic")] DO = 64,
         [Description("Ecuador")] EC = 65,
         [Description("Egypt")] EG = 66,
@@ -155,15 +150,10 @@ namespace SimTECH
         [Description("Eritrea")] ER = 69,
         [Description("Estonia")] EE = 70,
         [Description("Ethiopia")] ET = 71,
-        [Description("European Union")] EU = 250,
-        [Description("Falkland Islands")] FK = 72,
         [Description("Faroe Islands")] FO = 73,
         [Description("Fiji")] FJ = 74,
         [Description("Finland")] FI = 75,
         [Description("France")] FR = 76,
-        [Description("French Guiana")] GF = 77,
-        [Description("French Polynesia")] PF = 78,
-        [Description("French Southern Territories")] TF = 79,
         [Description("Gabon")] GA = 80,
         [Description("Gambia")] GM = 81,
         [Description("Georgia")] GE = 82,
@@ -173,15 +163,12 @@ namespace SimTECH
         [Description("Greece")] GR = 86,
         [Description("Greenland")] GL = 87,
         [Description("Grenada")] GD = 88,
-        [Description("Guadeloupe")] GP = 89,
         [Description("Guam")] GU = 90,
         [Description("Guatemala")] GT = 91,
         [Description("Guernsey")] GG = 92,
         [Description("Guinea")] GN = 93,
-        [Description("Guinea-Bissau")] GW = 94,
         [Description("Guyana")] GY = 95,
         [Description("Haiti")] HT = 96,
-        [Description("Heard Island")] HM = 97,
         [Description("Holy See")] VA = 98,
         [Description("Honduras")] HN = 99,
         [Description("Hong Kong")] HK = 100,
@@ -197,12 +184,10 @@ namespace SimTECH
         [Description("Italy")] IT = 110,
         [Description("Jamaica")] JM = 111,
         [Description("Japan")] JP = 112,
-        [Description("Jersey")] JE = 113,
         [Description("Jordan")] JO = 114,
         [Description("Kazakhstan")] KZ = 115,
         [Description("Kenya")] KE = 116,
         [Description("Kiribati")] KI = 117,
-        [Description("Kosovo")] XK = 251,
         [Description("North-Korea")] KP = 118,
         [Description("South-Korea")] KR = 119,
         [Description("Kuwait")] KW = 120,
@@ -224,8 +209,6 @@ namespace SimTECH
         [Description("Maldives")] MV = 136,
         [Description("Mali")] ML = 137,
         [Description("Malta")] MT = 138,
-        [Description("Marshall Islands")] MH = 139,
-        [Description("Martinique")] MQ = 140,
         [Description("Mauritania")] MR = 141,
         [Description("Mauritius")] MU = 142,
         [Description("Mayotte")] YT = 143,
@@ -243,14 +226,10 @@ namespace SimTECH
         [Description("Nauru")] NR = 155,
         [Description("Nepal")] NP = 156,
         [Description("Netherlands")] NL = 157,
-        [Description("New Caledonia")] NC = 158,
         [Description("New Zealand")] NZ = 159,
         [Description("Nicaragua")] NI = 160,
         [Description("Niger")] NE = 161,
         [Description("Nigeria")] NG = 162,
-        [Description("Niue")] NU = 163,
-        [Description("Norfolk Island")] NF = 164,
-        [Description("Northern Mariana Islands")] MP = 165,
         [Description("Norway")] NO = 166,
         [Description("Oman")] OM = 167,
         [Description("Pakistan")] PK = 168,
@@ -261,7 +240,6 @@ namespace SimTECH
         [Description("Paraguay")] PY = 173,
         [Description("Peru")] PE = 174,
         [Description("Philippines")] PH = 175,
-        [Description("Pitcairn")] PN = 176,
         [Description("Poland")] PL = 177,
         [Description("Portugal")] PT = 178,
         [Description("Puerto Rico")] PR = 179,
@@ -270,16 +248,8 @@ namespace SimTECH
         [Description("Romania")] RO = 182,
         [Description("Russia")] RU = 183,
         [Description("Rwanda")] RW = 184,
-        [Description("Saint Barthélemy")] BL = 185,
-        [Description("Saint Helena")] SH = 186,
-        [Description("Saint Kitts")] KN = 187,
-        [Description("Saint Lucia")] LC = 188,
-        [Description("Saint Martin")] MF = 189,
-        [Description("Saint Pierre")] PM = 190,
-        [Description("Saint Vincent")] VC = 191,
         [Description("Samoa")] WS = 192,
         [Description("San Marino")] SM = 193,
-        [Description("Sao Tome")] ST = 194,
         [Description("Saudi Arabia")] SA = 195,
         [Description("Senegal")] SN = 196,
         [Description("Serbia")] RS = 197,
@@ -289,10 +259,8 @@ namespace SimTECH
         [Description("Sint Maarten")] SX = 201,
         [Description("Slovakia")] SK = 202,
         [Description("Slovenia")] SI = 203,
-        [Description("Solomon Islands")] SB = 204,
         [Description("Somalia")] SO = 205,
         [Description("South Africa")] ZA = 206,
-        [Description("South Georgia")] GS = 207,
         [Description("South Sudan")] SS = 208,
         [Description("Spain")] ES = 209,
         [Description("Sri Lanka")] LK = 210,
@@ -309,35 +277,72 @@ namespace SimTECH
         [Description("Thailand")] TH = 221,
         [Description("Timor-Leste")] TL = 222,
         [Description("Togo")] TG = 223,
-        [Description("Tokelau")] TK = 224,
         [Description("Tonga")] TO = 225,
         [Description("Trinidad and Tobago")] TT = 226,
         [Description("Tunisia")] TN = 227,
         [Description("Turkey")] TR = 228,
         [Description("Turkmenistan")] TM = 229,
-        [Description("Turks and Caicos Islands")] TC = 230,
-        [Description("Tuvalu")] TV = 231,
         [Description("Uganda")] UG = 232,
         [Description("Ukraine")] UA = 233,
         [Description("UAE")] AE = 234,
         [Description("United Kingdom")] GB = 235,
         [Description("United Nations")] UN = 252,
         [Description("USA")] US = 236,
-        [Description("USA Minor Islands")] UM = 237,
         [Description("Uruguay")] UY = 238,
         [Description("Uzbekistan")] UZ = 239,
         [Description("Vanuatu")] VU = 240,
         [Description("Venezuela")] VE = 241,
         [Description("Vietnam")] VN = 242,
-        [Description("British Virgin Islands")] VG = 243,
-        [Description("US Virgin Islands")] VI = 244,
-        [Description("Wallis and Futuna")] WF = 245,
         [Description("Western Sahara")] EH = 246,
         [Description("Yemen")] YE = 247,
         [Description("Zambia")] ZM = 248,
         [Description("Zimbabwe")] ZW = 249,
+        [Description("European Union")] EU = 250,
+        [Description("Kosovo")] XK = 251,
 
         // Last index is 252 (European Union)
     }
+
+    /* Following countries have been removed from the list as they are uhhh irrelevant
+     *   [Description("Anguilla")] AI = 8,
+     *   [Description("Bouvet Island")] BV = 31,
+     *   [Description("British Indian Ocean Territory")] IO = 33,
+     *   [Description("Cayman Islands")] KY = 42,
+     *   [Description("Cocos Islands")] CC = 48,
+     *   [Description("Cook Islands")] CK = 53,
+     *   [Description("Dominica")] DM = 63,
+     *   [Description("Falkland Islands")] FK = 72,
+     *   [Description("French Guiana")] GF = 77,
+     *   [Description("French Polynesia")] PF = 78,
+     *   [Description("French Southern Territories")] TF = 79,
+     *   [Description("Guadeloupe")] GP = 89,
+     *   [Description("Guinea-Bissau")] GW = 94,
+     *   [Description("Heard Island")] HM = 97,
+     *   [Description("Jersey")] JE = 113,
+     *   [Description("Marshall Islands")] MH = 139,
+     *   [Description("Martinique")] MQ = 140,
+     *   [Description("New Caledonia")] NC = 158,
+     *   [Description("Niue")] NU = 163,
+     *   [Description("Norfolk Island")] NF = 164,
+     *   [Description("Northern Mariana Islands")] MP = 165,
+     *   [Description("Pitcairn")] PN = 176,
+     *   [Description("Saint Barthélemy")] BL = 185,
+     *   [Description("Saint Helena")] SH = 186,
+     *   [Description("Saint Kitts")] KN = 187,
+     *   [Description("Saint Lucia")] LC = 188,
+     *   [Description("Saint Martin")] MF = 189,
+     *   [Description("Saint Pierre")] PM = 190,
+     *   [Description("Saint Vincent")] VC = 191,
+     *   [Description("Sao Tome")] ST = 194,
+     *   [Description("Solomon Islands")] SB = 204,
+     *   [Description("South Georgia")] GS = 207,
+     *   [Description("Tokelau")] TK = 224,
+     *   [Description("Turks and Caicos Islands")] TC = 230,
+     *   [Description("Tuvalu")] TV = 231,
+     *   [Description("USA Minor Islands")] UM = 237,
+     *   [Description("British Virgin Islands")] VG = 243,
+     *   [Description("US Virgin Islands")] VI = 244,
+     *   [Description("Wallis and Futuna")] WF = 245,
+     */
     #endregion countries
 }

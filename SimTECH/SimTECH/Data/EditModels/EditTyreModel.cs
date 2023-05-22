@@ -16,19 +16,25 @@ namespace SimTECH.Data.EditModels
         public int WearMax { get; set; }
         public int WearMin { get; set; }
 
-        public EditTyreModel() { _tyre = new Tyre(); }
-        public EditTyreModel(Tyre tyre)
+        public EditTyreModel(Tyre? tyre)
         {
-            Id = tyre.Id;
-            Name = tyre.Name;
-            Colour = tyre.Colour;
-            State = tyre.State;
-            Length = tyre.Length;
-            Pace = tyre.Pace;
-            WearMax = tyre.WearMax;
-            WearMin = tyre.WearMin;
+            if (tyre == null)
+            {
+                _tyre = new();
+            }
+            else
+            {
+                Id = tyre.Id;
+                Name = tyre.Name;
+                Colour = tyre.Colour;
+                State = tyre.State;
+                Length = tyre.Length;
+                Pace = tyre.Pace;
+                WearMax = tyre.WearMax;
+                WearMin = tyre.WearMin;
 
-            _tyre = tyre;
+                _tyre = tyre;
+            }
         }
 
         public Tyre Record =>

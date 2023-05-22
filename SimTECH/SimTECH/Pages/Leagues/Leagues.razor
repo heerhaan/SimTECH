@@ -16,7 +16,7 @@
             <HierarchyColumn T="League" />
             <PropertyColumn Property="e => e.Name" />
             <PropertyColumn Property="e => e.RaceLength" Title="Length (Km)" Style="font-family: var(--mud-typography-caption-family)" />
-            <TemplateColumn Sortable="false">
+            <TemplateColumn T="League" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context.Item))" />
@@ -95,7 +95,6 @@
     }
 
     async Task AddLeague() => await UpdateLeague(new League());
-
     async Task UpdateLeague(League item)
     {
         var parameters = new DialogParameters { ["League"] = (item) };

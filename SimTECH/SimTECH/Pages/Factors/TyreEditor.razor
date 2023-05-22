@@ -5,16 +5,16 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@Model">
-            <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
-            <MudColorPicker @bind-Text="Model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" Class="field-md" />
-            <MudNumericField T="int" @bind-Value="Model.Pace" Label="Pace" Class="field-md" />
+            <MudTextField T="string" @bind-Value="@Model.Name" Label="Name" Class="field-md" />
+            <MudColorPicker @bind-Text="@Model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" Class="field-md" />
+            <MudNumericField T="int" @bind-Value="@Model.Pace" Label="Pace" Class="field-md" />
 
             <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
-                <MudNumericField T="int" @bind-Value="Model.WearMax" Max="@(Model.WearMin)" Label="WearMax" Class="field-sm" />
-                <MudNumericField T="int" @bind-Value="Model.WearMin" Min="@(Model.WearMax)" Label="WearMin" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.WearMin" Min="0" Max="@(Model.WearMax)" Label="WearMin" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.WearMax" Min="@(Model.WearMin)" Label="WearMax" Class="field-sm" />
             </MudStack>
         </MudForm>
-        <MudPaper Height="100px">
+        <MudPaper Height="75px">
             <MudStack Row="true">
                 <MudCard>
                     <MudCardContent>
@@ -44,14 +44,11 @@
     [CascadingParameter] protected MudDialogInstance? TyreDialog { get; set; }
     [Parameter] public Tyre? Tyre { get; set; }
 
-    private EditTyreModel Model = new();
+    private EditTyreModel Model;
 
     protected override void OnInitialized()
     {
-        if (Tyre != null)
-        {
-            Model = new EditTyreModel(Tyre);
-        }
+        Model = new EditTyreModel(Tyre);
     }
 
     int PredictedLength()
@@ -59,7 +56,7 @@
         if (Model.Pace == 0 || (Model.WearMax == 0 && Model.WearMin == 0))
             return 0;
 
-        var wearAverage = ((Model.WearMax + Model.WearMin) / 2) * -1;
+        var wearAverage = (Model.WearMax + Model.WearMin) / 2;
 
         if (wearAverage == 0)
             return 0;

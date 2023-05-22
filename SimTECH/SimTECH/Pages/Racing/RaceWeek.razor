@@ -18,7 +18,43 @@
 else
 {
     <MudGrid>
-        <MudItem xs="4">
+        <MudItem xs="3">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudStack AlignItems="AlignItems.Center" Class="mud-height-full">
+                    <MudText Typo="Typo.h4">@Model.Race.Name</MudText>
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="@Model.Race.Climate.Icon" />
+                        <MudText>@Model.Race.Climate.Terminology</MudText>
+                    </MudStack>
+
+                    @if (Model.TrackTraits?.Any() == true)
+                    {
+                        <MudList>
+                            <MudListSubheader>Traits of this circuit</MudListSubheader>
+                            @foreach (var trait in Model.TrackTraits)
+                            {
+                                <MudListItem>
+                                    @trait.Name - @trait.Description
+                                </MudListItem>
+                            }
+                        </MudList>
+                    }
+
+                    <MudButtonGroup Color="Color.Secondary" Variant="Variant.Filled" VerticalAlign="true" Class="mt-2 mud-width-full">
+                        @if (Model.Race.State == State.Active)
+                        {
+                            <MudButton FullWidth="true" OnClick="GoToPractice">Practice</MudButton>
+                            <MudButton FullWidth="true" OnClick="GoToQualifying">Qualifying</MudButton>
+                        }
+                        else if (Model.Race.State != State.Concept)
+                        {
+                            <MudButton FullWidth="true" OnClick="GoToRace">Race</MudButton>
+                        }
+                    </MudButtonGroup>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
             <MudPaper Class="pa-4 mud-height-full">
                 <MudTable Items="@Model.RaceWeekDrivers.OrderBy(e => e.Grid)" Dense="true" id="race-week-grid">
                     <ToolBarContent>
@@ -29,7 +65,9 @@ else
                     <HeaderContent>
                         <MudTh>Grid</MudTh>
                         <MudTh>Name</MudTh>
-                        <MudTh>Penalty</MudTh>
+                        <MudTh>Team</MudTh>
+                        <MudTh Class="number-col">Tyre</MudTh>
+                        <MudTh>PEN.</MudTh>
                         <MudTh>Strategy</MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -47,6 +85,12 @@ else
                             <MudText>@context.FullName</MudText>
                         </MudTd>
                         <MudTd>
+                            <MudText>@context.TeamName</MudText>
+                        </MudTd>
+                        <MudTd Class="number-col" Style="@ViewHelper.SetFullColourstyle(context.ManufacturerColour, context.ManufacturerAccent)">
+                            <MudText Typo="Typo.caption">@context.ManufacturerName.ElementAt(0)</MudText>
+                        </MudTd>
+                        <MudTd>
                             @if (context.Penalty.HasValue)
                             {
                                 <MudText>+@(context.Penalty.Value)</MudText>
@@ -57,9 +101,7 @@ else
                                 <MudStack Row="true" Spacing="2">
                                     @foreach (var tyreElem in context.Strategy.StrategyTyres)
                                     {
-                                        <span class="tyre" style="border-color:@(tyreElem.Tyre.Colour)">
-                                            @tyreElem.Tyre.Name.ElementAt(0)
-                                        </span>
+                                        <TyreElement Colour="@tyreElem.Tyre.Colour">@tyreElem.Tyre.Name.ElementAt(0)</TyreElement>
                                     }
                                 </MudStack>
                             </MudLink>
@@ -68,91 +110,41 @@ else
                 </MudTable>
             </MudPaper>
         </MudItem>
-
-        <MudItem xs="8">
-            <MudGrid>
-                <MudItem xs="6">
-                    <MudPaper Class="pa-4 mud-height-full">
-                        <MudStack AlignItems="AlignItems.Center">
-                            <MudText Typo="Typo.h4">@Model.Race.Name</MudText>
-                            <MudStack Row="true" AlignItems="AlignItems.Center">
-                                <MudIcon Icon="@Model.Race.Climate.Icon" />
-                                <MudText>@Model.Race.Climate.Terminology</MudText>
-                            </MudStack>
-                        </MudStack>
-                        @if (Model.TrackTraits?.Any() == true)
-                        {
-                            <MudList>
-                                <MudListSubheader>Traits of this circuit</MudListSubheader>
-                                @foreach (var trait in Model.TrackTraits)
-                                {
-                                    <MudListItem>
-                                        @trait.Name - @trait.Description
-                                    </MudListItem>
-                                }
-                            </MudList>
-                        }
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="6">
-                    <MudPaper Class="pa-4 mud-height-full">
-                        <MudText Typo="Typo.h5">Track information</MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
-                        <MudList>
-                            <MudListItem>
-                                Country:
-                                <CountryFlag Code="@Model.Race.Track.Country" Size="FlagSize.Normal" IncludeName="true" />
-                            </MudListItem>
-                            <MudListItem>
-                                Length: @(Model.Race.Track.Length)Km
-                            </MudListItem>
-                            <MudListItem>
-                                Laps: @(NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length))
-                            </MudListItem>
-                            <MudListItem>
-                                <MudText>Aero mod: @Model.Race.Track.AeroMod</MudText>
-                            </MudListItem>
-                            <MudListItem>
-                                Chassis mod: @Model.Race.Track.ChassisMod
-                            </MudListItem>
-                            <MudListItem>
-                                Power mod: @Model.Race.Track.PowerMod
-                            </MudListItem>
-                            <MudListItem>
-                                Qualy mod: @Model.Race.Track.QualifyingMod
-                            </MudListItem>
-                            <MudListItem>
-                                Weather: @Model.Race.Climate.Terminology
-                            </MudListItem>
-                        </MudList>
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="3">
-                    <MudPaper Class="pa-4 mud-height-full">
-
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="6">
-                    <MudPaper Class="pa-4 mud-height-full">
-                        
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="3">
-                    <MudPaper Class="pa-4">
-                        <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined" VerticalAlign="true">
-                            @if (Model.Race.State == State.Active)
-                            {
-                                <MudButton OnClick="GoToPractice">Practice</MudButton>
-                                <MudButton OnClick="GoToQualifying">Qualifying</MudButton>
-                            }
-                            else if (Model.Race.State != State.Concept)
-                            {
-                                <MudButton OnClick="GoToRace">Race</MudButton>
-                            }
-                        </MudButtonGroup>
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
+        <MudItem xs="3">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.h5">Track information</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
+                <MudList>
+                    <MudListItem>
+                        Country:
+                        <CountryNamedFlag Code="@Model.Race.Track.Country" Size="FlagSize.Normal" />
+                    </MudListItem>
+                    <MudListItem>
+                        Length: @(Model.Race.Track.Length)Km
+                    </MudListItem>
+                    <MudListItem>
+                        Laps: @(NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length))
+                    </MudListItem>
+                    <MudListItem>
+                        <MudText>Aero modifier: @Model.Race.Track.AeroMod</MudText>
+                    </MudListItem>
+                    <MudListItem>
+                        Chassis modifier: @Model.Race.Track.ChassisMod
+                    </MudListItem>
+                    <MudListItem>
+                        Powertrain modifier: @Model.Race.Track.PowerMod
+                    </MudListItem>
+                    <MudListItem>
+                        Qualifying modifier: @Model.Race.Track.QualifyingMod
+                    </MudListItem>
+                    <MudListItem>
+                        Defense modifier: @Model.Race.Track.DefenseMod
+                    </MudListItem>
+                    <MudListItem>
+                        Weather: @Model.Race.Climate.Terminology
+                    </MudListItem>
+                </MudList>
+            </MudPaper>
         </MudItem>
     </MudGrid>
 }

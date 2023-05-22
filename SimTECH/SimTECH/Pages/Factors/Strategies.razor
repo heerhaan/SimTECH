@@ -1,16 +1,16 @@
 ﻿@page "/strategies"
-@inject StrategyService StrategyService
+@inject StrategyService _strategyService
 @inject IDialogService DialogService
 
 <PageTitle>Strategies</PageTitle>
 
 <MudContainer>
-    <MudTabs>
+    <MudTabs Outlined="true" Centered="true">
         <MudTabPanel Text="Strategies">
             <MudDataGrid T="Strategy" Items="@StrategyData" Bordered="true" Dense="true">
                 <ToolBarContent>
                     <MudText Typo="Typo.h4">Strategies</MudText>
-                    <sup>PS: Keep in mind that "Avg. Pace" does NOT include the score cost a pitstop would bring!</sup>
+                    <sup>PS: "Avg. Pace" excludes at pitstop cost!</sup>
                     <MudSpacer />
                     <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddStrategy">New</MudButton>
                 </ToolBarContent>
@@ -22,13 +22,13 @@
                                 <div class="d-flex flex-row gap-2">
                                     @foreach (var strategyTyre in context.Item.StrategyTyres)
                                     {
-                                    <span class="tyre" style="border-color:@(strategyTyre.Tyre.Colour)">@strategyTyre.Tyre.Name.ElementAt(0)</span>
+                                        <TyreElement Colour="@(strategyTyre.Tyre.Colour)">@strategyTyre.Tyre.Name.ElementAt(0)</TyreElement>
                                     }
                                 </div>
                             }
                             else
                             {
-                                <span>No tyres in strategy found!</span>
+                                <MudText>No tyres in strategy found!</MudText>
                             }
                         </CellTemplate>
                     </TemplateColumn>
@@ -36,7 +36,7 @@
                         <CellTemplate>
                             @if (context.Item.StrategyTyres?.Count > 0)
                             {
-                                <span>@context.Item.StrategyTyres.Sum(e => e.Tyre.PredictedLength())Km</span>
+                                <MudText>@context.Item.StrategyTyres.Sum(e => e.Tyre.PredictedLength())Km</MudText>
                             }
                         </CellTemplate>
                     </TemplateColumn>
@@ -45,36 +45,18 @@
                     <TemplateColumn T="Strategy" Sortable="false">
                         <CellTemplate>
                             <MudButtonGroup>
-                                @if (context.Item.State == State.Closed)
-                                {
-                                    <MudIconButton Size="@Size.Small"
-                                        Icon="@Icons.Material.Filled.Block"
-                                        Color="Color.Warning"
-                                        Title="Unavailable"
-                                        OnClick="@(async () => await ToggleStrategyState(context.Item, State.Active))" />
-                                }
-                                else
-                                {
-                                    <MudIconButton
-                                        Size="@Size.Small"
-                                        Icon="@Icons.Material.Filled.CheckCircleOutline"
-                                        Color="Color.Success"
-                                        Title="Available"
-                                        OnClick="@(async () => await ToggleStrategyState(context.Item, State.Closed))" />
-                                }
+                                <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
+                                                    Default="@(context.Item.State == State.Active)" />
                                 <MudIconButton Size="@Size.Small"
-                                    Icon="@Icons.Material.Outlined.Edit"
-                                    OnClick="@(async () => await UpdateStrategy(context.Item))" />
+                                               Icon="@Icons.Material.Outlined.Edit"
+                                               OnClick="@(async () => await UpdateStrategy(context.Item))" />
                                 <MudIconButton Size="@Size.Small" 
-                                    Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" 
-                                    OnClick="@(async () => await DeleteStrategy(context.Item))" />
+                                               Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" 
+                                               OnClick="@(async () => await DeleteStrategy(context.Item))" />
                             </MudButtonGroup>
                         </CellTemplate>
                     </TemplateColumn>
                 </Columns>
-                <PagerContent>
-                    <MudDataGridPager T="Strategy" />
-                </PagerContent>
             </MudDataGrid>
         </MudTabPanel>
 
@@ -88,8 +70,8 @@
                 <Columns>
                     <PropertyColumn Property="e => e.Name" CellStyleFunc="_applyTyreColouring" />
                     <PropertyColumn Property="e => e.Pace" Style="font-family: var(--mud-typography-caption-family)" />
-                    <PropertyColumn Property="e => e.WearMax" Style="font-family: var(--mud-typography-caption-family)" />
                     <PropertyColumn Property="e => e.WearMin" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e.WearMax" Style="font-family: var(--mud-typography-caption-family)" />
                     <PropertyColumn Property="e => e.Length" Style="font-family: var(--mud-typography-caption-family)" />
                     <PropertyColumn Property="e => e.State" />
                     <TemplateColumn T="Tyre" Sortable="false">
@@ -100,9 +82,6 @@
                         </CellTemplate>
                     </TemplateColumn>
                 </Columns>
-                <PagerContent>
-                    <MudDataGridPager T="Tyre" />
-                </PagerContent>
             </MudDataGrid>
         </MudTabPanel>
     </MudTabs>
@@ -114,8 +93,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        StrategyData = await StrategyService.GetStrategies();
-        TyreData = await StrategyService.GetTyres();
+        StrategyData = await _strategyService.GetStrategies();
+        TyreData = await _strategyService.GetTyres();
     }
 
     private Func<Tyre, string> _applyTyreColouring => e =>
@@ -137,21 +116,22 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Strategy updatedItem)
         {
-            await StrategyService.UpdateStrategy(updatedItem);
-            StrategyData = await StrategyService.GetStrategies();
+            await _strategyService.UpdateStrategy(updatedItem);
+            StrategyData = await _strategyService.GetStrategies();
         }
     }
 
-    async Task ToggleStrategyState(Strategy strategy, State targetState)
+    async Task OnToggleChange(Strategy strategy, bool toggled) => await ToggleState(strategy, (toggled ? State.Active : State.Closed));
+    async Task ToggleState(Strategy strategy, State targetState)
     {
-        await StrategyService.ChangeStrategyState(strategy, targetState);
-        StrategyData = await StrategyService.GetStrategies();
+        await _strategyService.ChangeStrategyState(strategy, targetState);
+        StrategyData = await _strategyService.GetStrategies();
     }
 
     async Task DeleteStrategy(Strategy strategy)
     {
-        await StrategyService.DeleteStrategy(strategy);
-        StrategyData = await StrategyService.GetStrategies();
+        await _strategyService.DeleteStrategy(strategy);
+        StrategyData = await _strategyService.GetStrategies();
     }
 
     async Task AddTyre() => await UpdateTyre(new Tyre());
@@ -164,14 +144,14 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Tyre updatedItem)
         {
-            await StrategyService.UpdateTyre(updatedItem);
-            TyreData = await StrategyService.GetTyres();
+            await _strategyService.UpdateTyre(updatedItem);
+            TyreData = await _strategyService.GetTyres();
         }
     }
 
     async Task DeleteTyre(Tyre tyre)
     {
-        await StrategyService.DeleteTyre(tyre);
-        TyreData = await StrategyService.GetTyres();
+        await _strategyService.DeleteTyre(tyre);
+        TyreData = await _strategyService.GetTyres();
     }
 }

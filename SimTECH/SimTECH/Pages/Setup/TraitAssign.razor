@@ -1,0 +1,219 @@
+﻿@page "/traitassign"
+@inject DriverService _driverService
+@inject TeamService _teamService
+@inject TrackService _trackService
+@inject TraitService _traitService
+@inject BreadcrumbProvider _bread
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
+                <MudText Typo="Typo.h4">Trait assigner</MudText>
+                <MudText Color="Color.Error">Page as a whole is very much too simplistic and crude but it works!</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="4">
+            <MudPaper Class="pa-2">
+                <MudStack>
+                    <MudText Typo="Typo.subtitle1">For entrants</MudText>
+                    <MudDivider />
+
+                    <MudChipSet @bind-SelectedChip="@entrantChip" Mandatory="true">
+                        <MudChip Color="Color.Primary" Value="Entrant.Driver">Driver</MudChip>
+                        <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
+                        <MudChip Color="Color.Primary" Value="Entrant.Track">Track</MudChip>
+                    </MudChipSet>
+
+                    <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="LoadEntrants">Load</MudButton>
+
+                    <MudText Typo="Typo.subtitle1" Class="mt-2">Assignment settings</MudText>
+                    <MudDivider />
+
+                    <MudText Color="Color.Warning">Todo select which traits to assign</MudText>
+                    <MudText Color="Color.Warning">Todo select how many traits</MudText>
+                    <MudText Color="Color.Warning">Todo random removal option</MudText>
+
+                    <MudDivider />
+                    @if (RelevantTraits?.Any() == true)
+                    {
+                        <MudText Color="Color.Success">Relevant traits</MudText>
+                        @foreach (var trait in RelevantTraits)
+                        {
+                            <MudTooltip Text="@(trait.Description)" Color="Color.Primary">
+                                <MudText Color="Color.Primary">@(trait.Name) - [@(trait.Id)]</MudText>
+                            </MudTooltip>
+                        }
+                    }
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="4">
+            <MudPaper Class="pa-2">
+                <MudText>Click the row to find a random trait for the respective entrant</MudText>
+                @if (Entrants != null)
+                {
+                    <MudTable T="EntrantAssignee" Items="@Entrants" Dense="true" Hover="true" OnRowClick="OnClickAssignRandomTrait">
+                        <ToolBarContent>
+                            <MudText>Entrants</MudText>
+                            <MudSpacer />
+                            <MudButton Color="Color.Secondary" OnClick="RandomEntrantAssignTrait">Random</MudButton>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>Name</MudTh>
+                            <MudTh>Existing trait(s)</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudText>@(context.Name)</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <span>@(string.Join(", ", context.ExistingTraitIds.Select(e => e.ToString())))</span>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="4">
+            <MudPaper Class="pa-2">
+                <MudText>Persist but can we do more than that?</MudText>
+                @if (AssignedEntrants.Any())
+                {
+                    <MudTable T="EntrantAssignee" Items="@AssignedEntrants" Dense="true" Hover="true">
+                        <ToolBarContent>
+                            <MudText>Assigned</MudText>
+                            <MudSpacer />
+                            <MudButton Color="Color.Success" OnClick="PersistAssignedTraits">Save</MudButton>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>Name</MudTh>
+                            <MudTh>Assigned trait(s)</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudText>@(context.Name)</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <span>@(string.Join(", ", context.AssignedTraitIds.Select(e => e.ToString())))</span>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    List<Trait> AllTraits;
+    List<Trait>? RelevantTraits;
+    List<EntrantAssignee>? Entrants;
+    List<EntrantAssignee> AssignedEntrants = new();
+
+    MudChip? entrantChip;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _bread.Reset();
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Traits", href: "traits"),
+        });
+
+        AllTraits = await _traitService.GetTraits();
+    }
+
+    async Task LoadEntrants()
+    {
+        if (entrantChip == null)
+            return;
+
+        var activeEntrant = (Entrant)entrantChip.Value;
+
+        switch (activeEntrant)
+        {
+            case Entrant.Driver:
+                {
+                    var drivers = await _driverService.GetDrivers();
+                    Entrants = drivers.Select(e => new EntrantAssignee(e)).ToList();
+                }
+                break;
+            case Entrant.Team:
+                {
+                    var teams = await _teamService.GetTeams();
+                    Entrants = teams.Select(e => new EntrantAssignee(e)).ToList();
+                }
+                break;
+            case Entrant.Track:
+                {
+                    var tracks = await _trackService.GetTracks();
+                    Entrants = tracks.Select(e => new EntrantAssignee(e)).ToList();
+                }
+                break;
+            default: throw new InvalidOperationException("wtf unexpected entrant added to develop?");
+        }
+
+        RelevantTraits = AllTraits.Where(e => e.Type == activeEntrant).ToList();
+    }
+
+    private void OnClickAssignRandomTrait(TableRowClickEventArgs<EntrantAssignee> rowItem) => AssignRandomTrait(rowItem.Item);
+    private void RandomEntrantAssignTrait()
+    {
+        if (Entrants != null)
+            AssignRandomTrait(Entrants.TakeRandomItem());
+    }
+    private void AssignRandomTrait(EntrantAssignee item)
+    {
+        if (RelevantTraits == null)
+            return;
+
+        EntrantAssignee assignee;
+
+        if (AssignedEntrants.Contains(item))
+            assignee = AssignedEntrants.First(e => e == item);
+        else
+        {
+            assignee = item;
+            AssignedEntrants.Add(assignee);
+        }
+
+        var availableTraits = RelevantTraits.Where(e => !assignee.ExistingTraitIds.Contains(e.Id)).ToList();
+        if (!availableTraits.Any())
+            return;
+
+        var randomTrait = availableTraits.TakeRandomItem();
+
+        assignee.AssignedTraitIds.Add(randomTrait.Id);
+        assignee.ExistingTraitIds.Add(randomTrait.Id);
+    }
+
+    async Task PersistAssignedTraits()
+    {
+        if (entrantChip == null || !AssignedEntrants.Any())
+            return;
+
+        switch ((Entrant)entrantChip.Value)
+        {
+            case Entrant.Driver:
+                {
+                    await _traitService.AssignDriverTraits(AssignedEntrants);
+                }
+                break;
+            case Entrant.Team:
+                {
+                    await _traitService.AssignTeamTraits(AssignedEntrants);
+                }
+                break;
+            case Entrant.Track:
+                {
+                    await _traitService.AssignTrackTraits(AssignedEntrants);
+                }
+                break;
+            default: throw new InvalidOperationException("wtf unexpected entrant added to develop?");
+        }
+
+        AssignedEntrants.Clear();
+    }
+}

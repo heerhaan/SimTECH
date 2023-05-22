@@ -174,10 +174,14 @@ namespace SimTECH.Data.Services
 
             foreach (var driver in drivers)
             {
-                if (target == TargetDevelop.Main)
-                    driver.Skill = developmentDict[driver.Id];
-                else
-                    driver.Reliability = developmentDict[driver.Id];
+                switch (target)
+                {
+                    case TargetDevelop.Main: driver.Skill = developmentDict[driver.Id]; break;
+                    case TargetDevelop.Reliability: driver.Reliability = developmentDict[driver.Id]; break;
+                    case TargetDevelop.Attack: driver.Attack = developmentDict[driver.Id]; break;
+                    case TargetDevelop.Defense: driver.Defense = developmentDict[driver.Id]; break;
+                    default: throw new InvalidOperationException("thats the wrong enum value buddy");
+                }
             }
 
             context.UpdateRange(drivers);
@@ -193,31 +197,6 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             context.AddRange(rootEngines);
-
-            await context.SaveChangesAsync();
-        }
-
-        public async Task CopyEntrantsFromSeason(long seasonId, long copiedSeasonId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var rootEngines = await context.SeasonEngine
-                .Where(e => e.SeasonId == copiedSeasonId)
-                .Include(e => e.SeasonTeams)
-                    .ThenInclude(e => e.SeasonDrivers)
-                .ToListAsync();
-
-            var editModels = rootEngines.ConvertAll(e => new EditSeasonEngineModel(e));
-
-            foreach (var editModel in editModels)
-            {
-                editModel.ResetIdentifierFields();
-                editModel.SetSeasonIdForAll(seasonId);
-            }
-
-            var rootEntrants = editModels.ConvertAll(e => e.Record);
-
-            context.AddRange(rootEntrants);
 
             await context.SaveChangesAsync();
         }

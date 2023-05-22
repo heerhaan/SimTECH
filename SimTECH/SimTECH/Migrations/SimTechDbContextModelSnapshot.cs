@@ -544,6 +544,12 @@ namespace SimTECH.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<int>("Attack")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Defense")
+                        .HasColumnType("int");
+
                     b.Property<long>("DriverId")
                         .HasColumnType("bigint");
 
@@ -815,6 +821,9 @@ namespace SimTECH.Migrations
                     b.Property<int>("Country")
                         .HasColumnType("int");
 
+                    b.Property<double>("DefenseMod")
+                        .HasColumnType("float");
+
                     b.Property<double>("Length")
                         .HasColumnType("float");
 
@@ -859,7 +868,13 @@ namespace SimTECH.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<int>("Attack")
+                        .HasColumnType("int");
+
                     b.Property<int>("CarReliability")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Defense")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")

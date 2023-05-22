@@ -13,7 +13,7 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
-        public async Task<List<Climate>> GetClimates() => await GetClimates(StateFilter.Default);
+        public async Task<List<Climate>> GetClimates() => await GetClimates(StateFilter.Active);
         public async Task<List<Climate>> GetClimates(StateFilter filter)
         {
             using var context = _dbFactory.CreateDbContext();

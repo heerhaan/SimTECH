@@ -5,7 +5,7 @@
 <PageTitle>Engines</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Medium">
-    <MudDataGrid T="Engine" Items="@EngineData" Bordered="true" Class="my-2">
+    <MudDataGrid T="Engine" Items="@EngineData" Dense="true" Class="my-2">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Engines</MudText>
             <MudSpacer />
@@ -13,8 +13,8 @@
         </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Engine" />
-            <PropertyColumn Property="e => e.Name" />
-            <PropertyColumn Property="e => e.State" />
+            <PropertyColumn Property="e => e!.Name" />
+            <PropertyColumn Property="e => e!.State" />
             <TemplateColumn T="Engine">
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small">

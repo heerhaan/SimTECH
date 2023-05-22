@@ -41,7 +41,8 @@ namespace SimTECH.Data.Models
                 }
             }
 
-            return incidents.First(e => e.Id == weightedList.TakeRandomItem());
+            var randomItem = weightedList.TakeRandomItem();
+            return incidents.First(e => e.Id == randomItem);
         }
 
         public static double DoubledPunishment(this Incident incident) => Convert.ToDouble(incident.Punishment) + 0.2;

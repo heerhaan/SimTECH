@@ -28,6 +28,9 @@ namespace SimTECH.PageModels
         public string TeamName { get; set; }
         public string Colour { get; set; }
         public string Accent { get; set; }
+        public string ManufacturerName { get; set; }
+        public string ManufacturerColour { get; set; }
+        public string ManufacturerAccent { get; set; }
 
         // Properties related to the result
         public long ResultId { get; set; }

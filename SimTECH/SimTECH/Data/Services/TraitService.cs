@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
+using SimTECH.PageModels;
 
 namespace SimTECH.Data.Services
 {
@@ -32,8 +33,6 @@ namespace SimTECH.Data.Services
 
         public async Task UpdateTrait(Trait trait)
         {
-            ValidateTrait(trait);
-
             using var context = _dbFactory.CreateDbContext();
 
             if (trait.Id == 0)
@@ -47,14 +46,87 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        #region validation
-
-        private static void ValidateTrait(Trait trait)
+        public async Task ChangeState(Trait trait, State target)
         {
-            if (trait == null)
-                throw new NullReferenceException("Trait is very null here, yes");
+            using var context = _dbFactory.CreateDbContext();
+
+            trait.State = target;
+
+            context.Update(trait);
+
+            await context.SaveChangesAsync();
         }
 
+        #region assigner methods
+        // I suspect the following three methods are a good target for generics, if i implemented those
+        public async Task AssignDriverTraits(List<EntrantAssignee> assignedDrivers)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            // Assume now that we can't have already assigned traits
+
+            // Assume we aren't removing traits
+
+            var assignedDriverTraits = new List<DriverTrait>();
+
+            foreach (var driver in assignedDrivers)
+            {
+                foreach (var trait in driver.AssignedTraitIds)
+                {
+                    assignedDriverTraits.Add(new DriverTrait { DriverId = driver.Id, TraitId = trait });
+                }
+            }
+
+            context.AddRange(assignedDriverTraits);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task AssignTeamTraits(List<EntrantAssignee> assignedTeams)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            // Assume now that we can't have already assigned traits
+
+            // Assume we aren't removing traits
+
+            var teamTraits = new List<TeamTrait>();
+
+            foreach (var team in assignedTeams)
+            {
+                foreach (var trait in team.AssignedTraitIds)
+                {
+                    teamTraits.Add(new TeamTrait { TeamId = team.Id, TraitId = trait });
+                }
+            }
+
+            context.AddRange(teamTraits);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task AssignTrackTraits(List<EntrantAssignee> assignedTracks)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            // Assume now that we can't have already assigned traits
+
+            // Assume we aren't removing traits
+
+            var trackTraits = new List<TrackTrait>();
+
+            foreach (var track in assignedTracks)
+            {
+                foreach (var trait in track.AssignedTraitIds)
+                {
+                    trackTraits.Add(new TrackTrait { TrackId = track.Id, TraitId = trait });
+                }
+            }
+
+            context.AddRange(trackTraits);
+
+            await context.SaveChangesAsync();
+        }
         #endregion
     }
 }

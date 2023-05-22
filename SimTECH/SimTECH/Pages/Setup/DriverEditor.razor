@@ -1,31 +1,35 @@
-﻿<MudDialog>
+﻿@using MudExtensions
+
+<MudDialog>
     <TitleContent>
         <MudText>
-            <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
             Driver moment
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@model">
+        <MudForm Model="@Model">
             <MudGrid>
                 <MudItem xs="8">
-                    <MudPaper Elevation="15" Class="pa-2">
+                    <MudPaper Elevation="15" Class="pa-2 mud-height-full">
                         <MudStack>
                             <MudStack Row="true" Spacing="4">
-                                <MudTextField T="string" @bind-Value="model.FirstName" Label="First Name" Class="field-md" />
-                                <MudTextField T="string" @bind-Value="model.LastName" Label="Last Name" Class="field-md" OnKeyUp="AutoUpdateAbbreviation" />
+                                <MudTextField T="string" @bind-Value="Model.FirstName" Label="First Name" Class="field-md" />
+                                <MudTextField T="string" @bind-Value="Model.LastName" Label="Last Name" Class="field-md" OnKeyDown="AutoUpdateAbbreviation" />
                             </MudStack>
-                            <MudTextField T="string" @bind-Value="model.Abbreviation" Label="Abbreviation" Class="field-sm" />
+                            <MudTextField T="string" @bind-Value="Model.Abbreviation" Label="Abbreviation" Class="field-sm" />
                             <MudDatePicker @bind-Date="@dateSetter" Editable="true" Label="Date of Birth" Class="field-md" />
-                            <MudCountrySelect @bind-Value="model.Country" Class="field-md" />
-                            <MudTextField T="string" @bind-Value="model.Biography" Label="Biography" Lines="5" />
-                            <MudSwitchM3 @bind-Checked="model.Alive" Label="Alive" Color="Color.Secondary" ThumbIcon="@Icons.Material.Filled.Done" ThumbOffIcon="@Icons.Material.Filled.Close" />
+                            <MudCountrySelect @bind-Value="Model.Country" Class="field-md" />
+                            <MudTextField T="string" @bind-Value="Model.Biography" Label="Biography" Lines="5" />
+
+                            <MudText Typo="Typo.subtitle1">Toggles</MudText>
+                            <MudDivider />
+                            <MudSwitchM3 @bind-Checked="Model.Alive" Label="Alive" Color="Color.Secondary" ThumbIcon="@Icons.Material.Filled.Done" ThumbOffIcon="@Icons.Material.Filled.Close" />
                         </MudStack>
                     </MudPaper>
                 </MudItem>
 
                 <MudItem xs="4">
-                    <MudPaper Elevation="15" Class="pa-2">
+                    <MudPaper Elevation="15" Class="pa-2 mud-height-full">
                         <MudText Typo="Typo.subtitle1">Traits</MudText>
                         <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
                             @foreach (var trait in Traits)
@@ -50,38 +54,38 @@
     [Parameter] public Driver? Driver { get; set; }
     [Parameter] public List<Trait> Traits { get; set; } = new();
 
-    private EditDriverModel model;
+    private EditDriverModel Model;
     private DateTime? dateSetter { get; set; }
     private ICollection<object>? selectedTraits { get; set; }
 
     protected override void OnInitialized()
     {
-        model = new EditDriverModel(Driver);
-        dateSetter = model.DateOfBirth;
-        selectedTraits = model.DriverTraits.Select(e => e.TraitId).Cast<object>().ToList();
+        Model = new EditDriverModel(Driver);
+        dateSetter = Model.DateOfBirth;
+        selectedTraits = Model.DriverTraits.Select(e => e.TraitId).Cast<object>().ToList();
     }
 
     void AutoUpdateAbbreviation()
     {
-        if (model.LastName?.Length >= 3 == true)
-            model.Abbreviation = model.LastName.Substring(0, 3).ToUpperInvariant();
+        if (Model.LastName?.Length >= 3 == true)
+            Model.Abbreviation = Model.LastName.Substring(0, 3).ToUpperInvariant();
     }
 
     private void Submit()
     {
-        model.DateOfBirth = dateSetter.GetValueOrDefault();
+        Model.DateOfBirth = dateSetter.GetValueOrDefault();
 
         if (selectedTraits != null)
         {
-            model.DriverTraits = selectedTraits
+            Model.DriverTraits = selectedTraits
                 .Cast<long>()
-                .Select(e => new EditDriverTraitModel { DriverId = model.Id, TraitId = e })
+                .Select(e => new EditDriverTraitModel { DriverId = Model.Id, TraitId = e })
                 .ToList();
         }
 
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            var modDriver = model.Record;
+            var modDriver = Model.Record;
             DriverDialog?.Close(DialogResult.Ok(modDriver));
         }
     }

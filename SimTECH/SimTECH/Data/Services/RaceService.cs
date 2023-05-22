@@ -54,6 +54,9 @@ namespace SimTECH.Data.Services
 
             return await context.Result
                 .Where(e => e.RaceId == raceId)
+                .Include(e => e.Incident)
+                .Include(e => e.SeasonDriver)
+                    .ThenInclude(e => e.Driver)
                 .ToListAsync();
         }
 
@@ -89,6 +92,11 @@ namespace SimTECH.Data.Services
                 context.Remove(race);
 
             await context.SaveChangesAsync();
+
+            var otherRaces = await context.Race
+                .Where(e => e.SeasonId == race.SeasonId && e.Round > race.Round)
+                .ExecuteUpdateAsync(e =>
+                    e.SetProperty(prop => prop.Round, prop => prop.Round - 1));
         }
 
         public async Task ActivateRace(long raceId)
@@ -272,7 +280,13 @@ namespace SimTECH.Data.Services
                 .SingleAsync(e => e.Id == raceId);
 
             if (race.State == State.Concept)
-                throw new InvalidOperationException("wrong state, reee. Activate first!!!");
+            {
+                var nextRace = await GetNextRaceOfSeason(race.SeasonId);
+                if (nextRace?.Id == race.Id)
+                    await ActivateRace(race.Id);
+                else
+                    throw new InvalidOperationException("Can only open the race week page for the upcoming race!");
+            }
 
             var trackTraits = await context.Trait
                 .Where(trait => trait.TrackTraits.Any(tt => tt.TrackId == race.TrackId))
@@ -293,9 +307,12 @@ namespace SimTECH.Data.Services
                     Country = result.SeasonDriver.Driver.Country,
 
                     SeasonTeamId = result.SeasonTeamId,
-                    TeamName = result.SeasonTeam.Name,
+                    TeamName = result.SeasonTeam.Team.Name,
                     Colour = result.SeasonTeam.Colour,
                     Accent = result.SeasonTeam.Accent,
+                    ManufacturerName = result.SeasonTeam.Manufacturer.Name,
+                    ManufacturerColour = result.SeasonTeam.Manufacturer.Colour,
+                    ManufacturerAccent = result.SeasonTeam.Manufacturer.Accent,
 
                     ResultId = result.Id,
                     Grid = result.Grid,
@@ -444,6 +461,7 @@ namespace SimTECH.Data.Services
                 .TakeLastSpecial(amount)
                 .Select(e => new FinishedRaceModel
                 {
+                    RaceId = e.Id,
                     Round = e.Round,
                     Name = e.Name,
                     Country = e.Track.Country,
@@ -559,6 +577,8 @@ namespace SimTECH.Data.Services
                 var enginePower = (team.SeasonEngine.Power * engineMultiplier).RoundDouble();
                 var totalPower = driverPower + carPower + enginePower + sumTraits.RacePace;
 
+                var actualDefense = ((driver.Defense + sumTraits.Defense) * race.Track?.DefenseMod ?? 1.0).RoundDouble();
+
                 raceDrivers.Add(new RaceDriver
                 {
                     ResultId = driverResult.Id,
@@ -586,15 +606,18 @@ namespace SimTECH.Data.Services
                     // Also this way one has to finish a started race
                     // Alternatively determine the current tyre based on the state of the race
                     CurrentTyre = strategy.StrategyTyres[0].Tyre,
+                    CurrentTyreOrder = 1,
 
                     Power = totalPower,
-                    DriverReliability = sumTraits.DriverReliability + driver.Reliability + weatherDnf,
-                    CarReliability = sumTraits.CarReliability + team.Reliability,
-                    EngineReliability = sumTraits.EngineReliability + team.SeasonEngine.Reliability,
-                    WearMaxMod = sumTraits.WearMaximum + team.Manufacturer.WearMax,
-                    WearMinMod = sumTraits.WearMinimum + team.Manufacturer.WearMin,
-                    RngMinMod = sumTraits.MinRNG + team.Manufacturer.Pace,
-                    RngMaxMod = sumTraits.MaxRNG + team.Manufacturer.Pace + weatherRng,
+                    Attack = driver.Attack + sumTraits.Attack,
+                    Defense = actualDefense,
+                    DriverReliability = driver.Reliability + sumTraits.DriverReliability + weatherDnf,
+                    CarReliability = team.Reliability + sumTraits.CarReliability,
+                    EngineReliability = team.SeasonEngine.Reliability + sumTraits.EngineReliability,
+                    WearMaxMod = team.Manufacturer.WearMax + sumTraits.WearMaximum,
+                    WearMinMod = team.Manufacturer.WearMin + sumTraits.WearMinimum,
+                    RngMinMod = team.Manufacturer.Pace + sumTraits.MinRNG,
+                    RngMaxMod = team.Manufacturer.Pace + sumTraits.MaxRNG + weatherRng,
 
                     Position = driverResult.Position,
 
@@ -623,6 +646,7 @@ namespace SimTECH.Data.Services
 
                 FatalityOdds = _config.FatalityChance,
                 DisqualifyOdds = _config.DisqualifyChance,
+                SafetyCarOdds = _config.SafetyCarChance,
                 MistakeRolls = _config.MistakeAmountRolls,
                 MistakeMinCost = _config.MistakeLowerValue,
                 MistakeMaxCost = _config.MistakeUpperValue,

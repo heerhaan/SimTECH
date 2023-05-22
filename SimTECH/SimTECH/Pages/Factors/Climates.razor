@@ -1,9 +1,9 @@
 ﻿@page "/climates"
 @inject ClimateService _climateService
-@inject IDialogService DialogService
+@inject IDialogService _dialogService
 
 <MudContainer>
-    <MudDataGrid T="Climate" Items="ClimateData">
+    <MudDataGrid T="Climate" Items="@ClimateData">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Climate</MudText>
             <MudSpacer />
@@ -15,31 +15,20 @@
                     <MudIcon Icon="@context.Item.Icon" />
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.Terminology" />
-            <PropertyColumn Property="e => e.IsWet" Title=" For wet" />
-            <PropertyColumn Property="e => e.EngineMultiplier" Title="Engine" />
-            <PropertyColumn Property="e => e.ReliablityModifier" Title="Reliability" />
-            <PropertyColumn Property="e => e.RngModifier" Title="RNG" />
+            <PropertyColumn Property="e => e!.Terminology" />
+            <PropertyColumn Property="e => e!.IsWet" Title="For wet" />
+            <PropertyColumn Property="e => e!.EngineMultiplier" Title="Engine" />
+            <PropertyColumn Property="e => e!.ReliablityModifier" Title="Reliability" />
+            <PropertyColumn Property="e => e!.RngModifier" Title="RNG" />
+            <PropertyColumn Property="e => e!.Odds" />
             <TemplateColumn T="Climate" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        @if (context.Item.State == State.Closed)
-                        {
-                            <MudIconButton Size="@Size.Small"
-                                       Icon="@Icons.Material.Filled.Block"
-                                       Color="Color.Warning"
-                                       Title="Unavailable"
-                                       OnClick="@(async () => await ToggleState(context.Item, State.Active))" />
-                        }
-                        else
-                        {
-                            <MudIconButton Size="@Size.Small"
-                                       Icon="@Icons.Material.Filled.CheckCircleOutline"
-                                       Color="Color.Success"
-                                       Title="Available"
-                                       OnClick="@(async () => await ToggleState(context.Item, State.Closed))" />
-                        }
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
+                        <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
+                                            Default="@(context.Item.State == State.Active)" />
+                        <MudIconButton Size="@Size.Small"
+                                       Icon="@Icons.Material.Outlined.Edit"
+                                       OnClick="@(async () => await UpdateItem(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -51,7 +40,7 @@
 </MudContainer>
 
 @code {
-    List<Climate> ClimateData = new();
+    List<Climate> ClimateData;
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,16 +55,17 @@
                 ["Climate"] = climate,
             };
 
-        var dialog = await DialogService.ShowAsync<ClimateEditor>("Modify climate", parameters);
+        var dialog = await _dialogService.ShowAsync<ClimateEditor>("Modify climate", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Climate updatedItem)
         {
             await _climateService.UpdateClimate(updatedItem);
-            ClimateData = await _climateService.GetClimates();
+            ClimateData = await _climateService.GetClimates(StateFilter.All);
         }
     }
 
+    async Task OnToggleChange(Climate climate, bool toggled) => await ToggleState(climate, (toggled ? State.Active : State.Closed));
     async Task ToggleState(Climate climate, State targetState)
     {
         await _climateService.ChangeState(climate, targetState);

@@ -15,6 +15,7 @@ namespace SimTECH.Data.EditModels
         public double ChassisMod { get; set; }
         public double PowerMod { get; set; }
         public double QualifyingMod { get; set; }
+        public double DefenseMod { get; set; }
 
         public IList<EditTrackTraitModel> TrackTraits { get; set; } = new List<EditTrackTraitModel>();
 
@@ -30,6 +31,7 @@ namespace SimTECH.Data.EditModels
             ChassisMod = track.ChassisMod;
             PowerMod = track.PowerMod;
             QualifyingMod = track.QualifyingMod;
+            DefenseMod = track.DefenseMod;
 
             if (track.TrackTraits != null)
                 TrackTraits = track.TrackTraits.Select(e => new EditTrackTraitModel(e)).ToList();
@@ -49,6 +51,7 @@ namespace SimTECH.Data.EditModels
                 ChassisMod = ChassisMod,
                 PowerMod = PowerMod,
                 QualifyingMod = QualifyingMod,
+                DefenseMod = DefenseMod,
 
                 TrackTraits = TrackTraits.Select(e => e.Record).ToList()
             };

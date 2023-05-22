@@ -6,69 +6,8 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     @if (DevelopedEntrants != null)
     {
-        <MudStack Row="true">
-            <MudPaper>
-                <MudTable Items="@DevelopedEntrants" Dense="true">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h4">Development</MudText>
-
-                        <MudSpacer />
-
-                        <MudButtonGroup Variant="Variant.Filled">
-                            @if (_ranDevelop)
-                            {
-                                <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="SaveDevelopment">Save</MudButton>
-                            }
-                            <MudButton StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="RunDevelop">Run</MudButton>
-                        </MudButtonGroup>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>Name</MudTh>
-                        @if (_optionalColTitle != null)
-                        {
-                            <MudTh>@_optionalColTitle</MudTh>
-                        }
-                        <MudTh>Old</MudTh>
-                        <MudTh>Change</MudTh>
-                        <MudTh>New</MudTh>
-                        <MudTh>Range</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                <MudText>@context.Name</MudText>
-                                <MudSpacer />
-                                @if (context.Nationality.HasValue)
-                                {
-                                    <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Tiny" />
-                                }
-                            </MudStack>
-                        </MudTd>
-                        @if (_optionalColTitle != null)
-                        {
-                            <MudTd>
-                                <MudText Typo="Typo.caption">@(context.Optional.HasValue ? context.Optional.Value : "?")</MudText>
-                                </MudTd>
-                        }
-                        <MudTd>
-                            <MudText Typo="Typo.caption">@context.Old</MudText>
-                        </MudTd>
-                        <MudTd>
-                            <MudText Typo="Typo.caption">@context.Change</MudText>
-                        </MudTd>
-                        <MudTd>
-                            <MudText Typo="Typo.caption">@context.New</MudText>
-                        </MudTd>
-                        <MudTd>
-                            <MudStack Row="true" Class="pa-0">
-                                <MudNumericField T="int" @bind-Value="context.Min" Label="Min" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
-                                <MudNumericField T="int" @bind-Value="context.Max" Label="Max" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
-                            </MudStack>
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
-            <MudPaper Class="pa-2" Width="225px">
+        <MudStack Row="true" Class="mud-width-full">
+            <MudPaper Class="pa-2" Width="25%">
                 <MudStack>
                     <MudText Typo="Typo.h6">Settings</MudText>
                     <MudDivider />
@@ -94,7 +33,7 @@
                     </div>
                     <div>
                         <MudTooltip Text="Which aspect is going to be developed">
-                            <MudText Typo="Typo.subtitle1">Target</MudText>
+                            <MudText Typo="Typo.subtitle2">Target</MudText>
                         </MudTooltip>
                         <MudChipSet SelectedChipChanged="TargetChipChanged" Mandatory="true">
                             <MudChip Color="Color.Tertiary" Value="TargetDevelop.Main" Default="true">@_mainTypeName</MudChip>
@@ -105,14 +44,116 @@
                                 <MudChip Color="Color.Tertiary" Value="TargetDevelop.Chassis">Chassis</MudChip>
                                 <MudChip Color="Color.Tertiary" Value="TargetDevelop.Powertrain">Powertrain</MudChip>
                             }
+                            else if (_activeEntrant == Entrant.Driver)
+                            {
+                                <MudChip Color="Color.Tertiary" Value="TargetDevelop.Attack">Attack</MudChip>
+                                <MudChip Color="Color.Tertiary" Value="TargetDevelop.Defense">Defense</MudChip>
+                            }
                         </MudChipSet>
                     </div>
                     @if (_selectedType == TypeDevelop.Range)
                     {
-                        <MudNumericField T="int" Label="Min" ValueChanged="ApplyMinRange" Class="field-sm" />
-                        <MudNumericField T="int" Label="Max" ValueChanged="ApplyMaxRange" Class="field-sm" />
+                        <div>
+                            <MudText Typo="Typo.subtitle2">Dev. range</MudText>
+                            <MudNumericField T="int" Label="Min" ValueChanged="ApplyMinRange" Class="field-sm" />
+                            <MudNumericField T="int" Label="Max" ValueChanged="ApplyMaxRange" Class="field-sm" />
+                        </div>
                     }
                 </MudStack>
+            </MudPaper>
+            <MudPaper>
+                <MudTable Items="@DevelopedEntrants" Dense="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h4">Development</MudText>
+
+                        <MudSpacer />
+
+                        <MudButtonGroup Variant="Variant.Filled">
+                            @if (_ranDevelop)
+                            {
+                                <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="SaveDevelopment">Save</MudButton>
+                            }
+                            <MudButton StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="RunDevelop">Run</MudButton>
+                        </MudButtonGroup>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        @if (_optionalColTitle != null)
+                        {
+                            <MudTh>@_optionalColTitle</MudTh>
+                        }
+                        <MudTh Class="number-col-lg">Old</MudTh>
+                        <MudTh Class="number-col-lg">Change</MudTh>
+                        <MudTh Class="number-col-lg">New</MudTh>
+                        <MudTh>Range</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                <MudText>@context.Name</MudText>
+                                <MudSpacer />
+                                @if (context.Nationality.HasValue)
+                                {
+                                    <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Tiny" />
+                                }
+                            </MudStack>
+                        </MudTd>
+                        @if (_optionalColTitle != null)
+                        {
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@(context.Optional.HasValue ? context.Optional.Value : "?")</MudText>
+                            </MudTd>
+                        }
+                        <MudTd Class="number-col-lg">
+                            <MudText Typo="Typo.caption">@context.Old</MudText>
+                        </MudTd>
+                        <MudTd Class="number-col-lg">
+                            <MudText Typo="Typo.caption">@context.Change</MudText>
+                        </MudTd>
+                        <MudTd Class="number-col-lg">
+                            <MudText Typo="Typo.caption">@context.New</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Class="pa-0">
+                                <MudNumericField T="int" @bind-Value="context.Min" Label="Min" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
+                                <MudNumericField T="int" @bind-Value="context.Max" Label="Max" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
+                            </MudStack>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+            <MudPaper Width="25%" Class="pa-2">
+                <MudText Typo="Typo.h6">Set dev. ranges</MudText>
+                <MudDivider />
+                
+                @if (League.DevelopmentRanges != null)
+                {
+                    <MudStack>
+                        @foreach (var rangeGroup in League.DevelopmentRanges.GroupBy(e => e.Type))
+                        {
+                            <MudText Typo="Typo.overline">@rangeGroup.Key</MudText>
+                            <MudSimpleTable>
+                                <thead>
+                                    <tr>
+                                        <th>Less than</th>
+                                        <th>Lower</th>
+                                        <th>Upper</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var range in rangeGroup)
+                                    {
+                                        <tr>
+                                            <td>@range.Comparer</td>
+                                            <td>@range.Minimum</td>
+                                            <td>@range.Maximum</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </MudSimpleTable>
+                        }
+                    </MudStack>
+                }
             </MudPaper>
         </MudStack>
     }
@@ -151,7 +192,7 @@
             case Entrant.Driver: DevelopDrivers(); break;
             case Entrant.Team: DevelopTeams(); break;
             case Entrant.Engine: DevelopEngines(); break;
-            default: throw new InvalidOperationException("wtf is this");
+            default: throw new InvalidOperationException("wtf unexpected entrant added to develop?");
         }
 
         _activeEntrant = entrant;
@@ -167,7 +208,7 @@
                     Name = e.Driver.FullName,
                     Nationality = e.Driver.Country,
                     Optional = Season.Year - e.Driver.DateOfBirth.Year,
-                    Old = _selectedTarget == TargetDevelop.Main ? e.Skill : e.Reliability,
+                    Old = ReadDriverOldTarget(e),
                 })
             .ToList();
 
@@ -183,14 +224,23 @@
                 Name = e.Name,
                 Nationality = e.Team.Country,
                 Optional = null,
-                Old = ReadOldTarget(e),
+                Old = ReadTeamOldTarget(e),
             })
             .ToList();
 
         _optionalColTitle = null;
     }
 
-    int ReadOldTarget(SeasonTeam team) => _selectedTarget switch
+    int ReadDriverOldTarget(SeasonDriver driver) => _selectedTarget switch
+    {
+        TargetDevelop.Main => driver.Skill,
+        TargetDevelop.Reliability => driver.Reliability,
+        TargetDevelop.Attack => driver.Attack,
+        TargetDevelop.Defense => driver.Defense,
+        _ => throw new InvalidOperationException("One of the wrong target develops just got in the driver target reader"),
+    };
+
+    int ReadTeamOldTarget(SeasonTeam team) => _selectedTarget switch
     {
         TargetDevelop.Main => team.BaseValue,
         TargetDevelop.Reliability => team.Reliability,
@@ -199,20 +249,6 @@
         TargetDevelop.Powertrain => team.Powertrain,
         _ => throw new InvalidOperationException("Somehow neither of the 5 possible develops"),
     };
-
-    /*switch (_selectedTarget)
-    {
-        case TargetDevelop.Main:
-            return team.BaseValue;
-        case TargetDevelop.Reliability:
-            return team.BaseValue;
-        case TargetDevelop.Aero:
-            return team.BaseValue;
-        case TargetDevelop.Chassis:
-            return team.BaseValue;
-        case TargetDevelop.Powertrain:
-            return team.BaseValue;
-    }*/
 
     void DevelopEngines()
     {
