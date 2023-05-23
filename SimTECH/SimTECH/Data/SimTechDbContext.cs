@@ -44,6 +44,8 @@ namespace SimTECH.Data
             base.OnModelCreating(builder);
 
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+            new DataInitializer(builder).Seed();
         }
     }
 }
