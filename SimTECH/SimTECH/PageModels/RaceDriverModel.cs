@@ -134,15 +134,6 @@ namespace SimTECH.PageModels
         public double PenaltyPosition() => Position + PenaltyPunishment;
     }
 
-    public class QualySession
-    {
-        // Optionally add a grouping name for the session too
-        public int[] RunValues { get; set; }
-        public int Position { get; set; }
-        public int MaxScore { get; set; }
-        public string DisplayGap { get; set; }
-    }
-
     public class PracticeDriver : DriverBase
     {
         public int[] RunValues { get; set; }

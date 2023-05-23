@@ -571,7 +571,7 @@ namespace SimTECH.Data.Services
                     + (team.Chassis * race.Track?.ChassisMod ?? 1)
                     + (team.Powertrain * race.Track?.PowerMod ?? 1);
 
-                var sumTraits = NumberHelper.SumTraitEffects(driverTraits);
+                var sumTraits = driverTraits.SumTraitEffects();
                 var driverPower = driver.Skill + driver.RetrieveStatusBonus(_config.CarDriverStatusModifier);
                 var carPower = team.BaseValue + teamModifiers.RoundDouble();
                 var enginePower = (team.SeasonEngine.Power * engineMultiplier).RoundDouble();
@@ -734,7 +734,7 @@ namespace SimTECH.Data.Services
                 if (team.Team.TeamTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
-                var traitEffect = NumberHelper.SumTraitEffects(driverTraits);
+                var traitEffect = driverTraits.SumTraitEffects();
                 var driverPenalties = unconsumedPenalties.Where(e => e.SeasonDriverId == driver.Id).ToArray();
 
                 if (driverPenalties.Any())

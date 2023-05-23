@@ -129,15 +129,9 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task CheckPenalties(List<Result> raceResults, int nextRound)
+        public async Task CheckPenalties(List<Result> raceResults)
         {
             using var context = _dbFactory.CreateDbContext();
-
-            var nextRace = await context.Race.FirstOrDefaultAsync(e => e.Round == nextRound);
-
-            // There is no next race, thus there is no need to determine a penalty
-            if (nextRace == null)
-                return;
 
             var newPenalties = new List<GivenPenalty>();
 
@@ -286,7 +280,7 @@ namespace SimTECH.Data.Services
                     powerModel.Engine = "None";
                 }
 
-                var sumTraits = NumberHelper.SumTraitEffects(driverTraits);
+                var sumTraits = driverTraits.SumTraitEffects();
 
                 powerModel.QualyPower += sumTraits.QualifyingPace;
                 powerModel.RacePower += sumTraits.RacePace;
