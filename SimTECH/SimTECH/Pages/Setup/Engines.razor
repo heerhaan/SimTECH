@@ -43,8 +43,8 @@
         EngineData = await EngineService.GetEngines();
     }
 
-    async Task AddEngine() => await UpdateEngine(new Engine());
-    async Task UpdateEngine(Engine item)
+    async Task AddEngine() => await UpdateEngine(null);
+    async Task UpdateEngine(Engine? item)
     {
         var parameters = new DialogParameters { ["Engine"] = (item) };
 

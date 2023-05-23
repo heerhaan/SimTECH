@@ -1,0 +1,20 @@
+﻿<MudText Typo="Typo.h6" Style="@_styles">
+    @(Number)
+</MudText>
+
+@code {
+    [Parameter, EditorRequired]
+    public int Number { get; set; }
+    [Parameter]
+    public string Colour { get; set; } = Constants.DefaultColour;
+    [Parameter]
+    public string Accent { get; set; } = Constants.DefaultAccent;
+
+    private string _styles
+    {
+        get
+        {
+            return $"color:{Colour}; text-shadow: 2px 1px 2px {Accent}";
+        }
+    }
+}

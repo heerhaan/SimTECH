@@ -75,8 +75,8 @@
     string ReadActiveLeague(long driverId) => CurrentDrivers.Find(e => e.DriverId == driverId)?.League ?? "None";
 
     // CRUD-actions
-    async Task AddDriver() => await UpdateDriver(new Driver());
-    async Task UpdateDriver(Driver item)
+    async Task AddDriver() => await UpdateDriver(null);
+    async Task UpdateDriver(Driver? item)
     {
         var driverTraits = await TraitService.GetTraitsOfType(Entrant.Driver);
 

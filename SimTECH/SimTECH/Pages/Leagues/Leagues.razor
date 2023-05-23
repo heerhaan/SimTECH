@@ -14,8 +14,8 @@
         </ToolBarContent>
         <Columns>
             <HierarchyColumn T="League" />
-            <PropertyColumn Property="e => e.Name" />
-            <PropertyColumn Property="e => e.RaceLength" Title="Length (Km)" Style="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.Name" />
+            <PropertyColumn Property="e => e!.RaceLength" Title="Length (Km)" Style="font-family: var(--mud-typography-caption-family)" />
             <TemplateColumn T="League" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">
@@ -94,8 +94,8 @@
         _loading = false;
     }
 
-    async Task AddLeague() => await UpdateLeague(new League());
-    async Task UpdateLeague(League item)
+    async Task AddLeague() => await UpdateLeague(null);
+    async Task UpdateLeague(League? item)
     {
         var parameters = new DialogParameters { ["League"] = (item) };
 

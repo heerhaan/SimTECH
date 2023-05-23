@@ -3,8 +3,8 @@
         <MudText>Modify engine</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@model">
-            <MudTextField T="string" @bind-Value="model.Name" Label="Name" />
+        <MudForm Model="@Model">
+            <MudTextField T="string" @bind-Value="Model.Name" Label="Name" />
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -20,19 +20,18 @@
     [Parameter]
     public Engine? Engine { get; set; }
 
-    private EditEngineModel model = new();
+    private EditEngineModel Model;
 
     protected override void OnInitialized()
     {
-        if (Engine != null)
-            model = new EditEngineModel(Engine);
+        Model = new EditEngineModel(Engine);
     }
 
     private void Submit()
     {
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            var modEngine = model.Record;
+            var modEngine = Model.Record;
             EngineDialog?.Close(DialogResult.Ok(modEngine));
         }
     }

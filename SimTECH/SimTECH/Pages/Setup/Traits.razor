@@ -7,7 +7,7 @@
 <PageTitle>Traits</PageTitle>
 
 <MudContainer>
-    <MudDataGrid T="Trait" Items="TraitData" Dense="true" Class="mt-2">
+    <MudDataGrid T="Trait" Items="@TraitData" Dense="true" Class="mt-2">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Traits</MudText>
 
@@ -49,56 +49,47 @@
             </TemplateColumn>
         </Columns>
         <ChildRowContent>
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
+            <MudPaper Class="pa-2">
+                <MudStack Class="pa-0 mud-width-full">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full" Style="height:75px">
                         <MudText Typo="Typo.h6">Details for @context.Item.Name</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudGrid>
-                        <MudItem xs="6">
-                            <MudPaper>
-                                <MudText>@(context.Item.Description)</MudText>
+                        <MudSpacer />
+                        <MudText>@(context.Item.Description)</MudText>
+                        <MudSpacer />
+
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                            <MudText>Only when wet:</MudText>
+                            @if (context.Item.ForWetConditions)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success" />
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Block" Color="Color.Error" />
+                            }
+                        </MudStack>
+                    </MudStack>
+
+                    <MudDivider />
+
+                    <MudText Typo="Typo.subtitle1">Modifiers</MudText>
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        @foreach (var modifier in context.Item.RetrieveNotZeroValues())
+                        {
+                            <MudPaper Class="pa-2">
+                                <MudText Typo="Typo.caption">
+                                    @(modifier.Key): @(modifier.Value)
+                                </MudText>
                             </MudPaper>
-                        </MudItem>
-                        <MudItem xs="6">
-                            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-                                <MudText>For wet conditions:</MudText>
-                                @if (context.Item.ForWetConditions)
-                                {
-                                    <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success"></MudIcon>
-                                }
-                                else
-                                {
-                                    <MudIcon Icon="@Icons.Material.Filled.Block" Color="Color.Error"></MudIcon>
-                                }
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem xs="12">
-                            <MudPaper Class="mud-width-full py-8">
-                                <MudText Typo="Typo.subtitle1">Assigned modifiers</MudText>
-                                <MudStack Row="true" AlignItems="AlignItems.Center">
-                                    @foreach (var modifier in context.Item.RetrieveNotZeroValues())
-                                    {
-                                        <MudPaper Class="pa-2">
-                                            <MudText Typo="Typo.caption">
-                                                @(modifier.Key): @(modifier.Value)
-                                            </MudText>
-                                        </MudPaper>
-                                    }
-                                </MudStack>
-                            </MudPaper>
-                        </MudItem>
-                        <MudItem>
-                            <MudPaper>
-                                <MudText Typo="Typo.subtitle1">Used by:</MudText>
-                                <MudText>Todo</MudText>
-                            </MudPaper>
-                        </MudItem>
-                    </MudGrid>
-                </MudCardContent>
-            </MudCard>
+                        }
+                    </MudStack>
+
+                    <MudDivider />
+
+                    <MudText Typo="Typo.subtitle1">Used by:</MudText>
+                    <MudText>Todo</MudText>
+                </MudStack>
+            </MudPaper>
         </ChildRowContent>
         <PagerContent>
             <MudDataGridPager T="Trait" />
@@ -126,8 +117,8 @@
         TraitData = await TraitService.GetTraits();
     }
 
-    async Task AddTrait() => await UpdateTrait(new Trait());
-    async Task UpdateTrait(Trait item)
+    async Task AddTrait() => await UpdateTrait(null);
+    async Task UpdateTrait(Trait? item)
     {
         var parameters = new DialogParameters { ["Trait"] = item };
 

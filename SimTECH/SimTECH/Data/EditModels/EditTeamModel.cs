@@ -14,26 +14,32 @@ namespace SimTECH.Data.EditModels
 
         public IList<EditTeamTraitModel> TeamTraits { get; set; } = new List<EditTeamTraitModel>();
 
-        public EditTeamModel() { _team = new Team(); }
-        public EditTeamModel(Team team)
+        public EditTeamModel(Team? team)
         {
-            Id = team.Id;
-            Name = team.Name;
-            Country = team.Country;
-            Biography = team.Biography;
-            State = team.State;
+            if (team == null)
+            {
+                _team = new();
+            }
+            else
+            {
+                Id = team.Id;
+                Name = team.Name;
+                Country = team.Country;
+                Biography = team.Biography;
+                State = team.State;
 
-            if (team.TeamTraits != null)
-                TeamTraits = team.TeamTraits.Select(e => new EditTeamTraitModel(e)).ToList();
+                if (team.TeamTraits != null)
+                    TeamTraits = team.TeamTraits.Select(e => new EditTeamTraitModel(e)).ToList();
 
-            _team = team;
+                _team = team;
+            }
         }
 
         public Team Record =>
             new()
             {
                 Id = Id,
-                Name = Name,
+                Name = Name ?? "Unknown",
                 Country = Country,
                 Biography = Biography ?? string.Empty,
                 State = State,

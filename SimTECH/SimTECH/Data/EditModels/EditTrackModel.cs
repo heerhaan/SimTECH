@@ -19,24 +19,30 @@ namespace SimTECH.Data.EditModels
 
         public IList<EditTrackTraitModel> TrackTraits { get; set; } = new List<EditTrackTraitModel>();
 
-        public EditTrackModel() { _track= new Track(); }
-        public EditTrackModel(Track track)
+        public EditTrackModel(Track? track)
         {
-            Id = track.Id;
-            Name = track.Name;
-            Country = track.Country;
-            Length = track.Length;
-            State = track.State;
-            AeroMod = track.AeroMod;
-            ChassisMod = track.ChassisMod;
-            PowerMod = track.PowerMod;
-            QualifyingMod = track.QualifyingMod;
-            DefenseMod = track.DefenseMod;
+            if (track == null)
+            {
+                _track = new();
+            }
+            else
+            {
+                Id = track.Id;
+                Name = track.Name;
+                Country = track.Country;
+                Length = track.Length;
+                State = track.State;
+                AeroMod = track.AeroMod;
+                ChassisMod = track.ChassisMod;
+                PowerMod = track.PowerMod;
+                QualifyingMod = track.QualifyingMod;
+                DefenseMod = track.DefenseMod;
 
-            if (track.TrackTraits != null)
-                TrackTraits = track.TrackTraits.Select(e => new EditTrackTraitModel(e)).ToList();
+                if (track.TrackTraits != null)
+                    TrackTraits = track.TrackTraits.Select(e => new EditTrackTraitModel(e)).ToList();
 
-            _track = track;
+                _track = track;
+            }
         }
 
         public Track Record =>

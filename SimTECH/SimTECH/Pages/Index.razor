@@ -35,7 +35,6 @@
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>League</MudTh>
-                        <MudTh>Round</MudTh>
                         <MudTh>Race</MudTh>
                         <MudTh Class="pa-0"></MudTh>
                         <MudTh>Team</MudTh>
@@ -49,13 +48,12 @@
                         </MudTd>
                         <MudTd>
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.body2">Round: @context.Round</MudText>
+                                <MudText Typo="Typo.body2">
+                                    [R@(context.Round)] @(context.Name)
+                                </MudText>
                                 <MudSpacer />
                                 <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
                             </MudStack>
-                        </MudTd>
-                        <MudTd>
-                            <MudText Typo="Typo.body2">@context.Name</MudText>
                         </MudTd>
                         <MudTd Class="pa-0">
                             <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.WinningDriver.Colour))"></span>

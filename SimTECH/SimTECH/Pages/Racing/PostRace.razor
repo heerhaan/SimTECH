@@ -109,7 +109,6 @@
     List<Result> Results;
 
     Dictionary<int, int> allotments;
-    bool loading = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,8 +117,6 @@
         Season = await _seasonService.GetSeasonById(Race.SeasonId);
 
         allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
-
-        loading = false;
     }
 
     private int ReadScoredResult(int position, bool pole)

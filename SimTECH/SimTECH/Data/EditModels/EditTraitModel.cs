@@ -24,28 +24,34 @@ namespace SimTECH.Data.EditModels
         public int RngMax { get; set; }
         public bool ForWetConditions { get; set; }
 
-        public EditTraitModel() { _trait = new Trait(); }
-        public EditTraitModel(Trait trait)
+        public EditTraitModel(Trait? trait)
         {
-            Id = trait.Id;
-            Name = trait.Name;
-            Description = trait.Description;
-            Type = trait.Type;
-            State = trait.State;
-            QualifyingPace = trait.QualifyingPace;
-            RacePace = trait.RacePace;
-            Attack = trait.Attack;
-            Defense = trait.Defense;
-            DriverReliability = trait.DriverReliability;
-            CarReliability = trait.CarReliability;
-            EngineReliability = trait.EngineReliability;
-            WearMax = trait.WearMax;
-            WearMin = trait.WearMin;
-            RngMin = trait.RngMin;
-            RngMax = trait.RngMax;
-            ForWetConditions = trait.ForWetConditions;
+            if (trait == null)
+            {
+                _trait = new();
+            }
+            else
+            {
+                Id = trait.Id;
+                Name = trait.Name;
+                Description = trait.Description;
+                Type = trait.Type;
+                State = trait.State;
+                QualifyingPace = trait.QualifyingPace;
+                RacePace = trait.RacePace;
+                Attack = trait.Attack;
+                Defense = trait.Defense;
+                DriverReliability = trait.DriverReliability;
+                CarReliability = trait.CarReliability;
+                EngineReliability = trait.EngineReliability;
+                WearMax = trait.WearMax;
+                WearMin = trait.WearMin;
+                RngMin = trait.RngMin;
+                RngMax = trait.RngMax;
+                ForWetConditions = trait.ForWetConditions;
 
-            _trait = trait;
+                _trait = trait;
+            }
         }
 
         public Trait Record =>

@@ -5,7 +5,7 @@
     <DialogContent>
         <MudStack Row="true" Justify="Justify.SpaceEvenly">
             <MudPaper Elevation="15" Class="pa-4">
-                <MudTable T="EditStrategyTyreModel" Items="@model.StrategyTyres">
+                <MudTable T="EditStrategyTyreModel" Items="@Model.StrategyTyres">
                     <ToolBarContent>
                         <MudText Typo="Typo.body2">Good for a length of @(_strategyLength)km</MudText>
                     </ToolBarContent>
@@ -66,21 +66,18 @@
     [Parameter] public Strategy? Strategy { get; set; }
     [Parameter] public List<Tyre> Tyres { get; set; }
 
-    private EditStrategyModel model = new();
+    private EditStrategyModel Model;
     private int orderMax = 0;
     private int _strategyLength;
 
     protected override void OnInitialized()
     {
-        if (Strategy != null)
-        {
-            model = new EditStrategyModel(Strategy);
+        Model = new EditStrategyModel(Strategy);
 
-            if (model.StrategyTyres?.Any() == true)
-            {
-                orderMax = model.StrategyTyres.Max(e => e.Order);
-                _strategyLength = model.StrategyTyres.Sum(e => e.Tyre?.Length ?? 0);
-            }
+        if (Model.StrategyTyres?.Any() == true)
+        {
+            orderMax = Model.StrategyTyres.Max(e => e.Order);
+            _strategyLength = Model.StrategyTyres.Sum(e => e.Tyre?.Length ?? 0);
         }
     }
 
@@ -93,10 +90,10 @@
             Order = ++orderMax,
             TyreId = tyre.Id,
             Tyre = tyre,
-            StrategyId = model.Id,
+            StrategyId = Model.Id,
         };
 
-        model.StrategyTyres.Add(appendedStrategyTyre);
+        Model.StrategyTyres.Add(appendedStrategyTyre);
         _strategyLength += tyre.Length;
     }
 
@@ -105,7 +102,7 @@
         if (orderMax != 0)
             --orderMax;
 
-        model.StrategyTyres.Remove(strategyTyre);
+        Model.StrategyTyres.Remove(strategyTyre);
         _strategyLength -= strategyTyre.Tyre?.Length ?? 0;
 
         ReorderTyres();
@@ -113,20 +110,20 @@
 
     private void ReorderTyres()
     {
-        if (model.StrategyTyres?.Any() == true)
+        if (Model.StrategyTyres?.Any() == true)
         {
             int indexer = 0;
 
-            foreach (var strategyTyre in model.StrategyTyres)
+            foreach (var strategyTyre in Model.StrategyTyres)
                 strategyTyre.Order = ++indexer;
         }
     }
 
     private void Submit()
     {
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            var modStrategy = model.Record;
+            var modStrategy = Model.Record;
             StrategyDialog?.Close(DialogResult.Ok(modStrategy));
         }
     }

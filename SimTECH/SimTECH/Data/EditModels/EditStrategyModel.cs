@@ -10,17 +10,23 @@ namespace SimTECH.Data.EditModels
         public State State { get; set; }
         public IList<EditStrategyTyreModel> StrategyTyres { get; set; } = new List<EditStrategyTyreModel>();
 
-        public EditStrategyModel() { _strategy = new Strategy(); }
-        public EditStrategyModel(Strategy strategy)
+        public EditStrategyModel(Strategy? strategy)
         {
-            Id = strategy.Id;
-            State = strategy.State;
-            StrategyTyres = strategy.StrategyTyres?
-                .Select(e => new EditStrategyTyreModel(e))
-                .ToList()
-                ?? new List<EditStrategyTyreModel>();
+            if (strategy == null)
+            {
+                _strategy = new();
+            }
+            else
+            {
+                Id = strategy.Id;
+                State = strategy.State;
+                StrategyTyres = strategy.StrategyTyres?
+                    .Select(e => new EditStrategyTyreModel(e))
+                    .ToList()
+                    ?? new List<EditStrategyTyreModel>();
 
-            _strategy = strategy;
+                _strategy = strategy;
+            }
         }
 
         public Strategy Record =>

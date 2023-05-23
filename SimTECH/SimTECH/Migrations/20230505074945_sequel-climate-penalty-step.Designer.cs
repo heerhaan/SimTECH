@@ -13,7 +13,9 @@ namespace SimTECH.Migrations
 {
     [DbContext(typeof(SimTechDbContext))]
     [Migration("20230505074945_sequel-climate-penalty-step")]
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
     partial class sequelclimatepenaltystep
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

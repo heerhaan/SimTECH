@@ -14,21 +14,27 @@ namespace SimTECH.Data.EditModels
         public State State { get; set; }
         public IList<EditRangeModel> DevelopmentRanges { get; set; } = new List<EditRangeModel>();
 
-        public EditLeagueModel() { _league = new League(); }
-        public EditLeagueModel(League league)
+        public EditLeagueModel(League? league)
         {
-            Id = league.Id;
-            Name = league.Name;
-            RaceLength = league.RaceLength;
-            UsePenalty = league.Options.HasFlag(LeagueOptions.EnablePenalty);
-            EnableFatality = league.Options.HasFlag(LeagueOptions.EnableFatality);
-            State = league.State;
-            DevelopmentRanges = league.DevelopmentRanges?
-                .Select(range => new EditRangeModel(range))
-                .ToList()
-                ?? new List<EditRangeModel>();
+            if (league == null)
+            {
+                _league = new();
+            }
+            else
+            {
+                Id = league.Id;
+                Name = league.Name;
+                RaceLength = league.RaceLength;
+                UsePenalty = league.Options.HasFlag(LeagueOptions.EnablePenalty);
+                EnableFatality = league.Options.HasFlag(LeagueOptions.EnableFatality);
+                State = league.State;
+                DevelopmentRanges = league.DevelopmentRanges?
+                    .Select(range => new EditRangeModel(range))
+                    .ToList()
+                    ?? new List<EditRangeModel>();
 
-            _league = league;
+                _league = league;
+            }
         }
 
         public League Record =>

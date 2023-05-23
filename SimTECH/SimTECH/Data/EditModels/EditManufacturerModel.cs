@@ -16,19 +16,25 @@ namespace SimTECH.Data.EditModels
         public int WearMax { get; set; }
         public int WearMin { get; set; }
 
-        public EditManufacturerModel() { _manufacturer = new Manufacturer(); }
-        public EditManufacturerModel(Manufacturer manufacturer)
+        public EditManufacturerModel(Manufacturer? manufacturer)
         {
-            Id = manufacturer.Id;
-            Name = manufacturer.Name;
-            Colour = manufacturer.Colour;
-            Accent = manufacturer.Accent;
-            State = manufacturer.State;
-            Pace = manufacturer.Pace;
-            WearMax = manufacturer.WearMax;
-            WearMin = manufacturer.WearMin;
+            if (manufacturer == null)
+            {
+                _manufacturer = new();
+            }
+            else
+            {
+                Id = manufacturer.Id;
+                Name = manufacturer.Name;
+                Colour = manufacturer.Colour;
+                Accent = manufacturer.Accent;
+                State = manufacturer.State;
+                Pace = manufacturer.Pace;
+                WearMax = manufacturer.WearMax;
+                WearMin = manufacturer.WearMin;
 
-            _manufacturer = manufacturer;
+                _manufacturer = manufacturer;
+            }
         }
 
         public Manufacturer Record =>
