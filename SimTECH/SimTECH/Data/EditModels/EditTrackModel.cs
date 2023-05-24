@@ -23,6 +23,13 @@ namespace SimTECH.Data.EditModels
         {
             if (track == null)
             {
+                Length = 4.0;
+                AeroMod = 1.0;
+                ChassisMod = 1.0;
+                PowerMod = 1.0;
+                QualifyingMod = 1.0;
+                DefenseMod = 1.0;
+
                 _track = new();
             }
             else
