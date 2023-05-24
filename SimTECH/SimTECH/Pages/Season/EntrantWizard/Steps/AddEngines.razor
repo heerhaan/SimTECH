@@ -1,5 +1,27 @@
-﻿<h3>AddEngines</h3>
+﻿<MudStep Title="Participating engines" Icon="@IconCollection.Engine">
+    <ChildContent>
+        <MudContainer MaxWidth="MaxWidth.Medium">
+            <MudPaper>
+                <MudTable T="Engine" Items="@Engines" @bind-SelectedItems="@Model.BaseEngines" MultiSelection="true" Dense="true" Hover="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h5">Available engines</MudText>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudContainer>
+    </ChildContent>
+</MudStep>
 
 @code {
+    [CascadingParameter]
+    public AddEntrantsModel Model { get; set; }
 
+    [Parameter, EditorRequired]
+    public List<Engine> Engines { get; set; }
 }

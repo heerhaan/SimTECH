@@ -15,7 +15,7 @@
 @inject IOptions<SimConfig> _config
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudStepper @ref="_stepper" Loading="_loading" Variant="Variant.Outlined" Linear="true" DisableSkipButton="true"
+    <MudStepper @ref="_stepper" Loading="@_loading" Variant="Variant.Outlined" Linear="true" DisableSkipButton="true"
                 PreventStepChangeAsync="new Func<StepChangeDirection, Task<bool>>(StepValidator)">
         <StaticContent>
             <MudPaper>
@@ -36,7 +36,7 @@
                         <MudPaper>
                             @if (!_loading)
                             {
-                                <MudTable T="Engine" Items="@engines" @bind-SelectedItems="@Model.BaseEngines" MultiSelection="true" Dense="true" Hover="true">
+                                <MudTable T="Engine" Items="@Engines" @bind-SelectedItems="@Model.BaseEngines" MultiSelection="true" Dense="true" Hover="true">
                                     <ToolBarContent>
                                         <MudText Typo="Typo.h5">Available engines</MudText>
                                     </ToolBarContent>
@@ -103,7 +103,7 @@
                         <MudPaper>
                             @if (!_loading)
                             {
-                                <MudTable T="Team" Items="@teams" @bind-SelectedItems="@Model.BaseTeams" MultiSelection="true" Dense="true" Hover="true">
+                                <MudTable T="Team" Items="@Teams" @bind-SelectedItems="@Model.BaseTeams" MultiSelection="true" Dense="true" Hover="true">
                                     <ToolBarContent>
                                         <MudText Typo="Typo.h5">Available teams</MudText>
                                     </ToolBarContent>
@@ -214,7 +214,7 @@
                                             </MudTd>
                                             <MudTd DataLabel="Manufacturer">
                                                 <MudSelect T="long" @bind-Value="@context.ManufacturerId" Required>
-                                                @foreach (var manufacturer in manufacturers)
+                                                @foreach (var manufacturer in Manufacturers)
                                                     {
                                                         <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
                                                     }
@@ -274,7 +274,7 @@
                         <MudPaper>
                             @if (!_loading)
                             {
-                                <MudTable T="Driver" @bind-SelectedItems="@Model.BaseDrivers" Items="@drivers" MultiSelection="true" Dense="true" Hover="true">
+                                <MudTable T="Driver" @bind-SelectedItems="@Model.BaseDrivers" Items="@Drivers" MultiSelection="true" Dense="true" Hover="true">
                                     <ToolBarContent>
                                         <MudText Typo="Typo.h5">Available drivers</MudText>
                                     </ToolBarContent>
@@ -556,14 +556,14 @@
 @code {
     [Parameter] public long SeasonId { get; set; }
 
-    public Season Season = new();
-    public AddEntrantsModel Model = new();
+    public AddEntrantsModel Model { get; set; } = new();
+    public Season Season { get; set; }
 
-    Season? PreviousSeason;
-    List<Engine> engines;
-    List<Team> teams;
-    List<Driver> drivers;
-    List<Manufacturer> manufacturers;
+    Season? PreviousSeason { get; set; }
+    List<Engine> Engines { get; set; }
+    List<Team> Teams { get; set; }
+    List<Driver> Drivers { get; set; }
+    List<Manufacturer> Manufacturers { get; set; }
 
     MudStepper _stepper;
     MudForm _engineForm;
@@ -581,8 +581,8 @@
         Season = await SeasonService.GetSeasonById(SeasonId);
         PreviousSeason = await SeasonService.FindRecentClosedSeason(Season.LeagueId);
 
-        engines = await EngineService.GetEngines();
-        manufacturers = await ManufacturerService.GetManufacturers();
+        Engines = await EngineService.GetEngines();
+        Manufacturers = await ManufacturerService.GetManufacturers();
 
         _loading = false;
     }
@@ -617,7 +617,7 @@
                 }
                 else
                 {
-                    teams = await TeamService.GetTeams();
+                    Teams = await TeamService.GetTeams();
                 }
                 break;
             case 2: //Step: adding teams to season
@@ -651,7 +651,7 @@
                 }
                 else
                 {
-                    drivers = await DriverService.GetDrivers();
+                    Drivers = await DriverService.GetDrivers();
                 }
                 break;
             case 5: //Step: adding drivers
@@ -805,7 +805,7 @@
 
     private string ReadManufacturerName(long id)
     {
-        var manufacturer = manufacturers.Find(e => e.Id == id);
+        var manufacturer = Manufacturers.Find(e => e.Id == id);
         if (manufacturer != null)
             return manufacturer.Name;
 

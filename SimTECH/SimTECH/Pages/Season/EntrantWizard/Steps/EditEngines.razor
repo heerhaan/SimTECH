@@ -1,5 +1,49 @@
-﻿<h3>EditEngines</h3>
+﻿<MudStep Title="Modify engines" Icon="@IconCollection.Engine">
+    <ChildContent>
+        <MudContainer MaxWidth="MaxWidth.Large">
+            <MudPaper>
+                <MudForm @ref="engineForm">
+                    <MudTable T="EditSeasonEngineModel" Items="@Model.SeasonEngines" Hover="true">
+                        <HeaderContent>
+                            <MudTh>Name</MudTh>
+                            <MudTh>Power</MudTh>
+                            <MudTh>Reliability</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Name">
+                                <MudText Typo="Typo.caption">@context.Name</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Power">
+                                <MudText Typo="Typo.caption">@context.Power</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Reliability">
+                                <MudText Typo="Typo.caption">@context.Reliability</MudText>
+                            </MudTd>
+                        </RowTemplate>
+                        <RowEditingTemplate>
+                            <MudTd DataLabel="Name">
+                                <MudTextField @bind-Value="@context.Name" Required />
+                            </MudTd>
+                            <MudTd DataLabel="Power">
+                                <MudNumericField @bind-Value="@context.Power" />
+                            </MudTd>
+                            <MudTd DataLabel="Reliability">
+                                <MudNumericField @bind-Value="@context.Reliability" />
+                            </MudTd>
+                        </RowEditingTemplate>
+                        <EditButtonContent Context="button">
+                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+                        </EditButtonContent>
+                    </MudTable>
+                </MudForm>
+            </MudPaper>
+        </MudContainer>
+    </ChildContent>
+</MudStep>
 
 @code {
+    [CascadingParameter]
+    public AddEntrantsModel Model { get; set; }
 
+    MudForm engineForm;
 }

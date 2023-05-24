@@ -1,0 +1,91 @@
+﻿@page "/entrantwizard/{SeasonId:long}"
+@using MudBlazor.Extensions
+@using MudExtensions.Enums;
+@using MudExtensions.Utilities
+@using SimTECH.Pages.Season.EntrantWizard.Steps
+
+@inject EngineService _engineService
+@inject TeamService _teamService
+@inject DriverService _driverService
+@inject SeasonService _seasonService
+@inject SeasonEntrantService _entrantService
+@inject ManufacturerService _manufacturerService
+@inject NavigationManager _nav
+@inject ISnackbar _snackbar
+@inject IOptions<SimConfig> _config
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudPaper>
+        <CascadingValue Value="Model">
+            <MudStepper @ref="stepper"
+                        Loading="@loading"
+                        Variant="Variant.Outlined"
+                        Linear="true"
+                        DisableSkipButton="true"
+                        PreventStepChangeAsync="InvalidStepPrevention">
+                <StaticContent>
+                    <MudStack Row="true" Justify="Justify.Center">
+                        @foreach (var error in errors)
+                        {
+                            <MudText Color="Color.Error">@error</MudText>
+                        }
+                    </MudStack>
+                </StaticContent>
+                <ChildContent>
+                    <AddEngines Engines="@Engines" />
+                    <EditEngines />
+
+                    <AddTeams Teams="@Teams" />
+                    <EditTeams Manufacturers="@Manufacturers" />
+                    <AssignTeamEngines />
+
+                    <AddDrivers Drivers="@Drivers" Year="@(Season.Year)" />
+                    <EditDrivers />
+                    <AssignDriverTeams />
+
+                    <FinalCheck />
+                </ChildContent>
+            </MudStepper>
+        </CascadingValue>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public long SeasonId { get; set; }
+
+    public AddEntrantsModel Model { get; set; } = new();
+    public Season Season { get; set; }
+
+    public Season? PreviousSeason { get; set; }
+    public List<Engine> Engines { get; set; }
+    public List<Team> Teams { get; set; }
+    public List<Driver> Drivers { get; set; }
+    public List<Manufacturer> Manufacturers { get; set; }
+
+    MudStepper stepper;
+
+    bool loading = false;
+    string[] errors = { };
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+
+        Season = await _seasonService.GetSeasonById(SeasonId);
+        PreviousSeason = await _seasonService.FindRecentClosedSeason(Season.LeagueId);
+
+        Engines = await _engineService.GetEngines();
+        Manufacturers = await _manufacturerService.GetManufacturers();
+
+        loading = false;
+    }
+
+    private async Task<bool> InvalidStepPrevention(StepChangeDirection direction)
+    {
+        if (direction == StepChangeDirection.Backward)
+            return false;
+
+        return false;
+    }
+}
