@@ -198,6 +198,13 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task<List<GivenPenalty>> GetUnconsumedPenalties()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.GivenPenalty.Where(e => !e.Consumed).Include(e => e.Incident).ToListAsync();
+        }
+
         public async Task ConsumePenalties(List<long> consumables, long raceId)
         {
             using var context = _dbFactory.CreateDbContext();

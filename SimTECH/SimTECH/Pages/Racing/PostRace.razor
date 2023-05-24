@@ -12,6 +12,13 @@
                 <MudStack Row="true" AlignItems="AlignItems.Center">
                     <MudStack>
                         <MudText Typo="Typo.h4">Post race</MudText>
+
+                        <MudText>Todo for this page:</MudText>
+                        <MudList Color="Color.Warning">
+                            <MudListItem>Design in general</MudListItem>
+                            <MudListItem>Podium with graphic</MudListItem>
+                        </MudList>
+
                         <MudText Color="Color.Warning">This page is quite unfinished, you can go to the standings though with a following button</MudText>
                     </MudStack>
 
@@ -62,16 +69,6 @@
             </MudPaper>
         </MudItem>
         <MudItem xs="4">
-            <MudPaper>
-                <MudText>Todo for this page:</MudText>
-                <MudList Color="Color.Warning">
-                    <MudListItem>Design in general</MudListItem>
-                    <MudListItem>Podium with graphic</MudListItem>
-                    <MudListItem>Assigned penalties due to this race</MudListItem>
-                </MudList>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="4">
             <MudPaper Class="mud-height-full">
                 <MudText Typo="Typo.subtitle1">Incidents during the race</MudText>
                 @if (Results.Any())
@@ -98,23 +95,51 @@
                 }
             </MudPaper>
         </MudItem>
+        <MudItem xs="4">
+            <MudPaper Class="mud-height-full">
+                <MudText>Upcoming penalties</MudText>
+                <MudTable T="DriverPenalty" Items="@DriverPenalties" Dense="true" Class="extra-dense">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Incident</MudTh>
+                        <MudTh>Punish</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText>@(context.Name)</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@(context.Reason)</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText Typo="Typo.caption">@(context.Punishment)</MudText>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
-    [Parameter] public long RaceId { get; set; }
+    [Parameter]
+    public long RaceId { get; set; }
 
     SimTECH.Data.Models.Race Race;
     Season Season;
     List<Result> Results;
+    List<GivenPenalty> Penalties;
 
     Dictionary<int, int> allotments;
+
+    List<DriverPenalty> DriverPenalties = new();
 
     protected override async Task OnInitializedAsync()
     {
         Race = await _raceService.GetRaceById(RaceId);
         Results = await _raceService.GetResultsOfRace(RaceId);
         Season = await _seasonService.GetSeasonById(Race.SeasonId);
+        Penalties = await _raceService.GetUnconsumedPenalties();
 
         allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
     }
@@ -132,5 +157,33 @@
         return points;
     }
 
+    // NOTE: Not a definitive solution probably as it could be done much better
+    void BuildDriverPenalties()
+    {
+        foreach (var result in Results)
+        {
+            var penalties = Penalties.Where(e => e.SeasonDriverId == result.SeasonDriverId).ToList();
+            if (penalties.Any())
+            {
+                foreach (var penalty in penalties)
+                {
+                    DriverPenalties.Add(new DriverPenalty
+                    {
+                        Name = result.SeasonDriver.Driver.FullName,
+                        Reason = penalty.Incident.Name,
+                        Punishment = penalty.Incident.Punishment,
+                    });
+                }
+            }
+        }
+    }
+
     void GoToStandings() => _nav.NavigateTo($"/overview/{Race.SeasonId}/2");
+
+    internal class DriverPenalty
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Reason { get; set; } = string.Empty;
+        public int Punishment { get; set; }
+    }
 }
