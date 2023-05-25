@@ -1,5 +1,6 @@
 ﻿@page "/overview/{SeasonId:long}"
 @page "/overview/{SeasonId:long}/{TabIndex:int}"
+@using SimTECH.Pages.Season.Stats;
 @inject LeagueService _leagueService
 @inject RaceService _raceService
 @inject SeasonService _seasonService
@@ -12,7 +13,7 @@
 <PageTitle>Overview</PageTitle>
 
 @* still should confirm if isfixed also works when re-assigning the object by loading a new season *@
-<CascadingValue Value="Season" IsFixed="true">
+<CascadingValue Value="@Season" IsFixed="true">
     @if (Season != null)
     {
         <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="_activeTabIndex">
@@ -76,7 +77,7 @@
                         <MudPaper Height="200px" Elevation="15" Class="pa-4">
                             <MudText Typo="Typo.h6">Season statistics</MudText>
                             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small">
-                                <MudButton>Qualy battles</MudButton>
+                                <MudButton OnClick="ShowQualyBattles">Qualy battles</MudButton>
                             </MudButtonGroup>
                         </MudPaper>
                     </MudItem>
@@ -270,6 +271,8 @@
 
         _nav.NavigateTo($"/raceweek/{NextRace.Id}");
     }
+
+    async Task ShowQualyBattles() => _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", new DialogParameters { ["SeasonId"] = SeasonId });
 
     void GoToAddEntrants() => _nav.NavigateTo($"/addentrantswizard/{SeasonId}");
     void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");

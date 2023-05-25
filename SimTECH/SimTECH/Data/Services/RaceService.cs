@@ -290,9 +290,14 @@ namespace SimTECH.Data.Services
             {
                 var nextRace = await GetNextRaceOfSeason(race.SeasonId);
                 if (nextRace?.Id == race.Id)
+                {
                     await ActivateRace(race.Id);
+                    race.State = State.Active;
+                }
                 else
+                {
                     throw new InvalidOperationException("Can only open the race week page for the upcoming race!");
+                }
             }
 
             var trackTraits = await context.Trait

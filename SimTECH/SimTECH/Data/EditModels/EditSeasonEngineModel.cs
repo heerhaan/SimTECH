@@ -63,6 +63,14 @@ namespace SimTECH.Data.EditModels
             }
         }
 
+        public void Validate(List<string> errors)
+        {
+            if (string.IsNullOrEmpty(Name))
+                errors.Add("Engine lacks a name");
+
+            // TODO: More validation messages
+        }
+
         public SeasonEngine Record =>
             new()
             {

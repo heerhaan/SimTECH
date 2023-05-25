@@ -16,7 +16,7 @@
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudPaper>
-        <CascadingValue Value="Model">
+        <CascadingValue Value="@Model">
             <MudStepper @ref="stepper"
                         Loading="@loading"
                         Variant="Variant.Outlined"
@@ -33,7 +33,7 @@
                 </StaticContent>
                 <ChildContent>
                     <AddEngines Engines="@Engines" />
-                    <EditEngines />
+                    <EditEngines SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
 
                     <AddTeams Teams="@Teams" />
                     <EditTeams Manufacturers="@Manufacturers" />
@@ -66,7 +66,7 @@
     MudStepper stepper;
 
     bool loading = false;
-    string[] errors = { };
+    List<string> errors = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,9 +83,31 @@
 
     private async Task<bool> InvalidStepPrevention(StepChangeDirection direction)
     {
+        errors.Clear();
+
         if (direction == StepChangeDirection.Backward)
             return false;
 
-        return false;
+        switch (stepper.GetActiveIndex())
+        {
+            // Editing entered engines
+            case 1:
+                {
+                    if (Model.SeasonEngines.Any())
+                    {
+                        foreach (var engine in Model.SeasonEngines)
+                            engine.Validate(errors);
+                    }
+                    else
+                    {
+                        errors.Add("Suggestion: add some goddamn engines to the season");
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        return errors.Any();
     }
 }

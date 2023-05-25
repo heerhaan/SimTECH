@@ -1,4 +1,6 @@
-﻿<MudStep Title="Modify engines" Icon="@IconCollection.Engine">
+﻿@inject SeasonEntrantService _entrantService
+
+<MudStep Title="Modify engines" Icon="@IconCollection.Engine">
     <ChildContent>
         <MudContainer MaxWidth="MaxWidth.Large">
             <MudPaper>
@@ -45,5 +47,33 @@
     [CascadingParameter]
     public AddEntrantsModel Model { get; set; }
 
+    [Parameter, EditorRequired]
+    public long SeasonId { get; set; }
+
+    [Parameter]
+    public long? PreviousSeasonId { get; set; }
+
     MudForm engineForm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        List<SeasonEngine>? previousEngines = null;
+        if (PreviousSeasonId.HasValue)
+            previousEngines = await _entrantService.GetSeasonEngines(PreviousSeasonId.Value);
+
+        foreach (var engine in Model.BaseEngines)
+        {
+            SeasonEngine? previousEngine = null;
+            if (previousEngines != null)
+                previousEngine = previousEngines.Find(e => e.EngineId == engine.Id);
+
+            var model = new EditSeasonEngineModel(previousEngine);
+            model.ResetIdentifierFields();
+            model.SeasonId = SeasonId;
+            model.EngineId = engine.Id;
+            model.Name = string.IsNullOrEmpty(model.Name) ? engine.Name : model.Name;
+
+            Model.SeasonEngines.Add(model);
+        }
+    }
 }

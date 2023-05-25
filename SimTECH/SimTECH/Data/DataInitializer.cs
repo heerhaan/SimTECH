@@ -60,7 +60,7 @@ namespace SimTECH.Data
         private void SeedClimates()
         {
             builder.Entity<Climate>().HasData(
-                new Climate { Id = 1, Terminology = "Sunny", Icon = Icons.Material.Filled.Cloud, EngineMultiplier = 1.1, Odds = 3, State = State.Active, },
+                new Climate { Id = 1, Terminology = "Sunny", Icon = Icons.Material.Filled.WbSunny, EngineMultiplier = 1.1, Odds = 3, State = State.Active, },
                 new Climate { Id = 2, Terminology = "Overcast", Icon = Icons.Material.Filled.Cloud, EngineMultiplier = 0.9, Odds = 3, State = State.Active, },
                 new Climate { Id = 3, Terminology = "Rain", Icon = Icons.Material.Filled.Cloud, EngineMultiplier = 0.75, Odds = 1, State = State.Active, }
             );

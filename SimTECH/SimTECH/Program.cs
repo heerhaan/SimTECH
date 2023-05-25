@@ -69,7 +69,6 @@ namespace SimTECH
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
 
                 // We only need the thing underneath whenever we're going to share it as an .exe file
