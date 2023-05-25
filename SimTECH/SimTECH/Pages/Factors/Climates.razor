@@ -2,8 +2,8 @@
 @inject ClimateService _climateService
 @inject IDialogService _dialogService
 
-<MudContainer>
-    <MudDataGrid T="Climate" Items="@ClimateData" Class="overflow-x-hide">
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudDataGrid T="Climate" Items="@ClimateData" Class="overflow-x-hide" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Climate</MudText>
             <MudSpacer />
@@ -17,10 +17,10 @@
             </TemplateColumn>
             <PropertyColumn Property="e => e!.Terminology" />
             <PropertyColumn Property="e => e!.IsWet" Title="For wet" />
-            <PropertyColumn Property="e => e!.EngineMultiplier" Title="Engine" />
-            <PropertyColumn Property="e => e!.ReliablityModifier" Title="Reliability" />
-            <PropertyColumn Property="e => e!.RngModifier" Title="RNG" />
-            <PropertyColumn Property="e => e!.Odds" />
+            <PropertyColumn Property="e => e!.EngineMultiplier" Title="Engine" HeaderClass="hide-sort-icons" />
+            <PropertyColumn Property="e => e!.ReliablityModifier" Title="Rel." HeaderClass="hide-sort-icons" />
+            <PropertyColumn Property="e => e!.RngModifier" Title="RNG" HeaderClass="hide-sort-icons" />
+            <PropertyColumn Property="e => e!.Odds" HeaderClass="hide-sort-icons" />
             <TemplateColumn T="Climate" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>

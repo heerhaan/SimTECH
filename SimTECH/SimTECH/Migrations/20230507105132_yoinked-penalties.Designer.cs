@@ -13,9 +13,7 @@ namespace SimTECH.Migrations
 {
     [DbContext(typeof(SimTechDbContext))]
     [Migration("20230507105132_yoinked-penalties")]
-#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
-    partial class yoinkedpenalties
-#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+    partial class YoinkedPenalties
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

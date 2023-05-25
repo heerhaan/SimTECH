@@ -14,7 +14,7 @@ namespace SimTECH.Migrations
     [DbContext(typeof(SimTechDbContext))]
     [Migration("20230505125453_modification-incidents")]
 #pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
-    partial class modificationincidents
+    partial class ModificationIncidents
 #pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
     {
         /// <inheritdoc />
