@@ -1,115 +1,109 @@
 ﻿@inject SeasonEntrantService _entrantService
+@inject ManufacturerService _manufacturerService
 
-<MudStep Title="Modify teams" Icon="@IconCollection.Car">
-    <ChildContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-            <MudForm @ref="teamForm">
-                <MudPaper>
-                    <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true">
-                        <HeaderContent>
-                            <MudTh Style="min-width: 200px;">Team</MudTh>
-                            <MudTh Style="min-width: 200px;">Name</MudTh>
-                            <MudTh Style="min-width: 200px;">Principal</MudTh>
-                            <MudTh Style="min-width: 100px;">Colour</MudTh>
-                            <MudTh Style="min-width: 100px;">Accent</MudTh>
-                            <MudTh Style="min-width: 50px;">Base</MudTh>
-                            <MudTh Style="min-width: 50px;">Aero</MudTh>
-                            <MudTh Style="min-width: 50px;">Chassis</MudTh>
-                            <MudTh Style="min-width: 50px;">Powertrain</MudTh>
-                            <MudTh Style="min-width: 50px;">Reliability</MudTh>
-                            <MudTh Style="min-width: 200px;">Manufacturer</MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd DataLabel="Team">
-                                <MudText>@(context.Team?.Name ?? "Unknown")</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Name">
-                                <MudText>@context.Name</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Principal">
-                                <MudText>@context.Principal</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Colour" Style="@ViewHelper.SetBackgroundColour(context.Colour)">
-                                @context.Colour
-                            </MudTd>
-                            <MudTd DataLabel="Accent" Style="@ViewHelper.SetBackgroundColour(context.Accent)">
-                                @context.Accent
-                            </MudTd>
-                            <MudTd DataLabel="Base">
-                                <MudText Typo="Typo.caption">@context.BaseValue</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Aero">
-                                <MudText Typo="Typo.caption">@context.Aero</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Chassis">
-                                <MudText Typo="Typo.caption">@context.Chassis</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Powertrain">
-                                <MudText Typo="Typo.caption">@context.Powertrain</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Reliability">
-                                <MudText Typo="Typo.caption">@context.Reliability</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Manufacturer">
-                                <MudText>@ReadManufacturerName(context.ManufacturerId)</MudText>
-                            </MudTd>
-                        </RowTemplate>
-                        <RowEditingTemplate>
-                            <MudTd DataLabel="Team">
-                                <MudText>@(context.Team?.Name ?? "Unknown")</MudText>
-                            </MudTd>
-                            <MudTd DataLabel="Name">
-                                <MudTextField @bind-Value="@context.Name" Required />
-                            </MudTd>
-                            <MudTd DataLabel="Principal">
-                                <MudTextField @bind-Value="@context.Principal" Required />
-                            </MudTd>
-                            <MudTd DataLabel="Colour">
-                                <MudColorPicker @bind-Text="@context.Colour" DisableAlpha="true" Required />
-                            </MudTd>
-                            <MudTd DataLabel="Accent">
-                                <MudColorPicker @bind-Text="@context.Accent" DisableAlpha="true" Required />
-                            </MudTd>
-                            <MudTd DataLabel="Base">
-                                <MudNumericField @bind-Value="@context.BaseValue" />
-                            </MudTd>
-                            <MudTd DataLabel="Aero">
-                                <MudNumericField @bind-Value="@context.Aero" />
-                            </MudTd>
-                            <MudTd DataLabel="Chassis">
-                                <MudNumericField @bind-Value="@context.Chassis" />
-                            </MudTd>
-                            <MudTd DataLabel="Powertrain">
-                                <MudNumericField @bind-Value="@context.Powertrain" />
-                            </MudTd>
-                            <MudTd DataLabel="Reliability">
-                                <MudNumericField @bind-Value="@context.Reliability" />
-                            </MudTd>
-                            <MudTd DataLabel="Manufacturer">
-                                <MudSelect T="long" @bind-Value="@context.ManufacturerId" Required>
-                                    @foreach (var manufacturer in Manufacturers)
-                                    {
-                                        <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
-                                    }
-                                </MudSelect>
-                            </MudTd>
-                        </RowEditingTemplate>
-                        <EditButtonContent Context="button">
-                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
-                        </EditButtonContent>
-                    </MudTable>
-                </MudPaper>
-            </MudForm>
-        </MudContainer>
-    </ChildContent>
-</MudStep>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudForm @ref="teamForm">
+        <MudPaper>
+            <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true">
+                <HeaderContent>
+                    <MudTh Style="min-width: 200px;">Team</MudTh>
+                    <MudTh Style="min-width: 200px;">Name</MudTh>
+                    <MudTh Style="min-width: 200px;">Principal</MudTh>
+                    <MudTh Style="min-width: 100px;">Colour</MudTh>
+                    <MudTh Style="min-width: 100px;">Accent</MudTh>
+                    <MudTh Class="number-col-lg">Base</MudTh>
+                    <MudTh Class="number-col-lg">Aero</MudTh>
+                    <MudTh Class="number-col-lg">Chassis</MudTh>
+                    <MudTh Class="number-col-lg">Power</MudTh>
+                    <MudTh Class="number-col-lg">Rel.</MudTh>
+                    <MudTh Style="min-width: 200px;">Manufacturer</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Team">
+                        <MudText>@(context.Team?.Name ?? "Unknown")</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Name">
+                        <MudText>@context.Name</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Principal">
+                        <MudText>@context.Principal</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Colour" Style="@ViewHelper.SetBackgroundColour(context.Colour)">
+                        @context.Colour
+                    </MudTd>
+                    <MudTd DataLabel="Accent" Style="@ViewHelper.SetBackgroundColour(context.Accent)">
+                        @context.Accent
+                    </MudTd>
+                    <MudTd DataLabel="Base">
+                        <MudText Typo="Typo.caption">@context.BaseValue</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Aero">
+                        <MudText Typo="Typo.caption">@context.Aero</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Chassis">
+                        <MudText Typo="Typo.caption">@context.Chassis</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Powertrain">
+                        <MudText Typo="Typo.caption">@context.Powertrain</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Reliability">
+                        <MudText Typo="Typo.caption">@context.Reliability</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Manufacturer">
+                        <MudText>@ReadManufacturerName(context.ManufacturerId)</MudText>
+                    </MudTd>
+                </RowTemplate>
+                <RowEditingTemplate>
+                    <MudTd DataLabel="Team">
+                        <MudText>@(context.Team?.Name ?? "Unknown")</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Name">
+                        <MudTextField @bind-Value="@context.Name" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Principal">
+                        <MudTextField @bind-Value="@context.Principal" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Colour">
+                        <MudColorPicker @bind-Text="@context.Colour" DisableAlpha="true" />
+                    </MudTd>
+                    <MudTd DataLabel="Accent">
+                        <MudColorPicker @bind-Text="@context.Accent" DisableAlpha="true" />
+                    </MudTd>
+                    <MudTd DataLabel="Base">
+                        <MudNumericField @bind-Value="@context.BaseValue" />
+                    </MudTd>
+                    <MudTd DataLabel="Aero">
+                        <MudNumericField @bind-Value="@context.Aero" />
+                    </MudTd>
+                    <MudTd DataLabel="Chassis">
+                        <MudNumericField @bind-Value="@context.Chassis" />
+                    </MudTd>
+                    <MudTd DataLabel="Powertrain">
+                        <MudNumericField @bind-Value="@context.Powertrain" />
+                    </MudTd>
+                    <MudTd DataLabel="Reliability">
+                        <MudNumericField @bind-Value="@context.Reliability" />
+                    </MudTd>
+                    <MudTd DataLabel="Manufacturer">
+                        <MudSelect T="long" @bind-Value="@context.ManufacturerId" Required>
+                            @foreach (var manufacturer in manufacturers)
+                            {
+                                <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudTd>
+                </RowEditingTemplate>
+                <EditButtonContent Context="button">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+                </EditButtonContent>
+            </MudTable>
+        </MudPaper>
+    </MudForm>
+</MudContainer>
 
 @code {
     [CascadingParameter]
     public AddEntrantsModel Model { get; set; }
-
-    [Parameter, EditorRequired]
-    public List<Manufacturer> Manufacturers { get; set; }
 
     [Parameter, EditorRequired]
     public long SeasonId { get; set; }
@@ -117,10 +111,14 @@
     [Parameter]
     public long? PreviousSeasonId { get; set; }
 
+    List<Manufacturer> manufacturers;
+
     MudForm teamForm;
 
     protected override async Task OnInitializedAsync()
     {
+        manufacturers = await _manufacturerService.GetManufacturers();
+
         List<SeasonTeam>? previousTeams = null;
         if (PreviousSeasonId.HasValue)
             previousTeams = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);
@@ -136,8 +134,9 @@
             model.SeasonId = SeasonId;
             model.TeamId = team.Id;
             model.Team = team;
+            model.Name = string.IsNullOrEmpty(model.Name) ? team.Name : model.Name;
             model.Principal = string.IsNullOrEmpty(model.Principal) ? "Principal" : model.Principal;
-            model.ManufacturerId = model.ManufacturerId == 0 ? Manufacturers.First().Id : model.ManufacturerId;
+            model.ManufacturerId = model.ManufacturerId == 0 ? manufacturers.First().Id : model.ManufacturerId;
 
             Model.SeasonTeams.Add(model);
         }
@@ -145,7 +144,7 @@
 
     private string ReadManufacturerName(long id)
     {
-        var manufacturer = Manufacturers.Find(e => e.Id == id);
+        var manufacturer = manufacturers.Find(e => e.Id == id);
         if (manufacturer != null)
             return manufacturer.Name;
 

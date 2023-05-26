@@ -89,21 +89,16 @@ namespace SimTECH.Data.EditModels
             }
         }
 
-        public void SetSeasonIdForAll(long seasonId)
-        {
-            SeasonId = seasonId;
-
-            if (SeasonDrivers?.Any() == true)
-            {
-                foreach (var driver in SeasonDrivers)
-                    driver.SetSeasonId(seasonId);
-            }
-        }
-
         public void Validate(List<string> errors)
         {
+            string teamName = Team?.Name ?? "Unknown Team";
+
             if (string.IsNullOrEmpty(Name))
-                errors.Add("Team lacks a name");
+                errors.Add($"{teamName} lacks a name.");
+            if (ManufacturerId == 0)
+                errors.Add($"{teamName} is not a boat, thus it needs a tyre manufacturer. Add it or else...");
+            if (string.IsNullOrEmpty(Colour) || string.IsNullOrEmpty(Accent))
+                errors.Add($"Put some colours on {teamName} please.");
 
             // TODO: More validation messages
         }

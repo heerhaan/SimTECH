@@ -1,40 +1,42 @@
-﻿<MudStep Title="Participating drivers" Icon="@IconCollection.Helmet">
-    <ChildContent>
-        <MudContainer MaxWidth="MaxWidth.Large">
-            <MudPaper>
-                <MudTable T="Driver" @bind-SelectedItems="@Model.BaseDrivers" Items="@Drivers" MultiSelection="true" Dense="true" Hover="true">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h5">Available drivers</MudText>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>Name</MudTh>
-                        <MudTh>Age</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Name">
-                            <MudStack Row="true" AlignItems="AlignItems.Center">
-                                <MudText>@context.FullName</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@context.Country" />
-                            </MudStack>
-                        </MudTd>
-                        <MudTd>
-                            <MudText Typo="Typo.caption">@(Year - context.DateOfBirth.Year)</MudText>
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
-        </MudContainer>
-    </ChildContent>
-</MudStep>
+﻿@inject DriverService _driverService
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudPaper>
+        <MudTable T="Driver" @bind-SelectedItems="@Model.BaseDrivers" Items="@Drivers" MultiSelection="true" Dense="true" Hover="true">
+            <ToolBarContent>
+                <MudText Typo="Typo.h5">Available drivers</MudText>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Age</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudText>@context.FullName</MudText>
+                        <MudSpacer />
+                        <CountryFlag Code="@context.Country" />
+                    </MudStack>
+                </MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.caption">@(Year - context.DateOfBirth.Year)</MudText>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+</MudContainer>
 
 @code {
     [CascadingParameter]
     public AddEntrantsModel Model { get; set; }
 
     [Parameter, EditorRequired]
-    public List<Driver> Drivers { get; set; }
-
-    [Parameter, EditorRequired]
     public int Year { get; set; }
+
+    List<Driver> Drivers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Drivers = await _driverService.GetDrivers();
+    }
 }

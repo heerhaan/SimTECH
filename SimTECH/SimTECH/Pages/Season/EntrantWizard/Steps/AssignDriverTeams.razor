@@ -1,53 +1,55 @@
-﻿<MudStep Title="Assign drivers to teams" Icon="@IconCollection.Helmet">
-    <ChildContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-            <MudPaper Class="mud-height-full">
-                <MudDropContainer @ref="dropperDrivers"
-                                  T="EditSeasonDriverModel"
-                                  Items="@Model.SeasonDrivers"
-                                  ItemsSelector="@((item,dropzone) => item.BaseTeamId.ToString() == dropzone)"
-                                  ItemDropped="DriverTeamDropped"
-                                  Class="d-flex flex-row flex-wrap flex-grow-1"
-                                  Style="max-height: 500px">
-                    <ChildContent>
+﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudPaper Class="mud-height-full">
+        <MudDropContainer @ref="dropperDrivers"
+                          T="EditSeasonDriverModel"
+                          Items="@Model.SeasonDrivers"
+                          ItemsSelector="@((item,dropzone) => item.BaseTeamId.ToString() == dropzone)"
+                          ItemDropped="DriverTeamDropped">
+            <ChildContent>
+                <MudGrid>
+                    <MudItem xs="3">
                         <MudPaper Class="ma-2" Width="225px">
                             <MudList Clickable="true">
                                 <MudListSubheader>Unassigned drivers</MudListSubheader>
                                 <MudDropZone T="EditSeasonDriverModel" Identifier="0" Style="min-height:200px" />
                             </MudList>
                         </MudPaper>
-                        @foreach (var seasonTeam in Model.SeasonTeams)
-                        {
-                            <MudPaper Class="ma-2" Width="225px">
-                                <MudList Clickable="true">
-                                    <MudListSubheader>
-                                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                            <MudText>@seasonTeam.Name</MudText>
-                                            <MudSpacer />
-                                            <CountryFlag Code="@seasonTeam.Team.Country" />
-                                        </MudStack>
-                                    </MudListSubheader>
-                                    <MudDropZone T="EditSeasonDriverModel"
+                    </MudItem>
+                    <MudItem xs="9">
+                        <MudStack Row="true" Class="flex-wrap">
+                            @foreach (var seasonTeam in Model.SeasonTeams)
+                            {
+                                <MudPaper Class="ma-2" Width="225px">
+                                    <MudList Clickable="true">
+                                        <MudListSubheader>
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                                <MudText>@seasonTeam.Name</MudText>
+                                                <MudSpacer />
+                                                <CountryFlag Code="@seasonTeam.Team.Country" />
+                                            </MudStack>
+                                        </MudListSubheader>
+                                        <MudDropZone T="EditSeasonDriverModel"
                                                  Identifier="@seasonTeam.TeamId.ToString()"
                                                  Style="min-height:200px" />
-                                </MudList>
-                            </MudPaper>
-                        }
-                    </ChildContent>
-                    <ItemRenderer>
-                        <MudListItem>
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                <MudText>@context.Driver.FullName</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
-                            </MudStack>
-                        </MudListItem>
-                    </ItemRenderer>
-                </MudDropContainer>
-            </MudPaper>
-        </MudContainer>
-    </ChildContent>
-</MudStep>
+                                    </MudList>
+                                </MudPaper>
+                            }
+                        </MudStack>
+                    </MudItem>
+                </MudGrid>
+            </ChildContent>
+            <ItemRenderer>
+                <MudListItem>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                        <MudText>@context.Driver.FullName</MudText>
+                        <MudSpacer />
+                        <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                    </MudStack>
+                </MudListItem>
+            </ItemRenderer>
+        </MudDropContainer>
+    </MudPaper>
+</MudContainer>
 
 @code {
     [CascadingParameter]
@@ -61,7 +63,8 @@
         StateHasChanged();
 
         //the container refreshes the internal state
-        dropperDrivers.Refresh();
+        //if (dropperDrivers != null)
+        //    dropperDrivers.Refresh();
     }
 
     private void DriverTeamDropped(MudItemDropInfo<EditSeasonDriverModel> dropItem)

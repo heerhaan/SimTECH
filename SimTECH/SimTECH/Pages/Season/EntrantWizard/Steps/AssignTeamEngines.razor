@@ -1,47 +1,49 @@
-﻿<MudStep Title="Assign engines to teams" Icon="@IconCollection.Car">
-    <ChildContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-            <MudPaper Class="mud-height-full">
-                <MudDropContainer @ref="dropperTeams"
-                                  T="EditSeasonTeamModel"
-                                  Items="@Model.SeasonTeams"
-                                  ItemsSelector="@((item,dropzone) => item.BaseEngineId.ToString() == dropzone)"
-                                  ItemDropped="TeamEngineDropped"
-                                  Class="d-flex flex-wrap flex-grow-1"
-                                  Style="max-height: 500px">
-                    <ChildContent>
+﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudPaper Class="mud-height-full">
+        <MudDropContainer @ref="dropperTeams"
+                          T="EditSeasonTeamModel"
+                          Items="@Model.SeasonTeams"
+                          ItemsSelector="@((item,dropzone) => item.BaseEngineId.ToString() == dropzone)"
+                          ItemDropped="TeamEngineDropped"
+                          Class="d-flex flex-wrap flex-grow-1"
+                          >
+            <ChildContent>
+                <MudGrid>
+                    <MudItem xs="3">
+                        <MudPaper Width="225px" Class="ma-2 mud-height-full">
+                            <MudList Clickable="true">
+                                <MudListSubheader>Unassigned teams</MudListSubheader>
+                                <MudDropZone T="EditSeasonTeamModel"
+                                             Identifier="0"
+                                             Style="min-height:200px" />
+                            </MudList>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="9">
                         <MudStack Row="true">
-                            <MudPaper Class="ma-2" Width="225px">
-                                <MudList Clickable="true">
-                                    <MudListSubheader>Unassigned teams</MudListSubheader>
-                                    <MudDropZone T="EditSeasonTeamModel"
-                                                 Identifier="0"
-                                                 Style="min-height:200px" />
-                                </MudList>
-                            </MudPaper>
                             @foreach (var seasonEngine in Model.SeasonEngines)
                             {
-                                <MudPaper Class="ma-2" Width="225px">
+                                <MudPaper Width="225px" Class="ma-2">
                                     <MudList Clickable="true">
                                         <MudListSubheader>
                                             Engine: @seasonEngine.Name
                                         </MudListSubheader>
                                         <MudDropZone T="EditSeasonTeamModel"
-                                                     Identifier="@seasonEngine.EngineId.ToString()"
-                                                     Style="min-height:200px" />
+                                                 Identifier="@seasonEngine.EngineId.ToString()"
+                                                 Style="min-height:200px;" />
                                     </MudList>
                                 </MudPaper>
                             }
                         </MudStack>
-                    </ChildContent>
-                    <ItemRenderer>
-                        <MudListItem Text="@context.Name" />
-                    </ItemRenderer>
-                </MudDropContainer>
-            </MudPaper>
-        </MudContainer>
-    </ChildContent>
-</MudStep>
+                    </MudItem>
+                </MudGrid>
+            </ChildContent>
+            <ItemRenderer>
+                <MudListItem Text="@context.Name" />
+            </ItemRenderer>
+        </MudDropContainer>
+    </MudPaper>
+</MudContainer>
 
 @code {
     [CascadingParameter]
@@ -55,7 +57,7 @@
         StateHasChanged();
 
         //the container refreshes the internal state
-        dropperTeams.Refresh();
+        //dropperTeams.Refresh();
     }
 
     private void TeamEngineDropped(MudItemDropInfo<EditSeasonTeamModel> dropItem)

@@ -32,18 +32,75 @@
                     </MudStack>
                 </StaticContent>
                 <ChildContent>
-                    <AddEngines Engines="@Engines" />
-                    <EditEngines SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
-
-                    <AddTeams Teams="@Teams" />
-                    <EditTeams Manufacturers="@Manufacturers" SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
-                    <AssignTeamEngines />
-
-                    <AddDrivers Drivers="@Drivers" Year="@(Season.Year)" />
-                    <EditDrivers SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
-                    <AssignDriverTeams />
-
-                    <FinalCheck SeasonId="@SeasonId" />
+                    <MudStep Title="Participating engines" Icon="@IconCollection.Engine">
+                        <ChildContent>
+                            <AddEngines />
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Modify engines" Icon="@IconCollection.Engine">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 1)
+                            {
+                                <EditEngines SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Participating teams" Icon="@IconCollection.Car">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 2)
+                            {
+                                <AddTeams />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Modify teams" Icon="@IconCollection.Car">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 3)
+                            {
+                                <EditTeams SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Assign engines to teams" Icon="@IconCollection.Car">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 4)
+                            {
+                                <AssignTeamEngines />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Participating drivers" Icon="@IconCollection.Helmet">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 5)
+                            {
+                                <AddDrivers Year="@(Season.Year)" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Modify drivers" Icon="@IconCollection.Helmet">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 6)
+                            {
+                                <EditDrivers SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Assign drivers to teams" Icon="@IconCollection.Helmet">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 7)
+                            {
+                                <AssignDriverTeams />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Entries for season" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 8)
+                            {
+                                <FinalCheck SeasonId="@SeasonId" />
+                            }
+                        </ChildContent>
+                    </MudStep>
                 </ChildContent>
             </MudStepper>
         </CascadingValue>
@@ -58,35 +115,28 @@
     public Season Season { get; set; }
 
     public Season? PreviousSeason { get; set; }
-    public List<Engine> Engines { get; set; }
-    public List<Team> Teams { get; set; }
-    public List<Driver> Drivers { get; set; }
-    public List<Manufacturer> Manufacturers { get; set; }
 
     MudStepper stepper;
 
-    bool loading = false;
+    bool loading = true;
     List<string> errors = new();
 
     protected override async Task OnInitializedAsync()
     {
-        loading = true;
-
         Season = await _seasonService.GetSeasonById(SeasonId);
         PreviousSeason = await _seasonService.FindRecentClosedSeason(Season.LeagueId);
-
-        Engines = await _engineService.GetEngines();
-        Manufacturers = await _manufacturerService.GetManufacturers();
 
         loading = false;
     }
 
-    private async Task<bool> InvalidStepPrevention(StepChangeDirection direction)
+    private Task<bool> InvalidStepPrevention(StepChangeDirection direction)
     {
         errors.Clear();
 
         if (direction == StepChangeDirection.Backward)
-            return false;
+            return Task.FromResult(false);
+
+        loading = true;
 
         switch (stepper.GetActiveIndex())
         {
@@ -134,8 +184,9 @@
                 break;
             //Step: team assignment
             case 4:
+                if (Model.SeasonTeams.Any(e => e.BaseEngineId == 0))
                 {
-
+                    errors.Add("Oi oi mate, how is a team going to drive without an engine? Try again.");
                 }
                 break;
             //Step: adding drivers
@@ -163,6 +214,11 @@
                 break;
         }
 
-        return errors.Any();
+        loading = false;
+
+        if (errors.Any())
+            return Task.FromResult(true);
+
+        return Task.FromResult(false);
     }
 }
