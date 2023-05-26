@@ -36,14 +36,14 @@
                     <EditEngines SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
 
                     <AddTeams Teams="@Teams" />
-                    <EditTeams Manufacturers="@Manufacturers" />
+                    <EditTeams Manufacturers="@Manufacturers" SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
                     <AssignTeamEngines />
 
                     <AddDrivers Drivers="@Drivers" Year="@(Season.Year)" />
-                    <EditDrivers />
+                    <EditDrivers SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
                     <AssignDriverTeams />
 
-                    <FinalCheck />
+                    <FinalCheck SeasonId="@SeasonId" />
                 </ChildContent>
             </MudStepper>
         </CascadingValue>
@@ -90,7 +90,14 @@
 
         switch (stepper.GetActiveIndex())
         {
-            // Editing entered engines
+            //Step: adding engines to season
+            case 0:
+                if (!(Model.BaseEngines?.Any() == true))
+                {
+                    errors.Add("Suggestion: add some goddamn engines to the season");
+                }
+                break;
+            //Step: editing entered engines
             case 1:
                 {
                     if (Model.SeasonEngines.Any())
@@ -100,7 +107,55 @@
                     }
                     else
                     {
-                        errors.Add("Suggestion: add some goddamn engines to the season");
+                        errors.Add("You fucked up");
+                    }
+                }
+                break;
+            //Step: adding teams to season
+            case 2:
+                if (!(Model.BaseTeams?.Any() == true))
+                {
+                    errors.Add("Suggestion: add some goddamn teams to the season");
+                }
+                break;
+            //Step: editing teams
+            case 3:
+                {
+                    if (Model.SeasonTeams.Any())
+                    {
+                        foreach (var team in Model.SeasonTeams)
+                            team.Validate(errors);
+                    }
+                    else
+                    {
+                        errors.Add("You fucked up");
+                    }
+                }
+                break;
+            //Step: team assignment
+            case 4:
+                {
+
+                }
+                break;
+            //Step: adding drivers
+            case 5:
+                if (!(Model.BaseDrivers?.Any() == true))
+                {
+                    errors.Add("Suggestion: add some goddamn drivers to the season");
+                }
+                break;
+            //Step: editing drivers
+            case 6:
+                {
+                    if (Model.SeasonDrivers.Any())
+                    {
+                        foreach (var driver in Model.SeasonDrivers)
+                            driver.Validate(errors);
+                    }
+                    else
+                    {
+                        errors.Add("You fucked up");
                     }
                 }
                 break;

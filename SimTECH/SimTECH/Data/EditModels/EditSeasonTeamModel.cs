@@ -100,6 +100,14 @@ namespace SimTECH.Data.EditModels
             }
         }
 
+        public void Validate(List<string> errors)
+        {
+            if (string.IsNullOrEmpty(Name))
+                errors.Add("Team lacks a name");
+
+            // TODO: More validation messages
+        }
+
         public SeasonTeam Record =>
             new()
             {

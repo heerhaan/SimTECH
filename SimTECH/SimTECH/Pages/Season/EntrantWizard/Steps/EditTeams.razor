@@ -1,4 +1,6 @@
-﻿<MudStep Title="Modify teams" Icon="@IconCollection.Car">
+﻿@inject SeasonEntrantService _entrantService
+
+<MudStep Title="Modify teams" Icon="@IconCollection.Car">
     <ChildContent>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudForm @ref="teamForm">
@@ -109,7 +111,37 @@
     [Parameter, EditorRequired]
     public List<Manufacturer> Manufacturers { get; set; }
 
+    [Parameter, EditorRequired]
+    public long SeasonId { get; set; }
+
+    [Parameter]
+    public long? PreviousSeasonId { get; set; }
+
     MudForm teamForm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        List<SeasonTeam>? previousTeams = null;
+        if (PreviousSeasonId.HasValue)
+            previousTeams = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);
+
+        foreach (var team in Model.BaseTeams)
+        {
+            SeasonTeam? previousTeam = null;
+            if (previousTeams != null)
+                previousTeam = previousTeams.Find(e => e.TeamId == team.Id);
+
+            var model = new EditSeasonTeamModel(previousTeam);
+            model.ResetIdentifierFields();
+            model.SeasonId = SeasonId;
+            model.TeamId = team.Id;
+            model.Team = team;
+            model.Principal = string.IsNullOrEmpty(model.Principal) ? "Principal" : model.Principal;
+            model.ManufacturerId = model.ManufacturerId == 0 ? Manufacturers.First().Id : model.ManufacturerId;
+
+            Model.SeasonTeams.Add(model);
+        }
+    }
 
     private string ReadManufacturerName(long id)
     {

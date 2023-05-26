@@ -1,4 +1,7 @@
-﻿<MudStep Title="Entries for season" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
+﻿@inject SeasonEntrantService _entrantService
+@inject NavigationManager _nav
+
+<MudStep Title="Entries for season" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
     <ChildContent>
         <MudContainer MaxWidth="MaxWidth.False">
             <MudGrid>
@@ -135,15 +138,18 @@
     [CascadingParameter]
     public AddEntrantsModel Model { get; set; }
 
-    private void AddAllEntrants()
+    [Parameter, EditorRequired]
+    public long SeasonId { get; set; }
+
+    private async Task AddAllEntrants()
     {
         Model.CombineEntrantModels();
 
         var rootEntrants = Model.SeasonEngines.Select(e => e.Record).ToList();
 
-        //await EntrantService.PersistSeasonEntrants(rootEntrants);
+        await _entrantService.PersistSeasonEntrants(rootEntrants);
 
-        //Nav.NavigateTo($"/overview/{SeasonId}");
+       _nav.NavigateTo($"/overview/{SeasonId}");
 
         throw new NotImplementedException();
     }

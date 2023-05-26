@@ -7,7 +7,8 @@
                                   Items="@Model.SeasonDrivers"
                                   ItemsSelector="@((item,dropzone) => item.BaseTeamId.ToString() == dropzone)"
                                   ItemDropped="DriverTeamDropped"
-                                  Class="d-flex flex-row flex-wrap flex-grow-1">
+                                  Class="d-flex flex-row flex-wrap flex-grow-1"
+                                  Style="max-height: 500px">
                     <ChildContent>
                         <MudPaper Class="ma-2" Width="225px">
                             <MudList Clickable="true">
@@ -26,7 +27,9 @@
                                             <CountryFlag Code="@seasonTeam.Team.Country" />
                                         </MudStack>
                                     </MudListSubheader>
-                                    <MudDropZone T="EditSeasonDriverModel" Identifier="@seasonTeam.TeamId.ToString()" Style="min-height:200px" />
+                                    <MudDropZone T="EditSeasonDriverModel"
+                                                 Identifier="@seasonTeam.TeamId.ToString()"
+                                                 Style="min-height:200px" />
                                 </MudList>
                             </MudPaper>
                         }
@@ -51,6 +54,15 @@
     public AddEntrantsModel Model { get; set; }
 
     MudDropContainer<EditSeasonDriverModel> dropperDrivers;
+
+    protected override void OnInitialized()
+    {
+        //update the binding to the container
+        StateHasChanged();
+
+        //the container refreshes the internal state
+        dropperDrivers.Refresh();
+    }
 
     private void DriverTeamDropped(MudItemDropInfo<EditSeasonDriverModel> dropItem)
     {

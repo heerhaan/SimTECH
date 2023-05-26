@@ -1,4 +1,7 @@
-﻿<MudStep Title="Modify drivers" Icon="@IconCollection.Helmet">
+﻿@inject SeasonEntrantService _entrantService
+@inject IOptions<SimConfig> _config
+
+<MudStep Title="Modify drivers" Icon="@IconCollection.Helmet">
     <ChildContent>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <MudPaper>
@@ -72,5 +75,37 @@
     [CascadingParameter]
     public AddEntrantsModel Model { get; set; }
 
+    [Parameter, EditorRequired]
+    public long SeasonId { get; set; }
+
+    [Parameter]
+    public long? PreviousSeasonId { get; set; }
+
     MudForm driverForm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        List<SeasonDriver>? previousDrivers = null;
+        if (PreviousSeasonId.HasValue)
+            previousDrivers = await _entrantService.GetSeasonDrivers(PreviousSeasonId.Value);
+
+        int indexer = 0;
+        foreach (var driver in Model.BaseDrivers)
+        {
+            SeasonDriver? previousDriver = null;
+            if (previousDrivers != null)
+                previousDriver = previousDrivers.Find(e => e.DriverId == driver.Id);
+
+            var model = new EditSeasonDriverModel(previousDriver);
+            model.ResetIdentifierFields();
+            model.SeasonId = SeasonId;
+            model.DriverId = driver.Id;
+            model.Driver = driver;
+
+            if (!_config.Value.PersonalNumbersEnabled)
+                model.Number = ++indexer;
+
+            Model.SeasonDrivers.Add(model);
+        }
+    }
 }

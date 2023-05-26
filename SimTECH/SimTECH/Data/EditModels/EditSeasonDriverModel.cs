@@ -62,6 +62,14 @@ namespace SimTECH.Data.EditModels
 
         public void SetSeasonId(long seasonId) => SeasonId = seasonId;
 
+        public void Validate(List<string> errors)
+        {
+            if (Number < 0)
+                errors.Add("Number is negative, which is cringe");
+
+            // TODO: More validation messages
+        }
+
         public SeasonDriver Record =>
             new()
             {
