@@ -4,6 +4,7 @@ using MudBlazor;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
+using SimTECH.PageModels.SeasonModels;
 
 namespace SimTECH.Data.Services
 {
@@ -129,15 +130,9 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task CheckPenalties(List<Result> raceResults, int nextRound)
+        public async Task CheckPenalties(List<Result> raceResults)
         {
             using var context = _dbFactory.CreateDbContext();
-
-            var nextRace = await context.Race.FirstOrDefaultAsync(e => e.Round == nextRound);
-
-            // There is no next race, thus there is no need to determine a penalty
-            if (nextRace == null)
-                return;
 
             var newPenalties = new List<GivenPenalty>();
 
@@ -215,6 +210,50 @@ namespace SimTECH.Data.Services
             };
         }
 
+        public async Task<List<QualyBattle>> GetQualifyingBattles(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var races = await context.Race
+                .Where(e => e.SeasonId == seasonId && e.State == State.Closed)
+                .Include(e => e.Results)
+                .ToListAsync();
+
+            var drivers = await context.SeasonDriver
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Driver)
+                .ToListAsync();
+
+            var battleVictories = new Dictionary<long, int>();
+
+            foreach (var driver in drivers)
+                battleVictories.Add(driver.Id, 0);
+
+            foreach (var race in races)
+            {
+                foreach (var byTeam in race.Results.GroupBy(e => e.SeasonTeamId))
+                {
+                    var bestResult = byTeam.OrderBy(e => e.Grid).FirstOrDefault();
+
+                    if (bestResult != null)
+                        battleVictories[bestResult.SeasonDriverId]++;
+                }
+            }
+
+            var qualyBattles = new List<QualyBattle>();
+            foreach (var victory in battleVictories)
+            {
+                var driver = drivers.First(e => e.Id == victory.Key);
+                qualyBattles.Add(new QualyBattle
+                {
+                    Name = driver.Driver.FullName,
+                    Score = victory.Value,
+                });
+            }
+
+            return qualyBattles;
+        }
+
         public async Task<List<PowerRankModel>> GetPowerRankings(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -286,7 +325,7 @@ namespace SimTECH.Data.Services
                     powerModel.Engine = "None";
                 }
 
-                var sumTraits = NumberHelper.SumTraitEffects(driverTraits);
+                var sumTraits = driverTraits.SumTraitEffects();
 
                 powerModel.QualyPower += sumTraits.QualifyingPace;
                 powerModel.RacePower += sumTraits.RacePace;

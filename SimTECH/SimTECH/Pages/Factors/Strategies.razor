@@ -40,8 +40,8 @@
                             }
                         </CellTemplate>
                     </TemplateColumn>
-                    <PropertyColumn Property="e => e.AveragePace()" Title="Avg. Pace" />
-                    <PropertyColumn Property="e => e.State" />
+                    <PropertyColumn Property="e => e!.AveragePace()" Title="Avg. Pace" />
+                    <PropertyColumn Property="e => e!.State" />
                     <TemplateColumn T="Strategy" Sortable="false">
                         <CellTemplate>
                             <MudButtonGroup>
@@ -68,12 +68,12 @@
                     <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTyre">New</MudButton>
                 </ToolBarContent>
                 <Columns>
-                    <PropertyColumn Property="e => e.Name" CellStyleFunc="_applyTyreColouring" />
-                    <PropertyColumn Property="e => e.Pace" Style="font-family: var(--mud-typography-caption-family)" />
-                    <PropertyColumn Property="e => e.WearMin" Style="font-family: var(--mud-typography-caption-family)" />
-                    <PropertyColumn Property="e => e.WearMax" Style="font-family: var(--mud-typography-caption-family)" />
-                    <PropertyColumn Property="e => e.Length" Style="font-family: var(--mud-typography-caption-family)" />
-                    <PropertyColumn Property="e => e.State" />
+                    <PropertyColumn Property="e => e!.Name" CellStyleFunc="_applyTyreColouring" />
+                    <PropertyColumn Property="e => e!.Pace" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e!.WearMin" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e!.WearMax" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e!.Length" Style="font-family: var(--mud-typography-caption-family)" />
+                    <PropertyColumn Property="e => e!.State" />
                     <TemplateColumn T="Tyre" Sortable="false">
                         <CellTemplate>
                             <MudButtonGroup>
@@ -102,8 +102,8 @@
         return $"border-color: {e.Colour}";
     };
 
-    async Task AddStrategy() => await UpdateStrategy(new Strategy());
-    async Task UpdateStrategy(Strategy strategy)
+    async Task AddStrategy() => await UpdateStrategy(null);
+    async Task UpdateStrategy(Strategy? strategy)
     {
         var parameters = new DialogParameters
         {
@@ -134,8 +134,8 @@
         StrategyData = await _strategyService.GetStrategies();
     }
 
-    async Task AddTyre() => await UpdateTyre(new Tyre());
-    async Task UpdateTyre(Tyre item)
+    async Task AddTyre() => await UpdateTyre(null);
+    async Task UpdateTyre(Tyre? item)
     {
         var parameters = new DialogParameters { ["Tyre"] = item };
 

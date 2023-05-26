@@ -17,18 +17,25 @@ namespace SimTECH.Data.EditModels
         public long ClimateId { get; set; }
 
         public EditRaceModel() { _race = new Race(); }
-        public EditRaceModel(Race race)
+        public EditRaceModel(Race? race)
         {
-            Id = race.Id;
-            Round = race.Round;
-            Name = race.Name;
-            RaceLength = race.RaceLength;
-            State = race.State;
-            SeasonId = race.SeasonId;
-            TrackId = race.TrackId;
-            ClimateId = race.ClimateId;
+            if (race == null)
+            {
+                _race = new Race();
+            }
+            else
+            {
+                Id = race.Id;
+                Round = race.Round;
+                Name = race.Name;
+                RaceLength = race.RaceLength;
+                State = race.State;
+                SeasonId = race.SeasonId;
+                TrackId = race.TrackId;
+                ClimateId = race.ClimateId;
 
-            _race = race;
+                _race = race;
+            }
         }
 
         public Race Record =>
@@ -50,6 +57,18 @@ namespace SimTECH.Data.EditModels
         {
             Id = default;
             SeasonId = default;
+        }
+
+        public List<string> RunValidations()
+        {
+            var errorValidations = new List<string>();
+
+            if ((RaceLength % 10) != 0)
+            {
+                errorValidations.Add("Race length should be a factor of 10");
+            }
+
+            return errorValidations;
         }
     }
 }

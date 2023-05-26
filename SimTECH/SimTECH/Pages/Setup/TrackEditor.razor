@@ -6,26 +6,26 @@
         <MudText>Expected length per race: @(raceLength)KM</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@model">
+        <MudForm Model="@Model">
             <MudGrid>
                 <MudItem xs="8">
                     <MudPaper Elevation="10" Class="pa-4">
                         <MudStack>
                             <MudText Typo="Typo.subtitle1">Features</MudText>
                             <MudDivider />
-                            <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
-                            <MudCountrySelect @bind-Value="model.Country" Class="field-md my-2" />
+                            <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
+                            <MudCountrySelect @bind-Value="Model.Country" Class="field-md my-2" />
                             <MudStack Row="true" Spacing="6">
-                                <MudNumericField T="double" @bind-Value="model.Length" Label="Length" Format="N2" Adornment="Adornment.End" AdornmentText="Km" AdornmentColor="Color.Tertiary" DebounceInterval="500" OnDebounceIntervalElapsed="HandleLengthLapCalc" HelperText="@expectedLapCount" />
+                                <MudNumericField T="double" @bind-Value="Model.Length" Label="Length" Format="N2" Adornment="Adornment.End" AdornmentText="Km" AdornmentColor="Color.Tertiary" DebounceInterval="500" OnDebounceIntervalElapsed="HandleLengthLapCalc" HelperText="@expectedLapCount" />
                             </MudStack>
 
                             <MudText Typo="Typo.subtitle1" Class="mt-4">Modifiers</MudText>
                             <MudDivider />
-                            <MudNumericField T="double" @bind-Value="model.AeroMod" Label="Aero mod" Format="N2" Class="field-sm" />
-                            <MudNumericField T="double" @bind-Value="model.ChassisMod" Label="Chassis mod" Format="N2" Class="field-sm" />
-                            <MudNumericField T="double" @bind-Value="model.PowerMod" Label="Power mod" Format="N2" Class="field-sm" />
-                            <MudNumericField T="double" @bind-Value="model.QualifyingMod" Label="Qualy mod" Format="N2" Class="field-sm" />
-                            <MudNumericField T="double" @bind-Value="model.DefenseMod" Label="Defense mod" Format="N2" Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="Model.AeroMod" Label="Aero mod" Format="N2" Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="Model.ChassisMod" Label="Chassis mod" Format="N2" Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="Model.PowerMod" Label="Power mod" Format="N2" Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="Model.QualifyingMod" Label="Qualy mod" Format="N2" Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="Model.DefenseMod" Label="Defense mod" Format="N2" Class="field-sm" />
                         </MudStack>
                     </MudPaper>
                 </MudItem>
@@ -56,7 +56,7 @@
     [Parameter] public Track? Track { get; set; }
     [Parameter] public List<Trait> Traits { get; set; } = new();
 
-    private EditTrackModel model = new();
+    private EditTrackModel Model;
     private ICollection<object>? selectedTraits { get; set; }
 
     private int raceLength = 300;
@@ -64,15 +64,15 @@
 
     protected override void OnInitialized()
     {
+        Model = new EditTrackModel(Track);
+
         if (Track != null)
         {
-            model = new EditTrackModel(Track);
+            HandleLengthLapCalc(Model.Length.ToString());
 
-            HandleLengthLapCalc(model.Length.ToString());
-
-            if (model.TrackTraits.Any())
+            if (Model.TrackTraits.Any())
             {
-                selectedTraits = model.TrackTraits.Select(e => e.TraitId).Cast<object>().ToList();
+                selectedTraits = Model.TrackTraits.Select(e => e.TraitId).Cast<object>().ToList();
             }
         }
         else
@@ -91,15 +91,15 @@
     {
         if (selectedTraits != null)
         {
-            model.TrackTraits = selectedTraits
+            Model.TrackTraits = selectedTraits
                 .Cast<long>()
-                .Select(e => new EditTrackTraitModel { TrackId = model.Id, TraitId = e })
+                .Select(e => new EditTrackTraitModel { TrackId = Model.Id, TraitId = e })
                 .ToList();
         }
 
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            var modTrack = model.Record;
+            var modTrack = Model.Record;
             TrackDialog?.Close(DialogResult.Ok(modTrack));
         }
     }

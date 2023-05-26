@@ -3,14 +3,14 @@
         <MudText>Modify team</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@model">
+        <MudForm Model="@Model">
             <MudGrid>
                 <MudItem xs="8">
                     <MudPaper Elevation="15" Class="pa-4">
                         <MudStack>
-                            <MudTextField T="string" @bind-Value="@model.Name" Label="Name" Class="field-md" />
-                            <MudCountrySelect @bind-Value="model.Country" Class="field-md" />
-                            <MudTextField T="string" @bind-Value="@model.Biography" Label="Biography" Lines="5" />
+                            <MudTextField T="string" @bind-Value="@Model.Name" Label="Name" Class="field-md" />
+                            <MudCountrySelect @bind-Value="Model.Country" Class="field-md" />
+                            <MudTextField T="string" @bind-Value="@Model.Biography" Label="Biography" Lines="5" />
                         </MudStack>
                     </MudPaper>
                 </MudItem>
@@ -41,15 +41,16 @@
     [Parameter] public Team? Team { get; set; }
     [Parameter] public List<Trait> Traits { get; set; } = new();
 
-    private EditTeamModel model = new();
+    private EditTeamModel Model;
     private ICollection<object>? selectedTraits { get; set; }
 
     protected override void OnInitialized()
     {
+        Model = new EditTeamModel(Team);
+
         if (Team != null)
         {
-            model = new EditTeamModel(Team);
-            selectedTraits = model.TeamTraits.Select(e => e.TraitId).Cast<object>().ToList();
+            selectedTraits = Model.TeamTraits.Select(e => e.TraitId).Cast<object>().ToList();
         }
         else
         {
@@ -61,16 +62,15 @@
     {
         if (selectedTraits != null)
         {
-            model.TeamTraits = selectedTraits
+            Model.TeamTraits = selectedTraits
                 .Cast<long>()
-                .Select(e => new EditTeamTraitModel { TeamId = model.Id, TraitId = e })
+                .Select(e => new EditTeamTraitModel { TeamId = Model.Id, TraitId = e })
                 .ToList();
         }
 
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            var modTeam = model.Record;
-            TeamDialog?.Close(DialogResult.Ok(modTeam));
+            TeamDialog?.Close(DialogResult.Ok(Model.Record));
         }
     }
 

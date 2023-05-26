@@ -1,0 +1,35 @@
+﻿@inject TeamService _teamService
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudPaper>
+        <MudTable T="Team" Items="@Teams" @bind-SelectedItems="@Model.BaseTeams" MultiSelection="true" Dense="true" Hover="true">
+            <ToolBarContent>
+                <MudText Typo="Typo.h5">Available teams</MudText>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                        <MudText>@context.Name</MudText>
+                        <MudSpacer />
+                        <CountryFlag Code="@context.Country" />
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public AddEntrantsModel Model { get; set; }
+
+    List<Team> Teams;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Teams = await _teamService.GetTeams();
+    }
+}

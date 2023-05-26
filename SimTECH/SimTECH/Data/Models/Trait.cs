@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using SimTECH.PageModels;
+
+namespace SimTECH.Data.Models
 {
     public sealed class Trait
     {
@@ -34,7 +36,7 @@
             var assignedValues = new Dictionary<string, int>();
 
             if (trait.QualifyingPace != 0)
-                assignedValues.Add("Qualifying pace", trait.QualifyingPace);
+                assignedValues.Add("Qualy pace", trait.QualifyingPace);
             if (trait.RacePace != 0)
                 assignedValues.Add("Race pace", trait.RacePace);
             if (trait.Attack != 0)
@@ -42,15 +44,15 @@
             if (trait.Defense != 0)
                 assignedValues.Add("Defense", trait.Defense);
             if (trait.DriverReliability != 0)
-                assignedValues.Add("Driver reliability", trait.DriverReliability);
+                assignedValues.Add("Driver rel.", trait.DriverReliability);
             if (trait.CarReliability != 0)
-                assignedValues.Add("Car reliability", trait.CarReliability);
+                assignedValues.Add("Car rel.", trait.CarReliability);
             if (trait.EngineReliability != 0)
-                assignedValues.Add("Engine reliability", trait.EngineReliability);
-            if (trait.WearMax != 0)
-                assignedValues.Add("Wear max", trait.WearMax);
+                assignedValues.Add("Engine rel.", trait.EngineReliability);
             if (trait.WearMin != 0)
-                assignedValues.Add("Wear min", trait.WearMin);
+                assignedValues.Add("Min. wear mod", trait.WearMin);
+            if (trait.WearMax != 0)
+                assignedValues.Add("Max. wear mod", trait.WearMax);
             if (trait.RngMin != 0)
                 assignedValues.Add("Rng min", trait.RngMin);
             if (trait.RngMax != 0)
@@ -58,5 +60,21 @@
 
             return assignedValues;
         }
+
+        public static TraitEffect SumTraitEffects(this IEnumerable<Trait> traits) =>
+            new()
+            {
+                QualifyingPace = traits.Sum(e => e.QualifyingPace),
+                RacePace = traits.Sum(e => e.RacePace),
+                Attack = traits.Sum(e => e.Attack),
+                Defense = traits.Sum(e => e.Defense),
+                DriverReliability = traits.Sum(e => e.DriverReliability),
+                CarReliability = traits.Sum(e => e.CarReliability),
+                EngineReliability = traits.Sum(e => e.EngineReliability),
+                WearMaximum = traits.Sum(e => e.WearMax),
+                WearMinimum = traits.Sum(e => e.WearMin),
+                MaxRNG = traits.Sum(e => e.RngMax),
+                MinRNG = traits.Sum(e => e.RngMin),
+            };
     }
 }

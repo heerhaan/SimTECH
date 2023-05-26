@@ -1,0 +1,33 @@
+﻿@inject SeasonService _seasonService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>Qualifying battles</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTable T="QualyBattle" Items="@QualifyingBattles">
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Amount</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@(context.Name)</MudTd>
+                <MudTd>@(context.Score)</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
+
+    [Parameter, EditorRequired]
+    public long SeasonId { get; set; }
+
+    private List<QualyBattle> QualifyingBattles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        QualifyingBattles = await _seasonService.GetQualifyingBattles(SeasonId);
+    }
+}

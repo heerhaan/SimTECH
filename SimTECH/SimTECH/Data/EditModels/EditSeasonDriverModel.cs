@@ -60,7 +60,13 @@ namespace SimTECH.Data.EditModels
             HiddenPoints = default;
         }
 
-        public void SetSeasonId(long seasonId) => SeasonId = seasonId;
+        public void Validate(List<string> errors)
+        {
+            var driverName = Driver?.FullName ?? "Unknown Driver";
+
+            if (Number < 0)
+                errors.Add($"Number of {driverName} is negative, which is cringe and weird. Don't do that.");
+        }
 
         public SeasonDriver Record =>
             new()

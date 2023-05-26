@@ -1,6 +1,5 @@
 ﻿<MudNavMenu Color="Color.Primary">
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    <MudNavLink Href="/test" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Lightbulb">Test</MudNavLink>
 
     <MudNavGroup Title="Entrants" Icon="@Icons.Material.Filled.Settings" @bind-Expanded="@entrantsExpanded">
         <MudNavLink Href="/drivers" Match="NavLinkMatch.Prefix" Icon="@IconCollection.Helmet">Drivers</MudNavLink>
@@ -21,12 +20,18 @@
 
     <MudNavLink Href="/seasons" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Flag">Seasons</MudNavLink>
 
-    <MudNavLink Href="/contracts" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditNote">Contracts</MudNavLink>
-
     <MudNavLink Href="/stats" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.BarChart">Stats</MudNavLink>
+
+    <MudNavGroup Title="Test" Icon="@IconCollection.Pyramid" @bind-Expanded="@testExpanded">
+        <MudNavLink Href="/test" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Lightbulb">Test</MudNavLink>
+        <MudNavLink Href="/contracts" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditNote">Contracts</MudNavLink>
+        <MudNavLink Href="/sponsors" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditNote">Sponsors</MudNavLink>
+        <MudNavLink Href="/finances" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditNote">Finances</MudNavLink>
+    </MudNavGroup>
 </MudNavMenu>
 
 @code {
     bool entrantsExpanded = true;
     bool factorsExpanded = true;
+    bool testExpanded = false;
 }

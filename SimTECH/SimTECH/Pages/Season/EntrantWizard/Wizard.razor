@@ -1,0 +1,224 @@
+﻿@page "/entrantwizard/{SeasonId:long}"
+@using MudBlazor.Extensions
+@using MudExtensions.Enums;
+@using MudExtensions.Utilities
+@using SimTECH.Pages.Season.EntrantWizard.Steps
+
+@inject EngineService _engineService
+@inject TeamService _teamService
+@inject DriverService _driverService
+@inject SeasonService _seasonService
+@inject SeasonEntrantService _entrantService
+@inject ManufacturerService _manufacturerService
+@inject NavigationManager _nav
+@inject ISnackbar _snackbar
+@inject IOptions<SimConfig> _config
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudPaper>
+        <CascadingValue Value="@Model">
+            <MudStepper @ref="stepper"
+                        Loading="@loading"
+                        Variant="Variant.Outlined"
+                        Linear="true"
+                        DisableSkipButton="true"
+                        PreventStepChangeAsync="InvalidStepPrevention">
+                <StaticContent>
+                    <MudStack Row="true" Justify="Justify.Center">
+                        @foreach (var error in errors)
+                        {
+                            <MudText Color="Color.Error">@error</MudText>
+                        }
+                    </MudStack>
+                </StaticContent>
+                <ChildContent>
+                    <MudStep Title="Participating engines" Icon="@IconCollection.Engine">
+                        <ChildContent>
+                            <AddEngines />
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Modify engines" Icon="@IconCollection.Engine">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 1)
+                            {
+                                <EditEngines SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Participating teams" Icon="@IconCollection.Car">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 2)
+                            {
+                                <AddTeams />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Modify teams" Icon="@IconCollection.Car">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 3)
+                            {
+                                <EditTeams SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Assign engines to teams" Icon="@IconCollection.Car">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 4)
+                            {
+                                <AssignTeamEngines />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Participating drivers" Icon="@IconCollection.Helmet">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 5)
+                            {
+                                <AddDrivers Year="@(Season.Year)" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Modify drivers" Icon="@IconCollection.Helmet">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 6)
+                            {
+                                <EditDrivers SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Assign drivers to teams" Icon="@IconCollection.Helmet">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 7)
+                            {
+                                <AssignDriverTeams />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Entries for season" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 8)
+                            {
+                                <FinalCheck SeasonId="@SeasonId" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                </ChildContent>
+            </MudStepper>
+        </CascadingValue>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public long SeasonId { get; set; }
+
+    public AddEntrantsModel Model { get; set; } = new();
+    public Season Season { get; set; }
+
+    public Season? PreviousSeason { get; set; }
+
+    MudStepper stepper;
+
+    bool loading = true;
+    List<string> errors = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Season = await _seasonService.GetSeasonById(SeasonId);
+        PreviousSeason = await _seasonService.FindRecentClosedSeason(Season.LeagueId);
+
+        loading = false;
+    }
+
+    private Task<bool> InvalidStepPrevention(StepChangeDirection direction)
+    {
+        errors.Clear();
+
+        if (direction == StepChangeDirection.Backward)
+            return Task.FromResult(false);
+
+        loading = true;
+
+        switch (stepper.GetActiveIndex())
+        {
+            //Step: adding engines to season
+            case 0:
+                if (!(Model.BaseEngines?.Any() == true))
+                {
+                    errors.Add("Suggestion: add some goddamn engines to the season");
+                }
+                break;
+            //Step: editing entered engines
+            case 1:
+                {
+                    if (Model.SeasonEngines.Any())
+                    {
+                        foreach (var engine in Model.SeasonEngines)
+                            engine.Validate(errors);
+                    }
+                    else
+                    {
+                        errors.Add("You fucked up");
+                    }
+                }
+                break;
+            //Step: adding teams to season
+            case 2:
+                if (!(Model.BaseTeams?.Any() == true))
+                {
+                    errors.Add("Suggestion: add some goddamn teams to the season");
+                }
+                break;
+            //Step: editing teams
+            case 3:
+                {
+                    if (Model.SeasonTeams.Any())
+                    {
+                        foreach (var team in Model.SeasonTeams)
+                            team.Validate(errors);
+                    }
+                    else
+                    {
+                        errors.Add("You fucked up");
+                    }
+                }
+                break;
+            //Step: team assignment
+            case 4:
+                if (Model.SeasonTeams.Any(e => e.BaseEngineId == 0))
+                {
+                    errors.Add("Oi oi mate, how is a team going to drive without an engine? Try again.");
+                }
+                break;
+            //Step: adding drivers
+            case 5:
+                if (!(Model.BaseDrivers?.Any() == true))
+                {
+                    errors.Add("Suggestion: add some goddamn drivers to the season");
+                }
+                break;
+            //Step: editing drivers
+            case 6:
+                {
+                    if (Model.SeasonDrivers.Any())
+                    {
+                        foreach (var driver in Model.SeasonDrivers)
+                            driver.Validate(errors);
+                    }
+                    else
+                    {
+                        errors.Add("You fucked up");
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        loading = false;
+
+        if (errors.Any())
+            return Task.FromResult(true);
+
+        return Task.FromResult(false);
+    }
+}

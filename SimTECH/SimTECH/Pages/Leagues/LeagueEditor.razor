@@ -9,7 +9,7 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@model" @ref="form">
+        <MudForm Model="@Model" @ref="form">
             <MudGrid>
                 <MudItem xs="12">
                     <MudText Typo="Typo.subtitle1">League settings</MudText>
@@ -17,14 +17,14 @@
                 </MudItem>
 
                 <MudItem xs="4">
-                    <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
-                    <MudNumericField T="int" @bind-Value="model.RaceLength" Min="0" Step="10" Label="Length (Km)" HelperText="Should round to nearest ten" Validation="@(new Func<int, string?>(LengthValidator))" Class="field-md" />
+                    <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
+                    <MudNumericField T="int" @bind-Value="Model.RaceLength" Min="0" Step="10" Label="Length (Km)" HelperText="Should round to nearest ten" Validation="@(new Func<int, string?>(LengthValidator))" Class="field-md" />
                 </MudItem>
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">Options</MudText>
                     <MudStack>
-                        <MudSwitchM3 @bind-Checked="model.UsePenalty" ThumbIcon="@Icons.Material.Filled.Done" ThumbOffIcon="@Icons.Material.Filled.Close" Label="Enable Penalties" Color="Color.Secondary" />
-                        <MudSwitchM3 @bind-Checked="model.EnableFatality" ThumbIcon="@Icons.Material.Filled.Done" ThumbOffIcon="@Icons.Material.Filled.Close" Label="Enable Fatalities" Color="Color.Secondary" />
+                        <MudSwitchM3 @bind-Checked="Model.UsePenalty" ThumbIcon="@Icons.Material.Filled.Done" ThumbOffIcon="@Icons.Material.Filled.Close" Label="Enable Penalties" Color="Color.Secondary" />
+                        <MudSwitchM3 @bind-Checked="Model.EnableFatality" ThumbIcon="@Icons.Material.Filled.Done" ThumbOffIcon="@Icons.Material.Filled.Close" Label="Enable Fatalities" Color="Color.Secondary" />
                     </MudStack>
                 </MudItem>
                 <MudItem xs="4">
@@ -81,7 +81,7 @@
 
     private MudForm? form;
 
-    private EditLeagueModel model = new();
+    private EditLeagueModel Model;
     private List<EditRangeModel> _skillRanges = new();
     private List<EditRangeModel> _ageRanges = new();
     private List<EditRangeModel> _teamRanges = new();
@@ -91,13 +91,14 @@
 
     protected override void OnInitialized()
     {
+        Model = new EditLeagueModel(League);
+
         if (League != null)
         {
-            model = new EditLeagueModel(League);
-            _skillRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Skill).ToList();
-            _ageRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Age).ToList();
-            _teamRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Team).ToList();
-            _engineRanges = model.DevelopmentRanges.Where(e => e.Type == RangeType.Engine).ToList();
+            _skillRanges = Model.DevelopmentRanges.Where(e => e.Type == RangeType.Skill).ToList();
+            _ageRanges = Model.DevelopmentRanges.Where(e => e.Type == RangeType.Age).ToList();
+            _teamRanges = Model.DevelopmentRanges.Where(e => e.Type == RangeType.Team).ToList();
+            _engineRanges = Model.DevelopmentRanges.Where(e => e.Type == RangeType.Engine).ToList();
         }
     }
 
@@ -113,7 +114,7 @@
     {
         var isValid = true;
 
-        if ((model.RaceLength % 10) != 0)
+        if ((Model.RaceLength % 10) != 0)
         {
             errorValidations.Add("Race length should be a factor of 10");
             isValid = false;
@@ -133,11 +134,11 @@
         allRanges.AddRange(_teamRanges);
         allRanges.AddRange(_engineRanges);
 
-        model.DevelopmentRanges = allRanges;
+        Model.DevelopmentRanges = allRanges;
 
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            var modLeague = model.Record;
+            var modLeague = Model.Record;
             LeagueDialog?.Close(DialogResult.Ok(modLeague));
         }
     }

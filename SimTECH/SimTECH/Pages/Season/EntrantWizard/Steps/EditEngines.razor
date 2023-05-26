@@ -1,0 +1,75 @@
+﻿@inject SeasonEntrantService _entrantService
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudPaper>
+        <MudForm @ref="engineForm">
+            <MudTable T="EditSeasonEngineModel" Items="@Model.SeasonEngines" Hover="true">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Power</MudTh>
+                    <MudTh>Reliability</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">
+                        <MudText Typo="Typo.caption">@context.Name</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Power">
+                        <MudText Typo="Typo.caption">@context.Power</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Reliability">
+                        <MudText Typo="Typo.caption">@context.Reliability</MudText>
+                    </MudTd>
+                </RowTemplate>
+                <RowEditingTemplate>
+                    <MudTd DataLabel="Name">
+                        <MudTextField @bind-Value="@context.Name" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Power">
+                        <MudNumericField @bind-Value="@context.Power" />
+                    </MudTd>
+                    <MudTd DataLabel="Reliability">
+                        <MudNumericField @bind-Value="@context.Reliability" />
+                    </MudTd>
+                </RowEditingTemplate>
+                <EditButtonContent Context="button">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+                </EditButtonContent>
+            </MudTable>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public AddEntrantsModel Model { get; set; }
+
+    [Parameter, EditorRequired]
+    public long SeasonId { get; set; }
+
+    [Parameter]
+    public long? PreviousSeasonId { get; set; }
+
+    MudForm engineForm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        List<SeasonEngine>? previousEngines = null;
+        if (PreviousSeasonId.HasValue)
+            previousEngines = await _entrantService.GetSeasonEngines(PreviousSeasonId.Value);
+
+        foreach (var engine in Model.BaseEngines)
+        {
+            SeasonEngine? previousEngine = null;
+            if (previousEngines != null)
+                previousEngine = previousEngines.Find(e => e.EngineId == engine.Id);
+
+            var model = new EditSeasonEngineModel(previousEngine);
+            model.ResetIdentifierFields();
+            model.SeasonId = SeasonId;
+            model.EngineId = engine.Id;
+            model.Name = string.IsNullOrEmpty(model.Name) ? engine.Name : model.Name;
+
+            Model.SeasonEngines.Add(model);
+        }
+    }
+}

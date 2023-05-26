@@ -1,16 +1,17 @@
 ﻿<MudDialog>
     <TitleContent>
         <MudText>Modify trait</MudText>
+        <MudText>PS: Wear is subtracted from tyre, so higher number = more wear</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@model">
+        <MudForm Model="@Model">
             <MudGrid Spacing="2">
                 <MudItem xs="6">
                     <MudStack Justify="Justify.SpaceBetween" Class="py-2">
-                        <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
+                        <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
                         <div>
                             <MudText Typo="Typo.subtitle2">Entrant type</MudText>
-                            @if (model.Id == 0)
+                            @if (Model.Id == 0)
                             {
                                 <MudChipSet @bind-SelectedChip="entrantChip">
                                     @foreach (var entrant in EnumHelper.GetEntrantSelection())
@@ -21,37 +22,37 @@
                             }
                             else
                             {
-                                <MudText>@model.Type.ToString()</MudText>
+                                <MudText>@Model.Type.ToString()</MudText>
                             }
                         </div>
                     </MudStack>
                 </MudItem>
                 <MudItem xs="6">
-                    <MudTextField T="string" @bind-Value="model.Description" Label="Description" Variant="Variant.Outlined" Lines="5" />
+                    <MudTextField T="string" @bind-Value="Model.Description" Label="Description" Variant="Variant.Outlined" Lines="5" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudText Typo="Typo.subtitle1">Modifiers</MudText>
                     <MudDivider />
                 </MudItem>
                 <MudItem xs="3">
-                    <MudNumericField T="int" @bind-Value="model.QualifyingPace" Label="QualifyingPace" />
-                    <MudNumericField T="int" @bind-Value="model.RacePace" Label="RacePace" />
-                    <MudNumericField T="int" @bind-Value="model.Attack" Label="Attack" />
-                    <MudNumericField T="int" @bind-Value="model.Defense" Label="Defense" />
+                    <MudNumericField T="int" @bind-Value="Model.QualifyingPace" Label="QualifyingPace" />
+                    <MudNumericField T="int" @bind-Value="Model.RacePace" Label="RacePace" />
+                    <MudNumericField T="int" @bind-Value="Model.Attack" Label="Attack" />
+                    <MudNumericField T="int" @bind-Value="Model.Defense" Label="Defense" />
                 </MudItem>
                 <MudItem xs="3">
-                    <MudNumericField T="int" @bind-Value="model.DriverReliability" Label="DriverReliability" />
-                    <MudNumericField T="int" @bind-Value="model.CarReliability" Label="CarReliability" />
-                    <MudNumericField T="int" @bind-Value="model.EngineReliability" Label="EngineReliability" />
+                    <MudNumericField T="int" @bind-Value="Model.DriverReliability" Label="DriverReliability" />
+                    <MudNumericField T="int" @bind-Value="Model.CarReliability" Label="CarReliability" />
+                    <MudNumericField T="int" @bind-Value="Model.EngineReliability" Label="EngineReliability" />
                 </MudItem>
                 <MudItem xs="3">
-                    <MudNumericField T="int" @bind-Value="model.WearMax" Label="WearMax" />
-                    <MudNumericField T="int" @bind-Value="model.WearMin" Label="WearMin" />
+                    <MudNumericField T="int" @bind-Value="Model.WearMax" Label="WearMax" />
+                    <MudNumericField T="int" @bind-Value="Model.WearMin" Label="WearMin" />
                 </MudItem>
                 <MudItem xs="3">
-                    <MudNumericField T="int" @bind-Value="model.RngMin" Label="RngMin" />
-                    <MudNumericField T="int" @bind-Value="model.RngMax" Label="RngMax" />
-                    <MudCheckBox @bind-Checked="model.ForWetConditions" Label="Only during wet conditions" Color="Color.Tertiary" />
+                    <MudNumericField T="int" @bind-Value="Model.RngMin" Label="RngMin" />
+                    <MudNumericField T="int" @bind-Value="Model.RngMax" Label="RngMax" />
+                    <MudSwitch @bind-Checked="Model.ForWetConditions" Label="Only applies during wet conditions" Color="Color.Tertiary" />
                 </MudItem>
             </MudGrid>
         </MudForm>
@@ -68,28 +69,27 @@
 
     private MudChip? entrantChip;
 
-    private EditTraitModel model = new();
+    private EditTraitModel Model;
 
     protected override void OnInitialized()
     {
-        if (Trait != null)
-            model = new EditTraitModel(Trait);
+        Model = new EditTraitModel(Trait);
     }
 
     private void Submit()
     {
-        if (model.Id == 0)
+        if (Model.Id == 0)
         {
             // Perhaps own warning/validation message
             if (entrantChip == null)
                 return;
 
-            model.Type = (Entrant)entrantChip.Value;
+            Model.Type = (Entrant)entrantChip.Value;
         }
 
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            var modTrait = model.Record;
+            var modTrait = Model.Record;
             TraitDialog?.Close(DialogResult.Ok(modTrait));
         }
     }

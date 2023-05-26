@@ -1,7 +1,10 @@
 ﻿<MudDialog>
     <TitleContent>
         <MudText>Modify tyre manufacturer</MudText>
-        <MudText Color="Color.Warning">@validation</MudText>
+        <MudText>
+            PS: Wear is subtracted from tyre, so higher number = more wear.
+            Pace meanwhile is an additional number which adds to every 'advance', not the total tyre pace
+        </MudText>
     </TitleContent>
     <DialogContent>
         <MudForm Model="@Model">
@@ -10,8 +13,8 @@
             <MudColorPicker @bind-Text="Model.Accent" Label="Accent" Placeholder="Select accent" DisableAlpha="true" Class="field-sm" />
             <MudNumericField T="int" @bind-Value="Model.Pace" Label="Pace" Class="field-sm" />
             <MudStack Row="true" Spacing="4">
-                <MudNumericField T="int" @bind-Value="Model.WearMax" Label="WearMax" Class="field-sm" />
                 <MudNumericField T="int" @bind-Value="Model.WearMin" Label="WearMin" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.WearMax" Label="WearMax" Class="field-sm" />
             </MudStack>
         </MudForm>
         <MudPaper Height="100px" Class="d-flex flex-column">
@@ -28,32 +31,25 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? ManufacturerDialog { get; set; }
-    [Parameter] public Manufacturer? Manufacturer { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? EditDialog { get; set; }
+    [Parameter]
+    public Manufacturer? Manufacturer { get; set; }
 
-    string validation = string.Empty;
+    private EditManufacturerModel Model;
 
-    private EditManufacturerModel Model = new();
-    
     protected override void OnInitialized()
     {
-        if (Manufacturer != null)
-            Model = new EditManufacturerModel(Manufacturer);
+        Model = new EditManufacturerModel(Manufacturer);
     }
 
     private void Submit()
     {
         if (Model.IsDirty)
         {
-            var modItem = Model.Record;
-
-            ManufacturerDialog?.Close(DialogResult.Ok(modItem));
-        }
-        else
-        {
-            validation = "No changes detected!";
+            EditDialog?.Close(DialogResult.Ok(Model.Record));
         }
     }
 
-    private void Cancel() => ManufacturerDialog?.Cancel();
+    private void Cancel() => EditDialog?.Cancel();
 }

@@ -13,7 +13,7 @@ namespace SimTECH.Migrations
 {
     [DbContext(typeof(SimTechDbContext))]
     [Migration("20230507105132_yoinked-penalties")]
-    partial class yoinkedpenalties
+    partial class YoinkedPenalties
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

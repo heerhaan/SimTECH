@@ -10,14 +10,20 @@ namespace SimTECH.Data.EditModels
         public string Name { get; set; } = string.Empty;
         public State State { get; set; }
 
-        public EditEngineModel() { _engine = new Engine(); }
-        public EditEngineModel(Engine engine)
+        public EditEngineModel(Engine? engine)
         {
-            Id = engine.Id;
-            Name = engine.Name;
-            State = engine.State;
+            if (engine == null)
+            {
+                _engine = new();
+            }
+            else
+            {
+                Id = engine.Id;
+                Name = engine.Name;
+                State = engine.State;
 
-            _engine = engine;
+                _engine = engine;
+            }
         }
 
         public Engine Record =>

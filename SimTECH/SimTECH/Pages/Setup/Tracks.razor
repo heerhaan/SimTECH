@@ -6,7 +6,7 @@
 <PageTitle>Tracks</PageTitle>
 
 <MudContainer>
-    <MudDataGrid T="Track" Items="@TrackData" Class="my-2">
+    <MudDataGrid T="Track" Items="@TrackData" Class="my-2" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Tracks</MudText>
             <MudSpacer />
@@ -88,17 +88,15 @@
 </MudContainer>
 
 @code {
-    List<Track> TrackData = new();
-
-    bool _readOnly = false;
+    List<Track> TrackData;
 
     protected override async Task OnInitializedAsync()
     {
         TrackData = await TrackService.GetTracks();
     }
 
-    async Task AddTrack() => await UpdateTrack(new Track());
-    async Task UpdateTrack(Track item)
+    async Task AddTrack() => await UpdateTrack(null);
+    async Task UpdateTrack(Track? item)
     {
         var parameters = new DialogParameters 
         { 

@@ -27,69 +27,67 @@
         </MudItem>
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="2" Class="pa-4 mud-height-full">
-                @if (recentRaces != null)
-                {
-                    <MudTable id="recent-race-table" Items="@recentRaces" Dense="true">
-                        <ToolBarContent>
-                            <MudText Typo="Typo.h6">Last races</MudText>
-                            <MudSpacer />
-                            <ScreenshotButton TargetId="recent-race-table" />
-                        </ToolBarContent>
-                        <HeaderContent>
-                            <MudTh>League</MudTh>
-                            <MudTh>Round</MudTh>
-                            <MudTh>Race</MudTh>
-                            <MudTh Class="pa-0"></MudTh>
-                            <MudTh>Team</MudTh>
-                            <MudTh>Driver</MudTh>
-                            <MudTh Class="number-col">No.</MudTh>
-                            <MudTh></MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd>
-                                <MudText Typo="Typo.body2">@context.LeagueName</MudText>
-                            </MudTd>
-                            <MudTd>
-                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                    <MudText Typo="Typo.body2">Round: @context.Round</MudText>
-                                    <MudSpacer />
-                                    <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
-                                </MudStack>
-                            </MudTd>
-                            <MudTd>
-                                <MudText Typo="Typo.body2">@context.Name</MudText>
-                            </MudTd>
-                            <MudTd Class="pa-0">
-                                <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.WinningDriver.Colour))"></span>
-                            </MudTd>
-                            <MudTd>
-                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                    <MudText Typo="Typo.body2">@context.WinningTeam.Name</MudText>
-                                    <MudSpacer />
-                                    <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
-                                </MudStack>
-                            </MudTd>
-                            <MudTd>
-                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                    <MudText Typo="Typo.body2">@context.WinningDriver.Name</MudText>
-                                    <MudSpacer />
-                                    <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
-                                </MudStack>
-                            </MudTd>
-                            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.WinningDriver.Colour, context.WinningDriver.Accent))">
-                                <MudText Typo="Typo.caption">@context.WinningDriver.Number</MudText>
-                            </MudTd>
-                            <MudTd>
-                                <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">Go To</MudButton>
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                }
+                <MudTable id="recent-race-table" Items="@recentRaces" Dense="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Last races</MudText>
+                        <MudSpacer />
+                        <ScreenshotButton TargetId="recent-race-table" />
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>League</MudTh>
+                        <MudTh>Race</MudTh>
+                        <MudTh Class="pa-0"></MudTh>
+                        <MudTh>Team</MudTh>
+                        <MudTh>Driver</MudTh>
+                        <MudTh Class="number-col">No.</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText Typo="Typo.body2">@context.LeagueName</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.body2">
+                                    [R@(context.Round)] @(context.Name)
+                                </MudText>
+                                <MudSpacer />
+                                <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
+                            </MudStack>
+                        </MudTd>
+                        <MudTd Class="pa-0">
+                            <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.WinningDriver.Colour))"></span>
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.body2">@context.WinningTeam.Name</MudText>
+                                <MudSpacer />
+                                <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
+                            </MudStack>
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.body2">@context.WinningDriver.Name</MudText>
+                                <MudSpacer />
+                                <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
+                            </MudStack>
+                        </MudTd>
+                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.WinningDriver.Colour, context.WinningDriver.Accent))">
+                            <MudText Typo="Typo.caption">@context.WinningDriver.Number</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">Go To</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudPaper>
+            <MudPaper Elevation="2" Class="pa-4 mud-height-full">
                 <MudTable T="Race" Items="@upcomingRaces" Dense="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Upcoming races</MudText>
+                    </ToolBarContent>
                     <HeaderContent>
                         <MudTh>Round</MudTh>
                         <MudTh>Name</MudTh>

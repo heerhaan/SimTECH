@@ -14,8 +14,8 @@
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Pace</MudTh>
-            <MudTh>Min. wear</MudTh>
-            <MudTh>Max. wear</MudTh>
+            <MudTh>Min. wear mod</MudTh>
+            <MudTh>Max. wear mod</MudTh>
             <MudTh>State</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
@@ -54,8 +54,8 @@
         ManufacturerData = await ManufacturerService.GetManufacturers();
     }
 
-    async Task AddManufacturer() => await UpdateManufacturer(new Manufacturer());
-    async Task UpdateManufacturer(Manufacturer item)
+    async Task AddManufacturer() => await UpdateManufacturer(null);
+    async Task UpdateManufacturer(Manufacturer? item)
     {
         var parameters = new DialogParameters { ["Manufacturer"] = item };
 

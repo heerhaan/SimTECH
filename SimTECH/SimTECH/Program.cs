@@ -59,25 +59,6 @@ namespace SimTECH
             builder.Services.AddScoped<TrackService>();
             builder.Services.AddScoped<TraitService>();
 
-            // Authentication services
-            //builder.Services.AddScoped<SimAuthenticationStateProvider>();
-            //builder.Services.AddScoped<AuthenticationStateProvider>(e => e.GetRequiredService<SimAuthenticationStateProvider>());
-            //builder.Services.AddScoped<IAuthorizationHandler, CoolRequirementHandler>();
-            //builder.Services.AddScoped<IAuthorizationHandler, ChoiceRequirementHandler>();
-            //builder.Services.AddScoped<UserService>();
-
-            // Add authorization policies
-            //builder.Services.AddAuthorizationCore(config =>
-            //{
-            //    config.AddPolicy("CoolOnly", policy => policy.AddRequirements(new CoolRequirement()));
-            //    config.AddPolicy("CoolAdminOnly", policy =>
-            //    {
-            //        policy.AddRequirements(new CoolRequirement());
-            //        policy.RequireRole("admin");
-            //    });
-            //    config.AddPolicy("ChoicePolicy", policy => policy.AddRequirements(new ChoiceRequirement()));
-            //});
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -88,15 +69,14 @@ namespace SimTECH
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
 
                 // We only need the thing underneath whenever we're going to share it as an .exe file
-                //using (var scope = app.Services.CreateScope())
-                //{
-                //    var db = scope.ServiceProvider.GetRequiredService<SimTechDbContext>();
-                //    db.Database.Migrate();
-                //}
+                using (var scope = app.Services.CreateScope())
+                {
+                    var db = scope.ServiceProvider.GetRequiredService<SimTechDbContext>();
+                    db.Database.Migrate();
+                }
             }
 
             app.UseHttpsRedirection();

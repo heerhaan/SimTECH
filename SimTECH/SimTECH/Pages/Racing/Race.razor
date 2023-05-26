@@ -620,8 +620,6 @@
         }
     }
 
-    async Task PersistLapScores(List<LapScore> lapScores) => await _raceService.PersistLapScores(lapScores);
-
     async Task Finish()
     {
         PreProcessFinish();
@@ -635,14 +633,13 @@
 
         // Should be removed when it is done per advance
         var allLapScores = Model.RaceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();
-        await PersistLapScores(allLapScores);
 
+        await _raceService.PersistLapScores(allLapScores);
         await _raceService.FinishRace(finishedRace, finishedResults, scoredPoints);
 
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
         {
-            var nextRound = Model.Round + 1;
-            await _seasonService.CheckPenalties(finishedResults, nextRound);
+            await _seasonService.CheckPenalties(finishedResults);
         }
 
         _nav.NavigateTo($"/postrace/{RaceId}");

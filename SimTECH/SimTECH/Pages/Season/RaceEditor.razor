@@ -66,22 +66,19 @@
     private bool variableRaceLength { get; set; }
     private List<string> errorValidations = new();
 
-    private EditRaceModel Model = new();
+    private EditRaceModel Model;
 
     protected override void OnInitialized()
     {
-        if (Race != null)
-        {
-            Model = new EditRaceModel(Race)
+        Model = new EditRaceModel(Race)
             {
                 Round = IncomingRound,
                 SeasonId = SeasonId,
                 RaceLength = DefaultRaceLength,
             };
 
-            if (Model.ClimateId == 0)
-                Model.ClimateId = Climates.TakeRandomClimate().Id;
-        }
+        if (Model.ClimateId == 0)
+            Model.ClimateId = Climates.TakeRandomClimate().Id;
     }
 
     private void Submit()
@@ -91,29 +88,16 @@
         else if (Model.ClimateId == 0)
             Model.ClimateId = Climates.TakeRandomClimate().Id;
 
-        if (!RunValidations())
-            return;
+        var validations = Model.RunValidations();
+        if (validations.Any())
+            errorValidations.AddRange(validations);
 
         if (Model.IsDirty)
         {
             var modRace = Model.Record;
-
             RaceDialog?.Close(DialogResult.Ok(modRace));
         }
     }
 
     private void Cancel() => RaceDialog?.Cancel();
-
-    private bool RunValidations()
-    {
-        var isValid = true;
-
-        if ((Model.RaceLength % 10) != 0)
-        {
-            errorValidations.Add("Race length should be a factor of 10");
-            isValid = false;
-        }
-
-        return isValid;
-    }
 }

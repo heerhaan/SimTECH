@@ -52,15 +52,10 @@ namespace SimTECH.Data.EditModels
             }
         }
 
-        public void SetSeasonIdForAll(long seasonId)
+        public void Validate(List<string> errors)
         {
-            SeasonId = seasonId;
-
-            if (SeasonTeams?.Any() == true)
-            {
-                foreach (var team in SeasonTeams)
-                    team.SetSeasonIdForAll(seasonId);
-            }
+            if (string.IsNullOrEmpty(Name))
+                errors.Add("Engine lacks a name");
         }
 
         public SeasonEngine Record =>

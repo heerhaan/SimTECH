@@ -5,7 +5,7 @@
 namespace SimTECH.Migrations
 {
     /// <inheritdoc />
-    public partial class modificationincidents : Migration
+    public partial class ModificationIncidents : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

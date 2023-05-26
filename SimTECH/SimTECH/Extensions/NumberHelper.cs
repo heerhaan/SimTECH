@@ -1,7 +1,4 @@
-﻿using SimTECH.Data.Models;
-using SimTECH.PageModels;
-
-namespace SimTECH.Extensions
+﻿namespace SimTECH.Extensions
 {
     public static class NumberHelper
     {
@@ -30,27 +27,11 @@ namespace SimTECH.Extensions
             return (int)(number + 0.5);
         }
 
-        public static int CalcLapCount(int raceLength, double trackLength) =>
-            (int)Math.Round(raceLength / trackLength);
-
         public static int Percentage(int number, int max) => Percentage(number, (double)max);
         public static int Percentage(int number, double max) =>
             (int)Math.Round(100 * number / max);
 
-        public static TraitEffect SumTraitEffects(IEnumerable<Trait> traits) =>
-            new()
-            {
-                QualifyingPace          = traits.Sum(e => e.QualifyingPace),
-                RacePace                = traits.Sum(e => e.RacePace),
-                Attack                  = traits.Sum(e => e.Attack),
-                Defense                 = traits.Sum(e => e.Defense),
-                DriverReliability       = traits.Sum(e => e.DriverReliability),
-                CarReliability          = traits.Sum(e => e.CarReliability),
-                EngineReliability       = traits.Sum(e => e.EngineReliability),
-                WearMaximum             = traits.Sum(e => e.WearMax),
-                WearMinimum             = traits.Sum(e => e.WearMin),
-                MaxRNG                  = traits.Sum(e => e.RngMax),
-                MinRNG                  = traits.Sum(e => e.RngMin),
-            };
+        public static int CalcLapCount(int raceLength, double trackLength) =>
+            (int)Math.Round(raceLength / trackLength);
     }
 }

@@ -40,7 +40,7 @@ namespace SimTECH.Data.EditModels
                 Country = driver.Country;
                 Biography = driver.Biography;
                 Alive = driver.Alive;
-                State = driver.State;
+                State = driver.State == State.Concept ? State.Active : driver.State;
 
                 if (driver.DriverTraits != null)
                     DriverTraits = driver.DriverTraits.Select(e => new EditDriverTraitModel(e)).ToList();

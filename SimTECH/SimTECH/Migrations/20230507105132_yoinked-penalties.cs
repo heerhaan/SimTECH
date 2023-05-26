@@ -5,7 +5,7 @@
 namespace SimTECH.Migrations
 {
     /// <inheritdoc />
-    public partial class yoinkedpenalties : Migration
+    public partial class YoinkedPenalties : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

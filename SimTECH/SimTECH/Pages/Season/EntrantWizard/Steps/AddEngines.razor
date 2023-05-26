@@ -1,0 +1,34 @@
+﻿@inject EngineService _engineService
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudPaper>
+        <MudTable T="Engine"
+                  Items="@Engines"
+                  @bind-SelectedItems="@Model.BaseEngines"
+                  MultiSelection="true"
+                  Dense="true"
+                  Hover="true">
+            <ToolBarContent>
+                <MudText Typo="Typo.h5">Available engines</MudText>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public AddEntrantsModel Model { get; set; }
+
+    List<Engine> Engines { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Engines = await _engineService.GetEngines();
+    }
+}

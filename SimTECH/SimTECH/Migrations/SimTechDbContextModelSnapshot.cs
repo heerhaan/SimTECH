@@ -59,6 +59,44 @@ namespace SimTECH.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Climate");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            EngineMultiplier = 1.1000000000000001,
+                            Icon = "<path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z\"/>",
+                            IsWet = false,
+                            Odds = 3,
+                            ReliablityModifier = 0,
+                            RngModifier = 0,
+                            State = 1,
+                            Terminology = "Sunny"
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            EngineMultiplier = 0.90000000000000002,
+                            Icon = "<path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z\"/>",
+                            IsWet = false,
+                            Odds = 3,
+                            ReliablityModifier = 0,
+                            RngModifier = 0,
+                            State = 1,
+                            Terminology = "Overcast"
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            EngineMultiplier = 0.75,
+                            Icon = "<path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z\"/>",
+                            IsWet = false,
+                            Odds = 1,
+                            ReliablityModifier = 0,
+                            RngModifier = 0,
+                            State = 1,
+                            Terminology = "Rain"
+                        });
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Contract", b =>
@@ -259,6 +297,168 @@ namespace SimTECH.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Incident");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Category = 0,
+                            Limit = 0,
+                            Name = "Damage",
+                            Odds = 2,
+                            Punishment = 0,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            Category = 0,
+                            Limit = 2,
+                            Name = "Collision",
+                            Odds = 1,
+                            Punishment = 3,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            Category = 0,
+                            Limit = 5,
+                            Name = "Accident",
+                            Odds = 2,
+                            Punishment = 3,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            Category = 0,
+                            Limit = 0,
+                            Name = "Puncture",
+                            Odds = 1,
+                            Punishment = 0,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            Category = 2,
+                            Limit = 5,
+                            Name = "Engine",
+                            Odds = 3,
+                            Punishment = 10,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            Category = 1,
+                            Limit = 3,
+                            Name = "Electrics",
+                            Odds = 1,
+                            Punishment = 5,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            Category = 1,
+                            Limit = 0,
+                            Name = "Exhaust",
+                            Odds = 1,
+                            Punishment = 0,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            Category = 1,
+                            Limit = 4,
+                            Name = "Gearbox",
+                            Odds = 2,
+                            Punishment = 5,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            Category = 1,
+                            Limit = 0,
+                            Name = "Hydraulics",
+                            Odds = 1,
+                            Punishment = 0,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            Category = 1,
+                            Limit = 0,
+                            Name = "Wheel",
+                            Odds = 1,
+                            Punishment = 0,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            Category = 1,
+                            Limit = 0,
+                            Name = "Brakes",
+                            Odds = 1,
+                            Punishment = 0,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            Category = 3,
+                            Limit = 0,
+                            Name = "Illegal",
+                            Odds = 1,
+                            Punishment = 10,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 13L,
+                            Category = 3,
+                            Limit = 0,
+                            Name = "Fuel",
+                            Odds = 1,
+                            Punishment = 10,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 14L,
+                            Category = 3,
+                            Limit = 0,
+                            Name = "Dangerous",
+                            Odds = 1,
+                            Punishment = 10,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 15L,
+                            Category = 4,
+                            Limit = 0,
+                            Name = "Hospital",
+                            Odds = 5,
+                            Punishment = 0,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 16L,
+                            Category = 4,
+                            Limit = 0,
+                            Name = "Death",
+                            Odds = 1,
+                            Punishment = 0,
+                            State = 1
+                        });
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.LapScore", b =>
@@ -353,6 +553,19 @@ namespace SimTECH.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Manufacturer");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Accent = "#e56103",
+                            Colour = "#0b0b0d",
+                            Name = "Hankook",
+                            Pace = 1,
+                            State = 1,
+                            WearMax = 0,
+                            WearMin = 0
+                        });
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.PointAllotment", b =>
@@ -843,6 +1056,34 @@ namespace SimTECH.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Track");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            AeroMod = 0.55000000000000004,
+                            ChassisMod = 1.1000000000000001,
+                            Country = 22,
+                            DefenseMod = 0.90000000000000002,
+                            Length = 7.0099999999999998,
+                            Name = "Spa-Francorchamps",
+                            PowerMod = 1.3500000000000001,
+                            QualifyingMod = 0.69999999999999996,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            AeroMod = 1.5,
+                            ChassisMod = 1.25,
+                            Country = 131,
+                            DefenseMod = 2.0,
+                            Length = 3.0499999999999998,
+                            Name = "Circuit de Monaco",
+                            PowerMod = 0.5,
+                            QualifyingMod = 2.0,
+                            State = 1
+                        });
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.TrackTrait", b =>
@@ -921,6 +1162,68 @@ namespace SimTECH.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Trait");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Attack = 0,
+                            CarReliability = 0,
+                            Defense = 0,
+                            Description = "Speed in moist",
+                            DriverReliability = 3,
+                            EngineReliability = 0,
+                            ForWetConditions = true,
+                            Name = "Rainmeister",
+                            QualifyingPace = 3,
+                            RacePace = 5,
+                            RngMax = 0,
+                            RngMin = 0,
+                            State = 0,
+                            Type = 1,
+                            WearMax = 0,
+                            WearMin = 0
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            Attack = 0,
+                            CarReliability = 0,
+                            Defense = 0,
+                            Description = "Owns the engine",
+                            DriverReliability = 0,
+                            EngineReliability = 2,
+                            ForWetConditions = false,
+                            Name = "Manufacturer",
+                            QualifyingPace = 1,
+                            RacePace = 1,
+                            RngMax = 0,
+                            RngMin = 0,
+                            State = 0,
+                            Type = 2,
+                            WearMax = 0,
+                            WearMin = 0
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            Attack = 0,
+                            CarReliability = -1,
+                            Defense = 10,
+                            Description = "Street is a circuit",
+                            DriverReliability = -2,
+                            EngineReliability = 0,
+                            ForWetConditions = false,
+                            Name = "Street Circuit",
+                            QualifyingPace = 0,
+                            RacePace = 0,
+                            RngMax = 0,
+                            RngMin = -5,
+                            State = 0,
+                            Type = 3,
+                            WearMax = 2,
+                            WearMin = 0
+                        });
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Tyre", b =>
@@ -959,6 +1262,52 @@ namespace SimTECH.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tyre");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Colour = "#fa0536  ",
+                            Length = 100,
+                            Name = "Soft",
+                            Pace = 200,
+                            State = 1,
+                            WearMax = 25,
+                            WearMin = 15
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            Colour = "#f4ea26  ",
+                            Length = 150,
+                            Name = "Medium",
+                            Pace = 180,
+                            State = 1,
+                            WearMax = 15,
+                            WearMin = 9
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            Colour = "#dfdde9  ",
+                            Length = 200,
+                            Name = "Hard",
+                            Pace = 160,
+                            State = 1,
+                            WearMax = 10,
+                            WearMin = 6
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            Colour = "#bded80  ",
+                            Length = 500,
+                            Name = "Grooved",
+                            Pace = 100,
+                            State = 2,
+                            WearMax = 3,
+                            WearMin = 1
+                        });
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.User", b =>
