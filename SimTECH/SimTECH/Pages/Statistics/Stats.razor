@@ -15,11 +15,26 @@
             <MudCard>
                 <MudCardHeader>
                     <CardHeaderContent>
+                        <MudText Typo="Typo.body1">Driver detail data</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body2">Get detailed statistics about the results of a driver.</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="ShowDriverCompare">Go to</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="4">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
                         <MudText Typo="Typo.body1">Driver comparer</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
-                    <MudText Typo="Typo.body2">Compare statistics between two drivers</MudText>
+                    <MudText Typo="Typo.body2">Compare statistics between two drivers.</MudText>
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="ShowDriverCompare">Go to</MudButton>
@@ -54,5 +69,6 @@
         });
     }
 
+    async Task ShowDriverDetail() => _ = await DialogService.ShowAsync<DriverDetailStat>("Driver detail data", Constants.DefaultChartDialogSettings);
     async Task ShowDriverCompare() => _ = await DialogService.ShowAsync<DriverCompareStat>("Compare drivers", Constants.DefaultChartDialogSettings);
 }
