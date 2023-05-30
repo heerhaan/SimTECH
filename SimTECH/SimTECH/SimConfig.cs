@@ -15,6 +15,7 @@
         public int MistakeAmountRolls { get; set; } = 1;
         public int MistakeLowerValue { get; set; } = 150;
         public int MistakeUpperValue { get; set; } = 300;
+        public int BattleRng { get; set; } = 10;
 
         // Pace modifier a #1 driver gets and a #2 driver loses
         public int CarDriverStatusModifier { get; set; } = 4;

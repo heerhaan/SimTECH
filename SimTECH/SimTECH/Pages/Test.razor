@@ -4,43 +4,24 @@
 @inject NavigationManager _nav
 @inject IOptions<SimConfig> _config
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Test</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-16 px-8">
     <MudGrid>
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
-                <MudText Typo="Typo.overline">Config</MudText>
-                <MudDivider />
-                <MudStack Row="true" Justify="Justify.SpaceBetween">
-                    <div>
-                        <MudText Typo="Typo.body2">Fatal odds: @_config.Value.FatalityChance</MudText>
-                        <MudText Typo="Typo.body2">Dsq odds: @_config.Value.DisqualifyChance</MudText>
-                        <MudText Typo="Typo.body2">Mistake rolls: @_config.Value.MistakeAmountRolls</MudText>
-                        <MudText Typo="Typo.body2">Mistake min rng: @_config.Value.MistakeLowerValue</MudText>
-                        <MudText Typo="Typo.body2">Mistake max rng: @_config.Value.MistakeUpperValue</MudText>
-                    </div>
-                    <div>
-                        <MudText Typo="Typo.body2">Gap marge p/pt: @_config.Value.GapMarge</MudText>
-                        <MudText Typo="Typo.body2">Team status car mod: @_config.Value.CarDriverStatusModifier</MudText>
-                        <MudText Typo="Typo.body2">Use personal numbers: @_config.Value.PersonalNumbersEnabled</MudText>
-                        <MudText Typo="Typo.body2">Calc distance ref: @_config.Value.CalculationDistance</MudText>
-                    </div>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4"></MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="12" md="4">
-            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
-                ΩΩΩΩΩΩλλλλλλλλλλλλλλ
-                ΩΩΩΩΩΩλλλλλλλλλλλλλλ
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="6">
+        <MudItem xs="9">
             <MudGrid>
-                <MudItem xs="12">
+                <MudItem xs="12" sm="6">
+                    <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+                        ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+                        ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+                        Gerrit
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6">
                     <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
                         <MudText Typo="Typo.h5">Examples</MudText>
                         <div>
@@ -56,7 +37,7 @@
                         </MudStack>
                     </MudPaper>
                 </MudItem>
-                <MudItem xs="12">
+                <MudItem xs="12" sm="6">
                     <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
                         <MudSimpleTable>
                             <thead>
@@ -94,17 +75,60 @@
                 </MudItem>
             </MudGrid>
         </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudPaper Elevation="2" Class="pa-4 mud-height-full">
-                <MudStack Row="true">
-                    <MudText Typo="Typo.h6">Custom Icon Cycler</MudText>
-                    <MudSpacer />
-                    <MudButton OnClick="CycleCustomIcon">Cycle</MudButton>
-                </MudStack>
-                <MudIcon Icon="@activeCustomIcon" />
-                <MudIcon Icon="@activeCustomIcon" Style="color:green" />
-                <MudIcon Icon="@activeCustomIcon" Color="Color.Secondary" Size="Size.Small" />
-                <MudIcon Icon="@activeCustomIcon" Color="Color.Primary" Size="Size.Large" />
+        <MudItem xs="3">
+            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+                <MudText Typo="Typo.overline">Config</MudText>
+                <MudDivider />
+                <MudSimpleTable>
+                    <thead>
+                        <tr>
+                            <th>Setting</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Fatal odds</td>
+                            <td>@config.FatalityChance</td>
+                        </tr>
+                        <tr>
+                            <td>Dsq odds</td>
+                            <td>@config.DisqualifyChance</td>
+                        </tr>
+                        <tr>
+                            <td>Mistake rolls</td>
+                            <td>@config.MistakeAmountRolls</td>
+                        </tr>
+                        <tr>
+                            <td>Mistake min rng</td>
+                            <td>@config.MistakeLowerValue</td>
+                        </tr>
+                        <tr>
+                            <td>Mistake max rng</td>
+                            <td>@config.MistakeUpperValue</td>
+                        </tr>
+                        <tr>
+                            <td>Battle RNG</td>
+                            <td>@config.BattleRng</td>
+                        </tr>
+                        <tr>
+                            <td>Gap marge p/pt</td>
+                            <td>@config.GapMarge</td>
+                        </tr>
+                        <tr>
+                            <td>Team status car mod</td>
+                            <td>@config.CarDriverStatusModifier</td>
+                        </tr>
+                        <tr>
+                            <td>Use personal numbers</td>
+                            <td>@config.PersonalNumbersEnabled</td>
+                        </tr>
+                        <tr>
+                            <td>Calc distance ref</td>
+                            <td>@config.CalculationDistance</td>
+                        </tr>
+                    </tbody>
+                </MudSimpleTable>
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -116,6 +140,7 @@
     int iconCycler = 0;
     string? exampleStore;
     string newExampleString = "Stored and retrieved from the local storage";
+    SimConfig config;
 
     protected override void OnInitialized()
     {
@@ -123,6 +148,8 @@
         {
             new BreadcrumbItem("Home", href: "/"),
         });
+
+        config = _config.Value;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

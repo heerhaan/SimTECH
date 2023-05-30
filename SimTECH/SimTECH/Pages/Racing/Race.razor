@@ -577,7 +577,10 @@
                 else if (!aboveDriver.InstantOvertaken)
                 {
                     // Subtract attack value from defense, what's left is how much the attacker is hindered
-                    var battleCost = aboveDriver.Defense - driver.Attack;
+                    var defendingResult = aboveDriver.Defense + NumberHelper.RandomInt(Model.BattleRng);
+                    var attackingResult = driver.Attack + NumberHelper.RandomInt(Model.BattleRng);
+                    var battleCost = defendingResult - attackingResult;
+
                     if (battleCost > 0)
                         lastScore.Score -= battleCost;
 
