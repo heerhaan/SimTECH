@@ -662,6 +662,7 @@ namespace SimTECH.Data.Services
                 MistakeRolls = _config.MistakeAmountRolls,
                 MistakeMinCost = _config.MistakeLowerValue,
                 MistakeMaxCost = _config.MistakeUpperValue,
+                BattleRng = _config.BattleRng,
                 GapMarge = _config.GapMarge,
             };
         }
