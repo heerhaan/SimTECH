@@ -656,6 +656,7 @@ namespace SimTECH.Data.Services
                 Season = season,
                 LeagueOptions = season.League.Options,
 
+                // Arguably remove these properties and just directly call the config from the race page
                 FatalityOdds = _config.FatalityChance,
                 DisqualifyOdds = _config.DisqualifyChance,
                 SafetyCarOdds = _config.SafetyCarChance,
