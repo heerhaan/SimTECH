@@ -6,10 +6,10 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudContainer Class="pa-4" Style="min-width: 800px; min-height: 700px">
+        <MudContainer Class="pa-4 mud-width-full mud-height-full" Style="min-width: 800px; min-height: 700px">
             @if (!loading)
             {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="Gaps to leader" Options="@options" Height="550">
+                <ApexCharts.ApexChart TItem="DataPoint" Title="Gaps to leader" Options="@options" Height="800" Width="@("100%")">
                     @foreach (var driver in DataSets)
                     {
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
@@ -47,6 +47,7 @@
     protected override void OnInitialized()
     {
         var leaderScores = Drivers.First(e => e.Position == 1).LapScores;
+        var amountCalculated = leaderScores.Count;
 
         var seenTeamIdentifiers = new List<long>(Drivers.Count);
 

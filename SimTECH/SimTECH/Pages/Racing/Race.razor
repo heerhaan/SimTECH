@@ -413,17 +413,17 @@
 
         if (cycleReliabilty == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
         {
-            lapScore.RacerEvents = RacerEvent.DriverDnf;
+            lapScore.RacerEvents |= RacerEvent.DriverDnf;
             driver.Incident = driverIncidents.TakeRandomIncident();
         }
         else if (cycleReliabilty == Entrant.Team && DidReliabilityFail(driver.CarReliability))
         {
-            lapScore.RacerEvents = RacerEvent.CarDnf;
+            lapScore.RacerEvents |= RacerEvent.CarDnf;
             driver.Incident = carIncidents.TakeRandomIncident();
         }
         else if (cycleReliabilty == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
         {
-            lapScore.RacerEvents = RacerEvent.EngineDnf;
+            lapScore.RacerEvents |= RacerEvent.EngineDnf;
             driver.Incident = engineIncidents.TakeRandomIncident();
         }
         else { return safetyCar; }

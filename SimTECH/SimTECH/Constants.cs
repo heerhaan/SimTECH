@@ -9,6 +9,8 @@ namespace SimTECH
         public static string DefaultColour => "var(--mud-palette-background)";
         public static string DefaultAccent => "var(--mud-palette-text-primary)";
 
+        public static Country DefaultCountry => Country.FM;
+
         public static DialogOptions DefaultChartDialogSettings => new()
         {
             FullScreen = true,
