@@ -29,4 +29,34 @@ namespace SimTECH.PageModels
             }
         }
     }
+
+    public static class EntrantModelExtensions
+    {
+        public static void RemoveUnsetEngines(this AddEntrantsModel model)
+        {
+            var unsetEngines = model.SeasonEngines.Where(se => !model.BaseEngines.Select(e => e.Id).Contains(se.EngineId));
+            foreach (var unset in unsetEngines)
+            {
+                model.SeasonEngines.Remove(unset);
+            }
+        }
+
+        public static void RemoveUnsetTeams(this AddEntrantsModel model)
+        {
+            var unsetTeams = model.SeasonTeams.Where(st => !model.BaseTeams.Select(e => e.Id).Contains(st.TeamId));
+            foreach (var unset in unsetTeams)
+            {
+                model.SeasonTeams.Remove(unset);
+            }
+        }
+
+        public static void RemoveUnsetDrivers(this AddEntrantsModel model)
+        {
+            var unsetDrivers = model.SeasonDrivers.Where(sd => !model.BaseDrivers.Select(e => e.Id).Contains(sd.DriverId));
+            foreach (var unset in unsetDrivers)
+            {
+                model.SeasonDrivers.Remove(unset);
+            }
+        }
+    }
 }

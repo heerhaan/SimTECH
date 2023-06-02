@@ -1,33 +1,25 @@
 ﻿@inject SeasonEntrantService _entrantService
 @inject IOptions<SimConfig> _config
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudPaper>
-        <MudForm @ref="driverForm">
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudPaper Elevation="15">
+        <MudForm>
             <MudTable T="EditSeasonDriverModel" Items="@Model.SeasonDrivers" Hover="true">
                 <HeaderContent>
                     <MudTh>Name</MudTh>
                     <MudTh>Number</MudTh>
-                    <MudTh>Skill</MudTh>
-                    <MudTh>Reliability</MudTh>
                     <MudTh>TeamRole</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="Name">
                         <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                            <MudText>@context.Driver.FullName</MudText>
+                            <MudText>@context.Driver?.FullName</MudText>
                             <MudSpacer />
-                            <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                            <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="FlagSize.Small" />
                         </MudStack>
                     </MudTd>
                     <MudTd DataLabel="Number">
                         <MudText Typo="Typo.caption">@context.Number</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Skill">
-                        <MudText Typo="Typo.caption">@context.Skill</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Reliability">
-                        <MudText Typo="Typo.caption">@context.Reliability</MudText>
                     </MudTd>
                     <MudTd DataLabel="TeamRole">
                         <MudText>@context.TeamRole</MudText>
@@ -36,19 +28,13 @@
                 <RowEditingTemplate>
                     <MudTd DataLabel="Name">
                         <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                            <MudText>@context.Driver.FullName</MudText>
+                            <MudText>@context.Driver?.FullName</MudText>
                             <MudSpacer />
-                            <CountryFlag Code="@context.Driver.Country" Size="FlagSize.Small" />
+                            <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="FlagSize.Small" />
                         </MudStack>
                     </MudTd>
                     <MudTd DataLabel="Number">
                         <MudNumericField @bind-Value="@context.Number" />
-                    </MudTd>
-                    <MudTd DataLabel="Skill">
-                        <MudNumericField @bind-Value="@context.Skill" />
-                    </MudTd>
-                    <MudTd DataLabel="Reliability">
-                        <MudNumericField @bind-Value="@context.Reliability" />
                     </MudTd>
                     <MudTd DataLabel="TeamRole">
                         <MudSelect T="TeamRole" @bind-Value="@context.TeamRole">
@@ -77,21 +63,25 @@
     [Parameter]
     public long? PreviousSeasonId { get; set; }
 
-    MudForm driverForm;
-
     protected override async Task OnInitializedAsync()
+    {
+        await SetDriverEditors();
+    }
+
+    private async Task SetDriverEditors()
     {
         List<SeasonDriver>? previousDrivers = null;
         if (PreviousSeasonId.HasValue)
             previousDrivers = await _entrantService.GetSeasonDrivers(PreviousSeasonId.Value);
 
         int indexer = 0;
-        foreach (var driver in Model.BaseDrivers)
+        foreach (var driver in Model.BaseDrivers.Where(e => !(Model.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))))
         {
             SeasonDriver? previousDriver = null;
             if (previousDrivers != null)
                 previousDriver = previousDrivers.Find(e => e.DriverId == driver.Id);
 
+            // Create a new edit model from the nullable entity, reset the identifying fields and assign the new ones
             var model = new EditSeasonDriverModel(previousDriver);
             model.ResetIdentifierFields();
             model.SeasonId = SeasonId;
@@ -103,5 +93,7 @@
 
             Model.SeasonDrivers.Add(model);
         }
+
+        Model.RemoveUnsetDrivers();
     }
 }

@@ -4,40 +4,45 @@
 @using MudExtensions.Utilities
 @using SimTECH.Pages.Season.EntrantWizard.Steps
 
-@inject EngineService _engineService
-@inject TeamService _teamService
-@inject DriverService _driverService
 @inject SeasonService _seasonService
 @inject SeasonEntrantService _entrantService
-@inject ManufacturerService _manufacturerService
 @inject NavigationManager _nav
-@inject ISnackbar _snackbar
-@inject IOptions<SimConfig> _config
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudPaper>
+    <MudPaper Elevation="5">
         <CascadingValue Value="@Model">
             <MudStepper @ref="stepper"
                         Loading="@loading"
+                        Color="Color.Tertiary"
                         Variant="Variant.Outlined"
                         Linear="true"
                         DisableSkipButton="true"
+                        HeaderTextView="HeaderTextView.All"
+                        HeaderBadgeView="HeaderBadgeView.GreyOutIncomplete"
                         PreventStepChangeAsync="InvalidStepPrevention">
                 <StaticContent>
-                    <MudStack Row="true" Justify="Justify.Center">
-                        @foreach (var error in errors)
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.h5">@stepTitle</MudText>
+                        <MudSpacer />
+                        <MudStack Class="pa-0 mx-2">
+                            @foreach (var error in errors)
+                            {
+                                <MudText Color="Color.Error">@error</MudText>
+                            }
+                        </MudStack>
+                        @if (stepper?.IsAllStepsCompleted() == true)
                         {
-                            <MudText Color="Color.Error">@error</MudText>
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="AddAllEntrants">Confirm & save</MudButton>
                         }
                     </MudStack>
                 </StaticContent>
                 <ChildContent>
-                    <MudStep Title="Participating engines" Icon="@IconCollection.Engine">
+                    <MudStep Title="Add engines" Icon="@IconCollection.Engine">
                         <ChildContent>
                             <AddEngines />
                         </ChildContent>
                     </MudStep>
-                    <MudStep Title="Modify engines" Icon="@IconCollection.Engine">
+                    <MudStep Title="Edit engines" Icon="@IconCollection.Engine">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 1)
                             {
@@ -45,7 +50,7 @@
                             }
                         </ChildContent>
                     </MudStep>
-                    <MudStep Title="Participating teams" Icon="@IconCollection.Car">
+                    <MudStep Title="Add teams" Icon="@IconCollection.Car">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 2)
                             {
@@ -53,7 +58,7 @@
                             }
                         </ChildContent>
                     </MudStep>
-                    <MudStep Title="Modify teams" Icon="@IconCollection.Car">
+                    <MudStep Title="Edit teams" Icon="@IconCollection.Car">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 3)
                             {
@@ -61,7 +66,7 @@
                             }
                         </ChildContent>
                     </MudStep>
-                    <MudStep Title="Assign engines to teams" Icon="@IconCollection.Car">
+                    <MudStep Title="Assign engines" Icon="@IconCollection.Car">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 4)
                             {
@@ -69,7 +74,7 @@
                             }
                         </ChildContent>
                     </MudStep>
-                    <MudStep Title="Participating drivers" Icon="@IconCollection.Helmet">
+                    <MudStep Title="Add drivers" Icon="@IconCollection.Helmet">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 5)
                             {
@@ -77,7 +82,7 @@
                             }
                         </ChildContent>
                     </MudStep>
-                    <MudStep Title="Modify drivers" Icon="@IconCollection.Helmet">
+                    <MudStep Title="Edit drivers" Icon="@IconCollection.Helmet">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 6)
                             {
@@ -85,7 +90,7 @@
                             }
                         </ChildContent>
                     </MudStep>
-                    <MudStep Title="Assign drivers to teams" Icon="@IconCollection.Helmet">
+                    <MudStep Title="Assign drivers" Icon="@IconCollection.Helmet">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 7)
                             {
@@ -93,7 +98,7 @@
                             }
                         </ChildContent>
                     </MudStep>
-                    <MudStep Title="Entries for season" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
+                    <MudStep Title="Result" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 8)
                             {
@@ -118,6 +123,7 @@
     MudStepper stepper;
 
     bool loading = true;
+    string stepTitle = "Add engines";
     List<string> errors = new();
 
     protected override async Task OnInitializedAsync()
@@ -132,12 +138,17 @@
     {
         errors.Clear();
 
+        var activeIndex = stepper.GetActiveIndex();
+
         if (direction == StepChangeDirection.Backward)
+        {
+            SetTitle(--activeIndex);
             return Task.FromResult(false);
+        }
 
         loading = true;
 
-        switch (stepper.GetActiveIndex())
+        switch (activeIndex)
         {
             //Step: adding engines to season
             case 0:
@@ -209,8 +220,6 @@
                     }
                 }
                 break;
-            default:
-                break;
         }
 
         loading = false;
@@ -218,6 +227,53 @@
         if (errors.Any())
             return Task.FromResult(true);
 
+        SetTitle(++activeIndex);
+
         return Task.FromResult(false);
+    }
+
+    private void SetTitle(int forIndex)
+    {
+        switch (forIndex)
+        {
+            case 0:
+                stepTitle = "Add engines";
+                break;
+            case 1:
+                stepTitle = "Edit engines";
+                break;
+            case 2:
+                stepTitle = "Add teams";
+                break;
+            case 3:
+                stepTitle = "Edit teams";
+                break;
+            case 4:
+                stepTitle = "Assign teams";
+                break;
+            case 5:
+                stepTitle = "Add drivers";
+                break;
+            case 6:
+                stepTitle = "Edit drivers";
+                break;
+            case 7:
+                stepTitle = "Assign drivers";
+                break;
+            case 8:
+                stepTitle = "Participants";
+                break;
+        }
+    }
+
+    private async Task AddAllEntrants()
+    {
+        Model.CombineEntrantModels();
+
+        var rootEntrants = Model.SeasonEngines.Select(e => e.Record).ToList();
+
+        await _entrantService.PersistSeasonEntrants(rootEntrants);
+
+        _nav.NavigateTo($"/overview/{SeasonId}");
     }
 }

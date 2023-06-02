@@ -88,6 +88,9 @@ namespace SimTECH
         private static readonly MudColor DarkFadedPurple = new("#19141f"); // Background
         private static readonly MudColor DeepDarkFadedPurple = new("#100d14"); // Gray
         private static readonly MudColor AltDarkFadedPurple = new("#16121c"); // Surface
+        private static readonly MudColor DarkFadedBlue = new("#0c1e27");
+        private static readonly MudColor DeepDarkFadedBlue = new("#09131a");
+        private static readonly MudColor LiteDarkFadedBlue = new("#122d3b");
 
         public static MudTheme DefaultTheme => new()
         {
@@ -110,7 +113,7 @@ namespace SimTECH
                 Primary = Colors.DeepPurple.Lighten1,
                 // Triadic
                 Secondary = Colors.Pink.Darken2,
-                Tertiary = Colors.Yellow.Darken2,
+                Tertiary = Colors.Amber.Darken2,
 
                 Background = DarkFadedPurple,
                 BackgroundGrey = DeepDarkFadedPurple,
@@ -144,6 +147,31 @@ namespace SimTECH
                 Surface = AltDarkFadedPurple,
                 DrawerBackground = DeepDarkFadedPurple,
                 AppbarBackground = DeepDarkFadedPurple
+            },
+            Typography = CommonTypo,
+        };
+
+        public static MudTheme OceanicTheme => new()
+        {
+            Palette = new PaletteLight()
+            {
+                Primary = Colors.Teal.Default,
+                Secondary = Colors.Green.Default,
+                Tertiary = Colors.LightBlue.Accent3,
+
+                AppbarBackground = Colors.Teal.Default,
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Primary = Colors.Teal.Lighten1,
+                Secondary = Colors.Green.Lighten2,
+                Tertiary = Colors.LightBlue.Darken3,
+
+                Background = DarkFadedBlue,
+                BackgroundGrey = DeepDarkFadedBlue,
+                Surface = LiteDarkFadedBlue,
+                DrawerBackground = DeepDarkFadedBlue,
+                AppbarBackground = DeepDarkFadedBlue
             },
             Typography = CommonTypo,
         };
