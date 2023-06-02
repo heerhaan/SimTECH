@@ -303,26 +303,39 @@
         if (_selectedTarget == TargetDevelop.Main && League.DevelopmentRanges?.Any() == true)
         {
             List<DevelopmentRange> setCompareRange;
-            List<DevelopmentRange>? optionalCompareRange = null;
+            List<DevelopmentRange>? additionalCompareRange = null;
 
             switch (_activeEntrant)
             {
                 case Entrant.Driver:
-                    setCompareRange = League.DevelopmentRanges.Where(e => e.Type == RangeType.Skill).OrderBy(e => e.Comparer).ToList();
-                    optionalCompareRange = League.DevelopmentRanges.Where(e => e.Type == RangeType.Age).OrderBy(e => e.Comparer).ToList();
+                    {
+                        setCompareRange = League.DevelopmentRanges
+                                            .Where(e => e.Type == RangeType.Skill)
+                                            .OrderBy(e => e.Comparer)
+                                            .ToList();
+                        additionalCompareRange = League.DevelopmentRanges
+                                                    .Where(e => e.Type == RangeType.Age)
+                                                    .OrderBy(e => e.Comparer)
+                                                    .ToList();
+                    }
                     break;
                 case Entrant.Team:
-                    setCompareRange = League.DevelopmentRanges.Where(e => e.Type == RangeType.Team).OrderBy(e => e.Comparer).ToList();
+                    setCompareRange = League.DevelopmentRanges
+                                        .Where(e => e.Type == RangeType.Team)
+                                        .OrderBy(e => e.Comparer)
+                                        .ToList();
                     break;
                 case Entrant.Engine:
-                    setCompareRange = League.DevelopmentRanges.Where(e => e.Type == RangeType.Engine).OrderBy(e => e.Comparer).ToList();
+                    setCompareRange = League.DevelopmentRanges
+                                        .Where(e => e.Type == RangeType.Engine)
+                                        .OrderBy(e => e.Comparer)
+                                        .ToList();
                     break;
                 default:
-                    setCompareRange = new();
-                    break;
+                    throw new InvalidOperationException("Unrecognized entrant");
             }
 
-            if (setCompareRange.Any() || (optionalCompareRange?.Any() == true))
+            if (setCompareRange.Any() || (additionalCompareRange?.Any() == true))
             {
                 foreach (var entrant in DevelopedEntrants)
                 {
@@ -339,9 +352,9 @@
                     min = matchRange.Minimum;
                     max = matchRange.Maximum;
 
-                    if (optionalCompareRange?.Any() == true && entrant.Optional.HasValue)
+                    if (additionalCompareRange?.Any() == true && entrant.Optional.HasValue)
                     {
-                        var optRange = optionalCompareRange.FirstOrDefault(e => e.Comparer >= entrant.Optional.Value);
+                        var optRange = additionalCompareRange.FirstOrDefault(e => e.Comparer >= entrant.Optional.Value);
 
                         if (optRange != null)
                         {

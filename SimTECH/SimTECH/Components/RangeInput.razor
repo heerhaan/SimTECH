@@ -1,13 +1,13 @@
 ﻿<MudContainer>
     @ChildContent
-    <MudTable Items="@Items" Dense="true">
+    <MudTable T="EditRangeModel" Items="@Items" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h6">@_displayTitle</MudText>
             <MudSpacer />
-            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendRangeRow"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendRow" />
         </ToolBarContent>
         <HeaderContent>
-            <MudTh>Comparer</MudTh>
+            <MudTh>Less than</MudTh>
             <MudTh>Minimum</MudTh>
             <MudTh>Maximum</MudTh>
         </HeaderContent>
@@ -21,6 +21,11 @@
             <MudTd DataLabel="Maximum">
                 <MudNumericField @bind-Value="@context.Maximum" />
             </MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                               Color="Color.Error"
+                               OnClick="@(() => RemoveRow(context))"/>
+            </MudTd>
         </RowTemplate>
     </MudTable>
 </MudContainer>
@@ -31,7 +36,18 @@
     [Parameter] public RangeType RangeType { get; set; }
     [Parameter] public string? Title { get; set; }
 
-    private void AppendRangeRow()
+    private string _displayTitle
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(Title))
+                return Title;
+
+            return RangeType.ToString();
+        }
+    }
+
+    private void AppendRow()
     {
         Items.Add(new EditRangeModel()
             {
@@ -42,14 +58,8 @@
             });
     }
 
-    private string _displayTitle
+    private void RemoveRow(EditRangeModel item)
     {
-        get
-        {
-            if (!string.IsNullOrEmpty(Title))
-                return Title;
-
-            return RangeType.ToString();
-        }
+        Items.Remove(item);
     }
 }
