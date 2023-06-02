@@ -35,6 +35,7 @@ namespace SimTECH.PageModels
         public int MistakeRolls { get; set; }
         public int MistakeMinCost { get; set; }
         public int MistakeMaxCost { get; set; }
+        public int BattleRng { get; set; }
 
         public int QualifyingBonus(int grid) => (RaceDrivers.Count * Season.GridBonus) - ((grid - 1) * Season.GridBonus);
 

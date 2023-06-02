@@ -413,17 +413,17 @@
 
         if (cycleReliabilty == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
         {
-            lapScore.RacerEvents = RacerEvent.DriverDnf;
+            lapScore.RacerEvents |= RacerEvent.DriverDnf;
             driver.Incident = driverIncidents.TakeRandomIncident();
         }
         else if (cycleReliabilty == Entrant.Team && DidReliabilityFail(driver.CarReliability))
         {
-            lapScore.RacerEvents = RacerEvent.CarDnf;
+            lapScore.RacerEvents |= RacerEvent.CarDnf;
             driver.Incident = carIncidents.TakeRandomIncident();
         }
         else if (cycleReliabilty == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
         {
-            lapScore.RacerEvents = RacerEvent.EngineDnf;
+            lapScore.RacerEvents |= RacerEvent.EngineDnf;
             driver.Incident = engineIncidents.TakeRandomIncident();
         }
         else { return safetyCar; }
@@ -577,7 +577,10 @@
                 else if (!aboveDriver.InstantOvertaken)
                 {
                     // Subtract attack value from defense, what's left is how much the attacker is hindered
-                    var battleCost = aboveDriver.Defense - driver.Attack;
+                    var defendingResult = aboveDriver.Defense + NumberHelper.RandomInt(Model.BattleRng);
+                    var attackingResult = driver.Attack + NumberHelper.RandomInt(Model.BattleRng);
+                    var battleCost = defendingResult - attackingResult;
+
                     if (battleCost > 0)
                         lastScore.Score -= battleCost;
 

@@ -15,30 +15,23 @@ namespace SimTECH.Data.Models
 
     public static class ExtendLapScore
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lapScore"></param>
-        /// <returns></returns>
         public static IEnumerable<Enum> ListOfDubiousEvents(this LapScore lapScore) =>
             lapScore.RacerEvents.GetFlagged().Where(e => e.ToString() != "Unknown" && e.ToString() != "Racing");
 
+        public static bool HasDnfed(this LapScore lapScore) =>
+                lapScore.RacerEvents.HasFlag(RacerEvent.DriverDnf)
+                || lapScore.RacerEvents.HasFlag(RacerEvent.CarDnf)
+                || lapScore.RacerEvents.HasFlag(RacerEvent.EngineDnf);
+
         public static string DetermineLapColour(this LapScore lapScore)
         {
-            if (lapScore.RacerEvents.HasFlag(RacerEvent.DriverDnf) 
-                || lapScore.RacerEvents.HasFlag(RacerEvent.CarDnf) 
-                || lapScore.RacerEvents.HasFlag(RacerEvent.EngineDnf))
-            {
+            if (lapScore.HasDnfed())
                 return "red";
-            }
-            else if (lapScore.RacerEvents.HasFlag(RacerEvent.Caution))
-            {
+
+            if (lapScore.RacerEvents.HasFlag(RacerEvent.Caution))
                 return "yellow";
-            }
-            else
-            {
-                return Constants.DefaultAccent;
-            }
+
+            return Constants.DefaultAccent;
         }
     }
 }

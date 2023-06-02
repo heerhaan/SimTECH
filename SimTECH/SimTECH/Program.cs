@@ -72,11 +72,10 @@ namespace SimTECH
                 app.UseHsts();
 
                 // We only need the thing underneath whenever we're going to share it as an .exe file
-                using (var scope = app.Services.CreateScope())
-                {
-                    var db = scope.ServiceProvider.GetRequiredService<SimTechDbContext>();
-                    db.Database.Migrate();
-                }
+                using var scope = app.Services.CreateScope();
+
+                var db = scope.ServiceProvider.GetRequiredService<SimTechDbContext>();
+                db.Database.Migrate();
             }
 
             app.UseHttpsRedirection();
