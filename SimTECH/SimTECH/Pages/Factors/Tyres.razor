@@ -1,6 +1,7 @@
 ﻿@page "/tyres"
 @inject TyreService _tyreService
 @inject IDialogService _dialogService
+@inject IOptions<SimConfig> _config
 
 <PageTitle>Tyres</PageTitle>
 
@@ -8,18 +9,36 @@
     <MudDataGrid T="Tyre" Items="@TyreData" Bordered="true" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Tyres</MudText>
+            <MudText Typo="Typo.body2">Adv. Dist: @(advanceDistance)Km</MudText>
             <MudSpacer />
             <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTyre">New</MudButton>
         </ToolBarContent>
         <Columns>
-            <PropertyColumn Property="e => e!.Name" CellStyleFunc="_applyTyreColouring" />
+            <PropertyColumn Property="e => e!.Name" CellStyleFunc="@_applyTyreColouring" />
             <PropertyColumn Property="e => e!.Pace" Style="font-family: var(--mud-typography-caption-family)" />
-            <PropertyColumn Property="e => e!.WearMin" Style="font-family: var(--mud-typography-caption-family)" />
-            <PropertyColumn Property="e => e!.WearMax" Style="font-family: var(--mud-typography-caption-family)" />
-            <PropertyColumn Property="e => e!.DistanceMin" Style="font-family: var(--mud-typography-caption-family)" />
-            <PropertyColumn Property="e => e!.DistanceMax" Style="font-family: var(--mud-typography-caption-family)" />
-            <PropertyColumn Property="e => e!.ForWet" Style="font-family: var(--mud-typography-caption-family)" />
-            <PropertyColumn Property="e => e!.State" />
+            <TemplateColumn  T="Tyre" Title="Length" SortBy="e => e.ExpectedLength(advanceDistance)">
+                <CellTemplate>
+                    <MudText Typo="Typo.caption">@(context.Item.ExpectedLength(advanceDistance))Km</MudText>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn T="Tyre" Title="Wear" Sortable="false">
+                <CellTemplate>
+                    <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.caption">@context.Item.WearMin</MudText>
+                        <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowHorizontal" />
+                        <MudText Typo="Typo.caption">@context.Item.WearMax</MudText>
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn T="Tyre" Title="Distance" Sortable="false">
+                <CellTemplate>
+                    <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.caption">@context.Item.DistanceMin</MudText>
+                        <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                        <MudText Typo="Typo.caption">@context.Item.DistanceMax</MudText>
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
             <TemplateColumn T="Tyre" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
@@ -36,9 +55,13 @@
 @code {
     private List<Tyre> TyreData = new();
 
+    int advanceDistance;
+
     protected override async Task OnInitializedAsync()
     {
         TyreData = await _tyreService.GetTyres();
+
+        advanceDistance = _config.Value.CalculationDistance;
     }
 
     private Func<Tyre, string> _applyTyreColouring => e =>

@@ -473,21 +473,21 @@
         if (tyreMaxWear > driver.TyreLife)
         {
             var distanceLeft = calculated * calculationDistance;
-            var validTyres = tyres.Where(e => e.DistanceMin >= distanceLeft && e.DistanceMax <= distanceLeft).ToList();
-            
-            if (validTyres.Count == 0)
-                validTyres = tyres;
+            var validTyres = tyres.Where(e => e.DistanceMin < distanceLeft && e.DistanceMax > distanceLeft).ToList();
 
-            var nextTyre = validTyres.TakeRandomItem();
+            if (validTyres.Count > 0)
+            {
+                var nextTyre = validTyres.TakeRandomItem();
 
-            driver.CurrentTyre = nextTyre;
-            driver.TyreLife = nextTyre.Pace;
-            driver.InstantOvertaken = true;
+                driver.CurrentTyre = nextTyre;
+                driver.TyreLife = nextTyre.Pace;
+                driver.InstantOvertaken = true;
 
-            lapScore.RacerEvents |= RacerEvent.Pitstop;
+                lapScore.RacerEvents |= RacerEvent.Pitstop;
 
-            valueScoreResult = driver.TyreLife;
-            valueScoreResult -= NumberHelper.RandomInt(pitMin, pitMax);
+                valueScoreResult = driver.TyreLife;
+                valueScoreResult -= NumberHelper.RandomInt(pitMin, pitMax);
+            }
         }
 
         // Adds wear to the tyre

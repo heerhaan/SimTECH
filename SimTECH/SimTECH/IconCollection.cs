@@ -20,6 +20,19 @@
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
            <path d=""M16.375 6.22l-4.375 3.498l-4.375 -3.5a1 1 0 0 0 -1.625 .782v6a1 1 0 0 0 .375 .78l5 4a1 1 0 0 0 1.25 0l5 -4a1 1 0 0 0 .375 -.78v-6a1 1 0 0 0 -1.625 -.78z"" stroke-width=""0"" fill=""currentColor""></path>
         </svg>";
+        public static string ArrowMoveHorizontal => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-arrows-move-horizontal"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M18 9l3 3l-3 3""></path>
+           <path d=""M15 12h6""></path>
+           <path d=""M6 9l-3 3l3 3""></path>
+           <path d=""M3 12h6""></path>
+        </svg>";
+        public static string ArrowHorizontal => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-arrows-horizontal"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M7 8l-4 4l4 4""></path>
+           <path d=""M17 8l4 4l-4 4""></path>
+           <path d=""M3 12l18 0""></path>
+        </svg>";
         public static string ArrowUp => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-arrow-badge-up-filled"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
            <path d=""M11.375 6.22l-5 4a1 1 0 0 0 -.375 .78v6l.006 .112a1 1 0 0 0 1.619 .669l4.375 -3.501l4.375 3.5a1 1 0 0 0 1.625 -.78v-6a1 1 0 0 0 -.375 -.78l-5 -4a1 1 0 0 0 -1.25 0z"" stroke-width=""0"" fill=""currentColor""></path>

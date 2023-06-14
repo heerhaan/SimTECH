@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using SimTECH.Extensions;
+
+namespace SimTECH.Data.Models
 {
     public sealed class Tyre
     {
@@ -22,9 +24,10 @@
             if (tyre.Pace == 0 || (tyre.WearMin == 0 && tyre.WearMax == 0))
                 return 0;
 
-            var wearAvg = (tyre.WearMin + tyre.WearMax) / 2;
+            var wearAvg = (double)(tyre.WearMin + tyre.WearMax) / 2;
+            var averageLength = (tyre.Pace  / wearAvg) * distance;
 
-            return tyre.Pace / wearAvg * distance;
+            return averageLength.RoundDouble();
         }
     }
 }
