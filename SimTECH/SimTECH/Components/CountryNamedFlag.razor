@@ -1,7 +1,7 @@
-﻿<MudStack Row="true" AlignItems="AlignItems.Center" Reverse="@Reverse" Class="pa-0">
-    <CountryFlag Code="@Code" Size="@Size" Class="@Class" />
-    <MudSpacer />
-    <MudText Class="ml-2">@flagNationName</MudText>
+﻿<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Reverse="@Reverse" Class="pa-0">
+    <CountryFlag Code="@Code" Size="@Size" Class="@(_countryClasses)" />
+    <span class="mx-2"></span>
+    <MudText>@flagNationName</MudText>
 </MudStack>
 
 @code {
@@ -22,6 +22,14 @@
         get
         {
             return Code.GetDescription();
+        }
+    }
+
+    private string _countryClasses
+    {
+        get
+        {
+            return Class;
         }
     }
 }
