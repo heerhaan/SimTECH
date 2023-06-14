@@ -16,8 +16,8 @@
         public SeasonTeam SeasonTeam { get; set; }
         public long RaceId { get; set; }
         public Race Race { get; set; }
-        public long? TyreId { get; set; }
-        public Tyre? Tyre { get; set; }
+        public long TyreId { get; set; }
+        public Tyre Tyre { get; set; }
         public long? IncidentId { get; set; }
         public Incident? Incident { get; set; }
 
