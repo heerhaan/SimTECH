@@ -2,6 +2,7 @@
 @inject IncidentService _incidentService
 @inject RaceService _raceService
 @inject SeasonService _seasonService
+@inject TyreService _tyreService
 @inject NavigationManager _nav
 @inject IDialogService _dialogService
 @inject ISnackbar _snackbar
@@ -127,7 +128,6 @@
                 </MudTd>
                 <MudTd Class="tyre-col">
                     <TyreElement Colour="@context.CurrentTyre.Colour">@context.TyreLife</TyreElement>
-                    <BadgeWrapper Colours="@(context.Strategy.StrategyTyres.Select(e => e.Tyre.Colour).ToArray())" />
                 </MudTd>
                 <MudTd Class="number-col">
                     <MudText Typo="Typo.caption">@context.LapSum</MudText>
@@ -222,6 +222,7 @@
 
     public RaceModel Model { get; set; }
 
+    List<Tyre> tyres;
     List<Incident> driverIncidents;
     List<Incident> carIncidents;
     List<Incident> engineIncidents;
@@ -255,6 +256,7 @@
     protected override async Task OnInitializedAsync()
     {
         var allIncidents = await _incidentService.GetIncidents();
+        tyres = await _tyreService.GetTyres();
 
         Model = await _raceService.RetrieveRaceModel(RaceId);
 
@@ -306,6 +308,10 @@
         // Every i in this instance is relative to 10km (or calculationDistance) of racing aka a calculation
         for (int i = 0; i < calculationsPerAdvance; i++)
         {
+            // Prevent continuing the advancing if we have already reached the limit
+            if (calculated >= calculationCount)
+                break;
+
             ++calculated;
             long? newFastestLapScorer = null;
 
@@ -319,83 +325,78 @@
                     lapIndicatorColor = Color.Dark;
                     safetyCarOut = false;
                 }
+
+                continue;
             }
-            // TODO: Not a fan of this >else
-            else
+
+            foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
             {
-                foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
+                driver.InstantOvertaken = false;
+
+                var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
+
+                // Determine if either driver, car or engine has failed
+                var safetyCarOccurrence = CheckReliability(driver, lapScore);
+
+                // Calculate the score for drivers which are still racing
+                if (driver.Status == RaceStatus.Racing)
                 {
-                    driver.InstantOvertaken = false;
+                    var minRng = (minLapRng + driver.RngMinMod);
+                    var maxRng = (maxLapRng + driver.RngMaxMod);
 
-                    var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
+                    int lapValue = NumberHelper.RandomInt(minRng, maxRng);
 
-                    // Determine if either driver, car or engine has failed
-                    var safetyCarOccurrence = CheckReliability(driver, lapScore);
+                    // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
+                    if (calculated == 1)
+                        lapValue += Model.QualifyingBonus(driver.Grid);
 
-                    // Calculate the score for drivers which are still racing
-                    if (driver.Status == RaceStatus.Racing)
+                    // Check if driver made a mistake, if so then it's going to cost him
+                    for (int j = 0; j < Model.MistakeRolls; j++)
                     {
-                        var minRng = (minLapRng + driver.RngMinMod);
-                        var maxRng = (maxLapRng + driver.RngMaxMod);
-
-                        int lapValue = NumberHelper.RandomInt(minRng, maxRng);
-
-                        // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
-                        if (calculated == 1)
-                            lapValue += Model.QualifyingBonus(driver.Grid);
-
-                        // Check if driver made a mistake, if so then it's going to cost him
-                        for (int j = 0; j < Model.MistakeRolls; j++)
+                        if (DidReliabilityFail(driver.DriverReliability))
                         {
-                            if (DidReliabilityFail(driver.DriverReliability))
-                            {
-                                lapValue -= NumberHelper.RandomInt(Model.MistakeMinCost, Model.MistakeMaxCost);
-                                lapScore.RacerEvents |= RacerEvent.Mistake;
-                                driver.InstantOvertaken = true;
-                                break;
-                            }
+                            lapValue -= NumberHelper.RandomInt(Model.MistakeMinCost, Model.MistakeMaxCost);
+                            lapScore.RacerEvents |= RacerEvent.Mistake;
+                            driver.InstantOvertaken = true;
+                            break;
                         }
-
-                        // Strategy
-                        lapValue += HandleStrategy(driver, lapScore);
-
-                        // Adds the overall power of the driver
-                        lapValue += driver.Power;
-
-                        if (lapValue > fastestLap)
-                        {
-                            fastestLap = lapValue;
-                            newFastestLapScorer = driver.ResultId;
-                        }
-
-                        // Finally add the score to the lap results
-                        lapScore.Score = lapValue;
-                    }
-                    else if (safetyCarOccurrence)
-                    {
-                        // all sort of calculations to do here in relation to the current driver who caused a SC
-                        safetyCarOut = safetyCarOccurrence;
                     }
 
-                    driver.LapScores.Add(lapScore);
-                    lapScoresToPersist.Add(lapScore);
+                    // Strategy
+                    lapValue += HandleStrategy(driver, lapScore);
+
+                    // Adds the overall power of the driver
+                    lapValue += driver.Power;
+
+                    if (lapValue > fastestLap)
+                    {
+                        fastestLap = lapValue;
+                        newFastestLapScorer = driver.ResultId;
+                    }
+
+                    // Finally add the score to the lap results
+                    lapScore.Score = lapValue;
                 }
-
-                // Determine new positions (keep team role in mind here!)
-                PostProcessAdvance(newFastestLapScorer);
-
-                // TODO: handle something to deal with an active safety car which occurred in a previous advance
-                if (safetyCarOut)
+                else if (safetyCarOccurrence)
                 {
-                    lapIndicatorColor = Color.Warning;
-                    // Stop iterating through all advances since SC occurrence
-                    break;
+                    // all sort of calculations to do here in relation to the current driver who caused a SC
+                    safetyCarOut = safetyCarOccurrence;
                 }
+
+                driver.LapScores.Add(lapScore);
+                lapScoresToPersist.Add(lapScore);
             }
 
-            // Last brace before going to the next advance
-            if (calculated >= calculationCount)
+            // Determine new positions (keep team role in mind here!)
+            PostProcessAdvance(newFastestLapScorer);
+
+            // TODO: handle something to deal with an active safety car which occurred in a previous advance
+            if (safetyCarOut)
+            {
+                lapIndicatorColor = Color.Warning;
+                // Stop iterating through all advances since SC occurrence
                 break;
+            }
         }
 
         racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, Model.TrackLength);
@@ -435,9 +436,11 @@
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
         {
             safetyCar = true;
+
             driver.Status = RaceStatus.Fatal;
             driver.Incident = lethalIncidents.TakeRandomIncident();
             lapScore.RacerEvents = RacerEvent.Death;
+
             return safetyCar;
         }
 
@@ -458,6 +461,7 @@
 
         if (tyreMinWear < 0 || tyreMaxWear < 0)
             _snackbar.Add("ayo, wear should not be below 0");
+
         // Ensures maximum wear is always at least one less than the minimum wear
         if (tyreMinWear > tyreMaxWear)
         {
@@ -468,22 +472,22 @@
         // Maximum wear is more than the tyre can handle, it's time for a pitstop!
         if (tyreMaxWear > driver.TyreLife)
         {
-            var nextOrder = ++driver.CurrentTyreOrder;
-            var nextTyre = driver.Strategy.StrategyTyres.FirstOrDefault(e => e.Order == nextOrder);
+            var distanceLeft = calculated * calculationDistance;
+            var validTyres = tyres.Where(e => e.DistanceMin >= distanceLeft && e.DistanceMax <= distanceLeft).ToList();
+            
+            if (validTyres.Count == 0)
+                validTyres = tyres;
 
-            // If there is another tyre left in the strategy then we're installing it
-            if (nextTyre != null)
-            {
-                driver.CurrentTyre = nextTyre.Tyre;
-                driver.CurrentTyreOrder = nextOrder;
-                driver.TyreLife = nextTyre.Tyre.Pace;
-                driver.InstantOvertaken = true;
+            var nextTyre = validTyres.TakeRandomItem();
 
-                lapScore.RacerEvents |= RacerEvent.Pitstop;
+            driver.CurrentTyre = nextTyre;
+            driver.TyreLife = nextTyre.Pace;
+            driver.InstantOvertaken = true;
 
-                valueScoreResult = driver.TyreLife;
-                valueScoreResult -= NumberHelper.RandomInt(pitMin, pitMax);
-            }
+            lapScore.RacerEvents |= RacerEvent.Pitstop;
+
+            valueScoreResult = driver.TyreLife;
+            valueScoreResult -= NumberHelper.RandomInt(pitMin, pitMax);
         }
 
         // Adds wear to the tyre

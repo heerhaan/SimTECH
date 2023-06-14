@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimTECH.Data;
 
@@ -11,9 +12,11 @@ using SimTECH.Data;
 namespace SimTECH.Migrations
 {
     [DbContext(typeof(SimTechDbContext))]
-    partial class SimTechDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230614163413_StrategyRemoval")]
+    partial class StrategyRemoval
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -668,7 +671,7 @@ namespace SimTECH.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<long>("TyreId")
+                    b.Property<long?>("TyreId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("TyreLife")
@@ -1453,9 +1456,7 @@ namespace SimTECH.Migrations
 
                     b.HasOne("SimTECH.Data.Models.Tyre", "Tyre")
                         .WithMany()
-                        .HasForeignKey("TyreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TyreId");
 
                     b.Navigation("Incident");
 

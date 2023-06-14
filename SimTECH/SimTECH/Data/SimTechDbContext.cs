@@ -29,8 +29,6 @@ namespace SimTECH.Data
         public DbSet<SeasonEngine> SeasonEngine => Set<SeasonEngine>();
         public DbSet<SeasonTeam> SeasonTeam => Set<SeasonTeam>();
         public DbSet<Sponsor> Sponsor => Set<Sponsor>();
-        public DbSet<Strategy> Strategy => Set<Strategy>();
-        public DbSet<StrategyTyre> StrategyTyre => Set<StrategyTyre>();
         public DbSet<Team> Team => Set<Team>();
         public DbSet<TeamTrait> TeamTrait => Set<TeamTrait>();
         public DbSet<Track> Track => Set<Track>();

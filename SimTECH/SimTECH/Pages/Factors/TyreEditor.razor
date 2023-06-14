@@ -13,6 +13,13 @@
                 <MudNumericField T="int" @bind-Value="Model.WearMin" Min="0" Max="@(Model.WearMax)" Label="WearMin" Class="field-sm" />
                 <MudNumericField T="int" @bind-Value="Model.WearMax" Min="@(Model.WearMin)" Label="WearMax" Class="field-sm" />
             </MudStack>
+
+            <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
+                <MudNumericField T="int" @bind-Value="Model.DistanceMin" Min="0" Max="@(Model.DistanceMax)" Label="DistanceMin" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.DistanceMax" Min="@(Model.DistanceMin)" Label="DistanceMax" Class="field-sm" />
+            </MudStack>
+
+            <MudSwitch @bind-Checked="Model.ForWet" Label="For wet conditions" Color="Color.Tertiary" />
         </MudForm>
         <MudPaper Height="75px">
             <MudStack Row="true">
@@ -66,8 +73,6 @@
 
     private void Submit()
     {
-        Model.Length = PredictedLength();
-
         if (Model.IsDirty)
         {
             var modTyre = Model.Record;

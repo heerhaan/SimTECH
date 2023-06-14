@@ -43,10 +43,10 @@ namespace SimTECH.Data
         private void SeedTyres()
         {
             builder.Entity<Tyre>().HasData(
-                    new Tyre { Id = 1, Name = "Soft", Colour = "#fa0536  ", Pace = 200, WearMin = 15, WearMax = 25, Length = 100, State = State.Active, },
-                    new Tyre { Id = 2, Name = "Medium", Colour = "#f4ea26  ", Pace = 180, WearMin = 9, WearMax = 15, Length = 150, State = State.Active, },
-                    new Tyre { Id = 3, Name = "Hard", Colour = "#dfdde9  ", Pace = 160, WearMin = 6, WearMax = 10, Length = 200, State = State.Active, },
-                    new Tyre { Id = 4, Name = "Grooved", Colour = "#bded80  ", Pace = 100, WearMin = 1, WearMax = 3, Length = 500, State = State.Closed, }
+                    new Tyre { Id = 1, Name = "Soft", Colour = "#fa0536  ", Pace = 200, WearMin = 15, WearMax = 25, State = State.Active, },
+                    new Tyre { Id = 2, Name = "Medium", Colour = "#f4ea26  ", Pace = 180, WearMin = 9, WearMax = 15, State = State.Active, },
+                    new Tyre { Id = 3, Name = "Hard", Colour = "#dfdde9  ", Pace = 160, WearMin = 6, WearMax = 10, State = State.Active, },
+                    new Tyre { Id = 4, Name = "Grooved", Colour = "#bded80  ", Pace = 100, WearMin = 1, WearMax = 3, State = State.Closed, }
             );
         }
 

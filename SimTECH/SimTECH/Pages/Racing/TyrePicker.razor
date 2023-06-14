@@ -1,0 +1,76 @@
+﻿<MudDialog Class="dialog-shadow">
+    <TitleContent>
+        Pick here the first tyre a driver will use for this race
+    </TitleContent>
+    <DialogContent>
+        @if (Tyres?.Any() == true)
+        {
+            <MudTable Items="Tyres">
+                <HeaderContent>
+                    <MudTh>Tyre</MudTh>
+                    <MudTh>Pace</MudTh>
+                    <MudTh>Wear</MudTh>
+                    <MudTh>Length</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <TyreElement Colour="@context.Colour">
+                            <MudText>@context.Name</MudText>
+                        </TyreElement>
+                    </MudTd>
+                    <MudTd>
+                        <MudText>@context.Pace</MudText>
+                    </MudTd>
+                    <MudTd>
+                        <MudText Typo="Typo.caption">@context.WearMin ↔ @context.WearMax</MudText>
+                    </MudTd>
+                    <MudTd>
+                        <MudText>@context.ExpectedLength(tempCalcDistance)</MudText>
+                    </MudTd>
+                    <MudTd Class="d-flex justify-end">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Secondary"
+                                   Size="Size.Medium"
+                                   OnClick="(() => PickOption(context))"
+                                   Class="mud-height-full">
+                            Select
+                        </MudButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+        else
+        {
+            <MudAlert>There is a serious lack of available tyres here, so start adding them!</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected MudDialogInstance? PickerDialog { get; set; }
+
+    [Parameter]
+    public long ResultId { get; set; }
+    [Parameter]
+    public List<Tyre> Tyres { get; set; }
+
+    //TODO: following
+    private int tempCalcDistance = 10;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    private void PickOption(Tyre tyre)
+    {
+        PickerDialog?.Close(DialogResult.Ok(tyre));
+    }
+
+    private void Cancel() => PickerDialog?.Cancel();
+}

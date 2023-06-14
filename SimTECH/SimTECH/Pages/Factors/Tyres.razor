@@ -1,0 +1,70 @@
+﻿@page "/tyres"
+@inject TyreService _tyreService
+@inject IDialogService _dialogService
+
+<PageTitle>Tyres</PageTitle>
+
+<MudContainer>
+    <MudDataGrid T="Tyre" Items="@TyreData" Bordered="true" Dense="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Tyres</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTyre">New</MudButton>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="e => e!.Name" CellStyleFunc="_applyTyreColouring" />
+            <PropertyColumn Property="e => e!.Pace" Style="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.WearMin" Style="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.WearMax" Style="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.DistanceMin" Style="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.DistanceMax" Style="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.ForWet" Style="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.State" />
+            <TemplateColumn T="Tyre" Sortable="false">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
+                                            Default="@(context.Item.State == State.Active)" />
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTyre(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    private List<Tyre> TyreData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        TyreData = await _tyreService.GetTyres();
+    }
+
+    private Func<Tyre, string> _applyTyreColouring => e =>
+    {
+        return $"border-color: {e.Colour}";
+    };
+
+    async Task AddTyre() => await UpdateTyre(null);
+    async Task UpdateTyre(Tyre? item)
+    {
+        var parameters = new DialogParameters { ["Tyre"] = item };
+
+        var dialog = await _dialogService.ShowAsync<TyreEditor>("Modify tyre", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Tyre updatedItem)
+        {
+            await _tyreService.UpdateTyre(updatedItem);
+            TyreData = await _tyreService.GetTyres();
+        }
+    }
+
+    async Task OnToggleChange(Tyre tyre, bool toggled) => await ToggleState(tyre, (toggled ? State.Active : State.Closed));
+    async Task ToggleState(Tyre tyre, State targetState)
+    {
+        await _tyreService.ChangeState(tyre, targetState);
+        TyreData = await _tyreService.GetTyres();
+    }
+}
