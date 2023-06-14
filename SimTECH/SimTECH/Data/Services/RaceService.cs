@@ -103,8 +103,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            var race = await context.Race
-                .SingleAsync(e => e.Id == raceId);
+            var race = await context.Race.SingleAsync(e => e.Id == raceId);
 
             if (race.State != State.Concept)
                 throw new InvalidOperationException("Can only activate races in concept state");
@@ -113,29 +112,27 @@ namespace SimTECH.Data.Services
                 .Where(e => e.SeasonId == race.SeasonId && e.SeasonTeamId.HasValue)
                 .ToListAsync();
 
-            var strategiesForRace = await context.Strategy
+            var availableTyres = await context.Tyre
                 .Where(e => e.State == State.Active)
-                .Include(e => e.StrategyTyres)
-                    .ThenInclude(e => e.Tyre)
                 .ToListAsync();
 
-            if (strategiesForRace?.Any() != true)
-                throw new InvalidOperationException("No valid strategies for this race, smh");
+            if (availableTyres?.Any() != true)
+                throw new InvalidOperationException("No valid tyres for this race, smh");
 
             var driverResults = new List<Result>();
 
             foreach (var driver in seasonDrivers)
             {
-                var strategy = strategiesForRace[NumberHelper.RandomInt(strategiesForRace.Count - 1)];
+                var tyre = availableTyres.TakeRandomItem();
 
                 driverResults.Add(new Result
                 {
                     Status = RaceStatus.Racing,
-                    TyreLife = strategy.StrategyTyres[0].Tyre.Pace,
+                    TyreLife = tyre.Pace,
                     SeasonDriverId = driver.Id,
                     SeasonTeamId = driver.SeasonTeamId.GetValueOrDefault(),
                     RaceId = race.Id,
-                    StrategyId = strategy.Id,
+                    TyreId = tyre.Id,
                 });
             }
 
@@ -150,15 +147,14 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task PickStrategy(long resultId, long strategyId, int pace)
+        public async Task PickTyre(long resultId, Tyre tyre)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            context.Result
-                .Where(e => e.Id == resultId)
-                .ExecuteUpdate(ex => ex
-                    .SetProperty(prop => prop.StrategyId, strategyId)
-                    .SetProperty(prop => prop.TyreLife, pace));
+            var result = await context.Result.SingleAsync(e => e.Id == resultId);
+
+            result.TyreId = tyre.Id;
+            result.TyreLife = tyre.Pace;
 
             await context.SaveChangesAsync();
         }
@@ -309,6 +305,7 @@ namespace SimTECH.Data.Services
                 .Include(e => e.SeasonDriver)
                     .ThenInclude(e => e.Driver)
                 .Include(e => e.SeasonTeam)
+                .Include(e => e.Tyre)
                 .Where(e => e.RaceId == raceId)
                 .Select(result => new RaceWeekDriver
                 {
@@ -330,21 +327,12 @@ namespace SimTECH.Data.Services
                     Grid = result.Grid,
                     Position = result.Position,
                     Status = result.Status,
-                    StrategyId = result.StrategyId,
+                    Tyre = result.Tyre,
                 })
                 .ToListAsync();
 
             if (weekendDrivers?.Any() != true)
                 throw new InvalidOperationException("We're going to need some actual drivers too");
-
-            // Set strategies
-            var strategiesForRace = await context.Strategy
-                .Include(e => e.StrategyTyres)
-                    .ThenInclude(e => e.Tyre)
-                .ToListAsync();
-
-            foreach (var driver in weekendDrivers)
-                driver.Strategy = strategiesForRace.Find(e => e.Id == driver.StrategyId);
 
             // Set eventual penalties
             var unconsumedPenalties = await context.GivenPenalty.Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId).ToListAsync();
@@ -366,7 +354,6 @@ namespace SimTECH.Data.Services
                 Race = race,
                 MaximumInRace = race.Season.MaximumDriversInRace,
                 RaceWeekDrivers = weekendDrivers,
-                AvailableStrategies = strategiesForRace,
                 TrackTraits = trackTraits,
             };
         }
@@ -523,6 +510,7 @@ namespace SimTECH.Data.Services
             var driverResults = await context.Result
                 .Where(e => e.RaceId == raceId && e.Status != RaceStatus.Dnq)
                 .Include(e => e.LapScores)
+                .Include(e => e.Tyre)
                 .ToListAsync();
 
             var drivers = await context.SeasonDriver
@@ -542,11 +530,6 @@ namespace SimTECH.Data.Services
             // Excludes wet traits if the race isn't wet either
             var allTraits = await context.Trait
                 .Where(e => (!e.ForWetConditions) || e.ForWetConditions == race.Climate.IsWet)
-                .ToListAsync();
-
-            var allStrategies = await context.Strategy
-                .Include(e => e.StrategyTyres)
-                    .ThenInclude(e => e.Tyre)
                 .ToListAsync();
 
             List<Trait> trackTraits;
@@ -569,7 +552,6 @@ namespace SimTECH.Data.Services
 
                 var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId) ?? throw new InvalidOperationException("Could not find matching seasondriver for result");
                 var team = teams.Find(e => e.Id == driverResult.SeasonTeamId) ?? throw new InvalidOperationException("Could not find matching seasonteam for result");
-                var strategy = allStrategies.Find(e => e.Id == driverResult.StrategyId) ?? throw new InvalidOperationException("Could not find the strategy for driver");
 
                 if (team.Manufacturer == null)
                     throw new InvalidOperationException("where the tyre manufacturer at boi?");
@@ -612,13 +594,7 @@ namespace SimTECH.Data.Services
                     Grid = driverResult.Grid,
                     Setup = driverResult.Setup,
                     TyreLife = driverResult.TyreLife,
-
-                    Strategy = strategy,
-                    // We might want to store the current tyre ID too otherwise this makes little sense when opening an older rees
-                    // Also this way one has to finish a started race
-                    // Alternatively determine the current tyre based on the state of the race
-                    CurrentTyre = strategy.StrategyTyres[0].Tyre,
-                    CurrentTyreOrder = 1,
+                    CurrentTyre = driverResult.Tyre,
 
                     Power = totalPower,
                     Attack = driver.Attack + sumTraits.Attack,

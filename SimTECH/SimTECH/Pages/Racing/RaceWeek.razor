@@ -1,6 +1,6 @@
 ﻿@page "/raceweek/{RaceId:long}"
-
 @inject RaceService RaceService
+@inject TyreService _tyreService
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject IDialogService DialogService
@@ -30,11 +30,15 @@ else
                     @if (Model.TrackTraits?.Any() == true)
                     {
                         <MudList>
-                            <MudListSubheader>Traits of this circuit</MudListSubheader>
+                            <MudListSubheader>Circuit traits</MudListSubheader>
                             @foreach (var trait in Model.TrackTraits)
                             {
                                 <MudListItem>
-                                    @trait.Name - @trait.Description
+                                    <MudStack Spacing="0">
+                                        <MudText Typo="Typo.subtitle1">@trait.Name</MudText>
+                                        <MudDivider />
+                                        <MudText Typo="Typo.body1">@trait.Description</MudText>
+                                    </MudStack>
                                 </MudListItem>
                             }
                         </MudList>
@@ -66,9 +70,9 @@ else
                         <MudTh>Grid</MudTh>
                         <MudTh>Name</MudTh>
                         <MudTh>Team</MudTh>
-                        <MudTh Class="number-col">Tyre</MudTh>
+                        <MudTh Class="number-col">Supp</MudTh>
                         <MudTh>PEN.</MudTh>
-                        <MudTh>Strategy</MudTh>
+                        <MudTh>Tyre</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>
@@ -98,12 +102,9 @@ else
                         </MudTd>
                         <MudTd>
                             <MudLink OnClick="@(async () => await PickStrategy(context.ResultId))">
-                                <MudStack Row="true" Spacing="2">
-                                    @foreach (var tyreElem in context.Strategy.StrategyTyres)
-                                    {
-                                        <TyreElement Colour="@tyreElem.Tyre.Colour">@tyreElem.Tyre.Name.ElementAt(0)</TyreElement>
-                                    }
-                                </MudStack>
+                                <TyreElement Colour="@context.Tyre.Colour">
+                                    <MudText>@(context.Tyre.Name.ElementAt(0))</MudText>
+                                </TyreElement>
                             </MudLink>
                         </MudTd>
                     </RowTemplate>
@@ -150,15 +151,18 @@ else
 }
 
 @code {
-    [Parameter] public long RaceId { get; set; }
+    [Parameter]
+    public long RaceId { get; set; }
 
     RaceWeekModel Model { get; set; }
+    List<Tyre> Tyres { get; set; }
 
     bool loading = true;
 
     protected override async Task OnInitializedAsync()
     {
         Model = await RaceService.GetRaceWeekModel(RaceId);
+        Tyres = await _tyreService.GetTyres();
 
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -177,17 +181,17 @@ else
         var parameters = new DialogParameters 
             {
                 ["ResultId"] = resultId,
-                ["Strategies"] = Model.AvailableStrategies,
+                ["Tyres"] = Tyres,
             };
 
-        var dialog = await DialogService.ShowAsync<StrategyPicker>("Set strategy", parameters);
+        var dialog = await DialogService.ShowAsync<TyrePicker>("Set tyre", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Strategy newStrategy)
+        if (!result.Canceled && result.Data != null && result.Data is Tyre pickedTyre)
         {
-            await RaceService.PickStrategy(resultId, newStrategy.Id, newStrategy.StrategyTyres[0].Tyre.Pace);
+            await RaceService.PickTyre(resultId, pickedTyre);
 
-            Model.RaceWeekDrivers.Single(e => e.ResultId == resultId).Strategy = newStrategy;
+            Model.RaceWeekDrivers.Single(e => e.ResultId == resultId).Tyre = pickedTyre;
         }
     }
 
