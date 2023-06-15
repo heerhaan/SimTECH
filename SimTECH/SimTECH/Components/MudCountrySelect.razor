@@ -1,31 +1,24 @@
 ﻿@inherits InputBase<Country>
 
-<MudSelect @bind-Value="HandleSelection" Label="Nation" Variant="Variant.Outlined" Class="@Class">
-    @ChildContent
-    @foreach (var country in CountrySelectItems)
-    {
-        <MudSelectItem Value="@country.Code">
-            <MudText>
-                @country.Flag
-                @country.Name
-            </MudText>
-        </MudSelectItem>
-    }
-</MudSelect>
+<MudSelectExtended ItemCollection="@Countries"
+                   @bind-Value="HandleSelection"
+                   Label="Nation"
+                   Variant="Variant.Outlined"
+                   SearchBox="true"
+                   SearchFunc="@(new Func<Country, string, bool>(SearchCountries))"
+                   T="Country"
+                   Class="@Class"
+                   >
+    <ItemTemplate>
+        <CountryNamedFlag Code="@(context.Value)" />
+    </ItemTemplate>
+</MudSelectExtended>
 
 @code {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public string Class { get; set; } = string.Empty;
-    [Parameter] public Country[] Countries { get; set; } = Enum.GetValues<Country>();
-
-    private List<CountrySelectItem> CountrySelectItems => Countries
-        .Select(e => new CountrySelectItem
-            {
-                Code = e,
-                Name = e.GetDescription(),
-                Flag = e.CountryCodeToEmoji(),
-            })
-        .ToList();
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+    [Parameter]
+    public Country[] Countries { get; set; } = Enum.GetValues<Country>();
 
     public Country HandleSelection
     {
@@ -49,10 +42,16 @@
         return false;
     }
 
-    protected class CountrySelectItem
+    private bool SearchCountries(Country code, string searchText)
     {
-        public Country Code { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Flag { get; set; } = string.Empty;
+        if (string.IsNullOrWhiteSpace(searchText))
+            return true;
+
+        var countryText = code.GetDescription().ToLowerInvariant();
+
+        if (countryText.Contains(searchText.ToLowerInvariant()))
+            return true;
+
+        return false;
     }
 }
