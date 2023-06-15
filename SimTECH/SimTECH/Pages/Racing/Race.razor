@@ -24,7 +24,7 @@
                     <MudStack Spacing="0" AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.subtitle2">Lap</MudText>
                         <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
-                            <MudText Typo="Typo.subtitle1">@(lapIndicator)</MudText>
+                            <MudText Typo="Typo.subtitle1">@(racedLaps) / @(totalLaps)</MudText>
                         </MudChip>
                     </MudStack>
 
@@ -197,7 +197,7 @@
                             Fatality
                         </MudChip>
                         <MudChip Icon="@IconCollection.AlertTriangle" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Caution (TEMP?)
+                            Caution (TEMP)
                         </MudChip>
                         <MudChip Icon="@Icons.Material.Filled.QuestionMark" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
                             Undetermined
@@ -206,7 +206,7 @@
                         <MudSpacer />
 
                         <MudButtonGroup Color="Color.Tertiary">
-                            <MudButton OnClick="ToggleProgressBarType">AltLine</MudButton>
+                            <MudButton OnClick="ToggleProgressBarType">Alt progress</MudButton>
                             <MudButton OnClick="ShowGapperChart">GapChart</MudButton>
                             <MudButton OnClick="ShowPositionChart">PosChart</MudButton>
                         </MudButtonGroup>
@@ -218,7 +218,8 @@
 </MudContainer>
 
 @code {
-    [Parameter] public long RaceId { get; set; }
+    [Parameter]
+    public long RaceId { get; set; }
 
     public RaceModel Model { get; set; }
 
@@ -231,7 +232,6 @@
 
     bool loading = true;
     bool altProgress = false;
-    string lapIndicator = "0/0";
 
     int fatalityOdds;
     int disqualifyChance;
@@ -274,12 +274,12 @@
         fatalityOdds = Model.FatalityOdds;
         disqualifyChance = Model.DisqualifyOdds;
         safetyCarOdds = Model.SafetyCarOdds;
+
         calculated = Model.RaceDrivers.Select(e => e.LapScores.Count()).Max();
         calculationCount = Model.RaceLength / calculationDistance;
 
         racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, Model.TrackLength);
         totalLaps = NumberHelper.CalcLapCount(Model.RaceLength, Model.TrackLength);
-        lapIndicator = $"{racedLaps} / {totalLaps}";
 
         if (Model.IsFinished)
         {
@@ -400,9 +400,6 @@
         }
 
         racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, Model.TrackLength);
-        lapIndicator = $"{racedLaps} / {totalLaps}";
-
-        //StateHasChanged();
 
         // Persist the new stint results, yes after doing all whats needed to show them
         //PersistLapScores(lapScoresToPersist);
@@ -459,10 +456,9 @@
         var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
         var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
 
+        // Feedbacks some information if there is anything fucky going on with the values used for tyre wear
         if (tyreMinWear < 0 || tyreMaxWear < 0)
-            _snackbar.Add("ayo, wear should not be below 0");
-
-        // Ensures maximum wear is always at least one less than the minimum wear
+            _snackbar.Add("Wear should result in a non-negative number, the fuck did you do? Issues may occur.");
         if (tyreMinWear > tyreMaxWear)
         {
             tyreMaxWear = tyreMinWear + 1;
@@ -473,7 +469,9 @@
         if (tyreMaxWear > driver.TyreLife)
         {
             var distanceLeft = calculated * calculationDistance;
-            var validTyres = tyres.Where(e => e.DistanceMin < distanceLeft && e.DistanceMax > distanceLeft).ToList();
+            var validTyres = tyres
+                .Where(e => e.DistanceMin < distanceLeft && e.DistanceMax > distanceLeft && e.ForWet == Model.IsWet)
+                .ToList();
 
             if (validTyres.Count > 0)
             {
@@ -622,6 +620,7 @@
         {
             var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum).ToList();
             int positionIndex = 0;
+
             foreach (var driver in racingDrivers)
                 driver.Position = ++positionIndex;
         }

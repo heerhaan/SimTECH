@@ -624,6 +624,7 @@ namespace SimTECH.Data.Services
                 ClimateId = race.ClimateId,
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
+                IsWet = race.Climate.IsWet,
                 Round = race.Round,
                 IsFinished = race.State == State.Closed,
 
@@ -692,6 +693,7 @@ namespace SimTECH.Data.Services
                 Country = race.Track.Country,
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
+                IsWet = race.Climate.IsWet,
 
                 AmountRuns = season.RunAmountSession,
                 MaximumRaceDrivers = season.MaximumDriversInRace,
@@ -846,6 +848,7 @@ namespace SimTECH.Data.Services
                 Country = race.Track.Country,
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
+                IsWet = race.Climate.IsWet,
 
                 AmountRuns = season.RunAmountSession,
                 PracticeRng = season.QualifyingRNG / 2,

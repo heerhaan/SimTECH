@@ -9,6 +9,7 @@ namespace SimTECH.PageModels
         public Country Country { get; set; }
         public string Climate { get; set; }
         public string ClimateIcon { get; set; }
+        public bool IsWet { get; set; }
         public bool IsFinished { get; set; }
 
         public int AmountRuns { get; set; }//Can be used for both runs in qualy and stints in race

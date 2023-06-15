@@ -31,6 +31,13 @@
         public static int Percentage(int number, double max) =>
             (int)Math.Round(100 * number / max);
 
+        public static double Average(int number, int times) => Average((double)number, times);
+        public static double Average(double number, int times)
+        {
+            var avg = number / times;
+            return Math.Round(avg, 1);
+        }
+
         public static int CalcLapCount(int raceLength, double trackLength) =>
             (int)Math.Round(raceLength / trackLength);
     }
