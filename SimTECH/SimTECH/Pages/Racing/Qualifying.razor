@@ -1,18 +1,19 @@
 ﻿@page "/qualifying/{RaceId:long}"
 @inject RaceService _raceService
 @inject NavigationManager _nav
+@inject IOptions<SimConfig> _config
 
 @*
     Tables underneath is a good target for a refactor to a component, perhaps even a nested component!
     Nested as in a component QualifyingSession implements a component Session (which can be implemented by practice!)
 *@
 
-<MudContainer MaxWidth="MaxWidth.Large">
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
     @if (!loading)
     {
         <MudTabs>
             <MudTabPanel Text="Q1">
-                <MudTable Items="@DriversInQ1.OrderBy(e => e.PositionQ1)" id="q1-result-table" Dense="true" Class="extra-dense">
+                <MudTable Items="@DriversInQ1.OrderBy(e => e.PositionQ1)" Dense="true" Class="extra-dense" id="q1-result-table">
                     <ToolBarContent>
                         <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                             <CountryFlag Code="@Model.Country" />
@@ -83,7 +84,7 @@
             </MudTabPanel>
 
             <MudTabPanel Text="Q2" Disabled="@(advancedQ1 != Model.AmountRuns)">
-                <MudTable Items="@DriversInQ2.OrderBy(e => e.PositionQ2)" id="q2-result-table" Dense="true" Class="extra-dense">
+                <MudTable Items="@DriversInQ2.OrderBy(e => e.PositionQ2)" Dense="true" Class="extra-dense" id="q2-result-table">
                     <ToolBarContent>
                         <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                             <CountryFlag Code="@Model.Country" />
@@ -154,7 +155,7 @@
             </MudTabPanel>
 
             <MudTabPanel Text="Q3" Disabled="@(advancedQ2 != Model.AmountRuns)">
-                <MudTable Items="@DriversInQ3.OrderBy(e => e.PositionQ3)" id="q3-result-table" Dense="true" Class="extra-dense">
+                <MudTable Items="@DriversInQ3.OrderBy(e => e.PositionQ3)" Dense="true" Class="extra-dense" id="q3-result-table">
                     <ToolBarContent>
                         <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                             <CountryFlag Code="@Model.Country" />
@@ -249,12 +250,16 @@
     private bool loading = true;
     private int advancedQ1, advancedQ2, advancedQ3 = 0;
 
+    double gapMarge;
+
     protected override async Task OnInitializedAsync()
     {
         Model = await _raceService.RetrieveQualifyingModel(RaceId);
 
         foreach (var driver in Model.QualifyingDrivers)
             DriversInQ1.Add(driver);
+
+        gapMarge = _config.Value.GapMarge;
 
         loading = false;
     }
@@ -274,7 +279,7 @@
         {
             driver.Position = ++positionIndex;
             driver.PositionQ1 = positionIndex;
-            driver.GapQ1 = Math.Round(((highestScore - driver.MaxScoreQ1) * Model.GapMarge), 2);
+            driver.GapQ1 = Math.Round(((highestScore - driver.MaxScoreQ1) * gapMarge), 2);
         }
 
         advancedQ1++;
@@ -302,7 +307,7 @@
         {
             driver.Position = ++positionIndex;
             driver.PositionQ2 = positionIndex;
-            driver.GapQ2 = Math.Round(((highestScore - driver.MaxScoreQ2) * Model.GapMarge), 2);
+            driver.GapQ2 = Math.Round(((highestScore - driver.MaxScoreQ2) * gapMarge), 2);
         }
 
         advancedQ2++;
@@ -327,7 +332,7 @@
         {
             driver.Position = ++positionIndex;
             driver.PositionQ3 = positionIndex;
-            driver.GapQ3 = Math.Round(((highestScore - driver.MaxScoreQ3) * Model.GapMarge), 2);
+            driver.GapQ3 = Math.Round(((highestScore - driver.MaxScoreQ3) * gapMarge), 2);
         }
 
         advancedQ3++;

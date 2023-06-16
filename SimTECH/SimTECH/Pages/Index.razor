@@ -38,8 +38,8 @@
                         <MudTh>Race</MudTh>
                         <MudTh Class="pa-0"></MudTh>
                         <MudTh>Team</MudTh>
-                        <MudTh>Driver</MudTh>
                         <MudTh Class="number-col">No.</MudTh>
+                        <MudTh>Driver</MudTh>
                         <MudTh></MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -61,22 +61,18 @@
                         <MudTd>
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText Typo="Typo.body2">@context.WinningTeam.Name</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
-                            </MudStack>
-                        </MudTd>
-                        <MudTd>
-                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.body2">@context.WinningDriver.Name</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
                             </MudStack>
                         </MudTd>
                         <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.WinningDriver.Colour, context.WinningDriver.Accent))">
                             <MudText Typo="Typo.caption">@context.WinningDriver.Number</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">Go To</MudButton>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.body2">@context.WinningDriver.Name</MudText>
+                            </MudStack>
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">GoTo</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -97,7 +93,7 @@
                         <MudTd>R: @(context.Round)</MudTd>
                         <MudTd>@(context.Name)</MudTd>
                         <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.Id))">Go To</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.Id))">GoTo</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>

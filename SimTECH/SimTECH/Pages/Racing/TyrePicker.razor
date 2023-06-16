@@ -1,4 +1,6 @@
-﻿<MudDialog Class="dialog-shadow">
+﻿@inject IOptions<SimConfig> _config
+
+<MudDialog Class="dialog-shadow">
     <TitleContent>
         Pick here the first tyre a driver will use for this race
     </TitleContent>
@@ -15,18 +17,25 @@
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>
-                        <TyreElement Colour="@context.Colour">
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <TyreElement Colour="@context.Colour">
+                                @context.Name.ElementAt(0)
+                            </TyreElement>
                             <MudText>@context.Name</MudText>
-                        </TyreElement>
+                        </MudStack>
                     </MudTd>
                     <MudTd>
                         <MudText>@context.Pace</MudText>
                     </MudTd>
                     <MudTd>
-                        <MudText Typo="Typo.caption">@context.WearMin ↔ @context.WearMax</MudText>
+                        <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.caption">@context.WearMin</MudText>
+                            <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                            <MudText Typo="Typo.caption">@context.WearMax</MudText>
+                        </MudStack>
                     </MudTd>
                     <MudTd>
-                        <MudText>@context.ExpectedLength(tempCalcDistance)</MudText>
+                        <MudText>@(context.ExpectedLength(advanceDistance))km</MudText>
                     </MudTd>
                     <MudTd Class="d-flex justify-end">
                         <MudButton Variant="Variant.Filled"
@@ -59,12 +68,11 @@
     [Parameter]
     public List<Tyre> Tyres { get; set; }
 
-    //TODO: following
-    private int tempCalcDistance = 10;
+    private int advanceDistance = 10;
 
     protected override void OnInitialized()
     {
-        base.OnInitialized();
+        advanceDistance = _config.Value.CalculationDistance;
     }
 
     private void PickOption(Tyre tyre)

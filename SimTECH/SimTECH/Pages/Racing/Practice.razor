@@ -1,16 +1,12 @@
 ﻿@page "/practice/{RaceId:long}"
-
 @inject RaceService _raceService
 @inject NavigationManager _nav
+@inject IOptions<SimConfig> _config
 
-@if (loading)
-{
-    <MudAlert Severity="Severity.Warning">This bad boi is still loading, some patience please!</MudAlert>
-}
-else
-{
-    <MudContainer>
-        <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)" id="practice-table" Dense="true" Class="extra-dense">
+<MudContainer Class="mt-4">
+    @if (!loading)
+    {
+        <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="practice-table">
             <ToolBarContent>
                 <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                     <CountryFlag Code="@Model.Country" />
@@ -52,7 +48,7 @@ else
                     <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
                 </MudTd>
                 <MudTd>
-                    <MudStack Row="true" Spacing="1" Class="align-center">
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.body1">@context.FirstName</MudText>
                         <MudText Typo="Typo.button">@context.LastName</MudText>
                         <MudSpacer />
@@ -78,15 +74,16 @@ else
                     <MudText Typo="Typo.caption">@context.MaxScore</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText>+@(Math.Round((highestScore - context.MaxScore) * Model.GapMarge, 2))</MudText>
+                    <MudText>+@(Math.Round((highestScore - context.MaxScore) * gapMarge, 2))</MudText>
                 </MudTd>
             </RowTemplate>
         </MudTable>
-    </MudContainer>
-}
+    }
+</MudContainer>
 
 @code {
-    [Parameter] public long RaceId { get; set; }
+    [Parameter]
+    public long RaceId { get; set; }
 
     public PracticeModel Model { get; set; }
 
@@ -94,9 +91,13 @@ else
     int advancedRuns = 0;
     int highestScore = 0;
 
+    double gapMarge;
+
     protected override async Task OnInitializedAsync()
     {
         Model = await _raceService.RetrievePracticeModel(RaceId);
+
+        gapMarge = _config.Value.GapMarge;
 
         loading = false;
     }

@@ -10,9 +10,9 @@
             <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterDriver">New</MudButton>
         </ToolBarContent>
         <Columns>
-            <TemplateColumn Sortable="false" Class="accent-cell">
+            <TemplateColumn T="SeasonDriver" Sortable="false" Class="accent-cell">
                 <CellTemplate>
-                    <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Item.SeasonTeam.Colour))"></span>
+                    <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Item.SeasonTeam?.Colour ?? Constants.DefaultColour))"></span>
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn T="SeasonDriver" Title="Name" SortBy="e => e.Driver.FirstName">

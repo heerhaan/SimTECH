@@ -5,8 +5,8 @@
 
 <PageTitle>Tracks</PageTitle>
 
-<MudContainer>
-    <MudDataGrid T="Track" Items="@TrackData" Class="my-2" Dense="true">
+<MudContainer Class="mt-4">
+    <MudDataGrid T="Track" Items="@TrackData" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Tracks</MudText>
             <MudSpacer />
@@ -17,7 +17,7 @@
             <PropertyColumn Property="e => e!.Name" />
             <TemplateColumn T="Track" Title="Country" SortBy="e => e.Country">
                 <CellTemplate>
-                    <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" />
+                    <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" Reverse="true" />
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn T="Track" Title="Length" SortBy="e => e.Length">
@@ -35,51 +35,39 @@
             </TemplateColumn>
         </Columns>
         <ChildRowContent>
-            <MudPaper>
-                <MudText Typo="Typo.h6">@context.Item.Name</MudText>
-                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                    <MudCard>
-                        <MudCardContent>
-                            <MudStack Row="true">
-                                <MudText>Aero modifier:</MudText>
-                                <MudText Typo="Typo.caption">@(context.Item.AeroMod)x</MudText>
-                            </MudStack>
-                        </MudCardContent>
-                    </MudCard>
-                    <MudCard>
-                        <MudCardContent>
-                            <MudStack Row="true">
-                                <MudText>Chassis modifier:</MudText>
-                                <MudText Typo="Typo.caption">@(context.Item.ChassisMod)x</MudText>
-                            </MudStack>
-                        </MudCardContent>
-                    </MudCard>
-                    <MudCard>
-                        <MudCardContent>
-                            <MudStack Row="true">
-                                <MudText>Powertrain modifier:</MudText>
-                                <MudText Typo="Typo.caption">@(context.Item.PowerMod)x</MudText>
-                            </MudStack>
-                        </MudCardContent>
-                    </MudCard>
-                    <MudCard>
-                        <MudCardContent>
-                            <MudStack Row="true">
-                                <MudText>Qualifying modifier:</MudText>
-                                <MudText Typo="Typo.caption">@(context.Item.QualifyingMod)x</MudText>
-                            </MudStack>
-                        </MudCardContent>
-                    </MudCard>
-                    <MudCard>
-                        <MudCardContent>
-                            <MudStack Row="true">
-                                <MudText>Defense modifier:</MudText>
-                                <MudText Typo="Typo.caption">@(context.Item.DefenseMod)x</MudText>
-                            </MudStack>
-                        </MudCardContent>
-                    </MudCard>
-                </MudStack>
-            </MudPaper>
+            <MudText Typo="Typo.h6">@context.Item.Name</MudText>
+            <MudStack Row="true">
+                <MudPaper>
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Aero modifier:</MudText>
+                        <MudText Typo="Typo.caption">@(context.Item.AeroMod)x</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper>
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Chassis modifier:</MudText>
+                        <MudText Typo="Typo.caption">@(context.Item.ChassisMod)x</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper>
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Powertrain modifier:</MudText>
+                        <MudText Typo="Typo.caption">@(context.Item.PowerMod)x</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper>
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Qualifying modifier:</MudText>
+                        <MudText Typo="Typo.caption">@(context.Item.QualifyingMod)x</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper>
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Defense modifier:</MudText>
+                        <MudText Typo="Typo.caption">@(context.Item.DefenseMod)x</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudStack>
         </ChildRowContent>
         <PagerContent>
             <MudDataGridPager T="Track" />

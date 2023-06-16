@@ -13,7 +13,6 @@ namespace SimTECH.PageModels
         public bool IsFinished { get; set; }
 
         public int AmountRuns { get; set; }//Can be used for both runs in qualy and stints in race
-        public double GapMarge { get; set; }
     }
 
     public class RaceModel : SessionBase
@@ -28,15 +27,6 @@ namespace SimTECH.PageModels
 
         public Season Season { get; set; }//pick values intead of whole object?
         public LeagueOptions LeagueOptions { get; set; }
-
-        // Values read from the configuration
-        public int FatalityOdds { get; set; }
-        public int DisqualifyOdds { get; set; }
-        public int SafetyCarOdds { get; set; }
-        public int MistakeRolls { get; set; }
-        public int MistakeMinCost { get; set; }
-        public int MistakeMaxCost { get; set; }
-        public int BattleRng { get; set; }
 
         public int QualifyingBonus(int grid) => (RaceDrivers.Count * Season.GridBonus) - ((grid - 1) * Season.GridBonus);
 

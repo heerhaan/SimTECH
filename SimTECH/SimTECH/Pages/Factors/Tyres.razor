@@ -5,18 +5,18 @@
 
 <PageTitle>Tyres</PageTitle>
 
-<MudContainer>
+<MudContainer Class="mt-4">
     <MudDataGrid T="Tyre" Items="@TyreData" Bordered="true" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Tyres</MudText>
-            <MudText Typo="Typo.body2">Adv. Dist: @(advanceDistance)Km</MudText>
+            <MudText Typo="Typo.body2">Adv. dist: @(advanceDistance)Km</MudText>
             <MudSpacer />
             <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTyre">New</MudButton>
         </ToolBarContent>
         <Columns>
             <PropertyColumn Property="e => e!.Name" CellStyleFunc="@_applyTyreColouring" />
-            <PropertyColumn Property="e => e!.Pace" Style="font-family: var(--mud-typography-caption-family)" />
-            <TemplateColumn  T="Tyre" Title="Length" SortBy="e => e.ExpectedLength(advanceDistance)">
+            <PropertyColumn Property="e => e!.Pace" CellStyle="font-family: var(--mud-typography-caption-family)" />
+            <TemplateColumn T="Tyre" Title="Length" SortBy="e => e.ExpectedLength(advanceDistance)">
                 <CellTemplate>
                     <MudText Typo="Typo.caption">@(context.Item.ExpectedLength(advanceDistance))Km</MudText>
                 </CellTemplate>
@@ -25,7 +25,7 @@
                 <CellTemplate>
                     <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.caption">@context.Item.WearMin</MudText>
-                        <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowHorizontal" />
+                        <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
                         <MudText Typo="Typo.caption">@context.Item.WearMax</MudText>
                     </MudStack>
                 </CellTemplate>

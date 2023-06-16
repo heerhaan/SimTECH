@@ -5,33 +5,39 @@
 
 <PageTitle>Guide</PageTitle>
 
-<MudGrid>
-    <MudItem xs=12>
-        <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
-            <MudText Typo="Typo.h4">Guide</MudText>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="3">
-        <MudPaper Class="mud-height-full">
-            <MudTreeView T="string" Color="Color.Secondary" Hover="true" SelectedValueChanged="ActiveTopicChanged">
-                <MudTreeViewItem @bind-Expanded="@setupFolderExpanded" Value="@("Setup")" Icon="@(setupFolderExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
-                    <MudTreeViewItem Value="@("Drivers")" Icon="@Icons.Custom.FileFormats.FileImage" />
-                    <MudTreeViewItem Value="@("Subtopic 2")" Icon="@Icons.Custom.FileFormats.FileVideo" />
-                </MudTreeViewItem>
-                <MudTreeViewItem @bind-Expanded="@racingFolderExpanded" Value="@("Racing")" Icon="@(racingFolderExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
-                    <MudTreeViewItem Value="@("Overtaking")" Icon="@Icons.Custom.FileFormats.FileExcel" />
-                </MudTreeViewItem>
-                <MudTreeViewItem Value="@("Glossary")" Icon="@Icons.Custom.FileFormats.FileExcel" />
-            </MudTreeView>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="9">
-        <MudPaper Class="mud-height-full">
-            <MudText Style="width: 100%" Typo="@Typo.subtitle1">@currentTopic</MudText>
-            <DynamicComponent Type="TopicContent" />
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+    <MudGrid>
+        <MudItem xs=12>
+            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
+                <MudText Typo="Typo.h4">Guide</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="3">
+            <MudPaper Class="mud-height-full">
+                <MudTreeView T="string" Color="Color.Secondary" Hover="true" SelectedValueChanged="ActiveTopicChanged">
+                    <MudTreeViewItem @bind-Expanded="@setupFolderExpanded"
+                                     Value="@("Setup")"
+                                     Icon="@(setupFolderExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
+                        <MudTreeViewItem Value="@("Drivers")" Icon="@Icons.Custom.FileFormats.FileImage" />
+                        <MudTreeViewItem Value="@("Subtopic 2")" Icon="@Icons.Custom.FileFormats.FileVideo" />
+                    </MudTreeViewItem>
+                    <MudTreeViewItem @bind-Expanded="@racingFolderExpanded"
+                                     Value="@("Racing")"
+                                     Icon="@(racingFolderExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
+                        <MudTreeViewItem Value="@("Overtaking")" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                    </MudTreeViewItem>
+                    <MudTreeViewItem Value="@("Glossary")" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                </MudTreeView>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="9">
+            <MudPaper Class="mud-height-full">
+                <MudText Style="width: 100%" Typo="@Typo.subtitle1">@currentTopic</MudText>
+                <DynamicComponent Type="TopicContent" />
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 @code {
     Type TopicContent { get; set; } = typeof(Hello);

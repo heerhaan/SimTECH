@@ -17,7 +17,8 @@
                 <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="NewSeason">New</MudButton>
             </ToolBarContent>
             <Columns>
-                <PropertyColumn Property="e => e.Year" />
+                <PropertyColumn Property="e => e!.Year" />
+                <PropertyColumn Property="e => e!.DriverNumber" SortBy="e => e!.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" />
                 <TemplateColumn T="SeasonListModel" Title="Leading driver">
                     <CellTemplate>
                         <MudStack Row="true" AlignItems="AlignItems.Center">
@@ -27,8 +28,12 @@
                         </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
-                <PropertyColumn Property="e => e.DriverNumber" SortBy="e => e.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" />
-                <TemplateColumn T="SeasonListModel" Title="Leading team" CellStyleFunc="LeadTeamStyleFunc">
+                <TemplateColumn T="SeasonListModel" Sortable="false" Class="accent-cell">
+                    <CellTemplate>
+                        <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Item.TeamColour))"></span>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn T="SeasonListModel" Title="Leading team">
                     <CellTemplate>
                         <MudStack Row="true" AlignItems="AlignItems.Center">
                             <MudText>@context.Item.TeamName</MudText>
@@ -37,8 +42,8 @@
                         </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
-                <PropertyColumn Property="e => e.League" />
-                <PropertyColumn Property="e => e.State" />
+                <PropertyColumn Property="e => e!.League" />
+                <PropertyColumn Property="e => e!.State" />
                 <TemplateColumn T="SeasonListModel" Sortable="false">
                     <CellTemplate>
                         <MudButtonGroup Size="@Size.Small">
@@ -74,7 +79,6 @@
 
         SeasonData = await SeasonService.GetSeasons();
         LeagueData = await LeagueService.GetLeagues();
-
         SeasonList = await SeasonService.GetSeasonList();
     }
 
@@ -115,8 +119,6 @@
             SeasonData.Remove(SeasonData.Single(e => e.Id == seasonId));
         }
     }
-
-    private static Func<SeasonListModel, string> LeadTeamStyleFunc => model => ViewHelper.SetBorderLeftStyle(model.TeamColour);
 
     private void GoToOverview(long seasonId) => Nav.NavigateTo($"/overview/{seasonId}");
 }

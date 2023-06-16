@@ -6,10 +6,11 @@
 @inject NavigationManager _nav
 @inject IDialogService _dialogService
 @inject ISnackbar _snackbar
+@inject IOptions<SimConfig> _config
 
 <PageTitle>Race</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.False">
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     @if (!loading)
     {
         <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" Class="extra-dense overflow-x-hide" id="race-display">
@@ -21,12 +22,9 @@
 
                     <MudSpacer />
 
-                    <MudStack Spacing="0" AlignItems="AlignItems.Center">
-                        <MudText Typo="Typo.subtitle2">Lap</MudText>
-                        <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
-                            <MudText Typo="Typo.subtitle1">@(racedLaps) / @(totalLaps)</MudText>
-                        </MudChip>
-                    </MudStack>
+                    <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
+                        <MudText Typo="Typo.subtitle1">@(racedLaps) / @(totalLaps)</MudText>
+                    </MudChip>
 
                     <MudSpacer />
 
@@ -135,13 +133,11 @@
                 <MudTd Class="number-col-lg">
                     @if (context.Incident == null)
                     {
-                        <MudText Typo="Typo.caption">+@(Math.Round((highestScore - context.LapSum) * Model.GapMarge, 2))</MudText>
+                        <MudText Typo="Typo.caption">+@(Math.Round((highestScore - context.LapSum) * gapMarge, 2))</MudText>
                     }
                     else
                     {
-                        <MudBadge Icon="@IconCollection.HelmetOff" Color="Color.Primary" Overlap="true" Bordered="true" Class="ma-1">
-                            <MudText Typo="Typo.button" Color="Color.Error">@context.Incident.Name</MudText>
-                        </MudBadge>
+                        <MudText Typo="Typo.button" Color="Color.Error">@context.Incident.Name</MudText>
                     }
                 </MudTd>
                 <MudTd>
@@ -205,11 +201,11 @@
 
                         <MudSpacer />
 
-                        <MudButtonGroup Color="Color.Tertiary">
-                            <MudButton OnClick="ToggleProgressBarType">Alt progress</MudButton>
-                            <MudButton OnClick="ShowGapperChart">GapChart</MudButton>
-                            <MudButton OnClick="ShowPositionChart">PosChart</MudButton>
-                        </MudButtonGroup>
+                        <MudMenu Icon="@Icons.Material.Filled.MultilineChart" Color="Color.Tertiary">
+                            <MudMenuItem OnClick="ToggleProgressBarType">Progress toggle</MudMenuItem>
+                            <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
+                            <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
+                        </MudMenu>
                     </MudStack>
                 </MudTd>
             </FooterContent>
@@ -236,6 +232,13 @@
     int fatalityOdds;
     int disqualifyChance;
     int safetyCarOdds;
+    int safetyReturnOdds;
+    int mistakeRolls;
+    int mistakeMin;
+    int mistakeMax;
+    int battleRng;
+    double gapMarge;
+
     int fastestLap;
     int highestScore;
     int racedLaps;
@@ -249,6 +252,7 @@
     int calculationCount;
     int calculationsPerAdvance = 5;
     int calculationDistance = 10;
+
     bool safetyCarOut = false;
     Color lapIndicatorColor = Color.Dark;
     Entrant cycleReliabilty = Entrant.Driver;
@@ -271,10 +275,17 @@
         disqualifyIncidents = allIncidents.Where(e => e.Category == CategoryIncident.Disqualified).ToList();
         lethalIncidents = allIncidents.Where(e => e.Category == CategoryIncident.Lethal).ToList();
 
-        fatalityOdds = Model.FatalityOdds;
-        disqualifyChance = Model.DisqualifyOdds;
-        safetyCarOdds = Model.SafetyCarOdds;
+        fatalityOdds = _config.Value.FatalityChance;
+        disqualifyChance = _config.Value.DisqualifyChance;
+        safetyCarOdds = _config.Value.SafetyCarChance;
+        safetyReturnOdds = _config.Value.SafetyCarReturnChance;
+        mistakeRolls = _config.Value.MistakeAmountRolls;
+        mistakeMin = _config.Value.MistakeLowerValue;
+        mistakeMax = _config.Value.MistakeUpperValue;
+        battleRng = _config.Value.BattleRng;
+        gapMarge = _config.Value.GapMarge;
 
+        calculationDistance = _config.Value.CalculationDistance;
         calculated = Model.RaceDrivers.Select(e => e.LapScores.Count()).Max();
         calculationCount = Model.RaceLength / calculationDistance;
 
@@ -351,11 +362,11 @@
                         lapValue += Model.QualifyingBonus(driver.Grid);
 
                     // Check if driver made a mistake, if so then it's going to cost him
-                    for (int j = 0; j < Model.MistakeRolls; j++)
+                    for (int j = 0; j < mistakeRolls; j++)
                     {
                         if (DidReliabilityFail(driver.DriverReliability))
                         {
-                            lapValue -= NumberHelper.RandomInt(Model.MistakeMinCost, Model.MistakeMaxCost);
+                            lapValue -= NumberHelper.RandomInt(mistakeMin, mistakeMax);
                             lapScore.RacerEvents |= RacerEvent.Mistake;
                             driver.InstantOvertaken = true;
                             break;
@@ -442,7 +453,7 @@
         }
 
         // Randomly determines the odds a safety car occured due to the DNF'ing driver
-        safetyCar = NumberHelper.RandomInt(Model.SafetyCarOdds) == 0;
+        safetyCar = NumberHelper.RandomInt(safetyCarOdds) == 0;
         driver.Status = RaceStatus.Dnf;
 
         return safetyCar;
@@ -456,9 +467,6 @@
         var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
         var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
 
-        // Feedbacks some information if there is anything fucky going on with the values used for tyre wear
-        if (tyreMinWear < 0 || tyreMaxWear < 0)
-            _snackbar.Add("Wear should result in a non-negative number, the fuck did you do? Issues may occur.");
         if (tyreMinWear > tyreMaxWear)
         {
             tyreMaxWear = tyreMinWear + 1;
@@ -517,7 +525,7 @@
             lapScoresToPersist.Add(lapScore);
         }
 
-        return NumberHelper.RandomInt(safetyCarOdds) == 0;
+        return NumberHelper.RandomInt(safetyReturnOdds) == 0;
     }
 
     void PostProcessAdvance(long? newFastestLapHolder)
@@ -579,8 +587,8 @@
                 else if (!aboveDriver.InstantOvertaken)
                 {
                     // Subtract attack value from defense, what's left is how much the attacker is hindered
-                    var defendingResult = aboveDriver.Defense + NumberHelper.RandomInt(Model.BattleRng);
-                    var attackingResult = driver.Attack + NumberHelper.RandomInt(Model.BattleRng);
+                    var defendingResult = aboveDriver.Defense + NumberHelper.RandomInt(battleRng);
+                    var attackingResult = driver.Attack + NumberHelper.RandomInt(battleRng);
                     var battleCost = defendingResult - attackingResult;
 
                     if (battleCost > 0)
@@ -656,7 +664,6 @@
         var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
         _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters, Constants.DefaultChartDialogSettings);
     }
-
     async Task ShowPositionChart()
     {
         var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };

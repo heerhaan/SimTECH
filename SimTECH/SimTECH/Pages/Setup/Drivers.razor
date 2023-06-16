@@ -6,8 +6,8 @@
 
 <PageTitle>Drivers</PageTitle>
 
-<MudContainer>
-    <MudDataGrid T="Driver" Items="@DriverData" Dense="true" Class="mt-2">
+<MudContainer Class="mt-4">
+    <MudDataGrid T="Driver" Items="@DriverData" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Drivers</MudText>
             <MudSpacer />
@@ -23,7 +23,7 @@
             <PropertyColumn Property="e => e!.DateOfBirth" Title="DOB" Format="d" />
             <TemplateColumn T="Driver" Title="Nation" SortBy="e => e.Country">
                 <CellTemplate>
-                    <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" />
+                    <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" Reverse="true" />
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn T="Driver" Title="League" Sortable="false">
@@ -33,7 +33,6 @@
                     </MudText>
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e!.Alive" />
             <TemplateColumn T="Driver" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small" Class="ml-auto">
@@ -44,16 +43,21 @@
             </TemplateColumn>
         </Columns>
         <ChildRowContent>
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">@context.Item.FullName</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudText>@(context.Item.Alive ? "Still alive" : "Died")</MudText>
-                </MudCardContent>
-            </MudCard>
+            <MudText Typo="Typo.h6">@context.Item.FullName</MudText>
+            <MudStack Row="true">
+                <MudPaper>
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>State</MudText>
+                        <MudText Typo="Typo.button">@(context.Item.State)</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper>
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Alive?</MudText>
+                        <MudText Typo="Typo.button">@(context.Item.Alive ? "Yes" : "No")</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudStack>
         </ChildRowContent>
         <PagerContent>
             <MudDataGridPager T="Driver" />

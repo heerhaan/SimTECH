@@ -5,16 +5,16 @@
 
 <PageTitle>Post Race</PageTitle>
 
-@if (!loading)
-{
-    <MudContainer MaxWidth="MaxWidth.False">
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+    @if (!loading)
+    {
         <MudGrid>
             <MudItem xs=12>
                 <MudPaper Elevation="15" Height="200px" Class="pa-4">
                     <MudStack Row="true" AlignItems="AlignItems.Center">
                         <MudStack>
                             <MudText Typo="Typo.h4">Post race</MudText>
-                            <MudText Color="Color.Warning">This page is quite unfinished, <br/>you can go to the standings though with a following button</MudText>
+                            <MudText Color="Color.Warning">This page is quite unfinished, <br />you can go to the standings though with a following button</MudText>
                         </MudStack>
 
                         <MudSpacer />
@@ -107,20 +107,20 @@
                         <RowTemplate>
                             <MudTd>
                                 <MudText>@(context.Name)</MudText>
-                                </MudTd>
-                                <MudTd>
-                                    <MudText>@(context.Reason)</MudText>
-                                </MudTd>
-                                <MudTd>
-                                    <MudText Typo="Typo.caption">@(context.Punishment)</MudText>
-                                </MudTd>
-                            </RowTemplate>
-                        </MudTable>
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
-        </MudContainer>
-}
+                            </MudTd>
+                            <MudTd>
+                                <MudText>@(context.Reason)</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@(context.Punishment)</MudText>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>
 
 @code {
     [Parameter]

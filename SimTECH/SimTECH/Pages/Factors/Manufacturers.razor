@@ -4,8 +4,8 @@
 
 <PageTitle>Manufacturers</PageTitle>
 
-<MudContainer>
-    <MudTable Items="@ManufacturerData" Bordered="true" Class="mt-2">
+<MudContainer Class="mt-4">
+    <MudTable Items="@ManufacturerData" Bordered="true" Dense="true">
         <ToolBarContent>
             <MudText Typo="Typo.h4">Tyre manufacturers</MudText>
             <MudSpacer />
@@ -14,8 +14,7 @@
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Pace</MudTh>
-            <MudTh>Min. wear mod</MudTh>
-            <MudTh>Max. wear mod</MudTh>
+            <MudTh>Wear</MudTh>
             <MudTh>State</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
@@ -25,10 +24,11 @@
                 <MudText Typo="Typo.caption">@context.Pace</MudText>
             </MudTd>
             <MudTd>
-                <MudText Typo="Typo.caption">@context.WearMin</MudText>
-            </MudTd>
-            <MudTd>
-                <MudText Typo="Typo.caption">@context.WearMax</MudText>
+                <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.caption">@context.WearMin</MudText>
+                    <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                    <MudText Typo="Typo.caption">@context.WearMax</MudText>
+                </MudStack>
             </MudTd>
             <MudTd>
                 <MudText>@context.State</MudText>

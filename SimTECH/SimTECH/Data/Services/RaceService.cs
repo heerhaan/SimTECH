@@ -10,7 +10,7 @@ namespace SimTECH.Data.Services
     public class RaceService
     {
         private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-        private readonly SimConfig _config;
+        private SimConfig _config;
 
         public RaceService(IDbContextFactory<SimTechDbContext> factory, IOptions<SimConfig> config)
         {
@@ -103,17 +103,22 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            var race = await context.Race.SingleAsync(e => e.Id == raceId);
+            var race = await context.Race.Include(e => e.Climate).SingleAsync(e => e.Id == raceId);
 
             if (race.State != State.Concept)
                 throw new InvalidOperationException("Can only activate races in concept state");
+
+            // Should we return any of this?
+            var hasExistingResults = await context.Result.AnyAsync(e => e.RaceId == raceId);
+            if (hasExistingResults)
+                return;
 
             var seasonDrivers = await context.SeasonDriver
                 .Where(e => e.SeasonId == race.SeasonId && e.SeasonTeamId.HasValue)
                 .ToListAsync();
 
             var availableTyres = await context.Tyre
-                .Where(e => e.State == State.Active)
+                .Where(e => e.State == State.Active && e.ForWet == race.Climate.IsWet)
                 .ToListAsync();
 
             if (availableTyres?.Any() != true)
@@ -510,6 +515,7 @@ namespace SimTECH.Data.Services
             var driverResults = await context.Result
                 .Where(e => e.RaceId == raceId && e.Status != RaceStatus.Dnq)
                 .Include(e => e.LapScores)
+                .Include(e => e.Incident)
                 .Include(e => e.Tyre)
                 .ToListAsync();
 
@@ -632,16 +638,6 @@ namespace SimTECH.Data.Services
 
                 Season = season,
                 LeagueOptions = season.League.Options,
-
-                // Arguably remove these properties and just directly call the config from the race page
-                FatalityOdds = _config.FatalityChance,
-                DisqualifyOdds = _config.DisqualifyChance,
-                SafetyCarOdds = _config.SafetyCarChance,
-                MistakeRolls = _config.MistakeAmountRolls,
-                MistakeMinCost = _config.MistakeLowerValue,
-                MistakeMaxCost = _config.MistakeUpperValue,
-                BattleRng = _config.BattleRng,
-                GapMarge = _config.GapMarge,
             };
         }
 
@@ -700,8 +696,6 @@ namespace SimTECH.Data.Services
                 QualyRng = season.QualifyingRNG,
                 QualyAmountQ2 = season.QualifyingAmountQ2,
                 QualyAmountQ3 = season.QualifyingAmountQ3,
-
-                GapMarge = _config.GapMarge,
             };
 
             var raceDrivers = new List<QualifyingDriver>();
@@ -854,8 +848,6 @@ namespace SimTECH.Data.Services
                 PracticeRng = season.QualifyingRNG / 2,
 
                 PracticeDrivers = practiceDrivers,
-
-                GapMarge = _config.GapMarge,
             };
         }
         #endregion
