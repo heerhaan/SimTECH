@@ -7,6 +7,7 @@
             <MudText Typo="Typo.h4">Power rankings</MudText>
         </ToolBarContent>
         <Columns>
+            <HierarchyColumn T="PowerRankModel" />
             <TemplateColumn T="PowerRankModel" SortBy="e => e.DriverName" Title="Driver">
                 <CellTemplate>
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
@@ -21,24 +22,24 @@
             <PropertyColumn Property="e => e.TeamName" Title="Team" CellStyleFunc="@SimpleCellStyle" />
             <PropertyColumn Property="e => e.Engine" Title="Engine" />
             <PropertyColumn Property="e => e!.Manufacturer" />
-            <PropertyColumn Property="e => e!.QualyPower" />
-            <PropertyColumn Property="e => e!.RacePower" />
+            <PropertyColumn Property="e => e!.QualyPower" Title="Q.PWR" />
+            <PropertyColumn Property="e => e!.RacePower" Title="R.PWR" />
             <TemplateColumn T="PowerRankModel" Title="A/C/P" Sortable="false">
                 <CellTemplate>
                     <MudText Typo="Typo.caption">@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="PowerRankModel" Title="Reliability [D/T/E]" Sortable="false">
+            <TemplateColumn T="PowerRankModel" Title="Rel. Avg." Sortable="false">
                 <CellTemplate>
-                    <MudText Typo="Typo.caption">@context.Item.DriverRel / @context.Item.CarRel / @context.Item.EngineRel</MudText>
+                    <MudText Typo="Typo.caption">@(NumberHelper.Average((context.Item.DriverRel + context.Item.CarRel + context.Item.EngineRel), 3))</MudText>
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="PowerRankModel" Title="WearMod" Sortable="false">
+            <TemplateColumn T="PowerRankModel" Title="Wear" Sortable="false">
                 <CellTemplate>
                     <MudText Typo="Typo.caption">@context.Item.WearMin ↔ @context.Item.WearMax</MudText>
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="PowerRankModel" Title="RngMod" Sortable="false">
+            <TemplateColumn T="PowerRankModel" Title="Rng" Sortable="false">
                 <CellTemplate>
                     @if (context.Item.TraitEffect != null)
                     {
@@ -47,6 +48,20 @@
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
+        <ChildRowContent>
+            <MudText>Should still be designed properly</MudText>
+            <MudStack Row="true">
+                <div>
+                    <MudText>Driver rel: @(context.Item.DriverRel)</MudText>
+                </div>
+                <div>
+                    <MudText>Car rel: @(context.Item.CarRel)</MudText>
+                </div>
+                <div>
+                    <MudText>Engine rel: @(context.Item.EngineRel)</MudText>
+                </div>
+            </MudStack>
+        </ChildRowContent>
     </MudDataGrid>
 }
 
