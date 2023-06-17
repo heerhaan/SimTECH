@@ -30,6 +30,7 @@ namespace SimTECH.Providers
                     LanguageType = e.Substring(startIndex: pathNameLength - 10, 2),
                     Path = e,
                 })
+                .DistinctBy(e => e.Country)
                 .ToArray();
         }
 

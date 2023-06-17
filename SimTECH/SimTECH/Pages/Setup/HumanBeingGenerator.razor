@@ -40,7 +40,7 @@
                         <!-- One option to add is to generate either on nationality or language type -->
                         @if (availableLanguages != null && genderFilter != Gender.Other)
                         {
-                            <MudSelectExtended ItemCollection="@availableLanguages"
+                            <MudSelectExtended ItemCollection="@(availableLanguages.OrderBy(e => e.Country.GetDescription()).ToArray())"
                                                @bind-SelectedValues="@SelectedLanguages"
                                                T="LanguageInfo"
                                                MultiSelection="true"
@@ -51,11 +51,11 @@
                                                SearchFunc="SearchLanguages">
                                 <ItemTemplate>
                                     <MudCheckBox Checked="@(context.IsSelected)" Color="Color.Secondary" />
-                                    <CountryNamedFlag Code="@(context.Value.Country)" Size="FlagSize.Small" />
+                                    <CountryNamedFlag Code="@(context.Value.Country)" Justify="Justify.FlexStart" Size="FlagSize.Small" />
                                 </ItemTemplate>
                                 <ItemSelectedTemplate>
                                     <MudCheckBox Checked="@(context.IsSelected)" Color="Color.Secondary" />
-                                    <CountryNamedFlag Code="@(context.Value.Country)" Size="FlagSize.Small" />
+                                    <CountryNamedFlag Code="@(context.Value.Country)" Justify="Justify.FlexStart" Size="FlagSize.Small" />
                                 </ItemSelectedTemplate>
                             </MudSelectExtended>
                         }
