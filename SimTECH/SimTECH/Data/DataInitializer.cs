@@ -43,10 +43,11 @@ namespace SimTECH.Data
         private void SeedTyres()
         {
             builder.Entity<Tyre>().HasData(
-                    new Tyre { Id = 1, Name = "Soft", Colour = "#fa0536  ", Pace = 200, WearMin = 15, WearMax = 25, State = State.Active, },
-                    new Tyre { Id = 2, Name = "Medium", Colour = "#f4ea26  ", Pace = 180, WearMin = 9, WearMax = 15, State = State.Active, },
-                    new Tyre { Id = 3, Name = "Hard", Colour = "#dfdde9  ", Pace = 160, WearMin = 6, WearMax = 10, State = State.Active, },
-                    new Tyre { Id = 4, Name = "Grooved", Colour = "#bded80  ", Pace = 100, WearMin = 1, WearMax = 3, State = State.Closed, }
+                    new Tyre { Id = 1, Name = "Soft", Colour = "#fa0536  ", Pace = 200, WearMin = 15, WearMax = 25, DistanceMin = 75, DistanceMax = 125, State = State.Active, },
+                    new Tyre { Id = 2, Name = "Medium", Colour = "#f4ea26  ", Pace = 180, WearMin = 9, WearMax = 15, DistanceMin = 125, DistanceMax = 999, State = State.Active, },
+                    new Tyre { Id = 3, Name = "Hard", Colour = "#dfdde9  ", Pace = 160, WearMin = 6, WearMax = 10, DistanceMin = 175, DistanceMax = 999, State = State.Active, },
+                    new Tyre { Id = 4, Name = "Grooved", Colour = "#bded80  ", Pace = 100, WearMin = 1, WearMax = 3, DistanceMin = 100, DistanceMax = 999, State = State.Closed, },
+                    new Tyre { Id = 5, Name = "Wet", Colour = "#3399ff  ", Pace = 50, WearMin = 0, WearMax = 1, DistanceMin = 50, DistanceMax = 999, ForWet = true, State = State.Active, }
             );
         }
 

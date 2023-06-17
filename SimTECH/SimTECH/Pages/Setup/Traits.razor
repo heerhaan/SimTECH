@@ -7,8 +7,8 @@
 <PageTitle>Traits</PageTitle>
 
 <MudContainer Class="mt-4">
-    <MudDataGrid T="Trait" Items="@TraitData" Dense="true">
-        <ToolBarContent>
+    <MudPaper MinHeight="60px" Width="100%">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h4">Traits</MudText>
 
             <MudSpacer />
@@ -17,13 +17,14 @@
                 <MudButton OnClick="GoToTraitAssign">Assign</MudButton>
                 <MudButton OnClick="AddTrait">New</MudButton>
             </MudButtonGroup>
-        </ToolBarContent>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="Trait" Items="@TraitData" Dense="true">
         <Columns>
             <HierarchyColumn T="Trait" />
             <PropertyColumn Property="e => e!.Name" />
-            <PropertyColumn Property="e => e!.Type" />
+            <PropertyColumn Property="e => e!.Type" Filterable="true" />
             <PropertyColumn Property="e => e!.ForWetConditions" Title="Wet" />
-            <PropertyColumn Property="e => e!.State" />
             <TemplateColumn T="Trait" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
@@ -100,6 +101,8 @@
 @code {
     List<Trait> TraitData;
 
+    bool typeFilterOpen = false;
+
     protected override async Task OnInitializedAsync()
     {
         _bread.Reset();
@@ -111,11 +114,7 @@
         TraitData = await TraitService.GetTraits();
     }
 
-    async Task ToggleState(Trait trait, State target)
-    {
-        await TraitService.ChangeState(trait, target);
-        TraitData = await TraitService.GetTraits();
-    }
+    void OpenFilter() => typeFilterOpen = true;
 
     async Task AddTrait() => await UpdateTrait(null);
     async Task UpdateTrait(Trait? item)
@@ -130,6 +129,12 @@
             await TraitService.UpdateTrait(updatedItem);
             TraitData = await TraitService.GetTraits();
         }
+    }
+
+    async Task ToggleState(Trait trait, State target)
+    {
+        await TraitService.ChangeState(trait, target);
+        TraitData = await TraitService.GetTraits();
     }
 
     void GoToTraitAssign() => _nav.NavigateTo("traitassign");

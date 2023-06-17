@@ -1,0 +1,100 @@
+﻿@typeparam TElement
+
+@* Unfinished, not sure yet how to make this work *@
+
+<MudElement HtmlTag="div" Class="@_classes">
+    <MudIconButton Icon="@iconFilter" Size="Size.Small" OnClick="@OpenFilter" />
+    <MudOverlay Visible="@filterOpen" OnClick="CloseFilter" />
+    <MudPopover Open="@filterOpen" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Style="width:200px">
+        <MudStack Spacing="0">
+            <MudCheckBox T="bool" Label="Select all" Size="Size.Small" Checked="@allSelected" CheckedChanged="ToggleAllSelected" />
+            <MudStack Spacing="0" Style="overflow-y:auto;max-height:300px">
+
+            </MudStack>
+            <MudStack Row="true">
+                @*<MudButton OnClick="@(() => ClearFilter(context))"></MudButton>*@
+            </MudStack>
+        </MudStack>
+    </MudPopover>
+</MudElement>
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<TElement> Elements { get; set; }
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    HashSet<TElement> selectedItems = new();
+    HashSet<TElement> filteredItems = new();
+    FilterDefinition<TElement> filterDefinition;
+
+    string iconFilter = @Icons.Material.Outlined.FilterAlt;
+    bool filterOpen = false;
+    bool allSelected = false;
+
+    private string _classes
+    {
+        get
+        {
+            return Class;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        selectedItems = Elements.ToHashSet();
+        filteredItems = Elements.ToHashSet();
+        filterDefinition = new FilterDefinition<TElement>
+        {
+            FilterFunction = e => filteredItems.Contains(e),
+        };
+    }
+
+    void OpenFilter() => filterOpen = true;
+
+    void CloseFilter() => filterOpen = false;
+
+    void ToggleAllSelected(bool value)
+    {
+        allSelected = value;
+
+        if (value)
+            selectedItems = Elements.ToHashSet();
+        else
+            selectedItems.Clear();
+    }
+
+    void SelectedChanged(bool value, TElement item)
+    {
+        if (value)
+            selectedItems.Add(item);
+        else
+            selectedItems.Remove(item);
+
+        if (selectedItems.Count == Elements.Count())
+            allSelected = true;
+        else
+            allSelected = false;
+    }
+
+    async Task ClearFilter(FilterContext<TElement> context)
+    {
+        selectedItems = Elements.ToHashSet();
+        filteredItems = Elements.ToHashSet();
+        iconFilter = Icons.Material.Outlined.FilterAlt;
+
+        await context.Actions.ClearFilterAsync(filterDefinition);
+
+        filterOpen = false;
+    }
+
+    async Task ApplyFilter(FilterContext<TElement> context)
+    {
+        filteredItems = selectedItems.ToHashSet();
+        iconFilter = filteredItems.Count == Elements.Count() ? Icons.Material.Outlined.FilterAlt : Icons.Material.Filled.FilterAlt;
+
+        await context.Actions.ApplyFilterAsync(filterDefinition);
+
+        filterOpen = false;
+    }
+}

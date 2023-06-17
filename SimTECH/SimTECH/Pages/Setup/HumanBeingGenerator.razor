@@ -23,8 +23,9 @@
                             <MudText Typo="Typo.subtitle1">Generation settings</MudText>
                             <MudDivider />
                         </div>
+
                         <div>
-                            <MudText Typo="Typo.overline">Gender</MudText>
+                            <MudText Typo="Typo.caption">Gender</MudText>
                             <MudChipSet SelectedChipChanged="GenderChange" Mandatory="true">
                                 <MudChip Value="Gender.All" Icon="@ViewHelper.GetGenderIcon(Gender.All)" Default="true">All</MudChip>
                                 <MudChip Value="Gender.Male" Icon="@ViewHelper.GetGenderIcon(Gender.Male)">Male</MudChip>
@@ -32,20 +33,31 @@
                                 <MudChip Value="Gender.Other" Icon="@ViewHelper.GetGenderIcon(Gender.Other)">French</MudChip>
                             </MudChipSet>
                         </div>
+
                         <MudNumericField @bind-Value="@generateAmount" Label="Amount generated" Class="field-md" />
                         <MudDateRangePicker Label="Date of Birth range" @bind-DateRange="dateRange" Editable="true" />
+
                         <!-- One option to add is to generate either on nationality or language type -->
                         @if (availableLanguages != null && genderFilter != Gender.Other)
                         {
-                            <MudSelect MultiSelection="true" T="Country" @bind-SelectedValues="SelectedCountries" Label="Select nations" Variant="Variant.Outlined">
-                                @foreach (var lang in availableLanguages.Select(e => e.Country).Distinct().Order())
-                                {
-                                    <MudSelectItem T="Country" Value="lang">
-                                        @lang.CountryCodeToEmoji()
-                                        @lang.GetDescription()
-                                    </MudSelectItem>
-                                }
-                            </MudSelect>
+                            <MudSelectExtended ItemCollection="@availableLanguages"
+                                               @bind-SelectedValues="@SelectedLanguages"
+                                               T="LanguageInfo"
+                                               MultiSelection="true"
+                                               MultiSelectionTextFunc="@GetSelectedText"
+                                               Label="Select nationalities"
+                                               Variant="Variant.Outlined"
+                                               SearchBox="true"
+                                               SearchFunc="SearchLanguages">
+                                <ItemTemplate>
+                                    <MudCheckBox Checked="@(context.IsSelected)" Color="Color.Secondary" />
+                                    <CountryNamedFlag Code="@(context.Value.Country)" Size="FlagSize.Small" />
+                                </ItemTemplate>
+                                <ItemSelectedTemplate>
+                                    <MudCheckBox Checked="@(context.IsSelected)" Color="Color.Secondary" />
+                                    <CountryNamedFlag Code="@(context.Value.Country)" Size="FlagSize.Small" />
+                                </ItemSelectedTemplate>
+                            </MudSelectExtended>
                         }
                     </MudStack>
                     <MudDivider Class="my-1" />
@@ -67,10 +79,14 @@
                                         {
                                             <MudListItem Text="@languageType.Key">
                                                 <NestedList>
-                                                    @foreach (var nationality in languageType)
+                                                    @foreach (var lang in languageType)
                                                     {
                                                         <MudListItem>
-                                                            <CountryNamedFlag Code="nationality.Country" Size="FlagSize.Small" />
+                                                            <CountryNamedFlag Code="@lang.Country"
+                                                                              Justify="Justify.FlexStart"
+                                                                              Size="FlagSize.Small"
+                                                                              Typo="Typo.body2"
+                                                                              Reverse="true" />
                                                         </MudListItem>
                                                     }
                                                 </NestedList>
@@ -88,9 +104,9 @@
             <MudPaper Elevation="15" Class="mud-height-full">
                 @if (humanBeans != null)
                 {
-                    <MudTable Items="@humanBeans">
+                    <MudTable Items="@humanBeans" Dense="true">
                         <ToolBarContent>
-                            <MudText>Text</MudText>
+                            <MudText>Human beings</MudText>
                             <MudSpacer />
                             <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="SaveHumanBeings">Persist</MudButton>
                         </ToolBarContent>
@@ -99,13 +115,19 @@
                             <MudTh>Gender</MudTh>
                             <MudTh>DOB</MudTh>
                             <MudTh>Nation</MudTh>
+                            <MudTh></MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd>@context.FullName</MudTd>
                             <MudTd>@context.Gender</MudTd>
                             <MudTd>@context.Dob.ToShortDateString()</MudTd>
                             <MudTd>
-                                <CountryNamedFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                                <CountryNamedFlag Code="@context.Nationality"
+                                                  Size="FlagSize.Small"
+                                                  Reverse="true" />
+                            </MudTd>
+                            <MudTd>
+                                <MudButton OnClick="@(async () => await SaveSingleHuman(context))">Persist</MudButton>
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -119,6 +141,7 @@
     private enum GenerateBy { Language, Nationality }
 
     IEnumerable<Country> SelectedCountries { get; set; } = new HashSet<Country>();
+    IEnumerable<LanguageInfo> SelectedLanguages { get; set; } = new HashSet<LanguageInfo>();
 
     LanguageInfo[]? availableLanguages;
     HumanBeing[]? humanBeans;
@@ -153,20 +176,20 @@
             return;
         }
 
-        LanguageInfo[]? selectedLanguages;
+        LanguageInfo[]? langsToGenerate;
 
         if (genderFilter.HasFlag(Gender.Other))
-            selectedLanguages = availableLanguages.Where(e => e.LanguageType == "fr").ToArray();
+            langsToGenerate = availableLanguages.Where(e => e.LanguageType == "fr").ToArray();
         else
-            selectedLanguages = availableLanguages.Where(e => SelectedCountries.Contains(e.Country)).ToArray();
+            langsToGenerate = SelectedLanguages.ToArray();
 
-        if (selectedLanguages == null || selectedLanguages.Length == 0)
+        if (langsToGenerate == null || langsToGenerate.Length == 0)
         {
             _snack.Add("No languages have been selected, you moron", Severity.Error);
             return;
         }
 
-        humanBeans = _humanProvider.GetHumanBeings(generateAmount, selectedLanguages, genderFilter, dateRange);
+        humanBeans = _humanProvider.GetHumanBeings(generateAmount, langsToGenerate, genderFilter, dateRange);
     }
 
     async Task SaveHumanBeings()
@@ -181,5 +204,32 @@
         {
             _snack.Add("No human beings have been generated, you fucked that up nicely", Severity.Error);
         }
+    }
+
+    async Task SaveSingleHuman(HumanBeing realHero)
+    {
+        await _driverService.AddNewDrivers(new Driver[] { realHero.ToDriver });
+        _nav.NavigateTo("/drivers");
+    }
+
+    private bool SearchLanguages(LanguageInfo lang, string searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+            return true;
+
+        var countryText = lang.Country.GetDescription().ToLowerInvariant();
+
+        if (countryText.Contains(searchText.ToLowerInvariant()))
+            return true;
+
+        return false;
+    }
+
+    private string? GetSelectedText(List<LanguageInfo> selectedLangs)
+    {
+        if (!selectedLangs.Any())
+            return null;
+
+        return string.Join(" |", selectedLangs.Select(e => $"{e.Country.CountryCodeToEmoji()} {e.Country.GetDescription()}"));
     }
 }
