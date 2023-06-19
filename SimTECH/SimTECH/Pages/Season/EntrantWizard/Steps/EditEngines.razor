@@ -42,6 +42,8 @@
 
     private async Task SetEngineEditors()
     {
+        Model.SeasonEngines.Clear();
+
         List<SeasonEngine>? previousEngines = null;
         if (PreviousSeasonId.HasValue)
             previousEngines = await _entrantService.GetSeasonEngines(PreviousSeasonId.Value);

@@ -90,6 +90,8 @@
 
     private async Task SetTeamEditors()
     {
+        Model.SeasonTeams.Clear();
+
         List<SeasonTeam>? previousTeams = null;
         if (PreviousSeasonId.HasValue)
             previousTeams = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);

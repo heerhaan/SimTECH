@@ -70,6 +70,8 @@
 
     private async Task SetDriverEditors()
     {
+        Model.SeasonDrivers.Clear();
+
         List<SeasonDriver>? previousDrivers = null;
         if (PreviousSeasonId.HasValue)
             previousDrivers = await _entrantService.GetSeasonDrivers(PreviousSeasonId.Value);

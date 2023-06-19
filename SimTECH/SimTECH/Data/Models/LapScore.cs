@@ -31,7 +31,7 @@ namespace SimTECH.Data.Models
             if (lapScore.RacerEvents.HasFlag(RacerEvent.Caution))
                 return "yellow";
 
-            return Constants.DefaultAccent;
+            return "green";
         }
     }
 }

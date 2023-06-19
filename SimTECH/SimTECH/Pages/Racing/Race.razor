@@ -13,21 +13,19 @@
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     @if (!loading)
     {
+        <MudPaper MinHeight="60px" Width="100%">
+            <MudStack Row="true">
+                <CountryFlag Code="@Model.Country" />
+                <MudText Typo="Typo.h6">@Model.Name - ROUND @Model.Round</MudText>
+
+                <MudSpacer />
+
+                <MudIcon Icon="@Model.ClimateIcon" />
+            </MudStack>
+        </MudPaper>
         <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" Class="extra-dense overflow-x-hide" id="race-display">
             <ToolBarContent>
-                <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Center" Class="mud-width-full">
-                    <CountryFlag Code="@Model.Country" />
-                    <MudText Typo="Typo.h6">@Model.Name - ROUND @Model.Round</MudText>
-                    <MudIcon Icon="@Model.ClimateIcon" />
-
-                    <MudSpacer />
-
-                    <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
-                        <MudText Typo="Typo.subtitle1">@(racedLaps) / @(totalLaps)</MudText>
-                    </MudChip>
-
-                    <MudSpacer />
-
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
                     <MudStack Spacing="0" AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
                         <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
@@ -36,6 +34,14 @@
                             <MudChip Value="10">@(NumberHelper.CalcLapCount(10 * calculationDistance, Model.TrackLength))</MudChip>
                         </MudChipSet>
                     </MudStack>
+                    
+                    <MudSpacer />
+
+                    <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
+                        <MudText Typo="Typo.subtitle1">@(racedLaps) / @(totalLaps)</MudText>
+                    </MudChip>
+
+                    <MudSpacer />
 
                     <MudButtonGroup Color="Color.Primary">
                         @if (!Model.IsFinished)
@@ -62,7 +68,7 @@
                 <col style="width: 30px" />
                 <col style="width: 220px" />
                 <col style="width: 30px" />
-                <col style="width: 75px" />
+                <col style="width: 175px" />
                 <col style="width: 50px" />
                 <col style="width: 30px" />
                 <col style="width: 50px" />
@@ -116,11 +122,13 @@
                     <MudText Typo="Typo.caption">@context.Power</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudStack Row="true" Spacing="1" Justify="Justify.Center" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
+                    <MudStack Row="true" Spacing="1" Justify="Justify.SpaceEvenly" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
                         <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
                         <MudText Typo="Typo.caption">@context.Attack</MudText>
+                        <sup>@(context.OvertakeCount)</sup>
                         <span class="py-2" style="background-color: antiquewhite;padding-left: 1px;padding-right: 1px;"></span>
                         <MudText Typo="Typo.caption">@context.Defense</MudText>
+                        <sup>@(context.DefendedCount)</sup>
                         <MudIcon Icon="@IconCollection.ShieldChevron" Size="Size.Small" />
                     </MudStack>
                 </MudTd>
@@ -129,6 +137,7 @@
                 </MudTd>
                 <MudTd Class="number-col">
                     <MudText Typo="Typo.caption">@context.LapSum</MudText>
+                    <sup>@context.LastScore</sup>
                 </MudTd>
                 <MudTd Class="number-col-lg">
                     @if (context.Incident == null)
@@ -201,7 +210,7 @@
 
                         <MudSpacer />
 
-                        <MudMenu Icon="@Icons.Material.Filled.MultilineChart" Color="Color.Tertiary">
+                        <MudMenu Label="Charts" Icon="@Icons.Material.Filled.InsertChart" Color="Color.Tertiary">
                             <MudMenuItem OnClick="ToggleProgressBarType">Progress toggle</MudMenuItem>
                             <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
                             <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
@@ -568,7 +577,7 @@
         {
             var lastScore = driver.LapScores.Last();
 
-            int gainedPositions = driver.Position - ++positionIndex;
+            int gainedPositions = driver.Position - (++positionIndex);
 
             while (gainedPositions > 0)
             {
@@ -594,11 +603,16 @@
                     if (battleCost > 0)
                         lastScore.Score -= battleCost;
 
+                    // Overtake failed
                     if (aboveDriver.LapSum > driver.LapSum)
                     {
-                        // Overtake failed
+                        aboveDriver.DefendedCount++;
+                        driver.LastScore = lastScore.Score;
                         break;
                     }
+
+                    // It only counts as an overtake if it wasn't in an instant
+                    driver.OvertakeCount++;
                 }
 
                 // Overtake succeeded, driver gains a position!
@@ -606,6 +620,8 @@
 
                 gainedPositions--;
             }
+
+            driver.LastScore = lastScore.Score;
         }
     }
 

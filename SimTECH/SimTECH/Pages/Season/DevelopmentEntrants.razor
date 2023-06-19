@@ -59,6 +59,12 @@
                             <MudNumericField T="int" Label="Max" ValueChanged="ApplyMaxRange" Class="field-sm" />
                         </div>
                     }
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Info"
+                               StartIcon="@Icons.Material.Filled.Refresh">
+                        Load
+                    </MudButton>
                 </MudStack>
             </MudPaper>
             <MudPaper>
@@ -81,7 +87,7 @@
                         <MudTh Class="number-col-lg">Old</MudTh>
                         <MudTh Class="number-col-lg">Change</MudTh>
                         <MudTh Class="number-col-lg">New</MudTh>
-                        <MudTh>Range</MudTh>
+                        <MudTh Style="min-width:225px">Range</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>
@@ -111,8 +117,8 @@
                         </MudTd>
                         <MudTd>
                             <MudStack Row="true" Class="pa-0">
-                                <MudNumericField T="int" @bind-Value="context.Min" Label="Min" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
-                                <MudNumericField T="int" @bind-Value="context.Max" Label="Max" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
+                                <MudNumericField T="int" @bind-Value="@context.Min" Label="Min" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
+                                <MudNumericField T="int" @bind-Value="@context.Max" Label="Max" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
                             </MudStack>
                         </MudTd>
                     </RowTemplate>
@@ -401,13 +407,14 @@
             entrant.Change = NumberHelper.RandomInt(entrant.Min, entrant.Max);
             entrant.New = entrant.Old + entrant.Change;
 
+            if (entrant.New < 0)
+                entrant.New = 0;
+
             if (_selectedTarget == TargetDevelop.Reliability)
             {
-                // The minimum and maximum value for reliability is between 1 and 1000, thus we set those limits
+                // The maximum value for reliability is 1000
                 if (entrant.New > 1000)
                     entrant.New = 1000;
-                else if (entrant.New < 1)
-                    entrant.New = 1;
             }
         }
 

@@ -65,7 +65,7 @@
                             <MudText>@(context.RaceLength)Km</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText>@context.ClimateId</MudText>
+                            <MudText>@(Climates.Find(e => e.Id == context.ClimateId)?.Terminology ?? "Unknown")</MudText>
                         </MudTd>
                     </RowTemplate>
                     <RowEditingTemplate>
@@ -107,13 +107,19 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? RaceDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? RaceDialog { get; set; }
 
-    [Parameter] public List<Track> Tracks { get; set; }
-    [Parameter] public long SeasonId { get; set; }
-    [Parameter] public int OffsetRound { get; set; }
-    [Parameter] public int DefaultRaceLength { get; set; }
-    [Parameter] public List<Climate> Climates { get; set; }
+    [Parameter]
+    public List<Track> Tracks { get; set; }
+    [Parameter]
+    public long SeasonId { get; set; }
+    [Parameter]
+    public int OffsetRound { get; set; }
+    [Parameter]
+    public int DefaultRaceLength { get; set; }
+    [Parameter]
+    public List<Climate> Climates { get; set; }
 
     private HashSet<Track> selectedTracks = new();
     private List<EditRaceModel> addedRaces = new();
