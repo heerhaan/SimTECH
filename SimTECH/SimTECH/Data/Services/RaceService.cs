@@ -230,9 +230,12 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task FinishRace(Race finishedRace, List<Result> finishedResults, List<ScoredPoints> scoredPoints)
+        public async Task FinishRace(long raceId, List<Result> finishedResults, List<ScoredPoints> scoredPoints)
         {
             using var context = _dbFactory.CreateDbContext();
+
+            var finishedRace = await context.Race.SingleAsync(e => e.Id == raceId);
+            finishedRace.State = State.Closed;
 
             context.Update(finishedRace);
             context.UpdateRange(finishedResults);

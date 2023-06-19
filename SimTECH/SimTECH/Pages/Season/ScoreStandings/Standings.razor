@@ -92,14 +92,13 @@
                 </MudItem>
             </MudGrid>
         </MudTabPanel>
-
         <MudTabPanel Text="WDC results">
             <MudPaper Elevation="15">
                 <MudTable Items="@DriverResultsModel" Dense="true" Class="extra-dense" id="wdc-season-results">
                     <ToolBarContent>
                         <MudText Typo="Typo.h4">WDC results</MudText>
                         <MudSpacer />
-                        <MudButtonGroup>
+                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
                             <ScreenshotButton TargetId="wdc-season-results" />
                             <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" />
                         </MudButtonGroup>
@@ -151,7 +150,7 @@
                             }
                             else
                             {
-                                <MudTdResult Result="result" LowestScoringPosition="@lowestScoringPosition" />
+                                <MudTdResult Result="@result" LowestScoringPosition="@lowestScoringPosition" />
                             }
                         }
                         <MudTd>
@@ -161,15 +160,14 @@
                 </MudTable>
             </MudPaper>
         </MudTabPanel>
-
         <MudTabPanel Text="WCC results">
             <MudTable Items="@TeamResultsModel" Dense="true" id="wcc-season-results">
                 <ToolBarContent>
                     <MudText Typo="Typo.h4">WCC results</MudText>
                     <MudSpacer />
-                    <MudButtonGroup>
+                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
                         <ScreenshotButton TargetId="wcc-season-results" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ShowWccResultGraph" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWccResultGraph" />
                     </MudButtonGroup>
                 </ToolBarContent>
                 <HeaderContent>
@@ -237,7 +235,8 @@
 }
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [CascadingParameter]
+    public Season Season { get; set; }
 
     List<SeasonDriver> SeasonDrivers { get; set; }
     List<SeasonTeam> SeasonTeams { get; set; }
@@ -375,11 +374,11 @@
     private StandingResultCell ToResultCell(Result result)
     {
         return new StandingResultCell
-        {
-            Position = result.Position,
-            Status = result.Status,
-            Round = Races.Single(e => e.Id == result.RaceId).Round,
-            Pole = result.Grid == 1,
-        };
+            {
+                Position = result.Position,
+                Status = result.Status,
+                Round = Races.Single(e => e.Id == result.RaceId).Round,
+                Pole = result.Grid == 1,
+            };
     }
 }

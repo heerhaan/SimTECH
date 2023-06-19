@@ -1,13 +1,13 @@
 ﻿@inject LeagueService LeagueService
 @inject SeasonEntrantService EntrantService
 @inject SeasonService SeasonService
-@inject ISnackbar Snackbar
+@inject ISnackbar _snackbar
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
     @if (DevelopedEntrants != null)
     {
         <MudStack Row="true" Class="mud-width-full">
-            <MudPaper Class="pa-2" Width="25%">
+            <MudPaper Class="pa-2" Width="20%">
                 <MudStack>
                     <MudText Typo="Typo.h6">Settings</MudText>
                     <MudDivider />
@@ -22,18 +22,8 @@
                         </MudChipSet>
                     </div>
                     <div>
-                        <MudTooltip Text="How the development ranges are determined">
-                            <MudText Typo="Typo.subtitle1">Type</MudText>
-                        </MudTooltip>
-                        <MudChipSet SelectedChipChanged="TypeChipChanged" Mandatory="true">
-                            <MudChip Color="Color.Secondary" Value="TypeDevelop.Range" Default="true">Range</MudChip>
-                            <MudChip Color="Color.Secondary" Value="TypeDevelop.Set">Set</MudChip>
-                            <MudChip Color="Color.Secondary" Value="TypeDevelop.Direct">Direct</MudChip>
-                        </MudChipSet>
-                    </div>
-                    <div>
                         <MudTooltip Text="Which aspect is going to be developed">
-                            <MudText Typo="Typo.subtitle2">Target</MudText>
+                            <MudText Typo="Typo.subtitle1">Target</MudText>
                         </MudTooltip>
                         <MudChipSet SelectedChipChanged="TargetChipChanged" Mandatory="true">
                             <MudChip Color="Color.Tertiary" Value="TargetDevelop.Main" Default="true">@_mainTypeName</MudChip>
@@ -51,10 +41,20 @@
                             }
                         </MudChipSet>
                     </div>
+                    <div>
+                        <MudTooltip Text="How the development ranges are determined">
+                            <MudText Typo="Typo.subtitle1">Type</MudText>
+                        </MudTooltip>
+                        <MudChipSet SelectedChipChanged="TypeChipChanged" Mandatory="true">
+                            <MudChip Color="Color.Secondary" Value="TypeDevelop.Range" Default="true">Range</MudChip>
+                            <MudChip Color="Color.Secondary" Value="TypeDevelop.Set">Set</MudChip>
+                            <MudChip Color="Color.Secondary" Value="TypeDevelop.Direct">Direct</MudChip>
+                        </MudChipSet>
+                    </div>
                     @if (_selectedType == TypeDevelop.Range)
                     {
                         <div>
-                            <MudText Typo="Typo.subtitle2">Dev. range</MudText>
+                            <MudText Typo="Typo.subtitle1">Development range</MudText>
                             <MudNumericField T="int" Label="Min" ValueChanged="ApplyMinRange" Class="field-sm" />
                             <MudNumericField T="int" Label="Max" ValueChanged="ApplyMaxRange" Class="field-sm" />
                         </div>
@@ -65,16 +65,12 @@
                 <MudTable Items="@DevelopedEntrants" Dense="true">
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Development</MudText>
-
                         <MudSpacer />
-
-                        <MudButtonGroup>
-                            @if (_ranDevelop)
-                            {
-                                <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" Variant="Variant.Filled" OnClick="SaveDevelopment">Save</MudButton>
-                            }
-                            <MudButton StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" Variant="Variant.Filled" OnClick="RunDevelop">Run</MudButton>
-                        </MudButtonGroup>
+                        @if (_ranDevelop)
+                        {
+                            <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" Variant="Variant.Filled" OnClick="SaveDevelopment">Save</MudButton>
+                        }
+                        <MudButton StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" Variant="Variant.Filled" OnClick="RunDevelop">Run</MudButton>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>Name</MudTh>
@@ -122,7 +118,7 @@
                     </RowTemplate>
                 </MudTable>
             </MudPaper>
-            <MudPaper Width="25%" Class="pa-2">
+            <MudPaper Width="20%" Class="pa-2">
                 <MudText Typo="Typo.h6">Set dev. ranges</MudText>
                 <MudDivider />
                 
@@ -131,7 +127,7 @@
                     <MudStack>
                         @foreach (var rangeGroup in League.DevelopmentRanges.GroupBy(e => e.Type))
                         {
-                            <MudText Typo="Typo.overline">@rangeGroup.Key</MudText>
+                            <MudText Typo="Typo.subtitle1">@rangeGroup.Key</MudText>
                             <MudSimpleTable>
                                 <thead>
                                     <tr>
@@ -160,7 +156,8 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [CascadingParameter]
+    public Season Season { get; set; }
 
     League League;
     List<SeasonDriver> SeasonDrivers;
@@ -397,7 +394,7 @@
         {
             if (entrant.Min > entrant.Max)
             {
-                Snackbar.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
+                _snackbar.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
                 return;
             }
 

@@ -29,22 +29,6 @@ namespace SimTECH.PageModels
         public LeagueOptions LeagueOptions { get; set; }
 
         public int QualifyingBonus(int grid) => (RaceDrivers.Count * Season.GridBonus) - ((grid - 1) * Season.GridBonus);
-
-        // Refactor this one since good god, i dont like this
-        public Race ToFinishedRace()
-        {
-            return new Race
-            {
-                Id = RaceId,
-                Round = Round,
-                Name = Name,
-                RaceLength = RaceLength,
-                State = State.Closed,
-                SeasonId = Season.Id,
-                TrackId = TrackId,
-                ClimateId = ClimateId,
-            };
-        }
     }
 
     public class QualifyingModel : SessionBase
