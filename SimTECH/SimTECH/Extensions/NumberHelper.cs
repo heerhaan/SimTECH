@@ -27,15 +27,18 @@
             return (int)(number + 0.5);
         }
 
-        public static int Percentage(int number, int max) => Percentage(number, (double)max);
-        public static int Percentage(int number, double max) =>
-            (int)Math.Round(100 * number / max);
-
-        public static double Average(int number, int times) => Average((double)number, times);
-        public static double Average(double number, int times)
+        public static double Percentage(int number, int max) => Percentage(number, (double)max);
+        public static double Percentage(int number, double max)
         {
-            var avg = number / times;
-            return Math.Round(avg, 1);
+            var perc = number / max;
+            return Math.Round(100 * perc, 2);
+        }
+
+        public static double Average(int sum, int amountValues) => Average((double)sum, amountValues);
+        public static double Average(double sum, int amountValues)
+        {
+            var avg = sum / amountValues;
+            return Math.Round(avg, 2);
         }
 
         public static int CalcLapCount(int raceLength, double trackLength) =>

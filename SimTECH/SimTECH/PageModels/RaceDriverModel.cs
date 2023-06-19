@@ -56,7 +56,7 @@ namespace SimTECH.PageModels
         public int LastLapOrder => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
         public int LastScore { get; set; } = 0;
         public int OvertakeCount { get; set; } = 0;
-        public int DefendedCount { get; set; } = 0;
+        public int DefensiveCount { get; set; } = 0;
 
         public Result ToResult(long raceId)
         {

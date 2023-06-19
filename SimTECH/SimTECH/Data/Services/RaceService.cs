@@ -213,8 +213,8 @@ namespace SimTECH.Data.Services
             await context.GivenPenalty
                 .Where(e => consumables.Contains(e.Id))
                 .ExecuteUpdateAsync(e =>
-                    e.SetProperty(p => p.Consumed, p => true)
-                     .SetProperty(p => p.ConsumedAtRaceId, p => raceId));
+                    e.SetProperty(p => p.Consumed, true)
+                     .SetProperty(p => p.ConsumedAtRaceId, raceId));
 
             await context.SaveChangesAsync();
         }
