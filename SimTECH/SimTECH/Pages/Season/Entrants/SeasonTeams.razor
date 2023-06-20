@@ -19,11 +19,11 @@
             <PropertyColumn Property="e => e.Name" CellStyleFunc="@ViewHelper.TeamBorderRightStyleFunc" />
             <TemplateColumn T="SeasonTeam" SortBy="e => e.Team.Country" Title="Country">
                 <CellTemplate>
-                    <CountryNamedFlag Code="@context.Item.Team.Country" Size="FlagSize.Small" />
+                    <CountryNamedFlag Code="@context.Item.Team.Country" Size="FlagSize.Small" Reverse="true" />
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.Principal" CellClass="font-subtitle2" />
-            <PropertyColumn Property="e => e.BaseValue" CellClass="font-caption" />
+            <PropertyColumn Property="e => e!.Principal" CellClass="font-subtitle2" />
+            <PropertyColumn Property="e => e!.BaseValue" CellClass="font-caption" />
             <TemplateColumn T="SeasonTeam" Title="A/C/P" Sortable="false">
                 <CellTemplate>
                     <MudText Typo="Typo.caption">@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>

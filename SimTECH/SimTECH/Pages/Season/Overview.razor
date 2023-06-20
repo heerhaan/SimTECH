@@ -1,5 +1,6 @@
 ﻿@page "/overview/{SeasonId:long}"
 @page "/overview/{SeasonId:long}/{TabIndex:int}"
+@using SimTECH.Pages.Season.Entrants;
 @using SimTECH.Pages.Season.Stats;
 @using SimTECH.Pages.Season.ScoreStandings
 @inject LeagueService _leagueService
@@ -102,7 +103,20 @@
                     <Standings />
                 </MudTabPanel>
                 <MudTabPanel Text="Entrants">
-                    <Entrants />
+                    <MudTabs Outlined="true" Centered="true">
+                        <MudTabPanel Text="Drivers">
+                            <SeasonDrivers />
+                        </MudTabPanel>
+                        <MudTabPanel Text="Teams">
+                            <SeasonTeams />
+                        </MudTabPanel>
+                        <MudTabPanel Text="Engines">
+                            <SeasonEngines />
+                        </MudTabPanel>
+                        <MudTabPanel Text="Power rankings">
+                            <PowerRankings />
+                        </MudTabPanel>
+                    </MudTabs>
                 </MudTabPanel>
                 @if (Season.State == State.Active)
                 {
@@ -121,7 +135,6 @@
                                 </MudStack>
                             </MudPaper>
                         </MudItem>
-
                         <MudItem xs="4">
                             <MudPaper Elevation="15" Class="pa-4 mud-height-full">
                                 <MudText Typo="Typo.subtitle1">Settings 1</MudText>
@@ -133,7 +146,6 @@
                                 <MudTextField @bind-Value="Season.RunAmountSession" Label="RunAmountSession" ReadOnly="true"></MudTextField>
                             </MudPaper>
                         </MudItem>
-
                         <MudItem xs="4">
                             <MudPaper Elevation="15" Class="pa-4 mud-height-full">
                                 <MudText Typo="Typo.subtitle1">Settings 2</MudText>
@@ -146,10 +158,9 @@
                                 <MudTextField @bind-Value="Season.PointsFastestLap" Label="PointsFastestLap" ReadOnly="true"></MudTextField>
                             </MudPaper>
                         </MudItem>
-
                         <MudItem xs="4">
                             <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-                                <MudText Typo="Typo.subtitle2">Points per position</MudText>
+                                <MudText Typo="Typo.subtitle1">Points per position</MudText>
                                 @if (Season.PointAllotments != null)
                                 {
                                     <MudSimpleTable Dense="true">
