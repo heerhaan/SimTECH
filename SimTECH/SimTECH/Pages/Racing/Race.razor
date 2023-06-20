@@ -14,7 +14,7 @@
     @if (!loading)
     {
         <MudPaper MinHeight="60px" Width="100%">
-            <MudStack Row="true">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
                 <CountryFlag Code="@Model.Country" />
                 <MudText Typo="Typo.h6">@Model.Name - ROUND @Model.Round</MudText>
 
@@ -68,7 +68,7 @@
                     </MudButtonGroup>
                 </MudStack>
             </ToolBarContent>
-            <ColGroup>
+            @*<ColGroup>
                 <col style="width: 15px" />
                 <col style="width: 40px" />
                 <col style="width: 5px" />
@@ -79,24 +79,27 @@
                 <col style="width: 175px" />
                 <col style="width: 50px" />
                 <col style="width: 30px" />
-                <col style="width: 30px" />
                 <col style="width: 50px" />
+                <col style="width: 30px" />
                 <col style="width: 500px" />
-            </ColGroup>
+            </ColGroup>*@
             <HeaderContent>
-                <MudTh>#</MudTh>
-                <MudTh>Grid</MudTh>
-                <MudTh Class="pa-0"></MudTh>
-                <MudTh>Name</MudTh>
-                <MudTh Class="number-col">No</MudTh>
-                <MudTh>Team</MudTh>
-                <MudTh Class="number-col">PWR</MudTh>
-                <MudTh>ATT/DEF</MudTh>
-                <MudTh Class="tyre-col">TYRE</MudTh>
-                <MudTh Class="number-col">Score</MudTh>
-                <MudTh Class="number-col">Pace</MudTh>
-                <MudTh Class="number-col-lg">Status</MudTh>
-                <MudTh>Progression</MudTh>
+                <MudTh Style="width: 15px">#</MudTh>
+                <MudTh Style="width: 40px">Grid</MudTh>
+                <MudTh Class="pa-0" Style="width: 5px"></MudTh>
+                <MudTh Style="width: 220px">Name</MudTh>
+                <MudTh Class="number-col" Style="width: 30px">No</MudTh>
+                <MudTh Style="width: 220px">Team</MudTh>
+                <MudTh Class="number-col" Style="width: 30px">PWR</MudTh>
+                <MudTh Style="width: 175px">ATT/DEF</MudTh>
+                <MudTh Class="tyre-col" Style="width: 50px">TYRE</MudTh>
+                <MudTh Class="number-col" Style="width: 30px">Pace</MudTh>
+                <MudTh Class="number-col-lg" Style="width: 50px">Status</MudTh>
+                @if (tooMuchInfo)
+                {
+                    <MudTh Class="number-col" Style="width: 30px">Score</MudTh>
+                }
+                <MudTh Style="width: 500px">Progression</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
@@ -146,10 +149,9 @@
                     <TyreElement Colour="@context.CurrentTyre.Colour">@context.TyreLife</TyreElement>
                 </MudTd>
                 <MudTd Class="number-col">
-                    <MudText Typo="Typo.caption">@context.LapSum</MudText>
-                </MudTd>
-                <MudTd Class="number-col">
-                    <MudText Typo="Typo.caption">@context.LastScore</MudText>
+                    <GradientColour Min="@lastLowestScore" Max="@lastHighestScore" Value="@context.LastScore">
+                        <MudText Typo="Typo.caption" Color="Color.Inherit">@context.LastScore</MudText>
+                    </GradientColour>
                 </MudTd>
                 <MudTd Class="number-col-lg">
                     @if (context.Incident == null)
@@ -161,6 +163,12 @@
                         <MudText Typo="Typo.button" Color="Color.Error">@context.Incident.Name</MudText>
                     }
                 </MudTd>
+                @if (tooMuchInfo)
+                {
+                    <MudTd Class="number-col">
+                        <MudText Typo="Typo.caption">@context.LapSum</MudText>
+                    </MudTd>
+                }
                 <MudTd>
                     <div class="relative" style="height:8px;width:100%">
                         @foreach (var lapEvent in context.LapScores)
@@ -275,6 +283,9 @@
     bool safetyCarOut = false;
     Color lapIndicatorColor = Color.Dark;
     Entrant cycleReliabilty = Entrant.Driver;
+
+    int lastHighestScore = 0;
+    int lastLowestScore = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -424,6 +435,10 @@
         }
 
         racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, Model.TrackLength);
+
+        var lastScores = Model.RaceDrivers.Select(e => e.LastScore).ToArray();
+        lastLowestScore = lastScores.Min();
+        lastHighestScore = lastScores.Max();
 
         // Persist the new stint results, yes after doing all whats needed to show them
         //PersistLapScores(lapScoresToPersist);

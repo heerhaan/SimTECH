@@ -699,6 +699,7 @@ namespace SimTECH.Data.Services
                 QualyRng = season.QualifyingRNG,
                 QualyAmountQ2 = season.QualifyingAmountQ2,
                 QualyAmountQ3 = season.QualifyingAmountQ3,
+                QualifyingFormat = season.QualifyingFormat,
             };
 
             var raceDrivers = new List<QualifyingDriver>();

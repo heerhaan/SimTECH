@@ -124,7 +124,7 @@ namespace SimTECH
             Typography = CommonTypo,
         };
 
-        public static MudTheme SynthAnalTheme => new()
+        public static MudTheme SynthAltTheme => new()
         {
             Palette = new PaletteLight()
             {

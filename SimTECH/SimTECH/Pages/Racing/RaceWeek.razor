@@ -1,22 +1,13 @@
 ﻿@page "/raceweek/{RaceId:long}"
-@inject RaceService RaceService
+@inject RaceService _raceService
 @inject TyreService _tyreService
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
+@inject IDialogService _dialogService
+@inject ISnackbar _snack
 
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
-    @if (loading)
-    {
-        <MudPaper Class="pa-4">
-            <MudStack Row="true">
-                <MudProgressCircular Color="Color.Secondary" Size="Size.Large" Indeterminate="true" />
-                <MudText>... retrieving rawe ceek data</MudText>
-            </MudStack>
-        </MudPaper>
-    }
-    else
+    @if (!loading)
     {
         <MudGrid>
             <MudItem xs="3">
@@ -142,14 +133,14 @@
     [Parameter]
     public long RaceId { get; set; }
 
-    RaceWeekModel Model { get; set; }
-    List<Tyre> Tyres { get; set; }
+    public RaceWeekModel Model { get; set; }
+    private List<Tyre> Tyres { get; set; }
 
-    bool loading = true;
+    private bool loading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        Model = await RaceService.GetRaceWeekModel(RaceId);
+        Model = await _raceService.GetRaceWeekModel(RaceId);
         Tyres = await _tyreService.GetTyres();
 
         _bread.Reset();
@@ -172,12 +163,12 @@
                 ["Tyres"] = Tyres,
             };
 
-        var dialog = await DialogService.ShowAsync<TyrePicker>("Set tyre", parameters);
+        var dialog = await _dialogService.ShowAsync<TyrePicker>("Set tyre", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Tyre pickedTyre)
         {
-            await RaceService.PickTyre(resultId, pickedTyre);
+            await _raceService.PickTyre(resultId, pickedTyre);
 
             Model.RaceWeekDrivers.Single(e => e.ResultId == resultId).Tyre = pickedTyre;
         }
@@ -185,6 +176,9 @@
 
     // Navigation links
     private void GoToPractice() => _nav.NavigateTo($"/practice/{RaceId}");
-    private void GoToQualifying() => _nav.NavigateTo($"/qualifying/{RaceId}");
+    private void GoToQualifying()
+    {
+        _nav.NavigateTo($"/qualifying/{RaceId}");
+    }
     private void GoToRace() => _nav.NavigateTo($"/race/{RaceId}");
 }

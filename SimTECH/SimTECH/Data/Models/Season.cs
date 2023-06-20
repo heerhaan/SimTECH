@@ -10,7 +10,7 @@
         public int QualifyingAmountQ2 { get; set; }
         public int QualifyingAmountQ3 { get; set; }
         public int QualifyingRNG { get; set; }
-        public int RunAmountSession { get; set; }//questionable, config?
+        public int RunAmountSession { get; set; }
         public int GridBonus { get; set; }
         public int PitMinimum { get; set; }
         public int PitMaximum { get; set; }
@@ -19,6 +19,8 @@
 
         public int PointsPole { get; set; }
         public int PointsFastestLap { get; set; }
+
+        public QualyFormat QualifyingFormat { get; set; }
 
         public IList<PointAllotment>? PointAllotments { get; set; }
         public IList<Race>? Races { get; set; }

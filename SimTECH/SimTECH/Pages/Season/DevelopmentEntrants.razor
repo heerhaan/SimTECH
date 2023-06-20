@@ -51,6 +51,7 @@
                             <MudChip Color="Color.Secondary" Value="TypeDevelop.Direct">Direct</MudChip>
                         </MudChipSet>
                     </div>
+
                     @if (_selectedType == TypeDevelop.Range)
                     {
                         <div>
@@ -110,7 +111,9 @@
                             <MudText Typo="Typo.caption">@context.Old</MudText>
                         </MudTd>
                         <MudTd Class="number-col-lg">
-                            <MudText Typo="Typo.caption">@context.Change</MudText>
+                            <GradientColour Min="@minChange" Max="@maxChange" Value="@context.Change">
+                                <MudText Typo="Typo.caption">@context.Change</MudText>
+                            </GradientColour>
                         </MudTd>
                         <MudTd Class="number-col-lg">
                             <MudText Typo="Typo.caption">@context.New</MudText>
@@ -177,6 +180,9 @@
     string _mainTypeName = "Skill";
     string? _optionalColTitle = "Age";
     bool _ranDevelop = false;
+
+    int minChange = 0;
+    int maxChange = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -417,6 +423,10 @@
                     entrant.New = 1000;
             }
         }
+
+        var allChanges = DevelopedEntrants.Select(e => e.Change).ToArray();
+        minChange = allChanges.Min();
+        maxChange = allChanges.Max();
 
         _ranDevelop = true;
     }

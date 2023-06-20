@@ -1,0 +1,16 @@
+﻿@inject BreadcrumbProvider _bread
+@implements IDisposable
+
+<MudBreadcrumbs Items="@_bread.Breadcrumbs" />
+
+@code {
+    protected override void OnInitialized()
+    {
+        _bread.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        _bread.OnChange -= StateHasChanged;
+    }
+}

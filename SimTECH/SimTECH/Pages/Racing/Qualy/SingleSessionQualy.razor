@@ -1,0 +1,112 @@
+﻿@inject IOptions<SimConfig> _config
+
+<MudContainer MaxWidth="MaxWidth.False">
+    <MudTable Items="@Model.QualifyingDrivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="qualy-result-table">
+        <ToolBarContent>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
+                <CountryFlag Code="@Model.Country" />
+                <MudText Typo="Typo.h6">@Model.Name - QUALIFYING</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Outlined">
+                    <ScreenshotButton TargetId="qualy-result-table" />
+                    @if (advanced == Model.AmountRuns)
+                    {
+                        <MudButton Variant="Variant.Outlined" OnClick="@(() => CallbackFinish.InvokeAsync())">Finish</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton OnClick="Advance">Advance</MudButton>
+                    }
+                </MudButtonGroup>
+            </MudStack>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh Class="pa-0"></MudTh>
+            <MudTh>Driver</MudTh>
+            <MudTh Class="number-col">No.</MudTh>
+            <MudTh>Team</MudTh>
+            <MudTh Class="number-col-lg">PWR</MudTh>
+            @for (int i = 1; i <= Model.AmountRuns; i++)
+            {
+                var j = i;
+                <MudTh Class="number-col-lg">@j</MudTh>
+            }
+            <MudTh Class="number-col-lg">Score</MudTh>
+            <MudTh>Gap</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTdCutoffStyled Position="@context.PositionQ1" EntryLimit="@Model.MaximumRaceDrivers" Class="number-col">
+                <DriverPosition Number="@(context.PositionQ1)" Colour="@(context.Colour)" Accent="@(context.Accent)" />
+            </MudTdCutoffStyled>
+            <MudTd Class="pa-0">
+                <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
+            </MudTd>
+            <MudTd>
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.body1">@context.FirstName</MudText>
+                    <MudText Typo="Typo.button">@context.LastName</MudText>
+                    <MudSpacer />
+                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                </MudStack>
+            </MudTd>
+            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                <MudText Typo="Typo.caption">@context.Number</MudText>
+            </MudTd>
+            <MudTd>
+                <MudText>@context.TeamName</MudText>
+            </MudTd>
+            <MudTd Class="number-col-lg">
+                <MudText Typo="Typo.caption">@context.Power</MudText>
+            </MudTd>
+            @foreach (var runResult in context.RunValuesQ1)
+            {
+                <MudTd Class="number-col-lg">
+                    <MudText Typo="Typo.caption">@runResult</MudText>
+                </MudTd>
+            }
+            <MudTd Class="number-col-lg">
+                <MudText Typo="Typo.caption">@context.MaxScoreQ1</MudText>
+            </MudTd>
+            <MudTd>
+                <MudText>+@(context.GapQ1)</MudText>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public QualifyingModel Model { get; set; }
+    [Parameter]
+    public EventCallback CallbackFinish { get; set; }
+
+    private int advanced = 0;
+    private double gapMarge;
+
+    protected override void OnInitialized()
+    {
+        gapMarge = _config.Value.GapMarge;
+    }
+
+    private void Advance()
+    {
+        var positionIndex = 0;
+
+        foreach (var driver in Model.QualifyingDrivers)
+        {
+            driver.RunValuesQ1[advanced] = driver.GetQualifyingResult(Model.QualyRng);
+        }
+
+        var highestScore = Model.QualifyingDrivers.SelectMany(e => e.RunValuesQ1).Max();
+
+        foreach (var driver in Model.QualifyingDrivers.OrderByDescending(e => e.MaxScoreQ1))
+        {
+            driver.Position = ++positionIndex;
+            driver.PositionQ1 = positionIndex;
+            driver.GapQ1 = Math.Round(((highestScore - driver.MaxScoreQ1) * gapMarge), 2);
+        }
+
+        advanced++;
+    }
+}

@@ -51,11 +51,10 @@ namespace SimTECH
         Main, Support
     }
 
-    // TODO: Implement this bad boy
     public enum QualyFormat
     {
+        TripleEliminate,
         OneSession,
-        TripleEliminate
     }
 
     public enum RaceStatus

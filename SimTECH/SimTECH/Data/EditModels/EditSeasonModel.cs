@@ -22,6 +22,7 @@ namespace SimTECH.Data.EditModels
         public int RngMaximum { get; set; }
         public int PointsPole { get; set; }
         public int PointsFastestLap { get; set; }
+        public QualyFormat QualifyingFormat { get; set; }
         public long LeagueId { get; set; }
         public IList<EditPointAllotmentModel> PointAllotments { get; set; } = new List<EditPointAllotmentModel>();
 

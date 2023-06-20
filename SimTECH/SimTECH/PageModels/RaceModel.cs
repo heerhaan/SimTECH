@@ -37,6 +37,7 @@ namespace SimTECH.PageModels
         public int QualyRng { get; set; }
         public int QualyAmountQ2 { get; set; }
         public int QualyAmountQ3 { get; set; }
+        public QualyFormat QualifyingFormat { get; set; }
 
         public List<long> PenaltiesToConsume { get; set; } = new();
         public List<QualifyingDriver> QualifyingDrivers { get; set; } = new();

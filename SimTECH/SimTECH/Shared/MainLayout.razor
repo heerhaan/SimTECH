@@ -1,6 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@inject BreadcrumbProvider _bread
-@implements IDisposable
 
 <MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="@theme" />
 <MudDialogProvider MaxWidth="MaxWidth.Large"
@@ -12,7 +10,7 @@
 <MudLayout>
     <MudAppBar Elevation="5" Dense="true">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Tertiary" Edge="Edge.Start" OnClick="ToggleSidebar" />
-        <Breadcrumbs />
+        <CustomBreadcrumbs />
 
         <MudSpacer />
 
@@ -21,10 +19,10 @@
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
         
         <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Tertiary">
-            <MudMenuItem OnClick="SetSynthTheme">Synth (Tri)</MudMenuItem>
-            <MudMenuItem OnClick="SetSynthAltTheme">Synth (Anal)</MudMenuItem>
-            <MudMenuItem OnClick="SetOceanicTheme">Oceanic</MudMenuItem>
-            <MudMenuItem OnClick="SetDefaultTheme">Basic</MudMenuItem>
+            <MudMenuItem OnClick="@(() => SetTheme(Constants.SynthTheme))">Synth (Tri)</MudMenuItem>
+            <MudMenuItem OnClick="@(() => SetTheme(Constants.SynthAltTheme))">Synth (Alt)</MudMenuItem>
+            <MudMenuItem OnClick="@(() => SetTheme(Constants.OceanicTheme))">Oceanic</MudMenuItem>
+            <MudMenuItem OnClick="@(() => SetTheme(Constants.DefaultTheme))">Basic</MudMenuItem>
         </MudMenu>
 
         <MudIconButton Href="/guide" Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" />
@@ -47,20 +45,7 @@
     bool drawerOpen = true;
     bool isDarkTheme = true;
 
-    protected override void OnInitialized()
-    {
-        _bread.OnChange += StateHasChanged;
-    }
-
     void ToggleSidebar() => drawerOpen = !drawerOpen;
 
-    void SetDefaultTheme() => theme = Constants.DefaultTheme;
-    void SetSynthTheme() => theme = Constants.SynthTheme;
-    void SetSynthAltTheme() => theme = Constants.SynthAnalTheme;
-    void SetOceanicTheme() => theme = Constants.OceanicTheme;
-
-    public void Dispose()
-    {
-        _bread.OnChange -= StateHasChanged;
-    }
+    void SetTheme(MudTheme toTheme) => theme = toTheme;
 }

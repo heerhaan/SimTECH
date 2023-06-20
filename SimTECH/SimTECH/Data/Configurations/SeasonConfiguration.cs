@@ -9,6 +9,8 @@ namespace SimTECH.Data.Configurations
         public void Configure(EntityTypeBuilder<Season> builder)
         {
             builder.HasKey(e => e.Id);
+            builder.Property(e => e.QualifyingFormat)
+                .HasDefaultValue(QualyFormat.TripleEliminate);
         }
     }
 }

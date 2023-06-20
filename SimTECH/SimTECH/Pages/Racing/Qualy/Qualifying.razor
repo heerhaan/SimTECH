@@ -1,0 +1,58 @@
+﻿@page "/qualifying/{RaceId:long}"
+@inject RaceService _raceService
+@inject NavigationManager _nav
+@inject IOptions<SimConfig> _config
+
+@*
+    Tables underneath is a good target for a refactor to a component, perhaps even a nested component!
+    Nested as in a component QualifyingSession implements a component Session (which can be implemented by practice!)
+*@
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    @if (!loading)
+    {
+        <CascadingValue Value="@Model">
+            @if (Model.QualifyingFormat == QualyFormat.TripleEliminate)
+            {
+                <EliminationQualy CallbackFinish="Finish" />
+            }
+            else
+            {
+                <SingleSessionQualy CallbackFinish="Finish" />
+            }
+        </CascadingValue>
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public long RaceId { get; set; }
+
+    public QualifyingModel Model { get; set; }
+
+    // Two ways to do this: three different racedriver lists for each session
+    // Alternatively make a custom class which has an identifier for which session the values are (ARE WHAT?)
+
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await _raceService.RetrieveQualifyingModel(RaceId);
+
+        loading = false;
+    }
+
+    private async Task Finish()
+    {
+        // Check for the possible penalties and apply assigning new positions
+        int positionIndexer = 0;
+        var positionResults = Model.QualifyingDrivers
+            .OrderBy(e => e.PenaltyPosition())
+            .ToDictionary(e => e.ResultId, e => ++positionIndexer);
+
+        await _raceService.PersistGridPositions(positionResults, RaceId, Model.MaximumRaceDrivers);
+        await _raceService.ConsumePenalties(Model.PenaltiesToConsume, RaceId);
+
+        _nav.NavigateTo("/raceweek/" + RaceId);
+    }
+}

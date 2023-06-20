@@ -16,36 +16,51 @@
                             <div>
                                 <MudText Typo="Typo.subtitle1">Qualifying (and practice) settings</MudText>
                                 <MudDivider />
+
+                                <MudChipSet Mandatory="true" SelectedChipChanged="QualyFormatChanged">
+                                    <MudChip Value="QualyFormat.TripleEliminate" Color="Color.Primary" Default="@(Model.QualifyingFormat == QualyFormat.TripleEliminate)">Three session elimination</MudChip>
+                                    <MudChip Value="QualyFormat.OneSession" Color="Color.Primary" Default="@(Model.QualifyingFormat == QualyFormat.OneSession)">One session</MudChip>
+                                </MudChipSet>
+
                                 <MudNumericField T="int" @bind-Value="Model.RunAmountSession" Label="Amount of runs per session" Class="field-md" />
                                 <MudNumericField T="int" @bind-Value="Model.QualifyingRNG" Label="Maximum RNG for qualifying" Class="field-md" />
-                                <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ2" Label="Amount of drivers in Q2" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ3" Label="Amount of drivers in Q3" Class="field-md" />
-                                </MudStack>
+                                
+                                @if (Model.QualifyingFormat == QualyFormat.TripleEliminate)
+                                {
+                                    <MudStack Row="true" Spacing="4">
+                                        <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ2" Label="Amount of drivers in Q2" Class="field-md" />
+                                        <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ3" Label="Amount of drivers in Q3" Class="field-md" />
+                                    </MudStack>
+                                }
                             </div>
                             <div>
                                 <MudText Typo="Typo.subtitle1">Race settings</MudText>
                                 <MudDivider />
+
                                 <MudStack Row="true" Spacing="4">
                                     <MudNumericField T="int" @bind-Value="Model.RngMinimum" Label="Race Min. RNG" Class="field-md" />
                                     <MudNumericField T="int" @bind-Value="Model.RngMaximum" Label="Race Max. RNG" Class="field-md" />
                                 </MudStack>
+
                                 <MudStack Row="true" Spacing="4">
                                     <MudNumericField T="int" @bind-Value="Model.PitMinimum" Min="0" Label="Pit Min. RNG" Class="field-md" />
                                     <MudNumericField T="int" @bind-Value="Model.PitMaximum" Min="@(Model.PitMinimum)" Label="Pit Max. RNG" Class="field-md" />
                                 </MudStack>
+
                                 <MudNumericField T="int" @bind-Value="Model.MaximumDriversInRace" Label="Maximum allowed drivers in race" Class="field-md" />
                                 <MudNumericField T="int" @bind-Value="Model.GridBonus" Label="Bonus per grid position" Class="field-md" />
                             </div>
                             <div>
                                 <MudText Typo="Typo.subtitle1">Additional points</MudText>
                                 <MudDivider />
+
                                 <MudNumericField T="int" @bind-Value="Model.PointsPole" Label="Awarded points Pole" Class="field-md" />
                                 <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Awarded points Fastest Lap" Class="field-md" />
                             </div>
                             <div>
                                 <MudText Typo="Typo.subtitle1">Select a league for this season</MudText>
                                 <MudDivider />
+
                                 <MudSelect T="long" @bind-Value="Model.LeagueId" Label="League" ReadOnly="@(Model.Id != 0)">
                                     @foreach (var select in Leagues)
                                     {
@@ -121,6 +136,14 @@
         // TODO: Following is temp until this is set by default
         if (Model.LeagueId == 0)
             Model.LeagueId = 1;
+    }
+
+    private void QualyFormatChanged(MudChip? qualyChip)
+    {
+        if (qualyChip == null)
+            return;
+
+        Model.QualifyingFormat = (QualyFormat)qualyChip.Value;
     }
 
     private void BackupAllotment(object allotment) //alternatively use EditPointAllotmentModel if this doesnt work
