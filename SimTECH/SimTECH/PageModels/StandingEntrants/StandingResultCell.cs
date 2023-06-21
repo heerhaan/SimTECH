@@ -14,7 +14,7 @@
     {
         public static string GetResultStyle(this StandingResultCell cell, int lowestScoringPosition)
         {
-            var cellStyle = string.Empty;
+            string? cellStyle;
 
             if (cell.Status == RaceStatus.Dnq)
             {
@@ -34,24 +34,14 @@
             }
             else
             {
-                switch (cell.Position)
+                cellStyle = cell.Position switch
                 {
-                    case 1:
-                        cellStyle = "background-color: gold;";
-                        break;
-                    case 2:
-                        cellStyle = "background-color: silver;";
-                        break;
-                    case 3:
-                        cellStyle = "background-color: burlywood;";
-                        break;
-                    case int n when n <= lowestScoringPosition:
-                        cellStyle = "background-color: lightgreen;";
-                        break;
-                    default:
-                        cellStyle = "background-color: cornflowerblue";
-                        break;
-                }
+                    1 => "background-color: gold;",
+                    2 => "background-color: silver;",
+                    3 => "background-color: burlywood;",
+                    int n when n <= lowestScoringPosition => "background-color: lightgreen;",
+                    _ => "background-color: cornflowerblue",
+                };
             }
 
             // Possibly can return immediatly depending on whether we want to do more with this or not

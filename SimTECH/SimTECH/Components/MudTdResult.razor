@@ -1,5 +1,5 @@
-﻿<MudTd Class="number-col result-cell" Style="@_cellStyles">
-    <MudText Typo="Typo.subtitle1">
+﻿<MudTd Class="result-cell" Style="@_cellStyles">
+    <MudText Typo="@Typo">
         @_resultDisplay
         @if (_hasPole)
         {
@@ -15,8 +15,17 @@
 @code {
     [Parameter]
     public StandingResultCell Result { get; set; }
+
     [Parameter]
     public int LowestScoringPosition { get; set; }
+
+    private Typo Typo { get; set; } = Typo.h4;
+
+    protected override void OnInitialized()
+    {
+        if (Result.Status != RaceStatus.Racing)
+            Typo = Typo.caption;
+    }
 
     private string _resultDisplay
     {

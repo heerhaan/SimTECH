@@ -573,14 +573,13 @@
 
     void DeterminePositions()
     {
-        var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum).ToList();
-
         int positionIndex = 0;
-        foreach (var driver in racingDrivers)
+        foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
         {
             var lastScore = driver.LapScores.Last();
 
-            int gainedPositions = driver.Position - (++positionIndex);
+            int gainedPositions = driver.Position - ++positionIndex;
+            int positionChange = //positieverandering!!!!????!?!?!!???!!!
 
             while (gainedPositions > 0)
             {
@@ -588,7 +587,7 @@
                 if (abovePosition == 0)
                     break;
 
-                var aboveDriver = racingDrivers.First(e => e.Position == abovePosition);
+                var aboveDriver = Model.RaceDrivers.First(e => e.Position == abovePosition);
 
                 // Driver above is teammate AND support driver AND attacker is main driver, swap time!
                 if (aboveDriver.SeasonTeamId == driver.SeasonTeamId && driver.Role == TeamRole.Main && aboveDriver.Role == TeamRole.Support)

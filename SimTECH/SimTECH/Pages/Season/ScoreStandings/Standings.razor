@@ -9,8 +9,8 @@
             <MudGrid Spacing="2">
                 <MudItem xs="12">
                     <MudPaper Height="75px" Class="pa-4">
-                        <MudStack Row="true" Justify="Justify.Center">
-                            <MudText Typo="Typo.h4">Season standings</MudText>
+                        <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h3">Season standings</MudText>
                         </MudStack>
                     </MudPaper>
                 </MudItem>
@@ -31,7 +31,7 @@
                             </HeaderContent>
                             <RowTemplate>
                                 <MudTd Class="number-col">
-                                    <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.Position</MudText>
+                                    <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
                                 </MudTd>
                                 <MudTd Class="accent-cell">
                                     <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
@@ -68,7 +68,7 @@
                             </HeaderContent>
                             <RowTemplate>
                                 <MudTd DataLabel="#" Class="number-col">
-                                    <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.Position</MudText>
+                                    <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
                                 </MudTd>
                                 <MudTd Class="accent-cell">
                                     <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
@@ -114,7 +114,7 @@
                         <MudTh>PTS</MudTh>
                         @foreach (var race in Races.OrderBy(e => e.Round))
                         {
-                            <MudTh Class="number-col-lg">
+                            <MudTh>
                                 <CountryFlag Code="@race.Track.Country" Size="FlagSize.Small" />
                             </MudTh>
                         }
@@ -122,14 +122,14 @@
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd Class="number-col">
-                            <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.Position</MudText>
+                            <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
                         </MudTd>
                         <MudTd Class="accent-cell">
                             <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
                         </MudTd>
                         <MudTd>
                             <MudStack Row="true" Spacing="1" Class="align-center">
-                                <MudText Typo="Typo.body1">@context.Name</MudText>
+                                <MudText>@context.Name</MudText>
                                 <MudSpacer />
                                 <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
                             </MudStack>
@@ -148,7 +148,7 @@
                             var result = context.ResultCells.Find(e => e.Round == round.Round);
                             if (result == null)
                             {
-                                <MudTd Class="number-col">-</MudTd>
+                                <MudTd Class="result-cell">-</MudTd>
                             }
                             else
                             {
@@ -175,8 +175,8 @@
                 <HeaderContent>
                     <MudTh Class="number-col">#</MudTh>
                     <MudTh Class="accent-cell"></MudTh>
-                    <MudTh>Principal</MudTh>
                     <MudTh>Team</MudTh>
+                    <MudTh>Principal</MudTh>
                     <MudTh>PTS</MudTh>
                     @foreach (var race in Races.OrderBy(e => e.Round))
                     {
@@ -188,13 +188,10 @@
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd Class="number-col">
-                        <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.Position</MudText>
+                        <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
                     </MudTd>
                     <MudTd Class="accent-cell">
                         <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
-                    </MudTd>
-                    <MudTd>
-                        <MudText Typo="Typo.body1">@context.Principal</MudText>
                     </MudTd>
                     <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
                         <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
@@ -204,28 +201,30 @@
                         </MudStack>
                     </MudTd>
                     <MudTd>
+                        <MudText Typo="Typo.body1">@context.Principal</MudText>
+                    </MudTd>
+                    <MudTd>
                         <MudText Typo="Typo.caption">@context.Points</MudText>
                     </MudTd>
                     @foreach (var round in Races.OrderBy(e => e.Round))
                     {
                         var teamResults = context.ResultCells.Where(e => e.Round == round.Round).ToList();
-                        if (teamResults.Any())
-                        {
-                            <MudTd Class="number-col-lg">
-                                <MudStack>
-                                    @foreach (var result in teamResults)
-                                    {
-                                        <MudChip Style="@(GetResultStyle(result))">
-                                            <MudText Typo="Typo.subtitle1">@result.GetResultText()</MudText>
-                                        </MudChip>
-                                    }
-                                </MudStack>
-                            </MudTd>
-                        }
-                        else
-                        {
-                            <MudTd>-</MudTd>
-                        }
+
+                        <MudTd Class="result-cell">
+                            @if (teamResults.Any())
+                            {
+                                @foreach (var result in teamResults)
+                                {
+                                    <div class="result-cell" style="@(GetResultStyle(result))">
+                                        <MudText Typo="Typo.caption">@result.GetResultText()</MudText>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <MudText>-</MudText>
+                            }
+                        </MudTd>
                     }
                     <MudTd>
                         <MudText Typo="Typo.caption">@context.Average</MudText>
