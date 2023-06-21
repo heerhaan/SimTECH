@@ -16,10 +16,10 @@
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                        <MudPaper MinHeight="60px">
+                            <MudText Typo="Typo.h5">Drivers</MudText>
+                        </MudPaper>
                         <MudTable Items="@DriverResultsModel" Dense="true">
-                            <ToolBarContent>
-                                <MudText Typo="Typo.h6">Drivers</MudText>
-                            </ToolBarContent>
                             <HeaderContent>
                                 <MudTh Class="number-col">#</MudTh>
                                 <MudTh Class="accent-cell"></MudTh>
@@ -55,10 +55,10 @@
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                        <MudPaper MinHeight="60px">
+                            <MudText Typo="Typo.h5">Constructors</MudText>
+                        </MudPaper>
                         <MudTable Items="@TeamResultsModel" Dense="true">
-                            <ToolBarContent>
-                                <MudText Typo="Typo.h6">Constructors</MudText>
-                            </ToolBarContent>
                             <HeaderContent>
                                 <MudTh Class="number-col">#</MudTh>
                                 <MudTh Class="accent-cell"></MudTh>
@@ -94,15 +94,17 @@
         </MudTabPanel>
         <MudTabPanel Text="WDC results">
             <MudPaper Elevation="15">
-                <MudTable Items="@DriverResultsModel" Dense="true" Class="extra-dense" id="wdc-season-results">
-                    <ToolBarContent>
+                <MudPaper MinHeight="60px">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
                         <MudText Typo="Typo.h4">WDC results</MudText>
                         <MudSpacer />
                         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
                             <ScreenshotButton TargetId="wdc-season-results" />
                             <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" />
                         </MudButtonGroup>
-                    </ToolBarContent>
+                    </MudStack>
+                </MudPaper>
+                <MudTable Items="@DriverResultsModel" Dense="true" Class="extra-dense" id="wdc-season-results">
                     <HeaderContent>
                         <MudTh Class="number-col">#</MudTh>
                         <MudTh Class="accent-cell"></MudTh>
@@ -112,7 +114,7 @@
                         <MudTh>PTS</MudTh>
                         @foreach (var race in Races.OrderBy(e => e.Round))
                         {
-                            <MudTh Class="number-col">
+                            <MudTh Class="number-col-lg">
                                 <CountryFlag Code="@race.Track.Country" Size="FlagSize.Small" />
                             </MudTh>
                         }
@@ -132,7 +134,7 @@
                                 <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
                             </MudStack>
                         </MudTd>
-                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                        <MudTd Class="number-col-lg" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
                             <MudText Typo="Typo.caption">@context.Number</MudText>
                         </MudTd>
                         <MudTd>

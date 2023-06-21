@@ -6,16 +6,18 @@
 <PageTitle>Leagues</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
-    <MudDataGrid T="League" Items="@LeagueData" Loading="@_loading" LoadingProgressColor="Color.Info" Bordered="true">
-        <ToolBarContent>
-            <MudText Typo="Typo.h4">Leagues</MudText>
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Leagues</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddLeague">New</MudButton>
-        </ToolBarContent>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddLeague">New</MudButton>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="League" Items="@LeagueData" Bordered="true">
         <Columns>
             <HierarchyColumn T="League" />
             <PropertyColumn Property="e => e!.Name" />
-            <PropertyColumn Property="e => e!.RaceLength" Title="Length (Km)" Style="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.RaceLength" Title="Length" Style="font-family: var(--mud-typography-caption-family)" />
             <TemplateColumn T="League" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">
@@ -84,8 +86,6 @@
     DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.ExtraLarge };
     List<League> LeagueData = new List<League>();
 
-    bool _loading = true;
-
     protected override async Task OnInitializedAsync()
     {
         Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -94,7 +94,6 @@
         });
 
         LeagueData = await LeagueService.GetLeagues();
-        _loading = false;
     }
 
     async Task AddLeague() => await UpdateLeague(null);

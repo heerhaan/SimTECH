@@ -1,5 +1,106 @@
-﻿<h3>SeasonDrivers</h3>
+﻿@inject DriverService DriverService
+@inject SeasonEntrantService EntrantService
+@inject IDialogService DialogService
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Drivers</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterDriver">New</MudButton>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="SeasonDriver" Items="@SeasonDriverEntrants" Dense="true" Loading="@_loading">
+        <Columns>
+            <TemplateColumn T="SeasonDriver" Sortable="false" Class="accent-cell">
+                <CellTemplate>
+                    <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Item.SeasonTeam?.Colour ?? Constants.DefaultColour))"></span>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn T="SeasonDriver" Title="Name" SortBy="e => e.Driver.FirstName">
+                <CellTemplate>
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudText>@context.Item.Driver.FullName</MudText>
+                        <MudSpacer />
+                        <CountryFlag Code="@context.Item.Driver.Country" Size="FlagSize.Small" />
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="e => e.Number" SortBy="e => e.Number" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" CellStyleFunc="@ViewHelper.DriverTeamStyleFunc" />
+            <PropertyColumn Property="e => e!.Skill" />
+            <PropertyColumn Property="e => e!.Reliability" Title="Rel." />
+            <PropertyColumn Property="e => e!.Attack" Title="Attack" />
+            <PropertyColumn Property="e => e!.Defense" Title="Defense" />
+            <PropertyColumn Property="e => e!.TeamRole" Title="Role" />
+            <TemplateColumn T="SeasonDriver" Title="Team" SortBy="e => e.SeasonTeam?.Name">
+                <CellTemplate>
+                    @if (context.Item.SeasonTeam == null)
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Error">Dropped</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2">@context.Item.SeasonTeam.Name</MudText>
+                    }
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn T="SeasonDriver" Sortable="false">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
 
 @code {
+    [CascadingParameter] public Season Season { get; set; }
 
+    private List<SeasonDriver> SeasonDriverEntrants = new();
+    private List<SeasonTeam> TeamEntrants = new();
+    private List<Driver> DriverData = new();
+
+    bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        SeasonDriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
+        TeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
+        DriverData = await DriverService.GetDrivers();
+
+        foreach (var sdriver in SeasonDriverEntrants)
+            sdriver.SeasonTeam = TeamEntrants.FirstOrDefault(e => e.Id == sdriver.SeasonTeamId);
+
+        _loading = false;
+    }
+
+    async Task EnterDriver() => await UpdateDriver(null);
+    async Task UpdateDriver(SeasonDriver? item)
+    {
+        var parameters = new DialogParameters
+            {
+                ["SeasonId"] = Season.Id,
+                ["Drivers"] = DriverData.Where(e => !SeasonDriverEntrants.Select(sd => sd.DriverId).Contains(e.Id)).ToList(),
+                ["SeasonTeams"] = TeamEntrants,
+                ["SeasonDriver"] = item,
+            };
+
+        var dialog = await DialogService.ShowAsync<SeasonDriverEditor>("Modify in-season driver", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is SeasonDriver updatedDriver)
+        {
+            _loading = true;
+
+            await EntrantService.UpdateSeasonDriver(updatedDriver);
+
+            SeasonDriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
+            foreach (var sdriver in SeasonDriverEntrants)
+                sdriver.SeasonTeam = TeamEntrants.FirstOrDefault(e => e.Id == sdriver.SeasonTeamId);
+
+            _loading = false;
+        }
+    }
 }

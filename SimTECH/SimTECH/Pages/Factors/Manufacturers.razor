@@ -5,12 +5,14 @@
 <PageTitle>Manufacturers</PageTitle>
 
 <MudContainer Class="mt-4">
-    <MudTable Items="@ManufacturerData" Bordered="true" Dense="true">
-        <ToolBarContent>
-            <MudText Typo="Typo.h4">Tyre manufacturers</MudText>
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Tyre manufacturers</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddManufacturer">New</MudButton>
-        </ToolBarContent>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddItem">New</MudButton>
+        </MudStack>
+    </MudPaper>
+    <MudTable Items="@ManufacturerData" Bordered="true" Dense="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Pace</MudTh>
@@ -36,10 +38,10 @@
             <MudTd>
                 <MudButtonGroup Size="@Size.Small">
                     <MudIconButton Icon="@Icons.Material.Outlined.Edit"
-                                   OnClick="@(async () => await UpdateManufacturer(context))" />
+                                   OnClick="@(async () => await UpdateItem(context))" />
                     <MudIconButton Icon="@Icons.Material.Outlined.Delete"
                                    Color="Color.Error"
-                                   OnClick="@(async () => await DeleteManufacturer(context))" />
+                                   OnClick="@(async () => await DeleteItem(context))" />
                 </MudButtonGroup>
             </MudTd>
         </RowTemplate>
@@ -54,8 +56,8 @@
         ManufacturerData = await ManufacturerService.GetManufacturers();
     }
 
-    async Task AddManufacturer() => await UpdateManufacturer(null);
-    async Task UpdateManufacturer(Manufacturer? item)
+    async Task AddItem() => await UpdateItem(null);
+    async Task UpdateItem(Manufacturer? item)
     {
         var parameters = new DialogParameters { ["Manufacturer"] = item };
 
@@ -69,7 +71,7 @@
         }
     }
 
-    async Task DeleteManufacturer(Manufacturer manufacturer)
+    async Task DeleteItem(Manufacturer manufacturer)
     {
         await ManufacturerService.DeleteManufacturer(manufacturer);
         ManufacturerData.Remove(manufacturer);

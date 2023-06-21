@@ -7,15 +7,17 @@
 <PageTitle>Drivers</PageTitle>
 
 <MudContainer Class="mt-4">
-    <MudDataGrid T="Driver" Items="@DriverData" Dense="true">
-        <ToolBarContent>
-            <MudText Typo="Typo.h4">Drivers</MudText>
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Drivers</MudText>
             <MudSpacer />
             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                 <MudButton OnClick="GoToHumanGenerator">Generate</MudButton>
                 <MudButton OnClick="AddDriver">New</MudButton>
             </MudButtonGroup>
-        </ToolBarContent>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="Driver" Items="@DriverData" Dense="true">
         <Columns>
             <HierarchyColumn T="Driver" />
             <PropertyColumn Property="e => e!.FullName" Title="Name" />

@@ -3,10 +3,12 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     @if (DriverRankings != null)
     {
-        <MudDataGrid T="PowerRankModel" Items="DriverRankings" Dense="true">
-            <ToolBarContent>
-                <MudText Typo="Typo.h4">Power rankings</MudText>
-            </ToolBarContent>
+        <MudPaper MinHeight="60px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+                <MudText Typo="Typo.h3">Power rankings</MudText>
+            </MudStack>
+        </MudPaper>
+        <MudDataGrid T="PowerRankModel" Items="@DriverRankings" Dense="true">
             <Columns>
                 <HierarchyColumn T="PowerRankModel" />
                 <TemplateColumn T="PowerRankModel" SortBy="e => e.DriverName" Title="Driver">
@@ -77,7 +79,8 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [CascadingParameter]
+    public Season Season { get; set; }
 
     List<PowerRankModel> DriverRankings;
 

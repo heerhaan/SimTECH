@@ -23,7 +23,7 @@
                     <MudGrid Spacing="4">
                         <MudItem xs="12">
                             <MudPaper Class="pa-4">
-                                <MudText Typo="Typo.h5">Season @Season.Year</MudText>
+                                <MudText Typo="Typo.h3">Season @Season.Year</MudText>
                                 <MudStack Row="true">
                                     <MudText>Currenly in status: @Season.State.ToString()</MudText>
                                     <MudSpacer />
@@ -34,7 +34,7 @@
 
                         <MudItem xs="6">
                             <MudPaper Height="200px" Elevation="15" Class="pa-4">
-                                <MudText Typo="Typo.h6">Upcoming race</MudText>
+                                <MudText Typo="Typo.h5">Upcoming race</MudText>
                                 @if (Season.State == State.Active)
                                 {
                                     @if (NextRace is null)
@@ -58,7 +58,7 @@
 
                         <MudItem xs="6">
                             <MudPaper Height="200px" Elevation="15" Class="pa-4">
-                                <MudText Typo="Typo.h6">Controls</MudText>
+                                <MudText Typo="Typo.h5">Controls</MudText>
                                 @if (Season.State == State.Concept)
                                 {
                                     <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
@@ -75,7 +75,7 @@
 
                         <MudItem xs="6">
                             <MudPaper Height="200px" Elevation="15" Class="pa-4">
-                                <MudText Typo="Typo.h6">Season statistics</MudText>
+                                <MudText Typo="Typo.h5">Season statistics</MudText>
                                 <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small">
                                     <MudButton OnClick="ShowQualyBattles">Qualifying battles</MudButton>
                                 </MudButtonGroup>
@@ -85,7 +85,7 @@
                         <MudItem xs="6">
                             <MudPaper Height="200px" Elevation="15" Class="pa-4">
                                 <MudStack>
-                                    <MudText Typo="Typo.h6">Components</MudText>
+                                    <MudText Typo="Typo.h5">Components</MudText>
                                     <MudText>
                                         Redirect to page with overview of the used components and any upcoming penalty's for this season
                                     </MudText>
@@ -129,7 +129,7 @@
                         <MudItem xs="12">
                             <MudPaper Elevation="15" Class="pa-4">
                                 <MudStack Row="true">
-                                    <MudText Typo="Typo.h4">Settings</MudText>
+                                    <MudText Typo="Typo.h3">Settings</MudText>
                                     <MudSpacer />
                                     <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Outlined.Edit" OnClick="UpdateSeason">Edit</MudButton>
                                 </MudStack>
@@ -137,7 +137,7 @@
                         </MudItem>
                         <MudItem xs="4">
                             <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-                                <MudText Typo="Typo.subtitle1">Settings 1</MudText>
+                                <MudText Typo="Typo.h6">Settings 1</MudText>
                                 <MudTextField @bind-Value="Season.Year" Label="Year" ReadOnly="true"></MudTextField>
                                 <MudTextField @bind-Value="Season.MaximumDriversInRace" Label="MaximumDriversInRace" ReadOnly="true"></MudTextField>
                                 <MudText>@(Season.QualifyingFormat)</MudText>
@@ -149,7 +149,7 @@
                         </MudItem>
                         <MudItem xs="4">
                             <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-                                <MudText Typo="Typo.subtitle1">Settings 2</MudText>
+                                <MudText Typo="Typo.h6">Settings 2</MudText>
                                 <MudTextField @bind-Value="Season.GridBonus" Label="GridBonus" ReadOnly="true"></MudTextField>
                                 <MudTextField @bind-Value="Season.RngMinimum" Label="RngMinimum" ReadOnly="true"></MudTextField>
                                 <MudTextField @bind-Value="Season.RngMaximum" Label="RngMaximum" ReadOnly="true"></MudTextField>
@@ -161,7 +161,7 @@
                         </MudItem>
                         <MudItem xs="4">
                             <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-                                <MudText Typo="Typo.subtitle1">Points per position</MudText>
+                                <MudText Typo="Typo.h6">Points per position</MudText>
                                 @if (Season.PointAllotments != null)
                                 {
                                     <MudSimpleTable Dense="true">
@@ -196,8 +196,10 @@
 </MudContainer>
 
 @code {
-    [Parameter] public long SeasonId { get; set; }
-    [Parameter] public int TabIndex { get; set; }
+    [Parameter]
+    public long SeasonId { get; set; }
+    [Parameter]
+    public int TabIndex { get; set; }
 
     public Season? Season { get; set; }
     public Race? NextRace { get; set; }

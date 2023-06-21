@@ -11,17 +11,19 @@
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-16 px-8">
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+            <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
 
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
-                <MudText Typo="Typo.h2">SimTECH</MudText>
+            <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
+                <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h2" Class="ma-auto">SimTECH</MudText>
+                </MudStack>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="12" md="4">
-            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+            <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
 
             </MudPaper>
         </MudItem>
@@ -29,7 +31,7 @@
             <MudPaper Elevation="2" Class="pa-4 mud-height-full">
                 <MudTable id="recent-race-table" Items="@recentRaces" Dense="true">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6">Last races</MudText>
+                        <MudText Typo="Typo.h5">Last races</MudText>
                         <MudSpacer />
                         <ScreenshotButton TargetId="recent-race-table" />
                     </ToolBarContent>
@@ -72,7 +74,7 @@
                             </MudStack>
                         </MudTd>
                         <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">GoTo</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">Go</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -82,7 +84,7 @@
             <MudPaper Elevation="2" Class="pa-4 mud-height-full">
                 <MudTable T="Race" Items="@upcomingRaces" Dense="true">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6">Upcoming races</MudText>
+                        <MudText Typo="Typo.h5">Upcoming races</MudText>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>Round</MudTh>
@@ -93,7 +95,7 @@
                         <MudTd>R: @(context.Round)</MudTd>
                         <MudTd>@(context.Name)</MudTd>
                         <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.Id))">GoTo</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.Id))">Go</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>

@@ -16,11 +16,12 @@
         <MudPaper MinHeight="60px" Width="100%">
             <MudStack Row="true" AlignItems="AlignItems.Center">
                 <CountryFlag Code="@Model.Country" />
-                <MudText Typo="Typo.h6">@Model.Name - ROUND @Model.Round</MudText>
+                <MudText Typo="Typo.h5">@Model.Name - ROUND @Model.Round</MudText>
 
                 <MudSpacer />
 
                 <MudIcon Icon="@Model.ClimateIcon" />
+                <MudText>@Model.Climate</MudText>
 
                 <MudSpacer />
 
@@ -46,7 +47,7 @@
                     <MudSpacer />
 
                     <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
-                        <MudText Typo="Typo.subtitle1">@(racedLaps) / @(totalLaps)</MudText>
+                        <MudText Typo="Typo.h4">@(racedLaps) / @(totalLaps)</MudText>
                     </MudChip>
 
                     <MudSpacer />
@@ -68,21 +69,6 @@
                     </MudButtonGroup>
                 </MudStack>
             </ToolBarContent>
-            @*<ColGroup>
-                <col style="width: 15px" />
-                <col style="width: 40px" />
-                <col style="width: 5px" />
-                <col style="width: 220px" />
-                <col style="width: 30px" />
-                <col style="width: 220px" />
-                <col style="width: 30px" />
-                <col style="width: 175px" />
-                <col style="width: 50px" />
-                <col style="width: 30px" />
-                <col style="width: 50px" />
-                <col style="width: 30px" />
-                <col style="width: 500px" />
-            </ColGroup>*@
             <HeaderContent>
                 <MudTh Style="width: 15px">#</MudTh>
                 <MudTh Style="width: 40px">Grid</MudTh>
@@ -103,9 +89,7 @@
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
-                    <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">
-                        @context.Position
-                    </MudText>
+                    <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
                 </MudTd>
                 <MudTd>
                     <GridChange Change="@context.GridChange" />
@@ -289,8 +273,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        tyres = await _tyreService.GetTyres();
-        possibleIncidents = await _incidentService.GetIncidents();
+        tyres = await _tyreService.GetTyres(StateFilter.Active);
+        possibleIncidents = await _incidentService.GetIncidents(StateFilter.Active);
 
         Model = await _raceService.RetrieveRaceModel(RaceId);
 

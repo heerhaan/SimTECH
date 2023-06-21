@@ -7,15 +7,17 @@
 
 <PageTitle>Seasons</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     @if (SeasonList != null)
     {
-        <MudDataGrid T="SeasonListModel" Items="@SeasonList" Bordered="true" Dense="true" Class="my-2">
-            <ToolBarContent>
-                <MudText Typo="Typo.h4">Seasons</MudText>
+        <MudPaper MinHeight="60px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+                <MudText Typo="Typo.h3">Seasons</MudText>
                 <MudSpacer />
                 <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="NewSeason">New</MudButton>
-            </ToolBarContent>
+            </MudStack>
+        </MudPaper>
+        <MudDataGrid T="SeasonListModel" Items="@SeasonList" Bordered="true" Dense="true">
             <Columns>
                 <PropertyColumn Property="e => e!.Year" />
                 <PropertyColumn Property="e => e!.DriverNumber" SortBy="e => e!.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" />

@@ -6,13 +6,15 @@
 <PageTitle>Tyres</PageTitle>
 
 <MudContainer Class="mt-4">
-    <MudDataGrid T="Tyre" Items="@TyreData" Bordered="true" Dense="true">
-        <ToolBarContent>
-            <MudText Typo="Typo.h4">Tyres</MudText>
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Tyres</MudText>
             <MudText Typo="Typo.body2">Adv. dist: @(advanceDistance)Km</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTyre">New</MudButton>
-        </ToolBarContent>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddItem">New</MudButton>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="Tyre" Items="@TyreData" Bordered="true" Dense="true">
         <Columns>
             <PropertyColumn Property="e => e!.Name" CellStyleFunc="@_applyTyreColouring" />
             <PropertyColumn Property="e => e!.ForWet" />
@@ -70,7 +72,7 @@
         return $"border-color: {e.Colour}";
     };
 
-    async Task AddTyre() => await UpdateTyre(null);
+    async Task AddItem() => await UpdateTyre(null);
     async Task UpdateTyre(Tyre? item)
     {
         var parameters = new DialogParameters { ["Tyre"] = item };

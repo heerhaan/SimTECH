@@ -2,12 +2,12 @@
 
 <MudDialog Class="dialog-shadow">
     <TitleContent>
-        Pick here the first tyre a driver will use for this race
+        <MudText>Pick here the first tyre a driver will use for this race</MudText>
     </TitleContent>
     <DialogContent>
         @if (Tyres?.Any() == true)
         {
-            <MudTable Items="Tyres">
+            <MudTable Items="@Tyres">
                 <HeaderContent>
                     <MudTh>Tyre</MudTh>
                     <MudTh>Pace</MudTh>
@@ -65,6 +65,7 @@
 
     [Parameter]
     public long ResultId { get; set; }
+
     [Parameter]
     public List<Tyre> Tyres { get; set; }
 

@@ -1,25 +1,25 @@
 ﻿@inject IOptions<SimConfig> _config
 
 <MudContainer MaxWidth="MaxWidth.False">
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <CountryFlag Code="@Model.Country" />
+            <MudText Typo="Typo.h5">@Model.Name - QUALIFYING</MudText>
+            <MudSpacer />
+            <MudButtonGroup Variant="Variant.Outlined">
+                <ScreenshotButton TargetId="qualy-result-table" />
+                @if (advanced == Model.AmountRuns)
+                {
+                    <MudButton Variant="Variant.Outlined" OnClick="@(() => CallbackFinish.InvokeAsync())">Finish</MudButton>
+                }
+                else
+                {
+                    <MudButton OnClick="Advance">Advance</MudButton>
+                }
+            </MudButtonGroup>
+        </MudStack>
+    </MudPaper>
     <MudTable Items="@Model.QualifyingDrivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="qualy-result-table">
-        <ToolBarContent>
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
-                <CountryFlag Code="@Model.Country" />
-                <MudText Typo="Typo.h6">@Model.Name - QUALIFYING</MudText>
-                <MudSpacer />
-                <MudButtonGroup Variant="Variant.Outlined">
-                    <ScreenshotButton TargetId="qualy-result-table" />
-                    @if (advanced == Model.AmountRuns)
-                    {
-                        <MudButton Variant="Variant.Outlined" OnClick="@(() => CallbackFinish.InvokeAsync())">Finish</MudButton>
-                    }
-                    else
-                    {
-                        <MudButton OnClick="Advance">Advance</MudButton>
-                    }
-                </MudButtonGroup>
-            </MudStack>
-        </ToolBarContent>
         <HeaderContent>
             <MudTh>#</MudTh>
             <MudTh Class="pa-0"></MudTh>

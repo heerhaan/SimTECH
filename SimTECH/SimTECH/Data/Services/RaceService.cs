@@ -474,24 +474,26 @@ namespace SimTECH.Data.Services
                     Country = e.Track.Country,
                     LeagueName = e.Season.League.Name,
 
-                    WinningDriver = e.Results.Select(d => new DriverWinner
-                    {
-                        Name = d.SeasonDriver.Driver.FullName,
-                        Country = d.SeasonDriver.Driver.Country,
-                        Number = d.SeasonDriver.Number,
-                        Colour = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultColour : d.SeasonDriver.SeasonTeam.Colour,
-                        Accent = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultAccent : d.SeasonDriver.SeasonTeam.Accent
-                    })
-                    .First(),
+                    WinningDriver = e.Results.OrderBy(e => e.Position)
+                        .Select(d => new DriverWinner
+                        {
+                            Name = d.SeasonDriver.Driver.FullName,
+                            Country = d.SeasonDriver.Driver.Country,
+                            Number = d.SeasonDriver.Number,
+                            Colour = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultColour : d.SeasonDriver.SeasonTeam.Colour,
+                            Accent = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultAccent : d.SeasonDriver.SeasonTeam.Accent
+                        })
+                        .First(),
 
-                    WinningTeam = e.Results.Select(t => new TeamWinner
-                    {
-                        Name = t.SeasonTeam.Name,
-                        Country = t.SeasonTeam.Team.Country,
-                        Colour = t.SeasonTeam.Colour,
-                        Accent = t.SeasonTeam.Accent
-                    })
-                    .First(),
+                    WinningTeam = e.Results.OrderBy(e => e.Position)
+                        .Select(t => new TeamWinner
+                        {
+                            Name = t.SeasonTeam.Name,
+                            Country = t.SeasonTeam.Team.Country,
+                            Colour = t.SeasonTeam.Colour,
+                            Accent = t.SeasonTeam.Accent
+                        })
+                        .First(),
                 })
                 .ToListAsync();
         }

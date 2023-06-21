@@ -6,25 +6,25 @@
 <MudContainer Class="mt-4">
     @if (!loading)
     {
+        <MudPaper MinHeight="60px">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <CountryFlag Code="@Model.Country" />
+                <MudText Typo="Typo.h5">@Model.Name - PRACTICE</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Outlined">
+                    <ScreenshotButton TargetId="practice-table" />
+                    @if (advancedRuns == Model.AmountRuns)
+                    {
+                        <MudButton OnClick="Finish">Finish</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton OnClick="Advance">Advance</MudButton>
+                    }
+                </MudButtonGroup>
+            </MudStack>
+        </MudPaper>
         <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="practice-table">
-            <ToolBarContent>
-                <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
-                    <CountryFlag Code="@Model.Country" />
-                    <MudText Typo="Typo.h6">@Model.Name - PRACTICE</MudText>
-                    <MudSpacer />
-                    <MudButtonGroup Variant="Variant.Outlined">
-                        <ScreenshotButton TargetId="practice-table" />
-                        @if (advancedRuns == Model.AmountRuns)
-                        {
-                            <MudButton OnClick="Finish">Finish</MudButton>
-                        }
-                        else
-                        {
-                            <MudButton OnClick="Advance">Advance</MudButton>
-                        }
-                    </MudButtonGroup>
-                </MudStack>
-            </ToolBarContent>
             <HeaderContent>
                 <MudTh>#</MudTh>
                 <MudTh Class="pa-0"></MudTh>
@@ -42,7 +42,7 @@
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
-                    <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.Position</MudText>
+                    <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
                 </MudTd>
                 <MudTd Class="pa-0">
                     <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>

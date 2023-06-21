@@ -6,12 +6,14 @@
 <PageTitle>Teams</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
-    <MudDataGrid T="Team" Items="@TeamData" Dense="true">
-        <ToolBarContent>
-            <MudText Typo="Typo.h4">Teams</MudText>
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Teams</MudText>
             <MudSpacer />
             <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTeam">New</MudButton>
-        </ToolBarContent>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="Team" Items="@TeamData" Dense="true">
         <Columns>
             <HierarchyColumn T="Team" />
             <PropertyColumn Property="e => e!.Name" />
