@@ -47,7 +47,7 @@
                             <MudTd>
                                 @if (context.Status == RaceStatus.Racing)
                                 {
-                                    <MudText Typo="Typo.h6">@(context.Position)</MudText>
+                                    <DriverPosition Number="@context.Position" />
                                 }
                                 else
                                 {
@@ -56,9 +56,9 @@
                             </MudTd>
                             <MudTd>
                                 <MudText>@(context.SeasonDriver.Driver.FullName)</MudText>
-                                </MudTd>
-                                <MudTd>
-                                    @if (context.Status == RaceStatus.Racing)
+                            </MudTd>
+                            <MudTd>
+                                @if (context.Status == RaceStatus.Racing)
                                 {
                                     <MudText Typo="Typo.caption">@(ReadScoredResult(context.Position, (context.Grid == 1)))</MudText>
                                 }
@@ -88,7 +88,7 @@
                                 <tr>
                                     <td>@(result.SeasonDriver.Driver.FullName)</td>
                                     <td>@(result.Incident?.Name)</td>
-                                    <td>@result.Status</td>
+                                    <td>@(result.Status)</td>
                                 </tr>
                             }
                         </tbody>
