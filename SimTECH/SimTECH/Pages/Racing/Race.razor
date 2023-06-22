@@ -486,7 +486,8 @@
         }
 
         // Maximum wear is more than the tyre can handle, it's time for a pitstop!
-        if (tyreMaxWear > driver.TyreLife)
+        // Or minimum wear? Or 0?
+        if (tyreMinWear > driver.TyreLife)
         {
             var distanceLeft = Model.RaceLength - (calculated * calculationDistance);
             var validTyres = tyres
@@ -556,7 +557,7 @@
             }
         }
 
-        // Cycle reliability checking
+        // Cycle through the reliability, to check something else (otherwise we have way too many DNFs)
         switch (cycleReliabilty)
         {
             case Entrant.Driver:
@@ -573,24 +574,17 @@
 
     void DeterminePositions()
     {
-        var actualPositions = GetCurrentActualPositions();
-
         foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
         {
+            // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe)
+            var actualPositions = GetCurrentActualPositions();
             var lastScore = driver.LapScores.Last();
 
             int positionChange = driver.Position - actualPositions[driver.SeasonDriverId];
 
-            // Gained positions
+            // Assign the new positions based on whether their overtakes have been succesful
             if (positionChange > 0)
-            {
                 HandlePositionGain(driver, lastScore, positionChange);
-            }
-            // Lost positions
-            //else if (positionChange < 0)
-            //{
-            //    HandlePositionLoss(driver, lastScore, positionChange);
-            //}
 
             driver.LastScore = lastScore.Score;
         }
@@ -651,49 +645,6 @@
         }
     }
 
-    void HandlePositionLoss(RaceDriver driver, LapScore lastScore, int lostPositions)
-    {
-        var actualPositions = GetCurrentActualPositions();
-
-        while (lostPositions < 0)
-        {
-            var belowPosition = driver.Position + 1;
-            if (belowPosition > actualPositions.Count)
-                break;
-
-            var belowDriverId = actualPositions.First(e => e.Value == belowPosition).Key;
-            var belowDriver = Model.RaceDrivers.First(e => e.SeasonDriverId == belowDriverId);
-            var belowLastScore = belowDriver.LapScores.Last();
-
-            if (belowDriver.SeasonTeamId == driver.SeasonTeamId && driver.Role == TeamRole.Support && belowDriver.Role == TeamRole.Main)
-            {
-                lastScore.RacerEvents |= RacerEvent.Swap;
-                belowLastScore.RacerEvents |= RacerEvent.Swap;
-            }
-            else if (!driver.InstantOvertaken)
-            {
-                var defendingResult = driver.Defense + NumberHelper.RandomInt(battleRng);
-                var attackingResult = belowDriver.Attack + NumberHelper.RandomInt(battleRng);
-                var battleCost = defendingResult - attackingResult;
-
-                if (battleCost > 0)
-                    belowLastScore.Score -= battleCost;
-
-                if (belowDriver.LapSum > driver.LapSum)
-                {
-                    driver.DefensiveCount++;
-                    break;
-                }
-
-                belowDriver.OvertakeCount++;
-            }
-
-            (driver.Position, belowDriver.Position) = (belowDriver.Position, driver.Position);
-
-            lostPositions++;
-        }
-    }
-
     void PreProcessFinish()
     {
         bool anyoneDisqualified = false;
@@ -711,10 +662,7 @@
 
         if (anyoneDisqualified)
         {
-            var racingDrivers = Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum).ToList();
-            int positionIndex = 0;
-
-            foreach (var driver in racingDrivers)
+            foreach (var driver in Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
                 driver.Position = ++positionIndex;
         }
     }
@@ -732,13 +680,12 @@
         // Should be removed when it is done per advance
         var allLapScores = Model.RaceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();
 
+        //Consider never storing lap scores in the first place (and disabling access to finished races)
         await _raceService.PersistLapScores(allLapScores);
         await _raceService.FinishRace(RaceId, finishedResults, scoredPoints);
 
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
-        {
             await _seasonService.CheckPenalties(finishedResults);
-        }
 
         _nav.NavigateTo($"/postrace/{RaceId}");
     }
