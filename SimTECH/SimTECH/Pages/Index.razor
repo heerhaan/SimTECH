@@ -116,9 +116,9 @@
             new BreadcrumbItem("Home", href: "/"),
         });
 
-        // Big slowdown?
-        //recentRaces = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
-        //recentRaces.Reverse();
+        // following is possibly a very unoptimized call
+        recentRaces = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
+        recentRaces.Reverse();
 
         await RetrieveUpcomingRaces();
     }

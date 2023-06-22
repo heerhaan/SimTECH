@@ -463,6 +463,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
+            // It's likely that this is a very unperformant implementation, consider a refactor
             return await context.Race
                 .Where(e => e.State == State.Closed && e.Results.Any())
                 .TakeLastSpecial(amount)
@@ -474,7 +475,7 @@ namespace SimTECH.Data.Services
                     Country = e.Track.Country,
                     LeagueName = e.Season.League.Name,
 
-                    WinningDriver = e.Results.OrderBy(e => e.Position)
+                    WinningDriver = e.Results.Where(e => e.Position == 1)
                         .Select(d => new DriverWinner
                         {
                             Name = d.SeasonDriver.Driver.FullName,
@@ -485,7 +486,7 @@ namespace SimTECH.Data.Services
                         })
                         .First(),
 
-                    WinningTeam = e.Results.OrderBy(e => e.Position)
+                    WinningTeam = e.Results.Where(e => e.Position == 1)
                         .Select(t => new TeamWinner
                         {
                             Name = t.SeasonTeam.Name,

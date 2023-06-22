@@ -274,15 +274,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
-        {
-            new BreadcrumbItem("Home", href: ""),
-            new BreadcrumbItem("Seasons", href: "seasons"),
-            new BreadcrumbItem("Overview", href: $"overview/{Model.Season.Id}"),
-            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
-            new BreadcrumbItem("Race", href: $"race/{RaceId}", disabled: true),
-        });
-
         tyres = await _tyreService.GetTyres(StateFilter.Active);
         possibleIncidents = await _incidentService.GetIncidents(StateFilter.Active);
 
@@ -315,6 +306,15 @@
             highestScore = Model.RaceDrivers.Max(e => e.LapSum);
             fastestLap = Model.RaceDrivers.SelectMany(e => e.LapScores).Max(e => e.Score);
         }
+
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: $"overview/{Model.Season.Id}"),
+            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
+            new BreadcrumbItem("Race", href: $"race/{RaceId}", disabled: true),
+        });
 
         loading = false;
     }
@@ -584,19 +584,35 @@
 
     void DeterminePositions()
     {
-        foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
+        var allPositionsAligned = false;
+        // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe)
+        // altough i dont think this matters
+        var actualPositions = GetCurrentActualPositions();
+
+        // This likely can be optimized further
+        while (!allPositionsAligned)
         {
-            // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe)
-            var actualPositions = GetCurrentActualPositions();
-            var lastScore = driver.LapScores.Last();
+            foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
+            {
+                var lastScore = driver.LapScores.Last();
 
-            int positionChange = driver.Position - actualPositions[driver.SeasonDriverId];
+                int positionChange = driver.Position - actualPositions[driver.SeasonDriverId];
 
-            // Assign the new positions based on whether their overtakes have been succesful
-            if (positionChange > 0)
-                HandlePositionGain(driver, lastScore, positionChange);
+                // Assign the new positions based on whether their overtakes have been succesful
+                if (positionChange > 0)
+                    HandlePositionGain(driver, lastScore, positionChange);
 
-            driver.LastScore = lastScore.Score;
+                driver.LastScore = lastScore.Score;
+            }
+
+            allPositionsAligned = true;
+            actualPositions = GetCurrentActualPositions();
+
+            foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
+            {
+                if (driver.Position != actualPositions[driver.SeasonDriverId])
+                    allPositionsAligned = false;
+            }
         }
     }
 
@@ -619,28 +635,32 @@
             if (abovePosition == 0)
                 break;
 
-            var aboveDriver = Model.RaceDrivers.First(e => e.Position == abovePosition);
+            var defendingDriver = Model.RaceDrivers.First(e => e.Position == abovePosition);
 
             // Driver above is teammate AND support driver AND attacker is main driver, swap time!
-            if (aboveDriver.SeasonTeamId == driver.SeasonTeamId && driver.Role == TeamRole.Main && aboveDriver.Role == TeamRole.Support)
-            {
-                lastScore.RacerEvents |= RacerEvent.Swap;
-                aboveDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
-            }
-            else if (!aboveDriver.InstantOvertaken)
+            //if (defendingDriver.SeasonTeamId == driver.SeasonTeamId 
+            //    && driver.Role == TeamRole.Main 
+            //    && defendingDriver.Role == TeamRole.Support)
+            //{
+            //    lastScore.RacerEvents |= RacerEvent.Swap;
+            //    defendingDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
+            //}
+            //else
+            
+            if (!defendingDriver.InstantOvertaken)
             {
                 // Subtract attack value from defense, what's left is how much the attacker is hindered
                 var attackingResult = driver.Attack + NumberHelper.RandomInt(battleRng);
-                var defendingResult = aboveDriver.Defense + NumberHelper.RandomInt(battleRng);
+                var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt(battleRng);
                 var battleCost = defendingResult - attackingResult;
 
                 if (battleCost > 0)
                     lastScore.Score -= battleCost;
 
                 // Overtake failed
-                if (aboveDriver.LapSum > driver.LapSum)
+                if (defendingDriver.LapSum > driver.LapSum)
                 {
-                    aboveDriver.DefensiveCount++;
+                    defendingDriver.DefensiveCount++;
                     break;
                 }
 
@@ -649,7 +669,7 @@
             }
 
             // Overtake succeeded, driver gains a position!
-            (driver.Position, aboveDriver.Position) = (aboveDriver.Position, driver.Position);
+            (driver.Position, defendingDriver.Position) = (defendingDriver.Position, driver.Position);
 
             gainedPositions--;
         }
