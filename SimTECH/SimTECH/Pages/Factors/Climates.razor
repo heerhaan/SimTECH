@@ -1,5 +1,6 @@
 ﻿@page "/climates"
 @inject ClimateService _climateService
+@inject BreadcrumbProvider _bread
 @inject IDialogService _dialogService
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
@@ -46,6 +47,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Climates", href: "climates", disabled: true),
+        });
+
         ClimateData = await _climateService.GetClimates(StateFilter.All);
     }
 

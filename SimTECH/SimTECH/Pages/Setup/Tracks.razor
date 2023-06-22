@@ -1,4 +1,5 @@
 ﻿@page "/tracks"
+@inject BreadcrumbProvider _bread
 @inject TrackService TrackService
 @inject TraitService TraitService
 @inject IDialogService DialogService
@@ -82,6 +83,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Tracks", href: "tracks", disabled: true),
+        });
+
         TrackData = await TrackService.GetTracks();
     }
 

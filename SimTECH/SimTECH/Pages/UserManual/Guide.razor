@@ -1,4 +1,5 @@
 ﻿@page "/guide"
+@inject BreadcrumbProvider _bread
 @using SimTECH.Pages.UserManual.Topics
 @using SimTECH.Pages.UserManual.Topics.Race
 @using SimTECH.Pages.UserManual.Topics.Setup
@@ -45,6 +46,15 @@
     string currentTopic = "None";
     bool setupFolderExpanded;
     bool racingFolderExpanded;
+
+    protected override void OnInitialized()
+    {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Guide", href: "guide", disabled: true),
+        });
+    }
 
     void ActiveTopicChanged(string activeTopic)
     {

@@ -1,4 +1,5 @@
 ﻿@page "/practice/{RaceId:long}"
+@inject BreadcrumbProvider _bread
 @inject RaceService _raceService
 @inject NavigationManager _nav
 @inject IOptions<SimConfig> _config
@@ -96,6 +97,15 @@
     protected override async Task OnInitializedAsync()
     {
         Model = await _raceService.RetrievePracticeModel(RaceId);
+
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: "", disabled: true),
+            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
+            new BreadcrumbItem("Practice", href: $"practice/{RaceId}", disabled: true),
+        });
 
         gapMarge = _config.Value.GapMarge;
 

@@ -1,4 +1,5 @@
 ﻿@page "/tyres"
+@inject BreadcrumbProvider _bread
 @inject TyreService _tyreService
 @inject IDialogService _dialogService
 @inject IOptions<SimConfig> _config
@@ -62,6 +63,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Tyres", href: "tyres", disabled: true),
+        });
+
         TyreData = await _tyreService.GetTyres();
 
         advanceDistance = _config.Value.CalculationDistance;

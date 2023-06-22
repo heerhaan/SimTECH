@@ -1,7 +1,27 @@
-﻿<MudContainer>
-    A place to show the legacy statistics of previous Formula Dream
+﻿@page "/legacy"
+@inject BreadcrumbProvider _bread
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="4">
+            <MudText>Placeholder</MudText>
+        </MudItem>
+        <MudItem xs="4">
+            <MudText>Placeholder</MudText>
+        </MudItem>
+        <MudItem xs="4">
+            <MudText>Placeholder</MudText>
+        </MudItem>
+    </MudGrid>
 </MudContainer>
 
 @code {
-
+    protected override void OnInitialized()
+    {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Legacy", href: "legacy", disabled: true),
+        });
+    }
 }

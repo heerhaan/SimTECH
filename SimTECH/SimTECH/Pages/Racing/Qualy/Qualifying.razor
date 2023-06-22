@@ -1,4 +1,5 @@
 ﻿@page "/qualifying/{RaceId:long}"
+@inject BreadcrumbProvider _bread
 @inject RaceService _raceService
 @inject NavigationManager _nav
 @inject IOptions<SimConfig> _config
@@ -32,6 +33,15 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: "", disabled: true),
+            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
+            new BreadcrumbItem("Qualifying", href: $"qualifying/{RaceId}", disabled: true),
+        });
+
         Model = await _raceService.RetrieveQualifyingModel(RaceId);
 
         loading = false;

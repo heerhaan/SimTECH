@@ -1,4 +1,5 @@
 ﻿@page "/postrace/{RaceId:long}"
+@inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject RaceService _raceService
 @inject SeasonService _seasonService
@@ -147,6 +148,15 @@
         Penalties = await _raceService.GetUnconsumedPenalties();
 
         allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
+
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: $"overview/{Season.Id}"),
+            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
+            new BreadcrumbItem("Post Race", href: $"postrace/{RaceId}", disabled: true),
+        });
 
         loading = false;
     }

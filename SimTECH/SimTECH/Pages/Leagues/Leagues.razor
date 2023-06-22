@@ -1,5 +1,5 @@
 ﻿@page "/leagues"
-@inject BreadcrumbProvider Bread
+@inject BreadcrumbProvider _bread
 @inject LeagueService LeagueService
 @inject IDialogService DialogService
 
@@ -88,9 +88,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Leagues", href: "leagues", disabled: true),
         });
 
         LeagueData = await LeagueService.GetLeagues();
