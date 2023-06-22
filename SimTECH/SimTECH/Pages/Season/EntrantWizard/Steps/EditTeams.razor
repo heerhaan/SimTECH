@@ -93,8 +93,13 @@
         Model.SeasonTeams.Clear();
 
         List<SeasonTeam>? previousTeams = null;
+        List<SeasonEngine>? previousEngines = null;
+
         if (PreviousSeasonId.HasValue)
+        {
             previousTeams = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);
+            previousEngines = await _entrantService.GetSeasonEngines(PreviousSeasonId.Value);
+        }
 
         foreach (var team in Model.BaseTeams.Where(e => !(Model.SeasonTeams.Select(st => st.TeamId).Contains(e.Id))))
         {
@@ -110,6 +115,9 @@
             model.Name = string.IsNullOrEmpty(model.Name) ? team.Name : model.Name;
             model.Principal = string.IsNullOrEmpty(model.Principal) ? "Principal" : model.Principal;
             model.ManufacturerId = model.ManufacturerId == 0 ? manufacturers.First().Id : model.ManufacturerId;
+
+            if (previousTeam != null && previousEngines != null)
+                model.BaseEngineId = previousEngines.Find(e => e.Id == previousTeam.SeasonEngineId)?.EngineId ?? 0;
 
             Model.SeasonTeams.Add(model);
         }

@@ -73,8 +73,13 @@
         Model.SeasonDrivers.Clear();
 
         List<SeasonDriver>? previousDrivers = null;
+        List<SeasonTeam>? previousTeams = null;
+
         if (PreviousSeasonId.HasValue)
+        {
             previousDrivers = await _entrantService.GetSeasonDrivers(PreviousSeasonId.Value);
+            previousTeams = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);
+        }
 
         int indexer = 0;
         foreach (var driver in Model.BaseDrivers.Where(e => !(Model.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))))
@@ -92,6 +97,9 @@
 
             if (!_config.Value.PersonalNumbersEnabled)
                 model.Number = ++indexer;
+
+            if (previousDriver != null && previousTeams != null)
+                model.BaseTeamId = previousTeams.Find(e => e.Id == previousDriver.SeasonTeamId)?.TeamId ?? 0;
 
             Model.SeasonDrivers.Add(model);
         }
