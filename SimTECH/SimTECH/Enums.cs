@@ -77,6 +77,11 @@ namespace SimTECH
         Death = 128,
         Caution = 256,
     }
+
+    public enum CategoryIncident
+    {
+        Driver, Car, Engine, Disqualified, Lethal
+    }
     #endregion racing
 
     #region countries

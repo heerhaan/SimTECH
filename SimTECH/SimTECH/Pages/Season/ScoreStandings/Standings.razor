@@ -215,7 +215,7 @@
                             {
                                 @foreach (var result in teamResults)
                                 {
-                                    <div class="result-cell" style="@(GetResultStyle(result))">
+                                    <div class="result-cell" style="@(result.GetResultStyle(lowestScoringPosition))">
                                         <MudText Typo="Typo.caption">@result.GetResultText()</MudText>
                                     </div>
                                 }
@@ -279,58 +279,13 @@
     async Task ShowWdcResultGraph()
     {
         var parameters = new DialogParameters { ["Drivers"] = DriverResultsModel, ["Season"] = Season };
-        _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters, Constants.DefaultChartDialogSettings);
+        _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters);
     }
 
     async Task ShowWccResultGraph()
     {
         var parameters = new DialogParameters { ["Teams"] = TeamResultsModel, ["Season"] = Season };
-        _ = await _dialog.ShowAsync<WccResultChart>("WCC results chart", parameters, Constants.DefaultChartDialogSettings);
-    }
-
-    private string GetResultStyle(StandingResultCell cell)
-    {
-        var cellStyle = "";
-
-        if (cell.Status == RaceStatus.Dnq)
-        {
-            cellStyle = "background-color: rebeccapurple;";
-        }
-        else if (cell.Status == RaceStatus.Dsq)
-        {
-            cellStyle = "background-color: black;color:white";
-        }
-        else if (cell.Status == RaceStatus.Dnf)
-        {
-            cellStyle = "background-color: red;";
-        }
-        else if (cell.Status == RaceStatus.Fatal)
-        {
-            cellStyle = "background-color: black;color:white";
-        }
-        else
-        {
-            switch (cell.Position)
-            {
-                case 1:
-                    cellStyle = "background-color: gold;";
-                    break;
-                case 2:
-                    cellStyle = "background-color: silver;";
-                    break;
-                case 3:
-                    cellStyle = "background-color: burlywood;";
-                    break;
-                case int n when n <= lowestScoringPosition:
-                    cellStyle = "background-color: lightgreen;";
-                    break;
-                default:
-                    cellStyle = "background-color: cornflowerblue";
-                    break;
-            }
-        }
-        // Possibly can return immediatly depending on whether we want to do more with this or not
-        return cellStyle;
+        _ = await _dialog.ShowAsync<WccResultChart>("WCC results chart", parameters);
     }
 
     private StandingDriverModel ToDriverResultModel(SeasonDriver driver, int position)
@@ -350,7 +305,7 @@
                 SeasonTeamId = driver.SeasonTeamId,
                 Team = driverTeam?.Name ?? "None",
 
-                ResultCells = driver.Results.Select(e => ToResultCell(e)).ToList(),
+                ResultCells = driver.Results.Select(ToResultCell).ToList(),
             };
     }
 
@@ -368,7 +323,7 @@
                 Points = team.Points,
                 HiddenPoints = team.HiddenPoints,
 
-                ResultCells = team.Results?.Select(e => ToResultCell(e)).ToList() ?? new(),
+                ResultCells = team.Results?.Select(ToResultCell).ToList() ?? new(),
             };
     }
 

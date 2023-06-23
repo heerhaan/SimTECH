@@ -131,7 +131,7 @@
     protected override async Task OnInitializedAsync()
     {
         RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
-        Climates = await _climateService.GetClimates();
+        Climates = await _climateService.GetClimates(StateFilter.Active);
 
         _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? 0;
     }

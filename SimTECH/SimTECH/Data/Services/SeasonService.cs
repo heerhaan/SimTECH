@@ -196,20 +196,7 @@ namespace SimTECH.Data.Services
             });
         }
 
-        // The idea is that this piece of code gives us the info needed to know whether we're going to need to display a warning
-        public SeasonOverviewAvailability GetOverviewAvailability(long seasonId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return new SeasonOverviewAvailability
-            {
-                HasPointAllotment = context.Season.Single(e => e.Id == seasonId).PointAllotments?.Any() ?? true,
-                HasEngines = false,
-                HasTeams = false,
-                HasDrivers = false,
-            };
-        }
-
+        // Consider moving this code completely to the page itself
         public async Task<List<QualyBattle>> GetQualifyingBattles(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -240,14 +227,26 @@ namespace SimTECH.Data.Services
                 }
             }
 
+            var teams = await context.SeasonTeam
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Team)
+                .ToArrayAsync();
+
             var qualyBattles = new List<QualyBattle>();
             foreach (var victory in battleVictories)
             {
                 var driver = drivers.First(e => e.Id == victory.Key);
+
+                SeasonTeam? team = null;
+                if (driver.SeasonTeamId.HasValue)
+                    team = teams.First(e => e.Id == driver.SeasonTeamId.Value);
+
                 qualyBattles.Add(new QualyBattle
                 {
                     Name = driver.Driver.FullName,
                     Score = victory.Value,
+                    Colour = team?.Colour ?? "var(--mud-palette-primary)",
+                    Team = team?.Team.Name ?? "None",
                 });
             }
 

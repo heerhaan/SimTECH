@@ -5,83 +5,91 @@
         <MudText>Driver comparison</MudText>
     </TitleContent>
     <DialogContent>
-        <MudContainer Fixed="true" Class="pa-2">
-            @if (Drivers != null)
-            {
-                <MudStack>
-                    <MudText>Select drivers to compare</MudText>
-                    <MudStack Row="true" Justify="Justify.SpaceBetween">
-                        <MudSelect T="Driver" Label="Driver one" Class="field-lg" ValueChanged="LeftDriverChanged">
-                            @foreach (var driver in Drivers)
-                            {
-                                <MudSelectItem Value="driver">
-                                    <CountryFlag Code="driver.Country" Size="FlagSize.Tiny" />
-                                    <MudText>@driver.FullName</MudText>
-                                </MudSelectItem>
-                            }
-                        </MudSelect>
-                        <MudSelect T="Driver" Label="Driver two" Class="field-lg" ValueChanged="RightDriverChanged">
-                            @foreach (var driver in Drivers)
-                            {
-                                <MudSelectItem Value="driver">
-                                    <CountryFlag Code="driver.Country" Size="FlagSize.Tiny" />
-                                    <MudText>@driver.FullName</MudText>
-                                </MudSelectItem>
-                            }
-                        </MudSelect>
-                    </MudStack>
+        <MudContainer Class="pa-2">
+            <MudPaper Width="1100px">
+                @if (Drivers != null)
+                {
+                    <MudStack>
+                        <MudText>Select drivers to compare</MudText>
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <MudSelect T="Driver" Label="Driver one" Class="field-lg" ValueChanged="LeftDriverChanged">
+                                @foreach (var driver in Drivers)
+                                {
+                                    <MudSelectItem Value="@driver">
+                                        <MudText>@driver.FullName</MudText>
+                                        <CountryFlag Code="@driver.Country" Size="FlagSize.Tiny" />
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudSelect T="Driver" Label="Driver two" Class="field-lg" ValueChanged="RightDriverChanged">
+                                @foreach (var driver in Drivers)
+                                {
+                                    <MudSelectItem Value="@driver">
+                                        <MudText>@driver.FullName</MudText>
+                                        <CountryFlag Code="@driver.Country" Size="FlagSize.Tiny" />
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudStack>
 
-                    <MudDivider />
+                        <MudDivider />
 
-                    <MudStack Row="true" Justify="Justify.SpaceBetween">
-                        <div>
-                            @if (driverLeft != null)
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <div>
+                                @if (driverLeft != null)
+                                {
+                                    <MudText Typo="Typo.body1">
+                                        <CountryFlag Code="@driverLeft.Country" Size="FlagSize.Small" />
+                                        @driverLeft.FullName
+                                    </MudText>
+                                }
+                            </div>
+                            <div>
+                                @if (driverRight != null)
+                                {
+                                    <MudText Typo="Typo.body1">
+                                        <CountryFlag Code="@driverRight.Country" Size="FlagSize.Small" />
+                                        @driverRight.FullName
+                                    </MudText>
+                                }
+                            </div>
+                        </MudStack>
+
+                        <div class="pa-2" style="min-height: 550px">
+                            @if (preparedData)
                             {
-                                <MudText Typo="Typo.body1">
-                                    <CountryFlag Code="@driverLeft.Country" Size="FlagSize.Small" />
-                                    @driverLeft.FullName
-                                </MudText>
+                                <ApexCharts.ApexChart @ref="chart"
+                                                      TItem="DataPoint"
+                                                      Title="Driver compare"
+                                                      Options="@options"
+                                                      Height="500"
+                                                      Width="@("100%")">
+                                    <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                                Items="@leftSet.DataPoints"
+                                                                Name="@leftSet.Label"
+                                                                XValue="@(e => e.XData)"
+                                                                SeriesType="ApexCharts.SeriesType.Bar"
+                                                                YValue="@(e => e.YData)" />
+
+                                    <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                                Items="@rightSet.DataPoints"
+                                                                Name="@rightSet.Label"
+                                                                XValue="@(e => e.XData)"
+                                                                SeriesType="ApexCharts.SeriesType.Bar"
+                                                                YValue="@(e => e.YData)" />
+                                </ApexCharts.ApexChart>
                             }
                         </div>
-                        <div>
-                            @if (driverRight != null)
-                            {
-                                <MudText Typo="Typo.body1">
-                                    <CountryFlag Code="@driverRight.Country" Size="FlagSize.Small" />
-                                    @driverRight.FullName
-                                </MudText>
-                            }
-                        </div>
                     </MudStack>
-
-                    <div class="pa-2" style="min-height: 550px">
-                        @if (preparedData)
-                        {
-                            <ApexCharts.ApexChart @ref="chart" TItem="DataPoint" Title="Driver compare" Options="@options" Height="500">
-                                <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                    Items="@leftSet.DataPoints"
-                                                    Name="@leftSet.Label"
-                                                    XValue="@(e => e.XData)"
-                                                    SeriesType="ApexCharts.SeriesType.Bar"
-                                                    YValue="@(e => e.YData)" />
-
-                                <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                    Items="@rightSet.DataPoints"
-                                                    Name="@rightSet.Label"
-                                                    XValue="@(e => e.XData)"
-                                                    SeriesType="ApexCharts.SeriesType.Bar"
-                                                    YValue="@(e => e.YData)" />
-                            </ApexCharts.ApexChart>
-                        }
-                    </div>
-                </MudStack>
-            }
+                }
+            </MudPaper>
         </MudContainer>
     </DialogContent>
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? StatDialog { get; set; }
 
     ApexCharts.ApexChart<DataPoint>? chart;
     ApexCharts.ApexChartOptions<DataPoint> options;
@@ -103,6 +111,10 @@
                     {
                         Horizontal = true
                     }
+                },
+                Chart = new ApexCharts.Chart
+                {
+                    Background = "#0d0d0d",
                 },
                 Theme = new ApexCharts.Theme
                 {

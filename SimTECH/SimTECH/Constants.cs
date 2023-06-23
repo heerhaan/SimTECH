@@ -11,12 +11,6 @@ namespace SimTECH
 
         public static Country DefaultCountry => Country.FM;
 
-        public static DialogOptions DefaultChartDialogSettings => new()
-        {
-            FullScreen = true,
-            CloseButton = true,
-        };
-
         public static string[] AllWeatherIcons => new string[]
         {
             Icons.Material.Filled.WbSunny,

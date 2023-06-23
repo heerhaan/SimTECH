@@ -5,22 +5,24 @@
     </TitleContent>
     <DialogContent>
         <MudContainer Class="pa-2">
-            @if (!loading)
-            {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="1000">
-                    @foreach (var result in DataSets)
-                    {
-                        <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                            Items="@result.DataPoints"
-                                            Name="@result.Label"
-                                            SeriesType="ApexCharts.SeriesType.Line"
-                                            XValue="@(e => e.XData)"
-                                            YValue="@(e => e.YData)"
-                                            OrderBy="e => e.X"
-                                            Stroke="@result.Stroke" />
-                    }
-                </ApexCharts.ApexChart>
-            }
+            <MudPaper Width="1100px">
+                @if (!loading)
+                {
+                    <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="@("100%")">
+                        @foreach (var result in DataSets)
+                        {
+                            <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                        Items="@result.DataPoints"
+                                                        Name="@result.Label"
+                                                        SeriesType="ApexCharts.SeriesType.Line"
+                                                        XValue="@(e => e.XData)"
+                                                        YValue="@(e => e.YData)"
+                                                        OrderBy="e => e.X"
+                                                        Stroke="@result.Stroke" />
+                        }
+                    </ApexCharts.ApexChart>
+                }
+            </MudPaper>
         </MudContainer>
     </DialogContent>
 </MudDialog>
@@ -41,7 +43,7 @@
             {
                 Chart = new ApexCharts.Chart
                 {
-                    Background = "var(--mud-palette-drawer-background)",
+                    Background = "#0d0d0d",
                 },
                 Theme = new ApexCharts.Theme
                 {

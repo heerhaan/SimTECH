@@ -7,6 +7,11 @@
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Climates</MudText>
+            <MudButton OnClick="GetRandomClimate">RandomClimate</MudButton>
+            @if (randomClimate != null)
+            {
+                <MudText>@randomClimate</MudText>
+            }
             <MudSpacer />
             <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddItem">New</MudButton>
         </MudStack>
@@ -44,6 +49,7 @@
 
 @code {
     List<Climate> ClimateData;
+    string? randomClimate = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,6 +60,12 @@
         });
 
         ClimateData = await _climateService.GetClimates(StateFilter.All);
+    }
+
+    private void GetRandomClimate()
+    {
+        var ranClimate = ClimateData.TakeRandomClimate();
+        randomClimate = ranClimate.Terminology;
     }
 
     async Task AddItem() => await UpdateItem(null);
