@@ -49,6 +49,7 @@
                 <TemplateColumn T="SeasonListModel" Sortable="false">
                     <CellTemplate>
                         <MudButtonGroup Size="@Size.Small">
+                            <MudIconButton Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(() => CopySeason(context.Item.Id))" />
                             <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
                             @if (context.Item.State == State.Concept)
                             {
@@ -101,6 +102,21 @@
             model = new EditSeasonModel(null);
         }
 
+        await EditSeason(model);
+    }
+
+    private async Task CopySeason(long seasonId)
+    {
+        var copyingSeason = SeasonData.Single(e => e.Id == seasonId);
+        var model = new EditSeasonModel(copyingSeason);
+        model.ResetIdentifierFields();
+        model.Year++;
+
+        await EditSeason(model);
+    }
+
+    private async Task EditSeason(EditSeasonModel model)
+    {
         var parameters = new DialogParameters { ["Model"] = model, ["Leagues"] = LeagueData };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);

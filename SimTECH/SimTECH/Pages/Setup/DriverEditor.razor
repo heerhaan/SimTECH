@@ -111,9 +111,9 @@
             Model.Abbreviation = Model.LastName.Substring(0, 3).ToUpperInvariant();
     }
 
-    private string? TestValidation(string text)
+    private string? TestValidation(string? text)
     {
-        if (text.Contains("cringe"))
+        if (text?.Contains("cringe") ?? false)
             return "Sorry, this is too cringe";
 
         return null;

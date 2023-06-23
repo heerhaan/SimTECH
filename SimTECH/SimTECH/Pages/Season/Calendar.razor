@@ -25,10 +25,10 @@
             <MudTh>Country</MudTh>
             <MudTh>Race</MudTh>
             <MudTh>Weather</MudTh>
+            <MudTh Class="number-col"></MudTh>
             <MudTh>Polesitter</MudTh>
             <MudTh Class="number-col"></MudTh>
             <MudTh>Winner</MudTh>
-            <MudTh Class="number-col"></MudTh>
             <MudTh>Winner</MudTh>
             <MudTh>Status</MudTh>
             <MudTh></MudTh>
@@ -51,15 +51,15 @@
             </MudTd>
             @if (context.PoleSitter != null)
             {
+                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
+                    <MudText Typo="Typo.caption">@(context.PoleSitter.Number)</MudText>
+                </MudTd>
                 <MudTd>
                     <MudStack Row="true" AlignItems="AlignItems.Center">
                         <MudText>@context.PoleSitter.Name</MudText>
                         <MudSpacer />
-                        <CountryFlag Code="context.PoleSitter.Country" Size="FlagSize.Small" />
+                        <CountryFlag Code="@context.PoleSitter.Country" Size="FlagSize.Small" />
                     </MudStack>
-                </MudTd>
-                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
-                    <MudText Typo="Typo.caption">@(context.PoleSitter.Number)</MudText>
                 </MudTd>
             }
             else
@@ -70,16 +70,16 @@
 
             @if (context.DriverWinner != null)
             {
+                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
+                    <MudText Typo="Typo.caption">@(context.DriverWinner.Number)</MudText>
+                </MudTd>
                 <MudTd>
                     <MudStack Row="true" AlignItems="AlignItems.Center">
                         <MudText>@context.DriverWinner.Name</MudText>
                         <MudSpacer />
-                        <CountryFlag Code="context.DriverWinner.Country" Size="FlagSize.Small" />
+                        <CountryFlag Code="@context.DriverWinner.Country" Size="FlagSize.Small" />
                     </MudStack>
                 </MudTd>
-                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
-                    <MudText Typo="Typo.caption">@(context.DriverWinner.Number)</MudText>
-                    </MudTd>
             }
             else
             {

@@ -65,7 +65,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            var season = await context.Season.SingleAsync(e => e.Id == seasonId) ?? throw new InvalidOperationException("No season related to ID found");
+            var season = await context.Season.Include(e => e.PointAllotments).SingleAsync(e => e.Id == seasonId) ?? throw new InvalidOperationException("No season related to ID found");
             if (season.State != State.Concept)
                 throw new InvalidOperationException("Can only delete seasons which are in a concept state");
 

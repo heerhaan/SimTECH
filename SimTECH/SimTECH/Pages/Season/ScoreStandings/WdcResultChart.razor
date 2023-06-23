@@ -39,10 +39,14 @@
     {
         options = new ApexCharts.ApexChartOptions<DataPoint>
             {
-                Theme = new ApexCharts.Theme
+                Chart = new ApexCharts.Chart
                 {
-                    Mode = ApexCharts.Mode.Dark,
-                }
+                    Background = "var(--mud-palette-drawer-background)",
+                },
+                //Theme = new ApexCharts.Theme
+                //{
+                //    Mode = ApexCharts.Mode.Dark,
+                //}
             };
 
         var allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new Dictionary<int, int>();
