@@ -24,15 +24,15 @@
             <MudTh>#</MudTh>
             <MudTh Class="pa-0"></MudTh>
             <MudTh>Driver</MudTh>
-            <MudTh Class="number-col">No.</MudTh>
+            <MudTh Class="number-col-lg">No.</MudTh>
             <MudTh>Team</MudTh>
-            <MudTh Class="number-col-lg">PWR</MudTh>
+            <MudTh Class="number-col-xl">PWR</MudTh>
             @for (int i = 1; i <= Model.AmountRuns; i++)
             {
                 var j = i;
-                <MudTh Class="number-col-lg">@j</MudTh>
+                <MudTh Class="number-col-xl">@j</MudTh>
             }
-            <MudTh Class="number-col-lg">Score</MudTh>
+            <MudTh Class="number-col-xl">Score</MudTh>
             <MudTh>Gap</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -50,13 +50,13 @@
                     <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
                 </MudStack>
             </MudTd>
-            <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+            <MudTd Class="number-col-lg" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
                 <MudText Typo="Typo.caption">@context.Number</MudText>
             </MudTd>
             <MudTd>
                 <MudText>@context.TeamName</MudText>
             </MudTd>
-            <MudTd Class="number-col-lg">
+            <MudTd Class="number-col-xl">
                 <MudText Typo="Typo.caption">@context.Power</MudText>
             </MudTd>
             @for (int i = 0; i < context.RunValuesQ1.Length; i++)
@@ -68,7 +68,7 @@
                     </GradientColour>
                 </MudTd>
             }
-            <MudTd Class="number-col-lg">
+            <MudTd Class="number-col-xl">
                 <GradientColour Min="@(lowestScore)" Max="@(highestScore)" Value="@(context.MaxScoreQ1)">
                     <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScoreQ1</MudText>
                 </GradientColour>
