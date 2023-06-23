@@ -23,16 +23,20 @@ namespace SimTECH
         Engine,
     }
 
-    public enum RangeType
+    public enum Aspect
     {
         None = 0,
         Skill,
         Age,
-        Team,
-        Engine
+        BaseCar,
+        Engine,
+        Aero,
+        Chassis,
+        Powertrain,
+        Reliability,
+        Attack,
+        Defense,
     }
-
-    public enum TargetDevelop { Main, Reliability, Aero, Chassis, Powertrain, Attack, Defense }
 
     public enum Gender { All, Male, Female, Other }
 

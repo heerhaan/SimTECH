@@ -188,11 +188,11 @@ namespace SimTECH.Data.Services
 
                 DriverName = s.SeasonDrivers?.FirstOrDefault()?.Driver.FullName ?? "Unknown",
                 DriverNumber = s.SeasonDrivers?.FirstOrDefault()?.Number ?? 0,
-                DriverNationality = s.SeasonDrivers?.FirstOrDefault()?.Driver.Country ?? EnumHelper.GetDefaultCountry(),
+                DriverNationality = s.SeasonDrivers?.FirstOrDefault()?.Driver.Country ?? EnumHelper.DefaultCountry,
 
                 TeamName = s.SeasonTeams?.FirstOrDefault()?.Name ?? "Unknown",
                 TeamColour = s.SeasonTeams?.FirstOrDefault()?.Colour ?? "Unknown",
-                TeamNationality = s.SeasonTeams?.FirstOrDefault()?.Team.Country ?? EnumHelper.GetDefaultCountry(),
+                TeamNationality = s.SeasonTeams?.FirstOrDefault()?.Team.Country ?? EnumHelper.DefaultCountry,
             });
         }
 

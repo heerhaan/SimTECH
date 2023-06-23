@@ -1,6 +1,6 @@
 ﻿<MudContainer>
     @ChildContent
-    <MudTable T="EditRangeModel" Items="@Items" Dense="true">
+    <MudTable T="EditRangeModel" Items="@Items.OrderBy(e => e.Comparer)" Dense="true" Class="extra-dense">
         <ToolBarContent>
             <MudText Typo="Typo.h6">@_displayTitle</MudText>
             <MudSpacer />
@@ -13,13 +13,13 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Comparer">
-                <MudNumericField @bind-Value="@context.Comparer" />
+                <MudNumericField @bind-Value="@context.Comparer" Class="field-xs" />
             </MudTd>
             <MudTd DataLabel="Minimum">
-                <MudNumericField @bind-Value="@context.Minimum" />
+                <MudNumericField @bind-Value="@context.Minimum" Class="field-xs" />
             </MudTd>
             <MudTd DataLabel="Maximum">
-                <MudNumericField @bind-Value="@context.Maximum" />
+                <MudNumericField @bind-Value="@context.Maximum" Class="field-xs" />
             </MudTd>
             <MudTd>
                 <MudIconButton Icon="@Icons.Material.Outlined.Delete"
@@ -33,7 +33,7 @@
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public IList<EditRangeModel> Items { get; set; } = new List<EditRangeModel>();
-    [Parameter] public RangeType RangeType { get; set; }
+    [Parameter] public Aspect RangeType { get; set; }
     [Parameter] public string? Title { get; set; }
 
     private string _displayTitle

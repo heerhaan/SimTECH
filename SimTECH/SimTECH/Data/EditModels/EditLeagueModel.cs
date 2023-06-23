@@ -71,7 +71,7 @@ namespace SimTECH.Data.EditModels
         private readonly DevelopmentRange _range;
 
         public long Id { get; set; }
-        public RangeType Type { get; set; }
+        public Aspect Type { get; set; }
         public int Comparer { get; set; }
         public int Minimum { get; set; }
         public int Maximum { get; set; }

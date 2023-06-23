@@ -26,18 +26,18 @@
                             <MudText Typo="Typo.subtitle1">Target</MudText>
                         </MudTooltip>
                         <MudChipSet SelectedChipChanged="TargetChipChanged" Mandatory="true">
-                            <MudChip Color="Color.Tertiary" Value="TargetDevelop.Main" Default="true">@_mainTypeName</MudChip>
-                            <MudChip Color="Color.Tertiary" Value="TargetDevelop.Reliability">Reliability</MudChip>
+                            <MudChip Color="Color.Tertiary" Value="Aspect.Skill" Default="true">@_mainTypeName</MudChip>
+                            <MudChip Color="Color.Tertiary" Value="Aspect.Reliability">Reliability</MudChip>
                             @if (_activeEntrant == Entrant.Team)
                             {
-                                <MudChip Color="Color.Tertiary" Value="TargetDevelop.Aero">Aero</MudChip>
-                                <MudChip Color="Color.Tertiary" Value="TargetDevelop.Chassis">Chassis</MudChip>
-                                <MudChip Color="Color.Tertiary" Value="TargetDevelop.Powertrain">Powertrain</MudChip>
+                                <MudChip Color="Color.Tertiary" Value="Aspect.Aero">Aero</MudChip>
+                                <MudChip Color="Color.Tertiary" Value="Aspect.Chassis">Chassis</MudChip>
+                                <MudChip Color="Color.Tertiary" Value="Aspect.Powertrain">Powertrain</MudChip>
                             }
                             else if (_activeEntrant == Entrant.Driver)
                             {
-                                <MudChip Color="Color.Tertiary" Value="TargetDevelop.Attack">Attack</MudChip>
-                                <MudChip Color="Color.Tertiary" Value="TargetDevelop.Defense">Defense</MudChip>
+                                <MudChip Color="Color.Tertiary" Value="Aspect.Attack">Attack</MudChip>
+                                <MudChip Color="Color.Tertiary" Value="Aspect.Defense">Defense</MudChip>
                             }
                         </MudChipSet>
                     </div>
@@ -46,13 +46,16 @@
                             <MudText Typo="Typo.subtitle1">Type</MudText>
                         </MudTooltip>
                         <MudChipSet SelectedChipChanged="TypeChipChanged" Mandatory="true">
-                            <MudChip Color="Color.Secondary" Value="TypeDevelop.Range" Default="true">Range</MudChip>
-                            <MudChip Color="Color.Secondary" Value="TypeDevelop.Set">Set</MudChip>
-                            <MudChip Color="Color.Secondary" Value="TypeDevelop.Direct">Direct</MudChip>
+                            <MudChip Color="Color.Secondary" Value="Quantifier.Range" Default="true">Range</MudChip>
+                            @if (_selectedTarget == Aspect.Skill)
+                            {
+                                <MudChip Color="Color.Secondary" Value="Quantifier.Set">Set</MudChip>
+                            }
+                            <MudChip Color="Color.Secondary" Value="Quantifier.Direct">Direct</MudChip>
                         </MudChipSet>
                     </div>
 
-                    @if (_selectedType == TypeDevelop.Range)
+                    @if (_selectedType == Quantifier.Range)
                     {
                         <div>
                             <MudText Typo="Typo.subtitle1">Development range</MudText>
@@ -120,8 +123,8 @@
                         </MudTd>
                         <MudTd>
                             <MudStack Row="true" Class="pa-0">
-                                <MudNumericField T="int" @bind-Value="@context.Min" Label="Min" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
-                                <MudNumericField T="int" @bind-Value="@context.Max" Label="Max" ReadOnly="@(_selectedType != TypeDevelop.Direct)" Class="field-xs" />
+                                <MudNumericField T="int" @bind-Value="@context.Min" Label="Min" ReadOnly="@(_selectedType != Quantifier.Direct)" Class="field-xs" />
+                                <MudNumericField T="int" @bind-Value="@context.Max" Label="Max" ReadOnly="@(_selectedType != Quantifier.Direct)" Class="field-xs" />
                             </MudStack>
                         </MudTd>
                     </RowTemplate>
@@ -175,12 +178,14 @@
     List<DevelopedEntrant> DevelopedEntrants;
 
     Entrant _activeEntrant = Entrant.Driver;
-    TypeDevelop _selectedType = TypeDevelop.Range;
-    TargetDevelop _selectedTarget = TargetDevelop.Main;
+    Quantifier _selectedType = Quantifier.Range;
+    Aspect _selectedTarget = Aspect.Skill;
     string _mainTypeName = "Skill";
     string? _optionalColTitle = "Age";
     bool _ranDevelop = false;
 
+    int currentMin = 0;
+    int currentMax = 0;
     int minChange = 0;
     int maxChange = 0;
 
@@ -242,20 +247,20 @@
 
     int ReadDriverOldTarget(SeasonDriver driver) => _selectedTarget switch
     {
-        TargetDevelop.Main => driver.Skill,
-        TargetDevelop.Reliability => driver.Reliability,
-        TargetDevelop.Attack => driver.Attack,
-        TargetDevelop.Defense => driver.Defense,
+        Aspect.Skill => driver.Skill,
+        Aspect.Reliability => driver.Reliability,
+        Aspect.Attack => driver.Attack,
+        Aspect.Defense => driver.Defense,
         _ => throw new InvalidOperationException("One of the wrong target develops just got in the driver target reader"),
     };
 
     int ReadTeamOldTarget(SeasonTeam team) => _selectedTarget switch
     {
-        TargetDevelop.Main => team.BaseValue,
-        TargetDevelop.Reliability => team.Reliability,
-        TargetDevelop.Aero => team.Aero,
-        TargetDevelop.Chassis => team.Chassis,
-        TargetDevelop.Powertrain => team.Powertrain,
+        Aspect.Skill => team.BaseValue,
+        Aspect.Reliability => team.Reliability,
+        Aspect.Aero => team.Aero,
+        Aspect.Chassis => team.Chassis,
+        Aspect.Powertrain => team.Powertrain,
         _ => throw new InvalidOperationException("Somehow neither of the 5 possible develops"),
     };
 
@@ -268,7 +273,7 @@
                     Name = e.Name,
                     Nationality = null,
                     Optional = null,
-                    Old = _selectedTarget == TargetDevelop.Main ? e.Power : e.Reliability,
+                    Old = _selectedTarget == Aspect.Skill ? e.Power : e.Reliability,
                 })
             .ToList();
 
@@ -279,11 +284,20 @@
     {
         if (entrantChip != null)
         {
-            _activeEntrant = (Entrant)entrantChip.Value;
-            ReloadDeveloped(_activeEntrant);
+            if (_activeEntrant == Entrant.Team &&
+                (_selectedTarget == Aspect.Aero
+                    || _selectedTarget == Aspect.Chassis
+                        || _selectedTarget == Aspect.Powertrain))
+                _selectedTarget = Aspect.Skill;
+            else if (_activeEntrant == Entrant.Driver &&
+                (_selectedTarget == Aspect.Attack
+                    || _selectedTarget == Aspect.Defense))
+                _selectedTarget = Aspect.Skill;
 
-            if (_selectedType == TypeDevelop.Set)
-                ApplyDefaultRanges();
+            _activeEntrant = (Entrant)entrantChip.Value;
+
+            ReloadDeveloped(_activeEntrant);
+            ApplyCommon();
         }
     }
 
@@ -291,10 +305,8 @@
     {
         if (typeChip != null)
         {
-            _selectedType = (TypeDevelop)typeChip.Value;
-
-            if (_selectedType == TypeDevelop.Set)
-                ApplyDefaultRanges();
+            _selectedType = (Quantifier)typeChip.Value;
+            ApplyCommon();
         }
     }
 
@@ -302,14 +314,26 @@
     {
         if (devChip != null)
         {
-            _selectedTarget = (TargetDevelop)devChip.Value;
+            _selectedTarget = (Aspect)devChip.Value;
             ReloadDeveloped(_activeEntrant);
+            ApplyCommon();
+        }
+    }
+
+    void ApplyCommon()
+    {
+        if (_selectedType == Quantifier.Set && _selectedTarget == Aspect.Skill)
+            ApplyDefaultRanges();
+        else if (_selectedType == Quantifier.Range && currentMin != currentMax)
+        {
+            ApplyMinRange(currentMin);
+            ApplyMaxRange(currentMax);
         }
     }
 
     void ApplyDefaultRanges()
     {
-        if (_selectedTarget == TargetDevelop.Main && League.DevelopmentRanges?.Any() == true)
+        if (_selectedTarget == Aspect.Skill && League.DevelopmentRanges?.Any() == true)
         {
             List<DevelopmentRange> setCompareRange;
             List<DevelopmentRange>? additionalCompareRange = null;
@@ -319,24 +343,24 @@
                 case Entrant.Driver:
                     {
                         setCompareRange = League.DevelopmentRanges
-                                            .Where(e => e.Type == RangeType.Skill)
+                                            .Where(e => e.Type == Aspect.Skill)
                                             .OrderBy(e => e.Comparer)
                                             .ToList();
                         additionalCompareRange = League.DevelopmentRanges
-                                                    .Where(e => e.Type == RangeType.Age)
+                                                    .Where(e => e.Type == Aspect.Age)
                                                     .OrderBy(e => e.Comparer)
                                                     .ToList();
                     }
                     break;
                 case Entrant.Team:
                     setCompareRange = League.DevelopmentRanges
-                                        .Where(e => e.Type == RangeType.Team)
+                                        .Where(e => e.Type == Aspect.BaseCar)
                                         .OrderBy(e => e.Comparer)
                                         .ToList();
                     break;
                 case Entrant.Engine:
                     setCompareRange = League.DevelopmentRanges
-                                        .Where(e => e.Type == RangeType.Engine)
+                                        .Where(e => e.Type == Aspect.Engine)
                                         .OrderBy(e => e.Comparer)
                                         .ToList();
                     break;
@@ -390,12 +414,16 @@
 
     void ApplyMinRange(int newMin)
     {
+        currentMin = newMin;
+
         foreach (var entrant in DevelopedEntrants)
             entrant.Min = newMin;
     }
 
     void ApplyMaxRange(int newMax)
     {
+        currentMax = newMax;
+
         foreach (var entrant in DevelopedEntrants)
             entrant.Max = newMax;
     }
@@ -416,7 +444,7 @@
             if (entrant.New < 0)
                 entrant.New = 0;
 
-            if (_selectedTarget == TargetDevelop.Reliability)
+            if (_selectedTarget == Aspect.Reliability)
             {
                 // The maximum value for reliability is 1000
                 if (entrant.New > 1000)

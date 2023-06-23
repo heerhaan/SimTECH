@@ -27,6 +27,16 @@
                                      HelperText="Should round to nearest ten"
                                      Validation="@(new Func<int, string?>(LengthValidator))"
                                      Class="field-md" />
+                    
+                    @if (!loading)
+                    {
+                        <MudChipSet @bind-SelectedValues="selectedAspects" MultiSelection="true" Filter="true">
+                            @foreach (var aspect in rangeables)
+                            {
+                                <MudChip Text="@aspect.ReadableAspect()" Value="@aspect" Color="Color.Primary" />
+                            }
+                        </MudChipSet>
+                    }
                 </MudItem>
                 <MudItem xs="5">
                     <MudText Typo="Typo.subtitle1">Options</MudText>
@@ -57,27 +67,18 @@
                         </MudList>
                     }
                 </MudItem>
-                <MudItem xs="6">
-                    <MudPaper Elevation="5">
-                        <RangeInput Items="@_skillRanges" RangeType="RangeType.Skill"></RangeInput>
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="6">
-                    <MudPaper Elevation="5">
-                        <RangeInput Items="@_ageRanges" RangeType="RangeType.Age"></RangeInput>
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="6">
-                    <MudPaper Elevation="5">
-                        <RangeInput Items="@_teamRanges" RangeType="RangeType.Team"></RangeInput>
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="6">
-                    <MudPaper Elevation="5">
-                        <RangeInput Items="@_engineRanges" RangeType="RangeType.Engine"></RangeInput>
-                    </MudPaper>
-                </MudItem>
             </MudGrid>
+            <MudStack Row="true" Justify="Justify.SpaceEvenly" Class="flex-wrap ">
+                @if (selectedAspects != null)
+                {
+                    @foreach (var aspectRange in selectedAspects.Cast<Aspect>())
+                    {
+                        <MudPaper Elevation="5" Width="550px">
+                            <RangeInput Items="@(weightedAspects[aspectRange])" RangeType="@aspectRange" />
+                        </MudPaper>
+                    }
+                }
+            </MudStack>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -92,24 +93,32 @@
     [Parameter] public League? League { get; set; }
 
     private EditLeagueModel Model;
-    private List<EditRangeModel> _skillRanges = new();
-    private List<EditRangeModel> _ageRanges = new();
-    private List<EditRangeModel> _teamRanges = new();
-    private List<EditRangeModel> _engineRanges = new();
+    private bool loading = true;
 
+    private Dictionary<Aspect, List<EditRangeModel>> weightedAspects = new();
+
+    private Aspect[] rangeables = EnumHelper.RangeableAspects;
+    private ICollection<object>? selectedAspects { get; set; }
     private List<string> errorValidations = new();
 
     protected override void OnInitialized()
     {
         Model = new EditLeagueModel(League);
 
+        foreach (var rngbl in rangeables)
+            weightedAspects.Add(rngbl, new());
+
         if (League != null)
         {
-            _skillRanges = Model.DevelopmentRanges.Where(e => e.Type == RangeType.Skill).ToList();
-            _ageRanges = Model.DevelopmentRanges.Where(e => e.Type == RangeType.Age).ToList();
-            _teamRanges = Model.DevelopmentRanges.Where(e => e.Type == RangeType.Team).ToList();
-            _engineRanges = Model.DevelopmentRanges.Where(e => e.Type == RangeType.Engine).ToList();
+            foreach (var developGroup in Model.DevelopmentRanges.OrderBy(e => (int)e.Type).GroupBy(e => e.Type))
+            {
+                weightedAspects[developGroup.Key].AddRange(developGroup);
+            }
+
+            selectedAspects = Model.DevelopmentRanges.Select(e => e.Type).Distinct().Cast<object>().ToList();
         }
+
+        loading = false;
     }
 
     private string? LengthValidator(int length)
@@ -138,13 +147,7 @@
         if (!RunValidations())
             return;
 
-        var allRanges = new List<EditRangeModel>();
-        allRanges.AddRange(_skillRanges);
-        allRanges.AddRange(_ageRanges);
-        allRanges.AddRange(_teamRanges);
-        allRanges.AddRange(_engineRanges);
-
-        Model.DevelopmentRanges = allRanges;
+        Model.DevelopmentRanges = weightedAspects.SelectMany(e => e.Value).ToList();
 
         if (Model.IsDirty)
         {
