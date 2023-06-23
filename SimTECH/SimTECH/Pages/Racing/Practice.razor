@@ -32,13 +32,13 @@
                 <MudTh>Driver</MudTh>
                 <MudTh Class="number-col">No.</MudTh>
                 <MudTh>Team</MudTh>
-                <MudTh Class="number-col">PWR</MudTh>
+                <MudTh Class="number-col-xl">PWR</MudTh>
                 @for (int i = 1; i <= Model.AmountRuns; i++)
                 {
                     var j = i;
-                    <MudTh Class="number-col">@j</MudTh>
+                    <MudTh Class="number-col-lg">@j</MudTh>
                 }
-                <MudTh Class="number-col">Score</MudTh>
+                <MudTh Class="number-col-xl">Score</MudTh>
                 <MudTh>Gap</MudTh>
             </HeaderContent>
             <RowTemplate>
@@ -62,17 +62,22 @@
                 <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">
                     <MudText>@context.TeamName</MudText>
                 </MudTd>
-                <MudTd>
+                <MudTd Class="number-col-xl">
                     <MudText Typo="Typo.caption">@context.Power</MudText>
                 </MudTd>
-                @foreach (var runResult in context.RunValues)
+                @for (int i = 0; i < context.RunValues.Length; i++)
                 {
-                    <MudTd Class="number-col">
-                        <MudText Typo="Typo.caption">@runResult</MudText>
+                    var j = i;
+                    <MudTd Class="number-col-xl">
+                        <GradientColour Min="@(worstScoresPerSession[j])" Max="@(bestScoresPerSession[j])" Value="@(context.RunValues[j])">
+                            <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.RunValues[j])</MudText>
+                        </GradientColour>
                     </MudTd>
                 }
-                <MudTd Class="number-col">
-                    <MudText Typo="Typo.caption">@context.MaxScore</MudText>
+                <MudTd Class="number-col-xl">
+                    <GradientColour Min="@lowestScore" Max="@highestScore" Value="@context.MaxScore">
+                        <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScore</MudText>
+                    </GradientColour>
                 </MudTd>
                 <MudTd>
                     <MudText>+@(Math.Round((highestScore - context.MaxScore) * gapMarge, 2))</MudText>
@@ -90,13 +95,19 @@
 
     bool loading = true;
     int advancedRuns = 0;
+    int lowestScore = int.MaxValue;
     int highestScore = 0;
-
+    int[] worstScoresPerSession;
+    int[] bestScoresPerSession;
     double gapMarge;
 
     protected override async Task OnInitializedAsync()
     {
         Model = await _raceService.RetrievePracticeModel(RaceId);
+
+        worstScoresPerSession = new int[Model.AmountRuns];
+        bestScoresPerSession = new int[Model.AmountRuns];
+        gapMarge = _config.Value.GapMarge;
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -106,8 +117,6 @@
             new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
             new BreadcrumbItem("Practice", href: $"practice/{RaceId}", disabled: true),
         });
-
-        gapMarge = _config.Value.GapMarge;
 
         loading = false;
     }
@@ -123,7 +132,12 @@
 
             if (result > highestScore)
                 highestScore = result;
+            else if (result < lowestScore)
+                lowestScore = result;
         }
+
+        worstScoresPerSession[advancedRuns] = lowestScore;
+        bestScoresPerSession[advancedRuns] = highestScore;
 
         foreach (var driver in Model.PracticeDrivers.OrderByDescending(e => e.MaxScore))
         {

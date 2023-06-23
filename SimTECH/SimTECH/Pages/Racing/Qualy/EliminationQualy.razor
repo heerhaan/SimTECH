@@ -7,7 +7,7 @@
                 <CountryFlag Code="@Model.Country" />
                 <MudText Typo="Typo.h5">@Model.Name - QUALIFYING Q1</MudText>
                 <MudSpacer />
-                <MudButtonGroup Variant="Variant.Outlined">
+                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                     <ScreenshotButton TargetId="q1-result-table" />
                     @if (advancedQ1 != Model.AmountRuns)
                     {
@@ -56,14 +56,19 @@
                 <MudTd Class="number-col-lg">
                     <MudText Typo="Typo.caption">@context.Power</MudText>
                 </MudTd>
-                @foreach (var runResult in context.RunValuesQ1)
+                @for (int i = 0; i < context.RunValuesQ1.Length; i++)
                 {
-                    <MudTd Class="number-col-lg">
-                        <MudText Typo="Typo.caption">@runResult</MudText>
+                    var j = i;
+                    <MudTd Class="number-col-xl">
+                        <GradientColour Min="@(worstScoresQ1[j])" Max="@(bestScoresQ1[j])" Value="@(context.RunValuesQ1[j])">
+                            <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.RunValuesQ1[j])</MudText>
+                        </GradientColour>
                     </MudTd>
                 }
                 <MudTd Class="number-col-lg">
-                    <MudText Typo="Typo.caption">@context.MaxScoreQ1</MudText>
+                    <GradientColour Min="@lowestQ1" Max="@highestQ1" Value="@context.MaxScoreQ1">
+                        <MudText Typo="Typo.caption">@context.MaxScoreQ1</MudText>
+                    </GradientColour>
                 </MudTd>
                 <MudTd>
                     <MudText>+@(context.GapQ1)</MudText>
@@ -77,7 +82,7 @@
                 <CountryFlag Code="@Model.Country" />
                 <MudText Typo="Typo.h5">@Model.Name - QUALIFYING Q2</MudText>
                 <MudSpacer />
-                <MudButtonGroup Variant="Variant.Outlined">
+                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                     <ScreenshotButton TargetId="q2-result-table" />
                     @if (advancedQ2 != Model.AmountRuns)
                     {
@@ -126,14 +131,19 @@
                 <MudTd>
                     <MudText Typo="Typo.caption">@context.Power</MudText>
                 </MudTd>
-                @foreach (var runResult in context.RunValuesQ2)
+                @for (int i = 0; i < context.RunValuesQ2.Length; i++)
                 {
-                    <MudTd>
-                        <MudText Typo="Typo.caption">@runResult</MudText>
+                    var j = i;
+                    <MudTd Class="number-col-xl">
+                        <GradientColour Min="@(worstScoresQ2[j])" Max="@(bestScoresQ2[j])" Value="@(context.RunValuesQ2[j])">
+                            <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.RunValuesQ2[j])</MudText>
+                        </GradientColour>
                     </MudTd>
                 }
                 <MudTd>
-                    <MudText Typo="Typo.caption">@context.MaxScoreQ2</MudText>
+                    <GradientColour Min="@lowestQ2" Max="@highestQ2" Value="@context.MaxScoreQ2">
+                        <MudText Typo="Typo.caption">@context.MaxScoreQ2</MudText>
+                    </GradientColour>
                 </MudTd>
                 <MudTd>
                     <MudText>+@(context.GapQ2)</MudText>
@@ -147,7 +157,7 @@
                 <CountryFlag Code="@Model.Country" />
                 <MudText Typo="Typo.h5">@Model.Name - QUALIFYING Q3</MudText>
                 <MudSpacer />
-                <MudButtonGroup Variant="Variant.Outlined">
+                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                     <ScreenshotButton TargetId="q3-result-table" />
                     @if (advancedQ3 == Model.AmountRuns)
                     {
@@ -200,14 +210,19 @@
                 <MudTd>
                     <MudText Typo="Typo.caption">@context.Power</MudText>
                 </MudTd>
-                @foreach (var runResult in context.RunValuesQ3)
+                @for (int i = 0; i < context.RunValuesQ3.Length; i++)
                 {
-                    <MudTd>
-                        <MudText Typo="Typo.caption">@runResult</MudText>
+                    var j = i;
+                    <MudTd Class="number-col-xl">
+                        <GradientColour Min="@(worstScoresQ3[j])" Max="@(bestScoresQ3[j])" Value="@(context.RunValuesQ3[j])">
+                            <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.RunValuesQ3[j])</MudText>
+                        </GradientColour>
                     </MudTd>
                 }
                 <MudTd>
-                    <MudText Typo="Typo.caption">@context.MaxScoreQ3</MudText>
+                    <GradientColour Min="@lowestQ3" Max="@highestQ3" Value="@context.MaxScoreQ3">
+                        <MudText Typo="Typo.caption">@context.MaxScoreQ3</MudText>
+                    </GradientColour>
                 </MudTd>
                 <MudTd>
                     <MudText>+@(context.GapQ3)</MudText>
@@ -217,7 +232,7 @@
     </MudTabPanel>
 </MudTabs>
 
-@code {
+    @code {
     [CascadingParameter]
     public QualifyingModel Model { get; set; }
     [Parameter]
@@ -229,31 +244,42 @@
     private List<QualifyingDriver> DriversInQ3 { get; set; } = new();
 
     private int advancedQ1, advancedQ2, advancedQ3 = 0;
+    private int lowestQ1, lowestQ2, lowestQ3 = 0;
+    private int highestQ1, highestQ2, highestQ3 = 0;
+    private int[] worstScoresQ1, worstScoresQ2, worstScoresQ3;
+    private int[] bestScoresQ1, bestScoresQ2, bestScoresQ3;
     double gapMarge;
 
     protected override void OnInitialized()
     {
         DriversInQ1.AddRange(Model.QualifyingDrivers);
 
+        worstScoresQ1 = new int[Model.AmountRuns];
+        worstScoresQ2 = new int[Model.AmountRuns];
+        worstScoresQ3 = new int[Model.AmountRuns];
+        bestScoresQ1 = new int[Model.AmountRuns];
+        bestScoresQ2 = new int[Model.AmountRuns];
+        bestScoresQ3 = new int[Model.AmountRuns];
+
         gapMarge = _config.Value.GapMarge;
     }
 
     private void AdvanceQ1()
     {
-        var positionIndex = 0;
-
         foreach (var driver in DriversInQ1)
-        {
             driver.RunValuesQ1[advancedQ1] = driver.GetQualifyingResult(Model.QualyRng);
-        }
 
-        var highestScore = DriversInQ1.SelectMany(e => e.RunValuesQ1).Max();
+        lowestQ1 = DriversInQ1.SelectMany(e => e.RunValuesQ1).Min();
+        highestQ1 = DriversInQ1.SelectMany(e => e.RunValuesQ1).Max();
+        worstScoresQ1[advancedQ1] = lowestQ1;
+        bestScoresQ1[advancedQ1] = highestQ1;
 
+        var positionIndex = 0;
         foreach (var driver in DriversInQ1.OrderByDescending(e => e.MaxScoreQ1))
         {
             driver.Position = ++positionIndex;
             driver.PositionQ1 = positionIndex;
-            driver.GapQ1 = Math.Round(((highestScore - driver.MaxScoreQ1) * gapMarge), 2);
+            driver.GapQ1 = Math.Round(((highestQ1 - driver.MaxScoreQ1) * gapMarge), 2);
         }
 
         advancedQ1++;
@@ -275,13 +301,16 @@
             driver.RunValuesQ2[advancedQ2] = qualifyingResult;
         }
 
-        var highestScore = DriversInQ2.SelectMany(e => e.RunValuesQ2).Max();
+        lowestQ2 = DriversInQ2.SelectMany(e => e.RunValuesQ2).Min();
+        highestQ2 = DriversInQ2.SelectMany(e => e.RunValuesQ2).Max();
+        worstScoresQ2[advancedQ2] = lowestQ2;
+        bestScoresQ2[advancedQ2] = highestQ2;
 
         foreach (var driver in DriversInQ2.OrderByDescending(e => e.MaxScoreQ2))
         {
             driver.Position = ++positionIndex;
             driver.PositionQ2 = positionIndex;
-            driver.GapQ2 = Math.Round(((highestScore - driver.MaxScoreQ2) * gapMarge), 2);
+            driver.GapQ2 = Math.Round(((highestQ2 - driver.MaxScoreQ2) * gapMarge), 2);
         }
 
         advancedQ2++;
@@ -300,13 +329,16 @@
         foreach (var driver in DriversInQ3)
             driver.RunValuesQ3[advancedQ3] = driver.GetQualifyingResult(Model.QualyRng);
 
-        var highestScore = DriversInQ3.SelectMany(e => e.RunValuesQ3).Max();
+        lowestQ3 = DriversInQ3.SelectMany(e => e.RunValuesQ3).Min();
+        highestQ3 = DriversInQ3.SelectMany(e => e.RunValuesQ3).Max();
+        worstScoresQ3[advancedQ3] = lowestQ3;
+        bestScoresQ3[advancedQ3] = highestQ3;
 
         foreach (var driver in DriversInQ3.OrderByDescending(e => e.MaxScoreQ3))
         {
             driver.Position = ++positionIndex;
             driver.PositionQ3 = positionIndex;
-            driver.GapQ3 = Math.Round(((highestScore - driver.MaxScoreQ3) * gapMarge), 2);
+            driver.GapQ3 = Math.Round(((highestQ3 - driver.MaxScoreQ3) * gapMarge), 2);
         }
 
         advancedQ3++;

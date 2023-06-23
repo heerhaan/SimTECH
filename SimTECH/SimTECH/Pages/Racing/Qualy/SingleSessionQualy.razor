@@ -59,14 +59,19 @@
             <MudTd Class="number-col-lg">
                 <MudText Typo="Typo.caption">@context.Power</MudText>
             </MudTd>
-            @foreach (var runResult in context.RunValuesQ1)
+            @for (int i = 0; i < context.RunValuesQ1.Length; i++)
             {
-                <MudTd Class="number-col-lg">
-                    <MudText Typo="Typo.caption">@runResult</MudText>
+                var j = i;
+                <MudTd Class="number-col-xl">
+                    <GradientColour Min="@(worstScoresPerSession[j])" Max="@(bestScoresPerSession[j])" Value="@(context.RunValuesQ1[j])">
+                        <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.RunValuesQ1[j])</MudText>
+                    </GradientColour>
                 </MudTd>
             }
             <MudTd Class="number-col-lg">
-                <MudText Typo="Typo.caption">@context.MaxScoreQ1</MudText>
+                <GradientColour Min="@(lowestScore)" Max="@(highestScore)" Value="@(context.MaxScoreQ1)">
+                    <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScoreQ1</MudText>
+                </GradientColour>
             </MudTd>
             <MudTd>
                 <MudText>+@(context.GapQ1)</MudText>
@@ -75,7 +80,7 @@
     </MudTable>
 </MudContainer>
 
-@code {
+    @code {
     [CascadingParameter]
     public QualifyingModel Model { get; set; }
     [Parameter]
@@ -84,8 +89,16 @@
     private int advanced = 0;
     private double gapMarge;
 
+    int lowestScore = 0;
+    int highestScore = 0;
+    int[] worstScoresPerSession;
+    int[] bestScoresPerSession;
+
     protected override void OnInitialized()
     {
+        worstScoresPerSession = new int[Model.AmountRuns];
+        bestScoresPerSession = new int[Model.AmountRuns];
+
         gapMarge = _config.Value.GapMarge;
     }
 
@@ -98,7 +111,10 @@
             driver.RunValuesQ1[advanced] = driver.GetQualifyingResult(Model.QualyRng);
         }
 
-        var highestScore = Model.QualifyingDrivers.SelectMany(e => e.RunValuesQ1).Max();
+        lowestScore = Model.QualifyingDrivers.SelectMany(e => e.RunValuesQ1).Min();
+        highestScore = Model.QualifyingDrivers.SelectMany(e => e.RunValuesQ1).Max();
+        worstScoresPerSession[advanced] = lowestScore;
+        bestScoresPerSession[advanced] = highestScore;
 
         foreach (var driver in Model.QualifyingDrivers.OrderByDescending(e => e.MaxScoreQ1))
         {
