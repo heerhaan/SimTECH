@@ -71,7 +71,7 @@
                     </MudButton>*@
                 </MudStack>
             </MudPaper>
-            <MudPaper>
+            <MudPaper Class="flex-grow-1 ">
                 <MudTable Items="@DevelopedEntrants" Dense="true">
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Development</MudText>
@@ -100,7 +100,7 @@
                                 <MudSpacer />
                                 @if (context.Nationality.HasValue)
                                 {
-                                    <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Tiny" />
+                                    <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Small" />
                                 }
                             </MudStack>
                         </MudTd>
@@ -226,6 +226,7 @@
                 })
             .ToList();
 
+        _mainTypeName = "Skill";
         _optionalColTitle = "Age";
     }
 
@@ -242,6 +243,24 @@
             })
             .ToList();
 
+        _mainTypeName = "Car";
+        _optionalColTitle = null;
+    }
+
+    void DevelopEngines()
+    {
+        DevelopedEntrants = SeasonEngines.Select(e =>
+            new DevelopedEntrant
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Nationality = null,
+                    Optional = null,
+                    Old = _selectedTarget == Aspect.Skill ? e.Power : e.Reliability,
+                })
+            .ToList();
+
+        _mainTypeName = "Power";
         _optionalColTitle = null;
     }
 
@@ -263,22 +282,6 @@
         Aspect.Powertrain => team.Powertrain,
         _ => throw new InvalidOperationException("Somehow neither of the 5 possible develops"),
     };
-
-    void DevelopEngines()
-    {
-        DevelopedEntrants = SeasonEngines.Select(e =>
-            new DevelopedEntrant
-                {
-                    Id = e.Id,
-                    Name = e.Name,
-                    Nationality = null,
-                    Optional = null,
-                    Old = _selectedTarget == Aspect.Skill ? e.Power : e.Reliability,
-                })
-            .ToList();
-
-        _optionalColTitle = null;
-    }
 
     void EntrantChipChanged(MudChip? entrantChip)
     {

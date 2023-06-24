@@ -17,7 +17,7 @@
                     <MudDivider />
                 </MudItem>
 
-                <MudItem xs="5">
+                <MudItem xs="4">
                     <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
                     <MudNumericField T="int"
                                      @bind-Value="Model.RaceLength"
@@ -27,7 +27,9 @@
                                      HelperText="Should round to nearest ten"
                                      Validation="@(new Func<int, string?>(LengthValidator))"
                                      Class="field-md" />
-                    
+                </MudItem>
+                <MudItem xs="4">
+                    <MudText Typo="Typo.subtitle1">Weighted development ranges</MudText>
                     @if (!loading)
                     {
                         <MudChipSet @bind-SelectedValues="selectedAspects" MultiSelection="true" Filter="true">
@@ -38,7 +40,7 @@
                         </MudChipSet>
                     }
                 </MudItem>
-                <MudItem xs="5">
+                <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">Options</MudText>
                     <MudStack>
                         <MudSwitchM3 @bind-Checked="Model.UsePenalty"
@@ -52,8 +54,6 @@
                                      Label="Enable Fatalities"
                                      Color="Color.Secondary" />
                     </MudStack>
-                </MudItem>
-                <MudItem xs="2">
                     @if (errorValidations.Any())
                     {
                         <MudList>
@@ -147,7 +147,8 @@
         if (!RunValidations())
             return;
 
-        Model.DevelopmentRanges = weightedAspects.SelectMany(e => e.Value).ToList();
+        var activeAspects = selectedAspects?.Cast<Aspect>().ToList() ?? new();
+        Model.DevelopmentRanges = weightedAspects.Where(e => activeAspects.Contains(e.Key)).SelectMany(e => e.Value).ToList();
 
         if (Model.IsDirty)
         {

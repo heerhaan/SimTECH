@@ -74,7 +74,7 @@
                             </MudStack>
                         </MudTd>
                         <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">Go</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToPostRace(context.RaceId))">Go</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -134,5 +134,6 @@
         }
     }
 
+    private void GoToPostRace(long raceId) => _nav.NavigateTo($"/postrace/{raceId}");
     private void GoToRaceWeek(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");
 }

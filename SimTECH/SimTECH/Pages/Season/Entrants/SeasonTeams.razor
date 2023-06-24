@@ -13,25 +13,25 @@
     </MudPaper>
     <MudDataGrid T="SeasonTeam" Items="@SeasonTeamEntrants">
         <Columns>
-            <TemplateColumn Sortable="false" CellClass="accent-cell">
+            <TemplateColumn Sortable="false" Class="accent-cell">
                 <CellTemplate>
-                    <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Item.Colour))"></span>
+                    <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Item?.Colour ?? Constants.DefaultColour))"></span>
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.Name" CellStyleFunc="@ViewHelper.TeamBorderRightStyleFunc" />
+            <PropertyColumn Property="e => e!.Name" />
             <TemplateColumn T="SeasonTeam" SortBy="e => e.Team.Country" Title="Country">
                 <CellTemplate>
                     <CountryNamedFlag Code="@context.Item.Team.Country" Size="FlagSize.Small" Reverse="true" />
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e!.Principal" CellClass="font-subtitle2" />
+            <PropertyColumn Property="e => e!.Principal" />
             <PropertyColumn Property="e => e!.BaseValue" CellClass="font-caption" />
             <TemplateColumn T="SeasonTeam" Title="A/C/P" Sortable="false">
                 <CellTemplate>
                     <MudText Typo="Typo.caption">@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.Reliability" CellClass="font-caption" />
+            <PropertyColumn Property="e => e!.Reliability" CellClass="font-caption" />
             <TemplateColumn T="SeasonTeam" SortBy="e => e.SeasonEngine.Name" Title="Engine">
                 <CellTemplate>
                     <MudText>
