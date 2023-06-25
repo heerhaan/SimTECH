@@ -22,7 +22,7 @@
             }
             else if (cell.Status == RaceStatus.Dsq)
             {
-                cellStyle = "background-color: black;color:white";
+                cellStyle = "background-color: black;color:white !important";
             }
             else if (cell.Status == RaceStatus.Dnf)
             {
@@ -30,7 +30,7 @@
             }
             else if (cell.Status == RaceStatus.Fatal)
             {
-                cellStyle = "background-color: black;color:white";
+                cellStyle = "background-color: black;color:white !important";
             }
             else
             {

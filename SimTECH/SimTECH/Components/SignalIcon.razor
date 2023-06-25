@@ -30,7 +30,8 @@
                 case "Mistake":
                     return Icons.Material.Filled.ErrorOutline;
                 case "Pitstop":
-                    return Icons.Material.Filled.LocalGasStation;
+                    //return Icons.Material.Filled.LocalGasStation;
+                    return IconCollection.RefreshDot;
                 case "Swap":
                     return Icons.Material.Filled.SwapVert;
                 case "Caution":
@@ -73,12 +74,13 @@
     {
         get
         {
-            var styles = $"margin-left:{LapPercentage}%;margin-right:-{(Index * 2)}px;z-index:{(1 + Index)}";
+            // removed styling ;margin-right:-{(Index * 2)}px;z-index:{(1 + Index)}
+            var styles = $"margin-left:{LapPercentage}%";
 
-            styles += ";line-height:0;background-color:var(--mud-palette-surface)";
+            styles += "; line-height:0; background-color:var(--mud-palette-surface)";
 
             if (Signal == "Death")
-                styles += ";color: white";
+                styles += "; color: white";
 
             return styles;
         }

@@ -69,7 +69,14 @@
                     <MudText Typo="Typo.caption">@context.MaxScoreQ1</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText>+@(context.GapQ1)</MudText>
+                    @if (context.Position == 1)
+                    {
+                        <MudText Typo="Typo.button">LEADER</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption">+@(context.GapQ1)</MudText>
+                    }
                 </MudTd>
             </RowTemplate>
         </MudTable>
@@ -142,7 +149,14 @@
                     <MudText Typo="Typo.caption">@context.MaxScoreQ2</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText>+@(context.GapQ2)</MudText>
+                    @if (context.Position == 1)
+                    {
+                        <MudText Typo="Typo.button">LEADER</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption">+@(context.GapQ2)</MudText>
+                    }
                 </MudTd>
             </RowTemplate>
         </MudTable>
@@ -219,7 +233,14 @@
                     <MudText Typo="Typo.caption">@context.MaxScoreQ3</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText>+@(context.GapQ3)</MudText>
+                    @if (context.Position == 1)
+                    {
+                        <MudText Typo="Typo.button">LEADER</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption">+@(context.GapQ3)</MudText>
+                    }
                 </MudTd>
             </RowTemplate>
         </MudTable>
@@ -263,7 +284,7 @@
         foreach (var driver in DriversInQ1)
             driver.RunValuesQ1[advancedQ1] = driver.GetQualifyingResult(Model.QualyRng);
 
-        lowestQ1 = DriversInQ1.SelectMany(e => e.RunValuesQ1).Min();
+        lowestQ1 = DriversInQ1.SelectMany(e => e.RunValuesQ1).Where(e => e > 0).Min();
         highestQ1 = DriversInQ1.SelectMany(e => e.RunValuesQ1).Max();
         worstScoresQ1[advancedQ1] = lowestQ1;
         bestScoresQ1[advancedQ1] = highestQ1;
@@ -295,7 +316,7 @@
             driver.RunValuesQ2[advancedQ2] = qualifyingResult;
         }
 
-        lowestQ2 = DriversInQ2.SelectMany(e => e.RunValuesQ2).Min();
+        lowestQ2 = DriversInQ2.SelectMany(e => e.RunValuesQ2).Where(e => e > 0).Min();
         highestQ2 = DriversInQ2.SelectMany(e => e.RunValuesQ2).Max();
         worstScoresQ2[advancedQ2] = lowestQ2;
         bestScoresQ2[advancedQ2] = highestQ2;
@@ -323,7 +344,7 @@
         foreach (var driver in DriversInQ3)
             driver.RunValuesQ3[advancedQ3] = driver.GetQualifyingResult(Model.QualyRng);
 
-        lowestQ3 = DriversInQ3.SelectMany(e => e.RunValuesQ3).Min();
+        lowestQ3 = DriversInQ3.SelectMany(e => e.RunValuesQ3).Where(e => e > 0).Min();
         highestQ3 = DriversInQ3.SelectMany(e => e.RunValuesQ3).Max();
         worstScoresQ3[advancedQ3] = lowestQ3;
         bestScoresQ3[advancedQ3] = highestQ3;

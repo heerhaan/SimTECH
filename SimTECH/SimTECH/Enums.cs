@@ -86,6 +86,11 @@ namespace SimTECH
     {
         Driver, Car, Engine, Disqualified, Lethal
     }
+
+    public enum ProgressBarType
+    {
+        Default, Caution, Tyre
+    }
     #endregion racing
 
     #region countries

@@ -78,7 +78,14 @@
                     <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScore</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText>+@(Math.Round((highestScore - context.MaxScore) * gapMarge, 2))</MudText>
+                    @if (context.Position == 1)
+                    {
+                        <MudText Typo="Typo.button">LEADER</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption">+@(Math.Round((highestScore - context.MaxScore) * gapMarge, 2))</MudText>
+                    }
                 </MudTd>
             </RowTemplate>
         </MudTable>

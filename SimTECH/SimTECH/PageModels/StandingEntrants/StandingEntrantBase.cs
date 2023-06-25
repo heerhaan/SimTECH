@@ -19,7 +19,7 @@
             {
                 var finishedResults = ResultCells.Where(e => e.Status == RaceStatus.Racing);
                 if (finishedResults.Any())
-                    return Math.Round(finishedResults.Select(e => e.Position).Average(), 2);
+                    return Math.Round(finishedResults.Select(e => e.Position).Average(), 1);
 
                 return 0;
             }
