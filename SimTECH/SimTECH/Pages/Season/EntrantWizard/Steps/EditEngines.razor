@@ -44,15 +44,9 @@
     {
         Model.SeasonEngines.Clear();
 
-        List<SeasonEngine>? previousEngines = null;
-        if (PreviousSeasonId.HasValue)
-            previousEngines = await _entrantService.GetSeasonEngines(PreviousSeasonId.Value);
-
         foreach (var engine in Model.BaseEngines.Where(e => !(Model.SeasonEngines.Select(se => se.EngineId).Contains(e.Id))))
         {
-            SeasonEngine? previousEngine = null;
-            if (previousEngines != null)
-                previousEngine = previousEngines.Find(e => e.EngineId == engine.Id);
+            var previousEngine = await _entrantService.FindRecentSeasonEngine(engine.Id);
 
             var model = new EditSeasonEngineModel(previousEngine);
             model.ResetIdentifierFields();

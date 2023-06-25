@@ -72,21 +72,19 @@
     {
         Model.SeasonDrivers.Clear();
 
-        List<SeasonDriver>? previousDrivers = null;
         List<SeasonTeam>? previousTeams = null;
 
         if (PreviousSeasonId.HasValue)
         {
-            previousDrivers = await _entrantService.GetSeasonDrivers(PreviousSeasonId.Value);
-            previousTeams = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);
+            var existingTeamIds = Model.SeasonTeams.Select(e => e.TeamId).ToArray();
+            var allPrevious = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);
+            previousTeams = allPrevious.Where(e => existingTeamIds.Contains(e.TeamId)).ToList();
         }
 
         int indexer = 0;
         foreach (var driver in Model.BaseDrivers.Where(e => !(Model.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))))
         {
-            SeasonDriver? previousDriver = null;
-            if (previousDrivers != null)
-                previousDriver = previousDrivers.Find(e => e.DriverId == driver.Id);
+            var previousDriver = await _entrantService.FindRecentSeasonDriver(driver.Id);
 
             // Create a new edit model from the nullable entity, reset the identifying fields and assign the new ones
             var model = new EditSeasonDriverModel(previousDriver);

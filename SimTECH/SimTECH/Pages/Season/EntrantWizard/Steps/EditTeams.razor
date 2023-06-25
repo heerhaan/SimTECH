@@ -89,20 +89,18 @@
     {
         Model.SeasonTeams.Clear();
 
-        List<SeasonTeam>? previousTeams = null;
         List<SeasonEngine>? previousEngines = null;
 
         if (PreviousSeasonId.HasValue)
         {
-            previousTeams = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);
-            previousEngines = await _entrantService.GetSeasonEngines(PreviousSeasonId.Value);
+            var existingEngineIds = Model.SeasonEngines.Select(e => e.EngineId).ToArray();
+            var allPrevious = await _entrantService.GetSeasonEngines(PreviousSeasonId.Value);
+            previousEngines = allPrevious.Where(e => existingEngineIds.Contains(e.EngineId)).ToList();
         }
 
         foreach (var team in Model.BaseTeams.Where(e => !(Model.SeasonTeams.Select(st => st.TeamId).Contains(e.Id))))
         {
-            SeasonTeam? previousTeam = null;
-            if (previousTeams != null)
-                previousTeam = previousTeams.Find(e => e.TeamId == team.Id);
+            var previousTeam = await _entrantService.FindRecentSeasonTeam(team.Id);
 
             var model = new EditSeasonTeamModel(previousTeam);
             model.ResetIdentifierFields();

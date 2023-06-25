@@ -20,6 +20,15 @@ namespace SimTECH.Data.Services
             return await context.SeasonEngine.Where(e => e.SeasonId == seasonId).ToListAsync();
         }
 
+        public async Task<SeasonEngine?> FindRecentSeasonEngine(long engineId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonEngine
+                .Where(e => e.EngineId == engineId)
+                .LastOrDefaultAsync();
+        }
+
         public async Task UpdateSeasonEngine(SeasonEngine engne)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -83,6 +92,15 @@ namespace SimTECH.Data.Services
                 .Include(e => e.SeasonEngine)
                 .Include(e => e.Manufacturer)
                 .SingleAsync(e => e.Id == seasonTeamId);
+        }
+
+        public async Task<SeasonTeam?> FindRecentSeasonTeam(long teamId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonTeam
+                .Where(e => e.TeamId == teamId)
+                .LastOrDefaultAsync();
         }
 
         public async Task UpdateSeasonTeam(SeasonTeam team)
@@ -151,6 +169,15 @@ namespace SimTECH.Data.Services
                 .Include(e => e.Driver)
                 .Include(e => e.Results)
                 .ToListAsync();
+        }
+
+        public async Task<SeasonDriver?> FindRecentSeasonDriver(long driverId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonDriver
+                .Where(e => e.DriverId == driverId)
+                .LastOrDefaultAsync();
         }
 
         public async Task UpdateSeasonDriver(SeasonDriver driver)
