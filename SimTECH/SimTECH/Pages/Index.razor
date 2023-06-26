@@ -11,17 +11,19 @@
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-16 px-8">
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+            <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
 
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
-                <MudText Typo="Typo.h2">SimTECH</MudText>
+            <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
+                <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h2" Class="ma-auto">SimTECH</MudText>
+                </MudStack>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="12" md="4">
-            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+            <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
 
             </MudPaper>
         </MudItem>
@@ -29,7 +31,7 @@
             <MudPaper Elevation="2" Class="pa-4 mud-height-full">
                 <MudTable id="recent-race-table" Items="@recentRaces" Dense="true">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6">Last races</MudText>
+                        <MudText Typo="Typo.h5">Last races</MudText>
                         <MudSpacer />
                         <ScreenshotButton TargetId="recent-race-table" />
                     </ToolBarContent>
@@ -38,8 +40,8 @@
                         <MudTh>Race</MudTh>
                         <MudTh Class="pa-0"></MudTh>
                         <MudTh>Team</MudTh>
-                        <MudTh>Driver</MudTh>
                         <MudTh Class="number-col">No.</MudTh>
+                        <MudTh>Driver</MudTh>
                         <MudTh></MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -61,22 +63,18 @@
                         <MudTd>
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText Typo="Typo.body2">@context.WinningTeam.Name</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@context.WinningTeam.Country" Size="FlagSize.Tiny" />
-                            </MudStack>
-                        </MudTd>
-                        <MudTd>
-                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.body2">@context.WinningDriver.Name</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@context.WinningDriver.Country" Size="FlagSize.Tiny" />
                             </MudStack>
                         </MudTd>
                         <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.WinningDriver.Colour, context.WinningDriver.Accent))">
                             <MudText Typo="Typo.caption">@context.WinningDriver.Number</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">Go To</MudButton>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.body2">@context.WinningDriver.Name</MudText>
+                            </MudStack>
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToPostRace(context.RaceId))">Go</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -86,7 +84,7 @@
             <MudPaper Elevation="2" Class="pa-4 mud-height-full">
                 <MudTable T="Race" Items="@upcomingRaces" Dense="true">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h6">Upcoming races</MudText>
+                        <MudText Typo="Typo.h5">Upcoming races</MudText>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>Round</MudTh>
@@ -97,7 +95,7 @@
                         <MudTd>R: @(context.Round)</MudTd>
                         <MudTd>@(context.Name)</MudTd>
                         <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.Id))">Go To</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.Id))">Go</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -115,9 +113,10 @@
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
-            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Home", href: "/", disabled: true),
         });
 
+        // following is possibly a very unoptimized call
         recentRaces = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
         recentRaces.Reverse();
 
@@ -135,5 +134,6 @@
         }
     }
 
+    private void GoToPostRace(long raceId) => _nav.NavigateTo($"/postrace/{raceId}");
     private void GoToRaceWeek(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");
 }

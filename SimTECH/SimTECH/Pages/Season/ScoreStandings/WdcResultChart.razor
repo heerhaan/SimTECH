@@ -5,30 +5,37 @@
     </TitleContent>
     <DialogContent>
         <MudContainer Class="pa-2">
-            @if (!loading)
-            {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="1000">
-                    @foreach (var result in DataSets)
-                    {
-                        <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                Items="@result.DataPoints"
-                                Name="@result.Label"
-                                SeriesType="ApexCharts.SeriesType.Line"
-                                XValue="@(e => e.XData)"
-                                YValue="@(e => e.YData)"
-                                OrderBy="e => e.X"
-                                Stroke="@result.Stroke" />
-                    }
-                </ApexCharts.ApexChart>
-            }
+            <MudPaper Width="1100px">
+                @if (!loading)
+                {
+                    <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="@("100%")">
+                        @foreach (var result in DataSets)
+                        {
+                            <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                        Items="@result.DataPoints"
+                                                        Name="@result.Label"
+                                                        SeriesType="ApexCharts.SeriesType.Line"
+                                                        XValue="@(e => e.XData)"
+                                                        YValue="@(e => e.YData)"
+                                                        OrderBy="e => e.X"
+                                                        Stroke="@result.Stroke" />
+                        }
+                    </ApexCharts.ApexChart>
+                }
+            </MudPaper>
         </MudContainer>
     </DialogContent>
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
-    [Parameter] public List<StandingDriverModel>? Drivers { get; set; }
-    [Parameter] public Season Season { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? ChartDialog { get; set; }
+
+    [Parameter]
+    public List<StandingDriverModel>? Drivers { get; set; }
+
+    [Parameter]
+    public Season Season { get; set; }
 
     ApexCharts.ApexChartOptions<DataPoint> options;
     List<DataSet> DataSets = new();
@@ -39,10 +46,10 @@
     {
         options = new ApexCharts.ApexChartOptions<DataPoint>
             {
-                Theme = new ApexCharts.Theme
+                Chart = new ApexCharts.Chart
                 {
-                    Mode = ApexCharts.Mode.Dark,
-                }
+                    Background = "#0d0d0d",
+                },
             };
 
         var allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new Dictionary<int, int>();

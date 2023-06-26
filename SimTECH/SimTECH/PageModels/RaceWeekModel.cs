@@ -8,7 +8,6 @@ namespace SimTECH.PageModels
         public int MaximumInRace { get; set; }
 
         public List<RaceWeekDriver> RaceWeekDrivers { get; set; }
-        public List<Strategy>? AvailableStrategies { get; set; }
         public List<Trait>? TrackTraits { get; set; }
 
         public bool AnyPenalties => RaceWeekDrivers?.Any(e => e.Penalty.HasValue) ?? false;
@@ -37,8 +36,7 @@ namespace SimTECH.PageModels
         public int Grid { get; set; }
         public int Position { get; set; }
         public RaceStatus Status { get; set; }
-        public long StrategyId { get; set; }
-        public Strategy? Strategy { get; set; }
+        public Tyre Tyre { get; set; }
 
         // Whether the driver has a penalty for this race
         public int? Penalty { get; set; }

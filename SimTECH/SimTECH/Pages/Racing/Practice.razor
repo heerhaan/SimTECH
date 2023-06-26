@@ -1,58 +1,55 @@
 ﻿@page "/practice/{RaceId:long}"
-
+@inject BreadcrumbProvider _bread
 @inject RaceService _raceService
 @inject NavigationManager _nav
+@inject IOptions<SimConfig> _config
 
-@if (loading)
-{
-    <MudAlert Severity="Severity.Warning">This bad boi is still loading, some patience please!</MudAlert>
-}
-else
-{
-    <MudContainer>
-        <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)" id="practice-table" Dense="true" Class="extra-dense">
-            <ToolBarContent>
-                <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
-                    <CountryFlag Code="@Model.Country" />
-                    <MudText Typo="Typo.h6">@Model.Name - PRACTICE</MudText>
-                    <MudSpacer />
-                    <MudButtonGroup Variant="Variant.Outlined">
-                        <ScreenshotButton TargetId="practice-table" />
-                        @if (advancedRuns == Model.AmountRuns)
-                        {
-                            <MudButton OnClick="Finish">Finish</MudButton>
-                        }
-                        else
-                        {
-                            <MudButton OnClick="Advance">Advance</MudButton>
-                        }
-                    </MudButtonGroup>
-                </MudStack>
-            </ToolBarContent>
+<MudContainer Class="mt-4">
+    @if (!loading)
+    {
+        <MudPaper MinHeight="60px">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <CountryFlag Code="@Model.Country" />
+                <MudText Typo="Typo.h5">@Model.Name - PRACTICE</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Outlined">
+                    <ScreenshotButton TargetId="practice-table" />
+                    @if (advancedRuns == Model.AmountRuns)
+                    {
+                        <MudButton OnClick="Finish">Finish</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton OnClick="Advance">Advance</MudButton>
+                    }
+                </MudButtonGroup>
+            </MudStack>
+        </MudPaper>
+        <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="practice-table">
             <HeaderContent>
                 <MudTh>#</MudTh>
                 <MudTh Class="pa-0"></MudTh>
                 <MudTh>Driver</MudTh>
                 <MudTh Class="number-col">No.</MudTh>
                 <MudTh>Team</MudTh>
-                <MudTh Class="number-col">PWR</MudTh>
+                <MudTh Class="number-col-xl">PWR</MudTh>
                 @for (int i = 1; i <= Model.AmountRuns; i++)
                 {
                     var j = i;
-                    <MudTh Class="number-col">@j</MudTh>
+                    <MudTh Class="number-col-lg">@j</MudTh>
                 }
-                <MudTh Class="number-col">Score</MudTh>
+                <MudTh Class="number-col-xl">Score</MudTh>
                 <MudTh>Gap</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
-                    <MudText Typo="Typo.h6" Style="@(ViewHelper.SetTextNumberStyle(context.Colour, context.Accent))">@context.Position</MudText>
+                    <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
                 </MudTd>
                 <MudTd Class="pa-0">
                     <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
                 </MudTd>
                 <MudTd>
-                    <MudStack Row="true" Spacing="1" Class="align-center">
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.body1">@context.FirstName</MudText>
                         <MudText Typo="Typo.button">@context.LastName</MudText>
                         <MudSpacer />
@@ -62,41 +59,69 @@ else
                 <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
                     <MudText Typo="Typo.caption">@context.Number</MudText>
                 </MudTd>
-                <MudTd Style="@(ViewHelper.SetBorderLeftStyle(context.Colour))">
+                <MudTd>
                     <MudText>@context.TeamName</MudText>
                 </MudTd>
-                <MudTd>
+                <MudTd Class="number-col-xl">
                     <MudText Typo="Typo.caption">@context.Power</MudText>
                 </MudTd>
-                @foreach (var runResult in context.RunValues)
+                @for (int i = 0; i < context.RunValues.Length; i++)
                 {
-                    <MudTd Class="number-col">
-                        <MudText Typo="Typo.caption">@runResult</MudText>
+                    var j = i;
+                    <MudTd Class="number-col-xl">
+                        <GradientColour Min="@(worstScoresPerSession[j])" Max="@(bestScoresPerSession[j])" Value="@(context.RunValues[j])">
+                            <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.RunValues[j])</MudText>
+                        </GradientColour>
                     </MudTd>
                 }
-                <MudTd Class="number-col">
-                    <MudText Typo="Typo.caption">@context.MaxScore</MudText>
+                <MudTd Class="number-col-xl">
+                    <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScore</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudText>+@(Math.Round((highestScore - context.MaxScore) * Model.GapMarge, 2))</MudText>
+                    @if (context.Position == 1)
+                    {
+                        <MudText Typo="Typo.button">LEADER</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption">+@(Math.Round((highestScore - context.MaxScore) * gapMarge, 2))</MudText>
+                    }
                 </MudTd>
             </RowTemplate>
         </MudTable>
-    </MudContainer>
-}
+    }
+</MudContainer>
 
 @code {
-    [Parameter] public long RaceId { get; set; }
+    [Parameter]
+    public long RaceId { get; set; }
 
     public PracticeModel Model { get; set; }
 
     bool loading = true;
     int advancedRuns = 0;
+    int lowestScore = int.MaxValue;
     int highestScore = 0;
+    int[] worstScoresPerSession;
+    int[] bestScoresPerSession;
+    double gapMarge;
 
     protected override async Task OnInitializedAsync()
     {
         Model = await _raceService.RetrievePracticeModel(RaceId);
+
+        worstScoresPerSession = new int[Model.AmountRuns];
+        bestScoresPerSession = new int[Model.AmountRuns];
+        gapMarge = _config.Value.GapMarge;
+
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: "", disabled: true),
+            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
+            new BreadcrumbItem("Practice", href: $"practice/{RaceId}", disabled: true),
+        });
 
         loading = false;
     }
@@ -112,7 +137,12 @@ else
 
             if (result > highestScore)
                 highestScore = result;
+            else if (result < lowestScore)
+                lowestScore = result;
         }
+
+        worstScoresPerSession[advancedRuns] = lowestScore;
+        bestScoresPerSession[advancedRuns] = highestScore;
 
         foreach (var driver in Model.PracticeDrivers.OrderByDescending(e => e.MaxScore))
         {

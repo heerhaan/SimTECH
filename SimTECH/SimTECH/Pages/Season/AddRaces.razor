@@ -1,4 +1,6 @@
-﻿<MudDialog>
+﻿@using MudBlazor.Utilities
+
+<MudDialog>
     <TitleContent>
         <MudText>Adding multiple of these bad boys</MudText>
     </TitleContent>
@@ -19,9 +21,9 @@
                 </MudList>
             </MudPaper>
         }
-        <MudContainer Class="@(lastStep ? "d-none" : string.Empty)">
+        <MudContainer Class="@(stepIndex == 0 ? string.Empty : "d-none")">
             <MudPaper>
-                <MudTable T="Track" @bind-SelectedItems="selectedTracks" Items="Tracks" MultiSelection="true" Hover="true">
+                <MudTable T="Track" @bind-SelectedItems="selectedTracks" Items="@Tracks" MultiSelection="true" Hover="true">
                     <HeaderContent>
                         <MudTh>Name</MudTh>
                         <MudTh>Country</MudTh>
@@ -33,7 +35,7 @@
                             <MudText>@context.Name</MudText>
                         </MudTd>
                         <MudTd>
-                            <CountryNamedFlag Code="@context.Country" Size="FlagSize.Small" />
+                            <CountryNamedFlag Code="@context.Country" Size="FlagSize.Small" Reverse="true" />
                         </MudTd>
                         <MudTd>
                             <MudText Typo="Typo.caption">@(context.Length)Km</MudText>
@@ -45,9 +47,9 @@
                 </MudTable>
             </MudPaper>
         </MudContainer>
-        <MudContainer Class="@(lastStep ? string.Empty : "d-none")">
+        <MudContainer Class="@(stepIndex == 1 ? string.Empty : "d-none")">
             <MudPaper MinWidth="1000px">
-                <MudTable T="EditRaceModel" Items="addedRaces.OrderBy(e => e.Round)" EditTrigger="TableEditTrigger.RowClick" Hover="true">
+                <MudTable T="EditRaceModel" Items="@addedRaces.OrderBy(e => e.Round)" EditTrigger="TableEditTrigger.RowClick" Hover="true">
                     <HeaderContent>
                         <MudTh>Round</MudTh>
                         <MudTh>Name</MudTh>
@@ -65,7 +67,7 @@
                             <MudText>@(context.RaceLength)Km</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText>@context.ClimateId</MudText>
+                            <MudText>@(Climates.Find(e => e.Id == context.ClimateId)?.Terminology ?? "Unknown")</MudText>
                         </MudTd>
                     </RowTemplate>
                     <RowEditingTemplate>
@@ -76,15 +78,18 @@
                             <MudTextField @bind-Value="context.Name" />
                         </MudTd>
                         <MudTd>
-                            <MudNumericField T="int" @bind-Value="context.RaceLength" Step="10" Label="RaceLength" HelperText="Should round to nearest ten" Class="field-md" />
+                            <MudNumericField T="int"
+                                             @bind-Value="context.RaceLength"
+                                             Step="10"
+                                             Label="RaceLength"
+                                             HelperText="Should round to nearest ten"
+                                             Class="field-md" />
                         </MudTd>
                         <MudTd>
                             <MudSelect T="long" @bind-Value="context.ClimateId">
                                 @foreach (var climate in Climates)
                                 {
-                                    <MudSelectItem Value="climate.Id">
-                                        @climate.Terminology
-                                    </MudSelectItem>
+                                    <MudSelectItem Value="climate.Id">@climate.Terminology</MudSelectItem>
                                 }
                             </MudSelect>
                         </MudTd>
@@ -92,37 +97,75 @@
                 </MudTable>
             </MudPaper>
         </MudContainer>
+        <MudContainer Class="@(stepIndex == 2 ? string.Empty : "d-none")">
+            <MudPaper MinWidth="700px">
+                <MudDropContainer @ref="reorderContainer"
+                                  T="EditRaceModel"
+                                  Items="@addedRaces"
+                                  ItemsSelector="@((item, zone) => item.SeasonId.ToString() == zone)"
+                                  ItemDropped="ReorderItems">
+                    <ChildContent>
+                        <MudPaper>
+                            <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                                <MudListSubheader>Reorder races (just drag)</MudListSubheader>
+                                <MudDropZone T="EditRaceModel" Identifier="@(SeasonId.ToString())" AllowReorder="true" Class="flex-grow-1" />
+                            </MudList>
+                        </MudPaper>
+                    </ChildContent>
+                    <ItemRenderer>
+                        <MudListItem Text="@($"{context.Name} [Round:{context.Round}]")" />
+                    </ItemRenderer>
+                </MudDropContainer>
+            </MudPaper>
+        </MudContainer>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        @if (!lastStep)
+        @if (stepIndex == 2)
         {
-            <MudButton Color="Color.Primary" OnClick="Next">Next</MudButton>
+            <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
         }
         else
         {
-            <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+            <MudButton Color="Color.Primary" OnClick="Next">Next</MudButton>
         }
     </DialogActions>
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? RaceDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? RaceDialog { get; set; }
 
-    [Parameter] public List<Track> Tracks { get; set; }
-    [Parameter] public long SeasonId { get; set; }
-    [Parameter] public int OffsetRound { get; set; }
-    [Parameter] public int DefaultRaceLength { get; set; }
-    [Parameter] public List<Climate> Climates { get; set; }
+    [Parameter]
+    public List<Track> Tracks { get; set; }
+    [Parameter]
+    public long SeasonId { get; set; }
+    [Parameter]
+    public int OffsetRound { get; set; }
+    [Parameter]
+    public int DefaultRaceLength { get; set; }
+    [Parameter]
+    public List<Climate> Climates { get; set; }
+
+    private MudDropContainer<EditRaceModel> reorderContainer;
 
     private HashSet<Track> selectedTracks = new();
     private List<EditRaceModel> addedRaces = new();
     private List<string> errorValidations = new();
 
-    bool lastStep = false;
+    int stepIndex = 0;
 
     private void Next()
     {
+        stepIndex++;
+
+        if (stepIndex == 2)
+        {
+            StateHasChanged();
+            reorderContainer.Refresh();
+            return;
+        }
+
         var climateIdentifiers = Climates.Select(e => e.Id).ToArray();
 
         foreach (var track in selectedTracks)
@@ -137,8 +180,11 @@
                 ClimateId = climateIdentifiers.TakeRandomItem(),
             });
         }
+    }
 
-        lastStep = true;
+    private void ReorderItems(MudItemDropInfo<EditRaceModel> item)
+    {
+        addedRaces.UpdateOrder(item, e => e.Round);
     }
 
     private void Submit()
@@ -157,8 +203,11 @@
     {
         var isValid = true;
 
-        foreach (var model in addedRaces)
+        int roundIndex = 0;
+        foreach (var model in addedRaces.OrderBy(e => e.Round))
         {
+            model.Round = ++roundIndex;
+
             if ((model.RaceLength % 10) != 0)
             {
                 errorValidations.Add("Race length should be a factor of 10");

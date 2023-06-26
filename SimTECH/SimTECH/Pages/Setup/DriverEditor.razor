@@ -1,10 +1,6 @@
-﻿@using MudExtensions
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
-        <MudText>
-            Driver moment
-        </MudText>
+        <MudText>Driver moment</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm @ref="form" @bind-IsValid="@isValid" @bind-Errors="@errors">
@@ -37,7 +33,7 @@
                                            Label="Date of Birth"
                                            Class="field-md"
                                            Required="true" />
-                            <MudCountrySelect @bind-Value="Model.Country"
+                            <CountrySelect @bind-Value="Model.Country"
                                               Class="field-md" />
                             <MudTextField T="string"
                                           @bind-Value="Model.Biography"
@@ -59,17 +55,20 @@
                 <MudItem xs="4">
                     <MudPaper Elevation="15" Class="pa-2 mud-height-full">
                         <MudText Typo="Typo.subtitle1">Traits</MudText>
-                        <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
+                        <MudChipSet @bind-SelectedValues="@selectedTraits" MultiSelection="true" Filter="true">
                             @foreach (var trait in Traits)
                             {
                                 <MudChip Text="@trait.Name" Value="@trait.Id"></MudChip>
                             }
                         </MudChipSet>
 
-                        <MudText>Validation messages</MudText>
-                        @foreach (var error in errors)
+                        @if (errors.Any())
                         {
-                            <MudText Color="@Color.Error">@error</MudText>
+                            <MudText Typo="Typo.subtitle1">Errors</MudText>
+                            @foreach (var error in errors)
+                            {
+                                <MudText Color="@Color.Error">@error</MudText>
+                            }
                         }
                     </MudPaper>
                 </MudItem>
@@ -83,10 +82,13 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? DriverDialog { get; set; }
 
-    [Parameter] public Driver? Driver { get; set; }
-    [Parameter] public List<Trait> Traits { get; set; } = new();
+    [Parameter]
+    public Driver? Driver { get; set; }
+    [Parameter]
+    public List<Trait> Traits { get; set; } = new();
 
     private EditDriverModel Model;
     private DateTime? dateSetter { get; set; }
@@ -109,9 +111,9 @@
             Model.Abbreviation = Model.LastName.Substring(0, 3).ToUpperInvariant();
     }
 
-    private string? TestValidation(string text)
+    private string? TestValidation(string? text)
     {
-        if (text.Contains("cringe"))
+        if (text?.Contains("cringe") ?? false)
             return "Sorry, this is too cringe";
 
         return null;

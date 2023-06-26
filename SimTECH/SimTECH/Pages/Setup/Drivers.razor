@@ -1,4 +1,5 @@
 ﻿@page "/drivers"
+@inject BreadcrumbProvider _bread
 @inject DriverService DriverService
 @inject TraitService TraitService
 @inject NavigationManager _nav
@@ -6,16 +7,18 @@
 
 <PageTitle>Drivers</PageTitle>
 
-<MudContainer>
-    <MudDataGrid T="Driver" Items="@DriverData" Dense="true" Class="mt-2">
-        <ToolBarContent>
-            <MudText Typo="Typo.h4">Drivers</MudText>
+<MudContainer Class="mt-4">
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Drivers</MudText>
             <MudSpacer />
             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                 <MudButton OnClick="GoToHumanGenerator">Generate</MudButton>
                 <MudButton OnClick="AddDriver">New</MudButton>
             </MudButtonGroup>
-        </ToolBarContent>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="Driver" Items="@DriverData" Dense="true">
         <Columns>
             <HierarchyColumn T="Driver" />
             <PropertyColumn Property="e => e!.FullName" Title="Name" />
@@ -23,7 +26,7 @@
             <PropertyColumn Property="e => e!.DateOfBirth" Title="DOB" Format="d" />
             <TemplateColumn T="Driver" Title="Nation" SortBy="e => e.Country">
                 <CellTemplate>
-                    <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" />
+                    <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" Reverse="true" />
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn T="Driver" Title="League" Sortable="false">
@@ -33,7 +36,6 @@
                     </MudText>
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e!.Alive" />
             <TemplateColumn T="Driver" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small" Class="ml-auto">
@@ -44,16 +46,21 @@
             </TemplateColumn>
         </Columns>
         <ChildRowContent>
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">@context.Item.FullName</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudText>@(context.Item.Alive ? "Still alive" : "Died")</MudText>
-                </MudCardContent>
-            </MudCard>
+            <MudText Typo="Typo.h6">@context.Item.FullName</MudText>
+            <MudStack Row="true">
+                <MudPaper>
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>State</MudText>
+                        <MudText Typo="Typo.button">@(context.Item.State)</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper>
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Alive?</MudText>
+                        <MudText Typo="Typo.button">@(context.Item.Alive ? "Yes" : "No")</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudStack>
         </ChildRowContent>
         <PagerContent>
             <MudDataGridPager T="Driver" />
@@ -67,6 +74,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Drivers", href: "drivers", disabled: true),
+        });
+
         CurrentDrivers = await DriverService.GetCurrentDrivers();
         DriverData = await DriverService.GetDrivers();
     }

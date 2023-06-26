@@ -1,34 +1,20 @@
 ﻿@inject SeasonEntrantService _entrantService
 
-<MudContainer MaxWidth="MaxWidth.Large">
-    <MudPaper>
-        <MudForm @ref="engineForm">
+<MudContainer MaxWidth="MaxWidth.Small">
+    <MudPaper Elevation="15">
+        <MudForm>
             <MudTable T="EditSeasonEngineModel" Items="@Model.SeasonEngines" Hover="true">
                 <HeaderContent>
                     <MudTh>Name</MudTh>
-                    <MudTh>Power</MudTh>
-                    <MudTh>Reliability</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="Name">
                         <MudText Typo="Typo.caption">@context.Name</MudText>
                     </MudTd>
-                    <MudTd DataLabel="Power">
-                        <MudText Typo="Typo.caption">@context.Power</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Reliability">
-                        <MudText Typo="Typo.caption">@context.Reliability</MudText>
-                    </MudTd>
                 </RowTemplate>
                 <RowEditingTemplate>
                     <MudTd DataLabel="Name">
                         <MudTextField @bind-Value="@context.Name" Required />
-                    </MudTd>
-                    <MudTd DataLabel="Power">
-                        <MudNumericField @bind-Value="@context.Power" />
-                    </MudTd>
-                    <MudTd DataLabel="Reliability">
-                        <MudNumericField @bind-Value="@context.Reliability" />
                     </MudTd>
                 </RowEditingTemplate>
                 <EditButtonContent Context="button">
@@ -49,19 +35,18 @@
     [Parameter]
     public long? PreviousSeasonId { get; set; }
 
-    MudForm engineForm;
-
     protected override async Task OnInitializedAsync()
     {
-        List<SeasonEngine>? previousEngines = null;
-        if (PreviousSeasonId.HasValue)
-            previousEngines = await _entrantService.GetSeasonEngines(PreviousSeasonId.Value);
+        await SetEngineEditors();
+    }
 
-        foreach (var engine in Model.BaseEngines)
+    private async Task SetEngineEditors()
+    {
+        Model.SeasonEngines.Clear();
+
+        foreach (var engine in Model.BaseEngines.Where(e => !(Model.SeasonEngines.Select(se => se.EngineId).Contains(e.Id))))
         {
-            SeasonEngine? previousEngine = null;
-            if (previousEngines != null)
-                previousEngine = previousEngines.Find(e => e.EngineId == engine.Id);
+            var previousEngine = await _entrantService.FindRecentSeasonEngine(engine.Id);
 
             var model = new EditSeasonEngineModel(previousEngine);
             model.ResetIdentifierFields();
@@ -71,5 +56,7 @@
 
             Model.SeasonEngines.Add(model);
         }
+
+        Model.RemoveUnsetEngines();
     }
 }

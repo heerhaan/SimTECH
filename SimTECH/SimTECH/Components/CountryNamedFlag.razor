@@ -1,23 +1,36 @@
-﻿<MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-    <CountryFlag Code="@Code" Size="@Size" Class="@Class" />
-    <MudText Class="ml-2">@flagNationName</MudText>
+﻿<MudStack Row="true" Justify="@Justify" AlignItems="AlignItems.Center" Reverse="@Reverse" Class="pa-0">
+    <CountryFlag Code="@Code" Size="@Size" Class="@(_countryClasses)" />
+    <span class="mx-2"></span>
+    <MudText Typo="@Typo">@flagNationName</MudText>
 </MudStack>
 
 @code {
     [Parameter]
     public Country Code { get; set; }
-
     [Parameter]
     public FlagSize Size { get; set; } = FlagSize.Normal;
-
+    [Parameter]
+    public Justify Justify { get; set; } = Justify.SpaceBetween;
+    [Parameter]
+    public Typo Typo { get; set; } = Typo.body1;
     [Parameter]
     public string Class { get; set; } = string.Empty;
+    [Parameter]
+    public bool Reverse { get; set; } = false;
 
     private string flagNationName
     {
         get
         {
             return Code.GetDescription();
+        }
+    }
+
+    private string _countryClasses
+    {
+        get
+        {
+            return Class;
         }
     }
 }

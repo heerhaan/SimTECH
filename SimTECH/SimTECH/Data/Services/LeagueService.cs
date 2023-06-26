@@ -44,7 +44,18 @@ namespace SimTECH.Data.Services
                 context.Add(league);
             }
             else
+            {
+                if (league.DevelopmentRanges?.Any() == true)
+                {
+                    var removeableRanges = await context.DevelopmentRange
+                        .Where(e => e.LeagueId == league.Id && !league.DevelopmentRanges.Select(e => e.Id).Contains(e.Id))
+                        .ToListAsync();
+
+                    context.RemoveRange(removeableRanges);
+                }
+
                 context.Update(league);
+            }
 
             await context.SaveChangesAsync();
         }

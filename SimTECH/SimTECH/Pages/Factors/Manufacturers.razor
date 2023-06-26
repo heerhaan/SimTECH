@@ -1,21 +1,23 @@
 ﻿@page "/manufacturers"
+@inject BreadcrumbProvider _bread
 @inject ManufacturerService ManufacturerService
 @inject IDialogService DialogService
 
 <PageTitle>Manufacturers</PageTitle>
 
-<MudContainer>
-    <MudTable Items="@ManufacturerData" Bordered="true" Class="mt-2">
-        <ToolBarContent>
-            <MudText Typo="Typo.h4">Tyre manufacturers</MudText>
+<MudContainer Class="mt-4">
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Tyre suppliers</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddManufacturer">New</MudButton>
-        </ToolBarContent>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddItem">New</MudButton>
+        </MudStack>
+    </MudPaper>
+    <MudTable Items="@ManufacturerData" Bordered="true" Dense="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Pace</MudTh>
-            <MudTh>Min. wear mod</MudTh>
-            <MudTh>Max. wear mod</MudTh>
+            <MudTh>Wear</MudTh>
             <MudTh>State</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
@@ -25,10 +27,11 @@
                 <MudText Typo="Typo.caption">@context.Pace</MudText>
             </MudTd>
             <MudTd>
-                <MudText Typo="Typo.caption">@context.WearMin</MudText>
-            </MudTd>
-            <MudTd>
-                <MudText Typo="Typo.caption">@context.WearMax</MudText>
+                <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.caption">@context.WearMin</MudText>
+                    <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                    <MudText Typo="Typo.caption">@context.WearMax</MudText>
+                </MudStack>
             </MudTd>
             <MudTd>
                 <MudText>@context.State</MudText>
@@ -36,10 +39,10 @@
             <MudTd>
                 <MudButtonGroup Size="@Size.Small">
                     <MudIconButton Icon="@Icons.Material.Outlined.Edit"
-                                   OnClick="@(async () => await UpdateManufacturer(context))" />
+                                   OnClick="@(async () => await UpdateItem(context))" />
                     <MudIconButton Icon="@Icons.Material.Outlined.Delete"
                                    Color="Color.Error"
-                                   OnClick="@(async () => await DeleteManufacturer(context))" />
+                                   OnClick="@(async () => await DeleteItem(context))" />
                 </MudButtonGroup>
             </MudTd>
         </RowTemplate>
@@ -51,11 +54,17 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Manufacturers", href: "manufacturers", disabled: true),
+        });
+
         ManufacturerData = await ManufacturerService.GetManufacturers();
     }
 
-    async Task AddManufacturer() => await UpdateManufacturer(null);
-    async Task UpdateManufacturer(Manufacturer? item)
+    async Task AddItem() => await UpdateItem(null);
+    async Task UpdateItem(Manufacturer? item)
     {
         var parameters = new DialogParameters { ["Manufacturer"] = item };
 
@@ -69,7 +78,7 @@
         }
     }
 
-    async Task DeleteManufacturer(Manufacturer manufacturer)
+    async Task DeleteItem(Manufacturer manufacturer)
     {
         await ManufacturerService.DeleteManufacturer(manufacturer);
         ManufacturerData.Remove(manufacturer);

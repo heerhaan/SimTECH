@@ -1,20 +1,29 @@
 ﻿@page "/credits"
 @inject BreadcrumbProvider _bread
 
-<h3>Credits</h3>
-<p>sokje for human being generator-data and f1 graphics generator</p>
-<p>tabler icons for icons</p>
-<p>MudBlazor for the component framework</p>
-<p>FrankyDoodle for simming in general</p>
-<p>Skeltal for name inspiration</p>
-
-<MudGrid>
-    <MudItem xs="12"></MudItem>
-    <MudItem xs="6">
-        <DriverGraphic FirstName="Lol" LastName="Sokje" Abbreviation="SOK" Number="19"
-                       Team="Racing Team" Colour="@Color.Secondary.ToString()" Position="1" />
-    </MudItem>
-</MudGrid>
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper>
+                <MudText Typo="Typo.h4">Credits</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="3">
+            <MudPaper>
+                <MudText>Todo</MudText>
+                <p>sokje for human being generator-data and f1 graphics generator</p>
+                <p>tabler icons for icons</p>
+                <p>MudBlazor for the component framework</p>
+                <p>FrankyDoodle for simming in general</p>
+                <p>Skeltal for name inspiration</p>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <DriverGraphic FirstName="Lol" LastName="Sokje" Abbreviation="SOK" Number="19"
+                           Team="Racing Team" Colour="@Color.Secondary.ToString()" Position="1" />
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 @code {
     protected override void OnInitialized()
@@ -23,6 +32,7 @@
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Credits", href: "credits", disabled: true),
         });
     }
 }

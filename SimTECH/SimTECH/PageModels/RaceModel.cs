@@ -9,10 +9,10 @@ namespace SimTECH.PageModels
         public Country Country { get; set; }
         public string Climate { get; set; }
         public string ClimateIcon { get; set; }
+        public bool IsWet { get; set; }
         public bool IsFinished { get; set; }
 
         public int AmountRuns { get; set; }//Can be used for both runs in qualy and stints in race
-        public double GapMarge { get; set; }
     }
 
     public class RaceModel : SessionBase
@@ -28,32 +28,7 @@ namespace SimTECH.PageModels
         public Season Season { get; set; }//pick values intead of whole object?
         public LeagueOptions LeagueOptions { get; set; }
 
-        // Values read from the configuration
-        public int FatalityOdds { get; set; }
-        public int DisqualifyOdds { get; set; }
-        public int SafetyCarOdds { get; set; }
-        public int MistakeRolls { get; set; }
-        public int MistakeMinCost { get; set; }
-        public int MistakeMaxCost { get; set; }
-        public int BattleRng { get; set; }
-
         public int QualifyingBonus(int grid) => (RaceDrivers.Count * Season.GridBonus) - ((grid - 1) * Season.GridBonus);
-
-        // Refactor this one since good god, i dont like this
-        public Race ToFinishedRace()
-        {
-            return new Race
-            {
-                Id = RaceId,
-                Round = Round,
-                Name = Name,
-                RaceLength = RaceLength,
-                State = State.Closed,
-                SeasonId = Season.Id,
-                TrackId = TrackId,
-                ClimateId = ClimateId,
-            };
-        }
     }
 
     public class QualifyingModel : SessionBase
@@ -62,6 +37,7 @@ namespace SimTECH.PageModels
         public int QualyRng { get; set; }
         public int QualyAmountQ2 { get; set; }
         public int QualyAmountQ3 { get; set; }
+        public QualyFormat QualifyingFormat { get; set; }
 
         public List<long> PenaltiesToConsume { get; set; } = new();
         public List<QualifyingDriver> QualifyingDrivers { get; set; } = new();

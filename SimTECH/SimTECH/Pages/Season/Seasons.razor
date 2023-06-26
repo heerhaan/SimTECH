@@ -1,23 +1,26 @@
 ﻿@page "/seasons"
+@inject BreadcrumbProvider _bread
 @inject NavigationManager Nav
 @inject LeagueService LeagueService
 @inject SeasonService SeasonService
-@inject BreadcrumbProvider _bread
 @inject IDialogService DialogService
 
 <PageTitle>Seasons</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     @if (SeasonList != null)
     {
-        <MudDataGrid T="SeasonListModel" Items="@SeasonList" Bordered="true" Dense="true" Class="my-2">
-            <ToolBarContent>
-                <MudText Typo="Typo.h4">Seasons</MudText>
+        <MudPaper MinHeight="60px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+                <MudText Typo="Typo.h3">Seasons</MudText>
                 <MudSpacer />
                 <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="NewSeason">New</MudButton>
-            </ToolBarContent>
+            </MudStack>
+        </MudPaper>
+        <MudDataGrid T="SeasonListModel" Items="@SeasonList" Bordered="true" Dense="true">
             <Columns>
-                <PropertyColumn Property="e => e.Year" />
+                <PropertyColumn Property="e => e!.Year" />
+                <PropertyColumn Property="e => e!.DriverNumber" SortBy="e => e!.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" />
                 <TemplateColumn T="SeasonListModel" Title="Leading driver">
                     <CellTemplate>
                         <MudStack Row="true" AlignItems="AlignItems.Center">
@@ -27,8 +30,12 @@
                         </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
-                <PropertyColumn Property="e => e.DriverNumber" SortBy="e => e.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" />
-                <TemplateColumn T="SeasonListModel" Title="Leading team" CellStyleFunc="LeadTeamStyleFunc">
+                <TemplateColumn T="SeasonListModel" Sortable="false" Class="accent-cell">
+                    <CellTemplate>
+                        <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Item.TeamColour))"></span>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn T="SeasonListModel" Title="Leading team">
                     <CellTemplate>
                         <MudStack Row="true" AlignItems="AlignItems.Center">
                             <MudText>@context.Item.TeamName</MudText>
@@ -37,11 +44,12 @@
                         </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
-                <PropertyColumn Property="e => e.League" />
-                <PropertyColumn Property="e => e.State" />
+                <PropertyColumn Property="e => e!.League" />
+                <PropertyColumn Property="e => e!.State" />
                 <TemplateColumn T="SeasonListModel" Sortable="false">
                     <CellTemplate>
                         <MudButtonGroup Size="@Size.Small">
+                            <MudIconButton Icon="@Icons.Material.Outlined.ContentCopy" OnClick="@(() => CopySeason(context.Item.Id))" />
                             <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToOverview(context.Item.Id))" />
                             @if (context.Item.State == State.Concept)
                             {
@@ -74,7 +82,6 @@
 
         SeasonData = await SeasonService.GetSeasons();
         LeagueData = await LeagueService.GetLeagues();
-
         SeasonList = await SeasonService.GetSeasonList();
     }
 
@@ -95,6 +102,21 @@
             model = new EditSeasonModel(null);
         }
 
+        await EditSeason(model);
+    }
+
+    private async Task CopySeason(long seasonId)
+    {
+        var copyingSeason = SeasonData.Single(e => e.Id == seasonId);
+        var model = new EditSeasonModel(copyingSeason);
+        model.ResetIdentifierFields();
+        model.Year++;
+
+        await EditSeason(model);
+    }
+
+    private async Task EditSeason(EditSeasonModel model)
+    {
         var parameters = new DialogParameters { ["Model"] = model, ["Leagues"] = LeagueData };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
@@ -115,8 +137,6 @@
             SeasonData.Remove(SeasonData.Single(e => e.Id == seasonId));
         }
     }
-
-    private static Func<SeasonListModel, string> LeadTeamStyleFunc => model => ViewHelper.SetBorderLeftStyle(model.TeamColour);
 
     private void GoToOverview(long seasonId) => Nav.NavigateTo($"/overview/{seasonId}");
 }

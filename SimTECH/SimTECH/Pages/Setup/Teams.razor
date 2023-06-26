@@ -1,23 +1,26 @@
 ﻿@page "/teams"
+@inject BreadcrumbProvider _bread
 @inject TeamService TeamService
 @inject TraitService TraitService
 @inject IDialogService DialogService
 
 <PageTitle>Teams</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium">
-    <MudDataGrid T="Team" Items="@TeamData" Dense="true" Class="mt-2">
-        <ToolBarContent>
-            <MudText Typo="Typo.h4">Teams</MudText>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Teams</MudText>
             <MudSpacer />
             <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTeam">New</MudButton>
-        </ToolBarContent>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="Team" Items="@TeamData" Dense="true">
         <Columns>
             <HierarchyColumn T="Team" />
             <PropertyColumn Property="e => e!.Name" />
             <TemplateColumn T="Team" Title="Country" SortBy="e => e.Country">
                 <CellTemplate>
-                    <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" />
+                    <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" Reverse="true" />
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="e => e!.State" />
@@ -55,6 +58,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Teams", href: "teams", disabled: true),
+        });
+
         TeamData = await TeamService.GetTeams();
     }
 

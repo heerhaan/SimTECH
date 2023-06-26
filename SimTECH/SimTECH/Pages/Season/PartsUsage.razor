@@ -11,10 +11,10 @@
         <MudGrid>
             <MudItem xs="9">
                 <MudPaper Class="mud-height-full">
+                    <MudPaper MinHeight="60px" Class="pa-4">
+                        <MudText Typo="Typo.h3">Components</MudText>
+                    </MudPaper>
                     <MudTable Items="@PartsPerDriver">
-                        <ToolBarContent>
-                            <MudText Typo="Typo.h4">Components</MudText>
-                        </ToolBarContent>
                         <HeaderContent>
                             <MudTh>Name</MudTh>
                             <MudTh Class="pa-0">No</MudTh>
@@ -66,7 +66,8 @@
 </MudContainer>
 
 @code {
-    [Parameter] public long SeasonId { get; set; }
+    [Parameter]
+    public long SeasonId { get; set; }
 
     List<Incident> Incidents;
     List<PartsUsedByDriver> PartsPerDriver;

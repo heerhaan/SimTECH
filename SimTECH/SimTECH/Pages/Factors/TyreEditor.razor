@@ -1,4 +1,6 @@
-﻿<MudDialog>
+﻿@inject IOptions<SimConfig> _config
+
+<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">Tyre editor</MudText>
         <MudText>Tyres get replaced when their life is about to reach 0</MudText>
@@ -10,9 +12,16 @@
             <MudNumericField T="int" @bind-Value="@Model.Pace" Label="Pace" Class="field-md" />
 
             <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
-                <MudNumericField T="int" @bind-Value="Model.WearMin" Min="0" Max="@(Model.WearMax)" Label="WearMin" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.WearMin" Min="0" Label="WearMin" Class="field-sm" />
                 <MudNumericField T="int" @bind-Value="Model.WearMax" Min="@(Model.WearMin)" Label="WearMax" Class="field-sm" />
             </MudStack>
+
+            <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
+                <MudNumericField T="int" @bind-Value="Model.DistanceMin" Min="0" Label="DistanceMin" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.DistanceMax" Min="@(Model.DistanceMin)" Label="DistanceMax" Class="field-sm" />
+            </MudStack>
+
+            <MudSwitch @bind-Checked="Model.ForWet" Label="For wet conditions" Color="Color.Tertiary" />
         </MudForm>
         <MudPaper Height="75px">
             <MudStack Row="true">
@@ -28,7 +37,7 @@
                 <MudCard>
                     <MudCardContent>
                         <MudText>Predicted length</MudText>
-                        <MudText Typo="Typo.body2">@(PredictedLength())km</MudText>
+                        <MudText Typo="Typo.body2">@(PredLen())km</MudText>
                     </MudCardContent>
                 </MudCard>
             </MudStack>
@@ -45,29 +54,27 @@
     [Parameter] public Tyre? Tyre { get; set; }
 
     private EditTyreModel Model;
+    private int advanceLength;
 
     protected override void OnInitialized()
     {
         Model = new EditTyreModel(Tyre);
+        advanceLength = _config.Value.CalculationDistance;
     }
 
-    int PredictedLength()
+    int PredLen()
     {
-        if (Model.Pace == 0 || (Model.WearMax == 0 && Model.WearMin == 0))
+        if (Model.Pace == 0 || (Model.WearMin == 0 && Model.WearMax == 0))
             return 0;
 
-        var wearAverage = (Model.WearMax + Model.WearMin) / 2;
+        var wearAvg = (double)(Model.WearMax + Model.WearMin) / 2;
+        var averageLen = (Model.Pace / wearAvg) * 10;
 
-        if (wearAverage == 0)
-            return 0;
-
-        return (Model.Pace / wearAverage) * 10;
+        return averageLen.RoundDouble();
     }
 
     private void Submit()
     {
-        Model.Length = PredictedLength();
-
         if (Model.IsDirty)
         {
             var modTyre = Model.Record;

@@ -2,19 +2,6 @@
 
 namespace SimTECH.Data.Models
 {
-    /*
-     * Damage, Collision, Accident, Puncture,
-       Engine,
-       Electrics, Exhaust, Clutch, Hydraulics, Wheel, Brakes,
-       Illegal, Fuel, Dangerous,
-       Death
-     */
-
-    public enum CategoryIncident
-    {
-        Driver, Car, Engine, Disqualified, Lethal
-    }
-
     public sealed class Incident : ModelState
     {
         public string Name { get; set; }
@@ -41,8 +28,8 @@ namespace SimTECH.Data.Models
                 }
             }
 
-            var randomItem = weightedList.TakeRandomItem();
-            return incidents.First(e => e.Id == randomItem);
+            var randomId = weightedList.TakeRandomItem();
+            return incidents.First(e => e.Id == randomId);
         }
 
         public static double DoubledPunishment(this Incident incident) => Convert.ToDouble(incident.Punishment) + 0.2;

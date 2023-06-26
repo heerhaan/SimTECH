@@ -1,21 +1,18 @@
 ﻿@inject TeamService _teamService
 
 <MudContainer MaxWidth="MaxWidth.Medium">
-    <MudPaper>
+    <MudPaper Elevation="15">
         <MudTable T="Team" Items="@Teams" @bind-SelectedItems="@Model.BaseTeams" MultiSelection="true" Dense="true" Hover="true">
-            <ToolBarContent>
-                <MudText Typo="Typo.h5">Available teams</MudText>
-            </ToolBarContent>
             <HeaderContent>
                 <MudTh>Name</MudTh>
+                <MudTh>Nation</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Name">
-                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                        <MudText>@context.Name</MudText>
-                        <MudSpacer />
-                        <CountryFlag Code="@context.Country" />
-                    </MudStack>
+                    <MudText>@context.Name</MudText>
+                </MudTd>
+                <MudTd DataLabel="Nation">
+                    <CountryNamedFlag Code="@context.Country" Reverse="true" />
                 </MudTd>
             </RowTemplate>
         </MudTable>

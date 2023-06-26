@@ -34,12 +34,9 @@ namespace SimTECH.PageModels
         public int Position { get; set; }
         public int Grid { get; set; }
         public int Setup { get; set; }
-        // Current Tyre order value also isn't stored, might be useful though if we want to not finish a race in 1 go
-        public int CurrentTyreOrder { get; set; }
         public int TyreLife { get; set; }
 
         public Tyre CurrentTyre { get; set; }
-        public Strategy Strategy { get; set; }
 
         public int DriverReliability { get; set; }
         public int CarReliability { get; set; }
@@ -57,6 +54,10 @@ namespace SimTECH.PageModels
         public int LapSum => LapScores.Sum(e => e.Score);
         public int GridChange => Grid - Position;
         public int LastLapOrder => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
+        public int LastScore { get; set; } = 0;
+        public int OvertakeCount { get; set; } = 0;
+        public int DefensiveCount { get; set; } = 0;
+        public string? SingleOccurrence { get; set; }
 
         public Result ToResult(long raceId)
         {
@@ -74,7 +75,7 @@ namespace SimTECH.PageModels
                 SeasonDriverId = SeasonDriverId,
                 SeasonTeamId = SeasonTeamId,
                 RaceId = raceId,
-                StrategyId = Strategy.Id,
+                TyreId = CurrentTyre.Id,
                 IncidentId = Incident?.Id,
             };
         }

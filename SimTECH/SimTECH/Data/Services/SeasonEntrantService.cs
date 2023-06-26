@@ -20,6 +20,15 @@ namespace SimTECH.Data.Services
             return await context.SeasonEngine.Where(e => e.SeasonId == seasonId).ToListAsync();
         }
 
+        public async Task<SeasonEngine?> FindRecentSeasonEngine(long engineId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonEngine
+                .Where(e => e.EngineId == engineId)
+                .LastOrDefaultAsync();
+        }
+
         public async Task UpdateSeasonEngine(SeasonEngine engne)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -32,7 +41,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task SaveEngineDevelopment(Dictionary<long, int> developmentDict, TargetDevelop target)
+        public async Task SaveEngineDevelopment(Dictionary<long, int> developmentDict, Aspect target)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -40,7 +49,7 @@ namespace SimTECH.Data.Services
 
             foreach (var engine in engines)
             {
-                if (target == TargetDevelop.Main)
+                if (target == Aspect.Skill)
                     engine.Power = developmentDict[engine.Id];
                 else
                     engine.Reliability = developmentDict[engine.Id];
@@ -85,6 +94,15 @@ namespace SimTECH.Data.Services
                 .SingleAsync(e => e.Id == seasonTeamId);
         }
 
+        public async Task<SeasonTeam?> FindRecentSeasonTeam(long teamId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonTeam
+                .Where(e => e.TeamId == teamId)
+                .LastOrDefaultAsync();
+        }
+
         public async Task UpdateSeasonTeam(SeasonTeam team)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -97,7 +115,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task SaveTeamDevelopment(Dictionary<long, int> developmentDict, TargetDevelop target)
+        public async Task SaveTeamDevelopment(Dictionary<long, int> developmentDict, Aspect target)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -107,19 +125,19 @@ namespace SimTECH.Data.Services
             {
                 switch (target)
                 {
-                    case TargetDevelop.Main:
+                    case Aspect.Skill:
                         team.BaseValue = developmentDict[team.Id];
                         break;
-                    case TargetDevelop.Reliability:
+                    case Aspect.Reliability:
                         team.Reliability = developmentDict[team.Id];
                         break;
-                    case TargetDevelop.Aero:
+                    case Aspect.Aero:
                         team.Aero = developmentDict[team.Id];
                         break;
-                    case TargetDevelop.Chassis:
+                    case Aspect.Chassis:
                         team.Chassis = developmentDict[team.Id];
                         break;
-                    case TargetDevelop.Powertrain:
+                    case Aspect.Powertrain:
                         team.Powertrain = developmentDict[team.Id];
                         break;
                 }
@@ -153,6 +171,15 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
+        public async Task<SeasonDriver?> FindRecentSeasonDriver(long driverId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonDriver
+                .Where(e => e.DriverId == driverId)
+                .LastOrDefaultAsync();
+        }
+
         public async Task UpdateSeasonDriver(SeasonDriver driver)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -165,7 +192,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task SaveDriverDevelopment(Dictionary<long, int> developmentDict, TargetDevelop target)
+        public async Task SaveDriverDevelopment(Dictionary<long, int> developmentDict, Aspect target)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -175,10 +202,10 @@ namespace SimTECH.Data.Services
             {
                 switch (target)
                 {
-                    case TargetDevelop.Main: driver.Skill = developmentDict[driver.Id]; break;
-                    case TargetDevelop.Reliability: driver.Reliability = developmentDict[driver.Id]; break;
-                    case TargetDevelop.Attack: driver.Attack = developmentDict[driver.Id]; break;
-                    case TargetDevelop.Defense: driver.Defense = developmentDict[driver.Id]; break;
+                    case Aspect.Skill: driver.Skill = developmentDict[driver.Id]; break;
+                    case Aspect.Reliability: driver.Reliability = developmentDict[driver.Id]; break;
+                    case Aspect.Attack: driver.Attack = developmentDict[driver.Id]; break;
+                    case Aspect.Defense: driver.Defense = developmentDict[driver.Id]; break;
                     default: throw new InvalidOperationException("thats the wrong enum value buddy");
                 }
             }

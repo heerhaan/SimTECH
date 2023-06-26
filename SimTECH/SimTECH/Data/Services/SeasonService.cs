@@ -65,7 +65,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            var season = await context.Season.SingleAsync(e => e.Id == seasonId) ?? throw new InvalidOperationException("No season related to ID found");
+            var season = await context.Season.Include(e => e.PointAllotments).SingleAsync(e => e.Id == seasonId) ?? throw new InvalidOperationException("No season related to ID found");
             if (season.State != State.Concept)
                 throw new InvalidOperationException("Can only delete seasons which are in a concept state");
 
@@ -188,28 +188,15 @@ namespace SimTECH.Data.Services
 
                 DriverName = s.SeasonDrivers?.FirstOrDefault()?.Driver.FullName ?? "Unknown",
                 DriverNumber = s.SeasonDrivers?.FirstOrDefault()?.Number ?? 0,
-                DriverNationality = s.SeasonDrivers?.FirstOrDefault()?.Driver.Country ?? EnumHelper.GetDefaultCountry(),
+                DriverNationality = s.SeasonDrivers?.FirstOrDefault()?.Driver.Country ?? EnumHelper.DefaultCountry,
 
                 TeamName = s.SeasonTeams?.FirstOrDefault()?.Name ?? "Unknown",
                 TeamColour = s.SeasonTeams?.FirstOrDefault()?.Colour ?? "Unknown",
-                TeamNationality = s.SeasonTeams?.FirstOrDefault()?.Team.Country ?? EnumHelper.GetDefaultCountry(),
+                TeamNationality = s.SeasonTeams?.FirstOrDefault()?.Team.Country ?? EnumHelper.DefaultCountry,
             });
         }
 
-        // The idea is that this piece of code gives us the info needed to know whether we're going to need to display a warning
-        public SeasonOverviewAvailability GetOverviewAvailability(long seasonId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return new SeasonOverviewAvailability
-            {
-                HasPointAllotment = context.Season.Single(e => e.Id == seasonId).PointAllotments?.Any() ?? true,
-                HasEngines = false,
-                HasTeams = false,
-                HasDrivers = false,
-            };
-        }
-
+        // Consider moving this code completely to the page itself
         public async Task<List<QualyBattle>> GetQualifyingBattles(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -240,14 +227,26 @@ namespace SimTECH.Data.Services
                 }
             }
 
+            var teams = await context.SeasonTeam
+                .Where(e => e.SeasonId == seasonId)
+                .Include(e => e.Team)
+                .ToArrayAsync();
+
             var qualyBattles = new List<QualyBattle>();
             foreach (var victory in battleVictories)
             {
                 var driver = drivers.First(e => e.Id == victory.Key);
+
+                SeasonTeam? team = null;
+                if (driver.SeasonTeamId.HasValue)
+                    team = teams.First(e => e.Id == driver.SeasonTeamId.Value);
+
                 qualyBattles.Add(new QualyBattle
                 {
                     Name = driver.Driver.FullName,
                     Score = victory.Value,
+                    Colour = team?.Colour ?? "var(--mud-palette-primary)",
+                    Team = team?.Team.Name ?? "None",
                 });
             }
 

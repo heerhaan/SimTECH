@@ -1,0 +1,39 @@
+﻿<MudElement HtmlTag="span"
+            Style="@_styles">
+    @ChildContent
+</MudElement>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    [Parameter, EditorRequired]
+    public int Min { get; set; }
+    [Parameter, EditorRequired]
+    public int Max { get; set; }
+    [Parameter, EditorRequired]
+    public int Value { get; set; }
+
+    private string _styles
+    {
+        get
+        {
+            var gradientColour = GetGradientValue();
+
+            var styling = "color: " + gradientColour;
+
+            return styling;
+        }
+    }
+
+    private string GetGradientValue()
+    {
+        if (Min == 0 && Max == 0)
+            return "white";
+
+        var hueValue = (double)(Value - Min) / (double)(Max - Min);
+
+        var hue = (hueValue * 120);
+
+        return $"hsl({Math.Round(hue, 2)}, 100%, 50%)";
+    }
+}

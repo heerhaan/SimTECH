@@ -10,7 +10,7 @@ namespace SimTECH.Data.Services
     public class RaceService
     {
         private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-        private readonly SimConfig _config;
+        private SimConfig _config;
 
         public RaceService(IDbContextFactory<SimTechDbContext> factory, IOptions<SimConfig> config)
         {
@@ -103,39 +103,41 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            var race = await context.Race
-                .SingleAsync(e => e.Id == raceId);
+            var race = await context.Race.Include(e => e.Climate).SingleAsync(e => e.Id == raceId);
 
             if (race.State != State.Concept)
                 throw new InvalidOperationException("Can only activate races in concept state");
+
+            // Should we return any of this?
+            var hasExistingResults = await context.Result.AnyAsync(e => e.RaceId == raceId);
+            if (hasExistingResults)
+                return;
 
             var seasonDrivers = await context.SeasonDriver
                 .Where(e => e.SeasonId == race.SeasonId && e.SeasonTeamId.HasValue)
                 .ToListAsync();
 
-            var strategiesForRace = await context.Strategy
-                .Where(e => e.State == State.Active)
-                .Include(e => e.StrategyTyres)
-                    .ThenInclude(e => e.Tyre)
+            var availableTyres = await context.Tyre
+                .Where(e => e.State == State.Active && e.ForWet == race.Climate.IsWet)
                 .ToListAsync();
 
-            if (strategiesForRace?.Any() != true)
-                throw new InvalidOperationException("No valid strategies for this race, smh");
+            if (availableTyres?.Any() != true)
+                throw new InvalidOperationException("No valid tyres for this race, smh");
 
             var driverResults = new List<Result>();
 
             foreach (var driver in seasonDrivers)
             {
-                var strategy = strategiesForRace[NumberHelper.RandomInt(strategiesForRace.Count - 1)];
+                var tyre = availableTyres.TakeRandomItem();
 
                 driverResults.Add(new Result
                 {
                     Status = RaceStatus.Racing,
-                    TyreLife = strategy.StrategyTyres[0].Tyre.Pace,
+                    TyreLife = tyre.Pace,
                     SeasonDriverId = driver.Id,
                     SeasonTeamId = driver.SeasonTeamId.GetValueOrDefault(),
                     RaceId = race.Id,
-                    StrategyId = strategy.Id,
+                    TyreId = tyre.Id,
                 });
             }
 
@@ -150,15 +152,14 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task PickStrategy(long resultId, long strategyId, int pace)
+        public async Task PickTyre(long resultId, Tyre tyre)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            context.Result
-                .Where(e => e.Id == resultId)
-                .ExecuteUpdate(ex => ex
-                    .SetProperty(prop => prop.StrategyId, strategyId)
-                    .SetProperty(prop => prop.TyreLife, pace));
+            var result = await context.Result.SingleAsync(e => e.Id == resultId);
+
+            result.TyreId = tyre.Id;
+            result.TyreLife = tyre.Pace;
 
             await context.SaveChangesAsync();
         }
@@ -212,8 +213,8 @@ namespace SimTECH.Data.Services
             await context.GivenPenalty
                 .Where(e => consumables.Contains(e.Id))
                 .ExecuteUpdateAsync(e =>
-                    e.SetProperty(p => p.Consumed, p => true)
-                     .SetProperty(p => p.ConsumedAtRaceId, p => raceId));
+                    e.SetProperty(p => p.Consumed, true)
+                     .SetProperty(p => p.ConsumedAtRaceId, raceId));
 
             await context.SaveChangesAsync();
         }
@@ -229,9 +230,12 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task FinishRace(Race finishedRace, List<Result> finishedResults, List<ScoredPoints> scoredPoints)
+        public async Task FinishRace(long raceId, List<Result> finishedResults, List<ScoredPoints> scoredPoints)
         {
             using var context = _dbFactory.CreateDbContext();
+
+            var finishedRace = await context.Race.SingleAsync(e => e.Id == raceId);
+            finishedRace.State = State.Closed;
 
             context.Update(finishedRace);
             context.UpdateRange(finishedResults);
@@ -309,6 +313,7 @@ namespace SimTECH.Data.Services
                 .Include(e => e.SeasonDriver)
                     .ThenInclude(e => e.Driver)
                 .Include(e => e.SeasonTeam)
+                .Include(e => e.Tyre)
                 .Where(e => e.RaceId == raceId)
                 .Select(result => new RaceWeekDriver
                 {
@@ -330,21 +335,12 @@ namespace SimTECH.Data.Services
                     Grid = result.Grid,
                     Position = result.Position,
                     Status = result.Status,
-                    StrategyId = result.StrategyId,
+                    Tyre = result.Tyre,
                 })
                 .ToListAsync();
 
             if (weekendDrivers?.Any() != true)
                 throw new InvalidOperationException("We're going to need some actual drivers too");
-
-            // Set strategies
-            var strategiesForRace = await context.Strategy
-                .Include(e => e.StrategyTyres)
-                    .ThenInclude(e => e.Tyre)
-                .ToListAsync();
-
-            foreach (var driver in weekendDrivers)
-                driver.Strategy = strategiesForRace.Find(e => e.Id == driver.StrategyId);
 
             // Set eventual penalties
             var unconsumedPenalties = await context.GivenPenalty.Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId).ToListAsync();
@@ -366,7 +362,6 @@ namespace SimTECH.Data.Services
                 Race = race,
                 MaximumInRace = race.Season.MaximumDriversInRace,
                 RaceWeekDrivers = weekendDrivers,
-                AvailableStrategies = strategiesForRace,
                 TrackTraits = trackTraits,
             };
         }
@@ -468,6 +463,7 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
+            // It's likely that this is a very unperformant implementation, consider a refactor
             return await context.Race
                 .Where(e => e.State == State.Closed && e.Results.Any())
                 .TakeLastSpecial(amount)
@@ -479,24 +475,26 @@ namespace SimTECH.Data.Services
                     Country = e.Track.Country,
                     LeagueName = e.Season.League.Name,
 
-                    WinningDriver = e.Results.Select(d => new DriverWinner
-                    {
-                        Name = d.SeasonDriver.Driver.FullName,
-                        Country = d.SeasonDriver.Driver.Country,
-                        Number = d.SeasonDriver.Number,
-                        Colour = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultColour : d.SeasonDriver.SeasonTeam.Colour,
-                        Accent = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultAccent : d.SeasonDriver.SeasonTeam.Accent
-                    })
-                    .First(),
+                    WinningDriver = e.Results.Where(e => e.Position == 1)
+                        .Select(d => new DriverWinner
+                        {
+                            Name = d.SeasonDriver.Driver.FullName,
+                            Country = d.SeasonDriver.Driver.Country,
+                            Number = d.SeasonDriver.Number,
+                            Colour = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultColour : d.SeasonDriver.SeasonTeam.Colour,
+                            Accent = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultAccent : d.SeasonDriver.SeasonTeam.Accent
+                        })
+                        .First(),
 
-                    WinningTeam = e.Results.Select(t => new TeamWinner
-                    {
-                        Name = t.SeasonTeam.Name,
-                        Country = t.SeasonTeam.Team.Country,
-                        Colour = t.SeasonTeam.Colour,
-                        Accent = t.SeasonTeam.Accent
-                    })
-                    .First(),
+                    WinningTeam = e.Results.Where(e => e.Position == 1)
+                        .Select(t => new TeamWinner
+                        {
+                            Name = t.SeasonTeam.Name,
+                            Country = t.SeasonTeam.Team.Country,
+                            Colour = t.SeasonTeam.Colour,
+                            Accent = t.SeasonTeam.Accent
+                        })
+                        .First(),
                 })
                 .ToListAsync();
         }
@@ -523,6 +521,8 @@ namespace SimTECH.Data.Services
             var driverResults = await context.Result
                 .Where(e => e.RaceId == raceId && e.Status != RaceStatus.Dnq)
                 .Include(e => e.LapScores)
+                .Include(e => e.Incident)
+                .Include(e => e.Tyre)
                 .ToListAsync();
 
             var drivers = await context.SeasonDriver
@@ -542,11 +542,6 @@ namespace SimTECH.Data.Services
             // Excludes wet traits if the race isn't wet either
             var allTraits = await context.Trait
                 .Where(e => (!e.ForWetConditions) || e.ForWetConditions == race.Climate.IsWet)
-                .ToListAsync();
-
-            var allStrategies = await context.Strategy
-                .Include(e => e.StrategyTyres)
-                    .ThenInclude(e => e.Tyre)
                 .ToListAsync();
 
             List<Trait> trackTraits;
@@ -569,7 +564,6 @@ namespace SimTECH.Data.Services
 
                 var driver = drivers.Find(e => e.Id == driverResult.SeasonDriverId) ?? throw new InvalidOperationException("Could not find matching seasondriver for result");
                 var team = teams.Find(e => e.Id == driverResult.SeasonTeamId) ?? throw new InvalidOperationException("Could not find matching seasonteam for result");
-                var strategy = allStrategies.Find(e => e.Id == driverResult.StrategyId) ?? throw new InvalidOperationException("Could not find the strategy for driver");
 
                 if (team.Manufacturer == null)
                     throw new InvalidOperationException("where the tyre manufacturer at boi?");
@@ -612,13 +606,7 @@ namespace SimTECH.Data.Services
                     Grid = driverResult.Grid,
                     Setup = driverResult.Setup,
                     TyreLife = driverResult.TyreLife,
-
-                    Strategy = strategy,
-                    // We might want to store the current tyre ID too otherwise this makes little sense when opening an older rees
-                    // Also this way one has to finish a started race
-                    // Alternatively determine the current tyre based on the state of the race
-                    CurrentTyre = strategy.StrategyTyres[0].Tyre,
-                    CurrentTyreOrder = 1,
+                    CurrentTyre = driverResult.Tyre,
 
                     Power = totalPower,
                     Attack = driver.Attack + sumTraits.Attack,
@@ -644,10 +632,11 @@ namespace SimTECH.Data.Services
                 TrackLength = race.Track?.Length ?? 0,
                 RaceLength = race.RaceLength,
                 Name = race.Name,
-                Country = race.Track?.Country ?? EnumHelper.GetDefaultCountry(),
+                Country = race.Track?.Country ?? EnumHelper.DefaultCountry,
                 ClimateId = race.ClimateId,
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
+                IsWet = race.Climate.IsWet,
                 Round = race.Round,
                 IsFinished = race.State == State.Closed,
 
@@ -655,16 +644,6 @@ namespace SimTECH.Data.Services
 
                 Season = season,
                 LeagueOptions = season.League.Options,
-
-                // Arguably remove these properties and just directly call the config from the race page
-                FatalityOdds = _config.FatalityChance,
-                DisqualifyOdds = _config.DisqualifyChance,
-                SafetyCarOdds = _config.SafetyCarChance,
-                MistakeRolls = _config.MistakeAmountRolls,
-                MistakeMinCost = _config.MistakeLowerValue,
-                MistakeMaxCost = _config.MistakeUpperValue,
-                BattleRng = _config.BattleRng,
-                GapMarge = _config.GapMarge,
             };
         }
 
@@ -716,14 +695,14 @@ namespace SimTECH.Data.Services
                 Country = race.Track.Country,
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
+                IsWet = race.Climate.IsWet,
 
                 AmountRuns = season.RunAmountSession,
                 MaximumRaceDrivers = season.MaximumDriversInRace,
                 QualyRng = season.QualifyingRNG,
                 QualyAmountQ2 = season.QualifyingAmountQ2,
                 QualyAmountQ3 = season.QualifyingAmountQ3,
-
-                GapMarge = _config.GapMarge,
+                QualifyingFormat = season.QualifyingFormat,
             };
 
             var raceDrivers = new List<QualifyingDriver>();
@@ -870,13 +849,12 @@ namespace SimTECH.Data.Services
                 Country = race.Track.Country,
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
+                IsWet = race.Climate.IsWet,
 
                 AmountRuns = season.RunAmountSession,
                 PracticeRng = season.QualifyingRNG / 2,
 
                 PracticeDrivers = practiceDrivers,
-
-                GapMarge = _config.GapMarge,
             };
         }
         #endregion

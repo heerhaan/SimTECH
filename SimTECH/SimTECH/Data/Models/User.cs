@@ -43,7 +43,7 @@ namespace SimTECH.Data.Models
             FullName = principal.FindFirstValue(nameof(FullName)) ?? string.Empty,
             Country = Enum.TryParse(principal.FindFirstValue(nameof(Country)), out Country parsedCountry)
                 ? parsedCountry
-                : EnumHelper.GetDefaultCountry(),
+                : EnumHelper.DefaultCountry,
             CoolGrade = Convert.ToInt32(principal.FindFirstValue(nameof(CoolGrade))),
             Roles = principal
                 .FindAll(ClaimTypes.Role)

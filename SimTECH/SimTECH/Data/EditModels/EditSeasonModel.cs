@@ -22,6 +22,7 @@ namespace SimTECH.Data.EditModels
         public int RngMaximum { get; set; }
         public int PointsPole { get; set; }
         public int PointsFastestLap { get; set; }
+        public QualyFormat QualifyingFormat { get; set; }
         public long LeagueId { get; set; }
         public IList<EditPointAllotmentModel> PointAllotments { get; set; } = new List<EditPointAllotmentModel>();
 
@@ -48,6 +49,7 @@ namespace SimTECH.Data.EditModels
                 RngMaximum = season.RngMaximum;
                 PointsPole = season.PointsPole;
                 PointsFastestLap = season.PointsFastestLap;
+                QualifyingFormat = season.QualifyingFormat;
                 LeagueId = season.LeagueId;
 
                 if (season.PointAllotments != null)
@@ -64,6 +66,7 @@ namespace SimTECH.Data.EditModels
                 State = State,
                 Year = Year,
                 MaximumDriversInRace = MaximumDriversInRace,
+                QualifyingFormat = QualifyingFormat,
                 QualifyingAmountQ2 = QualifyingAmountQ2,
                 QualifyingAmountQ3 = QualifyingAmountQ3,
                 QualifyingRNG = QualifyingRNG,

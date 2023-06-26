@@ -17,7 +17,7 @@ namespace SimTECH.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("ProductVersion", "7.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -65,7 +65,7 @@ namespace SimTECH.Migrations
                         {
                             Id = 1L,
                             EngineMultiplier = 1.1000000000000001,
-                            Icon = "<path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z\"/>",
+                            Icon = "<path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z\"/>",
                             IsWet = false,
                             Odds = 3,
                             ReliablityModifier = 0,
@@ -668,7 +668,7 @@ namespace SimTECH.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<long>("StrategyId")
+                    b.Property<long>("TyreId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("TyreLife")
@@ -684,7 +684,7 @@ namespace SimTECH.Migrations
 
                     b.HasIndex("SeasonTeamId");
 
-                    b.HasIndex("StrategyId");
+                    b.HasIndex("TyreId");
 
                     b.ToTable("Result");
                 });
@@ -723,6 +723,11 @@ namespace SimTECH.Migrations
 
                     b.Property<int>("QualifyingAmountQ3")
                         .HasColumnType("int");
+
+                    b.Property<int>("QualifyingFormat")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("QualifyingRNG")
                         .HasColumnType("int");
@@ -929,48 +934,6 @@ namespace SimTECH.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Sponsor");
-                });
-
-            modelBuilder.Entity("SimTECH.Data.Models.Strategy", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("State")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Strategy");
-                });
-
-            modelBuilder.Entity("SimTECH.Data.Models.StrategyTyre", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<long>("StrategyId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TyreId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StrategyId");
-
-                    b.HasIndex("TyreId");
-
-                    b.ToTable("StrategyTyre");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Team", b =>
@@ -1240,8 +1203,14 @@ namespace SimTECH.Migrations
                         .HasColumnType("nchar(9)")
                         .IsFixedLength();
 
-                    b.Property<int>("Length")
+                    b.Property<int>("DistanceMax")
                         .HasColumnType("int");
+
+                    b.Property<int>("DistanceMin")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("ForWet")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1268,7 +1237,9 @@ namespace SimTECH.Migrations
                         {
                             Id = 1L,
                             Colour = "#fa0536  ",
-                            Length = 100,
+                            DistanceMax = 125,
+                            DistanceMin = 75,
+                            ForWet = false,
                             Name = "Soft",
                             Pace = 200,
                             State = 1,
@@ -1279,7 +1250,9 @@ namespace SimTECH.Migrations
                         {
                             Id = 2L,
                             Colour = "#f4ea26  ",
-                            Length = 150,
+                            DistanceMax = 999,
+                            DistanceMin = 125,
+                            ForWet = false,
                             Name = "Medium",
                             Pace = 180,
                             State = 1,
@@ -1290,7 +1263,9 @@ namespace SimTECH.Migrations
                         {
                             Id = 3L,
                             Colour = "#dfdde9  ",
-                            Length = 200,
+                            DistanceMax = 999,
+                            DistanceMin = 175,
+                            ForWet = false,
                             Name = "Hard",
                             Pace = 160,
                             State = 1,
@@ -1301,12 +1276,27 @@ namespace SimTECH.Migrations
                         {
                             Id = 4L,
                             Colour = "#bded80  ",
-                            Length = 500,
+                            DistanceMax = 999,
+                            DistanceMin = 100,
+                            ForWet = false,
                             Name = "Grooved",
                             Pace = 100,
                             State = 2,
                             WearMax = 3,
                             WearMin = 1
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            Colour = "#3399ff  ",
+                            DistanceMax = 999,
+                            DistanceMin = 50,
+                            ForWet = true,
+                            Name = "Wet",
+                            Pace = 50,
+                            State = 1,
+                            WearMax = 1,
+                            WearMin = 0
                         });
                 });
 
@@ -1479,9 +1469,9 @@ namespace SimTECH.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SimTECH.Data.Models.Strategy", "Strategy")
+                    b.HasOne("SimTECH.Data.Models.Tyre", "Tyre")
                         .WithMany()
-                        .HasForeignKey("StrategyId")
+                        .HasForeignKey("TyreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1493,7 +1483,7 @@ namespace SimTECH.Migrations
 
                     b.Navigation("SeasonTeam");
 
-                    b.Navigation("Strategy");
+                    b.Navigation("Tyre");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Season", b =>
@@ -1584,25 +1574,6 @@ namespace SimTECH.Migrations
                     b.Navigation("SeasonEngine");
 
                     b.Navigation("Team");
-                });
-
-            modelBuilder.Entity("SimTECH.Data.Models.StrategyTyre", b =>
-                {
-                    b.HasOne("SimTECH.Data.Models.Strategy", "Strategy")
-                        .WithMany("StrategyTyres")
-                        .HasForeignKey("StrategyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SimTECH.Data.Models.Tyre", "Tyre")
-                        .WithMany("StrategyTyres")
-                        .HasForeignKey("TyreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Strategy");
-
-                    b.Navigation("Tyre");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.TeamTrait", b =>
@@ -1708,11 +1679,6 @@ namespace SimTECH.Migrations
                     b.Navigation("SeasonDrivers");
                 });
 
-            modelBuilder.Entity("SimTECH.Data.Models.Strategy", b =>
-                {
-                    b.Navigation("StrategyTyres");
-                });
-
             modelBuilder.Entity("SimTECH.Data.Models.Team", b =>
                 {
                     b.Navigation("Contracts");
@@ -1736,11 +1702,6 @@ namespace SimTECH.Migrations
                     b.Navigation("TeamTraits");
 
                     b.Navigation("TrackTraits");
-                });
-
-            modelBuilder.Entity("SimTECH.Data.Models.Tyre", b =>
-                {
-                    b.Navigation("StrategyTyres");
                 });
 #pragma warning restore 612, 618
         }

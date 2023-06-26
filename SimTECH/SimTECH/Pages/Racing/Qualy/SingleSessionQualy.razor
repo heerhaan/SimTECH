@@ -1,0 +1,131 @@
+﻿@inject IOptions<SimConfig> _config
+
+<MudContainer MaxWidth="MaxWidth.False">
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <CountryFlag Code="@Model.Country" />
+            <MudText Typo="Typo.h5">@Model.Name - QUALIFYING</MudText>
+            <MudSpacer />
+            <MudButtonGroup Variant="Variant.Outlined">
+                <ScreenshotButton TargetId="qualy-result-table" />
+                @if (advanced == Model.AmountRuns)
+                {
+                    <MudButton Variant="Variant.Outlined" OnClick="@(() => CallbackFinish.InvokeAsync())">Finish</MudButton>
+                }
+                else
+                {
+                    <MudButton OnClick="Advance">Advance</MudButton>
+                }
+            </MudButtonGroup>
+        </MudStack>
+    </MudPaper>
+    <MudTable Items="@Model.QualifyingDrivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="qualy-result-table">
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh Class="pa-0"></MudTh>
+            <MudTh>Driver</MudTh>
+            <MudTh Class="number-col-lg">No.</MudTh>
+            <MudTh>Team</MudTh>
+            <MudTh Class="number-col-xl">PWR</MudTh>
+            @for (int i = 1; i <= Model.AmountRuns; i++)
+            {
+                var j = i;
+                <MudTh Class="number-col-xl">@j</MudTh>
+            }
+            <MudTh Class="number-col-xl">Score</MudTh>
+            <MudTh>Gap</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTdCutoffStyled Position="@context.PositionQ1" EntryLimit="@Model.MaximumRaceDrivers" Class="number-col">
+                <DriverPosition Number="@(context.PositionQ1)" Colour="@(context.Colour)" Accent="@(context.Accent)" />
+            </MudTdCutoffStyled>
+            <MudTd Class="pa-0">
+                <span class="smol-accent" style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))"></span>
+            </MudTd>
+            <MudTd>
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.body1">@context.FirstName</MudText>
+                    <MudText Typo="Typo.button">@context.LastName</MudText>
+                    <MudSpacer />
+                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                </MudStack>
+            </MudTd>
+            <MudTd Class="number-col-lg" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
+                <MudText Typo="Typo.caption">@context.Number</MudText>
+            </MudTd>
+            <MudTd>
+                <MudText>@context.TeamName</MudText>
+            </MudTd>
+            <MudTd Class="number-col-xl">
+                <MudText Typo="Typo.caption">@context.Power</MudText>
+            </MudTd>
+            @for (int i = 0; i < context.RunValuesQ1.Length; i++)
+            {
+                var j = i;
+                <MudTd Class="number-col-xl">
+                    <GradientColour Min="@(worstScoresPerSession[j])" Max="@(bestScoresPerSession[j])" Value="@(context.RunValuesQ1[j])">
+                        <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.RunValuesQ1[j])</MudText>
+                    </GradientColour>
+                </MudTd>
+            }
+            <MudTd Class="number-col-xl">
+                <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScoreQ1</MudText>
+            </MudTd>
+            <MudTd>
+                @if (context.Position == 1)
+                {
+                    <MudText Typo="Typo.button">LEADER</MudText>
+                }
+                else
+                {
+                    <MudText Typo="Typo.caption">+@(context.GapQ1)</MudText>
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public QualifyingModel Model { get; set; }
+    [Parameter]
+    public EventCallback CallbackFinish { get; set; }
+
+    private int advanced = 0;
+    private double gapMarge;
+
+    int lowestScore = 0;
+    int highestScore = 0;
+    int[] worstScoresPerSession;
+    int[] bestScoresPerSession;
+
+    protected override void OnInitialized()
+    {
+        worstScoresPerSession = new int[Model.AmountRuns];
+        bestScoresPerSession = new int[Model.AmountRuns];
+
+        gapMarge = _config.Value.GapMarge;
+    }
+
+    private void Advance()
+    {
+        var positionIndex = 0;
+
+        foreach (var driver in Model.QualifyingDrivers)
+            driver.RunValuesQ1[advanced] = driver.GetQualifyingResult(Model.QualyRng);
+
+        lowestScore = Model.QualifyingDrivers.SelectMany(e => e.RunValuesQ1).Where(e => e > 0).Min();
+        highestScore = Model.QualifyingDrivers.SelectMany(e => e.RunValuesQ1).Max();
+        worstScoresPerSession[advanced] = lowestScore;
+        bestScoresPerSession[advanced] = highestScore;
+
+        foreach (var driver in Model.QualifyingDrivers.OrderByDescending(e => e.MaxScoreQ1))
+        {
+            driver.Position = ++positionIndex;
+            driver.PositionQ1 = positionIndex;
+            driver.GapQ1 = Math.Round(((highestScore - driver.MaxScoreQ1) * gapMarge), 2);
+        }
+
+        advanced++;
+    }
+}

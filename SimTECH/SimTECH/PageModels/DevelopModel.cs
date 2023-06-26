@@ -1,6 +1,6 @@
 ﻿namespace SimTECH.PageModels
 {
-    public enum TypeDevelop { Set, Range, Direct }
+    public enum Quantifier { Set, Range, Direct }
 
     public class DevelopedEntrant
     {

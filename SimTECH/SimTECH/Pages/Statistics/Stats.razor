@@ -4,11 +4,11 @@
 
 <PageTitle>Statistics</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.False">
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     <MudGrid>
         <MudItem xs=12>
-            <MudPaper Elevation="15" Height="100px" Class="d-flex flex-row justify-center pa-4">
-                <MudText Typo="Typo.h4">Statistics</MudText>
+            <MudPaper Elevation="15" Height="60px" Class="d-flex flex-row justify-center pa-4">
+                <MudText Typo="Typo.h3">Statistics</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="4">
@@ -66,9 +66,10 @@
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Stats", href: "stats", disabled: true),
         });
     }
 
-    async Task ShowDriverDetail() => _ = await DialogService.ShowAsync<DriverDetailStat>("Driver detail data", Constants.DefaultChartDialogSettings);
-    async Task ShowDriverCompare() => _ = await DialogService.ShowAsync<DriverCompareStat>("Compare drivers", Constants.DefaultChartDialogSettings);
+    async Task ShowDriverDetail() => _ = await DialogService.ShowAsync<DriverDetailStat>("Driver detail data");
+    async Task ShowDriverCompare() => _ = await DialogService.ShowAsync<DriverCompareStat>("Compare drivers");
 }

@@ -7,8 +7,8 @@
 @inject ISnackbar Snackbar
 
 <MudContainer MaxWidth="MaxWidth.False">
-    <MudTable Items="@RaceCalendar">
-        <ToolBarContent>
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Races</MudText>
             <MudSpacer />
             @if (Season.State == State.Concept)
@@ -17,16 +17,18 @@
                     <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRaces">Add races</MudButton>
                 </MudButtonGroup>
             }
-        </ToolBarContent>
+        </MudStack>
+    </MudPaper>
+    <MudTable Items="@RaceCalendar">
         <HeaderContent>
             <MudTh Class="number-col">Round</MudTh>
             <MudTh>Country</MudTh>
             <MudTh>Race</MudTh>
             <MudTh>Weather</MudTh>
+            <MudTh Class="number-col"></MudTh>
             <MudTh>Polesitter</MudTh>
             <MudTh Class="number-col"></MudTh>
             <MudTh>Winner</MudTh>
-            <MudTh Class="number-col"></MudTh>
             <MudTh>Winner</MudTh>
             <MudTh>Status</MudTh>
             <MudTh></MudTh>
@@ -49,15 +51,15 @@
             </MudTd>
             @if (context.PoleSitter != null)
             {
+                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
+                    <MudText Typo="Typo.caption">@(context.PoleSitter.Number)</MudText>
+                </MudTd>
                 <MudTd>
                     <MudStack Row="true" AlignItems="AlignItems.Center">
                         <MudText>@context.PoleSitter.Name</MudText>
                         <MudSpacer />
-                        <CountryFlag Code="context.PoleSitter.Country" Size="FlagSize.Small" />
+                        <CountryFlag Code="@context.PoleSitter.Country" Size="FlagSize.Small" />
                     </MudStack>
-                </MudTd>
-                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
-                    <MudText Typo="Typo.caption">@(context.PoleSitter.Number)</MudText>
                 </MudTd>
             }
             else
@@ -68,16 +70,16 @@
 
             @if (context.DriverWinner != null)
             {
+                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
+                    <MudText Typo="Typo.caption">@(context.DriverWinner.Number)</MudText>
+                </MudTd>
                 <MudTd>
                     <MudStack Row="true" AlignItems="AlignItems.Center">
                         <MudText>@context.DriverWinner.Name</MudText>
                         <MudSpacer />
-                        <CountryFlag Code="context.DriverWinner.Country" Size="FlagSize.Small" />
+                        <CountryFlag Code="@context.DriverWinner.Country" Size="FlagSize.Small" />
                     </MudStack>
                 </MudTd>
-                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
-                    <MudText Typo="Typo.caption">@(context.DriverWinner.Number)</MudText>
-                    </MudTd>
             }
             else
             {
@@ -129,7 +131,7 @@
     protected override async Task OnInitializedAsync()
     {
         RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
-        Climates = await _climateService.GetClimates();
+        Climates = await _climateService.GetClimates(StateFilter.Active);
 
         _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? 0;
     }

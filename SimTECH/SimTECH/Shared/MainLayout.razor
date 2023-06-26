@@ -1,20 +1,17 @@
-﻿@inherits LayoutComponentBase
-@inject BreadcrumbProvider _bread
-@implements IDisposable
+﻿@inject ProtectedLocalStorage _storage
+@inherits LayoutComponentBase
 
-<MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="@theme" />
-<MudDialogProvider
-    MaxWidth="MaxWidth.Large"
-    CloseButton="true"
-    DisableBackdropClick="true"
-    Position="DialogPosition.Center"
-/>
+<MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="@Theme" />
+<MudDialogProvider MaxWidth="MaxWidth.Large"
+                   CloseButton="true"
+                   DisableBackdropClick="true"
+                   Position="DialogPosition.Center" />
 <MudSnackbarProvider />
 
 <MudLayout>
     <MudAppBar Elevation="5" Dense="true">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Tertiary" Edge="Edge.Start" OnClick="ToggleSidebar" />
-        <Breadcrumbs />
+        <CustomBreadcrumbs />
 
         <MudSpacer />
 
@@ -23,9 +20,10 @@
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
         
         <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Tertiary">
-            <MudMenuItem OnClick="SetDefaultTheme">Default</MudMenuItem>
-            <MudMenuItem OnClick="SetSynthTheme">Synth</MudMenuItem>
-            <MudMenuItem OnClick="SetSynthAltTheme">Alt synth</MudMenuItem>
+            @foreach (var themeItem in simThemes.Keys)
+            {
+                <MudMenuItem OnClick="@(() => SetTheme(themeItem))">@themeItem</MudMenuItem>
+            }
         </MudMenu>
 
         <MudIconButton Href="/guide" Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" />
@@ -44,23 +42,28 @@
 </MudLayout>
 
 @code {
-    MudTheme theme = Constants.SynthTheme;
+    MudTheme Theme { get; set; } = Constants.SynthTheme;
+
     bool drawerOpen = true;
     bool isDarkTheme = true;
 
-    protected override void OnInitialized()
+    Dictionary<string, MudTheme> simThemes = Constants.SimThemes;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _bread.OnChange += StateHasChanged;
+        if (firstRender)
+        {
+            var storedTheme = await _storage.GetAsync<string>("activeTheme");
+            if (storedTheme.Success && storedTheme.Value != null && simThemes.ContainsKey(storedTheme.Value))
+                Theme = simThemes[storedTheme.Value];
+        }
     }
 
     void ToggleSidebar() => drawerOpen = !drawerOpen;
 
-    void SetDefaultTheme() => theme = Constants.DefaultTheme;
-    void SetSynthTheme() => theme = Constants.SynthTheme;
-    void SetSynthAltTheme() => theme = Constants.SynthAnalTheme;
-
-    public void Dispose()
+    async Task SetTheme(string themeName)
     {
-        _bread.OnChange -= StateHasChanged;
+        Theme = simThemes[themeName];
+        await _storage.SetAsync("activeTheme", themeName);
     }
 }

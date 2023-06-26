@@ -14,7 +14,7 @@
                             @if (Model.Id == 0)
                             {
                                 <MudChipSet @bind-SelectedChip="entrantChip">
-                                    @foreach (var entrant in EnumHelper.GetEntrantSelection())
+                                    @foreach (var entrant in EnumHelper.GetEntrantSelection)
                                     {
                                         <MudChip Value="@entrant.Key">@entrant.Value</MudChip>
                                     }
@@ -31,7 +31,7 @@
                     <MudTextField T="string" @bind-Value="Model.Description" Label="Description" Variant="Variant.Outlined" Lines="5" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudText Typo="Typo.subtitle1">Modifiers</MudText>
+                    <MudText Typo="Typo.h6">Modifiers</MudText>
                     <MudDivider />
                 </MudItem>
                 <MudItem xs="3">
@@ -45,14 +45,14 @@
                     <MudNumericField T="int" @bind-Value="Model.CarReliability" Label="CarReliability" />
                     <MudNumericField T="int" @bind-Value="Model.EngineReliability" Label="EngineReliability" />
                 </MudItem>
-                <MudItem xs="3">
-                    <MudNumericField T="int" @bind-Value="Model.WearMax" Label="WearMax" />
-                    <MudNumericField T="int" @bind-Value="Model.WearMin" Label="WearMin" />
-                </MudItem>
-                <MudItem xs="3">
-                    <MudNumericField T="int" @bind-Value="Model.RngMin" Label="RngMin" />
-                    <MudNumericField T="int" @bind-Value="Model.RngMax" Label="RngMax" />
-                    <MudSwitch @bind-Checked="Model.ForWetConditions" Label="Only applies during wet conditions" Color="Color.Tertiary" />
+                <MudItem xs="6">
+                    <MudStack>
+                        <MudStack Row="true">
+                            <MudNumericField T="int" @bind-Value="Model.WearMax" Label="WearMax" />
+                            <MudNumericField T="int" @bind-Value="Model.WearMin" Label="WearMin" />
+                        </MudStack>
+                        <MudSwitch @bind-Checked="Model.ForWetConditions" Label="Only applies during wet conditions" Color="Color.Tertiary" />
+                    </MudStack>
                 </MudItem>
             </MudGrid>
         </MudForm>
@@ -64,8 +64,11 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? TraitDialog { get; set; }
-    [Parameter] public Trait? Trait { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? TraitDialog { get; set; }
+
+    [Parameter]
+    public Trait? Trait { get; set; }
 
     private MudChip? entrantChip;
 

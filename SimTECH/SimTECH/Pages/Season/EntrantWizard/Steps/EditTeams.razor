@@ -2,8 +2,8 @@
 @inject ManufacturerService _manufacturerService
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudForm @ref="teamForm">
-        <MudPaper>
+    <MudPaper Elevation="15">
+        <MudForm>
             <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true">
                 <HeaderContent>
                     <MudTh Style="min-width: 200px;">Team</MudTh>
@@ -11,11 +11,6 @@
                     <MudTh Style="min-width: 200px;">Principal</MudTh>
                     <MudTh Style="min-width: 100px;">Colour</MudTh>
                     <MudTh Style="min-width: 100px;">Accent</MudTh>
-                    <MudTh Class="number-col-lg">Base</MudTh>
-                    <MudTh Class="number-col-lg">Aero</MudTh>
-                    <MudTh Class="number-col-lg">Chassis</MudTh>
-                    <MudTh Class="number-col-lg">Power</MudTh>
-                    <MudTh Class="number-col-lg">Rel.</MudTh>
                     <MudTh Style="min-width: 200px;">Manufacturer</MudTh>
                 </HeaderContent>
                 <RowTemplate>
@@ -33,21 +28,6 @@
                     </MudTd>
                     <MudTd DataLabel="Accent" Style="@ViewHelper.SetBackgroundColour(context.Accent)">
                         @context.Accent
-                    </MudTd>
-                    <MudTd DataLabel="Base">
-                        <MudText Typo="Typo.caption">@context.BaseValue</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Aero">
-                        <MudText Typo="Typo.caption">@context.Aero</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Chassis">
-                        <MudText Typo="Typo.caption">@context.Chassis</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Powertrain">
-                        <MudText Typo="Typo.caption">@context.Powertrain</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Reliability">
-                        <MudText Typo="Typo.caption">@context.Reliability</MudText>
                     </MudTd>
                     <MudTd DataLabel="Manufacturer">
                         <MudText>@ReadManufacturerName(context.ManufacturerId)</MudText>
@@ -69,21 +49,6 @@
                     <MudTd DataLabel="Accent">
                         <MudColorPicker @bind-Text="@context.Accent" DisableAlpha="true" />
                     </MudTd>
-                    <MudTd DataLabel="Base">
-                        <MudNumericField @bind-Value="@context.BaseValue" />
-                    </MudTd>
-                    <MudTd DataLabel="Aero">
-                        <MudNumericField @bind-Value="@context.Aero" />
-                    </MudTd>
-                    <MudTd DataLabel="Chassis">
-                        <MudNumericField @bind-Value="@context.Chassis" />
-                    </MudTd>
-                    <MudTd DataLabel="Powertrain">
-                        <MudNumericField @bind-Value="@context.Powertrain" />
-                    </MudTd>
-                    <MudTd DataLabel="Reliability">
-                        <MudNumericField @bind-Value="@context.Reliability" />
-                    </MudTd>
                     <MudTd DataLabel="Manufacturer">
                         <MudSelect T="long" @bind-Value="@context.ManufacturerId" Required>
                             @foreach (var manufacturer in manufacturers)
@@ -94,11 +59,11 @@
                     </MudTd>
                 </RowEditingTemplate>
                 <EditButtonContent Context="button">
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@button.ButtonAction" Class="pa-0" />
                 </EditButtonContent>
             </MudTable>
-        </MudPaper>
-    </MudForm>
+        </MudForm>
+    </MudPaper>
 </MudContainer>
 
 @code {
@@ -113,21 +78,29 @@
 
     List<Manufacturer> manufacturers;
 
-    MudForm teamForm;
-
     protected override async Task OnInitializedAsync()
     {
         manufacturers = await _manufacturerService.GetManufacturers();
 
-        List<SeasonTeam>? previousTeams = null;
-        if (PreviousSeasonId.HasValue)
-            previousTeams = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);
+        await SetTeamEditors();
+    }
 
-        foreach (var team in Model.BaseTeams)
+    private async Task SetTeamEditors()
+    {
+        Model.SeasonTeams.Clear();
+
+        List<SeasonEngine>? previousEngines = null;
+
+        if (PreviousSeasonId.HasValue)
         {
-            SeasonTeam? previousTeam = null;
-            if (previousTeams != null)
-                previousTeam = previousTeams.Find(e => e.TeamId == team.Id);
+            var existingEngineIds = Model.SeasonEngines.Select(e => e.EngineId).ToArray();
+            var allPrevious = await _entrantService.GetSeasonEngines(PreviousSeasonId.Value);
+            previousEngines = allPrevious.Where(e => existingEngineIds.Contains(e.EngineId)).ToList();
+        }
+
+        foreach (var team in Model.BaseTeams.Where(e => !(Model.SeasonTeams.Select(st => st.TeamId).Contains(e.Id))))
+        {
+            var previousTeam = await _entrantService.FindRecentSeasonTeam(team.Id);
 
             var model = new EditSeasonTeamModel(previousTeam);
             model.ResetIdentifierFields();
@@ -138,8 +111,13 @@
             model.Principal = string.IsNullOrEmpty(model.Principal) ? "Principal" : model.Principal;
             model.ManufacturerId = model.ManufacturerId == 0 ? manufacturers.First().Id : model.ManufacturerId;
 
+            if (previousTeam != null && previousEngines != null)
+                model.BaseEngineId = previousEngines.Find(e => e.Id == previousTeam.SeasonEngineId)?.EngineId ?? 0;
+
             Model.SeasonTeams.Add(model);
         }
+
+        Model.RemoveUnsetTeams();
     }
 
     private string ReadManufacturerName(long id)

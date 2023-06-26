@@ -1,26 +1,31 @@
 ﻿@page "/leagues"
-@inject BreadcrumbProvider Bread
+@inject BreadcrumbProvider _bread
 @inject LeagueService LeagueService
 @inject IDialogService DialogService
 
 <PageTitle>Leagues</PageTitle>
 
-<MudContainer>
-    <MudDataGrid T="League" Items="@LeagueData" Loading="_loading" LoadingProgressColor="Color.Info" Bordered="true" Class="my-2">
-        <ToolBarContent>
-            <MudText Typo="Typo.h4">Leagues</MudText>
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Leagues</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddLeague">New</MudButton>
-        </ToolBarContent>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddLeague">New</MudButton>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="League" Items="@LeagueData" Bordered="true">
         <Columns>
             <HierarchyColumn T="League" />
             <PropertyColumn Property="e => e!.Name" />
-            <PropertyColumn Property="e => e!.RaceLength" Title="Length (Km)" Style="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.RaceLength" Title="Length" Style="font-family: var(--mud-typography-caption-family)" />
             <TemplateColumn T="League" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">
-                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateLeague(context.Item))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteLeague(context.Item))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                                       OnClick="@(async () => await UpdateLeague(context.Item))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                       Color="Color.Error"
+                                       OnClick="@(async () => await DeleteLeague(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -40,11 +45,11 @@
                 @if (context.Item.DevelopmentRanges != null)
                 {
                     <MudText Typo="Typo.h6">Development ranges</MudText>
-                    <MudStack Spacing="2" Row="true" Justify="Justify.SpaceBetween">
+                    <MudStack Spacing="2" Row="true" Justify="Justify.SpaceBetween" Class="flex-wrap ">
                         @foreach (var rangeGroup in context.Item.DevelopmentRanges.GroupBy(e => e.Type))
                         {
                             <MudStack>
-                                <MudText Typo="Typo.overline">@rangeGroup.Key</MudText>
+                                <MudText Typo="Typo.subtitle1">@rangeGroup.Key</MudText>
                                 <MudSimpleTable>
                                     <thead>
                                         <tr>
@@ -81,17 +86,15 @@
     DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.ExtraLarge };
     List<League> LeagueData = new List<League>();
 
-    bool _loading = true;
-
     protected override async Task OnInitializedAsync()
     {
-        Bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Leagues", href: "leagues", disabled: true),
         });
 
         LeagueData = await LeagueService.GetLeagues();
-        _loading = false;
     }
 
     async Task AddLeague() => await UpdateLeague(null);

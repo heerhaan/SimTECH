@@ -1,0 +1,95 @@
+﻿@inject SeasonService SeasonService
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    @if (DriverRankings != null)
+    {
+        <MudPaper MinHeight="60px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+                <MudText Typo="Typo.h3">Power rankings</MudText>
+            </MudStack>
+        </MudPaper>
+        <MudDataGrid T="PowerRankModel" Items="@DriverRankings" Dense="true">
+            <Columns>
+                <HierarchyColumn T="PowerRankModel" />
+                <TemplateColumn T="PowerRankModel" SortBy="e => e.DriverName" Title="Driver">
+                    <CellTemplate>
+                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
+                            <MudText Typo="Typo.body2">@context.Item.DriverName</MudText>
+                            <CountryFlag Code="@context.Item.Nationality" Size="FlagSize.Small" />
+                        </MudStack>
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="e => e.DriverNumber" SortBy="e => e.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" CellStyleFunc="@FullStyleFunc" />
+                <PropertyColumn Property="e => e.TeamName" Title="Team" CellStyleFunc="@SimpleCellStyle" />
+                <PropertyColumn Property="e => e.Engine" Title="Engine" />
+                <PropertyColumn Property="e => e!.Manufacturer" />
+                <PropertyColumn Property="e => e!.QualyPower" Title="Q.PWR" CellClass="font-caption" />
+                <PropertyColumn Property="e => e!.RacePower" Title="R.PWR" CellClass="font-caption" />
+                <TemplateColumn T="PowerRankModel" Title="A/C/P" Sortable="false">
+                    <CellTemplate>
+                        <MudText Typo="Typo.caption">@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn T="PowerRankModel" Title="Rel. avg." Sortable="false">
+                    <CellTemplate>
+                        <MudText Typo="Typo.caption">
+                            @(NumberHelper.Average((context.Item.DriverRel + context.Item.CarRel + context.Item.EngineRel), 3))
+                        </MudText>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn T="PowerRankModel" Title="Wear" Sortable="false">
+                    <CellTemplate>
+                        <MudText Typo="Typo.caption">@context.Item.WearMin ↔ @context.Item.WearMax</MudText>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn T="PowerRankModel" Title="Rng" Sortable="false">
+                    <CellTemplate>
+                        @if (context.Item.TraitEffect != null)
+                        {
+                            <MudText Typo="Typo.caption">@context.Item.TraitEffect.MinRNG ↔ @context.Item.TraitEffect.MaxRNG</MudText>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <ChildRowContent>
+                <MudText Color="Color.Warning">Should still be designed properly</MudText>
+                <MudStack Row="true">
+                    <MudPaper>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText>Driver reliability</MudText>
+                            <MudText Typo="Typo.caption">@(context.Item.DriverRel)</MudText>
+                        </MudStack>
+                    </MudPaper>
+                    <MudPaper>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText>Car reliability</MudText>
+                            <MudText Typo="Typo.caption">@(context.Item.CarRel)</MudText>
+                        </MudStack>
+                    </MudPaper>
+                    <MudPaper>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText>Engine reliability</MudText>
+                            <MudText Typo="Typo.caption">@(context.Item.EngineRel)</MudText>
+                        </MudStack>
+                    </MudPaper>
+                </MudStack>
+            </ChildRowContent>
+        </MudDataGrid>
+    }
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public Season Season { get; set; }
+
+    List<PowerRankModel> DriverRankings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DriverRankings = await SeasonService.GetPowerRankings(Season.Id);
+    }
+
+    private Func<PowerRankModel, string> FullStyleFunc => power => ViewHelper.SetFullColourstyle(power.Colour, power.Accent);
+
+    private Func<PowerRankModel, string> SimpleCellStyle => power => ViewHelper.SetBorderRightStyle(power.Colour);
+}

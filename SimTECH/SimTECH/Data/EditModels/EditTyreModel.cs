@@ -11,10 +11,12 @@ namespace SimTECH.Data.EditModels
         public string Colour { get; set; } = string.Empty;
         public State State { get; set; }
 
-        public int Length { get; set; }
         public int Pace { get; set; }
-        public int WearMax { get; set; }
         public int WearMin { get; set; }
+        public int WearMax { get; set; }
+        public int DistanceMin { get; set; }
+        public int DistanceMax { get; set; }
+        public bool ForWet { get; set; }
 
         public EditTyreModel(Tyre? tyre)
         {
@@ -28,10 +30,12 @@ namespace SimTECH.Data.EditModels
                 Name = tyre.Name;
                 Colour = tyre.Colour;
                 State = tyre.State;
-                Length = tyre.Length;
                 Pace = tyre.Pace;
-                WearMax = tyre.WearMax;
                 WearMin = tyre.WearMin;
+                WearMax = tyre.WearMax;
+                DistanceMin = tyre.DistanceMin;
+                DistanceMax = tyre.DistanceMax;
+                ForWet = tyre.ForWet;
 
                 _tyre = tyre;
             }
@@ -44,10 +48,12 @@ namespace SimTECH.Data.EditModels
                 Name = Name,
                 Colour = Colour,
                 State = State,
-                Length = Length,
                 Pace = Pace,
                 WearMax = WearMax,
-                WearMin = WearMin
+                WearMin = WearMin,
+                DistanceMin = DistanceMin,
+                DistanceMax = DistanceMax,
+                ForWet = ForWet,
             };
 
         public bool IsDirty => _tyre != Record;

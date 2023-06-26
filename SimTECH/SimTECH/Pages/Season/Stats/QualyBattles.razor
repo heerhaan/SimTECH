@@ -3,28 +3,54 @@
 <MudDialog>
     <TitleContent>
         <MudText>Qualifying battles</MudText>
+        <MudText Color="Color.Warning">Screen might break or just not work properly for teams with more than 2 drivers</MudText>
     </TitleContent>
     <DialogContent>
-        <MudTable T="QualyBattle" Items="@QualifyingBattles">
-            <HeaderContent>
-                <MudTh>Name</MudTh>
-                <MudTh>Amount</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd>@(context.Name)</MudTd>
-                <MudTd>@(context.Score)</MudTd>
-            </RowTemplate>
-        </MudTable>
+        <MudContainer>
+            <MudPaper>
+                @if (QualifyingBattles != null)
+                {
+                    <MudSimpleTable>
+                        <thead>
+                            <tr>
+                                <th>Name A</th>
+                                <th>Score A</th>
+                                <th>Score B</th>
+                                <th>Name B</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var teamgroup in QualifyingBattles.GroupBy(e => e.Team))
+                            {
+                                <tr>
+                                    <td colspan="4" style="text-align:center">
+                                        <MudText Typo="Typo.subtitle1">@teamgroup.Key</MudText>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    @foreach (var driver in teamgroup)
+                                    {
+                                        <td>@driver.Name</td>
+                                        <td>@driver.Score</td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                }
+            </MudPaper>
+        </MudContainer>
     </DialogContent>
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? StatDialog { get; set; }
 
     [Parameter, EditorRequired]
     public long SeasonId { get; set; }
 
-    private List<QualyBattle> QualifyingBattles;
+    private List<QualyBattle>? QualifyingBattles;
 
     protected override async Task OnInitializedAsync()
     {

@@ -1,29 +1,26 @@
 ﻿@page "/postrace/{RaceId:long}"
+@inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject RaceService _raceService
 @inject SeasonService _seasonService
 
 <PageTitle>Post Race</PageTitle>
 
-@if (!loading)
-{
-    <MudContainer MaxWidth="MaxWidth.False">
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+    @if (!loading)
+    {
         <MudGrid>
             <MudItem xs=12>
                 <MudPaper Elevation="15" Height="200px" Class="pa-4">
                     <MudStack Row="true" AlignItems="AlignItems.Center">
-                        <MudStack>
-                            <MudText Typo="Typo.h4">Post race</MudText>
-                            <MudText Color="Color.Warning">This page is quite unfinished, <br/>you can go to the standings though with a following button</MudText>
-                        </MudStack>
+                        <MudText>E</MudText>
 
                         <MudSpacer />
 
-                        <MudText>Todo for this page:</MudText>
-                        <MudList Color="Color.Warning">
-                            <MudListItem>Design in general</MudListItem>
-                            <MudListItem>Podium with graphic</MudListItem>
-                        </MudList>
+                        <MudStack>
+                            <MudText Typo="Typo.h3">Post race</MudText>
+                            <MudText Color="Color.Warning">This page is quite unfinished</MudText>
+                        </MudStack>
 
                         <MudSpacer />
 
@@ -33,10 +30,13 @@
             </MudItem>
             <MudItem xs="4">
                 <MudPaper Class="mud-height-full">
-                    <MudText Typo="Typo.subtitle1">Final standings</MudText>
-                    <MudText>
-                        Points for FL aren't shown here yet, they will be assigned though
-                    </MudText>
+                    
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="4">
+                <MudPaper Class="mud-height-full">
+                    <MudText Typo="Typo.h5">Final standings</MudText>
+                    <MudText>Points for FL aren't shown here yet, they will be assigned though</MudText>
                     <MudTable T="Result" Items="@Results.OrderBy(e => e.Position)" Dense="true" Class="extra-dense">
                         <HeaderContent>
                             <MudTh>#</MudTh>
@@ -47,7 +47,7 @@
                             <MudTd>
                                 @if (context.Status == RaceStatus.Racing)
                                 {
-                                    <MudText Typo="Typo.h6">@(context.Position)</MudText>
+                                    <DriverPosition Number="@context.Position" />
                                 }
                                 else
                                 {
@@ -72,41 +72,40 @@
                 </MudPaper>
             </MudItem>
             <MudItem xs="4">
-                <MudPaper Class="mud-height-full">
-                    <MudText Typo="Typo.subtitle1">Incidents during the race</MudText>
-                    <MudSimpleTable>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Incident</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var result in Results.Where(e => e.Incident != null))
-                            {
+                <MudStack Class="mud-height-full">
+                    <MudPaper Height="50%">
+                        <MudText Typo="Typo.h5">Incidents during the race</MudText>
+                        <MudSimpleTable>
+                            <thead>
                                 <tr>
-                                    <td>@(result.SeasonDriver.Driver.FullName)</td>
-                                    <td>@(result.Incident?.Name)</td>
-                                    <td>@result.Status</td>
+                                    <th>Name</th>
+                                    <th>Incident</th>
+                                    <th>Status</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </MudSimpleTable>
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="4">
-                <MudPaper Class="mud-height-full">
-                    <MudText Typo="Typo.subtitle1">Upcoming penalties</MudText>
-                    <MudTable T="DriverPenalty" Items="@DriverPenalties" Dense="true" Class="extra-dense">
-                        <HeaderContent>
-                            <MudTh>Name</MudTh>
-                            <MudTh>Incident</MudTh>
-                            <MudTh>Punish</MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd>
-                                <MudText>@(context.Name)</MudText>
+                            </thead>
+                            <tbody>
+                                @foreach (var result in Results.Where(e => e.Incident != null))
+                                {
+                                    <tr>
+                                        <td>@(result.SeasonDriver.Driver.FullName)</td>
+                                        <td>@(result.Incident?.Name)</td>
+                                        <td>@(result.Status)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudPaper>
+                    <MudPaper Height="50%">
+                        <MudText Typo="Typo.h5">Upcoming penalties</MudText>
+                        <MudTable T="DriverPenalty" Items="@DriverPenalties" Dense="true" Class="extra-dense">
+                            <HeaderContent>
+                                <MudTh>Name</MudTh>
+                                <MudTh>Incident</MudTh>
+                                <MudTh>Punish</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>
+                                    <MudText>@(context.Name)</MudText>
                                 </MudTd>
                                 <MudTd>
                                     <MudText>@(context.Reason)</MudText>
@@ -117,10 +116,12 @@
                             </RowTemplate>
                         </MudTable>
                     </MudPaper>
-                </MudItem>
-            </MudGrid>
-        </MudContainer>
-}
+
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>
 
 @code {
     [Parameter]
@@ -147,6 +148,15 @@
         Penalties = await _raceService.GetUnconsumedPenalties();
 
         allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
+
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: $"overview/{Season.Id}"),
+            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
+            new BreadcrumbItem("Post Race", href: $"postrace/{RaceId}", disabled: true),
+        });
 
         loading = false;
     }

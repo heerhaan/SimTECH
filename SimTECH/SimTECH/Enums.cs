@@ -23,16 +23,20 @@ namespace SimTECH
         Engine,
     }
 
-    public enum RangeType
+    public enum Aspect
     {
         None = 0,
         Skill,
         Age,
-        Team,
-        Engine
+        BaseCar,
+        Engine,
+        Aero,
+        Chassis,
+        Powertrain,
+        Reliability,
+        Attack,
+        Defense,
     }
-
-    public enum TargetDevelop { Main, Reliability, Aero, Chassis, Powertrain, Attack, Defense }
 
     public enum Gender { All, Male, Female, Other }
 
@@ -51,10 +55,10 @@ namespace SimTECH
         Main, Support
     }
 
-    // TODO: Implement this bad boy
     public enum QualyFormat
     {
-        OneSession, TripleEliminate
+        TripleEliminate,
+        OneSession,
     }
 
     public enum RaceStatus
@@ -76,6 +80,16 @@ namespace SimTECH
         Swap = 64,
         Death = 128,
         Caution = 256,
+    }
+
+    public enum CategoryIncident
+    {
+        Driver, Car, Engine, Disqualified, Lethal
+    }
+
+    public enum ProgressBarType
+    {
+        Default, Caution, Tyre
     }
     #endregion racing
 

@@ -1,20 +1,31 @@
-﻿<MudTd Class="number-col result-cell" Style="@_cellStyles">
-    <MudText Typo="Typo.subtitle1">
+﻿<MudTd Class="result-cell" Style="@_cellStyles">
+    <MudText Typo="@Typo" Color="Color.Inherit">
         @_resultDisplay
         @if (_hasPole)
         {
-            <sup>P</sup>
+            <sup style="font-size: 0.7rem">P</sup>
         }
         @if (_hasFastestLap)
         {
-            <sup>F</sup>
+            <sup style="font-size: 0.7rem">F</sup>
         }
     </MudText>
 </MudTd>
 
 @code {
-    [Parameter] public StandingResultCell Result { get; set; }
-    [Parameter] public int LowestScoringPosition { get; set; }
+    [Parameter]
+    public StandingResultCell Result { get; set; }
+
+    [Parameter]
+    public int LowestScoringPosition { get; set; }
+
+    private Typo Typo { get; set; } = Typo.h4;
+
+    protected override void OnInitialized()
+    {
+        if (Result.Status != RaceStatus.Racing)
+            Typo = Typo.caption;
+    }
 
     private string _resultDisplay
     {
@@ -45,46 +56,8 @@
     {
         get
         {
-            var cellStyle = "";
+            var cellStyle = Result.GetResultStyle(LowestScoringPosition);
 
-            if (Result.Status == RaceStatus.Dnq)
-            {
-                cellStyle = "background-color:mediumpurple;";
-            }
-            else if (Result.Status == RaceStatus.Dsq)
-            {
-                cellStyle = "background-color:black;color:white !important";
-            }
-            else if (Result.Status == RaceStatus.Dnf)
-            {
-                cellStyle = "background-color:red;";
-            }
-            else if (Result.Status == RaceStatus.Fatal)
-            {
-                cellStyle = "background-color:black;color:white !important";
-            }
-            else
-            {
-                switch (Result.Position)
-                {
-                    case 1:
-                        cellStyle = "background-color:gold;";
-                        break;
-                    case 2:
-                        cellStyle = "background-color:silver;";
-                        break;
-                    case 3:
-                        cellStyle = "background-color:burlywood;";
-                        break;
-                    case int n when n <= LowestScoringPosition:
-                        cellStyle = "background-color:lightgreen;";
-                        break;
-                    default:
-                        cellStyle = "background-color:cornflowerblue";
-                        break;
-                }
-            }
-            // Possibly can return immediatly depending on whether we want to do more with this or not
             return cellStyle;
         }
     }

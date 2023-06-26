@@ -5,7 +5,7 @@
 @inject TraitService _traitService
 @inject BreadcrumbProvider _bread
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudGrid>
         <MudItem xs="12">
             <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
@@ -50,12 +50,13 @@
         </MudItem>
         <MudItem xs="4">
             <MudPaper Class="pa-2">
-                <MudText>Click the row to find a random trait for the respective entrant</MudText>
+                <MudText>Click on the button 'Random' to assign a random trait to a random entrant</MudText>
+                <MudText>Click on a driver to assign a random trait to them</MudText>
                 @if (Entrants != null)
                 {
                     <MudTable T="EntrantAssignee" Items="@Entrants" Dense="true" Hover="true" OnRowClick="OnClickAssignRandomTrait">
                         <ToolBarContent>
-                            <MudText>Entrants</MudText>
+                            <MudText Typo="Typo.subtitle1">Entrants</MudText>
                             <MudSpacer />
                             <MudButton Color="Color.Secondary" OnClick="RandomEntrantAssignTrait">Random</MudButton>
                         </ToolBarContent>
@@ -68,7 +69,10 @@
                                 <MudText>@(context.Name)</MudText>
                             </MudTd>
                             <MudTd>
-                                <span>@(string.Join(", ", context.ExistingTraitIds.Select(e => e.ToString())))</span>
+                                @foreach (var traitId in context.ExistingTraitIds)
+                                {
+                                    <MudText Typo="Typo.body2">@(GetReadableTrait(traitId))</MudText>
+                                }
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -82,7 +86,7 @@
                 {
                     <MudTable T="EntrantAssignee" Items="@AssignedEntrants" Dense="true" Hover="true">
                         <ToolBarContent>
-                            <MudText>Assigned</MudText>
+                            <MudText Typo="Typo.subtitle1">Assigned</MudText>
                             <MudSpacer />
                             <MudButton Color="Color.Success" OnClick="PersistAssignedTraits">Save</MudButton>
                         </ToolBarContent>
@@ -95,7 +99,10 @@
                                 <MudText>@(context.Name)</MudText>
                             </MudTd>
                             <MudTd>
-                                <span>@(string.Join(", ", context.AssignedTraitIds.Select(e => e.ToString())))</span>
+                                @foreach (var traitId in context.AssignedTraitIds)
+                                {
+                                    <MudText Typo="Typo.body2">@(GetReadableTrait(traitId))</MudText>
+                                }
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -120,6 +127,7 @@
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Traits", href: "traits"),
+            new BreadcrumbItem("Assign traits", href: "traitassign", disabled: true),
         });
 
         AllTraits = await _traitService.GetTraits();
@@ -157,6 +165,8 @@
 
         RelevantTraits = AllTraits.Where(e => e.Type == activeEntrant).ToList();
     }
+
+    string GetReadableTrait(long id) => AllTraits.Find(e => e.Id == id)?.Name ?? "Unknown";
 
     private void OnClickAssignRandomTrait(TableRowClickEventArgs<EntrantAssignee> rowItem) => AssignRandomTrait(rowItem.Item);
     private void RandomEntrantAssignTrait()

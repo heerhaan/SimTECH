@@ -1,6 +1,6 @@
 ﻿@page "/test"
 @inject BreadcrumbProvider _bread
-@inject ProtectedLocalStorage _localStorage
+@inject ProtectedLocalStorage _storage
 @inject NavigationManager _nav
 @inject IOptions<SimConfig> _config
 
@@ -18,7 +18,19 @@
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
-                        Gerrit
+                        <MudText Typo="Typo.h1">Head1</MudText>
+                        <MudText Typo="Typo.h2">Head2</MudText>
+                        <MudText Typo="Typo.h3">Head3</MudText>
+                        <MudText Typo="Typo.h4">Head4</MudText>
+                        <MudText Typo="Typo.h5">Head5</MudText>
+                        <MudText Typo="Typo.h6">Head6</MudText>
+                        <MudText Typo="Typo.subtitle1">Subtitle 1</MudText>
+                        <MudText Typo="Typo.subtitle2">Subtitle 2</MudText>
+                        <MudText Typo="Typo.body1">Body 1</MudText>
+                        <MudText Typo="Typo.body2">Body 2</MudText>
+                        <MudText Typo="Typo.button">Button</MudText>
+                        <MudText Typo="Typo.caption">Caption</MudText>
+                        <MudText Typo="Typo.overline">Overline</MudText>
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="12" sm="6">
@@ -71,6 +83,11 @@
                                 </tr>
                             </tbody>
                         </MudSimpleTable>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudPaper>
+
                     </MudPaper>
                 </MudItem>
             </MudGrid>
@@ -156,7 +173,7 @@
     {
         if (firstRender)
         {
-            var storedExample = await _localStorage.GetAsync<string>("example");
+            var storedExample = await _storage.GetAsync<string>("example");
             if (storedExample.Success)
                 exampleStore = storedExample.Value;
         }
@@ -172,6 +189,6 @@
 
     private async Task SetExample()
     {
-        await _localStorage.SetAsync("example", newExampleString);
+        await _storage.SetAsync("example", newExampleString);
     }
 }

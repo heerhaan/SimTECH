@@ -28,7 +28,8 @@ namespace SimTECH.Data.Models
                 }
             }
 
-            return climates.First(e => e.Id == weightedList.TakeRandomItem());
+            var randomId = weightedList.TakeRandomItem();
+            return climates.First(e => e.Id == randomId);
         }
     }
 }

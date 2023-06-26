@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using SimTECH.Extensions;
+
+namespace SimTECH.Data.Models
 {
     public sealed class Tyre
     {
@@ -7,21 +9,25 @@
         public string Colour { get; set; } = default!;
         public State State { get; set; }
 
-        public int Length { get; set; }
         public int Pace { get; set; }
-        public int WearMax { get; set; }
         public int WearMin { get; set; }
+        public int WearMax { get; set; }
+        public int DistanceMin { get; set; }
+        public int DistanceMax { get; set; }
+        public bool ForWet { get; set; }
+    }
 
-        public IList<StrategyTyre>? StrategyTyres { get; set; }
-
-        public int PredictedLength()
+    public static class ExtendTyre
+    {
+        public static int ExpectedLength(this Tyre tyre, int distance)
         {
-            if (Pace == 0 || (WearMax == 0 && WearMin == 0))
+            if (tyre.Pace == 0 || (tyre.WearMin == 0 && tyre.WearMax == 0))
                 return 0;
 
-            var wearAverage = (WearMax + WearMin) / 2;
+            var wearAvg = (double)(tyre.WearMin + tyre.WearMax) / 2;
+            var averageLength = (tyre.Pace  / wearAvg) * distance;
 
-            return (Pace / wearAverage) * 10;
+            return averageLength.RoundDouble();
         }
     }
 }

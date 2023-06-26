@@ -1,0 +1,57 @@
+﻿@inherits InputBase<Country>
+
+<MudSelectExtended ItemCollection="@Countries"
+                   @bind-Value="HandleSelection"
+                   Label="Nation"
+                   Variant="Variant.Outlined"
+                   SearchBox="true"
+                   SearchFunc="@(new Func<Country, string, bool>(SearchCountries))"
+                   T="Country"
+                   Class="@Class"
+                   >
+    <ItemTemplate>
+        <CountryNamedFlag Code="@(context.Value)" />
+    </ItemTemplate>
+</MudSelectExtended>
+
+@code {
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+    [Parameter]
+    public Country[] Countries { get; set; } = Enum.GetValues<Country>();
+
+    public Country HandleSelection
+    {
+        get { return CurrentValue; }
+        set { CurrentValue = value; }
+    }
+
+    protected override bool TryParseValueFromString(string? value, out Country result, out string validationErrorMessage)
+    {
+        result = default;
+
+        if (value != null && Enum.TryParse<Country>(value, out Country parsedResult))
+        {
+            result = parsedResult;
+
+            validationErrorMessage = string.Empty;
+            return true;
+        }
+
+        validationErrorMessage = "Failed to handle selected";
+        return false;
+    }
+
+    private bool SearchCountries(Country code, string searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+            return true;
+
+        var countryText = code.GetDescription().ToLowerInvariant();
+
+        if (countryText.Contains(searchText.ToLowerInvariant()))
+            return true;
+
+        return false;
+    }
+}

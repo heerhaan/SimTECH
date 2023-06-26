@@ -1,26 +1,20 @@
 ﻿@page "/incidents"
+@inject BreadcrumbProvider _bread
 @inject IncidentService _incidentService
 @inject IDialogService DialogService
 
-<MudContainer MaxWidth="MaxWidth.Large">
-    <MudPaper MinHeight="60px" Width="100%">
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
-            <MudText Typo="Typo.h4">Incidents</MudText>
+            <MudText Typo="Typo.h3">Incidents</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddItem">New</MudButton>
         </MudStack>
     </MudPaper>
     <MudDataGrid T="Incident" Items="@IncidentData" Dense="true">
-        <ToolBarContent>
-            <MudChipSet>
-                <MudChip Color="Color.Secondary">Temp</MudChip>
-                <MudChip Color="Color.Secondary">Temp</MudChip>
-                <MudChip Color="Color.Secondary">Temp</MudChip>
-            </MudChipSet>
-            <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddItem">New</MudButton>
-        </ToolBarContent>
         <Columns>
             <PropertyColumn Property="e => e!.Name" />
-            <PropertyColumn Property="e => e!.Category" />
+            <PropertyColumn Property="e => e!.Category" Filterable="true" />
             <PropertyColumn Property="e => e!.Limit" />
             <PropertyColumn Property="e => e!.Punishment" />
             <PropertyColumn Property="e => e!.Odds" />
@@ -45,6 +39,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Incidents", href: "incidents", disabled: true),
+        });
+
         IncidentData = await _incidentService.GetIncidents(StateFilter.All);
     }
 
