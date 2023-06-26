@@ -26,7 +26,11 @@
                     </MudStack>
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.Number" SortBy="e => e.Number" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" CellStyleFunc="@ViewHelper.DriverTeamStyleFunc" />
+            <TemplateColumn T="SeasonDriver" SortBy="e => e.Number" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col">
+                <CellTemplate>
+                    <NumberDisplay Colour="@context.Item.SeasonTeam?.Colour" Accent="@context.Item.SeasonTeam?.Accent">@context.Item.Number</NumberDisplay>
+                </CellTemplate>
+            </TemplateColumn>
             <PropertyColumn Property="e => e!.Skill" CellClass="font-caption" />
             <PropertyColumn Property="e => e!.Reliability" Title="Rel." CellClass="font-caption" />
             <PropertyColumn Property="e => e!.Attack" Title="Attack" CellClass="font-caption" />
@@ -34,14 +38,7 @@
             <PropertyColumn Property="e => e!.TeamRole" Title="Role" />
             <TemplateColumn T="SeasonDriver" Title="Team" SortBy="e => e.SeasonTeam?.Name">
                 <CellTemplate>
-                    @if (context.Item.SeasonTeam == null)
-                    {
-                        <MudText Typo="Typo.body2" Color="Color.Error">Dropped</MudText>
-                    }
-                    else
-                    {
-                        <MudText Typo="Typo.body2">@context.Item.SeasonTeam.Name</MudText>
-                    }
+                    <MudText Typo="Typo.body2">@(context.Item.SeasonTeam?.Name ?? "Dropped")</MudText>
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn T="SeasonDriver" Sortable="false">
@@ -56,7 +53,8 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [CascadingParameter]
+    public Season Season { get; set; }
 
     private List<SeasonDriver> SeasonDriverEntrants = new();
     private List<SeasonTeam> TeamEntrants = new();

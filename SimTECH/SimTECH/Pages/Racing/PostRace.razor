@@ -24,7 +24,7 @@
 
                         <MudSpacer />
 
-                        <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="GoToStandings">Standings</MudButton>
+                        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="GoToStandings">Standings</MudButton>
                     </MudStack>
                 </MudPaper>
             </MudItem>
@@ -36,7 +36,6 @@
             <MudItem xs="4">
                 <MudPaper Class="mud-height-full">
                     <MudText Typo="Typo.h5">Final standings</MudText>
-                    <MudText>Points for FL aren't shown here yet, they will be assigned though</MudText>
                     <MudTable T="Result" Items="@Results.OrderBy(e => e.Position)" Dense="true" Class="extra-dense">
                         <HeaderContent>
                             <MudTh>#</MudTh>
@@ -55,17 +54,20 @@
                                 }
                             </MudTd>
                             <MudTd>
-                                <MudText>@(context.SeasonDriver.Driver.FullName)</MudText>
-                                </MudTd>
-                                <MudTd>
-                                    @if (context.Status == RaceStatus.Racing)
-                                {
-                                    <MudText Typo="Typo.caption">@(ReadScoredResult(context.Position, (context.Grid == 1)))</MudText>
-                                }
-                                else
-                                {
-                                    <MudText Typo="Typo.caption">0</MudText>
-                                }
+                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                    <MudText>@(context.SeasonDriver.Driver.FullName)</MudText>
+                                    @if (context.Grid == 1)
+                                    {
+                                        <sup style="font-size: 0.7rem">P</sup>
+                                    }
+                                    @if (context.Id == resultWithFastest)
+                                    {
+                                        <sup style="font-size: 0.7rem">F</sup>
+                                    }
+                                </MudStack>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@(ReadScoredResult(context))</MudText>
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -74,7 +76,7 @@
             <MudItem xs="4">
                 <MudStack Class="mud-height-full">
                     <MudPaper Height="50%">
-                        <MudText Typo="Typo.h5">Incidents during the race</MudText>
+                        <MudText Typo="Typo.h5">Race incidents</MudText>
                         <MudSimpleTable>
                             <thead>
                                 <tr>
@@ -100,8 +102,8 @@
                         <MudTable T="DriverPenalty" Items="@DriverPenalties" Dense="true" Class="extra-dense">
                             <HeaderContent>
                                 <MudTh>Name</MudTh>
-                                <MudTh>Incident</MudTh>
-                                <MudTh>Punish</MudTh>
+                                <MudTh>Reason</MudTh>
+                                <MudTh>Grid loss</MudTh>
                             </HeaderContent>
                             <RowTemplate>
                                 <MudTd>
@@ -137,6 +139,7 @@
     List<DriverPenalty> DriverPenalties = new();
 
     bool loading;
+    long resultWithFastest;
 
     protected override async Task OnInitializedAsync()
     {
@@ -149,27 +152,36 @@
 
         allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
 
+        resultWithFastest = Results.SelectMany(e => e.LapScores).MaxBy(e => e.Score)?.ResultId ?? 0;
+
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Seasons", href: "seasons"),
             new BreadcrumbItem("Overview", href: $"overview/{Season.Id}"),
             new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
-            new BreadcrumbItem("Post Race", href: $"postrace/{RaceId}", disabled: true),
+            new BreadcrumbItem("Race", href: $"race/{RaceId}"),
+            new BreadcrumbItem("Post race", href: $"postrace/{RaceId}", disabled: true),
         });
 
         loading = false;
     }
 
-    private int ReadScoredResult(int position, bool pole)
+    private int ReadScoredResult(Result result)
     {
         var points = 0;
 
-        if (allotments.TryGetValue(position, out int allotedPoints))
-            points += allotedPoints;
-
-        if (pole)
+        if (result.Grid == 1)
             points += Season.PointsPole;
+
+        if (result.Id == resultWithFastest)
+            points += Season.PointsFastestLap;
+
+        if (result.Status != RaceStatus.Racing)
+            return points;
+
+        if (allotments.TryGetValue(result.Position, out int allotedPoints))
+            points += allotedPoints;
 
         return points;
     }
@@ -177,20 +189,17 @@
     // NOTE: Not a definitive solution probably as it could be done much better
     void BuildDriverPenalties()
     {
-        foreach (var result in Results)
+        foreach (var penalty in Penalties)
         {
-            var penalties = Penalties.Where(e => e.SeasonDriverId == result.SeasonDriverId).ToList();
-            if (penalties.Any())
+            var driverResult = Results.Find(e => e.SeasonDriverId == penalty.SeasonDriverId);
+            if (driverResult != null)
             {
-                foreach (var penalty in penalties)
-                {
-                    DriverPenalties.Add(new DriverPenalty
+                DriverPenalties.Add(new DriverPenalty
                     {
-                        Name = result.SeasonDriver.Driver.FullName,
+                        Name = driverResult.SeasonDriver.Driver.FullName,
                         Reason = penalty.Incident.Name,
                         Punishment = penalty.Incident.Punishment,
                     });
-                }
             }
         }
     }

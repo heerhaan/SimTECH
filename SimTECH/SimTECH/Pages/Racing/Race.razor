@@ -41,9 +41,9 @@
                     <MudStack Spacing="0" AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
                         <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
-                            <MudChip Value="1">@(NumberHelper.CalcLapCount(1 * calculationDistance, Model.TrackLength))</MudChip>
-                            <MudChip Value="5" Default="true">@(NumberHelper.CalcLapCount(5 * calculationDistance, Model.TrackLength))</MudChip>
-                            <MudChip Value="10">@(NumberHelper.CalcLapCount(10 * calculationDistance, Model.TrackLength))</MudChip>
+                            <MudChip Value="1" Color="Color.Primary">@(NumberHelper.CalcLapCount(1 * calculationDistance, Model.TrackLength))</MudChip>
+                            <MudChip Value="5" Default="true" Color="Color.Primary">@(NumberHelper.CalcLapCount(5 * calculationDistance, Model.TrackLength))</MudChip>
+                            <MudChip Value="10" Color="Color.Primary">@(NumberHelper.CalcLapCount(10 * calculationDistance, Model.TrackLength))</MudChip>
                         </MudChipSet>
                     </MudStack>
                     
@@ -113,9 +113,7 @@
                     </MudStack>
                 </MudTd>
                 <MudTd Class="number-col">
-                    <MudPaper Class="py-1 px-2" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                        <MudText Typo="Typo.caption">@context.Number</MudText>
-                    </MudPaper>
+                    <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                 </MudTd>
                 <MudTd Class="overflow-hider">
                     <MudText Typo="Typo.button">@context.TeamName</MudText>

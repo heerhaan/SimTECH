@@ -1,0 +1,91 @@
+﻿@inject LeagueService _leagueService
+@inject SeasonService _seasonService
+@inject IDialogService _dialogService
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Elevation="15" Class="pa-4">
+            <MudStack Row="true">
+                <MudText Typo="Typo.h3">Settings</MudText>
+                <MudSpacer />
+                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Outlined.Edit" OnClick="UpdateSeason">Edit</MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="4">
+        <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.h6">Settings 1</MudText>
+            <MudTextField @bind-Value="Season.Year" Label="Year" ReadOnly="true"></MudTextField>
+            <MudTextField @bind-Value="Season.MaximumDriversInRace" Label="MaximumDriversInRace" ReadOnly="true"></MudTextField>
+            <MudText>@(Season.QualifyingFormat)</MudText>
+                <MudTextField @bind-Value="Season.QualifyingAmountQ2" Label="QualifyingAmountQ2" ReadOnly="true"></MudTextField>
+                <MudTextField @bind-Value="Season.QualifyingAmountQ3" Label="QualifyingAmountQ3" ReadOnly="true"></MudTextField>
+                <MudTextField @bind-Value="Season.QualifyingRNG" Label="QualifyingRNG" ReadOnly="true"></MudTextField>
+                <MudTextField @bind-Value="Season.RunAmountSession" Label="RunAmountSession" ReadOnly="true"></MudTextField>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="4">
+            <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.h6">Settings 2</MudText>
+                <MudTextField @bind-Value="Season.GridBonus" Label="GridBonus" ReadOnly="true"></MudTextField>
+                <MudTextField @bind-Value="Season.RngMinimum" Label="RngMinimum" ReadOnly="true"></MudTextField>
+                <MudTextField @bind-Value="Season.RngMaximum" Label="RngMaximum" ReadOnly="true"></MudTextField>
+                <MudTextField @bind-Value="Season.PitMinimum" Label="PitMinimum" ReadOnly="true"></MudTextField>
+                <MudTextField @bind-Value="Season.PitMaximum" Label="PitMaximum" ReadOnly="true"></MudTextField>
+                <MudTextField @bind-Value="Season.PointsPole" Label="PointsPole" ReadOnly="true"></MudTextField>
+                <MudTextField @bind-Value="Season.PointsFastestLap" Label="PointsFastestLap" ReadOnly="true"></MudTextField>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="4">
+            <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.h6">Points per position</MudText>
+                @if (Season.PointAllotments != null)
+                {
+                    <MudSimpleTable Dense="true">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var allotment in Season.PointAllotments)
+                            {
+                                <tr>
+                                    <td class="font-caption">@allotment.Position</td>
+                                    <td class="font-caption">@allotment.Points</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                }
+                else
+                {
+                    <MudAlert Variant="Variant.Outlined" Severity="Severity.Error">Where are the friggin point allotments then?</MudAlert>
+                }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [CascadingParameter]
+    public Season Season { get; set; }
+
+    async Task UpdateSeason()
+    {
+        var editModel = new EditSeasonModel(Season);
+        // unless I see a reason to retrieve this for a reason elsewhere on this page
+        var leagues = await _leagueService.GetLeagues();
+
+        var parameters = new DialogParameters { ["Model"] = editModel, ["Leagues"] = leagues };
+
+        var dialog = await _dialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
+        {
+            await _seasonService.UpdateSeason(updatedItem);
+            Season = updatedItem;
+        }
+    }
+}

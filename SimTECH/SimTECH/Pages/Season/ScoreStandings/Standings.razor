@@ -10,7 +10,7 @@
                 <MudItem xs="12">
                     <MudPaper Height="75px" Class="pa-4">
                         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                            <span>e</span>
+                            <span></span>
                             <MudText Typo="Typo.h3">Season standings @(Season.Year)</MudText>
                             <ScreenshotButton TargetId="standings-numerical-overview" />
                         </MudStack>
@@ -98,11 +98,13 @@
             <MudPaper Elevation="15">
                 <MudPaper MinHeight="60px">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+                        <MudText Color=Color.Warning>FL aren't shown yet</MudText>
+                        <MudSpacer />
                         <MudText Typo="Typo.h4">WDC results @(Season.Year)</MudText>
                         <MudSpacer />
                         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-                            <ScreenshotButton TargetId="wdc-season-results" />
                             <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" />
+                            <ScreenshotButton TargetId="wdc-season-results" />
                         </MudButtonGroup>
                     </MudStack>
                 </MudPaper>
@@ -130,7 +132,7 @@
                             <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
                         </MudTd>
                         <MudTd>
-                            <MudStack Row="true" Spacing="1" Class="align-center">
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText>@context.Name</MudText>
                                 <MudSpacer />
                                 <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
@@ -165,15 +167,17 @@
             </MudPaper>
         </MudTabPanel>
         <MudTabPanel Text="WCC results">
-            <MudTable Items="@TeamResultsModel" Dense="true" id="wcc-season-results">
-                <ToolBarContent>
+            <MudPaper MinHeight="60px">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
                     <MudText Typo="Typo.h4">WCC results @(Season.Year)</MudText>
                     <MudSpacer />
                     <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-                        <ScreenshotButton TargetId="wcc-season-results" />
                         <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWccResultGraph" />
+                        <ScreenshotButton TargetId="wcc-season-results" />
                     </MudButtonGroup>
-                </ToolBarContent>
+                </MudStack>
+            </MudPaper>
+            <MudTable Items="@TeamResultsModel" Dense="true" id="wcc-season-results">
                 <HeaderContent>
                     <MudTh Class="number-col">#</MudTh>
                     <MudTh Class="accent-cell"></MudTh>
@@ -247,7 +251,9 @@
     List<StandingDriverModel> DriverResultsModel { get; set; }
     List<StandingTeamModel> TeamResultsModel { get; set; }
 
-    public int lowestScoringPosition = 3;
+    Dictionary<long, long> fastestResultForRaces = new();
+
+    int lowestScoringPosition = 3;
     bool loading = true;
 
     protected override async Task OnInitializedAsync()

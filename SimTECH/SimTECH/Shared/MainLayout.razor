@@ -55,7 +55,10 @@
         {
             var storedTheme = await _storage.GetAsync<string>("activeTheme");
             if (storedTheme.Success && storedTheme.Value != null && simThemes.ContainsKey(storedTheme.Value))
+            {
                 Theme = simThemes[storedTheme.Value];
+                StateHasChanged();
+            }
         }
     }
 
