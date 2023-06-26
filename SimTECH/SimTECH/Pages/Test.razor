@@ -1,6 +1,6 @@
 ﻿@page "/test"
 @inject BreadcrumbProvider _bread
-@inject ProtectedLocalStorage _localStorage
+@inject ProtectedLocalStorage _storage
 @inject NavigationManager _nav
 @inject IOptions<SimConfig> _config
 
@@ -173,7 +173,7 @@
     {
         if (firstRender)
         {
-            var storedExample = await _localStorage.GetAsync<string>("example");
+            var storedExample = await _storage.GetAsync<string>("example");
             if (storedExample.Success)
                 exampleStore = storedExample.Value;
         }
@@ -189,6 +189,6 @@
 
     private async Task SetExample()
     {
-        await _localStorage.SetAsync("example", newExampleString);
+        await _storage.SetAsync("example", newExampleString);
     }
 }

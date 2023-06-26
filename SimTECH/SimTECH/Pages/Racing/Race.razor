@@ -1,10 +1,11 @@
 ﻿@page "/race/{RaceId:long}"
 @inject BreadcrumbProvider _bread
+@inject ProtectedLocalStorage _storage
+@inject NavigationManager _nav
 @inject IncidentService _incidentService
 @inject RaceService _raceService
 @inject SeasonService _seasonService
 @inject TyreService _tyreService
-@inject NavigationManager _nav
 @inject IDialogService _dialogService
 @inject ISnackbar _snackbar
 @inject IOptions<SimConfig> _config
@@ -352,15 +353,27 @@
         loading = false;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var storedProgress = await _storage.GetAsync<ProgressBarType>("raceBar");
+            if (storedProgress.Success)
+                progressType = storedProgress.Value;
+        }
+    }
+
     void ChangeCalculationPerAdvance(MudChip? calcChip)
     {
         if (calcChip != null)
             calculationsPerAdvance = (int)calcChip.Value;
     }
 
-    void SetProgressBarType(ProgressBarType type) => progressType = type;
-
-    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
+    async Task SetProgressBarType(ProgressBarType type)
+    {
+        progressType = type;
+        await _storage.SetAsync("raceBar", type);
+    }
 
     void Advance()
     {
@@ -515,6 +528,8 @@
 
         return true;
     }
+
+    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
     // Returns a number which will be added to the users lap score
     int HandleStrategy(RaceDriver driver, LapScore lapScore)

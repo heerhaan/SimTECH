@@ -1,6 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@inject ProtectedLocalStorage _storage
+@inherits LayoutComponentBase
 
-<MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="@theme" />
+<MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="@Theme" />
 <MudDialogProvider MaxWidth="MaxWidth.Large"
                    CloseButton="true"
                    DisableBackdropClick="true"
@@ -19,10 +20,10 @@
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
         
         <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Tertiary">
-            <MudMenuItem OnClick="@(() => SetTheme(Constants.SynthTheme))">Synth (Tri)</MudMenuItem>
-            <MudMenuItem OnClick="@(() => SetTheme(Constants.SynthAltTheme))">Synth (Alt)</MudMenuItem>
-            <MudMenuItem OnClick="@(() => SetTheme(Constants.OceanicTheme))">Oceanic</MudMenuItem>
-            <MudMenuItem OnClick="@(() => SetTheme(Constants.DefaultTheme))">Basic</MudMenuItem>
+            @foreach (var themeItem in simThemes.Keys)
+            {
+                <MudMenuItem OnClick="@(() => SetTheme(themeItem))">@themeItem</MudMenuItem>
+            }
         </MudMenu>
 
         <MudIconButton Href="/guide" Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" />
@@ -41,11 +42,28 @@
 </MudLayout>
 
 @code {
-    MudTheme theme = Constants.SynthTheme;
+    MudTheme Theme { get; set; } = Constants.SynthTheme;
+
     bool drawerOpen = true;
     bool isDarkTheme = true;
 
+    Dictionary<string, MudTheme> simThemes = Constants.SimThemes;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var storedTheme = await _storage.GetAsync<string>("activeTheme");
+            if (storedTheme.Success && storedTheme.Value != null && simThemes.ContainsKey(storedTheme.Value))
+                Theme = simThemes[storedTheme.Value];
+        }
+    }
+
     void ToggleSidebar() => drawerOpen = !drawerOpen;
 
-    void SetTheme(MudTheme toTheme) => theme = toTheme;
+    async Task SetTheme(string themeName)
+    {
+        Theme = simThemes[themeName];
+        await _storage.SetAsync("activeTheme", themeName);
+    }
 }
