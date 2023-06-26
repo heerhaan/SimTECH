@@ -1,15 +1,15 @@
 # SimTECH
-An application in where one can run motorsport simulations, a very useful and fun activity.
-Idea of the project: simple simulation of motorsport championships, based on motorsport simulation done in Excel by FrankyDoodle.
+An application in where one can run motorsport simulations, an useful and fun activity.
 
-![image](https://github.com/heerhaan/SimTECH/assets/28059040/b1fc7c70-8b00-41d0-9395-cb0a2fa5a347)
+|![image](https://github.com/heerhaan/SimTECH/assets/28059040/9053fb25-414d-4cad-9803-1b7c0bab9cfb)|
+|-|
+|_Fig.1: Race in SimTECH_|
 
-## Reguirements
-With a shared .exe release file, one should immediatly be able to run it. Altough there might still be a dependency on SQL Server.
-Note: this is still very much in development so there are no actual releases yet.
+## Requirements
+It is required to have an instance of MSSQL localdb installed and running, if you don't like that then feel free to change it to something else yourself.
 
-## Setup
-Probably something with the appsettings.json.
+## Installation
+Get the .zip from the release, unpack it somewhere and run the EXE. Done!
 
 ## Guide
 Can be found in-app.

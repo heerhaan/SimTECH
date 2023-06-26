@@ -272,7 +272,9 @@
     bool tooMuchInfo = false;
     bool safetyCarOut = false;
     Color lapIndicatorColor = Color.Dark;
-    Entrant cycleReliabilty = Entrant.Driver;
+    Entrant activeReliabilityCheck = Entrant.Driver;
+    Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
+    int reliablityCycler = 0;
     ProgressBarType progressType = ProgressBarType.Tyre;
 
     // Supportive caluclation fields
@@ -490,17 +492,17 @@
     {
         var safetyCar = false;
 
-        if (cycleReliabilty == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
+        if (activeReliabilityCheck == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
             driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Driver).ToList().TakeRandomIncident();
         }
-        else if (cycleReliabilty == Entrant.Team && DidReliabilityFail(driver.CarReliability))
+        else if (activeReliabilityCheck == Entrant.Team && DidReliabilityFail(driver.CarReliability))
         {
             lapScore.RacerEvents |= RacerEvent.CarDnf;
             driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Car).ToList().TakeRandomIncident();
         }
-        else if (cycleReliabilty == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
+        else if (activeReliabilityCheck == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
         {
             lapScore.RacerEvents |= RacerEvent.EngineDnf;
             driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Engine).ToList().TakeRandomIncident();
@@ -659,18 +661,9 @@
         }
 
         // Cycle through the reliability, to check something else (otherwise we have way too many DNFs)
-        switch (cycleReliabilty)
-        {
-            case Entrant.Driver:
-                cycleReliabilty = Entrant.Team;
-                break;
-            case Entrant.Team:
-                cycleReliabilty = Entrant.Engine;
-                break;
-            case Entrant.Engine:
-                cycleReliabilty = Entrant.Driver;
-                break;
-        }
+        reliablityCycler++;
+        reliablityCycler %= cycleableReliablities.Length;
+        activeReliabilityCheck = cycleableReliablities[reliablityCycler];
     }
 
     void DeterminePositions()
