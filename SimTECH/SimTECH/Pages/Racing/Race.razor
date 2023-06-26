@@ -257,8 +257,7 @@
 </MudContainer>
 
 @code {
-    [Parameter]
-    public long RaceId { get; set; }
+    [Parameter] public long RaceId { get; set; }
 
     public RaceModel Model { get; set; }
 
@@ -635,9 +634,13 @@
 
             driver.LapScores.Add(lapScore);
             lapScoresToPersist.Add(lapScore);
+            scoreAboveDriver = driver.LapSum;
         }
 
-        DeterminePositions();
+        //DeterminePositions();
+        int positionIndexer = 0;
+        foreach (var driver in Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
+            driver.Position = ++positionIndexer;
 
         return NumberHelper.RandomInt(safetyReturnOdds) == 0;
     }
@@ -750,8 +753,8 @@
                 driver.OvertakeCount++;
 
                 // Not sure if this can even happen but we gotta make sure
-                if (safetyCarOut)
-                    driver.SingleOccurrence = "Overtook under SC";
+                @*if (safetyCarOut)
+                    driver.SingleOccurrence = "Overtook under SC";*@
             }
 
             // Overtake succeeded, driver gains a position!
@@ -807,14 +810,8 @@
         _nav.NavigateTo($"/postrace/{RaceId}");
     }
 
-    async Task ShowGapperChart()
-    {
-        var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
-        _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters);
-    }
-    async Task ShowPositionChart()
-    {
-        var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
-        _ = await _dialogService.ShowAsync<PositionChangeChart>("Position chart", parameters);
-    }
+    async Task ShowGapperChart() => _ = 
+        await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", new DialogParameters { ["Drivers"] = Model.RaceDrivers });
+    async Task ShowPositionChart() => _ =
+        await _dialogService.ShowAsync<PositionChangeChart>("Position chart", new DialogParameters { ["Drivers"] = Model.RaceDrivers });
 }

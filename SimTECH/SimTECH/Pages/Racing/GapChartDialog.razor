@@ -28,22 +28,10 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? ChartDialog { get; set; }
-    [Parameter, EditorRequired]
-    public List<RaceDriver> Drivers { get; set; }
+    [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
+    [Parameter, EditorRequired] public List<RaceDriver> Drivers { get; set; }
 
-    ApexCharts.ApexChartOptions<DataPoint> options = new ApexCharts.ApexChartOptions<DataPoint>
-        {
-            Chart = new ApexCharts.Chart
-            {
-                Background = "var(--mud-palette-drawer-background)",
-            },
-            Theme = new ApexCharts.Theme
-            {
-                Mode = ApexCharts.Mode.Dark,
-            }
-        };
+    ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
     List<DataSet> DataSets = new();
 
     bool loading = true;

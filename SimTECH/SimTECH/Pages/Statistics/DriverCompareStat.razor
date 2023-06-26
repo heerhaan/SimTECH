@@ -88,11 +88,10 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? StatDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
 
     ApexCharts.ApexChart<DataPoint>? chart;
-    ApexCharts.ApexChartOptions<DataPoint> options;
+    ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
     List<Driver>? Drivers;
     DataSet leftSet = new DataSet { Label = "left" };
     DataSet rightSet = new DataSet { Label = "right" };
@@ -103,23 +102,12 @@
 
     protected override void OnInitialized()
     {
-        options = new ApexCharts.ApexChartOptions<DataPoint>
+        options.PlotOptions = new ApexCharts.PlotOptions
             {
-                PlotOptions = new ApexCharts.PlotOptions
+                Bar = new ApexCharts.PlotOptionsBar
                 {
-                    Bar = new ApexCharts.PlotOptionsBar
-                    {
-                        Horizontal = true
-                    }
-                },
-                Chart = new ApexCharts.Chart
-                {
-                    Background = "#0d0d0d",
-                },
-                Theme = new ApexCharts.Theme
-                {
-                    Mode = ApexCharts.Mode.Dark,
-                },
+                    Horizontal = true
+                }
             };
     }
 

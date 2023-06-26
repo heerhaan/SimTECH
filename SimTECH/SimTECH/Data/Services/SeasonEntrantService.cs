@@ -25,8 +25,9 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonEngine
-                .Where(e => e.EngineId == engineId)
-                .LastOrDefaultAsync();
+                .Where(e => e.EngineId == engineId && e.Season.State == State.Closed)
+                .OrderByDescending(e => e.SeasonId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task UpdateSeasonEngine(SeasonEngine engne)
@@ -99,8 +100,9 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonTeam
-                .Where(e => e.TeamId == teamId)
-                .LastOrDefaultAsync();
+                .Where(e => e.TeamId == teamId && e.Season.State == State.Closed)
+                .OrderByDescending(e => e.SeasonId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task UpdateSeasonTeam(SeasonTeam team)
@@ -176,8 +178,9 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonDriver
-                .Where(e => e.DriverId == driverId)
-                .LastOrDefaultAsync();
+                .Where(e => e.DriverId == driverId && e.Season.State == State.Closed)
+                .OrderByDescending(e => e.SeasonId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task UpdateSeasonDriver(SeasonDriver driver)

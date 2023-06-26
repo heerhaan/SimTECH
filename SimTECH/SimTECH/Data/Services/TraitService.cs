@@ -24,11 +24,14 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
-        public async Task<List<Trait>> GetTraitsOfType(Entrant type)
+        public async Task<List<Trait>> GetTraitsOfType(Entrant type) => await GetTraitsOfType(type, StateFilter.Default);
+        public async Task<List<Trait>> GetTraitsOfType(Entrant type, StateFilter filter)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Trait.Where(e => e.Type == type).ToListAsync();
+            return await context.Trait
+                .Where(e => e.Type == type && filter.StatesForFilter().Contains(e.State))
+                .ToListAsync();
         }
 
         public async Task UpdateTrait(Trait trait)
@@ -41,7 +44,9 @@ namespace SimTECH.Data.Services
                 context.Add(trait);
             }
             else
+            {
                 context.Update(trait);
+            }
 
             await context.SaveChangesAsync();
         }

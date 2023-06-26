@@ -56,9 +56,9 @@
                     <MudPaper Elevation="15" Class="pa-2 mud-height-full">
                         <MudText Typo="Typo.subtitle1">Traits</MudText>
                         <MudChipSet @bind-SelectedValues="@selectedTraits" MultiSelection="true" Filter="true">
-                            @foreach (var trait in Traits)
+                            @foreach (var trait in selectableTraits)
                             {
-                                <MudChip Text="@trait.Name" Value="@trait.Id"></MudChip>
+                                <MudChip Color="Color.Secondary" Text="@trait.Name" Value="@trait.Id"></MudChip>
                             }
                         </MudChipSet>
 
@@ -82,16 +82,14 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? DriverDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
 
-    [Parameter]
-    public Driver? Driver { get; set; }
-    [Parameter]
-    public List<Trait> Traits { get; set; } = new();
+    [Parameter] public Driver? Driver { get; set; }
+    [Parameter] public List<Trait> Traits { get; set; } = new();
 
     private EditDriverModel Model;
     private DateTime? dateSetter { get; set; }
+    private List<Trait> selectableTraits;
     private ICollection<object>? selectedTraits { get; set; }
 
     private bool isValid;
@@ -102,7 +100,10 @@
     {
         Model = new EditDriverModel(Driver);
         dateSetter = Model.DateOfBirth;
-        selectedTraits = Model.DriverTraits.Select(e => e.TraitId).Cast<object>().ToList();
+
+        var driverTraitIds = Model.DriverTraits.Select(e => e.TraitId).ToList();
+        selectableTraits = Traits.Where(e => e.State == State.Active || driverTraitIds.Contains(e.Id)).ToList();
+        selectedTraits = driverTraitIds.Cast<object>().ToList();
     }
 
     void AutoUpdateAbbreviation()

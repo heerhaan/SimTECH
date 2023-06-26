@@ -47,13 +47,11 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? ChartDialog { get; set; }
-    [Parameter, EditorRequired]
-    public List<RaceDriver> Drivers { get; set; }
+    [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
+    [Parameter, EditorRequired] public List<RaceDriver> Drivers { get; set; }
 
-    ApexCharts.ApexChartOptions<DataPoint> options;
-    ApexCharts.ApexChartOptions<DataPoint> moreOptions;
+    ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
+    ApexCharts.ApexChartOptions<DataPoint> moreOptions = Constants.ChartOptionsDefault;
 
     List<DataSet> DataSets = new();
     DataSet DnfSet = new()
@@ -106,42 +104,13 @@
 
     private void SetOptions()
     {
-        options = new ApexCharts.ApexChartOptions<DataPoint>
-            {
-                Chart = new ApexCharts.Chart
-                {
-                    Animations = new ApexCharts.Animations
-                    {
-                        Enabled = false,
-                    },
-                },
-                Theme = new ApexCharts.Theme
-                {
-                    Mode = ApexCharts.Mode.Dark,
-                },
-                Yaxis = new()
+        options.Yaxis = new()
                 {
                     new ApexCharts.YAxis
                     {
                         Reversed = true,
                     },
-                }
-            };
-
-        moreOptions = new ApexCharts.ApexChartOptions<DataPoint>
-            {
-                Chart = new ApexCharts.Chart
-                {
-                    Animations = new ApexCharts.Animations
-                    {
-                        Enabled = false,
-                    },
-                },
-                Theme = new ApexCharts.Theme
-                {
-                    Mode = ApexCharts.Mode.Dark,
-                },
-            };
+                };
     }
 
     private List<DriverLapPosition> DetermineLapPositions()

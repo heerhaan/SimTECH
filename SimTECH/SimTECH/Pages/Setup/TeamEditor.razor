@@ -19,7 +19,7 @@
                     <MudPaper Elevation="10" Class="pa-4">
                         <MudText Typo="Typo.subtitle1">Traits</MudText>
                         <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
-                            @foreach (var trait in Traits)
+                            @foreach (var trait in selectableTraits)
                             {
                                 <MudChip Text="@trait.Name" Value="@trait.Id"></MudChip>
                             }
@@ -42,20 +42,16 @@
     [Parameter] public List<Trait> Traits { get; set; } = new();
 
     private EditTeamModel Model;
+    private List<Trait> selectableTraits;
     private ICollection<object>? selectedTraits { get; set; }
 
     protected override void OnInitialized()
     {
         Model = new EditTeamModel(Team);
 
-        if (Team != null)
-        {
-            selectedTraits = Model.TeamTraits.Select(e => e.TraitId).Cast<object>().ToList();
-        }
-        else
-        {
-            selectedTraits = new List<long>() as ICollection<object>;
-        }
+        var teamTraitIds = Model.TeamTraits.Select(e => e.TraitId).ToList();
+        selectableTraits = Traits.Where(e => e.State == State.Active || teamTraitIds.Contains(e.Id)).ToList();
+        selectedTraits = Model.TeamTraits.Select(e => e.TraitId).Cast<object>().ToList();
     }
 
     private void Submit()

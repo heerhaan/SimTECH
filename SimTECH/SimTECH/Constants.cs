@@ -1,17 +1,19 @@
 ﻿using MudBlazor;
 using MudBlazor.Utilities;
+using SimTECH.PageModels;
+using Chart = ApexCharts;
 
 namespace SimTECH
 {
     public static class Constants
     {
-        public static string DefaultBackground => "var(--mud-palette-background)";
-        public static string DefaultColour => "var(--mud-palette-background)";
-        public static string DefaultAccent => "var(--mud-palette-text-primary)";
+        public const string DefaultBackground = "var(--mud-palette-background)";
+        public const string DefaultColour = "var(--mud-palette-background)";
+        public const string DefaultAccent = "var(--mud-palette-text-primary)";
 
-        public static Country DefaultCountry => Country.FM;
+        public const Country DefaultCountry = Country.FM;
 
-        public static string[] AllWeatherIcons => new string[]
+        public static readonly string[] AllWeatherIcons = new string[]
         {
             Icons.Material.Filled.WbSunny,
             Icons.Material.Filled.Cloud,
@@ -23,6 +25,21 @@ namespace SimTECH
             IconCollection.Snowflake,
             IconCollection.CloudBolt,
         };
+
+        #region Charts
+        public static readonly Chart.ApexChartOptions<DataPoint> ChartOptionsDefault = new()
+        {
+            Chart = new Chart.Chart
+            {
+                Animations = new Chart.Animations { Enabled = false },
+                Background = "#0d0d0d",
+            },
+            Theme = new Chart.Theme
+            {
+                Mode = Chart.Mode.Dark,
+            },
+        };
+        #endregion
 
         #region themes
         private static readonly MudColor VeryDeepDarkPurple = new("#0d0612");
@@ -172,6 +189,7 @@ namespace SimTECH
             Button = new Button()
             {
                 FontFamily = new[] { "NovaBold" },
+                FontSize = "0.9rem",
             },
             Caption = new Caption()
             {

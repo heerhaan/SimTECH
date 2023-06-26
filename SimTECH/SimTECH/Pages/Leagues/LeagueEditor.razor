@@ -105,15 +105,13 @@
     {
         Model = new EditLeagueModel(League);
 
-        foreach (var rngbl in rangeables)
-            weightedAspects.Add(rngbl, new());
+        foreach (var range in rangeables)
+            weightedAspects.Add(range, new());
 
         if (League != null)
         {
             foreach (var developGroup in Model.DevelopmentRanges.OrderBy(e => (int)e.Type).GroupBy(e => e.Type))
-            {
                 weightedAspects[developGroup.Key].AddRange(developGroup);
-            }
 
             selectedAspects = Model.DevelopmentRanges.Select(e => e.Type).Distinct().Cast<object>().ToList();
         }

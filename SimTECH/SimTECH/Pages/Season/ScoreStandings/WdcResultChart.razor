@@ -28,14 +28,11 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? ChartDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
 
-    [Parameter]
-    public List<StandingDriverModel>? Drivers { get; set; }
+    [Parameter] public List<StandingDriverModel>? Drivers { get; set; }
 
-    [Parameter]
-    public Season Season { get; set; }
+    [Parameter] public Season Season { get; set; }
 
     ApexCharts.ApexChartOptions<DataPoint> options;
     List<DataSet> DataSets = new();
@@ -44,13 +41,7 @@
 
     protected override void OnInitialized()
     {
-        options = new ApexCharts.ApexChartOptions<DataPoint>
-            {
-                Chart = new ApexCharts.Chart
-                {
-                    Background = "#0d0d0d",
-                },
-            };
+        options = Constants.ChartOptionsDefault;
 
         var allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new Dictionary<int, int>();
 

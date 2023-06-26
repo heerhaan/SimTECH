@@ -32,25 +32,13 @@
     [Parameter] public List<StandingTeamModel>? Teams { get; set; }
     [Parameter] public Season Season { get; set; }
 
-    ApexCharts.ApexChartOptions<DataPoint> options;
+    ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
     List<DataSet> DataSets = new();
 
     bool loading = true;
 
     protected override void OnInitialized()
     {
-        options = new ApexCharts.ApexChartOptions<DataPoint>
-            {
-                Chart = new ApexCharts.Chart
-                {
-                    Background = "#0d0d0d",
-                },
-                Theme = new ApexCharts.Theme
-                {
-                    Mode = ApexCharts.Mode.Dark,
-                }
-            };
-
         var allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new Dictionary<int, int>();
 
         if (Teams != null)
@@ -76,7 +64,6 @@
 
                     dataSet.DataPoints.Add(new DataPoint(result.Key, points));
                 }
-
 
                 dataSet.Stroke = new ApexCharts.SeriesStroke { Color = team.Colour, Width = 3 };
 
