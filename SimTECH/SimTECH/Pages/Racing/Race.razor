@@ -140,7 +140,7 @@
                     </MudStack>
                 </MudTd>
                 <MudTd Class="number-col">
-                    @if (context.Status == RaceStatus.Racing)
+                    @if (context.Status == RaceStatus.Racing && context.SingleOccurrence == null)
                     {
                         <GradientColour Min="@lastLowestScore" Max="@lastHighestScore" Value="@context.LastScore">
                             <MudText Typo="Typo.caption" Color="Color.Inherit">@context.LastScore</MudText>
@@ -148,7 +148,7 @@
                     }
                     else
                     {
-                        <MudText Typo="Typo.caption">-</MudText>
+                        <MudText Typo="Typo.button" Color="Color.Warning">@(context.SingleOccurrence ?? "-")</MudText>
                     }
                 </MudTd>
                 <MudTd Class="number-col-lg">
@@ -217,13 +217,13 @@
                     <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
                         <MudText Typo="Typo.button">Legend</MudText>
                         <MudChip Icon="@IconCollection.HelmetOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            DNF Driver
+                            Crash
                         </MudChip>
                         <MudChip Icon="@IconCollection.CarCrash" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            DNF Car
+                            Issues
                         </MudChip>
                         <MudChip Icon="@IconCollection.EngineOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            DNF Engine
+                            Engine
                         </MudChip>
                         <MudChip Icon="@Icons.Material.Filled.ErrorOutline" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
                             Mistake
@@ -232,16 +232,13 @@
                             Pitstop
                         </MudChip>
                         <MudChip Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Info" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Driver Swap
+                            Swap
                         </MudChip>
                         <MudChip Icon="@IconCollection.Bandage" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
                             Lethal
                         </MudChip>
                         <MudChip Icon="@IconCollection.AlertTriangle" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
                             Caution
-                        </MudChip>
-                        <MudChip Icon="@Icons.Material.Filled.QuestionMark" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Undetermined
                         </MudChip>
 
                         <MudSpacer />
@@ -269,10 +266,15 @@
     List<Tyre> tyres;
     List<Incident> possibleIncidents;
 
+    // Controls for the view
     bool loading = true;
-    bool altProgress = false;
     bool tooMuchInfo = false;
+    bool safetyCarOut = false;
+    Color lapIndicatorColor = Color.Dark;
+    Entrant cycleReliabilty = Entrant.Driver;
+    ProgressBarType progressType = ProgressBarType.Tyre;
 
+    // Supportive caluclation fields
     int fatalityOdds;
     int disqualifyChance;
     int safetyCarOdds;
@@ -297,13 +299,11 @@
     int calculationsPerAdvance = 5;
     int calculationDistance = 10;
 
-    bool safetyCarOut = false;
-    Color lapIndicatorColor = Color.Dark;
-    Entrant cycleReliabilty = Entrant.Driver;
-    ProgressBarType progressType = ProgressBarType.Tyre;
-
     int lastHighestScore = 0;
     int lastLowestScore = 0;
+    int safetyCarGap = 50;
+    int safetyGapCloserDivider = 2;
+    int safetyWearDivider = 3;
 
     protected override async Task OnInitializedAsync()
     {
@@ -358,7 +358,6 @@
             calculationsPerAdvance = (int)calcChip.Value;
     }
 
-    void ToggleProgressBarType() => altProgress = !altProgress;
     void SetProgressBarType(ProgressBarType type) => progressType = type;
 
     bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
@@ -394,6 +393,7 @@
 
             foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
             {
+                driver.SingleOccurrence = null;
                 driver.InstantOvertaken = false;
 
                 var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
@@ -513,7 +513,7 @@
         safetyCar = NumberHelper.RandomInt(safetyCarOdds) == 0;
         driver.Status = RaceStatus.Dnf;
 
-        return safetyCar;
+        return true;
     }
 
     // Returns a number which will be added to the users lap score
@@ -567,20 +567,53 @@
     // returns bool which indicates whether a safety car has been caused by a DNF-result
     bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
     {
+        var distanceLeft = Model.RaceLength - (calculated * calculationDistance);
+        var validTyres = tyres
+            .Where(e => e.DistanceMin < distanceLeft 
+                     && e.DistanceMax > distanceLeft 
+                     && e.ForWet == Model.IsWet)
+            .ToList();
+
         int scoreAboveDriver = 0;
         foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
         {
+            driver.SingleOccurrence = null;
             driver.InstantOvertaken = false;
 
             var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
-            var scoreGap = scoreAboveDriver - driver.LapSum;
-
-            if (scoreGap > 50)
+            // If the tyre life is less than half of the tyres overall pace, then check for a pitstop
+            if (validTyres.Count > 0 && driver.TyreLife < (driver.CurrentTyre.Pace / 2))
             {
-                var closingGap = scoreGap / 2;
-                lapScore.Score += closingGap;
+                Tyre nextTyre;
+                if (validTyres.Count > 1)
+                    nextTyre = validTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList().TakeRandomItem();
+                else
+                    nextTyre = validTyres.First();
+
+                driver.CurrentTyre = nextTyre;
+                driver.TyreLife = nextTyre.Pace;
+                driver.InstantOvertaken = true;
+
+                lapScore.RacerEvents |= RacerEvent.Pitstop;
+
+                lapScore.Score -= NumberHelper.RandomInt(pitMin / 2, pitMax / 2);
             }
+            else
+            {
+                var scoreGap = scoreAboveDriver - driver.LapSum;
+
+                // Consider making the score gap configureable, it fits well with grid bonus?
+                if (scoreGap > safetyCarGap)
+                {
+                    var closingGap = scoreGap / safetyGapCloserDivider;
+                    lapScore.Score += closingGap;
+                }
+            }
+
+            var tyreMinWear = (driver.CurrentTyre.WearMin + driver.WearMinMod) / safetyWearDivider;
+            var tyreMaxWear = (driver.CurrentTyre.WearMax + driver.WearMaxMod) / safetyWearDivider;
+            driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
             lapScore.RacerEvents |= RacerEvent.Caution;
             lapScore.TyreColour = driver.CurrentTyre.Colour;
@@ -588,6 +621,8 @@
             driver.LapScores.Add(lapScore);
             lapScoresToPersist.Add(lapScore);
         }
+
+        DeterminePositions();
 
         return NumberHelper.RandomInt(safetyReturnOdds) == 0;
     }
@@ -687,7 +722,7 @@
             //    defendingDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
             //}
             //else
-            
+
             if (!defendingDriver.InstantOvertaken)
             {
                 // Subtract attack value from defense, what's left is how much the attacker is hindered
@@ -707,6 +742,10 @@
 
                 // It only counts as an overtake if it wasn't in an instant
                 driver.OvertakeCount++;
+
+                // Not sure if this can even happen but we gotta make sure
+                if (safetyCarOut)
+                    driver.SingleOccurrence = "Overtook under SC";
             }
 
             // Overtake succeeded, driver gains a position!

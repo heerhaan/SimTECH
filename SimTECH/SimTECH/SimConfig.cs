@@ -7,7 +7,9 @@
         public int FatalityChance { get; set; } = 250;
         public int DisqualifyChance { get; set; } = 100;
         public int SafetyCarChance { get; set; } = 10;
+        //public int SafetyCarGap { get; set; } = 25;
         public int SafetyCarReturnChance { get; set; } = 2;
+        public int SafetyStopDurationDivider { get; set; } = 2;
         public double GapMarge { get; set; } = 0.001;
         public bool PersonalNumbersEnabled { get; set; }
         public bool FormationLapEnabled { get; set; }

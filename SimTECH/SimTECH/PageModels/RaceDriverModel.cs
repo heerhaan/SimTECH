@@ -57,6 +57,7 @@ namespace SimTECH.PageModels
         public int LastScore { get; set; } = 0;
         public int OvertakeCount { get; set; } = 0;
         public int DefensiveCount { get; set; } = 0;
+        public string? SingleOccurrence { get; set; }
 
         public Result ToResult(long raceId)
         {

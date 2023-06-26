@@ -85,7 +85,7 @@
     </MudTable>
 </MudContainer>
 
-    @code {
+@code {
     [CascadingParameter]
     public QualifyingModel Model { get; set; }
     [Parameter]
@@ -123,11 +123,7 @@
         {
             driver.Position = ++positionIndex;
             driver.PositionQ1 = positionIndex;
-
-            if (driver.Position == 1)
-                driver.GapQ1 = Math.Round(((highestScore - driver.MaxScoreQ1) * gapMarge), 2);
-            else
-                driver.GapQ1 = Math.Round(((highestScore - driver.MaxScoreQ1) * gapMarge), 2);
+            driver.GapQ1 = Math.Round(((highestScore - driver.MaxScoreQ1) * gapMarge), 2);
         }
 
         advanced++;
