@@ -6,13 +6,14 @@
 @inject IDialogService _dialogService
 @inject ISnackbar _snack
 
-<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4" id="raceweek-container">
     @if (!loading)
     {
         <MudGrid>
             <MudItem xs="3">
                 <MudPaper Class="pa-4 mud-height-full">
                     <MudStack AlignItems="AlignItems.Center" Class="mud-height-full">
+                        <ScreenshotButton TargetId="raceweek-container" />
                         <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
 
                         <MudStack Row="true" AlignItems="AlignItems.Center">
@@ -37,7 +38,7 @@
                             </MudList>
                         }
 
-                        <MudButtonGroup Color="Color.Secondary" Variant="Variant.Filled" VerticalAlign="true" Class="mt-2 mud-width-full">
+                        <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined" VerticalAlign="true" Class="mt-2 mud-width-full">
                             @if (Model.Race.State == State.Active)
                             {
                                 <MudButton FullWidth="true" OnClick="GoToPractice">Practice</MudButton>
@@ -131,8 +132,7 @@
 </MudContainer>
 
 @code {
-    [Parameter]
-    public long RaceId { get; set; }
+    [Parameter] public long RaceId { get; set; }
 
     public RaceWeekModel Model { get; set; }
     private List<Tyre> Tyres { get; set; }

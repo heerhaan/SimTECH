@@ -185,7 +185,6 @@ namespace SimTECH
             Button = new Button()
             {
                 FontFamily = new[] { "NovaBold" },
-                FontSize = "0.95rem",
             },
             Caption = new Caption()
             {

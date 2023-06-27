@@ -22,7 +22,7 @@
             </MudPaper>
         }
         <MudContainer Class="@(stepIndex == 0 ? string.Empty : "d-none")">
-            <MudPaper>
+            <MudPaper MinWidth="1000px">
                 <MudTable T="Track" @bind-SelectedItems="selectedTracks" Items="@Tracks" MultiSelection="true" Hover="true">
                     <HeaderContent>
                         <MudTh>Name</MudTh>
@@ -41,7 +41,12 @@
                             <MudText Typo="Typo.caption">@(context.Length)Km</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText>@(context.AeroMod)x | @(context.ChassisMod)x | @(context.PowerMod)x | @(context.QualifyingMod)x</MudText>
+                            <MudText>
+                                @(context.AeroMod.ToString("F2"))x | 
+                                @(context.ChassisMod.ToString("F2"))x | 
+                                @(context.PowerMod.ToString("F2"))x | 
+                                @(context.QualifyingMod.ToString("F2"))x
+                            </MudText>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -64,7 +69,7 @@
                             <MudText>@context.Name</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText>@(context.RaceLength)Km</MudText>
+                            <MudText>@(context.RaceLength)km</MudText>
                         </MudTd>
                         <MudTd>
                             <MudText>@(Climates.Find(e => e.Id == context.ClimateId)?.Terminology ?? "Unknown")</MudText>
@@ -98,7 +103,7 @@
             </MudPaper>
         </MudContainer>
         <MudContainer Class="@(stepIndex == 2 ? string.Empty : "d-none")">
-            <MudPaper MinWidth="700px">
+            <MudPaper MinWidth="1000px">
                 <MudDropContainer @ref="reorderContainer"
                                   T="EditRaceModel"
                                   Items="@addedRaces"

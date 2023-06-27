@@ -24,6 +24,8 @@ namespace SimTECH.PageModels
         public int Power { get; set; }
         public int Attack { get; set; }
         public int Defense { get; set; }
+
+        public string GapAbove { get; set; }
     }
 
     public class RaceDriver : DriverBase

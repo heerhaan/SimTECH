@@ -17,6 +17,13 @@
             _ => new State[] { State.Concept, State.Active, State.Advanced, State.Closed }
         };
 
+        public static string SituationColour(this SituationAtRace situation) => situation switch
+        {
+            SituationAtRace.Raced => "Green",
+            SituationAtRace.Caution => "Yellow",
+            _ => ""
+        };
+
         public static string ReadableAspect(this Aspect aspect) => aspect switch
         {
             Aspect.Skill => "Skill",

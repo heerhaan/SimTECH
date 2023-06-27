@@ -82,14 +82,16 @@ namespace SimTECH
         Caution = 256,
     }
 
+    public enum SituationAtRace
+    {
+        None = 0,
+        Raced,
+        Caution,
+    }
+
     public enum CategoryIncident
     {
         Driver, Car, Engine, Disqualified, Lethal
-    }
-
-    public enum ProgressBarType
-    {
-        Default, Caution, Tyre
     }
     #endregion racing
 
