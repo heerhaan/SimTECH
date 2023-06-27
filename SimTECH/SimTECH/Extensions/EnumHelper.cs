@@ -1,6 +1,4 @@
-﻿using SimTECH.Data.Models;
-
-namespace SimTECH.Extensions
+﻿namespace SimTECH.Extensions
 {
     public static class EnumHelper
     {
@@ -8,8 +6,6 @@ namespace SimTECH.Extensions
         {
             return Enum.GetValues(e.GetType()).Cast<Enum>().Where(e.HasFlag);
         }
-
-        public static Country DefaultCountry => Country.FM;
 
         public static State[] StatesForFilter(this StateFilter filter) => filter switch
         {
@@ -36,7 +32,7 @@ namespace SimTECH.Extensions
             _ => "Unknown"
         };
 
-        public static Aspect[] RangeableAspects => new Aspect[]
+        public static readonly Aspect[] RangeableAspects = new Aspect[]
         {
             Aspect.Skill,
             Aspect.Age,
@@ -51,14 +47,14 @@ namespace SimTECH.Extensions
         };
 
         // Dictionary selectors underneath
-        public static Dictionary<Entrant, string> GetEntrantSelection => new()
+        public static readonly Dictionary<Entrant, string> GetEntrantSelection = new()
         {
             { Entrant.Driver, "Driver" },
             { Entrant.Team, "Team" },
             { Entrant.Track, "Track" },
         };
 
-        public static Dictionary<CategoryIncident, string> GetIncidentCategories => new()
+        public static readonly Dictionary<CategoryIncident, string> GetIncidentCategories = new()
         {
             { CategoryIncident.Driver, "Driver" },
             { CategoryIncident.Car, "Car" },
@@ -67,7 +63,7 @@ namespace SimTECH.Extensions
             { CategoryIncident.Lethal, "Lethal" },
         };
 
-        public static Dictionary<TeamRole, string> GetTeamRoleSelection => new()
+        public static readonly Dictionary<TeamRole, string> GetTeamRoleSelection = new()
         {
             { TeamRole.None, "None" },
             { TeamRole.Main, "Main" },

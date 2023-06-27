@@ -76,12 +76,14 @@
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Development</MudText>
                         <MudSpacer />
-                        @if (_ranDevelop)
-                        {
-                            <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" Variant="Variant.Filled" OnClick="SaveDevelopment">Save</MudButton>
-                        }
-                        <MudButton StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" Variant="Variant.Filled" OnClick="RunDevelop">Run</MudButton>
-                        <ScreenshotButton TargetId="development-results" />
+                        <MudButtonGroup Color="Color.Info" Variant="Variant.Outlined">
+                            @if (_ranDevelop)
+                            {
+                                <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" Variant="Variant.Outlined" OnClick="SaveDevelopment">Save</MudButton>
+                            }
+                            <MudButton StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" Variant="Variant.Outlined" OnClick="RunDevelop">Run</MudButton>
+                            <ScreenshotButton TargetId="development-results" />
+                        </MudButtonGroup>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>Name</MudTh>

@@ -26,7 +26,7 @@ namespace SimTECH
             IconCollection.CloudBolt,
         };
 
-        #region Charts
+        #region charts
         public static readonly Chart.ApexChartOptions<DataPoint> ChartOptionsDefault = new()
         {
             Chart = new Chart.Chart
@@ -68,7 +68,6 @@ namespace SimTECH
             Palette = new PaletteLight()
             {
                 Primary = Colors.DeepPurple.Default,
-                //Triadic
                 Secondary = Colors.Pink.Default,
                 Tertiary = Colors.Orange.Accent3,
 
@@ -77,7 +76,6 @@ namespace SimTECH
             PaletteDark = new PaletteDark()
             {
                 Primary = Colors.DeepPurple.Lighten1,
-                // Triadic
                 Secondary = Colors.Pink.Darken2,
                 Tertiary = Colors.Amber.Darken2,
 
@@ -95,7 +93,6 @@ namespace SimTECH
             Palette = new PaletteLight()
             {
                 Primary = Colors.DeepPurple.Default,
-                // Analogous
                 Secondary = Colors.Indigo.Default,
                 Tertiary = Colors.Purple.Accent3,
 
@@ -104,7 +101,6 @@ namespace SimTECH
             PaletteDark = new PaletteDark()
             {
                 Primary = Colors.DeepPurple.Lighten1,
-                // Analogous
                 Secondary = Colors.Indigo.Darken1,
                 Tertiary = Colors.Purple.Darken1,
 
@@ -189,7 +185,7 @@ namespace SimTECH
             Button = new Button()
             {
                 FontFamily = new[] { "NovaBold" },
-                FontSize = "0.9rem",
+                FontSize = "0.95rem",
             },
             Caption = new Caption()
             {

@@ -96,16 +96,5 @@
     [Parameter, EditorRequired]
     public long SeasonId { get; set; }
 
-    private async Task AddAllEntrants()
-    {
-        Model.CombineEntrantModels();
-
-        var rootEntrants = Model.SeasonEngines.Select(e => e.Record).ToList();
-
-        await _entrantService.PersistSeasonEntrants(rootEntrants);
-
-        _nav.NavigateTo($"/overview/{SeasonId}");
-    }
-
     private string ReadEngineName(long id) => Model.SeasonEngines.Find(e => e.EngineId == id)?.Name ?? "Unknown";
 }

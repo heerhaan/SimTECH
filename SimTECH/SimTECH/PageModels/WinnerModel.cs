@@ -5,7 +5,7 @@ namespace SimTECH.PageModels
     public abstract class WinnerModel
     {
         public string Name { get; set; }
-        public Country Country { get; set; } = EnumHelper.DefaultCountry;
+        public Country Country { get; set; } = Constants.DefaultCountry;
         public string Colour { get; set; } = "var(--mud-palette-background)";
         public string Accent { get; set; } = "var(--mud-palette-text-primary)";
     }

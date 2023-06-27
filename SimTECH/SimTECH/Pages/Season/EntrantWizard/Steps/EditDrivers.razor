@@ -3,6 +3,10 @@
 
 <MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
+        @if (!_config.Value.PersonalNumbersEnabled)
+        {
+            <MudText Color="Color.Info">Don't worry about the numbers, these fix themselves</MudText>
+        }
         <MudForm>
             <MudTable T="EditSeasonDriverModel" Items="@Model.SeasonDrivers" Hover="true">
                 <HeaderContent>

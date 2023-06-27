@@ -21,7 +21,7 @@
                 </TemplateColumn>
                 <PropertyColumn Property="e => e.DriverNumber" SortBy="e => e.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" CellStyleFunc="@FullStyleFunc" />
                 <PropertyColumn Property="e => e.TeamName" Title="Team" CellStyleFunc="@SimpleCellStyle" />
-                <PropertyColumn Property="e => e.Engine" Title="Engine" />
+                <PropertyColumn Property="e => e!.Engine" Title="Engine" />
                 <PropertyColumn Property="e => e!.Manufacturer" />
                 <PropertyColumn Property="e => e!.QualyPower" Title="Q.PWR" CellClass="font-caption" />
                 <PropertyColumn Property="e => e!.RacePower" Title="R.PWR" CellClass="font-caption" />
@@ -37,24 +37,11 @@
                         </MudText>
                     </CellTemplate>
                 </TemplateColumn>
-                <TemplateColumn T="PowerRankModel" Title="Wear" Sortable="false">
-                    <CellTemplate>
-                        <MudText Typo="Typo.caption">@context.Item.WearMin ↔ @context.Item.WearMax</MudText>
-                    </CellTemplate>
-                </TemplateColumn>
-                <TemplateColumn T="PowerRankModel" Title="Rng" Sortable="false">
-                    <CellTemplate>
-                        @if (context.Item.TraitEffect != null)
-                        {
-                            <MudText Typo="Typo.caption">@context.Item.TraitEffect.MinRNG ↔ @context.Item.TraitEffect.MaxRNG</MudText>
-                        }
-                    </CellTemplate>
-                </TemplateColumn>
             </Columns>
             <ChildRowContent>
                 <MudText Color="Color.Warning">Should still be designed properly</MudText>
                 <MudStack Row="true">
-                    <MudPaper>
+                    <MudPaper Class="pa-2">
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText>Driver reliability</MudText>
                             <MudText Typo="Typo.caption">@(context.Item.DriverRel)</MudText>
@@ -70,6 +57,21 @@
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText>Engine reliability</MudText>
                             <MudText Typo="Typo.caption">@(context.Item.EngineRel)</MudText>
+                        </MudStack>
+                    </MudPaper>
+                    <MudPaper>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText>Wear modifiers</MudText>
+                            <MudText Typo="Typo.caption">@context.Item.WearMin ↔ @context.Item.WearMax</MudText>
+                        </MudStack>
+                    </MudPaper>
+                    <MudPaper>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText>RNG modifiers</MudText>
+                            @if (context.Item.TraitEffect != null)
+                            {
+                                <MudText Typo="Typo.caption">@context.Item.TraitEffect.MinRNG ↔ @context.Item.TraitEffect.MaxRNG</MudText>
+                            }
                         </MudStack>
                     </MudPaper>
                 </MudStack>

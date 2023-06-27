@@ -7,6 +7,7 @@
 @inject SeasonService _seasonService
 @inject SeasonEntrantService _entrantService
 @inject NavigationManager _nav
+@inject IOptions<SimConfig> _config
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudPaper Elevation="5">
@@ -226,6 +227,16 @@
                     else
                     {
                         errors.Add("You fucked up");
+                    }
+                }
+                break;
+            case 7:
+                {
+                    if (!_config.Value.PersonalNumbersEnabled)
+                    {
+                        int numberIndexer = 0;
+                        foreach (var driver in Model.SeasonDrivers.OrderBy(e => e.BaseTeamId))
+                            driver.Number = ++numberIndexer;
                     }
                 }
                 break;

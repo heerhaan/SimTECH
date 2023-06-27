@@ -633,7 +633,7 @@ namespace SimTECH.Data.Services
                 TrackLength = race.Track?.Length ?? 0,
                 RaceLength = race.RaceLength,
                 Name = race.Name,
-                Country = race.Track?.Country ?? EnumHelper.DefaultCountry,
+                Country = race.Track?.Country ?? Constants.DefaultCountry,
                 ClimateId = race.ClimateId,
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,

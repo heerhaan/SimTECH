@@ -24,7 +24,7 @@ namespace SimTECH.Data.EditModels
             if (driver == null)
             {
                 DateOfBirth = DateTime.Today;
-                Country = EnumHelper.DefaultCountry;
+                Country = Constants.DefaultCountry;
                 State = State.Active;
                 Alive = true;
 
