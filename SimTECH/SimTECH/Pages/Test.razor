@@ -87,7 +87,19 @@
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudPaper>
-
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <div>
+                                <MudText Typo="Typo.body2">@(string.Join(", ", randomOld))</MudText>
+                                <MudText>Deviation old: @(deviateOld.ToString("F2"))</MudText>
+                                <MudText>Avg: @(randomOld.Average().ToString("F2"))</MudText>
+                            </div>
+                            <MudDivider Vertical="true" />
+                            <div>
+                                <MudText Typo="Typo.body2">@(string.Join(", ", randomNew))</MudText>
+                                <MudText>Deviation new: @(deviateNew.ToString("F2"))</MudText>
+                                <MudText>Avg: @(randomNew.Average().ToString("F2"))</MudText>
+                            </div>
+                        </MudStack>
                     </MudPaper>
                 </MudItem>
             </MudGrid>
@@ -159,12 +171,28 @@
     string newExampleString = "Stored and retrieved from the local storage";
     SimConfig config;
 
+    List<int> randomOld = new();
+    List<int> randomNew = new();
+    double deviateOld;
+    double deviateNew;
+
     protected override void OnInitialized()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: "/"),
         });
+
+        for (int i = 0; i < 30; i++)
+        {
+            randomOld.Add(NumberHelper.OldRandom(100));
+            randomNew.Add(NumberHelper.RandomInt(100));
+        }
+
+        double oldAvg = randomOld.Average();
+        double newAvg = randomNew.Average();
+        deviateOld = Math.Sqrt(randomOld.Average(e => Math.Pow(e - oldAvg, 2)));
+        deviateNew = Math.Sqrt(randomNew.Average(e => Math.Pow(e - newAvg, 2)));
 
         config = _config.Value;
     }

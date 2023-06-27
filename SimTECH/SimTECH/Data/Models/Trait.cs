@@ -17,8 +17,8 @@ namespace SimTECH.Data.Models
         public int DriverReliability { get; set; }
         public int CarReliability { get; set; }
         public int EngineReliability { get; set; }
-        public int WearMax { get; set; }
         public int WearMin { get; set; }
+        public int WearMax { get; set; }
         public int RngMin { get; set; }
         public int RngMax { get; set; }
 

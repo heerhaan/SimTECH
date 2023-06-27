@@ -123,7 +123,7 @@
                     <MudText Typo="Typo.caption">@context.Power</MudText>
                 </MudTd>
                 <MudTd>
-                    <MudStack Row="true" Spacing="1" Justify="Justify.SpaceEvenly" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
+                    <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
                         <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
                         <MudText Typo="Typo.caption">@context.Attack</MudText>
                         <sup>@(context.OvertakeCount)</sup>
@@ -154,14 +154,7 @@
                 <MudTd Class="number-col-lg">
                     @if (context.Incident == null)
                     {
-                        if (context.Position == 1)
-                        {
-                            <MudText Typo="Typo.caption">LEADER</MudText>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.caption">+@((Math.Round((highestScore - context.LapSum) * gapMarge, 2)).ToString("F2"))</MudText>
-                        }
+                        <MudText Typo="Typo.caption">@context.GapAbove</MudText>
                     }
                     else
                     {
@@ -501,7 +494,7 @@
         safetyCar = NumberHelper.RandomInt(safetyCarOdds) == 0;
         driver.Status = RaceStatus.Dnf;
 
-        return true;
+        return safetyCar;
     }
 
     bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;

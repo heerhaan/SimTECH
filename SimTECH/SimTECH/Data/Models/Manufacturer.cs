@@ -9,7 +9,7 @@
         public State State { get; set; }
 
         public int Pace { get; set; }
-        public int WearMax { get; set; }
         public int WearMin { get; set; }
+        public int WearMax { get; set; }
     }
 }
