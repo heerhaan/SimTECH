@@ -10,7 +10,7 @@
             <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterDriver">New</MudButton>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="SeasonDriver" Items="@SeasonDriverEntrants" Dense="true" Loading="@_loading">
+    <MudDataGrid T="SeasonDriver" Items="@DriverEntrants" Dense="true" Loading="@_loading">
         <Columns>
             <TemplateColumn T="SeasonDriver" Sortable="false" Class="accent-cell">
                 <CellTemplate>
@@ -43,9 +43,7 @@
             </TemplateColumn>
             <TemplateColumn T="SeasonDriver" Sortable="false">
                 <CellTemplate>
-                    <MudButtonGroup>
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
-                    </MudButtonGroup>
+                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
@@ -53,22 +51,19 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public Season Season { get; set; }
+    [CascadingParameter] public Season Season { get; set; }
 
-    private List<SeasonDriver> SeasonDriverEntrants = new();
-    private List<SeasonTeam> TeamEntrants = new();
-    private List<Driver> DriverData = new();
+    List<SeasonDriver> DriverEntrants = new();
+    List<SeasonTeam> TeamEntrants = new();
 
     bool _loading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        SeasonDriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
+        DriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
         TeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
-        DriverData = await DriverService.GetDrivers();
 
-        foreach (var sdriver in SeasonDriverEntrants)
+        foreach (var sdriver in DriverEntrants)
             sdriver.SeasonTeam = TeamEntrants.FirstOrDefault(e => e.Id == sdriver.SeasonTeamId);
 
         _loading = false;
@@ -80,7 +75,6 @@
         var parameters = new DialogParameters
             {
                 ["SeasonId"] = Season.Id,
-                ["Drivers"] = DriverData.Where(e => !SeasonDriverEntrants.Select(sd => sd.DriverId).Contains(e.Id)).ToList(),
                 ["SeasonTeams"] = TeamEntrants,
                 ["SeasonDriver"] = item,
             };
@@ -94,8 +88,8 @@
 
             await EntrantService.UpdateSeasonDriver(updatedDriver);
 
-            SeasonDriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
-            foreach (var sdriver in SeasonDriverEntrants)
+            DriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
+            foreach (var sdriver in DriverEntrants)
                 sdriver.SeasonTeam = TeamEntrants.FirstOrDefault(e => e.Id == sdriver.SeasonTeamId);
 
             _loading = false;

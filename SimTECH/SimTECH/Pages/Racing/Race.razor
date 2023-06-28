@@ -55,7 +55,7 @@
 
                     <MudSpacer />
 
-                    <MudButtonGroup Color="Color.Tertiary">
+                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                         @if (!Model.IsFinished)
                         {
                             @if (calculated >= calculationCount)
@@ -442,8 +442,11 @@
         racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, Model.TrackLength);
 
         var lastScores = Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
-        lastLowestScore = lastScores.Min();
-        lastHighestScore = lastScores.Max();
+        if (lastScores.Any())
+        {
+            lastLowestScore = lastScores.Min();
+            lastHighestScore = lastScores.Max();
+        }
 
         // Persist the new stint results, yes after doing all whats needed to show them
         //PersistLapScores(lapScoresToPersist);

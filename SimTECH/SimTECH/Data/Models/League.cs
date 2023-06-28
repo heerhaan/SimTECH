@@ -17,4 +17,12 @@
         public IList<Season>? Seasons { get; set; }
         public IList<Contract>? Contracts { get; set; }
     }
+
+    public static class LeagueExtensions
+    {
+        public static List<DevelopmentRange> GetAspectRanges(this IList<DevelopmentRange> ranges, Aspect aspect)
+        {
+            return ranges.Where(e => e.Type == aspect).OrderBy(e => e.Comparer).ToList();
+        }
+    }
 }

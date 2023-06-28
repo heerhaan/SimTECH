@@ -19,7 +19,15 @@
                         </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
-                <PropertyColumn Property="e => e.DriverNumber" SortBy="e => e.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" CellStyleFunc="@FullStyleFunc" />
+                <TemplateColumn T="PowerRankModel"
+                                SortBy="e => e.DriverNumber"
+                                Title="No."
+                                HeaderClass="number-col hide-sort-icons"
+                                CellClass="number-col">
+                    <CellTemplate>
+                        <NumberDisplay Colour="@context.Item.Colour" Accent="@context.Item.Accent">@context.Item.DriverNumber</NumberDisplay>
+                    </CellTemplate>
+                </TemplateColumn>
                 <PropertyColumn Property="e => e.TeamName" Title="Team" CellStyleFunc="@SimpleCellStyle" />
                 <PropertyColumn Property="e => e!.Engine" Title="Engine" />
                 <PropertyColumn Property="e => e!.Manufacturer" />

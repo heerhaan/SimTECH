@@ -1,13 +1,15 @@
 ﻿<div class="d-flex flex-row gap-0 pa-0 mud-width-full sim-progress-bar">
     @foreach (var bar in Bars)
     {
-        <span class="py-1" style="@(_barStyle(bar.Item1, bar.Item2))"></span>
+        <span class="py-1" style="@(_barStyle(bar.Item1, bar.Item2))">@(++indexer)</span>
     }
 </div>
 
 @code {
     [Parameter, EditorRequired]
     public List<(double, string)> Bars { get; set; }
+
+    int indexer = 0;
 
     private string _barStyle(double size, string colour)
     {

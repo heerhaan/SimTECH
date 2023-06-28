@@ -12,12 +12,9 @@
     <DialogContent>
         <MudForm Model="@Model">
             <MudGrid>
-                <MudItem xs="12">
+                <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">League settings</MudText>
                     <MudDivider />
-                </MudItem>
-
-                <MudItem xs="4">
                     <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
                     <MudNumericField T="int"
                                      @bind-Value="Model.RaceLength"
@@ -30,6 +27,7 @@
                 </MudItem>
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">Weighted development ranges</MudText>
+                    <MudDivider />
                     @if (!loading)
                     {
                         <MudChipSet @bind-SelectedValues="selectedAspects" MultiSelection="true" Filter="true">
@@ -42,6 +40,7 @@
                 </MudItem>
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">Options</MudText>
+                    <MudDivider />
                     <MudStack>
                         <MudSwitchM3 @bind-Checked="Model.UsePenalty"
                                      ThumbIcon="@Icons.Material.Filled.Done"

@@ -1,50 +1,64 @@
-﻿<MudDialog>
+﻿@inject DriverService _driverService
+
+<MudDialog>
     <TitleContent>
         <MudText>Modify in-season driver</MudText>
     </TitleContent>
     <DialogContent>
-        <MudContainer Class="min-width:500px">
-            <MudForm Model="@Model">
-                @if (Model.Id == 0 && Drivers != null)
+        <MudContainer>
+            <MudPaper MinWidth="750px">
+                @if (!loading)
                 {
-                    <MudSelect T="long" @bind-Value="@Model.DriverId" Label="Driver">
-                        @foreach (var driver in Drivers)
-                        {
-                            <MudSelectItem Value="driver.Id">
-                                <CountryFlag Code="driver.Country" Size="FlagSize.Tiny" />
-                                @driver.FullName
-                            </MudSelectItem>
-                        }
-                    </MudSelect>
+                    <MudForm>
+                        <MudStack>
+                            @if (Model.Id == 0 && Drivers != null)
+                            {
+                                <MudSelect T="long" @bind-Value="@Model.DriverId" Label="Driver" Style="width: 400px">
+                                    @foreach (var driver in Drivers)
+                                    {
+                                        <MudSelectItem Value="@driver.Id">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                                <MudText>@driver.FullName</MudText>
+                                                <MudSpacer />
+                                                <CountryFlag Code="@driver.Country" Size="FlagSize.Tiny" />
+                                            </MudStack>
+                                        </MudSelectItem>
+                                    }
+                                </MudSelect>
+                            }
+
+                            <MudNumericField @bind-Value="@Model.Number" Label="Number" Class="field-sm" />
+                            <MudNumericField @bind-Value="@Model.Skill" Label="Skill" Class="field-sm" />
+                            <MudNumericField @bind-Value="@Model.Reliability" Label="Reliability" Class="field-sm" />
+                            <MudNumericField @bind-Value="@Model.Attack" Label="Attack" Class="field-sm" />
+                            <MudNumericField @bind-Value="@Model.Defense" Label="Defense" Class="field-sm" />
+
+                            <MudSelect T="TeamRole" @bind-Value="@Model.TeamRole" Label="Team role" Style="width: 400px">
+                                @foreach (var select in EnumHelper.GetTeamRoleSelection)
+                                {
+                                    <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                                }
+                            </MudSelect>
+
+                            <MudSwitchM3 @bind-Checked="@isDropped"
+                                         ThumbIcon="@Icons.Material.Filled.Done"
+                                         ThumbOffIcon="@Icons.Material.Filled.Close"
+                                         Label="Drop driver from team?"
+                                         Color="Color.Error" />
+
+                            @if (!isDropped)
+                            {
+                                <MudSelect T="long" @bind-Value="@seasonTeamId" Label="Team" Style="width: 400px">
+                                    @foreach (var steam in SeasonTeams)
+                                    {
+                                        <MudSelectItem Value="steam.Id">@steam.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            }
+                        </MudStack>
+                    </MudForm>
                 }
-
-                <MudNumericField @bind-Value="@Model.Number" Label="Number" Class="field-sm" />
-                <MudNumericField @bind-Value="@Model.Skill" Label="Skill" Class="field-sm" />
-                <MudNumericField @bind-Value="@Model.Reliability" Label="Reliability" Class="field-sm" />
-                <MudNumericField @bind-Value="@Model.Attack" Label="Attack" Class="field-sm" />
-                <MudNumericField @bind-Value="@Model.Defense" Label="Defense" Class="field-sm" />
-
-                <MudSelect T="TeamRole" @bind-Value="@Model.TeamRole" Label="Team Role">
-                    @foreach (var select in EnumHelper.GetTeamRoleSelection)
-                    {
-                        <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
-                    }
-                </MudSelect>
-
-                <MudSwitch @bind-Checked="@_isDropped" Label="Drop driver from team?" Color="Color.Error" />
-
-                @if (!_isDropped)
-                {
-                    <MudSelect T="long" @bind-Value="@_seasonTeamId" Label="Team">
-                        @foreach (var steam in SeasonTeams)
-                        {
-                            <MudSelectItem Value="steam.Id">
-                                @steam.Name
-                            </MudSelectItem>
-                        }
-                    </MudSelect>
-                }
-            </MudForm>
+            </MudPaper>
         </MudContainer>
     </DialogContent>
     <DialogActions>
@@ -57,24 +71,29 @@
     [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
 
     [Parameter, EditorRequired] public long SeasonId { get; set; }
-    [Parameter] public List<Driver>? Drivers { get; set; }
     [Parameter, EditorRequired] public List<SeasonTeam> SeasonTeams { get; set; }
     [Parameter] public SeasonDriver? SeasonDriver { get; set; }
 
     EditSeasonDriverModel Model;
-    long _seasonTeamId;
-    bool _isDropped = false;
+    List<Driver>? Drivers;
+    long seasonTeamId;
+    bool loading = true;
+    bool isDropped = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        Drivers = await _driverService.GetAvailableDrivers();
+
         Model = new EditSeasonDriverModel(SeasonDriver);
         Model.SeasonId = SeasonId;
-        _seasonTeamId = Model.SeasonTeamId.GetValueOrDefault();
+        seasonTeamId = Model.SeasonTeamId.GetValueOrDefault();
+
+        loading = false;
     }
 
     private void Submit()
     {
-        Model.SeasonTeamId = _isDropped ? null : _seasonTeamId;
+        Model.SeasonTeamId = isDropped ? null : seasonTeamId;
 
         if (Model.IsDirty)
         {

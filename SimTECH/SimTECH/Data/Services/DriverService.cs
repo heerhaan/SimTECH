@@ -25,6 +25,16 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
+        public async Task<List<Driver>> GetAvailableDrivers()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Driver
+                .Where(e => e.State == State.Active && !e.SeasonDrivers!.Any(e => e.Season.State == State.Active))
+                .Include(e => e.DriverTraits)
+                .ToListAsync();
+        }
+
         public async Task<Driver> GetDriverById(long driverId)
         {
             using var context = _dbFactory.CreateDbContext();
