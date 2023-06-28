@@ -1,7 +1,12 @@
 ﻿<div class="d-flex flex-row gap-0 pa-0 mud-width-full sim-progress-bar">
-    @foreach (var bar in Bars)
+    @foreach (var (bar, index) in Bars.Select((bar, index) => (bar, index)))
     {
-        <span class="py-1" style="@(_barStyle(bar.Item1, bar.Item2))">@(++indexer)</span>
+        <span class="py-1 text-center" style="@(_barStyle(bar.Item1, bar.Item2))">
+            @if (AddIndicator)
+            {
+                <MudText Typo="Typo.h5" Style="font-size: 0.6rem">@(_indicatorText(1 + index))</MudText>
+            }
+        </span>
     }
 </div>
 
@@ -9,10 +14,23 @@
     [Parameter, EditorRequired]
     public List<(double, string)> Bars { get; set; }
 
-    int indexer = 0;
+    [Parameter]
+    public bool AddIndicator { get; set; } = false;
+
+    [Parameter]
+    public int CalculationDistance { get; set; }
+
+    [Parameter]
+    public double TrackLength { get; set; }
 
     private string _barStyle(double size, string colour)
     {
         return $"width: {size}%; background-color: {colour}";
+    }
+
+    private string _indicatorText(int advanceNo)
+    {
+        var lapNumber = NumberHelper.CalcLapCount(advanceNo * CalculationDistance, TrackLength);
+        return lapNumber.ToString();
     }
 }

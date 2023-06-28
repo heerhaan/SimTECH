@@ -12,19 +12,37 @@
 
 <PageTitle>Race</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.False" Class="mt-4" id="race-display">
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     @if (!loading)
     {
         <MudPaper MinHeight="60px" Width="100%">
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
-                <CountryFlag Code="@Model.Country" />
-                <MudText Typo="Typo.h5">@Model.Name - ROUND @Model.Round</MudText>
+                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                    @if (!Model.IsFinished)
+                    {
+                        @if (calculated >= calculationCount)
+                        {
+                            <MudButton OnClick="Finish">Finish</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton OnClick="Advance">Advance</MudButton>
+                        }
+                    }
+                    <ScreenshotButton TargetId="race-display" />
+                </MudButtonGroup>
 
                 <MudSpacer />
-
-                <MudIcon Icon="@Model.ClimateIcon" />
-                <MudText>@Model.Climate</MudText>
-                <MudIcon Icon="@Model.ClimateIcon" />
+                
+                <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
+                    <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
+                        <MudChip Value="1" Color="Color.Primary">@(NumberHelper.CalcLapCount(1 * calculationDistance, Model.TrackLength))</MudChip>
+                        <MudChip Value="5" Default="true" Color="Color.Primary">@(NumberHelper.CalcLapCount(5 * calculationDistance, Model.TrackLength))</MudChip>
+                        <MudChip Value="10" Color="Color.Primary">@(NumberHelper.CalcLapCount(10 * calculationDistance, Model.TrackLength))</MudChip>
+                        <MudChip Value="@calculationCount" Color="Color.Primary">@(totalLaps)</MudChip>
+                    </MudChipSet>
+                </MudStack>
 
                 <MudSpacer />
 
@@ -35,18 +53,15 @@
                              ThumbOffIcon="@Icons.Material.Filled.Close" />
             </MudStack>
         </MudPaper>
-        <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" Class="extra-dense overflow-x-hide">
+        <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)"
+                  Dense="true"
+                  Class="extra-dense overflow-x-hide"
+                  id="race-display">
             <ToolBarContent>
                 <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
-                    <MudStack Spacing="0" AlignItems="AlignItems.Center">
-                        <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
-                        <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
-                            <MudChip Value="1" Color="Color.Primary">@(NumberHelper.CalcLapCount(1 * calculationDistance, Model.TrackLength))</MudChip>
-                            <MudChip Value="5" Default="true" Color="Color.Primary">@(NumberHelper.CalcLapCount(5 * calculationDistance, Model.TrackLength))</MudChip>
-                            <MudChip Value="10" Color="Color.Primary">@(NumberHelper.CalcLapCount(10 * calculationDistance, Model.TrackLength))</MudChip>
-                        </MudChipSet>
-                    </MudStack>
-                    
+                    <CountryFlag Code="@Model.Country" />
+                    <MudText Typo="Typo.h5">@Model.Name - ROUND @Model.Round</MudText>
+
                     <MudSpacer />
 
                     <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
@@ -55,21 +70,8 @@
 
                     <MudSpacer />
 
-                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                        @if (!Model.IsFinished)
-                        {
-                            @if (calculated >= calculationCount)
-                            {
-                                <MudButton OnClick="Finish">Finish</MudButton>
-                            }
-                            else
-                            {
-
-                                <MudButton OnClick="Advance">Advance</MudButton>
-                            }
-                        }
-                        <ScreenshotButton TargetId="race-display" />
-                    </MudButtonGroup>
+                    <MudText Typo="Typo.h5">@Model.Climate</MudText>
+                    <MudIcon Icon="@Model.ClimateIcon" />
                 </MudStack>
             </ToolBarContent>
             <HeaderContent>
@@ -188,7 +190,9 @@
             </RowTemplate>
         </MudTable>
         <MudPaper Class="pt-2 px-1">
-            <SimProgressLinear Bars="@(situations.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())" />
+            <SimProgressLinear Bars="@(situations.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
+                               AddIndicator="true" CalculationDistance="@calculationDistance" TrackLength="@Model.TrackLength" />
+            
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-2">
                 <MudText Typo="Typo.button">Legend</MudText>
                 <MudChip Icon="@IconCollection.HelmetOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
