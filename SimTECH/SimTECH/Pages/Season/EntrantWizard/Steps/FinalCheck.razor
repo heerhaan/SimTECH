@@ -90,11 +90,9 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public AddEntrantsModel Model { get; set; }
+    [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    [Parameter, EditorRequired]
-    public long SeasonId { get; set; }
+    [Parameter, EditorRequired] public long SeasonId { get; set; }
 
     private string ReadEngineName(long id) => Model.SeasonEngines.Find(e => e.EngineId == id)?.Name ?? "Unknown";
 }
