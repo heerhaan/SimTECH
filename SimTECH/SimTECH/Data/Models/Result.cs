@@ -9,6 +9,7 @@
         public RaceStatus Status { get; set; }
         public int Setup { get; set; }
         public int TyreLife { get; set; }
+        public bool FastestLap { get; set; }
 
         public long SeasonDriverId { get; set; }
         public SeasonDriver SeasonDriver { get; set; }
@@ -22,5 +23,7 @@
         public Incident? Incident { get; set; }
 
         public IList<LapScore> LapScores { get; set; } = new List<LapScore>();
+        public IList<QualifyingScore> QualifyingScores { get; set; } = new List<QualifyingScore>();
+        public IList<PracticeScore> PracticeScores { get; set; } = new List<PracticeScore>();
     }
 }

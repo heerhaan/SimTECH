@@ -155,7 +155,7 @@
     {
         var positionResults = Model.PracticeDrivers.ToDictionary(e => e.ResultId, e => e.Position);
 
-        await _raceService.PersistGridPositions(positionResults);
+        await _raceService.PersistPracticeScores(positionResults);
 
         _nav.NavigateTo("/raceweek/" + RaceId);
     }

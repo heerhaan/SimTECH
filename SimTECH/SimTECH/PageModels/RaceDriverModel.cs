@@ -73,6 +73,7 @@ namespace SimTECH.PageModels
                 Incident = Incident,
                 Setup = Setup,
                 TyreLife = TyreLife,
+                FastestLap = HasFastestLap,
 
                 SeasonDriverId = SeasonDriverId,
                 SeasonTeamId = SeasonTeamId,

@@ -165,7 +165,17 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task PersistGridPositions(Dictionary<long, int> driverPositions, long? raceToAdvance = null, int? maximumRace = null)
+        public async Task PersistPracticeScores(Dictionary<long, int> driverPositions)
+        {
+            await PersistGridPositions(driverPositions, null, null);
+
+
+        }
+        public async Task PersistQualifyingScores(Dictionary<long, int> driverPositions, long? raceToAdvance, int? maximumRace)
+        {
+            await PersistGridPositions(driverPositions, raceToAdvance, maximumRace);
+        }
+        private async Task PersistGridPositions(Dictionary<long, int> driverPositions, long? raceToAdvance, int? maximumRace)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -196,6 +206,15 @@ namespace SimTECH.Data.Services
 
                 context.Update(editedRecord);
             }
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task PersistSessionResults(List<QualifyingScore> qualyScores)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+
 
             await context.SaveChangesAsync();
         }

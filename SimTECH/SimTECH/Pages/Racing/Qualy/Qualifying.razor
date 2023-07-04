@@ -55,7 +55,7 @@
             .OrderBy(e => e.PenaltyPosition())
             .ToDictionary(e => e.ResultId, e => ++positionIndexer);
 
-        await _raceService.PersistGridPositions(positionResults, RaceId, Model.MaximumRaceDrivers);
+        await _raceService.PersistQualifyingScores(positionResults, RaceId, Model.MaximumRaceDrivers);
         await _raceService.ConsumePenalties(Model.PenaltiesToConsume, RaceId);
 
         _nav.NavigateTo("/raceweek/" + RaceId);

@@ -9,7 +9,6 @@ namespace SimTECH.Data.Configurations
         public void Configure(EntityTypeBuilder<SeasonDriver> builder)
         {
             builder.HasKey(e => e.Id);
-
             builder.HasOne(e => e.Season)
                 .WithMany(e => e.SeasonDrivers)
                 .OnDelete(DeleteBehavior.Restrict);
