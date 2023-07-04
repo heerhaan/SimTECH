@@ -9,7 +9,7 @@
                 <MudSpacer />
                 <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                     <ScreenshotButton TargetId="q1-result-table" />
-                    @if (advancedQ1 != Model.AmountRuns)
+                    @if (advancedQ1 != Model.AmountRuns && !Model.IsFinished)
                     {
                         <MudButton OnClick="AdvanceQ1">Advance</MudButton>
                     }
@@ -89,7 +89,7 @@
                 <MudSpacer />
                 <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                     <ScreenshotButton TargetId="q2-result-table" />
-                    @if (advancedQ2 != Model.AmountRuns)
+                    @if (advancedQ2 != Model.AmountRuns && !Model.IsFinished)
                     {
                         <MudButton OnClick="AdvanceQ2">Advance</MudButton>
                     }
@@ -169,13 +169,16 @@
                 <MudSpacer />
                 <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                     <ScreenshotButton TargetId="q3-result-table" />
-                    @if (advancedQ3 == Model.AmountRuns)
+                    @if (!Model.IsFinished)
                     {
-                        <MudButton Variant="Variant.Outlined" OnClick="@(() => CallbackFinish.InvokeAsync())">Finish</MudButton>
-                    }
-                    else
-                    {
-                        <MudButton Variant="Variant.Outlined" OnClick="AdvanceQ3">Advance</MudButton>
+                        @if (advancedQ3 == Model.AmountRuns)
+                        {
+                            <MudButton Variant="Variant.Outlined" OnClick="@(() => CallbackFinish.InvokeAsync())">Finish</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton Variant="Variant.Outlined" OnClick="AdvanceQ3">Advance</MudButton>
+                        }
                     }
                 </MudButtonGroup>
             </MudStack>
@@ -247,11 +250,9 @@
     </MudTabPanel>
 </MudTabs>
 
-    @code {
-    [CascadingParameter]
-    public QualifyingModel Model { get; set; }
-    [Parameter]
-    public EventCallback CallbackFinish { get; set; }
+@code {
+    [CascadingParameter] public QualifyingModel Model { get; set; }
+    [Parameter] public EventCallback CallbackFinish { get; set; }
 
     // big ass hmm about doing it like this tbh
     private List<QualifyingDriver> DriversInQ1 { get; set; } = new();

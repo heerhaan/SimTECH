@@ -1,4 +1,4 @@
-﻿@page "/practice/{RaceId:long}"
+﻿@page "/practice/{RaceId:long}/{PracticeNum:int}"
 @inject BreadcrumbProvider _bread
 @inject RaceService _raceService
 @inject NavigationManager _nav
@@ -10,17 +10,20 @@
         <MudPaper MinHeight="60px">
             <MudStack Row="true" AlignItems="AlignItems.Center">
                 <CountryFlag Code="@Model.Country" />
-                <MudText Typo="Typo.h5">@Model.Name - PRACTICE</MudText>
+                <MudText Typo="Typo.h5">@Model.Name - PRACTICE @PracticeNum</MudText>
                 <MudSpacer />
                 <MudButtonGroup Variant="Variant.Outlined">
                     <ScreenshotButton TargetId="practice-table" />
-                    @if (advancedRuns == Model.AmountRuns)
+                    @if (!Model.IsFinished)
                     {
-                        <MudButton OnClick="Finish">Finish</MudButton>
-                    }
-                    else
-                    {
-                        <MudButton OnClick="Advance">Advance</MudButton>
+                        @if (advancedRuns == Model.AmountRuns)
+                        {
+                            <MudButton OnClick="Finish">Finish</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton OnClick="Advance">Advance</MudButton>
+                        }
                     }
                 </MudButtonGroup>
             </MudStack>
@@ -94,6 +97,7 @@
 
 @code {
     [Parameter] public long RaceId { get; set; }
+    [Parameter] public int PracticeNum { get; set; }
 
     public PracticeModel Model { get; set; }
 
@@ -107,7 +111,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Model = await _raceService.RetrievePracticeModel(RaceId);
+        Model = await _raceService.RetrievePracticeModel(RaceId, PracticeNum);
 
         worstScoresPerSession = new int[Model.AmountRuns];
         bestScoresPerSession = new int[Model.AmountRuns];
@@ -119,7 +123,7 @@
             new BreadcrumbItem("Seasons", href: "seasons"),
             new BreadcrumbItem("Overview", href: "", disabled: true),
             new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
-            new BreadcrumbItem("Practice", href: $"practice/{RaceId}", disabled: true),
+            new BreadcrumbItem("Practice", href: $"practice/{RaceId}/{PracticeNum}", disabled: true),
         });
 
         loading = false;
@@ -154,8 +158,10 @@
     private async Task Finish()
     {
         var positionResults = Model.PracticeDrivers.ToDictionary(e => e.ResultId, e => e.Position);
+        var actualResults = Model.PracticeDrivers.Select(e => e.ToScoreResult(RaceId, PracticeNum)).ToList();
 
-        await _raceService.PersistPracticeScores(positionResults);
+        await _raceService.PersistPracticeResults(positionResults);
+        await _raceService.PersistPracticeScores(actualResults);
 
         _nav.NavigateTo("/raceweek/" + RaceId);
     }

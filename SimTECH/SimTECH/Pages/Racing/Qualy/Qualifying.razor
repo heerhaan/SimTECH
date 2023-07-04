@@ -21,8 +21,7 @@
 </MudContainer>
 
 @code {
-    [Parameter]
-    public long RaceId { get; set; }
+    [Parameter] public long RaceId { get; set; }
 
     public QualifyingModel Model { get; set; }
 
@@ -54,8 +53,10 @@
         var positionResults = Model.QualifyingDrivers
             .OrderBy(e => e.PenaltyPosition())
             .ToDictionary(e => e.ResultId, e => ++positionIndexer);
+        var scoreResults = Model.QualifyingDrivers.SelectMany(e => e.ToScoreResults(RaceId)).ToList();
 
-        await _raceService.PersistQualifyingScores(positionResults, RaceId, Model.MaximumRaceDrivers);
+        await _raceService.PersistQualifyingResults(positionResults, RaceId, Model.MaximumRaceDrivers);
+        await _raceService.PersistQualifyingScores(scoreResults);
         await _raceService.ConsumePenalties(Model.PenaltiesToConsume, RaceId);
 
         _nav.NavigateTo("/raceweek/" + RaceId);

@@ -1,6 +1,12 @@
 ﻿@inject IJSRuntime JS
 
-<MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Image" Disabled="@disabled" OnClick="TakeScreenshot">
+<MudButton Variant="Variant.Outlined"
+           Color="Color.Primary"
+           StartIcon="@Icons.Material.Filled.Image"
+           Disabled="@disabled"
+           OnClick="TakeScreenshot"
+           Class="@_classes"
+           Style="@_styles">
     @if (disabled)
     {
         <span>Copied!</span>
@@ -13,21 +19,41 @@
 
 @code {
     [Parameter] public string TargetId { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+    [Parameter] public string Styles { get; set; } = string.Empty;
 
     private bool disabled = false;
 
     async Task TakeScreenshot()
     {
         disabled = true;
-        await JS.InvokeVoidAsync("takeScreenshot", TargetId);
+        var clickTask = JS.InvokeVoidAsync("takeScreenshot", TargetId);
 
         // Notice how we don't await this bad boi? This runs the task while not halting the page
         // Doesnt change back so its cringe
         //ShowClicked();
 
-        await Task.Delay(2000);
+        await Task.Delay(1500);
+        await clickTask;
+
         disabled = false;
         StateHasChanged();
+    }
+
+    private string _classes
+    {
+        get
+        {
+            return Class;
+        }
+    }
+
+    private string _styles
+    {
+        get
+        {
+            return Styles;
+        }
     }
 
     //async void ShowClicked()

@@ -6,6 +6,7 @@ namespace SimTECH.PageModels
     {
         public Race Race { get; set; }
         public int MaximumInRace { get; set; }
+        public int PracticeCompletedCount { get; set; }
 
         public List<RaceWeekDriver> RaceWeekDrivers { get; set; }
         public List<Trait>? TrackTraits { get; set; }
