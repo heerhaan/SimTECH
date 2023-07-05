@@ -278,6 +278,9 @@
         bestScoresQ3 = new int[Model.AmountRuns];
 
         gapMarge = _config.Value.GapMarge;
+
+        if (Model.IsFinished)
+            SetExistingScores();
     }
 
     private void AdvanceQ1()
@@ -358,5 +361,47 @@
         }
 
         advancedQ3++;
+    }
+
+    private void SetExistingScores()
+    {
+        for (int i = 0; i < Model.AmountRuns; i++)
+        {
+            foreach (var driver in Model.QualifyingDrivers)
+            {
+                var scoreQ1 = driver.RunValuesQ1[i];
+                var scoreQ2 = driver.RunValuesQ2[i];
+                var scoreQ3 = driver.RunValuesQ3[i];
+
+                if (scoreQ1 > highestQ1)
+                    highestQ1 = scoreQ1;
+                else if (scoreQ1 < lowestQ1)
+                    lowestQ1 = scoreQ1;
+
+                if (scoreQ2 > highestQ2)
+                    highestQ2 = scoreQ2;
+                else if (scoreQ2 < lowestQ2)
+                    lowestQ2 = scoreQ2;
+
+                if (scoreQ3 > highestQ3)
+                    highestQ3 = scoreQ3;
+                else if (scoreQ3 < lowestQ3)
+                    lowestQ3 = scoreQ3;
+            }
+
+            worstScoresQ1[i] = lowestQ1;
+            bestScoresQ1[i] = highestQ1;
+            worstScoresQ2[i] = lowestQ2;
+            bestScoresQ2[i] = highestQ2;
+            worstScoresQ3[i] = lowestQ3;
+            bestScoresQ3[i] = highestQ3;
+        }
+
+        foreach (var driver in Model.QualifyingDrivers)
+        {
+            driver.GapQ1 = Math.Round(((highestQ1 - driver.MaxScoreQ1) * gapMarge), 2);
+            driver.GapQ2 = Math.Round(((highestQ2 - driver.MaxScoreQ2) * gapMarge), 2);
+            driver.GapQ3 = Math.Round(((highestQ3 - driver.MaxScoreQ3) * gapMarge), 2);
+        }
     }
 }

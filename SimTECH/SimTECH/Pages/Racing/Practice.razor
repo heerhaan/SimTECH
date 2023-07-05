@@ -117,6 +117,9 @@
         bestScoresPerSession = new int[Model.AmountRuns];
         gapMarge = _config.Value.GapMarge;
 
+        if (Model.IsFinished)
+            SetExistingScores();
+
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
@@ -164,5 +167,24 @@
         await _raceService.PersistPracticeScores(actualResults);
 
         _nav.NavigateTo("/raceweek/" + RaceId);
+    }
+
+    private void SetExistingScores()
+    {
+        for (int i = 0; i < Model.AmountRuns; i++)
+        {
+            foreach (var driver in Model.PracticeDrivers)
+            {
+                var score = driver.RunValues[i];
+
+                if (score > highestScore)
+                    highestScore = score;
+                else if (score < lowestScore)
+                    lowestScore = score;
+            }
+
+            worstScoresPerSession[i] = lowestScore;
+            bestScoresPerSession[i] = highestScore;
+        }
     }
 }

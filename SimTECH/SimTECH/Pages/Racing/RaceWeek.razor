@@ -14,25 +14,7 @@
                 <MudPaper MinHeight="60px" Class="pa-2">
                     <MudStack Row="true" Spacing="0" Justify="Justify.Center" AlignItems="AlignItems.Center">
                         <div style="width:33%">
-                            <MudStack Spacing="1">
-                                <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined">
-                                    @for (int i = 1; i <= Model.PracticeCompletedCount; i++)
-                                    {
-                                        int j = i;
-                                        <MudButton FullWidth="true" OnClick="@(() => GoToPractice(j))">Practice-@(j)</MudButton>
-                                    }
-
-                                    @if (Model.Race.State != State.Advanced && Model.Race.State != State.Closed)
-                                    {
-                                        <MudButton FullWidth="true" OnClick="@(() => GoToPractice(nextPractice))">Practice-@(nextPractice)</MudButton>
-                                    }
-                                </MudButtonGroup>
-                                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoToQualifying">Qualifying</MudButton>
-                                @if (Model.Race.State != State.Concept && Model.Race.State != State.Active)
-                                {
-                                    <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoToRace">Race</MudButton>
-                                }
-                            </MudStack>
+                            
                         </div>
                         <div class="text-center" style="width:33%">
                             <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
@@ -146,7 +128,29 @@
             </MudItem>
             <MudItem xs="3">
                 <MudPaper Class="pa-4 mud-height-full">
-                    <MudText Typo="Typo.body2" Color="Color.Error">Wtf am I going to put here?</MudText>
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.body2" Color="Color.Error">Wtf am I going to put here?</MudText>
+
+                        <MudSpacer />
+
+                        <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined">
+                            @for (int i = 1; i <= Model.PracticeCompletedCount; i++)
+                            {
+                                int j = i;
+                                <MudButton FullWidth="true" OnClick="@(() => GoToPractice(j))">Practice-@(j)</MudButton>
+                            }
+
+                            @if (Model.Race.State != State.Advanced && Model.Race.State != State.Closed)
+                            {
+                                <MudButton FullWidth="true" OnClick="@(() => GoToPractice(nextPractice))">Practice-@(nextPractice)</MudButton>
+                            }
+                        </MudButtonGroup>
+                        <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoToQualifying">Qualifying</MudButton>
+                        @if (Model.Race.State != State.Concept && Model.Race.State != State.Active)
+                        {
+                            <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoToRace">Race</MudButton>
+                        }
+                    </MudStack>
                 </MudPaper>
             </MudItem>
         </MudGrid>
