@@ -47,6 +47,7 @@ namespace SimTECH.PageModels
         public int WearMinMod { get; set; }
         public int RngMinMod { get; set; }
         public int RngMaxMod { get; set; }
+        public int LifeBonus { get; set; }
 
         public bool HasFastestLap { get; set; }
         public bool InstantOvertaken { get; set; }

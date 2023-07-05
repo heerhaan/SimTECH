@@ -12,14 +12,14 @@
         <MudGrid Spacing="1">
             <MudItem xs="12">
                 <MudPaper MinHeight="60px" Class="pa-2">
-                    <MudStack Row="true" Spacing="0" Justify="Justify.Center" AlignItems="AlignItems.Center">
-                        <div style="width:33%">
+                    <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <div style="width:20%">
                             
                         </div>
-                        <div class="text-center" style="width:33%">
+                        <div class="text-center" style="width:60%">
                             <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
                         </div>
-                        <div style="width:33%">
+                        <div style="width:20%">
                             <ScreenshotButton TargetId="raceweek-container" Styles="@("float:right")" />
                         </div>
                     </MudStack>
@@ -67,7 +67,7 @@
             </MudItem>
             <MudItem xs="6">
                 <MudPaper Class="pa-4 mud-height-full">
-                    <MudTable Items="@Model.RaceWeekDrivers.OrderBy(e => e.Grid)" Dense="true">
+                    <MudTable Items="@Model.RaceWeekDrivers.OrderBy(e => e.Grid)" Dense="true" Class="extra-dense">
                         <ToolBarContent>
                             <MudText Typo="Typo.h5">Starting grid</MudText>
                         </ToolBarContent>
@@ -90,7 +90,10 @@
                                 {
                                     @if (context.Penalty.HasValue)
                                     {
-                                        <MudBadge Content="@($"+{context.Penalty.Value}")" Color="Color.Dark" Origin="Origin.CenterRight" BadgeClass="ml-1">
+                                        <MudBadge Content="@($"+{context.Penalty.Value}")"
+                                                  Color="Color.Dark"
+                                                  Origin="Origin.CenterRight"
+                                                  BadgeClass="ml-1">
                                             <DriverPosition Number="@context.Grid" />
                                         </MudBadge>
                                     }
@@ -112,8 +115,10 @@
                             <MudTd>
                                 <MudText>@context.TeamName</MudText>
                             </MudTd>
-                            <MudTd Class="number-col" Style="@ViewHelper.SetFullColourstyle(context.ManufacturerColour, context.ManufacturerAccent)">
-                                <MudText Typo="Typo.caption">@context.ManufacturerName.ElementAt(0)</MudText>
+                            <MudTd Class="number-col">
+                                <SupplierDisplay Colour="@context.ManufacturerColour" Accent="@context.ManufacturerAccent">
+                                    @context.ManufacturerName.ElementAt(0)
+                                </SupplierDisplay>
                             </MudTd>
                             <MudTd>
                                 <MudLink OnClick="@(async () => await PickStrategy(context.ResultId))">
@@ -137,12 +142,12 @@
                             @for (int i = 1; i <= Model.PracticeCompletedCount; i++)
                             {
                                 int j = i;
-                                <MudButton FullWidth="true" OnClick="@(() => GoToPractice(j))">Practice-@(j)</MudButton>
+                                <MudButton FullWidth="true" OnClick="@(() => GoToPractice(j))" Class="overflow-hider">FP@(j)</MudButton>
                             }
 
                             @if (Model.Race.State != State.Advanced && Model.Race.State != State.Closed)
                             {
-                                <MudButton FullWidth="true" OnClick="@(() => GoToPractice(nextPractice))">Practice-@(nextPractice)</MudButton>
+                                <MudButton FullWidth="true" OnClick="@(() => GoToPractice(nextPractice))" Class="overflow-hider">FP@(nextPractice)</MudButton>
                             }
                         </MudButtonGroup>
                         <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoToQualifying">Qualifying</MudButton>

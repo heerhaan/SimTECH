@@ -9,10 +9,7 @@
     {
         <MudPaper MinHeight="60px">
             <MudStack Row="true" AlignItems="AlignItems.Center">
-                <CountryFlag Code="@Model.Country" />
-                <MudText Typo="Typo.h5">@Model.Name - PRACTICE @PracticeNum</MudText>
-                <MudSpacer />
-                <MudButtonGroup Variant="Variant.Outlined">
+                <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
                     <ScreenshotButton TargetId="practice-table" />
                     @if (!Model.IsFinished)
                     {
@@ -29,6 +26,12 @@
             </MudStack>
         </MudPaper>
         <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="practice-table">
+            <ToolBarContent>
+                <MudStack Row="true" AlignItems="AlignItems.Center">
+                    <CountryFlag Code="@Model.Country" />
+                    <MudText Typo="Typo.h5">@Model.Name - PRACTICE @PracticeNum</MudText>
+                </MudStack>
+            </ToolBarContent>
             <HeaderContent>
                 <MudTh>#</MudTh>
                 <MudTh Class="pa-0"></MudTh>

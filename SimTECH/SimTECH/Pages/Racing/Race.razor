@@ -16,23 +16,23 @@
     @if (!loading)
     {
         <MudPaper MinHeight="60px" Width="100%">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
-                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                    @if (!Model.IsFinished)
-                    {
-                        @if (calculated >= calculationCount)
+            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
+                <div style="width:30%">
+                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                        <ScreenshotButton TargetId="race-display" />
+                        @if (!Model.IsFinished)
                         {
-                            <MudButton OnClick="Finish">Finish</MudButton>
+                            @if (calculated >= calculationCount)
+                            {
+                                <MudButton OnClick="Finish">Finish</MudButton>
+                            }
+                            else
+                            {
+                                <MudButton OnClick="Advance">Advance</MudButton>
+                            }
                         }
-                        else
-                        {
-                            <MudButton OnClick="Advance">Advance</MudButton>
-                        }
-                    }
-                    <ScreenshotButton TargetId="race-display" />
-                </MudButtonGroup>
-
-                <MudSpacer />
+                    </MudButtonGroup>
+                </div>
                 
                 <MudStack Spacing="0" AlignItems="AlignItems.Center">
                     <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
@@ -44,13 +44,18 @@
                     </MudChipSet>
                 </MudStack>
 
-                <MudSpacer />
-
-                <MudSwitchM3 @bind-Checked="tooMuchInfo"
-                             Label="TMI"
-                             Color="Color.Secondary"
-                             ThumbIcon="@Icons.Material.Filled.Done"
-                             ThumbOffIcon="@Icons.Material.Filled.Close" />
+                <div class="d-flex flex-row-reverse align-center gap-2 pa-0" style="width:30%">
+                    <MudMenu Label="Charts" Icon="@Icons.Material.Filled.InsertChart" Color="Color.Secondary" Variant="Variant.Outlined">
+                        <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
+                        <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
+                    </MudMenu>
+                    <MudSwitchM3 @bind-Checked="tooMuchInfo"
+                                 Label="TMI"
+                                 LabelPosition="LabelPosition.Start"
+                                 Color="Color.Secondary"
+                                 ThumbIcon="@Icons.Material.Filled.Done"
+                                 ThumbOffIcon="@Icons.Material.Filled.Close" />
+                </div>
             </MudStack>
         </MudPaper>
         <div id="race-display">
@@ -58,41 +63,41 @@
                       Dense="true"
                       Class="extra-dense overflow-x-hide">
                 <ToolBarContent>
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
-                        <CountryFlag Code="@Model.Country" />
-                        <MudText Typo="Typo.h5">@Model.Name - ROUND @Model.Round</MudText>
-
-                        <MudSpacer />
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2 mud-width-full">
+                        <div class="d-flex flex-row align-center pa-0" style="width:30%">
+                            <CountryFlag Code="@Model.Country" />
+                            <MudText Typo="Typo.h5">@Model.Name - ROUND @Model.Round</MudText>
+                        </div>
 
                         <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
                             <MudText Typo="Typo.h5">LAP @(racedLaps) / @(totalLaps)</MudText>
-                            </MudChip>
+                        </MudChip>
 
-                            <MudSpacer />
-
-                            <MudText Typo="Typo.h5">@Model.Climate</MudText>
+                        <div class="d-flex flex-row-reverse align-center pa-0" style="width: 30%">
                             <MudIcon Icon="@Model.ClimateIcon" />
-                        </MudStack>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh Style="width: 15px"></MudTh>
-                        <MudTh Style="width: 40px">Grid</MudTh>
-                        <MudTh Class="pa-0" Style="width: 5px"></MudTh>
-                        <MudTh Style="width: 220px">Name</MudTh>
-                        <MudTh Class="number-col">No</MudTh>
-                        <MudTh Style="width: 220px">Team</MudTh>
-                        <MudTh Class="number-col">PWR</MudTh>
-                        <MudTh Style="width: 175px">ATT / DEF</MudTh>
-                        <MudTh Class="tyre-col">Tyre</MudTh>
-                        <MudTh Class="number-col">Pace</MudTh>
-                        <MudTh Class="number-col-lg">Status</MudTh>
-                        @if (tooMuchInfo)
-                        {
-                            <MudTh Class="number-col">L.Gap</MudTh>
-                            <MudTh Class="number-col">Score</MudTh>
-                            <MudTh></MudTh>
-                            <MudTh></MudTh>
-                        }
+                            <MudText Typo="Typo.h5">@Model.Climate</MudText>
+                        </div>
+                    </MudStack>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh Style="width: 15px"></MudTh>
+                    <MudTh Style="width: 40px">Grid</MudTh>
+                    <MudTh Class="pa-0" Style="width: 5px"></MudTh>
+                    <MudTh Style="width: 220px">Name</MudTh>
+                    <MudTh Class="number-col">No</MudTh>
+                    <MudTh Style="width: 220px">Team</MudTh>
+                    <MudTh Class="number-col">PWR</MudTh>
+                    <MudTh Class="text-center" Style="width: 175px">ATT / DEF</MudTh>
+                    <MudTh Class="tyre-col">Tyre</MudTh>
+                    <MudTh Class="number-col">Pace</MudTh>
+                    <MudTh Class="number-col-lg">Status</MudTh>
+                    @if (tooMuchInfo)
+                    {
+                        <MudTh Class="number-col">L.Gap</MudTh>
+                        <MudTh Class="number-col">Score</MudTh>
+                        <MudTh></MudTh>
+                        <MudTh></MudTh>
+                    }
                     <MudTh Style="width: 500px">Progression</MudTh>
                 </HeaderContent>
                 <RowTemplate>
@@ -173,12 +178,14 @@
                         <MudTd Class="number-col">
                             <MudText Typo="Typo.caption">@context.LapSum</MudText>
                         </MudTd>
-                        <MudTd>
-                            <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
-                            <MudText Typo="Typo.caption">@context.Attack</MudText>
-                            <sup>@(context.OvertakeCount)</sup>
+                        <MudTd Class="overflow-hider">
+                            <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
+                                <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
+                                <MudText Typo="Typo.caption">@context.Attack</MudText>
+                                <sup>@(context.OvertakeCount)</sup>
+                            </MudStack>
                         </MudTd>
-                        <MudTd>
+                        <MudTd Class="overflow-hider">
                             <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
                                 <MudIcon Icon="@IconCollection.ShieldChevron" Size="Size.Small" />
                                 <MudText Typo="Typo.caption">@context.Defense</MudText>
@@ -230,13 +237,6 @@
                     <MudChip Icon="@Icons.Material.Filled.Healing" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
                         Injury
                     </MudChip>
-
-                    <MudSpacer />
-
-                    <MudMenu Label="Charts" Icon="@Icons.Material.Filled.InsertChart" Color="Color.Tertiary">
-                        <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
-                        <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
-                    </MudMenu>
                 </MudStack>
             </MudPaper>
         </div>
@@ -554,7 +554,7 @@
                     nextTyre = validTyres.First();
 
                 driver.CurrentTyre = nextTyre;
-                driver.TyreLife = nextTyre.Pace;
+                driver.TyreLife = nextTyre.Pace + driver.LifeBonus;
                 driver.InstantOvertaken = true;
 
                 lapScore.RacerEvents |= RacerEvent.Pitstop;
@@ -601,7 +601,7 @@
                     nextTyre = validTyres.First();
 
                 driver.CurrentTyre = nextTyre;
-                driver.TyreLife = nextTyre.Pace;
+                driver.TyreLife = nextTyre.Pace + driver.LifeBonus;
                 driver.InstantOvertaken = true;
 
                 lapScore.RacerEvents |= RacerEvent.Pitstop;
@@ -757,8 +757,8 @@
             if (!defendingDriver.InstantOvertaken)
             {
                 // Subtract attack value from defense, what's left is how much the attacker is hindered
-                var attackingResult = driver.Attack + NumberHelper.RandomInt(battleRng);
-                var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt(battleRng);
+                var attackingResult = driver.Attack + NumberHelper.RandomInt((battleRng * -1), battleRng);
+                var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt((battleRng * -1), battleRng);
                 var battleCost = defendingResult - attackingResult;
 
                 if (battleCost > 0)

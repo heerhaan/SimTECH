@@ -3,28 +3,32 @@
 <MudPaper Elevation="15">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
-            <MudText Typo="Typo.h4">WDC results @(Season.Year)</MudText>
-                <MudSpacer />
-                <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-                    <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" />
-                    <ScreenshotButton TargetId="wdc-season-results" />
-                </MudButtonGroup>
+            <MudSpacer />
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" />
+                <ScreenshotButton TargetId="wdc-season-results" />
+            </MudButtonGroup>
+        </MudStack>
+    </MudPaper>
+    <MudTable Items="@StandingDrivers" Dense="true" Class="extra-dense" id="wdc-season-results">
+        <ToolBarContent>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+                <MudText Typo="Typo.h4">World Drivers Championship @(Season.Year)</MudText>
             </MudStack>
-        </MudPaper>
-        <MudTable Items="@StandingDrivers" Dense="true" Class="extra-dense" id="wdc-season-results">
-            <HeaderContent>
-                <MudTh Class="number-col">#</MudTh>
-                <MudTh Class="accent-cell"></MudTh>
-                <MudTh Style="width: 225px">Driver</MudTh>
-                <MudTh Class="number-col">No.</MudTh>
-                <MudTh>Team</MudTh>
-                <MudTh>PTS</MudTh>
-                @foreach (var round in CountryRounds.OrderBy(e => e.Key))
-                {
-                    <MudTh>
-                        <CountryFlag Code="@round.Value" Size="FlagSize.Small" />
-                    </MudTh>
-                }
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh Class="number-col">#</MudTh>
+            <MudTh Class="accent-cell"></MudTh>
+            <MudTh>Driver</MudTh>
+            <MudTh Class="number-col">NO.</MudTh>
+            <MudTh>Team</MudTh>
+            <MudTh>PTS</MudTh>
+            @foreach (var round in CountryRounds.OrderBy(e => e.Key))
+            {
+                <MudTh>
+                    <CountryFlag Code="@round.Value" Size="FlagSize.Small" />
+                </MudTh>
+            }
             <MudTh class="number-col">AVG</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -34,8 +38,8 @@
             <MudTd Class="accent-cell">
                 <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
             </MudTd>
-            <MudTd Style="width: 225px">
-                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Style="max-width: 225px">
+            <MudTd>
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                     <MudText Class="overflow-hider">@context.Name</MudText>
                     <MudSpacer />
                     <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
@@ -45,7 +49,7 @@
                 <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
             </MudTd>
             <MudTd>
-                <MudText>@context.Team</MudText>
+                <MudText Class="overflow-hider">@context.Team</MudText>
             </MudTd>
             <MudTd>
                 <MudText Typo="Typo.caption">@context.Points</MudText>

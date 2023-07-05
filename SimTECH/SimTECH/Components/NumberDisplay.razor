@@ -1,14 +1,12 @@
 ﻿<MudPaper Class="py-1 px-2" Style="@_styles">
-    <MudText Typo="Typo.caption">@ChildContent</MudText>
+    <MudText Typo="Typo">@ChildContent</MudText>
 </MudPaper>
 
 @code {
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-    [Parameter]
-    public string Colour { get; set; } = Constants.DefaultColour;
-    [Parameter]
-    public string Accent { get; set; } = Constants.DefaultAccent;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string Colour { get; set; } = Constants.DefaultColour;
+    [Parameter] public string Accent { get; set; } = Constants.DefaultAccent;
+    [Parameter] public Typo Typo { get; set; } = Typo.caption;
 
     private string _styles
     {

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ApexCharts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
@@ -615,7 +616,7 @@ namespace SimTECH.Data.Services
 
                 var actualDefense = ((driver.Defense + sumTraits.Defense) * race.Track?.DefenseMod ?? 1.0).RoundDouble();
 
-                raceDrivers.Add(new RaceDriver
+                var raceDriver = new RaceDriver
                 {
                     ResultId = driverResult.Id,
                     SeasonDriverId = driverResult.SeasonDriverId,
@@ -644,15 +645,25 @@ namespace SimTECH.Data.Services
                     DriverReliability = driver.Reliability + sumTraits.DriverReliability + weatherDnf,
                     CarReliability = team.Reliability + sumTraits.CarReliability,
                     EngineReliability = team.SeasonEngine.Reliability + sumTraits.EngineReliability,
-                    WearMaxMod = team.Manufacturer.WearMax + sumTraits.WearMaximum,
-                    WearMinMod = team.Manufacturer.WearMin + sumTraits.WearMinimum,
-                    RngMinMod = team.Manufacturer.Pace + sumTraits.MinRNG,
-                    RngMaxMod = team.Manufacturer.Pace + sumTraits.MaxRNG + weatherRng,
+                    WearMinMod = sumTraits.WearMinimum,
+                    WearMaxMod = sumTraits.WearMaximum,
+                    RngMinMod = sumTraits.MinRNG,
+                    RngMaxMod = sumTraits.MaxRNG + weatherRng,
 
                     Position = driverResult.Position,
 
                     LapScores = driverResult.LapScores?.ToList() ?? new(),
-                });
+                };
+
+                if (!race.Climate.IsWet)
+                {
+                    raceDriver.TyreLife += team.Manufacturer.Pace;
+                    raceDriver.LifeBonus = team.Manufacturer.Pace;
+                    raceDriver.WearMinMod = team.Manufacturer.WearMin;
+                    raceDriver.WearMaxMod = team.Manufacturer.WearMax;
+                }
+
+                raceDrivers.Add(raceDriver);
             }
 
             return new RaceModel

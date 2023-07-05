@@ -22,66 +22,89 @@
                     <MudGrid Spacing="4">
                         <MudItem xs="12">
                             <MudPaper Class="pa-4">
-                                <MudText Typo="Typo.h3">Season @Season.Year</MudText>
-                                <MudStack Row="true">
-                                    <MudText>Currenly in status: @Season.State.ToString()</MudText>
+                                <MudStack>
+                                    <MudText Typo="Typo.h3">Season @Season.Year</MudText>
+                                    <MudDivider />
                                     <MudSpacer />
-                                    <MudText>Hello from the other side</MudText>
+                                    <MudStack Row="true" Class="pa-0">
+                                        <MudText>Currenly in status: @Season.State.ToString()</MudText>
+                                        <MudSpacer />
+                                        <MudText Color="Color.Surface">Hello from the other side</MudText>
+                                    </MudStack>
                                 </MudStack>
                             </MudPaper>
                         </MudItem>
 
                         <MudItem xs="6">
                             <MudPaper Height="200px" Elevation="15" Class="pa-4">
-                                <MudText Typo="Typo.h5">Upcoming race</MudText>
-                                @if (Season.State == State.Active)
-                                {
-                                    @if (NextRace is null)
+                                <MudStack>
+                                    <MudText Typo="Typo.h5">Upcoming race</MudText>
+                                    <MudDivider />
+                                    @if (Season.State == State.Active)
                                     {
-                                        <MudText>no upcoming race for this season detected</MudText>
+                                        @if (NextRace is null)
+                                        {
+                                            <MudText>no upcoming race for this season detected</MudText>
+                                        }
+                                        else
+                                        {
+                                            <MudText>Round @NextRace.Round - @NextRace.Name</MudText>
+                                            <CountryNamedFlag Code="@NextRace.Track.Country" Justify="Justify.FlexStart" Size="FlagSize.Normal" />
+
+                                            <MudSpacer />
+
+                                            <MudButton Variant="Variant.Text" Color="Color.Tertiary" OnClick="GoToNextRace">Go</MudButton>
+                                        }
                                     }
                                     else
                                     {
-                                        <MudText>Round @NextRace.Round - @NextRace.Name</MudText>
-                                        <CountryNamedFlag Code="@NextRace.Track.Country" Justify="Justify.FlexStart" Size="FlagSize.Normal" />
-
-                                        <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small" Class="mt-auto" OnClick="GoToNextRace">Go</MudButton>
+                                        <MudText Typo="Typo.body2">
+                                            Ya utter dimwit, of course there is no next race since this season isn't even active.
+                                            <br />
+                                            Doubt anything is going to happen here so go do something or fuck off, willy.
+                                        </MudText>
                                     }
-                                }
-                                else
-                                {
-                                    <MudText>
-                                        Think for ONE second, if there is a next race then the season is active.<br />
-                                        This season right now is NOT active so there is no next race.<br/>
-                                        Bellend.
+                                </MudStack>
+                            </MudPaper>
+                        </MudItem>
+
+                        <MudItem xs="6">
+                            <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                                <MudStack>
+                                    <MudText Typo="Typo.h5">Controls</MudText>
+                                    <MudDivider />
+                                    <MudText Typo="Typo.body2">
+                                        Control the world, bring ruin to all who oppose you.
                                     </MudText>
-                                }
+                                    <MudSpacer />
+                                    @if (Season.State == State.Concept)
+                                    {
+                                        <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                                            <MudButton OnClick="StartSeason">Start season</MudButton>
+                                            <MudButton OnClick="GoToAddEntrants">Add participants</MudButton>
+                                        </MudButtonGroup>
+                                    }
+                                    else if (Season.State == State.Active)
+                                    {
+                                        <MudButton Variant="Variant.Outlined" OnClick="FinishSeason">Finish season</MudButton>
+                                    }
+                                </MudStack>
                             </MudPaper>
                         </MudItem>
 
                         <MudItem xs="6">
                             <MudPaper Height="200px" Elevation="15" Class="pa-4">
-                                <MudText Typo="Typo.h5">Controls</MudText>
-                                @if (Season.State == State.Concept)
-                                {
-                                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                                        <MudButton OnClick="StartSeason">Start season</MudButton>
-                                        <MudButton OnClick="GoToAddEntrants">Add participants</MudButton>
+                                <MudStack>
+                                    <MudText Typo="Typo.h5">Season statistics</MudText>
+                                    <MudDivider />
+                                    <MudText Typo="Typo.body2">
+                                        Has statistics of this season (wow really?)
+                                    </MudText>
+                                    <MudSpacer />
+                                    <MudButtonGroup Variant="Variant.Text" Color="Color.Tertiary" Size="Size.Small">
+                                        <MudButton OnClick="ShowQualyBattles">Qualifying battles</MudButton>
                                     </MudButtonGroup>
-                                }
-                                else if (Season.State == State.Active)
-                                {
-                                    <MudButton Variant="Variant.Outlined" OnClick="FinishSeason">Finish season</MudButton>
-                                }
-                            </MudPaper>
-                        </MudItem>
-
-                        <MudItem xs="6">
-                            <MudPaper Height="200px" Elevation="15" Class="pa-4">
-                                <MudText Typo="Typo.h5">Season statistics</MudText>
-                                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small">
-                                    <MudButton OnClick="ShowQualyBattles">Qualifying battles</MudButton>
-                                </MudButtonGroup>
+                                </MudStack>
                             </MudPaper>
                         </MudItem>
 
@@ -89,6 +112,7 @@
                             <MudPaper Height="200px" Elevation="15" Class="pa-4">
                                 <MudStack>
                                     <MudText Typo="Typo.h5">Components</MudText>
+                                    <MudDivider />
                                     <MudText>
                                         Redirect to page with overview of the used components and any upcoming penalty's for this season
                                     </MudText>

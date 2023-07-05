@@ -1,15 +1,20 @@
 ﻿<MudTd Class="result-cell" Style="@_cellStyles">
-    <MudText Typo="@Typo" Color="Color.Inherit">
-        @_resultDisplay
+    <MudStack Row="true"
+              Spacing="1"
+              Justify="Justify.Center"
+              AlignItems="AlignItems.Center"
+              Class="pa-0 mud-width-full"
+              Style="color:inherit">
+        <MudText Typo="@Typo" Color="Color.Inherit">@_resultDisplay</MudText>
         @if (_hasPole)
         {
-            <sup style="font-size: 0.7rem">P</sup>
+            <sup style="font-size: 0.65rem">P</sup>
         }
         @if (_hasFastestLap)
         {
-            <sup style="font-size: 0.7rem">F</sup>
+            <sup style="font-size: 0.65rem">F</sup>
         }
-    </MudText>
+    </MudStack>
 </MudTd>
 
 @code {

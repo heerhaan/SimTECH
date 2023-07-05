@@ -2,15 +2,19 @@
 
 <MudPaper MinHeight="60px">
     <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
-        <MudText Typo="Typo.h4">WCC results @(Season.Year)</MudText>
-            <MudSpacer />
-            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-                <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWccResultGraph" />
-                <ScreenshotButton TargetId="wcc-season-results" />
-            </MudButtonGroup>
-        </MudStack>
+        <MudSpacer />
+        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+            <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWccResultGraph" />
+            <ScreenshotButton TargetId="wcc-season-results" />
+        </MudButtonGroup>
+    </MudStack>
     </MudPaper>
     <MudTable Items="@StandingConstructors" Dense="true" id="wcc-season-results">
+        <ToolBarContent>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4 mud-width-full">
+                <MudText Typo="Typo.h4">World Constructors Championship @(Season.Year)</MudText>
+            </MudStack>
+        </ToolBarContent>
         <HeaderContent>
             <MudTh Class="number-col">#</MudTh>
             <MudTh Class="accent-cell"></MudTh>
@@ -40,7 +44,7 @@
             </MudStack>
         </MudTd>
         <MudTd>
-            <MudText>@context.Principal</MudText>
+            <MudText Class="overflow-hider">@context.Principal</MudText>
         </MudTd>
         <MudTd>
             <MudText Typo="Typo.caption">@context.Points</MudText>

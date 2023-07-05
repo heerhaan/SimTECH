@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
+using SimTECH.Pages.Leagues;
 
 namespace SimTECH.Data.Services
 {
@@ -20,12 +21,12 @@ namespace SimTECH.Data.Services
             return await context.SeasonEngine.Where(e => e.SeasonId == seasonId).ToListAsync();
         }
 
-        public async Task<SeasonEngine?> FindRecentSeasonEngine(long engineId)
+        public async Task<SeasonEngine?> FindRecentSeasonEngine(long engineId, long leagueId)
         {
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonEngine
-                .Where(e => e.EngineId == engineId && e.Season.State == State.Closed)
+                .Where(e => e.EngineId == engineId && e.Season.LeagueId == leagueId && e.Season.State == State.Closed)
                 .OrderByDescending(e => e.SeasonId)
                 .FirstOrDefaultAsync();
         }
@@ -95,12 +96,12 @@ namespace SimTECH.Data.Services
                 .SingleAsync(e => e.Id == seasonTeamId);
         }
 
-        public async Task<SeasonTeam?> FindRecentSeasonTeam(long teamId)
+        public async Task<SeasonTeam?> FindRecentSeasonTeam(long teamId, long leagueId)
         {
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonTeam
-                .Where(e => e.TeamId == teamId && e.Season.State == State.Closed)
+                .Where(e => e.TeamId == teamId && e.Season.LeagueId == leagueId && e.Season.State == State.Closed)
                 .OrderByDescending(e => e.SeasonId)
                 .FirstOrDefaultAsync();
         }

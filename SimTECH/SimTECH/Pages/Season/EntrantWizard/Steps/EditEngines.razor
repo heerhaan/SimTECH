@@ -28,8 +28,8 @@
 @code {
     [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
+    [Parameter, EditorRequired] public long LeagueId { get; set; }
     [Parameter, EditorRequired] public long SeasonId { get; set; }
-
     [Parameter] public long? PreviousSeasonId { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -43,7 +43,7 @@
 
         foreach (var engine in Model.BaseEngines.Where(e => !(Model.SeasonEngines.Select(se => se.EngineId).Contains(e.Id))))
         {
-            var previousEngine = await _entrantService.FindRecentSeasonEngine(engine.Id);
+            var previousEngine = await _entrantService.FindRecentSeasonEngine(engine.Id, LeagueId);
 
             var model = new EditSeasonEngineModel(previousEngine);
             model.ResetIdentifierFields();
