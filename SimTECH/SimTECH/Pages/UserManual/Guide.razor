@@ -7,7 +7,7 @@
 <PageTitle>Guide</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
-    <MudGrid>
+    <MudGrid Spacing="1">
         <MudItem xs=12>
             <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
                 <MudText Typo="Typo.h3">Guide</MudText>
@@ -15,26 +15,31 @@
         </MudItem>
         <MudItem xs="3">
             <MudPaper Class="mud-height-full">
-                <MudTreeView T="string" Color="Color.Secondary" Hover="true" SelectedValueChanged="ActiveTopicChanged">
+                <MudTreeView T="Type" Color="Color.Secondary" Hover="true" SelectedValueChanged="ActiveTopicChanged">
                     <MudTreeViewItem @bind-Expanded="@setupFolderExpanded"
-                                     Value="@("Setup")"
+                                     Text="Setup"
+                                     Value="@(typeof(UnknownTopic))"
                                      Icon="@(setupFolderExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
-                        <MudTreeViewItem Value="@("Drivers")" Icon="@Icons.Custom.FileFormats.FileImage" />
-                        <MudTreeViewItem Value="@("Subtopic 2")" Icon="@Icons.Custom.FileFormats.FileVideo" />
+                        <MudTreeViewItem Text="Drivers" Value="@(typeof(DriverTopic))" Icon="@Icons.Custom.FileFormats.FileImage" />
                     </MudTreeViewItem>
                     <MudTreeViewItem @bind-Expanded="@racingFolderExpanded"
-                                     Value="@("Racing")"
+                                     Text="Racing"
+                                     Value="@(typeof(Racing))"
                                      Icon="@(racingFolderExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
-                        <MudTreeViewItem Value="@("Overtaking")" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                        <MudTreeViewItem Text="Distance" Value="@(typeof(Distance))" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                        <MudTreeViewItem Text="Advance" Value="@(typeof(Advance))" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                        <MudTreeViewItem Text="Strategy" Value="@(typeof(Strategy))" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                        <MudTreeViewItem Text="Overtaking" Value="@(typeof(Overtaking))" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                        <MudTreeViewItem Text="Safety / Caution" Value="@(typeof(SafetyMoment))" Icon="@IconCollection.AlertTriangle" />
+                        <MudTreeViewItem Text="Modifiers" Value="@(typeof(Modifiers))" Icon="@IconCollection.Polygon" />
                     </MudTreeViewItem>
-                    <MudTreeViewItem Value="@("Glossary")" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                    <MudTreeViewItem Text="Glossary" Value="@(typeof(Glossary))" Icon="@Icons.Custom.FileFormats.FileExcel" />
                 </MudTreeView>
             </MudPaper>
         </MudItem>
         <MudItem xs="9">
-            <MudPaper Class="mud-height-full">
-                <MudText Style="width: 100%" Typo="@Typo.subtitle1">@currentTopic</MudText>
-                <DynamicComponent Type="TopicContent" />
+            <MudPaper Class="px-2 py-4 mud-height-full">
+                <DynamicComponent Type="@TopicContent" />
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -56,17 +61,15 @@
         });
     }
 
-    void ActiveTopicChanged(string activeTopic)
+    void ActiveTopicChanged(Type activeTopic)
     {
-        currentTopic = activeTopic;
+        TopicContent = activeTopic;
+    }
 
-        switch (activeTopic)
-        {
-            case "Drivers": TopicContent = typeof(DriverTopic); break;
-            case "Racing": TopicContent = typeof(Racing); break;
-            case "Overtaking": TopicContent = typeof(Overtaking); break;
-            case "Glossary": TopicContent = typeof(Glossary); break;
-            default: TopicContent = typeof(UnknownTopic); break;
-        }
+    internal class GuidePage
+    {
+        public string Title { get; set; } = "[Unknown]";
+        public string Icon { get; set; } = IconCollection.Pyramid;
+        public List<GuidePage> Children { get; set; } = new();
     }
 }

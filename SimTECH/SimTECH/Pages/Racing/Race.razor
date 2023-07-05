@@ -228,10 +228,7 @@
                         Swap
                     </MudChip>
                     <MudChip Icon="@Icons.Material.Filled.Healing" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                        Lethal
-                    </MudChip>
-                    <MudChip Icon="@IconCollection.AlertTriangle" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                        Caution
+                        Injury
                     </MudChip>
 
                     <MudSpacer />
@@ -271,6 +268,7 @@
     int disqualifyChance;
     int safetyCarOdds;
     int safetyReturnOdds;
+    int safetyPitstopSubtract;
     int mistakeRolls;
     int mistakeMin;
     int mistakeMax;
@@ -296,6 +294,7 @@
     int safetyCarGap = 50;
     int safetyGapCloserDivider = 2;
     int safetyWearDivider = 3;
+    int minimumTyreLife = -25;
 
     protected override async Task OnInitializedAsync()
     {
@@ -313,11 +312,14 @@
         disqualifyChance = _config.Value.DisqualifyChance;
         safetyCarOdds = _config.Value.SafetyCarChance;
         safetyReturnOdds = _config.Value.SafetyCarReturnChance;
+        safetyPitstopSubtract = _config.Value.SafetyPitstopSubtracter;
+        safetyCarGap = _config.Value.SafetyCarGap;
         mistakeRolls = _config.Value.MistakeAmountRolls;
         mistakeMin = _config.Value.MistakeLowerValue;
         mistakeMax = _config.Value.MistakeUpperValue;
         battleRng = _config.Value.BattleRng;
         gapMarge = _config.Value.GapMarge;
+        minimumTyreLife = _config.Value.MinimumTyreLife;
 
         calculationDistance = _config.Value.CalculationDistance;
         calculated = Model.RaceDrivers.Select(e => e.LapScores.Count()).Max();
@@ -449,7 +451,6 @@
             // Determine new positions (keep team role in mind here!)
             PostProcessAdvance(newFastestLapScorer);
 
-            // TODO: handle something to deal with an active safety car which occurred in a previous advance
             if (safetyCarOut)
             {
                 lapIndicatorColor = Color.Warning;
@@ -566,6 +567,9 @@
         // Adds wear to the tyre
         driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
+        if (driver.TyreLife < minimumTyreLife)
+            driver.TyreLife = minimumTyreLife;
+
         return valueScoreResult;
     }
 
@@ -602,7 +606,12 @@
 
                 lapScore.RacerEvents |= RacerEvent.Pitstop;
 
-                lapScore.Score -= NumberHelper.RandomInt(pitMin / 2, pitMax / 2);
+                // Pitstop duration is reduced since this is a safety car moment
+                var pitCost = NumberHelper.RandomInt(pitMin, pitMax);
+                if (pitCost > safetyPitstopSubtract)
+                    pitCost -= safetyPitstopSubtract;
+
+                lapScore.Score -= pitCost;
             }
             else
             {
@@ -620,6 +629,9 @@
             var tyreMaxWear = (driver.CurrentTyre.WearMax + driver.WearMaxMod) / safetyWearDivider;
             driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
+            if (driver.TyreLife < minimumTyreLife)
+                driver.TyreLife = minimumTyreLife;
+
             lapScore.RacerEvents |= RacerEvent.Caution;
             lapScore.TyreColour = driver.CurrentTyre.Colour;
 
@@ -628,7 +640,6 @@
             scoreAboveDriver = driver.LapSum;
         }
 
-        //DeterminePositions();
         int positionIndexer = 0;
         foreach (var driver in Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
         {
