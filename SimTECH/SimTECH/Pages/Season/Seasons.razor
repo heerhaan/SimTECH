@@ -20,7 +20,14 @@
         <MudDataGrid T="SeasonListModel" Items="@SeasonList" Bordered="true" Dense="true">
             <Columns>
                 <PropertyColumn Property="e => e!.Year" />
-                <PropertyColumn Property="e => e!.DriverNumber" SortBy="e => e!.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" />
+                <TemplateColumn T="SeasonListModel" Title="No." SortBy="e => e!.DriverNumber" HeaderClass="number-col hide-sort-icons" CellClass="number-col">
+                    <CellTemplate>
+                        <NumberDisplay Colour="@Constants.PrimaryColourDefault"
+                                       Accent="@Constants.DefaultAccent">
+                            @context.Item.DriverNumber
+                        </NumberDisplay>
+                    </CellTemplate>
+                </TemplateColumn>
                 <TemplateColumn T="SeasonListModel" Title="Leading driver">
                     <CellTemplate>
                         <MudStack Row="true" AlignItems="AlignItems.Center">

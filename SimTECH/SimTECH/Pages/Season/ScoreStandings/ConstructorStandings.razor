@@ -1,0 +1,39 @@
+﻿<MudPaper Elevation="15" Class="pa-4 mud-height-full">
+    <MudPaper MinHeight="60px">
+        <MudText Typo="Typo.h5">Constructors</MudText>
+    </MudPaper>
+    <MudTable T="StandingTeamModel" Items="@StandingConstructors" Dense="true">
+        <HeaderContent>
+            <MudTh Class="number-col">#</MudTh>
+            <MudTh Class="accent-cell"></MudTh>
+            <MudTh>Team</MudTh>
+            <MudTh>Principal</MudTh>
+            <MudTh>PTS</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="#" Class="number-col">
+                <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
+            </MudTd>
+            <MudTd Class="accent-cell">
+                <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
+            </MudTd>
+            <MudTd>
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <MudText>@context.Name</MudText>
+                    <MudSpacer />
+                    <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+                </MudStack>
+            </MudTd>
+            <MudTd>
+                <MudText>@context.Principal</MudText>
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.caption">@context.Points</MudText>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    [Parameter] public List<StandingTeamModel> StandingConstructors { get; set; }
+}

@@ -1,0 +1,92 @@
+﻿@inject IDialogService _dialog
+
+<MudPaper MinHeight="60px">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+        <MudText Typo="Typo.h4">WCC results @(Season.Year)</MudText>
+            <MudSpacer />
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWccResultGraph" />
+                <ScreenshotButton TargetId="wcc-season-results" />
+            </MudButtonGroup>
+        </MudStack>
+    </MudPaper>
+    <MudTable Items="@StandingConstructors" Dense="true" id="wcc-season-results">
+        <HeaderContent>
+            <MudTh Class="number-col">#</MudTh>
+            <MudTh Class="accent-cell"></MudTh>
+            <MudTh>Team</MudTh>
+            <MudTh>Principal</MudTh>
+            <MudTh>PTS</MudTh>
+            @foreach (var round in CountryRounds.OrderBy(e => e.Key))
+            {
+                <MudTh Class="number-col-lg">
+                    <CountryFlag Code="@round.Value" Size="FlagSize.Small" />
+                </MudTh>
+            }
+        <MudTh>AVG</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd Class="number-col">
+            <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
+        </MudTd>
+        <MudTd Class="accent-cell">
+            <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
+        </MudTd>
+        <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
+            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                <MudText Class="overflow-hider">@context.Name</MudText>
+                <MudSpacer />
+                <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+            </MudStack>
+        </MudTd>
+        <MudTd>
+            <MudText>@context.Principal</MudText>
+        </MudTd>
+        <MudTd>
+            <MudText Typo="Typo.caption">@context.Points</MudText>
+        </MudTd>
+        @foreach (var round in CountryRounds.OrderBy(e => e.Key))
+        {
+            var teamResults = context.ResultCells.Where(e => e.Round == round.Key).ToList();
+
+            <MudTd Class="result-cell">
+                @if (teamResults.Any())
+                {
+                    @foreach (var result in teamResults)
+                    {
+                        <div class="result-cell" style="@(result.GetResultStyle(lowestScoringPosition))">
+                            <MudText Typo="Typo.caption">@result.GetResultText()</MudText>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <MudText>-</MudText>
+                }
+            </MudTd>
+        }
+        <MudTd>
+            <MudText Typo="Typo.caption">@context.Average.ToString("F1")</MudText>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [CascadingParameter] public Season Season { get; set; }
+    [Parameter] public Dictionary<int, Country> CountryRounds { get; set; }
+    [Parameter] public List<StandingTeamModel> StandingConstructors { get; set; }
+
+    int lowestScoringPosition = 10;
+
+    protected override void OnInitialized()
+    {
+        if (Season?.PointAllotments?.Any() == true)
+            lowestScoringPosition = Season.PointAllotments.Max(e => e.Position);
+    }
+
+    async Task ShowWccResultGraph()
+    {
+        var parameters = new DialogParameters { ["Teams"] = StandingConstructors, ["Season"] = Season };
+        _ = await _dialog.ShowAsync<WccResultChart>("WCC results chart", parameters);
+    }
+}

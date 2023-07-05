@@ -10,6 +10,7 @@ namespace SimTECH
         public const string DefaultBackground = "var(--mud-palette-background)";
         public const string DefaultColour = "var(--mud-palette-background)";
         public const string DefaultAccent = "var(--mud-palette-text-primary)";
+        public const string PrimaryColourDefault = "var(--mud-palette-primary)";
 
         public const Country DefaultCountry = Country.FM;
 

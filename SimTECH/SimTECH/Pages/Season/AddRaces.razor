@@ -28,7 +28,11 @@
                         <MudTh>Name</MudTh>
                         <MudTh>Country</MudTh>
                         <MudTh>Length</MudTh>
-                        <MudTh>Modifiers (A/C/P/Q)</MudTh>
+                        <MudTh>AER.</MudTh>
+                        <MudTh>CHA.</MudTh>
+                        <MudTh>POW.</MudTh>
+                        <MudTh>QUA.</MudTh>
+                        <MudTh>DEF.</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>
@@ -41,12 +45,19 @@
                             <MudText Typo="Typo.caption">@(context.Length)Km</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText>
-                                @(context.AeroMod.ToString("F2"))x | 
-                                @(context.ChassisMod.ToString("F2"))x | 
-                                @(context.PowerMod.ToString("F2"))x | 
-                                @(context.QualifyingMod.ToString("F2"))x
-                            </MudText>
+                            <MudText>@(context.AeroMod.ToString("F2"))x</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@(context.ChassisMod.ToString("F2"))x</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@(context.PowerMod.ToString("F2"))x</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@(context.QualifyingMod.ToString("F2"))x</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@(context.DefenseMod.ToString("F2"))x</MudText>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -103,6 +114,10 @@
             </MudPaper>
         </MudContainer>
         <MudContainer Class="@(stepIndex == 2 ? string.Empty : "d-none")">
+            <MudText Typo="Typo.body2" Color="Color.Info">
+                Drag to re-order in which round the races occur.<br/>
+                Don't worry about the numeric round value, this will be restored properly when storing the races.
+            </MudText>
             <MudPaper MinWidth="1000px">
                 <MudDropContainer @ref="reorderContainer"
                                   T="EditRaceModel"
