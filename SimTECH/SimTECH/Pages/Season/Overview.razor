@@ -36,7 +36,7 @@
                         </MudItem>
 
                         <MudItem xs="6">
-                            <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4">
                                 <MudStack>
                                     <MudText Typo="Typo.h5">Upcoming race</MudText>
                                     <MudDivider />
@@ -53,7 +53,7 @@
 
                                             <MudSpacer />
 
-                                            <MudButton Variant="Variant.Text" Color="Color.Tertiary" OnClick="GoToNextRace">Go</MudButton>
+                                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToNextRace">Go</MudButton>
                                         }
                                     }
                                     else
@@ -69,55 +69,61 @@
                         </MudItem>
 
                         <MudItem xs="6">
-                            <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4">
                                 <MudStack>
                                     <MudText Typo="Typo.h5">Controls</MudText>
                                     <MudDivider />
                                     <MudText Typo="Typo.body2">
                                         Control the world, bring ruin to all who oppose you.
                                     </MudText>
+
                                     <MudSpacer />
+
                                     @if (Season.State == State.Concept)
                                     {
-                                        <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                                            <MudButton OnClick="StartSeason">Start season</MudButton>
-                                            <MudButton OnClick="GoToAddEntrants">Add participants</MudButton>
+                                        <MudButtonGroup Variant="Variant.Text" Color="Color.Primary">
+                                            <MudButton FullWidth="true" OnClick="StartSeason">Start season</MudButton>
+                                            <MudButton FullWidth="true" OnClick="GoToAddEntrants">Add participants</MudButton>
                                         </MudButtonGroup>
                                     }
                                     else if (Season.State == State.Active)
                                     {
-                                        <MudButton Variant="Variant.Outlined" OnClick="FinishSeason">Finish season</MudButton>
+                                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="FinishSeason">Finish season</MudButton>
                                     }
                                 </MudStack>
                             </MudPaper>
                         </MudItem>
 
                         <MudItem xs="6">
-                            <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4">
                                 <MudStack>
-                                    <MudText Typo="Typo.h5">Season statistics</MudText>
+                                    <MudText Typo="Typo.h5">Statistics</MudText>
                                     <MudDivider />
                                     <MudText Typo="Typo.body2">
-                                        Has statistics of this season (wow really?)
+                                        Links to different statistics specific to this season (wow really?)
                                     </MudText>
+
                                     <MudSpacer />
-                                    <MudButtonGroup Variant="Variant.Text" Color="Color.Tertiary" Size="Size.Small">
-                                        <MudButton OnClick="ShowQualyBattles">Qualifying battles</MudButton>
+
+                                    <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small">
+                                        <MudButton FullWidth="true" OnClick="ShowQualyBattles">Q.Battles</MudButton>
                                     </MudButtonGroup>
                                 </MudStack>
                             </MudPaper>
                         </MudItem>
 
                         <MudItem xs="6">
-                            <MudPaper Height="200px" Elevation="15" Class="pa-4">
+                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4">
                                 <MudStack>
                                     <MudText Typo="Typo.h5">Components</MudText>
                                     <MudDivider />
                                     <MudText>
                                         Redirect to page with overview of the used components and any upcoming penalty's for this season
                                     </MudText>
+
                                     <MudSpacer />
-                                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="GoToComponentUsage">Go to</MudButton>
+
+                                    <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToComponentUsage">Go</MudButton>
                                 </MudStack>
                             </MudPaper>
                         </MudItem>

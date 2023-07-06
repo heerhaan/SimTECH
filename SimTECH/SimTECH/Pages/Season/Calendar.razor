@@ -112,8 +112,8 @@
                     }
                     else
                     {
-                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.Id))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.Id))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.RaceId))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.RaceId))" />
                     }
                 </MudButtonGroup>
             </MudTd>
@@ -207,7 +207,7 @@
     private async Task DeleteRace(long raceId)
     {
         await RaceService.DeleteRace(raceId);
-        RaceCalendar.Remove(RaceCalendar.First(e => e.Id == raceId));
+        RaceCalendar.Remove(RaceCalendar.First(e => e.RaceId == raceId));
     }
 
     private async Task GoToRaceWeek(CalendarRaceModel race)
@@ -215,7 +215,7 @@
         if (race.State == State.Concept)
         {
             if (race.Round == _nextRound)
-                await RaceService.ActivateRace(race.Id);
+                await RaceService.ActivateRace(race.RaceId);
             else
             {
                 Snackbar.Add("oi oi oi, a previous round hasn't been finished (or even started!) yet. do that one first, cunt.", Severity.Error);
@@ -223,6 +223,6 @@
             }
         }
 
-        Nav.NavigateTo($"/raceweek/{race.Id}");
+        Nav.NavigateTo($"/raceweek/{race.RaceId}");
     }
 }

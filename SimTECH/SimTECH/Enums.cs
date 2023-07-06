@@ -82,6 +82,7 @@ namespace SimTECH
         Caution = 256,
     }
 
+    // Consider keeping this inside the race page as it's exclusive there
     public enum SituationAtRace
     {
         None = 0,

@@ -424,7 +424,7 @@ namespace SimTECH.Data.Services
             {
                 var calendarModel = new CalendarRaceModel
                 {
-                    Id = race.Id,
+                    RaceId = race.Id,
                     Round = race.Round,
                     Name = race.Name,
                     Country = race.Track.Country,
@@ -443,7 +443,7 @@ namespace SimTECH.Data.Services
                         var poleDriver = drivers.Single(e => e.Id == poleResult.SeasonDriverId);
                         var poleTeam = teams.Single(e => e.Id == poleResult.SeasonTeamId);
 
-                        calendarModel.PoleSitter = new DriverWinner
+                        calendarModel.PoleSitter = new CompactDriver
                         {
                             Name = poleDriver.Driver.FullName,
                             Country = poleDriver.Driver.Country,
@@ -460,7 +460,7 @@ namespace SimTECH.Data.Services
                         var winningDriver = drivers.Single(d => winningResult.SeasonDriverId == d.Id);
                         var driverTeam = teams.Find(e => e.Id == winningDriver.SeasonTeamId.GetValueOrDefault());
 
-                        calendarModel.DriverWinner = new DriverWinner
+                        calendarModel.DriverWinner = new CompactDriver
                         {
                             Name = winningDriver.Driver.FullName,
                             Country = winningDriver.Driver.Country,
@@ -475,7 +475,7 @@ namespace SimTECH.Data.Services
 
                         var winningTeam = teams.Single(t => winningResult.SeasonTeamId == t.Id);
 
-                        calendarModel.TeamWinner = new TeamWinner
+                        calendarModel.TeamWinner = new CompactTeam
                         {
                             Name = winningTeam.Name,
                             Colour = winningTeam.Colour,
@@ -507,7 +507,7 @@ namespace SimTECH.Data.Services
                     LeagueName = e.Season.League.Name,
 
                     WinningDriver = e.Results.Where(e => e.Position == 1)
-                        .Select(d => new DriverWinner
+                        .Select(d => new CompactDriver
                         {
                             Name = d.SeasonDriver.Driver.FullName,
                             Country = d.SeasonDriver.Driver.Country,
@@ -518,7 +518,7 @@ namespace SimTECH.Data.Services
                         .First(),
 
                     WinningTeam = e.Results.Where(e => e.Position == 1)
-                        .Select(t => new TeamWinner
+                        .Select(t => new CompactTeam
                         {
                             Name = t.SeasonTeam.Name,
                             Country = t.SeasonTeam.Team.Country,
@@ -680,6 +680,7 @@ namespace SimTECH.Data.Services
                 IsWet = race.Climate.IsWet,
                 Round = race.Round,
                 IsFinished = race.State == State.Closed,
+                SeasonId = season.Id,
 
                 RaceDrivers = raceDrivers,
 
@@ -741,6 +742,7 @@ namespace SimTECH.Data.Services
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
                 IsWet = race.Climate.IsWet,
+                SeasonId = season.Id,
 
                 AmountRuns = season.RunAmountSession,
                 MaximumRaceDrivers = season.MaximumDriversInRace,
@@ -925,8 +927,8 @@ namespace SimTECH.Data.Services
                 ClimateIcon = race.Climate.Icon,
                 IsWet = race.Climate.IsWet,
                 IsFinished = isFinish,
-
                 AmountRuns = season.RunAmountSession,
+                SeasonId = season.Id,
                 PracticeRng = season.QualifyingRNG / 2,
 
                 PracticeDrivers = practiceDrivers,

@@ -1,16 +1,18 @@
 ﻿@inject LeagueService LeagueService
 @inject SeasonEntrantService EntrantService
 @inject SeasonService SeasonService
+@inject IDialogService _dialogService
 @inject ISnackbar _snackbar
+@using SimTECH.Pages.Season.Development
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
     @if (DevelopedEntrants != null)
     {
         <MudStack Row="true" Class="mud-width-full">
             <MudPaper Class="pa-2" Width="20%">
+                <MudText Typo="Typo.h6">Settings</MudText>
+                <MudDivider />
                 <MudStack Class="mud-height-full">
-                    <MudText Typo="Typo.h6">Settings</MudText>
-                    <MudDivider />
                     <MudStack Spacing="0">
                         <MudTooltip Text="For whom the development is run">
                             <MudText Typo="Typo.subtitle1">Entrant</MudText>
@@ -67,15 +69,7 @@
                         </MudStack>
                     }
 
-                    <MudSpacer />
-
-                    @*just save every list saved to (copy first (tolist>toarray?)) a dict*@
-                    <MudButton>Summary</MudButton>
-                    @*<MudButton Variant="Variant.Filled"
-                               Color="Color.Info"
-                               StartIcon="@Icons.Material.Filled.Refresh">
-                        Load
-                    </MudButton>*@
+                    <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="ShowSummary" Class="mt-4">Summary</MudButton>
                 </MudStack>
             </MudPaper>
             <MudPaper Class="flex-grow-1 ">
@@ -213,6 +207,13 @@
     List<SeasonTeam>? SeasonTeams;
     List<SeasonEngine>? SeasonEngines;
     List<DevelopedEntrant> DevelopedEntrants;
+
+    private List<CompletedDevelopment> SummaryDeveloped = new();
+    private static readonly DialogOptions SummaryDialogOptions = new()
+    {
+        MaxWidth = MaxWidth.ExtraLarge,
+        CloseButton = true,
+    };
 
     Entrant _activeEntrant = Entrant.Driver;
     Quantifier _selectedType = Quantifier.Range;
@@ -518,6 +519,32 @@
                 break;
         }
 
-        ReloadDeveloped(_activeEntrant);
+        SummaryDeveloped.Add(new CompletedDevelopment(_activeEntrant, _selectedTarget, minChange, maxChange, DevelopedEntrants));
+
+        await ReloadDeveloped(_activeEntrant);
+    }
+
+    async Task ShowSummary() => _ =
+        await _dialogService.ShowAsync<SummaryDevelopment>(
+            "Summary development",
+            new DialogParameters { ["Completed"] = SummaryDeveloped },
+            SummaryDialogOptions);
+
+    public class CompletedDevelopment
+    {
+        internal CompletedDevelopment(Entrant group, Aspect aspect, int min, int max, List<DevelopedEntrant> entrants)
+        {
+            EntrantGroup = group;
+            DevelopedAspect = aspect;
+            MinChange = min;
+            MaxChange = max;
+            Entrants = entrants?.ToArray() ?? Array.Empty<DevelopedEntrant>();
+        }
+
+        public Entrant EntrantGroup { get; set; }
+        public Aspect DevelopedAspect { get; set; }
+        public int MinChange { get; set; }
+        public int MaxChange { get; set; }
+        public DevelopedEntrant[] Entrants { get; set; }
     }
 }

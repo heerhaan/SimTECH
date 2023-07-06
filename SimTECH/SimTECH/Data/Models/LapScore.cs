@@ -1,5 +1,4 @@
 ﻿using SimTECH.Extensions;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SimTECH.Data.Models
 {
@@ -8,13 +7,11 @@ namespace SimTECH.Data.Models
         public long Id { get; set; }
         public int Order { get; set; }
         public int Score { get; set; }
+        public string TyreColour { get; set; }
         public RacerEvent RacerEvents { get; set; }
 
         public long ResultId { get; set; }
         public Result Result { get; set; }
-
-        [NotMapped]
-        public string TyreColour { get; set; }
     }
 
     public static class ExtendLapScore
