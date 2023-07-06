@@ -19,7 +19,7 @@
         <CascadingValue Value="@Season" IsFixed="true">
             <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="@_activeTabIndex">
                 <MudTabPanel Text="Overview">
-                    <MudGrid Spacing="4">
+                    <MudGrid Spacing="2">
                         <MudItem xs="12">
                             <MudPaper Class="pa-4">
                                 <MudStack>
@@ -27,29 +27,29 @@
                                     <MudDivider />
                                     <MudSpacer />
                                     <MudStack Row="true" Class="pa-0">
-                                        <MudText>Currenly in status: @Season.State.ToString()</MudText>
+                                        <MudText Typo="Typo.body2">Currenly in status: @Season.State.ToString()</MudText>
                                         <MudSpacer />
-                                        <MudText Color="Color.Surface">Hello from the other side</MudText>
+                                        <MudText Typo="Typo.body2" Color="Color.Dark">Hello from the other side</MudText>
                                     </MudStack>
                                 </MudStack>
                             </MudPaper>
                         </MudItem>
 
                         <MudItem xs="6">
-                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4">
-                                <MudStack>
+                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
+                                <MudStack Class="mud-height-full">
                                     <MudText Typo="Typo.h5">Upcoming race</MudText>
                                     <MudDivider />
                                     @if (Season.State == State.Active)
                                     {
                                         @if (NextRace is null)
                                         {
-                                            <MudText>no upcoming race for this season detected</MudText>
+                                            <MudText Typo="Typo.body2">no upcoming race for this season detected</MudText>
                                         }
                                         else
                                         {
-                                            <MudText>Round @NextRace.Round - @NextRace.Name</MudText>
                                             <CountryNamedFlag Code="@NextRace.Track.Country" Justify="Justify.FlexStart" Size="FlagSize.Normal" />
+                                            <MudText>Round @NextRace.Round - @NextRace.Name</MudText>
 
                                             <MudSpacer />
 
@@ -69,8 +69,8 @@
                         </MudItem>
 
                         <MudItem xs="6">
-                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4">
-                                <MudStack>
+                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
+                                <MudStack Class="mud-height-full">
                                     <MudText Typo="Typo.h5">Controls</MudText>
                                     <MudDivider />
                                     <MudText Typo="Typo.body2">
@@ -88,15 +88,15 @@
                                     }
                                     else if (Season.State == State.Active)
                                     {
-                                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="FinishSeason">Finish season</MudButton>
+                                        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="FinishSeason">Finish season</MudButton>
                                     }
                                 </MudStack>
                             </MudPaper>
                         </MudItem>
 
                         <MudItem xs="6">
-                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4">
-                                <MudStack>
+                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
+                                <MudStack Class="mud-height-full">
                                     <MudText Typo="Typo.h5">Statistics</MudText>
                                     <MudDivider />
                                     <MudText Typo="Typo.body2">
@@ -113,11 +113,11 @@
                         </MudItem>
 
                         <MudItem xs="6">
-                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4">
-                                <MudStack>
+                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
+                                <MudStack Class="mud-height-full">
                                     <MudText Typo="Typo.h5">Components</MudText>
                                     <MudDivider />
-                                    <MudText>
+                                    <MudText Typo="Typo.body2">
                                         Redirect to page with overview of the used components and any upcoming penalty's for this season
                                     </MudText>
 

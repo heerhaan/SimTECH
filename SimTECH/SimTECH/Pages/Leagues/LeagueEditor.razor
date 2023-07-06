@@ -1,7 +1,7 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h6">Modify league</MudText>
-        <MudText>
+        <MudText Typo="Typo.h3">Modify league</MudText>
+        <MudText Typo="Typo.body2">
             For the development ranges: the range which will be used is the first comparer ('less than') which is equal or less than
             the corresponding value. (For a skill of 31, it would take the first comparer which is equal or less than 31.)
             <br />
@@ -20,7 +20,7 @@
                                      @bind-Value="Model.RaceLength"
                                      Min="0"
                                      Step="10"
-                                     Label="Length (Km)"
+                                     Label="Length (km)"
                                      HelperText="Should round to nearest ten"
                                      Validation="@(new Func<int, string?>(LengthValidator))"
                                      Class="field-md" />
@@ -96,7 +96,7 @@
 
     private Dictionary<Aspect, List<EditRangeModel>> weightedAspects = new();
 
-    private Aspect[] rangeables = EnumHelper.RangeableAspects;
+    private static readonly Aspect[] rangeables = EnumHelper.RangeableAspects;
     private ICollection<object>? selectedAspects { get; set; }
     private List<string> errorValidations = new();
 

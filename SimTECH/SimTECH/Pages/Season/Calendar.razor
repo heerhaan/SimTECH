@@ -6,7 +6,7 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudContainer MaxWidth="MaxWidth.False">
+<MudContainer MaxWidth="MaxWidth.False" Class="px-0">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Races</MudText>
@@ -38,25 +38,26 @@
                 <MudText>@context.Round</MudText>
             </MudTd>
             <MudTd>
-                <CountryNamedFlag Code="context.Country" Size="FlagSize.Small" />
+                <CountryNamedFlag Code="@context.Country" Size="FlagSize.Small" Class="overflow-hider" />
             </MudTd>
             <MudTd>
-                <MudText>@context.Name</MudText>
+                <MudText Class="overflow-hider">@context.Name</MudText>
             </MudTd>
             <MudTd>
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
                     <MudIcon Icon="@context.WeatherIcon" />
                     <MudText>@context.Weather</MudText>
                 </MudStack>
             </MudTd>
+
             @if (context.PoleSitter != null)
             {
-                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
-                    <MudText Typo="Typo.caption">@(context.PoleSitter.Number)</MudText>
+                <MudTd Class="number-col">
+                    <NumberDisplay Colour="@context.PoleSitter.Colour" Accent="@context.PoleSitter.Accent">@context.PoleSitter.Number</NumberDisplay>
                 </MudTd>
                 <MudTd>
                     <MudStack Row="true" AlignItems="AlignItems.Center">
-                        <MudText>@context.PoleSitter.Name</MudText>
+                        <MudText Class="overflow-hider">@context.PoleSitter.Name</MudText>
                         <MudSpacer />
                         <CountryFlag Code="@context.PoleSitter.Country" Size="FlagSize.Small" />
                     </MudStack>
@@ -70,12 +71,12 @@
 
             @if (context.DriverWinner != null)
             {
-                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
-                    <MudText Typo="Typo.caption">@(context.DriverWinner.Number)</MudText>
+                <MudTd Class="number-col">
+                    <NumberDisplay Colour="@context.DriverWinner.Colour" Accent="@context.DriverWinner.Accent">@context.DriverWinner.Number</NumberDisplay>
                 </MudTd>
                 <MudTd>
                     <MudStack Row="true" AlignItems="AlignItems.Center">
-                        <MudText>@context.DriverWinner.Name</MudText>
+                        <MudText Class="overflow-hider">@context.DriverWinner.Name</MudText>
                         <MudSpacer />
                         <CountryFlag Code="@context.DriverWinner.Country" Size="FlagSize.Small" />
                     </MudStack>
@@ -90,7 +91,7 @@
             @if (context.TeamWinner != null)
             {
                 <MudTd>
-                    <MudText Typo="Typo.button">@context.TeamWinner.Name</MudText>
+                    <MudText Typo="Typo.button" Class="overflow-hider">@context.TeamWinner.Name</MudText>
                 </MudTd>
             }
             else

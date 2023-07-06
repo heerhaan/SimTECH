@@ -17,18 +17,40 @@
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="5" MinHeight="100px" Class="pa-4">
-
+            <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
+                <MudTable Items="@activeSeasons" Dense="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h5">Active seasons</MudText>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>League</MudTh>
+                        <MudTh>Season</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText Typo="Typo.body2">@(DisplayLeagueName(context.LeagueId))</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText Typo="Typo.body2">@context.Year</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Text"
+                                        Color="Color.Secondary"
+                                        OnClick="@(() => GoToSeason(context.Id))">Overview</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="5" MinHeight="100px" Class="pa-4">
-
+            <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
+                
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="12" md="4">
-            <MudPaper Elevation="5" MinHeight="100px" Class="pa-4">
-
+            <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
+                
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="7">
@@ -54,9 +76,7 @@
                         </MudTd>
                         <MudTd>
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.body2">
-                                    [R@(context.Round)] @(context.Name)
-                                </MudText>
+                                <MudText Typo="Typo.body2">[R@(context.Round)] @(context.Name)</MudText>
                                 <MudSpacer />
                                 <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
                             </MudStack>
@@ -78,7 +98,9 @@
                             </MudStack>
                         </MudTd>
                         <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToPostRace(context.RaceId))">Go</MudButton>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Secondary"
+                                       OnClick="@(() => GoToPostRace(context.RaceId))">Go</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -92,6 +114,7 @@
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>League</MudTh>
+                        <MudTh>Season</MudTh>
                         <MudTh>Name</MudTh>
                         <MudTh></MudTh>
                     </HeaderContent>
@@ -100,10 +123,11 @@
                             <MudText Typo="Typo.body2">@context.LeagueName</MudText>
                         </MudTd>
                         <MudTd>
+                            <MudText Typo="Typo.body2">@context.SeasonDisplay</MudText>
+                        </MudTd>
+                        <MudTd>
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.body2">
-                                    [R@(context.Round)] @(context.Name)
-                                </MudText>
+                                <MudText Typo="Typo.body2">[R@(context.Round)] @(context.Name)</MudText>
                                 <MudSpacer />
                                 <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
                             </MudStack>
@@ -119,8 +143,12 @@
 </MudContainer>
 
 @code {
+    List<League> activeLeagues;
+    List<Data.Models.Season> activeSeasons;
+
     List<FinishedRaceModel> recentRaces;
     List<FinishedRaceModel> upcomingRaces = new();
+
     int raceAmount = 5;
 
     protected override async Task OnInitializedAsync()
@@ -129,6 +157,9 @@
         {
             new BreadcrumbItem("Home", href: "/", disabled: true),
         });
+
+        activeLeagues = await _leagueService.GetLeagues(StateFilter.Active);
+        activeSeasons = await _seasonService.GetSeasons(StateFilter.Active);
 
         // following is possibly a very unoptimized call
         recentRaces = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
@@ -139,28 +170,29 @@
 
     private async Task RetrieveUpcomingRaces()
     {
-        var seasons = await _seasonService.GetSeasons(StateFilter.Active);
-        var leagues = await _leagueService.GetLeagues(StateFilter.Active);
-
-        foreach (var season in seasons)
+        foreach (var season in activeSeasons)
         {
             var nextRace = await _raceService.GetNextRaceOfSeason(season.Id);
             if (nextRace != null)
             {
-                var raceLeagueId = seasons.First(e => e.Id == nextRace.SeasonId).LeagueId;
                 var upcoming = new FinishedRaceModel
                 {
                     RaceId = nextRace.Id,
                     Name = nextRace.Name,
                     Round = nextRace.Round,
                     Country = nextRace.Track?.Country ?? Constants.DefaultCountry,
-                    LeagueName = leagues.Find(e => e.Id == raceLeagueId)?.Name ?? "[Unknown]",
+                    SeasonDisplay = season.Year.ToString(),
+                    LeagueName = activeLeagues.Find(e => e.Id == season.LeagueId)?.Name ?? "[Unknown]",
                 };
+
                 upcomingRaces.Add(upcoming);
             }
         }
     }
 
+    private string DisplayLeagueName(long leagueId) => activeLeagues.Find(e => e.Id == leagueId)?.Name ?? "[Unknown]";
+
+    private void GoToSeason(long seasonId) => _nav.NavigateTo($"/overview/{seasonId}");
     private void GoToPostRace(long raceId) => _nav.NavigateTo($"/postrace/{raceId}");
     private void GoToRaceWeek(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");
 }
