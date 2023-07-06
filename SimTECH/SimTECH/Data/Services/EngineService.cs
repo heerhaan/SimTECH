@@ -41,23 +41,30 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteEngine(Engine engine)
+        public async Task ArchiveEngine(Engine engine)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            if (context.SeasonEngine.Any(e => e.EngineId == engine.Id))
+            if (engine.State == State.Archived)
             {
-                var editModel = new EditEngineModel(engine)
-                {
-                    State = State.Archived
-                };
-
-                var modified = editModel.Record;
-                context.Update(modified);
+                engine.State = State.Active;
             }
             else
             {
-                context.Remove(engine);
+                if (context.SeasonEngine.Any(e => e.EngineId == engine.Id))
+                {
+                    var editModel = new EditEngineModel(engine)
+                    {
+                        State = State.Archived
+                    };
+
+                    var modified = editModel.Record;
+                    context.Update(modified);
+                }
+                else
+                {
+                    context.Remove(engine);
+                }
             }
 
             await context.SaveChangesAsync();

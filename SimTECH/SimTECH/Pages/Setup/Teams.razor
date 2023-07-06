@@ -11,7 +11,10 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Teams</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTeam">New</MudButton>
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="ToggleDisplayArchived">@(showingArchived ? "Active" : "Archive")</MudButton>
+                <MudButton OnClick="AddTeam">New</MudButton>
+            </MudButtonGroup>
         </MudStack>
     </MudPaper>
     <MudDataGrid T="Team" Items="@TeamData" Dense="true">
@@ -55,6 +58,8 @@
 @code {
     private List<Team> TeamData = new();
 
+    private bool showingArchived = false;
+
     protected override async Task OnInitializedAsync()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -87,7 +92,17 @@
 
     async Task DeleteTeam(Team item)
     {
-        await TeamService.DeleteTeam(item);
+        await TeamService.ArchiveTeam(item);
         TeamData.Remove(item);
+    }
+
+    async Task ToggleDisplayArchived()
+    {
+        if (showingArchived)
+            TeamData = await TeamService.GetTeams();
+        else
+            TeamData = await TeamService.GetTeams(StateFilter.Archived);
+
+        showingArchived = !showingArchived;
     }
 }

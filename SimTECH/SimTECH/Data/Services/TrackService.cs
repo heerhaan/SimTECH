@@ -51,18 +51,25 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteTrack(Track track)
+        public async Task ArchiveTrack(Track track)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            if (context.Race.Any(e => e.TrackId == track.Id))
+            if (track.State == State.Archived)
             {
-                track.State = State.Archived;
-                context.Update(track);
+                track.State = State.Active;
             }
             else
             {
-                context.Remove(track);
+                if (context.Race.Any(e => e.TrackId == track.Id))
+                {
+                    track.State = State.Archived;
+                    context.Update(track);
+                }
+                else
+                {
+                    context.Remove(track);
+                }
             }
 
             await context.SaveChangesAsync();

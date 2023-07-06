@@ -13,6 +13,9 @@
             <MudText Typo="Typo.h3">Drivers</MudText>
             <MudSpacer />
             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="ToggleDisplayArchived">
+                    @(showingArchived ? "Active" : "Archive")
+                </MudButton>
                 <MudButton OnClick="GoToHumanGenerator">Generate</MudButton>
                 <MudButton OnClick="AddDriver">New</MudButton>
             </MudButtonGroup>
@@ -72,6 +75,8 @@
     private List<Driver> DriverData;
     private List<CurrentDriver> CurrentDrivers;
 
+    private bool showingArchived = false;
+
     protected override async Task OnInitializedAsync()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -107,7 +112,22 @@
             DriverData = await DriverService.GetDrivers();
         }
     }
-    async Task DeleteDriver(Driver driver) => await DriverService.DeleteDriver(driver);
+
+    async Task DeleteDriver(Driver driver)
+    {
+        await DriverService.ArchiveDriver(driver);
+        DriverData.Remove(driver);
+    }
+
+    async Task ToggleDisplayArchived()
+    {
+        if (showingArchived)
+            DriverData = await DriverService.GetDrivers(StateFilter.Default);
+        else
+            DriverData = await DriverService.GetDrivers(StateFilter.Archived);
+
+        showingArchived = !showingArchived;
+    }
 
     // Navigation links
     void GoToHumanGenerator() => _nav.NavigateTo("humanbeinggenerator");

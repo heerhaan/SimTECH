@@ -80,18 +80,25 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteDriver(Driver driver)
+        public async Task ArchiveDriver(Driver driver)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            if (context.SeasonDriver.Any(e => e.DriverId == driver.Id))
+            if (driver.State == State.Archived)
             {
-                driver.State = State.Archived;
-                context.Update(driver);
+                driver.State = State.Active;
             }
             else
             {
-                context.Remove(driver);
+                if (context.SeasonDriver.Any(e => e.DriverId == driver.Id))
+                {
+                    driver.State = State.Archived;
+                    context.Update(driver);
+                }
+                else
+                {
+                    context.Remove(driver);
+                }
             }
 
             await context.SaveChangesAsync();

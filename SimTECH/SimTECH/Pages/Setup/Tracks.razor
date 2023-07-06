@@ -11,7 +11,10 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Tracks</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTrack">New</MudButton>
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="ToggleDisplayArchived">@(showingArchived ? "Active" : "Archive")</MudButton>
+                <MudButton OnClick="AddTrack">New</MudButton>
+            </MudButtonGroup>
         </MudStack>
     </MudPaper>
     <MudDataGrid T="Track" Items="@TrackData" Dense="true">
@@ -81,6 +84,8 @@
 @code {
     List<Track> TrackData;
 
+    private bool showingArchived = false;
+
     protected override async Task OnInitializedAsync()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -113,7 +118,17 @@
 
     async Task DeleteTrack(Track track)
     {
-        await TrackService.DeleteTrack(track);
-        TrackData = await TrackService.GetTracks();
+        await TrackService.ArchiveTrack(track);
+        TrackData.Remove(track);
+    }
+
+    async Task ToggleDisplayArchived()
+    {
+        if (showingArchived)
+            TrackData = await TrackService.GetTracks();
+        else
+            TrackData = await TrackService.GetTracks(StateFilter.Archived);
+
+        showingArchived = !showingArchived;
     }
 }

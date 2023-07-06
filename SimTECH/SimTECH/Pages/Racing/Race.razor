@@ -64,7 +64,7 @@
                       Class="extra-dense overflow-x-hide">
                 <ToolBarContent>
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2 mud-width-full">
-                        <div class="d-flex flex-row align-center pa-0" style="width:30%">
+                        <div class="d-flex flex-row gap-3 align-center pa-0" style="width:30%">
                             <CountryFlag Code="@Model.Country" />
                             <MudText Typo="Typo.h5">@Model.Name - ROUND @Model.Round</MudText>
                         </div>
@@ -73,7 +73,7 @@
                             <MudText Typo="Typo.h5">LAP @(racedLaps) / @(totalLaps)</MudText>
                         </MudChip>
 
-                        <div class="d-flex flex-row-reverse align-center pa-0" style="width: 30%">
+                            <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
                             <MudIcon Icon="@Model.ClimateIcon" />
                             <MudText Typo="Typo.h5">@Model.Climate</MudText>
                         </div>
@@ -84,7 +84,7 @@
                     <MudTh Style="width: 40px">Grid</MudTh>
                     <MudTh Class="pa-0" Style="width: 5px"></MudTh>
                     <MudTh Style="width: 220px">Name</MudTh>
-                    <MudTh Class="number-col">No</MudTh>
+                    <MudTh Class="number-col">NO.</MudTh>
                     <MudTh Style="width: 220px">Team</MudTh>
                     <MudTh Class="number-col">PWR</MudTh>
                     <MudTh Class="text-center" Style="width: 175px">ATT / DEF</MudTh>
@@ -95,8 +95,6 @@
                     {
                         <MudTh Class="number-col">L.Gap</MudTh>
                         <MudTh Class="number-col">Score</MudTh>
-                        <MudTh></MudTh>
-                        <MudTh></MudTh>
                     }
                     <MudTh Style="width: 500px">Progression</MudTh>
                 </HeaderContent>
@@ -112,7 +110,7 @@
                     </MudTd>
                     <MudTd Class="overflow-hider">
                         <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0">
-                            <MudText Typo="Typo.body1">@context.FirstName</MudText>
+                            <MudText>@context.FirstName</MudText>
                             <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
                             @if (context.HasFastestLap)
                             {
@@ -174,23 +172,9 @@
                     {
                         <MudTd Class="number-col">
                             <MudText Typo="Typo.caption">+@((Math.Round((highestScore - context.LapSum) * gapMarge, 2)).ToString("F2"))</MudText>
-                            </MudTd>
+                        </MudTd>
                         <MudTd Class="number-col">
                             <MudText Typo="Typo.caption">@context.LapSum</MudText>
-                        </MudTd>
-                        <MudTd Class="overflow-hider">
-                            <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
-                                <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
-                                <MudText Typo="Typo.caption">@context.Attack</MudText>
-                                <sup>@(context.OvertakeCount)</sup>
-                            </MudStack>
-                        </MudTd>
-                        <MudTd Class="overflow-hider">
-                            <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
-                                <MudIcon Icon="@IconCollection.ShieldChevron" Size="Size.Small" />
-                                <MudText Typo="Typo.caption">@context.Defense</MudText>
-                                <sup>@(context.DefensiveCount)</sup>
-                            </MudStack>
                         </MudTd>
                     }
                     <MudTd>
@@ -248,6 +232,8 @@
 
     public RaceModel Model { get; set; }
 
+    private static readonly Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
+
     List<Tyre> tyres;
     List<Incident> possibleIncidents;
 
@@ -258,7 +244,6 @@
     Color lapIndicatorColor = Color.Dark;
 
     Entrant activeReliabilityCheck = Entrant.Driver;
-    Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
     int reliablityCycler = 0;
 
     Dictionary<int, SituationAtRace> situations = new();
@@ -547,20 +532,10 @@
 
             if (validTyres.Count > 0)
             {
-                Tyre nextTyre;
-                if (validTyres.Count > 1)
-                    nextTyre = validTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList().TakeRandomItem();
-                else
-                    nextTyre = validTyres.First();
-
-                driver.CurrentTyre = nextTyre;
-                driver.TyreLife = nextTyre.Pace + driver.LifeBonus;
-                driver.InstantOvertaken = true;
-
-                lapScore.RacerEvents |= RacerEvent.Pitstop;
+                var pitCost = PitstopDriver(driver, lapScore, validTyres);
 
                 valueScoreResult = driver.TyreLife;
-                valueScoreResult -= NumberHelper.RandomInt(pitMin, pitMax);
+                valueScoreResult -= pitCost;
             }
         }
 
@@ -594,22 +569,7 @@
             // If the tyre life is less than half of the tyres overall pace, then check for a pitstop
             if (validTyres.Count > 0 && driver.TyreLife < (driver.CurrentTyre.Pace / 2))
             {
-                Tyre nextTyre;
-                if (validTyres.Count > 1)
-                    nextTyre = validTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList().TakeRandomItem();
-                else
-                    nextTyre = validTyres.First();
-
-                driver.CurrentTyre = nextTyre;
-                driver.TyreLife = nextTyre.Pace + driver.LifeBonus;
-                driver.InstantOvertaken = true;
-
-                lapScore.RacerEvents |= RacerEvent.Pitstop;
-
-                // Pitstop duration is reduced since this is a safety car moment
-                var pitCost = NumberHelper.RandomInt(pitMin, pitMax);
-                if (pitCost > safetyPitstopSubtract)
-                    pitCost -= safetyPitstopSubtract;
+                var pitCost = PitstopDriver(driver, lapScore, validTyres);
 
                 lapScore.Score -= pitCost;
             }
@@ -627,6 +587,7 @@
 
             var tyreMinWear = (driver.CurrentTyre.WearMin + driver.WearMinMod) / safetyWearDivider;
             var tyreMaxWear = (driver.CurrentTyre.WearMax + driver.WearMaxMod) / safetyWearDivider;
+
             driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
             if (driver.TyreLife < minimumTyreLife)
@@ -654,6 +615,30 @@
         }
 
         return NumberHelper.RandomInt(safetyReturnOdds) == 0;
+    }
+
+    // Returns the score cost which the pitstop took
+    int PitstopDriver(RaceDriver driver, LapScore lapScore, List<Tyre> validTyres)
+    {
+        Tyre nextTyre;
+        if (validTyres.Count > 1)
+            nextTyre = validTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList().TakeRandomItem();
+        else
+            nextTyre = validTyres.First();
+
+        driver.CurrentTyre = nextTyre;
+        driver.TyreLife = nextTyre.Pace + driver.LifeBonus;
+        driver.InstantOvertaken = true;
+
+        lapScore.RacerEvents |= RacerEvent.Pitstop;
+
+        // Pitstop duration is reduced since this is a safety car moment
+        var pitCost = NumberHelper.RandomInt(pitMin, pitMax);
+
+        if (safetyCarOut && pitCost > safetyPitstopSubtract)
+            pitCost -= safetyPitstopSubtract;
+
+        return pitCost;
     }
 
     void PostProcessAdvance(long? newFastestLapHolder)
