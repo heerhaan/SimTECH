@@ -258,12 +258,24 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task PersistOccurrences(List<RaceOccurrence> occurrences)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            // Validation?
+
+            context.RaceOccurrence.AddRange(occurrences);
+
+            await context.SaveChangesAsync();
+        }
+
         public async Task FinishRace(long raceId, List<Result> finishedResults, List<ScoredPoints> scoredPoints)
         {
             using var context = _dbFactory.CreateDbContext();
 
             var finishedRace = await context.Race.SingleAsync(e => e.Id == raceId);
             finishedRace.State = State.Closed;
+            finishedRace.DateFinished = DateTime.UtcNow;
 
             context.Update(finishedRace);
             context.UpdateRange(finishedResults);
@@ -496,8 +508,9 @@ namespace SimTECH.Data.Services
 
             // It's likely that this is a very unperformant implementation, consider a refactor
             return await context.Race
-                .Where(e => e.State == State.Closed && e.Results.Any())
-                .TakeLastSpecial(amount)
+                .Where(e => e.State == State.Closed && e.DateFinished.HasValue && e.Results.Any())
+                .OrderByDescending(e => e.DateFinished)
+                .Take(amount)
                 .Select(e => new FinishedRaceModel
                 {
                     RaceId = e.Id,
@@ -539,6 +552,7 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
+                .Include(e => e.Occurrences)
                 .Include(e => e.Climate)
                 .Include(e => e.Track)
                     .ThenInclude(e => e.TrackTraits)
@@ -638,6 +652,9 @@ namespace SimTECH.Data.Services
                     Setup = driverResult.Setup,
                     TyreLife = driverResult.TyreLife,
                     CurrentTyre = driverResult.Tyre,
+                    HasFastestLap = driverResult.FastestLap,
+                    OvertakeCount = driverResult.Overtaken,
+                    DefensiveCount = driverResult.Defended,
 
                     Power = totalPower,
                     Attack = driver.Attack + sumTraits.Attack,
@@ -666,6 +683,10 @@ namespace SimTECH.Data.Services
                 raceDrivers.Add(raceDriver);
             }
 
+            var occurrences = new Dictionary<int, SituationOccurrence>();
+            if (race.Occurrences?.Any() == true)
+                occurrences = race.Occurrences.OrderBy(e => e.Order).ToDictionary(e => e.Order, e => e.Occurrences);
+
             return new RaceModel
             {
                 RaceId = race.Id,
@@ -683,6 +704,7 @@ namespace SimTECH.Data.Services
                 SeasonId = season.Id,
 
                 RaceDrivers = raceDrivers,
+                Occurrences = occurrences,
 
                 Season = season,
                 LeagueOptions = season.League.Options,

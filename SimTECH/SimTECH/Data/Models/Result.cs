@@ -10,6 +10,8 @@
         public int Setup { get; set; }
         public int TyreLife { get; set; }
         public bool FastestLap { get; set; }
+        public int Overtaken { get; set; }
+        public int Defended { get; set; }
 
         public long SeasonDriverId { get; set; }
         public SeasonDriver SeasonDriver { get; set; }

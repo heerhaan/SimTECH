@@ -26,11 +26,23 @@ namespace SimTECH.PageModels
         public int RaceLength { get; set; }
 
         public List<RaceDriver> RaceDrivers { get; set; }
+        public Dictionary<int, SituationOccurrence> Occurrences { get; set; }
         // TODO: pick individual properties intead of whole object?
         public Season Season { get; set; }
         public LeagueOptions LeagueOptions { get; set; }
 
         public int QualifyingBonus(int grid) => (RaceDrivers.Count * Season.GridBonus) - ((grid - 1) * Season.GridBonus);
+
+        public List<RaceOccurrence> ToRaceOccurrences()
+        {
+            return Occurrences.Select(e => new RaceOccurrence
+                {
+                    Order = e.Key,
+                    Occurrences = e.Value,
+                    RaceId = RaceId,
+                })
+                .ToList();
+        }
     }
 
     public class QualifyingModel : SessionBase

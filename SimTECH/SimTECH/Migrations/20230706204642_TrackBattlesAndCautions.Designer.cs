@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimTECH.Data;
 
@@ -11,9 +12,11 @@ using SimTECH.Data;
 namespace SimTECH.Migrations
 {
     [DbContext(typeof(SimTechDbContext))]
-    partial class SimTechDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230706204642_TrackBattlesAndCautions")]
+    partial class TrackBattlesAndCautions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -667,9 +670,6 @@ namespace SimTECH.Migrations
 
                     b.Property<long>("ClimateId")
                         .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DateFinished")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()

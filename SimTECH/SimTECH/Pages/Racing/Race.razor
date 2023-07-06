@@ -190,12 +190,12 @@
                             }
                         </div>
 
-                        <SimProgressLinear Bars="@(context.LapScores.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.TyreColour)).ToList())" />
+                        <SimProgressLinear Bars="@(context.LapScores.Select(e => ((NumberHelper.Percentage(1, calculationCount)), (e.TyreColour ?? Constants.DefaultColour))).ToList())" />
                     </MudTd>
                 </RowTemplate>
             </MudTable>
             <MudPaper Class="pt-2 px-1">
-                <SimProgressLinear Bars="@(situations.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
+                <SimProgressLinear Bars="@(Model.Occurrences.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
                                    AddIndicator="true" CalculationDistance="@calculationDistance" TrackLength="@Model.TrackLength" />
 
                 <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-2">
@@ -245,8 +245,6 @@
 
     Entrant activeReliabilityCheck = Entrant.Driver;
     int reliablityCycler = 0;
-
-    Dictionary<int, SituationAtRace> situations = new();
 
     // Supportive caluclation fields
     int fatalityOdds;
@@ -310,9 +308,10 @@
         calculated = Model.RaceDrivers.Select(e => e.LapScores.Count()).Max();
         calculationCount = Model.RaceLength / calculationDistance;
 
-        for (int i = 1; i <= calculationCount; i++)
+        int occurOffset = 1 + Model.Occurrences.Count;
+        for (; occurOffset <= calculationCount; occurOffset++)
         {
-            situations.Add(i, SituationAtRace.None);
+            Model.Occurrences.Add(occurOffset, SituationOccurrence.Unknown);
         }
 
         racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, Model.TrackLength);
@@ -320,8 +319,29 @@
 
         if (Model.IsFinished)
         {
+            var scoreAbove = 0;
+            foreach (var driver in Model.RaceDrivers)
+            {
+                if (driver.HasFastestLap)
+                    fastestLap = driver.LapScores.Select(e => e.Score).Max();
+
+                if (driver.Position == 1)
+                    driver.GapAbove = "LEADER";
+                else
+                    driver.GapAbove = "+" + (Math.Round((scoreAbove - driver.LapSum) * gapMarge, 2)).ToString("F2");
+
+                scoreAbove = driver.LapSum;
+
+                var lastScore = driver.LapScores.MaxBy(e => e.Order)?.Score ?? 0;
+                driver.LastScore = lastScore;
+
+                if (lastScore > lastHighestScore)
+                    lastHighestScore = lastScore;
+                else if (lastScore < lastLowestScore)
+                    lastLowestScore = lastScore;
+            }
+
             highestScore = Model.RaceDrivers.Max(e => e.LapSum);
-            fastestLap = Model.RaceDrivers.SelectMany(e => e.LapScores).Max(e => e.Score);
         }
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -377,6 +397,7 @@
             {
                 driver.SingleOccurrence = null;
                 driver.InstantOvertaken = false;
+                driver.FrequentMistake = false;
 
                 var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
@@ -402,7 +423,7 @@
                         {
                             lapValue -= NumberHelper.RandomInt(mistakeMin, mistakeMax);
                             lapScore.RacerEvents |= RacerEvent.Mistake;
-                            driver.InstantOvertaken = true;
+                            driver.FrequentMistake = true;
                             break;
                         }
                     }
@@ -415,8 +436,20 @@
 
                     if (lapValue > fastestLap)
                     {
-                        fastestLap = lapValue;
-                        newFastestLapScorer = driver.ResultId;
+                        if (calculated == 1)
+                        {
+                            int actualLap = lapValue - Model.QualifyingBonus(driver.Grid);
+                            if (actualLap > fastestLap)
+                            {
+                                fastestLap = actualLap;
+                                newFastestLapScorer = driver.ResultId;
+                            }
+                        }
+                        else
+                        {
+                            fastestLap = lapValue;
+                            newFastestLapScorer = driver.ResultId;
+                        }
                     }
 
                     // Finally add the score to the lap results
@@ -459,7 +492,7 @@
 
     void AddCalculationSituation()
     {
-        situations[calculated] = safetyCarOut ? SituationAtRace.Caution : SituationAtRace.Raced;
+        Model.Occurrences[calculated] = safetyCarOut ? SituationOccurrence.Caution : SituationOccurrence.Raced;
     }
 
     bool CheckReliability(RaceDriver driver, LapScore lapScore)
@@ -494,6 +527,7 @@
             driver.Status = RaceStatus.Fatal;
             driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Lethal).ToList().TakeRandomIncident();
             lapScore.RacerEvents = RacerEvent.Death;
+            lapIndicatorColor = Color.Error;
 
             return safetyCar;
         }
@@ -744,6 +778,11 @@
                 // Subtract attack value from defense, what's left is how much the attacker is hindered
                 var attackingResult = driver.Attack + NumberHelper.RandomInt((battleRng * -1), battleRng);
                 var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt((battleRng * -1), battleRng);
+
+                // Defender frequently made a mistake, so we're punishing him for it :)
+                if (defendingDriver.FrequentMistake)
+                    defendingResult = defendingResult / 2;
+
                 var battleCost = defendingResult - attackingResult;
 
                 if (battleCost > 0)
@@ -758,10 +797,6 @@
 
                 // It only counts as an overtake if it wasn't in an instant
                 driver.OvertakeCount++;
-
-                // Not sure if this can even happen but we gotta make sure
-                @*if (safetyCarOut)
-                    driver.SingleOccurrence = "Overtook under SC";*@
             }
 
             // Overtake succeeded, driver gains a position!
@@ -809,6 +844,7 @@
 
         //Consider never storing lap scores in the first place (and disabling access to finished races)
         await _raceService.PersistLapScores(allLapScores);
+        await _raceService.PersistOccurrences(Model.ToRaceOccurrences());
         await _raceService.FinishRace(RaceId, finishedResults, scoredPoints);
 
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))

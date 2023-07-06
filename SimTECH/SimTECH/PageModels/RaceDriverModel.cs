@@ -51,15 +51,15 @@ namespace SimTECH.PageModels
 
         public bool HasFastestLap { get; set; }
         public bool InstantOvertaken { get; set; }
+        public bool FrequentMistake { get; set; }
 
         public List<LapScore> LapScores { get; set; }
 
         public int LapSum => LapScores.Sum(e => e.Score);
         public int GridChange => Grid - Position;
-        public int LastLapOrder => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
-        public int LastScore { get; set; } = 0;
-        public int OvertakeCount { get; set; } = 0;
-        public int DefensiveCount { get; set; } = 0;
+        public int LastScore { get; set; }
+        public int OvertakeCount { get; set; }
+        public int DefensiveCount { get; set; }
         public string? SingleOccurrence { get; set; }
 
         public Result ToResult(long raceId)
@@ -75,6 +75,8 @@ namespace SimTECH.PageModels
                 Setup = Setup,
                 TyreLife = TyreLife,
                 FastestLap = HasFastestLap,
+                Overtaken = OvertakeCount,
+                Defended = DefensiveCount,
 
                 SeasonDriverId = SeasonDriverId,
                 SeasonTeamId = SeasonTeamId,

@@ -82,12 +82,12 @@ namespace SimTECH
         Caution = 256,
     }
 
-    // Consider keeping this inside the race page as it's exclusive there
-    public enum SituationAtRace
+    [Flags]
+    public enum SituationOccurrence
     {
-        None = 0,
-        Raced,
-        Caution,
+        Unknown = 0,
+        Raced = 1,
+        Caution = 2,
     }
 
     public enum CategoryIncident

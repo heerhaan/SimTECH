@@ -24,7 +24,11 @@
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>League</MudTh>
-                        <MudTh>Season</MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<Data.Models.Season, object>(e => e.Year)">
+                                Season
+                            </MudTableSortLabel>
+                        </MudTh>
                         <MudTh></MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -62,7 +66,11 @@
                         <ScreenshotButton TargetId="recent-race-table" />
                     </ToolBarContent>
                     <HeaderContent>
-                        <MudTh>League</MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<FinishedRaceModel, object>(e => e.LeagueName)">
+                                League
+                            </MudTableSortLabel>
+                        </MudTh>
                         <MudTh>Race</MudTh>
                         <MudTh Class="pa-0"></MudTh>
                         <MudTh>Team</MudTh>
@@ -119,9 +127,11 @@
                         <MudTh></MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd>
-                            <MudText Typo="Typo.body2">@context.LeagueName</MudText>
-                        </MudTd>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<FinishedRaceModel, object>(e => e.LeagueName)">
+                                League
+                            </MudTableSortLabel>
+                        </MudTh>
                         <MudTd>
                             <MudText Typo="Typo.body2">@context.SeasonDisplay</MudText>
                         </MudTd>
@@ -142,11 +152,11 @@
     </MudGrid>
 </MudContainer>
 
-@code {
+    @code {
     List<League> activeLeagues;
-    List<Data.Models.Season> activeSeasons;
+    List<Data.Models.Season> activeSeasons = new();
 
-    List<FinishedRaceModel> recentRaces;
+    List<FinishedRaceModel> recentRaces = new();
     List<FinishedRaceModel> upcomingRaces = new();
 
     int raceAmount = 5;
@@ -159,10 +169,13 @@
         });
 
         activeLeagues = await _leagueService.GetLeagues(StateFilter.Active);
-        activeSeasons = await _seasonService.GetSeasons(StateFilter.Active);
+
+        var seasons = await _seasonService.GetSeasons(StateFilter.Active);
+        activeSeasons.AddRange(seasons);
 
         // following is possibly a very unoptimized call
-        recentRaces = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
+        var races = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
+        recentRaces.AddRange(races);
         recentRaces.Reverse();
 
         await RetrieveUpcomingRaces();
