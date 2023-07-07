@@ -21,7 +21,7 @@
                 </TemplateColumn>
                 <TemplateColumn T="PowerRankModel"
                                 SortBy="e => e.DriverNumber"
-                                Title="No."
+                                Title="NO."
                                 HeaderClass="number-col hide-sort-icons"
                                 CellClass="number-col">
                     <CellTemplate>
@@ -48,37 +48,50 @@
             </Columns>
             <ChildRowContent>
                 <MudText Color="Color.Warning">Should still be designed properly</MudText>
-                <MudStack Row="true">
-                    <MudPaper Class="pa-2">
+                <MudStack Row="true" Spacing="1">
+                    <MudPaper Class="px-4 py-2">
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText>Driver reliability</MudText>
+                            <MudDivider />
                             <MudText Typo="Typo.caption">@(context.Item.DriverRel)</MudText>
                         </MudStack>
                     </MudPaper>
-                    <MudPaper>
+                    <MudPaper Class="px-4 py-2">
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText>Car reliability</MudText>
+                            <MudDivider />
                             <MudText Typo="Typo.caption">@(context.Item.CarRel)</MudText>
                         </MudStack>
                     </MudPaper>
-                    <MudPaper>
+                    <MudPaper Class="px-4 py-2">
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText>Engine reliability</MudText>
+                            <MudDivider />
                             <MudText Typo="Typo.caption">@(context.Item.EngineRel)</MudText>
                         </MudStack>
                     </MudPaper>
-                    <MudPaper>
+                    <MudPaper Class="px-4 py-2">
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText>Wear modifiers</MudText>
-                            <MudText Typo="Typo.caption">@context.Item.WearMin ↔ @context.Item.WearMax</MudText>
+                            <MudDivider />
+                            <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
+                                <MudText Typo="Typo.caption">@context.Item.WearMin</MudText>
+                                <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                                <MudText Typo="Typo.caption">@context.Item.WearMax</MudText>
+                            </MudStack>
                         </MudStack>
                     </MudPaper>
-                    <MudPaper>
+                    <MudPaper Class="px-4 py-2">
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText>RNG modifiers</MudText>
+                            <MudDivider />
                             @if (context.Item.TraitEffect != null)
                             {
-                                <MudText Typo="Typo.caption">@context.Item.TraitEffect.MinRNG ↔ @context.Item.TraitEffect.MaxRNG</MudText>
+                                <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText Typo="Typo.caption">@context.Item.TraitEffect.MinRNG</MudText>
+                                    <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                                    <MudText Typo="Typo.caption">@context.Item.TraitEffect.MaxRNG</MudText>
+                                </MudStack>
                             }
                         </MudStack>
                     </MudPaper>
@@ -97,8 +110,6 @@
     {
         DriverRankings = await SeasonService.GetPowerRankings(Season.Id);
     }
-
-    private Func<PowerRankModel, string> FullStyleFunc => power => ViewHelper.SetFullColourstyle(power.Colour, power.Accent);
 
     private Func<PowerRankModel, string> SimpleCellStyle => power => ViewHelper.SetBorderRightStyle(power.Colour);
 }

@@ -10,34 +10,38 @@
                         <MudPaper Elevation="15" Class="pa-2 mud-height-full">
                             <MudStack>
                                 <MudStack Row="true" Spacing="4">
-                                    <MudTextField T="string"
-                                    @bind-Value="Model.FirstName"
+                                    <MudTextField @bind-Value="Model.FirstName"
                                                   Label="First Name"
                                                   Class="field-md"
                                                   Required="true"
                                                   RequiredError="First name is required" />
-                                    <MudTextField T="string"
-                                    @bind-Value="Model.LastName"
+                                    <MudTextField @bind-Value="Model.LastName"
                                                   Label="Last Name"
                                                   Class="field-md"
                                                   TextChanged="AutoUpdateAbbreviation"
                                                   Required="true"
                                                   RequiredError="Last name is required" />
                                 </MudStack>
-                                <MudTextField T="string"
-                                @bind-Value="Model.Abbreviation"
+                                <MudTextField @bind-Value="Model.Abbreviation"
                                               Label="Abbreviation"
                                               Class="field-sm"
                                               Required="true" />
-                                <MudDatePicker @bind-Date="@dateSetter"
+
+                                <MudDatePicker @bind-Date=dateSetter
+                                               DisableToolbar="true"
+                                               DateFormat="yyyy"
+                                               FixDay="1" FixMonth="1" OpenTo="OpenTo.Year"
+                                               PickerVariant="PickerVariant.Dialog"
                                                Editable="true"
                                                Label="Date of Birth"
                                                Class="field-md"
                                                Required="true" />
+
                                 <CountrySelect @bind-Value="Model.Country"
                                                Class="field-md" />
-                                <MudTextField T="string"
-                                @bind-Value="Model.Biography"
+
+                                <MudTextField @bind-Value="Model.Biography"
+                                              T="string"
                                               Label="Biography"
                                               Lines="5"
                                               Validation="@(new Func<string, string?>(TestValidation))" />

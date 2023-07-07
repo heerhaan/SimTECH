@@ -13,9 +13,14 @@
             <MudSpacer />
             @if (Season.State == State.Concept)
             {
-                <MudButtonGroup Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large">
-                    <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRaces">Add races</MudButton>
-                </MudButtonGroup>
+                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair"
+                           IconColor="Color.Primary"
+                           Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           OnClick="AddRaces">
+                    Add races
+                </MudButton>
             }
         </MudStack>
     </MudPaper>
@@ -28,8 +33,8 @@
             <MudTh Class="number-col"></MudTh>
             <MudTh>Polesitter</MudTh>
             <MudTh Class="number-col"></MudTh>
-            <MudTh>Winner</MudTh>
-            <MudTh>Winner</MudTh>
+            <MudTh>Winner driver</MudTh>
+            <MudTh>Winner team</MudTh>
             <MudTh>Status</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
@@ -88,16 +93,12 @@
                 <MudTd></MudTd>
             }
 
-            @if (context.TeamWinner != null)
-            {
-                <MudTd>
+            <MudTd>
+                @if (context.TeamWinner != null)
+                {
                     <MudText Typo="Typo.button" Class="overflow-hider">@context.TeamWinner.Name</MudText>
-                </MudTd>
-            }
-            else
-            {
-                <MudTd></MudTd>
-            }
+                }
+            </MudTd>
             <MudTd>
                 <MudText>@context.State</MudText>
             </MudTd>
@@ -111,7 +112,7 @@
                     {
                         <MudIconButton Icon="@Icons.Material.Filled.Flag" OnClick="@(() => GoToRaceWeek(context))" />
                     }
-                    else
+                    else if (Season.State != State.Closed)
                     {
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.RaceId))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.RaceId))" />
@@ -132,7 +133,7 @@
     protected override async Task OnInitializedAsync()
     {
         RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
-        Climates = await _climateService.GetClimates(StateFilter.Active);
+        Climates = await _climateService.GetClimates(StateFilter.All);
 
         _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? 0;
     }
@@ -162,7 +163,7 @@
                 ["SeasonId"] = Season.Id,
                 ["OffsetRound"] = (RaceCalendar.Count + 1),
                 ["DefaultRaceLength"] = seasonLeague.RaceLength,
-                ["Climates"] = Climates,
+                ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
             };
 
         var dialog = await DialogService.ShowAsync<AddRaces>("Insert races", parameters);
@@ -192,7 +193,7 @@
                 ["SeasonId"] = Season.Id,
                 ["IncomingRound"] = item.Round,
                 ["DefaultRaceLength"] = seasonLeague.RaceLength,
-                ["Climates"] = Climates,
+                ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
             };
 
         var dialog = await DialogService.ShowAsync<RaceEditor>("Modify Race", parameters);
@@ -215,13 +216,13 @@
     {
         if (race.State == State.Concept)
         {
-            if (race.Round == _nextRound)
-                await RaceService.ActivateRace(race.RaceId);
-            else
+            if (race.Round != _nextRound)
             {
                 Snackbar.Add("oi oi oi, a previous round hasn't been finished (or even started!) yet. do that one first, cunt.", Severity.Error);
                 return;
             }
+
+            await RaceService.ActivateRace(race.RaceId);
         }
 
         Nav.NavigateTo($"/raceweek/{race.RaceId}");

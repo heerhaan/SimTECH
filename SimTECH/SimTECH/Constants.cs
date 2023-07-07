@@ -43,17 +43,23 @@ namespace SimTECH
         #endregion
 
         #region themes
-        private static readonly MudColor DarkFadedRed = new("#1f1414");
-        private static readonly MudColor DeepDarkFadedRed = new("#130c0c");
-        private static readonly MudColor AltDarkFadedRed = new("#1c1212");
+        private static readonly MudColor UltraDarkFadedRed = new("#100a0a");
+        private static readonly MudColor DeepDarkFadedRed = new("#110808");
+        private static readonly MudColor DarkFadedRed = new("#250e0e");
 
-        private static readonly MudColor VeryDeepDarkPurple = new("#0d0612");
-        private static readonly MudColor DarkFadedPurple = new("#19141f");
+        private static readonly MudColor UltraDarkFadedPink = new("#13060b");
+        private static readonly MudColor DeepDarkFadedPink = new("#170209");
+        private static readonly MudColor DarkFadedPink = new("#201318");
+        private static readonly MudColor LiteFadedPink = new("#280b16");
+
+        private static readonly MudColor UltraDeepDarkPurple = new("#0d0a10");
         private static readonly MudColor DeepDarkFadedPurple = new("#100d14");
-        private static readonly MudColor AltDarkFadedPurple = new("#16121c");
-        
-        private static readonly MudColor DarkFadedBlue = new("#0c1e27");
+        private static readonly MudColor DarkFadedPurple = new("#19141f");
+        private static readonly MudColor LiteDarkFadedPurple = new("#140a24");
+
+        private static readonly MudColor UltraDarkFadedBlue = new("#060f14");
         private static readonly MudColor DeepDarkFadedBlue = new("#09131a");
+        private static readonly MudColor DarkFadedBlue = new("#0c1e27");
         private static readonly MudColor LiteDarkFadedBlue = new("#122d3b");
 
         public static Dictionary<string, MudTheme> SimThemes => new()
@@ -84,17 +90,23 @@ namespace SimTECH
             PaletteDark = new PaletteDark()
             {
                 Primary = Colors.DeepPurple.Lighten1,
-                Secondary = Colors.Pink.Darken2,
+                Secondary = Colors.Pink.Lighten1,
                 Tertiary = Colors.Amber.Darken3,
 
                 Background = DarkFadedPurple,
                 BackgroundGrey = DeepDarkFadedPurple,
-                Surface = AltDarkFadedPurple,
+                Surface = DarkFadedPurple,
                 DrawerBackground = DeepDarkFadedPurple,
-                AppbarBackground = DeepDarkFadedPurple
+                AppbarBackground = DeepDarkFadedPurple,
             },
             Typography = CommonTypo,
         };
+
+        /*Background = DarkFadedPurple,
+        BackgroundGrey = DeepDarkFadedPurple,
+        Surface = DarkFadedPurple,
+        DrawerBackground = DeepDarkFadedPurple,
+        AppbarBackground = DeepDarkFadedPurple*/
 
         public static MudTheme SynthAltTheme => new()
         {
@@ -104,6 +116,7 @@ namespace SimTECH
                 Secondary = Colors.Indigo.Default,
                 Tertiary = Colors.Purple.Accent3,
 
+                DrawerBackground = LiteDarkFadedPurple,
                 AppbarBackground = Colors.DeepPurple.Default,
             },
             PaletteDark = new PaletteDark()
@@ -112,11 +125,11 @@ namespace SimTECH
                 Secondary = Colors.Indigo.Darken1,
                 Tertiary = Colors.Pink.Lighten1,
 
-                Background = DarkFadedPurple,
-                BackgroundGrey = DeepDarkFadedPurple,
-                Surface = AltDarkFadedPurple,
-                DrawerBackground = DeepDarkFadedPurple,
-                AppbarBackground = DeepDarkFadedPurple
+                Background = DeepDarkFadedPurple,
+                BackgroundGrey = UltraDeepDarkPurple,
+                Surface = DarkFadedPurple,
+                DrawerBackground = UltraDeepDarkPurple,
+                AppbarBackground = UltraDeepDarkPurple
             },
             Typography = CommonTypo,
         };
@@ -137,11 +150,11 @@ namespace SimTECH
                 Secondary = Colors.Green.Lighten2,
                 Tertiary = Colors.LightBlue.Darken3,
 
-                Background = DarkFadedBlue,
-                BackgroundGrey = DeepDarkFadedBlue,
-                Surface = LiteDarkFadedBlue,
-                DrawerBackground = DeepDarkFadedBlue,
-                AppbarBackground = DeepDarkFadedBlue
+                Background = DeepDarkFadedBlue,
+                BackgroundGrey = UltraDarkFadedBlue,
+                Surface = DarkFadedBlue,
+                DrawerBackground = UltraDarkFadedBlue,
+                AppbarBackground = UltraDarkFadedBlue
             },
             Typography = CommonTypo,
         };
@@ -162,11 +175,11 @@ namespace SimTECH
                 Secondary = Colors.Orange.Darken1,
                 Tertiary = Colors.Yellow.Default,
 
-                Background = DarkFadedRed,
+                Background = DeepDarkFadedRed,
                 BackgroundGrey = DeepDarkFadedRed,
-                Surface = AltDarkFadedRed,
-                DrawerBackground = DeepDarkFadedRed,
-                AppbarBackground = DeepDarkFadedRed,
+                Surface = DarkFadedRed,
+                DrawerBackground = UltraDarkFadedRed,
+                AppbarBackground = UltraDarkFadedRed,
             },
             Typography = CommonTypo,
         };
@@ -175,13 +188,23 @@ namespace SimTECH
         {
             Palette = new PaletteLight()
             {
+                Primary = Colors.Cyan.Darken2,
+                Secondary = Colors.Pink.Accent2,
+                Tertiary = Colors.DeepPurple.Default,
 
+                AppbarBackground = Colors.Cyan.Darken2,
             },
             PaletteDark = new PaletteDark()
             {
-                Primary = Colors.Pink.Default,
-                Secondary = Colors.Cyan.Darken1,
-                Tertiary = Colors.DeepPurple.Accent4,
+                Primary = Colors.Cyan.Default,
+                Secondary = Colors.Pink.Accent2,
+                Tertiary = Colors.DeepPurple.Lighten2,
+
+                Background = UltraDarkFadedPink,
+                BackgroundGrey = UltraDarkFadedPink,
+                Surface = DeepDarkFadedPink,
+                DrawerBackground = UltraDarkFadedPink,
+                AppbarBackground = UltraDarkFadedPink,
             },
             Typography = CommonTypo,
         };

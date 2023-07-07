@@ -25,7 +25,7 @@
                         </MudStack>
                     </MudTd>
                     <MudTd>
-                        <MudText>@context.Pace</MudText>
+                        <MudText Typo="Typo.caption">@context.Pace</MudText>
                     </MudTd>
                     <MudTd>
                         <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
@@ -38,7 +38,7 @@
                         <MudText>@(context.ExpectedLength(advanceDistance))km</MudText>
                     </MudTd>
                     <MudTd Class="d-flex justify-end">
-                        <MudButton Variant="Variant.Filled"
+                        <MudButton Variant="Variant.Outlined"
                                    Color="Color.Secondary"
                                    Size="Size.Medium"
                                    OnClick="(() => PickOption(context))"
@@ -63,7 +63,6 @@
     [CascadingParameter] protected MudDialogInstance? PickerDialog { get; set; }
 
     [Parameter] public long ResultId { get; set; }
-
     [Parameter] public List<Tyre> Tyres { get; set; }
 
     private int advanceDistance = 10;

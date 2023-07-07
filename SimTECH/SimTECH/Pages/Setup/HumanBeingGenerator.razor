@@ -47,14 +47,15 @@
                                                Label="Select nationalities"
                                                Variant="Variant.Outlined"
                                                SearchBox="true"
-                                               SearchFunc="SearchLanguages">
+                                               SearchFunc="SearchLanguages"
+                                               >
                                 <ItemTemplate>
                                     <MudCheckBox Checked="@(context.IsSelected)" Color="Color.Secondary" />
-                                    <CountryNamedFlag Code="@(context.Value.Country)" Justify="Justify.FlexStart" Size="FlagSize.Small" />
+                                    <CountryNamedFlag Code="@(context.Value.Country)" Justify="Justify.FlexStart" Size="FlagSize.Normal" />
                                 </ItemTemplate>
                                 <ItemSelectedTemplate>
                                     <MudCheckBox Checked="@(context.IsSelected)" Color="Color.Secondary" />
-                                    <CountryNamedFlag Code="@(context.Value.Country)" Justify="Justify.FlexStart" Size="FlagSize.Small" />
+                                    <CountryNamedFlag Code="@(context.Value.Country)" Justify="Justify.FlexStart" Size="FlagSize.Normal" />
                                 </ItemSelectedTemplate>
                             </MudSelectExtended>
                         }
@@ -194,16 +195,15 @@
 
     async Task SaveHumanBeings()
     {
-        if (humanBeans != null)
-        {
-            var drivers = humanBeans.Select(e => e.ToDriver).ToArray();
-            await _driverService.AddNewDrivers(drivers);
-            _nav.NavigateTo("/drivers");
-        }
-        else
+        if (humanBeans == null)
         {
             _snack.Add("No human beings have been generated, you fucked that up nicely", Severity.Error);
+            return;
         }
+
+        var drivers = humanBeans.Select(e => e.ToDriver).ToArray();
+        await _driverService.AddNewDrivers(drivers);
+        _nav.NavigateTo("/drivers");
     }
 
     async Task SaveSingleHuman(HumanBeing realHero)
