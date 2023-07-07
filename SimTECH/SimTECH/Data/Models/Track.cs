@@ -1,12 +1,10 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public sealed class Track
+    public sealed class Track : ModelState
     {
-        public long Id { get; set; }
         public string Name { get; set; } = default!;
         public Country Country { get; set; }
         public double Length { get; set; }
-        public State State { get; set; }
 
         public double AeroMod { get; set; }
         public double ChassisMod { get; set; }

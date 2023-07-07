@@ -1,8 +1,7 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public sealed class SeasonDriver
+    public sealed class SeasonDriver : ModelBase
     {
-        public long Id { get; set; }
         public int Number { get; set; }
         public int Points { get; set; }
         public int HiddenPoints { get; set; }

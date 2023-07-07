@@ -1,9 +1,7 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public sealed class Season
+    public sealed class Season : ModelState
     {
-        public long Id { get; set; }
-        public State State { get; set; }
         public int Year { get; set; }
 
         public int MaximumDriversInRace { get; set; }

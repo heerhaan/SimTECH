@@ -10,7 +10,7 @@
 
 <MudLayout>
     <MudAppBar Elevation="5" Dense="true">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Tertiary" Edge="Edge.Start" OnClick="ToggleSidebar" />
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Secondary" Edge="Edge.Start" OnClick="ToggleSidebar" />
         <CustomBreadcrumbs />
 
         <MudSpacer />
@@ -19,14 +19,14 @@
             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
         
-        <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Tertiary">
+        <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Secondary">
             @foreach (var themeItem in simThemes.Keys)
             {
                 <MudMenuItem OnClick="@(() => SetTheme(themeItem))">@themeItem</MudMenuItem>
             }
         </MudMenu>
 
-        <MudIconButton Href="/guide" Icon="@Icons.Material.Filled.MenuBook" Color="Color.Tertiary" />
+        <MudIconButton Href="/guide" Icon="@Icons.Material.Filled.MenuBook" Color="Color.Secondary" />
     </MudAppBar>
     <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Responsive">
         <MudDrawerHeader>

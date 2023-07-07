@@ -2,13 +2,11 @@
 
 namespace SimTECH.Data.Models
 {
-    public sealed class Trait
+    public sealed class Trait : ModelState
     {
-        public long Id { get; set; }
         public string Name { get; set; } = default!;
         public string Description { get; set; } = default!;
         public Entrant Type { get; set; }
-        public State State { get; set; }
 
         public int QualifyingPace { get; set; }
         public int RacePace { get; set; }

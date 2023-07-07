@@ -1,8 +1,7 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public sealed class Result
+    public sealed class Result : ModelBase
     {
-        public long Id { get; set; }
         public int Grid { get; set; }
         public int Position { get; set; }
         public int Score { get; set; }

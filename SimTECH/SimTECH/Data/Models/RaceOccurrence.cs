@@ -1,8 +1,7 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public sealed class RaceOccurrence
+    public sealed class RaceOccurrence : ModelBase
     {
-        public long Id { get; set; }
         public int Order { get; set; }
         public SituationOccurrence Occurrences { get; set; }
 

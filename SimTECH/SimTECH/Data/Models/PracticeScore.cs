@@ -1,8 +1,7 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public class PracticeScore
+    public sealed class PracticeScore : ModelBase
     {
-        public long Id { get; set; }
         public int Index { get; set; }
         public int[]? Scores { get; set; }
         public int Position { get; set; }

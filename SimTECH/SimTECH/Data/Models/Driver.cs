@@ -2,9 +2,8 @@
 
 namespace SimTECH.Data.Models
 {
-    public sealed class Driver
+    public sealed class Driver : ModelState
     {
-        public long Id { get; set; }
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;
         public string Abbreviation { get; set; } = default!;
@@ -12,7 +11,6 @@ namespace SimTECH.Data.Models
         public Country Country { get; set; }
         public string? Biography { get; set; }
         public bool Alive { get; set; } = true;
-        public State State { get; set; }
 
         public IList<SeasonDriver>? SeasonDrivers { get; set; }
         public IList<DriverTrait>? DriverTraits { get; set; }
@@ -20,5 +18,9 @@ namespace SimTECH.Data.Models
 
         [NotMapped]
         public string FullName => $"{FirstName} {LastName}";
+    }
+
+    public static class ExtendDriver
+    {
     }
 }

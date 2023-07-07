@@ -10,7 +10,7 @@
     {
         <MudStack Row="true" Class="mud-width-full">
             <MudPaper Class="pa-2" Width="20%">
-                <MudText Typo="Typo.h6">Settings</MudText>
+                <MudText Typo="Typo.h5">Settings</MudText>
                 <MudDivider />
                 <MudStack Class="mud-height-full">
                     <MudStack Spacing="0">
@@ -163,7 +163,7 @@
                 </MudTable>
             </MudPaper>
             <MudPaper Width="20%" Class="pa-2">
-                <MudText Typo="Typo.h6">Set dev. ranges</MudText>
+                <MudText Typo="Typo.h5">Set dev. ranges</MudText>
                 <MudDivider />
                 
                 @if (League.DevelopmentRanges != null)
@@ -208,8 +208,8 @@
     List<SeasonEngine>? SeasonEngines;
     List<DevelopedEntrant> DevelopedEntrants;
 
-    private List<CompletedDevelopment> SummaryDeveloped = new();
-    private static readonly DialogOptions SummaryDialogOptions = new()
+    List<CompletedDevelopment> SummaryDeveloped = new();
+    static readonly DialogOptions SummaryDialogOptions = new()
     {
         MaxWidth = MaxWidth.ExtraExtraLarge,
         CloseButton = true,
@@ -526,25 +526,5 @@
 
     async Task ShowSummary() => _ =
         await _dialogService.ShowAsync<SummaryDevelopment>(
-            "Summary development",
-            new DialogParameters { ["Completed"] = SummaryDeveloped },
-            SummaryDialogOptions);
-
-    public class CompletedDevelopment
-    {
-        internal CompletedDevelopment(Entrant group, Aspect aspect, int min, int max, List<DevelopedEntrant> entrants)
-        {
-            EntrantGroup = group;
-            DevelopedAspect = aspect;
-            MinChange = min;
-            MaxChange = max;
-            Entrants = entrants?.ToArray() ?? Array.Empty<DevelopedEntrant>();
-        }
-
-        public Entrant EntrantGroup { get; set; }
-        public Aspect DevelopedAspect { get; set; }
-        public int MinChange { get; set; }
-        public int MaxChange { get; set; }
-        public DevelopedEntrant[] Entrants { get; set; }
-    }
+            "Summary development", new DialogParameters { ["Completed"] = SummaryDeveloped }, SummaryDialogOptions);
 }

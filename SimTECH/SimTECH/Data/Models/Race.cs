@@ -1,12 +1,10 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public sealed class Race
+    public sealed class Race : ModelState
     {
-        public long Id { get; set; }
         public int Round { get; set; }
         public string Name { get; set; } = default!;
         public int RaceLength { get; set; }
-        public State State { get; set; }
         public DateTime? DateFinished { get; set; }
 
         public long SeasonId { get; set; }

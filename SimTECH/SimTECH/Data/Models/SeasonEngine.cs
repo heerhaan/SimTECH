@@ -1,8 +1,7 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public sealed class SeasonEngine
+    public sealed class SeasonEngine : ModelBase
     {
-        public long Id { get; set; }
         public string Name { get; set; } = default!;
         public int Power { get; set; } = 50;
         public int Reliability { get; set; } = 1000;

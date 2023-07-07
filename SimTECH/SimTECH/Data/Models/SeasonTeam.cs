@@ -1,8 +1,7 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public sealed class SeasonTeam
+    public sealed class SeasonTeam : ModelBase
     {
-        public long Id { get; set; }
         public string Name { get; set; } = default!;
         public string Principal { get; set; } = default!;
         public string Colour { get; set; } = default!;

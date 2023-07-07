@@ -43,7 +43,7 @@
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small" Class="ml-auto">
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteDriver(context.Item))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await ArchiveDriver(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -113,7 +113,7 @@
         }
     }
 
-    async Task DeleteDriver(Driver driver)
+    async Task ArchiveDriver(Driver driver)
     {
         await DriverService.ArchiveDriver(driver);
         DriverData.Remove(driver);

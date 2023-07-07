@@ -50,18 +50,21 @@ namespace SimTECH
         private static readonly MudColor DarkFadedBlue = new("#0c1e27");
         private static readonly MudColor DeepDarkFadedBlue = new("#09131a");
         private static readonly MudColor LiteDarkFadedBlue = new("#122d3b");
+        private static readonly MudColor MutedAmber = new("#d4a411");
+
+        public static Dictionary<string, MudTheme> SimThemes => new()
+        {
+            { "Galaxy", SynthTheme },
+            { "Galaxy (Alt)", SynthAltTheme },
+            { "Oceanic", OceanicTheme },
+            { "Fiery", FieryTheme },
+            { "Neon", NeonTheme },
+            { "Basic", DefaultTheme },
+        };
 
         public static MudTheme DefaultTheme => new()
         {
             Typography = CommonTypo,
-        };
-
-        public static Dictionary<string, MudTheme> SimThemes => new()
-        {
-            { "Synth (Tri)", SynthTheme },
-            { "Synth (Alt)", SynthAltTheme },
-            { "Oceanic", OceanicTheme },
-            { "Basic", DefaultTheme },
         };
 
         public static MudTheme SynthTheme => new()
@@ -78,7 +81,7 @@ namespace SimTECH
             {
                 Primary = Colors.DeepPurple.Lighten1,
                 Secondary = Colors.Pink.Darken2,
-                Tertiary = Colors.Amber.Darken2,
+                Tertiary = Colors.Amber.Darken3,
 
                 Background = DarkFadedPurple,
                 BackgroundGrey = DeepDarkFadedPurple,
@@ -101,9 +104,9 @@ namespace SimTECH
             },
             PaletteDark = new PaletteDark()
             {
-                Primary = Colors.DeepPurple.Lighten1,
+                Primary = Colors.DeepPurple.Default,
                 Secondary = Colors.Indigo.Darken1,
-                Tertiary = Colors.Purple.Darken1,
+                Tertiary = Colors.Pink.Lighten1,
 
                 Background = DarkFadedPurple,
                 BackgroundGrey = DeepDarkFadedPurple,
@@ -139,7 +142,33 @@ namespace SimTECH
             Typography = CommonTypo,
         };
 
-        private static readonly Typography CommonTypo = new()
+        public static MudTheme FieryTheme => new()
+        {
+            Palette = new PaletteLight()
+            {
+
+            },
+            PaletteDark = new PaletteDark()
+            {
+
+            },
+            Typography = CommonTypo,
+        };
+
+        public static MudTheme NeonTheme => new()
+        {
+            Palette = new PaletteLight()
+            {
+
+            },
+            PaletteDark = new PaletteDark()
+            {
+
+            },
+            Typography = CommonTypo,
+        };
+
+        private static Typography CommonTypo => new()
         {
             Default = new Default()
             {
