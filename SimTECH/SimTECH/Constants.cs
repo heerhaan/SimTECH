@@ -43,14 +43,18 @@ namespace SimTECH
         #endregion
 
         #region themes
+        private static readonly MudColor DarkFadedRed = new("#1f1414");
+        private static readonly MudColor DeepDarkFadedRed = new("#130c0c");
+        private static readonly MudColor AltDarkFadedRed = new("#1c1212");
+
         private static readonly MudColor VeryDeepDarkPurple = new("#0d0612");
-        private static readonly MudColor DarkFadedPurple = new("#19141f"); // Background
-        private static readonly MudColor DeepDarkFadedPurple = new("#100d14"); // Gray
-        private static readonly MudColor AltDarkFadedPurple = new("#16121c"); // Surface
+        private static readonly MudColor DarkFadedPurple = new("#19141f");
+        private static readonly MudColor DeepDarkFadedPurple = new("#100d14");
+        private static readonly MudColor AltDarkFadedPurple = new("#16121c");
+        
         private static readonly MudColor DarkFadedBlue = new("#0c1e27");
         private static readonly MudColor DeepDarkFadedBlue = new("#09131a");
         private static readonly MudColor LiteDarkFadedBlue = new("#122d3b");
-        private static readonly MudColor MutedAmber = new("#d4a411");
 
         public static Dictionary<string, MudTheme> SimThemes => new()
         {
@@ -146,11 +150,23 @@ namespace SimTECH
         {
             Palette = new PaletteLight()
             {
+                Primary = Colors.Red.Default,
+                Secondary = Colors.DeepOrange.Default,
+                Tertiary = Colors.Orange.Default,
 
+                AppbarBackground = Colors.Red.Default,
             },
             PaletteDark = new PaletteDark()
             {
+                Primary = Colors.Red.Default,
+                Secondary = Colors.Orange.Darken1,
+                Tertiary = Colors.Yellow.Default,
 
+                Background = DarkFadedRed,
+                BackgroundGrey = DeepDarkFadedRed,
+                Surface = AltDarkFadedRed,
+                DrawerBackground = DeepDarkFadedRed,
+                AppbarBackground = DeepDarkFadedRed,
             },
             Typography = CommonTypo,
         };
@@ -163,7 +179,9 @@ namespace SimTECH
             },
             PaletteDark = new PaletteDark()
             {
-
+                Primary = Colors.Pink.Default,
+                Secondary = Colors.Cyan.Darken1,
+                Tertiary = Colors.DeepPurple.Accent4,
             },
             Typography = CommonTypo,
         };
