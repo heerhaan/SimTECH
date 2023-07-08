@@ -268,39 +268,5 @@ namespace SimTECH
             },
         };
         #endregion
-
-        #region statistic data
-        public static readonly Dictionary<string, LegacySimData[]> LegacyLeaderboards = new()
-        {
-            {
-                "Wins",
-                new[]
-                {
-                    new LegacySimData { Rank = 1, Name = "Filip van der Bergh", Country = Country.NL, Value = 38 },
-                    new LegacySimData { Rank = 2, Name = "Buzz Hahn", Country = Country.SA, Value = 36 },
-                }
-            },
-            {
-                "Driver titles",
-                Array.Empty<LegacySimData>()
-            },
-            {
-                "Podiums",
-                Array.Empty<LegacySimData>()
-            },
-            {
-                "Starts",
-                Array.Empty<LegacySimData>()
-            },
-            {
-                "Did not finish",
-                Array.Empty<LegacySimData>()
-            },
-            {
-                "Poles",
-                Array.Empty<LegacySimData>()
-            },
-        };
-        #endregion
     }
 }

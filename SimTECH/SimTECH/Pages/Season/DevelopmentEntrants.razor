@@ -163,36 +163,31 @@
                 </MudTable>
             </MudPaper>
             <MudPaper Width="20%" Class="pa-2">
-                <MudText Typo="Typo.h5">Set dev. ranges</MudText>
+                <MudText Typo="Typo.h5">Set DEV ranges</MudText>
                 <MudDivider />
-                
-                @if (League.DevelopmentRanges != null)
+
+                @if (ActiveAspectRanges != null)
                 {
-                    <MudStack>
-                        @foreach (var rangeGroup in League.DevelopmentRanges.GroupBy(e => e.Type))
-                        {
-                            <MudText Typo="Typo.subtitle1">@rangeGroup.Key</MudText>
-                            <MudSimpleTable>
-                                <thead>
-                                    <tr>
-                                        <th>Less than</th>
-                                        <th>Lower</th>
-                                        <th>Upper</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var range in rangeGroup)
-                                    {
-                                        <tr>
-                                            <td>@range.Comparer</td>
-                                            <td>@range.Minimum</td>
-                                            <td>@range.Maximum</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </MudSimpleTable>
-                        }
-                    </MudStack>
+                    <MudText Typo="Typo.subtitle1">@_selectedTarget.ReadableAspect()</MudText>
+                    <MudSimpleTable>
+                        <thead>
+                            <tr>
+                                <th>Less than</th>
+                                <th>Lower</th>
+                                <th>Upper</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var range in ActiveAspectRanges.OrderBy(e => e.Comparer))
+                            {
+                                <tr>
+                                    <td>@range.Comparer</td>
+                                    <td>@range.Minimum</td>
+                                    <td>@range.Maximum</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
                 }
             </MudPaper>
         </MudStack>
@@ -201,6 +196,8 @@
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
+
+    List<DevelopmentRange>? ActiveAspectRanges { get; set; }
 
     League League;
     List<SeasonDriver>? SeasonDrivers;
@@ -385,6 +382,9 @@
             ApplyMinRange(currentMin);
             ApplyMaxRange(currentMax);
         }
+
+        if (League.DevelopmentRanges?.Any() == true)
+            ActiveAspectRanges = League.DevelopmentRanges.Where(e => e.Type == _selectedTarget).ToList();
     }
 
     void ApplyDefaultRanges()

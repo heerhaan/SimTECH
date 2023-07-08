@@ -4,6 +4,7 @@
     <MudPaper Elevation="15">
         <MudTable T="Engine"
                   Items="@Engines"
+                  @ref="@_table"
                   @bind-SelectedItems="@Model.BaseEngines"
                   MultiSelection="true"
                   Dense="true"
@@ -14,6 +15,11 @@
             <RowTemplate>
                 <MudTd DataLabel="Name">@context.Name</MudTd>
             </RowTemplate>
+            <PagerContent>
+                <MudPagination SelectedChanged="PageChange" Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)"
+                               Variant="Variant.Outlined"
+                               Class="pa-4" />
+            </PagerContent>
         </MudTable>
     </MudPaper>
 </MudContainer>
@@ -21,10 +27,16 @@
 @code {
     [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    List<Engine> Engines { get; set; }
+    private MudTable<Engine> _table;
+    private List<Engine> Engines { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         Engines = await _engineService.GetEngines();
+    }
+
+    private void PageChange(int index)
+    {
+        _table.NavigateTo(index - 1);
     }
 }

@@ -15,7 +15,7 @@
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     @if (!loading)
     {
-        <MudPaper MinHeight="60px" Width="100%">
+        <MudPaper Elevation="15" MinHeight="60px" Width="100%">
             <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
                 <div style="width:30%">
                     <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
@@ -84,7 +84,7 @@
                     <MudTh Style="width: 40px">Grid</MudTh>
                     <MudTh Class="pa-0" Style="width: 5px"></MudTh>
                     <MudTh Style="width: 220px">Name</MudTh>
-                    <MudTh Class="number-col">NO.</MudTh>
+                    <MudTh Class="number-col">NO</MudTh>
                     <MudTh Style="width: 220px">Team</MudTh>
                     <MudTh Class="number-col">PWR</MudTh>
                     <MudTh Class="text-center" Style="width: 175px">ATT / DEF</MudTh>
@@ -105,8 +105,8 @@
                     <MudTd>
                         <GridChange Change="@context.GridChange" />
                     </MudTd>
-                    <MudTd Class="pa-0">
-                        <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
+                    <MudTd Class="accent-cell">
+                        <SmolAccent Colour="@context.Colour" />
                     </MudTd>
                     <MudTd Class="overflow-hider">
                         <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0">

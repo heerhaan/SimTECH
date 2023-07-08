@@ -3,9 +3,11 @@
 <MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
         <MudTable T="Driver"
+                  @ref="@_table"
                   @bind-SelectedItems="@Model.BaseDrivers"
                   Items="@Drivers"
                   MultiSelection="true"
+                  RowsPerPage="15"
                   Dense="true"
                   Hover="true"
                   Class="extra-dense">
@@ -25,6 +27,11 @@
                     <MudText Typo="Typo.caption">@(Year - context.DateOfBirth.Year)</MudText>
                 </MudTd>
             </RowTemplate>
+            <PagerContent>
+                <MudPagination SelectedChanged="PageChange" Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)"
+                               Variant="Variant.Outlined"
+                               Class="pa-4" />
+            </PagerContent>
         </MudTable>
     </MudPaper>
 </MudContainer>
@@ -34,10 +41,16 @@
 
     [Parameter, EditorRequired] public int Year { get; set; }
 
-    List<Driver> Drivers;
+    private MudTable<Driver> _table;
+    private List<Driver> Drivers = new();
 
     protected override async Task OnInitializedAsync()
     {
         Drivers = await _driverService.GetDrivers();
+    }
+
+    private void PageChange(int index)
+    {
+        _table.NavigateTo(index - 1);
     }
 }

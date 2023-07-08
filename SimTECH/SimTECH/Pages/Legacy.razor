@@ -21,6 +21,7 @@
                                 <MudTh>Rank</MudTh>
                                 <MudTh>Driver</MudTh>
                                 <MudTh>Value</MudTh>
+                                <MudTh>User</MudTh>
                             </HeaderContent>
                             <RowTemplate>
                                 <MudTd>@context.Rank</MudTd>
@@ -31,6 +32,7 @@
                                     </MudStack>
                                 </MudTd>
                                 <MudTd>@context.Value</MudTd>
+                                <MudTd>@context.User</MudTd>
                             </RowTemplate>
                         </MudTable>
                     </MudPaper>
@@ -41,8 +43,39 @@
 </MudContainer>
 
 @code {
-    private Dictionary<string, LegacySimData[]> legacyLeaderboards = Constants.LegacyLeaderboards;
-    
+    // An overview of all the records of Formula Dream TL1
+    private static readonly Dictionary<string, LegacySimData[]> legacyLeaderboards = new()
+        {
+            {
+                "Wins",
+                new[]
+                {
+                    new LegacySimData(1, "Filip van der Bergh", Country.NL, 38, "Lolsokje"),
+                    new LegacySimData(2, "Buzz Hahn", Country.ZA, 36, "Haan"),
+                }
+            },
+            {
+                "Driver Championships",
+                Array.Empty<LegacySimData>()
+            },
+            {
+                "Podiums",
+                Array.Empty<LegacySimData>()
+            },
+            {
+                "Starts",
+                Array.Empty<LegacySimData>()
+            },
+            {
+                "DNFs",
+                Array.Empty<LegacySimData>()
+            },
+            {
+                "Poles",
+                Array.Empty<LegacySimData>()
+            },
+        };
+
     protected override void OnInitialized()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -50,5 +83,23 @@
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Legacy", href: "legacy", disabled: true),
         });
+    }
+
+    internal class LegacySimData
+    {
+        public LegacySimData(int rank, string name, Country country, int value, string? user = null)
+        {
+            Rank = rank;
+            Name = name;
+            Country = country;
+            Value = value;
+            User = user ?? "A.I.";
+        }
+
+        public int Rank { get; set; }
+        public string Name { get; set; }
+        public Country Country { get; set; }
+        public double Value { get; set; }
+        public string User { get; set; }
     }
 }

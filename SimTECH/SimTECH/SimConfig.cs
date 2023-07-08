@@ -24,7 +24,7 @@
 
         public double GapMarge { get; set; } = 0.05;
 
-        public bool PersonalNumbersEnabled { get; set; } = false;
+        public bool PersonalNumbersEnabled { get; set; }
         //public bool FormationLapEnabled { get; set; }
     }
 }
