@@ -57,10 +57,7 @@
                         </MudTooltip>
                         <MudChipSet SelectedChipChanged="TypeChipChanged" Mandatory="true">
                             <MudChip Color="Color.Tertiary" Value="Quantifier.Range" Default="true">Range</MudChip>
-                            @if (_selectedTarget == Aspect.Skill)
-                            {
-                                <MudChip Color="Color.Tertiary" Value="Quantifier.Set">Set</MudChip>
-                            }
+                            <MudChip Color="Color.Tertiary" Value="Quantifier.Set">Set</MudChip>
                             <MudChip Color="Color.Tertiary" Value="Quantifier.Direct">Direct</MudChip>
                         </MudChipSet>
                     </MudStack>
@@ -194,6 +191,30 @@
                         </tbody>
                     </MudSimpleTable>
                 }
+
+                @if (_activeEntrant == Entrant.Driver && _selectedTarget == Aspect.Skill)
+                {
+                    <MudText Typo="Typo.subtitle1">@Aspect.Age.ReadableAspect()</MudText>
+                    <MudSimpleTable>
+                        <thead>
+                            <tr>
+                                <th>Less than</th>
+                                <th>Lower</th>
+                                <th>Upper</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var range in AgeRanges.OrderBy(e => e.Comparer))
+                            {
+                                <tr>
+                                    <td>@range.Comparer</td>
+                                    <td>@range.Minimum</td>
+                                    <td>@range.Maximum</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                }
             </MudPaper>
         </MudStack>
     }
@@ -203,6 +224,7 @@
     [CascadingParameter] public Season Season { get; set; }
 
     List<DevelopmentRange>? ActiveAspectRanges { get; set; }
+    List<DevelopmentRange> AgeRanges { get; set; }
 
     League League;
     List<SeasonDriver>? SeasonDrivers;
@@ -230,6 +252,7 @@
     protected override async Task OnInitializedAsync()
     {
         League = await LeagueService.GetLeagueById(Season.LeagueId);
+        AgeRanges = League.DevelopmentRanges?.GetAspectRanges(Aspect.Age) ?? new();
 
         await ReloadDeveloped(Entrant.Driver);
     }
@@ -342,7 +365,10 @@
 
     void ApplyCommon()
     {
-        if (_selectedType == Quantifier.Set && _selectedTarget == Aspect.Skill)
+        if (League.DevelopmentRanges?.Any() == true)
+            ActiveAspectRanges = League.DevelopmentRanges.GetAspectRanges(_selectedTarget);
+
+        if (_selectedType == Quantifier.Set)
         {
             ApplyDefaultRanges();
         }
@@ -351,33 +377,17 @@
             ApplyMinRange(currentMin);
             ApplyMaxRange(currentMax);
         }
-
-        if (League.DevelopmentRanges?.Any() == true)
-            ActiveAspectRanges = League.DevelopmentRanges.Where(e => e.Type == _selectedTarget).ToList();
     }
 
     void ApplyDefaultRanges()
     {
-        if (_selectedTarget == Aspect.Skill && League.DevelopmentRanges?.Any() == true)
+        if (ActiveAspectRanges?.Any() == true)
         {
-            List<DevelopmentRange> setCompareRange;
+            List<DevelopmentRange> setCompareRange = ActiveAspectRanges;
             List<DevelopmentRange>? additionalCompareRange = null;
 
-            switch (_activeEntrant)
-            {
-                case Entrant.Driver:
-                    setCompareRange = League.DevelopmentRanges.GetAspectRanges(Aspect.Skill);
-                    additionalCompareRange = League.DevelopmentRanges.GetAspectRanges(Aspect.Age);
-                    break;
-                case Entrant.Team:
-                    setCompareRange = League.DevelopmentRanges.GetAspectRanges(Aspect.BaseCar);
-                    break;
-                case Entrant.Engine:
-                    setCompareRange = League.DevelopmentRanges.GetAspectRanges(Aspect.Engine);
-                    break;
-                default:
-                    throw new InvalidOperationException("Unrecognized entrant");
-            }
+            if (_activeEntrant == Entrant.Driver)
+                additionalCompareRange = AgeRanges;
 
             if (setCompareRange.Any() || (additionalCompareRange?.Any() == true))
             {
