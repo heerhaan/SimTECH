@@ -12,19 +12,15 @@
         <MudGrid Spacing="1">
             <MudItem xs=12>
                 <MudPaper Elevation="15" Height="200px" Class="pa-4">
-                    <MudStack Row="true" AlignItems="AlignItems.Center">
-                        <span></span>
-
-                        <MudSpacer />
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <span style="width:30%"></span>
 
                         <MudStack>
                             <MudText Typo="Typo.h3">Post race</MudText>
                             <MudText Color="Color.Warning">This page is quite unfinished</MudText>
                         </MudStack>
 
-                        <MudSpacer />
-
-                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Style="width: 30%">
                             <MudButton OnClick="GoToStandings">Standings</MudButton>
                             <ScreenshotButton TargetId="postrace-container" />
                         </MudButtonGroup>
@@ -63,7 +59,7 @@
                                     {
                                         <sup style="font-size: 0.7rem">P</sup>
                                     }
-                                    @if (context.Id == resultWithFastest)
+                                    @if (context.FastestLap)
                                     {
                                         <sup style="font-size: 0.7rem">F</sup>
                                     }
@@ -141,7 +137,6 @@
     List<DriverPenalty> DriverPenalties = new();
 
     bool loading;
-    long resultWithFastest;
 
     protected override async Task OnInitializedAsync()
     {
@@ -153,8 +148,6 @@
         Penalties = await _raceService.GetUnconsumedPenalties();
 
         allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
-
-        resultWithFastest = Results.SelectMany(e => e.LapScores).MaxBy(e => e.Score)?.ResultId ?? 0;
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -176,7 +169,7 @@
         if (result.Grid == 1)
             points += Season.PointsPole;
 
-        if (result.Id == resultWithFastest)
+        if (result.FastestLap)
             points += Season.PointsFastestLap;
 
         if (result.Status != RaceStatus.Racing)

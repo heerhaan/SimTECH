@@ -1,4 +1,6 @@
-﻿namespace SimTECH.PageModels
+﻿using SimTECH.Data.Models;
+
+namespace SimTECH.PageModels
 {
     public enum Quantifier { Set, Range, Direct }
 

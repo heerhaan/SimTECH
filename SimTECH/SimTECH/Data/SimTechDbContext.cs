@@ -12,6 +12,7 @@ namespace SimTECH.Data
 
         public DbSet<Climate> Climate => Set<Climate>();
         public DbSet<Contract> Contract => Set<Contract>();
+        public DbSet<DevelopmentLog> DevelopmentLog => Set<DevelopmentLog>();
         public DbSet<DevelopmentRange> DevelopmentRange => Set<DevelopmentRange>();
         public DbSet<Driver> Driver => Set<Driver>();
         public DbSet<DriverTrait> DriverTrait => Set<DriverTrait>();

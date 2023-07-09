@@ -11,7 +11,7 @@ namespace SimTECH.Data.Services
     public class RaceService
     {
         private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-        private SimConfig _config;
+        private readonly SimConfig _config;
 
         public RaceService(IDbContextFactory<SimTechDbContext> factory, IOptions<SimConfig> config)
         {

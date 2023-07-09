@@ -14,6 +14,8 @@ namespace SimTECH
 
     public enum StateFilter { All, Default, Active, Closed, Archived }
 
+    public enum ElementSize { Normal, Tiny, Small, Large }
+
     public enum Entrant
     {
         None = 0,
@@ -97,9 +99,6 @@ namespace SimTECH
     #endregion racing
 
     #region countries
-
-    public enum FlagSize { Normal, Tiny, Small, Large }
-
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1154:Sort enum members.", Justification = "I don't care")]
     public enum Country
     {

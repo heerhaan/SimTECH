@@ -13,6 +13,22 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
+        public async Task<List<DevelopmentLog>> GetDevelopmentLog(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.DevelopmentLog.Where(e => e.SeasonId == seasonId).ToListAsync();
+        }
+
+        public async Task SaveDevelopmentLog(List<DevelopmentLog> logs)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.DevelopmentLog.AddRange(logs);
+
+            await context.SaveChangesAsync();
+        }
+
         #region methods exclusively for season engines
         public async Task<List<SeasonEngine>> GetSeasonEngines(long seasonId)
         {

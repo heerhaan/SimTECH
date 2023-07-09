@@ -2,75 +2,60 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText>Summary of all the completed developments here!</MudText>
-        <MudText Color="Color.Warning">TODO: group entrants with aspect too too</MudText>
+        <MudText Typo="Typo.h5">Summary season developments</MudText>
     </TitleContent>
     <DialogContent>
         <MudPaper>
-            <ScreenshotButton TargetId="developed-summary" />
+            <MudStack Row="true" Justify="Justify.SpaceBetween">
+                <div>
+                    <MudText Typo="Typo.body2" Color="Color.Info">For every aspect, left: total change, right: current value</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Warning">TODO: Ugly as hell</MudText>
+                </div>
+                <ScreenshotButton TargetId="developed-summary" />
+            </MudStack>
         </MudPaper>
-        <MudPaper MinWidth="1920px" id="developed-summary">
-            <MudStack Row="true" Class="flex-wrap">
-                @* Per group?! *@
-                @foreach (var entrantGroup in Completed.GroupBy(e => e.EntrantGroup))
+        <MudPaper id="developed-summary">
+            <MudStack Row="true" Spacing="0">
+                @foreach (var entrantGroup in Summaries)
                 {
-                    @foreach (var development in entrantGroup)
-                    {
-                        <MudPaper Class="px-4 py-2">
-                            <MudTable Items="@development.Entrants" Dense="true" Class="extra-dense">
-                                <ToolBarContent>
-                                    <MudText Typo="Typo.h5" Color="Color.Tertiary">@entrantGroup.Key.ToString()</MudText>
-                                    <MudDivider Vertical="true" Class="mx-2" />
-                                    <MudText Typo="Typo.h5">@development.DevelopedAspect.ReadableAspect()</MudText>
-                                </ToolBarContent>
-                                <HeaderContent>
-                                    <MudTh>
-                                        <MudTableSortLabel T="DevelopedEntrant" SortBy="@(e => e.Name)">
-                                            Name
-                                        </MudTableSortLabel>
+                    <MudPaper Elevation="15" Class="px-4 py-2">
+                        <MudTable T="EntrantDevelopLog"
+                                  Items="@entrantGroup.EntrantLogs.OrderBy(e => e.Name)"
+                                  GroupBy="@_entrantDefinition"
+                                  GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                                  Bordered="true"
+                                  Dense="true">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h5" Color="Color.Tertiary">@entrantGroup.EntrantGroup.ToString()</MudText>
+                                <MudDivider Vertical="true" Class="mx-2" />
+                                <MudText Typo="Typo.h5">Boing</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                @foreach (var aspect in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()))
+                                {
+                                    <MudTh Class="overflow-hider" Style="width: 150px" colspan="2">
+                                        @aspect.ReadableAspect()
                                     </MudTh>
-                                    <MudTh Class="number-col-lg">
-                                        <MudTableSortLabel T="DevelopedEntrant" SortBy="@(e => e.Old)">
-                                            Old
-                                        </MudTableSortLabel>
-                                    </MudTh>
-                                    <MudTh Class="number-col-lg">
-                                        <MudTableSortLabel T="DevelopedEntrant" SortBy="@(e => e.Change)">
-                                            Change
-                                        </MudTableSortLabel>
-                                    </MudTh>
-                                    <MudTh Class="number-col-lg">
-                                        <MudTableSortLabel T="DevelopedEntrant" SortBy="@(e => e.New)">
-                                            New
-                                        </MudTableSortLabel>
-                                    </MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd Style="max-width:300px">
-                                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                            <MudText Class="overflow-hider">@context.Name</MudText>
-                                            <MudSpacer />
-                                            @if (context.Nationality.HasValue)
-                                            {
-                                                <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Small" />
-                                            }
-                                        </MudStack>
+                                }
+                            </HeaderContent>
+                            <GroupHeaderTemplate>
+                                <MudTh Class="mud-table-cell-custom-group" colspan="10">
+                                    <MudText>@context.Key</MudText>
+                                </MudTh>
+                            </GroupHeaderTemplate>
+                            <RowTemplate>
+                                @foreach (var dev in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()))
+                                {
+                                    <MudTd Style="width: 75px">
+                                        <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
                                     </MudTd>
-                                    <MudTd Class="number-col-lg">
-                                        <MudText Typo="Typo.caption">@context.Old</MudText>
+                                    <MudTd Style="width: 75px">
+                                        <MudText Typo="Typo.caption">@dev.Value.Item2</MudText>
                                     </MudTd>
-                                    <MudTd Class="number-col-lg">
-                                        <GradientColour Min="@development.MinChange" Max="@development.MaxChange" Value="@context.Change">
-                                            <MudText Typo="Typo.caption">@context.Change</MudText>
-                                        </GradientColour>
-                                    </MudTd>
-                                    <MudTd Class="number-col-lg">
-                                        <MudText Typo="Typo.caption">@context.New</MudText>
-                                    </MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        </MudPaper>
-                    }
+                                }
+                            </RowTemplate>
+                        </MudTable>
+                    </MudPaper>
                 }
             </MudStack>
         </MudPaper>
@@ -79,5 +64,11 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? SummaryDialog { get; set; }
-    [Parameter, EditorRequired] public List<CompletedDevelopment> Completed { get; set; }
+    [Parameter, EditorRequired] public List<DevelopSummary> Summaries { get; set; }
+
+    private TableGroupDefinition<EntrantDevelopLog> _entrantDefinition = new()
+    {
+        GroupName = "Entrant",
+        Selector = (e) => e.Name
+    };
 }

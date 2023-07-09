@@ -31,5 +31,14 @@
             TeamRole.Support => modifier * -1,
             _ => 0,
         };
+
+        public static int RetrieveAspectValue(this SeasonDriver driver, Aspect aspect) => aspect switch
+        {
+            Aspect.Skill => driver.Skill,
+            Aspect.Reliability => driver.Reliability,
+            Aspect.Attack => driver.Attack,
+            Aspect.Defense => driver.Defense,
+            _ => throw new InvalidOperationException("Invalid aspect for this entrant")
+        };
     }
 }

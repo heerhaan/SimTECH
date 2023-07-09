@@ -14,4 +14,14 @@
 
         public IList<SeasonTeam>? SeasonTeams { get; set; }
     }
+
+    public static class ExtendSeasonEngine
+    {
+        public static int RetrieveAspectValue(this SeasonEngine engine, Aspect aspect) => aspect switch
+        {
+            Aspect.Engine => engine.Power,
+            Aspect.Reliability => engine.Reliability,
+            _ => throw new InvalidOperationException("Invalid aspect for this entrant")
+        };
+    }
 }

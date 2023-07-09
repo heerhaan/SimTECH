@@ -29,19 +29,24 @@
                             <MudText Typo="Typo.subtitle1">Target</MudText>
                         </MudTooltip>
                         <MudChipSet SelectedChipChanged="TargetChipChanged" Mandatory="true">
-                            <MudChip Color="Color.Secondary" Value="Aspect.Skill" Default="true">@_mainTypeName</MudChip>
-                            <MudChip Color="Color.Secondary" Value="Aspect.Reliability">Reliability</MudChip>
+                            <MudChip Color="Color.Secondary" Value="Aspect.Reliability" Default="true">Reliability</MudChip>
                             
-                            @if (_activeEntrant == Entrant.Team)
+                            @if (_activeEntrant == Entrant.Driver)
                             {
+                                <MudChip Color="Color.Secondary" Value="Aspect.Skill">@Aspect.Skill.ReadableAspect()</MudChip>
+                                <MudChip Color="Color.Secondary" Value="Aspect.Attack">Attack</MudChip>
+                                <MudChip Color="Color.Secondary" Value="Aspect.Defense">Defense</MudChip>
+                            }
+                            else if (_activeEntrant == Entrant.Team)
+                            {
+                                <MudChip Color="Color.Secondary" Value="Aspect.BaseCar">@Aspect.BaseCar.ReadableAspect()</MudChip>
                                 <MudChip Color="Color.Secondary" Value="Aspect.Aero">Aero</MudChip>
                                 <MudChip Color="Color.Secondary" Value="Aspect.Chassis">Chassis</MudChip>
                                 <MudChip Color="Color.Secondary" Value="Aspect.Powertrain">Powertrain</MudChip>
                             }
-                            else if (_activeEntrant == Entrant.Driver)
+                            else if (_activeEntrant == Entrant.Engine)
                             {
-                                <MudChip Color="Color.Secondary" Value="Aspect.Attack">Attack</MudChip>
-                                <MudChip Color="Color.Secondary" Value="Aspect.Defense">Defense</MudChip>
+                                <MudChip Color="Color.Secondary" Value="Aspect.Engine">@Aspect.Engine.ReadableAspect()</MudChip>
                             }
                         </MudChipSet>
                     </MudStack>
@@ -124,7 +129,7 @@
                                 <MudSpacer />
                                 @if (context.Nationality.HasValue)
                                 {
-                                    <CountryFlag Code="@context.Nationality.Value" Size="FlagSize.Small" />
+                                    <CountryFlag Code="@context.Nationality.Value" Size="ElementSize.Small" />
                                 }
                             </MudStack>
                         </MudTd>
@@ -205,17 +210,15 @@
     List<SeasonEngine>? SeasonEngines;
     List<DevelopedEntrant> DevelopedEntrants;
 
-    List<CompletedDevelopment> SummaryDeveloped = new();
     static readonly DialogOptions SummaryDialogOptions = new()
     {
-        MaxWidth = MaxWidth.ExtraExtraLarge,
+        MaxWidth = MaxWidth.ExtraLarge,
         CloseButton = true,
     };
 
     Entrant _activeEntrant = Entrant.Driver;
     Quantifier _selectedType = Quantifier.Range;
-    Aspect _selectedTarget = Aspect.Skill;
-    string _mainTypeName = "Skill";
+    Aspect _selectedTarget = Aspect.Reliability;
     string? _optionalColTitle = "Age";
     bool _ranDevelop = false;
 
@@ -236,14 +239,11 @@
         switch (entrant)
         {
             case Entrant.Driver:
-                await DevelopDrivers();
-                break;
+                await DevelopDrivers(); break;
             case Entrant.Team:
-                await DevelopTeams();
-                break;
+                await DevelopTeams(); break;
             case Entrant.Engine:
-                await DevelopEngines();
-                break;
+                await DevelopEngines(); break;
             default:
                 throw new InvalidOperationException("wtf unexpected entrant added to develop? (how)");
         }
@@ -264,11 +264,10 @@
                     Name = e.Driver.FullName,
                     Nationality = e.Driver.Country,
                     Optional = Season.Year - e.Driver.DateOfBirth.Year,
-                    Old = ReadDriverOldTarget(e),
+                    Old = e.RetrieveAspectValue(_selectedTarget),
                 })
             .ToList();
 
-        _mainTypeName = "Skill";
         _optionalColTitle = "Age";
     }
 
@@ -284,11 +283,10 @@
                 Name = e.Name,
                 Nationality = e.Team.Country,
                 Optional = null,
-                Old = ReadTeamOldTarget(e),
+                Old = e.RetrieveAspectValue(_selectedTarget),
             })
             .ToList();
 
-        _mainTypeName = "Car";
         _optionalColTitle = null;
     }
 
@@ -299,53 +297,24 @@
 
         DevelopedEntrants = SeasonEngines.Select(e =>
             new DevelopedEntrant
-                {
-                    Id = e.Id,
-                    Name = e.Name,
-                    Nationality = null,
-                    Optional = null,
-                    Old = _selectedTarget == Aspect.Skill ? e.Power : e.Reliability,
-                })
+            {
+                Id = e.Id,
+                Name = e.Name,
+                Nationality = null,
+                Optional = null,
+                Old = e.RetrieveAspectValue(_selectedTarget),
+            })
             .ToList();
 
-        _mainTypeName = "Power";
         _optionalColTitle = null;
     }
-
-    int ReadDriverOldTarget(SeasonDriver driver) => _selectedTarget switch
-    {
-        Aspect.Skill => driver.Skill,
-        Aspect.Reliability => driver.Reliability,
-        Aspect.Attack => driver.Attack,
-        Aspect.Defense => driver.Defense,
-        _ => throw new InvalidOperationException("One of the wrong target develops just got in the driver target reader"),
-    };
-
-    int ReadTeamOldTarget(SeasonTeam team) => _selectedTarget switch
-    {
-        Aspect.Skill => team.BaseValue,
-        Aspect.Reliability => team.Reliability,
-        Aspect.Aero => team.Aero,
-        Aspect.Chassis => team.Chassis,
-        Aspect.Powertrain => team.Powertrain,
-        _ => throw new InvalidOperationException("Somehow neither of the 5 possible develops"),
-    };
 
     async Task EntrantChipChanged(MudChip? entrantChip)
     {
         if (entrantChip == null)
             return;
 
-        if (_activeEntrant == Entrant.Team
-                && (_selectedTarget == Aspect.Aero
-                    || _selectedTarget == Aspect.Chassis
-                        || _selectedTarget == Aspect.Powertrain))
-            _selectedTarget = Aspect.Skill;
-        else if (_activeEntrant == Entrant.Driver
-            && (_selectedTarget == Aspect.Attack
-                || _selectedTarget == Aspect.Defense))
-            _selectedTarget = Aspect.Skill;
-
+        _selectedTarget = Aspect.Reliability;
         _activeEntrant = (Entrant)entrantChip.Value;
 
         await ReloadDeveloped(_activeEntrant);
@@ -519,12 +488,130 @@
                 break;
         }
 
-        SummaryDeveloped.Add(new CompletedDevelopment(_activeEntrant, _selectedTarget, minChange, maxChange, DevelopedEntrants));
-
+        await EntrantService.SaveDevelopmentLog(CreateLog);
         await ReloadDeveloped(_activeEntrant);
     }
 
-    async Task ShowSummary() => _ =
+    private List<DevelopmentLog> CreateLog => DevelopedEntrants.Select(e => 
+        new DevelopmentLog
+        {
+            EntrantId = e.Id,
+            EntrantGroup = _activeEntrant,
+            DevelopedAspect = _selectedTarget,
+            Change = e.Change,
+            SeasonId = Season.Id,
+        })
+        .ToList();
+
+    async Task ShowSummary()
+    {
+        var seasonLog = await EntrantService.GetDevelopmentLog(Season.Id);
+
+        // We directly take data from here so we're going to need it
+        if (SeasonDrivers == null)
+            SeasonDrivers = await EntrantService.GetSeasonDrivers(Season.Id);
+        if (SeasonTeams == null)
+            SeasonTeams = await EntrantService.GetSeasonTeams(Season.Id);
+        if (SeasonEngines == null)
+            SeasonEngines = await EntrantService.GetSeasonEngines(Season.Id);
+
+        var summaries = new List<DevelopSummary>();
+        foreach (var groupSummary in seasonLog.GroupBy(e => e.EntrantGroup))
+        {
+            var entrantLog = new List<EntrantDevelopLog>();
+
+            foreach (var developed in groupSummary.ToArray().GroupBy(e => e.EntrantId))
+            {
+                EntrantDevelopLog? currentLogs;
+                var developedLogs = developed.ToArray();
+
+                switch (groupSummary.Key)
+                {
+                    case Entrant.Driver:
+                        currentLogs = CreateDriverLog(developed.Key, developedLogs); break;
+                    case Entrant.Team:
+                        currentLogs = CreateTeamLog(developed.Key, developedLogs); break;
+                    case Entrant.Engine:
+                        currentLogs = CreateEngineLog(developed.Key, developedLogs); break;
+                    default:
+                        currentLogs = null; break;
+                }
+
+                if (currentLogs != null)
+                    entrantLog.Add(currentLogs);
+            }
+
+            summaries.Add(new DevelopSummary
+            {
+                EntrantGroup = groupSummary.Key,
+                Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),
+                EntrantLogs = entrantLog,
+            });
+        }
+
         await _dialogService.ShowAsync<SummaryDevelopment>(
-            "Summary development", new DialogParameters { ["Completed"] = SummaryDeveloped }, SummaryDialogOptions);
+            "Summary development", new DialogParameters { ["Summaries"] = summaries }, SummaryDialogOptions);
+    }
+
+    EntrantDevelopLog? CreateDriverLog(long driverId, DevelopmentLog[] logs)
+    {
+        var matchingDriver = SeasonDrivers?.Find(e => e.Id == driverId);
+
+        if (matchingDriver == null)
+            return null;
+
+        var developedAspects = logs
+            .GroupBy(e => e.DevelopedAspect)
+            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingDriver.RetrieveAspectValue(e.Key)));
+
+        return new EntrantDevelopLog
+            {
+                EntrantId = driverId,
+                Entrant = Entrant.Driver,
+                Name = matchingDriver.Driver.FullName,
+                Nationality = matchingDriver.Driver.Country,
+                DevelopedAspects = developedAspects,
+            };
+    }
+
+    EntrantDevelopLog? CreateTeamLog(long teamId, DevelopmentLog[] logs)
+    {
+        var matchingTeam = SeasonTeams?.Find(e => e.Id == teamId);
+
+        if (matchingTeam == null)
+            return null;
+
+        var developedAspects = logs
+            .GroupBy(e => e.DevelopedAspect)
+            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingTeam.RetrieveAspectValue(e.Key)));
+
+        return new EntrantDevelopLog
+            {
+                EntrantId = teamId,
+                Entrant = Entrant.Team,
+                Name = matchingTeam.Name,
+                Nationality = matchingTeam.Team.Country,
+                DevelopedAspects = developedAspects,
+            };
+    }
+
+    EntrantDevelopLog? CreateEngineLog(long engineId, DevelopmentLog[] logs)
+    {
+        var matchingEngine = SeasonEngines?.Find(e => e.Id == engineId);
+
+        if (matchingEngine == null)
+            return null;
+
+        var developedAspects = logs
+            .GroupBy(e => e.DevelopedAspect)
+            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingEngine.RetrieveAspectValue(e.Key)));
+
+        return new EntrantDevelopLog
+            {
+                EntrantId = engineId,
+                Entrant = Entrant.Engine,
+                Name = matchingEngine.Name,
+                DevelopedAspects = developedAspects,
+            };
+    }
 }
