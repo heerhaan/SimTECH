@@ -74,7 +74,7 @@
                     <MudDivider />
 
                     <MudText Typo="Typo.subtitle1">Used by:</MudText>
-                    <MudText>Todo</MudText>
+                    <MudText Color="Color.Warning">Todo</MudText>
                 </MudStack>
             </MudPaper>
         </ChildRowContent>
@@ -85,23 +85,19 @@
 </MudContainer>
 
 @code {
-    List<Trait> TraitData;
-
-    bool typeFilterOpen = false;
+    private List<Trait> TraitData;
 
     protected override async Task OnInitializedAsync()
     {
+        TraitData = await TraitService.GetTraits();
+
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Traits", href: "traits", disabled: true),
         });
-
-        TraitData = await TraitService.GetTraits();
     }
-
-    void OpenFilter() => typeFilterOpen = true;
 
     async Task AddTrait() => await UpdateTrait(null);
     async Task UpdateTrait(Trait? item)

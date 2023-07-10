@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Extensions
+﻿using MudBlazor;
+
+namespace SimTECH.Extensions
 {
     public static class EnumHelper
     {
@@ -17,11 +19,29 @@
             _ => new State[] { State.Concept, State.Active, State.Advanced, State.Closed }
         };
 
+        public static string StatusColour(this RaceStatus status) => status switch
+        {
+            RaceStatus.Dnf => "red",
+            RaceStatus.Dsq => "black",
+            RaceStatus.Dnq => "rebeccapurple",
+            RaceStatus.Fatal => "white",
+            _ => Constants.DefaultBackground
+        };
+
         public static string SituationColour(this SituationOccurrence situation) => situation switch
         {
             SituationOccurrence.Raced => "Green",
             SituationOccurrence.Caution => "Yellow",
-            _ => ""
+            _ => Constants.DefaultBackground
+        };
+
+        public static string GenderIcon(this Gender gender) => gender switch
+        {
+            Gender.All => Icons.Material.Filled.AllInclusive,
+            Gender.Male => Icons.Material.Filled.Male,
+            Gender.Female => Icons.Material.Filled.Female,
+            Gender.Other => Icons.Custom.Uncategorized.Baguette,
+            _ => Icons.Material.Filled.QuestionMark
         };
 
         public static string ReadableAspect(this Aspect aspect) => aspect switch
@@ -53,6 +73,18 @@
             Aspect.Defense,
         };
 
+        public static string RacerEventIcon(this RacerEvent racerEvent) => racerEvent switch
+        {
+            RacerEvent.DriverDnf => IconCollection.HelmetOff,
+            RacerEvent.CarDnf => IconCollection.CarCrash,
+            RacerEvent.EngineDnf => IconCollection.EngineOff,
+            RacerEvent.Mistake => Icons.Material.Filled.ErrorOutline,
+            RacerEvent.Pitstop => Icons.Material.Filled.LocalGasStation,
+            RacerEvent.Swap => Icons.Material.Filled.SwapVert,
+            RacerEvent.Death => IconCollection.Skull,
+            _ => Icons.Material.Filled.QuestionMark
+        };
+
         // Dictionary selectors underneath
         public static readonly Dictionary<Entrant, string> GetEntrantSelection = new()
         {
@@ -67,7 +99,7 @@
             { CategoryIncident.Car, "Car" },
             { CategoryIncident.Engine, "Engine" },
             { CategoryIncident.Disqualified, "Disqualified" },
-            { CategoryIncident.Lethal, "Lethal" },
+            { CategoryIncident.Lethal, "Injury" },
         };
 
         public static readonly Dictionary<TeamRole, string> GetTeamRoleSelection = new()

@@ -26,10 +26,10 @@
                         <div>
                             <MudText Typo="Typo.subtitle1">Gender</MudText>
                             <MudChipSet SelectedChipChanged="GenderChange" Mandatory="true">
-                                <MudChip Value="Gender.All" Icon="@ViewHelper.GetGenderIcon(Gender.All)" Default="true">All</MudChip>
-                                <MudChip Value="Gender.Male" Icon="@ViewHelper.GetGenderIcon(Gender.Male)">Male</MudChip>
-                                <MudChip Value="Gender.Female" Icon="@ViewHelper.GetGenderIcon(Gender.Female)">Female</MudChip>
-                                <MudChip Value="Gender.Other" Icon="@ViewHelper.GetGenderIcon(Gender.Other)">French</MudChip>
+                                <MudChip Value="Gender.All" Icon="@Gender.All.GenderIcon()" Default="true">All</MudChip>
+                                <MudChip Value="Gender.Male" Icon="@Gender.Male.GenderIcon()">Male</MudChip>
+                                <MudChip Value="Gender.Female" Icon="@Gender.Female.GenderIcon()">Female</MudChip>
+                                <MudChip Value="Gender.Other" Icon="@Gender.Other.GenderIcon()">French</MudChip>
                             </MudChipSet>
                         </div>
 
@@ -50,12 +50,12 @@
                                                SearchFunc="SearchLanguages"
                                                >
                                 <ItemTemplate>
-                                    <MudCheckBox Checked="@(context.IsSelected)" Color="Color.Secondary" />
-                                    <CountryNamedFlag Code="@(context.Value.Country)" Justify="Justify.FlexStart" Size="ElementSize.Normal" />
+                                    <MudCheckBox Checked="@context.IsSelected" Color="Color.Secondary" />
+                                    <CountryNamedFlag Code="@context.Value.Country" Justify="Justify.FlexStart" Size="ElementSize.Normal" />
                                 </ItemTemplate>
                                 <ItemSelectedTemplate>
-                                    <MudCheckBox Checked="@(context.IsSelected)" Color="Color.Secondary" />
-                                    <CountryNamedFlag Code="@(context.Value.Country)" Justify="Justify.FlexStart" Size="ElementSize.Normal" />
+                                    <MudCheckBox Checked="@context.IsSelected" Color="Color.Secondary" />
+                                    <CountryNamedFlag Code="@context.Value.Country" Justify="Justify.FlexStart" Size="ElementSize.Normal" />
                                 </ItemSelectedTemplate>
                             </MudSelectExtended>
                         }
@@ -127,7 +127,10 @@
                                                   Reverse="true" />
                             </MudTd>
                             <MudTd>
-                                <MudButton OnClick="@(async () => await SaveSingleHuman(context))">Persist</MudButton>
+                                <MudButtonGroup OverrideStyles="false" Class="pa-0">
+                                    <MudButton FullWidth="true" OnClick="@(async () => await SaveSingleHuman(context))">Persist</MudButton>
+                                    <MudButton FullWidth="true" Color="Color.Error" OnClick="@(() => RemoveHumanBeing(context))">Remove</MudButton>
+                                </MudButtonGroup>
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -144,7 +147,7 @@
     IEnumerable<LanguageInfo> SelectedLanguages { get; set; } = new HashSet<LanguageInfo>();
 
     LanguageInfo[]? availableLanguages;
-    HumanBeing[]? humanBeans;
+    List<HumanBeing>? humanBeans;
     DateRange dateRange = new DateRange(DateTime.Now.AddYears(-10).Date, DateTime.Now.Date);
     Gender genderFilter = Gender.All;
     int generateAmount = 5;
@@ -210,6 +213,12 @@
     {
         await _driverService.AddNewDrivers(new Driver[] { realHero.ToDriver });
         _nav.NavigateTo("/drivers");
+    }
+
+    void RemoveHumanBeing(HumanBeing realLoser)
+    {
+        if (humanBeans?.Contains(realLoser) ?? false)
+            humanBeans.Remove(realLoser);
     }
 
     private bool SearchLanguages(LanguageInfo lang, string searchText)

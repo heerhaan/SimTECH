@@ -34,7 +34,7 @@ namespace SimTECH.Providers
                 .ToArray();
         }
 
-        public HumanBeing[] GetHumanBeings(int amount, LanguageInfo[] langs, Gender gender, DateRange dateRange)
+        public List<HumanBeing> GetHumanBeings(int amount, LanguageInfo[] langs, Gender gender, DateRange dateRange)
         {
             var humanBeans = new List<HumanBeing>();
             var nameSet = new List<(string, Country, Gender)>();
@@ -80,7 +80,7 @@ namespace SimTECH.Providers
                 });
             }
 
-            return humanBeans.ToArray();
+            return humanBeans.ToList();
         }
 
         private static DateTime GetRandomDate(DateRange dateRange)

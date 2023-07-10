@@ -4,6 +4,7 @@
 @inject TrackService _trackService
 @inject TraitService _traitService
 @inject BreadcrumbProvider _bread
+@inject IDialogService _dialogService
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudGrid>
@@ -35,6 +36,7 @@
                     <MudText Color="Color.Warning">Todo random removal option</MudText>
 
                     <MudDivider />
+
                     @if (RelevantTraits?.Any() == true)
                     {
                         <MudText Color="Color.Success">Relevant traits</MudText>
@@ -56,13 +58,13 @@
                 {
                     <MudTable T="EntrantAssignee" Items="@Entrants" Dense="true" Hover="true" OnRowClick="OnClickAssignRandomTrait">
                         <ToolBarContent>
-                            <MudText Typo="Typo.subtitle1">Entrants</MudText>
+                            <MudText Typo="Typo.h5">Entrants</MudText>
                             <MudSpacer />
                             <MudButton Color="Color.Secondary" OnClick="RandomEntrantAssignTrait">Random</MudButton>
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>Name</MudTh>
-                            <MudTh>Existing trait(s)</MudTh>
+                            <MudTh>Current trait(s)</MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd>
@@ -81,22 +83,23 @@
         </MudItem>
         <MudItem xs="4">
             <MudPaper Class="pa-2">
-                <MudText>Persist but can we do more than that?</MudText>
+                <MudText>Can save from here, click row to remove</MudText>
                 @if (AssignedEntrants.Any())
                 {
-                    <MudTable T="EntrantAssignee" Items="@AssignedEntrants" Dense="true" Hover="true">
+                    <MudTable T="EntrantAssignee" Items="@AssignedEntrants" Dense="true" Hover="true"
+                            OnRowClick="RemoveAssignedTrait">
                         <ToolBarContent>
-                            <MudText Typo="Typo.subtitle1">Assigned</MudText>
+                            <MudText Typo="Typo.h5">Newly assigned traits</MudText>
                             <MudSpacer />
                             <MudButton Color="Color.Success" OnClick="PersistAssignedTraits">Save</MudButton>
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>Name</MudTh>
-                            <MudTh>Assigned trait(s)</MudTh>
+                            <MudTh>Traits</MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd>
-                                <MudText>@(context.Name)</MudText>
+                                <MudText>@context.Name</MudText>
                             </MudTd>
                             <MudTd>
                                 @foreach (var traitId in context.AssignedTraitIds)
@@ -166,24 +169,22 @@
         RelevantTraits = AllTraits.Where(e => e.Type == activeEntrant).ToList();
     }
 
-    string GetReadableTrait(long id) => AllTraits.Find(e => e.Id == id)?.Name ?? "Unknown";
+    private string GetReadableTrait(long id) => AllTraits.Find(e => e.Id == id)?.Name ?? "Unknown";
 
-    private void OnClickAssignRandomTrait(TableRowClickEventArgs<EntrantAssignee> rowItem) => AssignRandomTrait(rowItem.Item);
     private void RandomEntrantAssignTrait()
     {
         if (Entrants != null)
             AssignRandomTrait(Entrants.TakeRandomItem());
     }
+    private void OnClickAssignRandomTrait(TableRowClickEventArgs<EntrantAssignee> rowItem) => AssignRandomTrait(rowItem.Item);
     private void AssignRandomTrait(EntrantAssignee item)
     {
         if (RelevantTraits == null)
             return;
 
-        EntrantAssignee assignee;
+        var assignee = AssignedEntrants.FirstOrDefault(e => e == item);
 
-        if (AssignedEntrants.Contains(item))
-            assignee = AssignedEntrants.First(e => e == item);
-        else
+        if (assignee == null)
         {
             assignee = item;
             AssignedEntrants.Add(assignee);
@@ -199,6 +200,17 @@
         assignee.ExistingTraitIds.Add(randomTrait.Id);
     }
 
+    private async Task RemoveAssignedTrait(TableRowClickEventArgs<EntrantAssignee> rowItem)
+    {
+        bool? confirm = await _dialogService.ShowMessageBox(
+            "Warning",
+            $"Are you sure you want to remove these assigned traits for {rowItem.Item.Name}?",
+            yesText: "Yep", cancelText: "Nope");
+
+        if (confirm == true)
+            AssignedEntrants.Remove(rowItem.Item);
+    }
+
     async Task PersistAssignedTraits()
     {
         if (entrantChip == null || !AssignedEntrants.Any())
@@ -207,23 +219,19 @@
         switch ((Entrant)entrantChip.Value)
         {
             case Entrant.Driver:
-                {
-                    await _traitService.AssignDriverTraits(AssignedEntrants);
-                }
+                await _traitService.AssignDriverTraits(AssignedEntrants);
                 break;
             case Entrant.Team:
-                {
-                    await _traitService.AssignTeamTraits(AssignedEntrants);
-                }
+                await _traitService.AssignTeamTraits(AssignedEntrants);
                 break;
             case Entrant.Track:
-                {
-                    await _traitService.AssignTrackTraits(AssignedEntrants);
-                }
+                await _traitService.AssignTrackTraits(AssignedEntrants);
                 break;
-            default: throw new InvalidOperationException("wtf unexpected entrant added to develop?");
+            default:
+                throw new InvalidOperationException("wtf unexpected entrant added to develop?");
         }
 
         AssignedEntrants.Clear();
+        await LoadEntrants();
     }
 }

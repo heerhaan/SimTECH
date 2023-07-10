@@ -17,7 +17,7 @@
     @if (Season != null)
     {
         <CascadingValue Value="@Season" IsFixed="true">
-            <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="@_activeTabIndex">
+            <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="@activeTabIndex">
                 <MudTabPanel Text="Overview">
                     <MudGrid Spacing="2">
                         <MudItem xs="12">
@@ -53,7 +53,7 @@
 
                                             <MudSpacer />
 
-                                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToNextRace">Go</MudButton>
+                                            <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToNextRace">Go</MudButton>
                                         }
                                     }
                                     else
@@ -88,7 +88,7 @@
                                     }
                                     else if (Season.State == State.Active)
                                     {
-                                        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="FinishSeason">Finish season</MudButton>
+                                        <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Primary" OnClick="FinishSeason">Finish season</MudButton>
                                     }
                                 </MudStack>
                             </MudPaper>
@@ -123,7 +123,7 @@
 
                                     <MudSpacer />
 
-                                    <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToComponentUsage">Go</MudButton>
+                                    <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToComponentUsage">Components</MudButton>
                                 </MudStack>
                             </MudPaper>
                         </MudItem>
@@ -172,22 +172,23 @@
     public Season? Season { get; set; }
     public Race? NextRace { get; set; }
 
-    int _activeTabIndex = 0;
+    int activeTabIndex = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        _activeTabIndex = TabIndex;
+        activeTabIndex = TabIndex;
+
+        Season = await _seasonService.GetSeasonById(SeasonId);
+
+        if (Season != null)
+            NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
+
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Seasons", href: "seasons"),
             new BreadcrumbItem("Overview", href: $"overview/{SeasonId}", disabled: true),
         });
-
-        Season = await _seasonService.GetSeasonById(SeasonId);
-
-        if (Season != null)
-            NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
     }
 
     async Task StartSeason()
@@ -239,11 +240,6 @@
 
     async Task ShowQualyBattles() => 
         _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", new DialogParameters { ["SeasonId"] = SeasonId });
-
-    async Task GoAddEntrants()
-    {
-        
-    }
 
     void GoToAddEntrants() => _nav.NavigateTo($"/entrantwizard/{SeasonId}");
     void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");

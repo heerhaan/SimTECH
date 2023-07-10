@@ -30,7 +30,7 @@
             }
             else if (cell.Status == RaceStatus.Fatal)
             {
-                cellStyle = "background-color: black;color:white !important";
+                cellStyle = "background-color: white;";
             }
             else
             {
