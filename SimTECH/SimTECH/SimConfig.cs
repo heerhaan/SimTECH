@@ -22,7 +22,7 @@
         public int CarDriverStatusModifier { get; set; } = 4;
         public int MinimumTyreLife { get; set; } = -25;
 
-        public double GapMarge { get; set; } = 0.05;
+        public double GapMarge { get; set; } = 0.04;
 
         public bool PersonalNumbersEnabled { get; set; }
         //public bool FormationLapEnabled { get; set; }

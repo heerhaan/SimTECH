@@ -514,7 +514,16 @@
             lapScore.RacerEvents |= RacerEvent.EngineDnf;
             driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Engine).ToList().TakeRandomIncident();
         }
-        else { return safetyCar; }
+        // Additional reliability check happens on the opening lap, as crashes are more frequent then
+        else if (calculated == 1 && DidReliabilityFail(driver.DriverReliability))
+        {
+            lapScore.RacerEvents |= RacerEvent.DriverDnf;
+            driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Driver).ToList().TakeRandomIncident();
+        }
+        else
+        {
+            return safetyCar;
+        }
 
         // Driver had a reliability failure, meaning he will immediatly be overtaken by any attacking driver
         driver.InstantOvertaken = true;
