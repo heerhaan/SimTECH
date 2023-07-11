@@ -67,7 +67,7 @@ namespace SimTECH.Data.Services
 
             foreach (var engine in engines)
             {
-                if (target == Aspect.Skill)
+                if (target == Aspect.Engine)
                     engine.Power = developmentDict[engine.Id];
                 else
                     engine.Reliability = developmentDict[engine.Id];
@@ -144,7 +144,7 @@ namespace SimTECH.Data.Services
             {
                 switch (target)
                 {
-                    case Aspect.Skill:
+                    case Aspect.BaseCar:
                         team.BaseValue = developmentDict[team.Id];
                         break;
                     case Aspect.Reliability:

@@ -54,17 +54,19 @@
                         <MudText Typo="Typo.h5">Upcoming races</MudText>
                     </ToolBarContent>
                     <HeaderContent>
-                        <MudTh>League</MudTh>
-                        <MudTh>Season</MudTh>
-                        <MudTh>Name</MudTh>
-                        <MudTh></MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
                         <MudTh>
                             <MudTableSortLabel SortBy="new Func<FinishedRaceModel, object>(e => e.LeagueName)">
                                 League
                             </MudTableSortLabel>
                         </MudTh>
+                        <MudTh>Season</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText Typo="Typo.body2">@context.LeagueName</MudText>
+                        </MudTd>
                         <MudTd>
                             <MudText Typo="Typo.body2">@context.SeasonDisplay</MudText>
                         </MudTd>
@@ -72,7 +74,7 @@
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText Typo="Typo.body2">[R@(context.Round)] @(context.Name)</MudText>
                                 <MudSpacer />
-                                <CountryFlag Code="@context.Country" Size="ElementSize.Tiny" />
+                                <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
                             </MudStack>
                         </MudTd>
                         <MudTd>
@@ -111,7 +113,9 @@
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText Typo="Typo.body2">[R@(context.Round)] @(context.Name)</MudText>
                                 <MudSpacer />
-                                <CountryFlag Code="@context.Country" Size="ElementSize.Tiny" />
+                                <MudPaper Class="px-2 fallback-muted-background-gray">
+                                    <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
+                                </MudPaper>
                             </MudStack>
                         </MudTd>
                         <MudTd Class="accent-cell">
@@ -171,7 +175,6 @@
         // following is possibly a very unoptimized call
         var races = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
         recentRaces.AddRange(races);
-        recentRaces.Reverse();
 
         await RetrieveUpcomingRaces();
     }

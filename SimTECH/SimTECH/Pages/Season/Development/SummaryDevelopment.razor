@@ -15,7 +15,7 @@
             </MudStack>
         </MudPaper>
         <MudPaper id="developed-summary">
-            <MudStack Row="true" Spacing="0">
+            <MudStack Row="true" Spacing="0" Class="flex-wrap">
                 @foreach (var entrantGroup in Summaries)
                 {
                     <MudPaper Elevation="15" Class="px-4 py-2">
@@ -31,9 +31,9 @@
                                 <MudText Typo="Typo.h5">Boing</MudText>
                             </ToolBarContent>
                             <HeaderContent>
-                                @foreach (var aspect in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()))
+                                @foreach (var (aspect, i) in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()).Select((aspect, i) => (aspect, i)))
                                 {
-                                    <MudTh Class="overflow-hider" Style="width: 150px" colspan="2">
+                                    <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")" Style="width: 150px" colspan="2">
                                         @aspect.ReadableAspect()
                                     </MudTh>
                                 }
@@ -44,12 +44,16 @@
                                 </MudTh>
                             </GroupHeaderTemplate>
                             <RowTemplate>
-                                @foreach (var dev in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()))
+                                @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()).Select((dev, i) => (dev, i)))
                                 {
-                                    <MudTd Style="width: 75px">
-                                        <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
+                                    <MudTd Class="@(InspectTheWheel(i))" Style="width: 75px">
+                                        <GradientColour Min="@entrantGroup.MinMaxValues[dev.Key].Item1"
+                                                        Max="@entrantGroup.MinMaxValues[dev.Key].Item2"
+                                                        Value="@dev.Value.Item1">
+                                            <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
+                                        </GradientColour>
                                     </MudTd>
-                                    <MudTd Style="width: 75px">
+                                    <MudTd Class="@(InspectTheWheel(i))" Style="width: 75px">
                                         <MudText Typo="Typo.caption">@dev.Value.Item2</MudText>
                                     </MudTd>
                                 }
@@ -71,4 +75,13 @@
         GroupName = "Entrant",
         Selector = (e) => e.Name
     };
+
+    private static readonly string[] cycleWheel = new[] { "fallback-muted-background-primary", "fallback-muted-background-secondary", "fallback-muted-background-tertiary" };
+    private int colorCycler = 0;
+
+    private string InspectTheWheel(int numCycle)
+    {
+        numCycle %= cycleWheel.Length;
+        return cycleWheel[numCycle];
+    }
 }

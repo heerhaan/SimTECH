@@ -551,11 +551,20 @@
                     entrantLog.Add(currentLogs);
             }
 
+            var minMaxPerAspect = new Dictionary<Aspect, (int, int)>();
+            foreach (var allChanged in entrantLog.SelectMany(e => e.DevelopedAspects).GroupBy(e => e.Key))
+            {
+                var lowest = allChanged.Select(e => e.Value.Item1).Min();
+                var highest = allChanged.Select(e => e.Value.Item1).Max();
+                minMaxPerAspect.Add(allChanged.Key, (lowest, highest));
+            }
+
             summaries.Add(new DevelopSummary
             {
                 EntrantGroup = groupSummary.Key,
                 Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),
                 EntrantLogs = entrantLog,
+                MinMaxValues = minMaxPerAspect,
             });
         }
 

@@ -40,5 +40,7 @@
             Aspect.Defense => driver.Defense,
             _ => throw new InvalidOperationException("Invalid aspect for this entrant")
         };
+
+        public static int GimmeAge(this SeasonDriver driver, int currentYear) => currentYear - driver.Driver?.DateOfBirth.Year ?? 0;
     }
 }

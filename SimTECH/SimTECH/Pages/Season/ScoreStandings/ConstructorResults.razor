@@ -18,8 +18,8 @@
         <HeaderContent>
             <MudTh Class="number-col"></MudTh>
             <MudTh Class="accent-cell"></MudTh>
-            <MudTh>Team</MudTh>
-            <MudTh>Principal</MudTh>
+            <MudTh Style="width: 220px">Team</MudTh>
+            <MudTh Style="width: 220px">Principal</MudTh>
             <MudTh>PTS</MudTh>
             @foreach (var round in CountryRounds.OrderBy(e => e.Key))
             {
@@ -36,15 +36,15 @@
         <MudTd Class="accent-cell">
             <SmolAccent Colour="@context.Colour" />
         </MudTd>
-        <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
+        <MudTd Class="overflow-hider" Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                 <MudText Class="overflow-hider">@context.Name</MudText>
                 <MudSpacer />
                 <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
             </MudStack>
         </MudTd>
-        <MudTd>
-            <MudText Class="overflow-hider">@context.Principal</MudText>
+        <MudTd Class="overflow-hider">
+            <MudText>@context.Principal</MudText>
         </MudTd>
         <MudTd>
             <MudText Typo="Typo.caption">@context.Points</MudText>

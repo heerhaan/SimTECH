@@ -664,7 +664,7 @@ namespace SimTECH.Data.Services
                     EngineReliability = team.SeasonEngine.Reliability + sumTraits.EngineReliability,
                     WearMinMod = sumTraits.WearMinimum,
                     WearMaxMod = sumTraits.WearMaximum,
-                    RngMinMod = sumTraits.MinRNG,
+                    RngMinMod = sumTraits.MinRNG - weatherRng,
                     RngMaxMod = sumTraits.MaxRNG + weatherRng,
 
                     Position = driverResult.Position,
