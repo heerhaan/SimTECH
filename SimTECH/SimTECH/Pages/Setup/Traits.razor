@@ -63,10 +63,11 @@
                     <MudStack Row="true" AlignItems="AlignItems.Center">
                         @foreach (var modifier in context.Item.RetrieveNotZeroValues())
                         {
-                            <MudPaper Elevation="15" Class="px-4 py-2">
-                                <MudText Typo="Typo.caption">
-                                    @(modifier.Key): @(modifier.Value)
-                                </MudText>
+                            <MudPaper Elevation="5" Class="px-2 py-1">
+                                <MudStack AlignItems="AlignItems.Center">
+                                    <MudText>@modifier.Key</MudText>
+                                    <MudText Typo="Typo.caption">@modifier.Value</MudText>
+                                </MudStack>
                             </MudPaper>
                         }
                     </MudStack>
