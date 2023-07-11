@@ -1,0 +1,14 @@
+﻿<span class="smollest-of-styles" style="@_styles"></span>
+
+@code {
+    [Parameter] public string? Colour { get; set; }
+
+    private string _styles
+    {
+        get
+        {
+            var colour = Colour ?? Constants.PrimaryColourDefault;
+            return $"background-color: {colour};";
+        }
+    }
+}

@@ -10,13 +10,13 @@
             <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterEngine">New</MudButton>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="SeasonEngine" Items="SeasonEngineData">
+    <MudDataGrid T="SeasonEngine" Items="SeasonEngineData" Dense="true">
         <Columns>
-            <PropertyColumn Property="e => e.Name" />
-            <PropertyColumn Property="e => e.Power" />
-            <PropertyColumn Property="e => e.Reliability" />
-            <PropertyColumn Property="e => e.Rebadged" />
-            <TemplateColumn Sortable="false">
+            <PropertyColumn Property="e => e!.Name" />
+            <PropertyColumn Property="e => e!.Power" />
+            <PropertyColumn Property="e => e!.Reliability" />
+            <PropertyColumn Property="e => e!.Rebadged" />
+            <TemplateColumn T="SeasonEngine" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context.Item))" />
@@ -28,8 +28,7 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public Season Season { get; set; }
+    [CascadingParameter] public Season Season { get; set; }
 
     private List<SeasonEngine> SeasonEngineData = new();
     private List<Engine> EngineData = new();

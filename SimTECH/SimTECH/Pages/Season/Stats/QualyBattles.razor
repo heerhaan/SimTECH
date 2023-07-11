@@ -7,6 +7,7 @@
     </TitleContent>
     <DialogContent>
         <MudContainer>
+            @* use a grouped table here, dimwit *@
             <MudPaper>
                 @if (QualifyingBattles != null)
                 {
@@ -44,11 +45,9 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? StatDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
 
-    [Parameter, EditorRequired]
-    public long SeasonId { get; set; }
+    [Parameter, EditorRequired] public long SeasonId { get; set; }
 
     private List<QualyBattle>? QualifyingBattles;
 

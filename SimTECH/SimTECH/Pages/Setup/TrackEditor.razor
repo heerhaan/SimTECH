@@ -16,7 +16,16 @@
                             <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
                             <CountrySelect @bind-Value="Model.Country" Class="field-md my-2" />
                             <MudStack Row="true" Spacing="6">
-                                <MudNumericField T="double" @bind-Value="Model.Length" Label="Length" Format="N2" Adornment="Adornment.End" AdornmentText="Km" AdornmentColor="Color.Tertiary" DebounceInterval="500" OnDebounceIntervalElapsed="HandleLengthLapCalc" HelperText="@expectedLapCount" />
+                                <MudNumericField T="double"
+                                                 @bind-Value="Model.Length"
+                                                 Label="Length"
+                                                 Format="N2"
+                                                 Adornment="Adornment.End"
+                                                 AdornmentText="Km"
+                                                 AdornmentColor="Color.Tertiary"
+                                                 DebounceInterval="500"
+                                                 OnDebounceIntervalElapsed="HandleLengthLapCalc"
+                                                 HelperText="@expectedLapCount" />
                             </MudStack>
 
                             <MudText Typo="Typo.subtitle1" Class="mt-4">Modifiers</MudText>
@@ -34,9 +43,9 @@
                     <MudPaper Elevation="10" Class="pa-4">
                         <MudText Typo="Typo.subtitle1">Traits</MudText>
                         <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
-                            @foreach (var trait in Traits)
+                            @foreach (var trait in selectableTraits)
                             {
-                                <MudChip Text="@trait.Name" Value="@trait.Id"></MudChip>
+                                <MudChip Text="@trait.Name" Value="@trait.Id" Color="Color.Primary"></MudChip>
                             }
                         </MudChipSet>
                     </MudPaper>
@@ -57,6 +66,7 @@
     [Parameter] public List<Trait> Traits { get; set; } = new();
 
     private EditTrackModel Model;
+    private List<Trait> selectableTraits;
     private ICollection<object>? selectedTraits { get; set; }
 
     private int raceLength = 300;
@@ -66,19 +76,11 @@
     {
         Model = new EditTrackModel(Track);
 
-        if (Track != null)
-        {
-            HandleLengthLapCalc(Model.Length.ToString());
+        HandleLengthLapCalc(Model.Length.ToString());
 
-            if (Model.TrackTraits.Any())
-            {
-                selectedTraits = Model.TrackTraits.Select(e => e.TraitId).Cast<object>().ToList();
-            }
-        }
-        else
-        {
-            selectedTraits = new List<long>() as ICollection<object>;
-        }
+        var trackTraitIds = Model.TrackTraits.Select(e => e.TraitId).ToList();
+        selectableTraits = Traits.Where(e => e.State == State.Active || trackTraitIds.Contains(e.Id)).ToList();
+        selectedTraits = trackTraitIds.Cast<object>().ToList();
     }
 
     private void HandleLengthLapCalc(string strLength)

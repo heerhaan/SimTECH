@@ -130,6 +130,36 @@ namespace SimTECH.Migrations
                     b.ToTable("Contract");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.DevelopmentLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Change")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DevelopedAspect")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EntrantGroup")
+                        .HasColumnType("int");
+
+                    b.Property<long>("EntrantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SeasonId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SeasonId");
+
+                    b.ToTable("DevelopmentLog");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.DevelopmentRange", b =>
                 {
                     b.Property<long>("Id")
@@ -481,6 +511,11 @@ namespace SimTECH.Migrations
                     b.Property<int>("Score")
                         .HasColumnType("int");
 
+                    b.Property<string>("TyreColour")
+                        .HasMaxLength(9)
+                        .HasColumnType("nchar(9)")
+                        .IsFixedLength();
+
                     b.HasKey("Id");
 
                     b.HasIndex("ResultId");
@@ -592,6 +627,66 @@ namespace SimTECH.Migrations
                     b.ToTable("PointAllotment");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.PracticeScore", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<long>("RaceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ResultId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Scores")
+                        .HasColumnType("varchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResultId");
+
+                    b.ToTable("PracticeScore");
+                });
+
+            modelBuilder.Entity("SimTECH.Data.Models.QualifyingScore", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<long>("RaceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ResultId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Scores")
+                        .HasColumnType("varchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResultId");
+
+                    b.ToTable("QualifyingScore");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.Race", b =>
                 {
                     b.Property<long>("Id")
@@ -602,6 +697,9 @@ namespace SimTECH.Migrations
 
                     b.Property<long>("ClimateId")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DateFinished")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -633,6 +731,30 @@ namespace SimTECH.Migrations
                     b.ToTable("Race");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.RaceOccurrence", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Occurrences")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<long>("RaceId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RaceId");
+
+                    b.ToTable("RaceOccurrence");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.Result", b =>
                 {
                     b.Property<long>("Id")
@@ -641,11 +763,20 @@ namespace SimTECH.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<int>("Defended")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("FastestLap")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Grid")
                         .HasColumnType("int");
 
                     b.Property<long?>("IncidentId")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("Overtaken")
+                        .HasColumnType("int");
 
                     b.Property<int>("Position")
                         .HasColumnType("int");
@@ -1238,7 +1369,7 @@ namespace SimTECH.Migrations
                             Id = 1L,
                             Colour = "#fa0536  ",
                             DistanceMax = 125,
-                            DistanceMin = 75,
+                            DistanceMin = 50,
                             ForWet = false,
                             Name = "Soft",
                             Pace = 200,
@@ -1300,34 +1431,6 @@ namespace SimTECH.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SimTECH.Data.Models.User", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("Country")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("User");
-                });
-
             modelBuilder.Entity("SimTECH.Data.Models.Contract", b =>
                 {
                     b.HasOne("SimTECH.Data.Models.Driver", "Driver")
@@ -1349,6 +1452,17 @@ namespace SimTECH.Migrations
                     b.Navigation("Driver");
 
                     b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("SimTECH.Data.Models.DevelopmentLog", b =>
+                {
+                    b.HasOne("SimTECH.Data.Models.Season", "Season")
+                        .WithMany()
+                        .HasForeignKey("SeasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Season");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.DevelopmentRange", b =>
@@ -1418,6 +1532,28 @@ namespace SimTECH.Migrations
                         .HasForeignKey("SeasonId");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.PracticeScore", b =>
+                {
+                    b.HasOne("SimTECH.Data.Models.Result", "Result")
+                        .WithMany("PracticeScores")
+                        .HasForeignKey("ResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Result");
+                });
+
+            modelBuilder.Entity("SimTECH.Data.Models.QualifyingScore", b =>
+                {
+                    b.HasOne("SimTECH.Data.Models.Result", "Result")
+                        .WithMany("QualifyingScores")
+                        .HasForeignKey("ResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Result");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.Race", b =>
                 {
                     b.HasOne("SimTECH.Data.Models.Climate", "Climate")
@@ -1443,6 +1579,17 @@ namespace SimTECH.Migrations
                     b.Navigation("Season");
 
                     b.Navigation("Track");
+                });
+
+            modelBuilder.Entity("SimTECH.Data.Models.RaceOccurrence", b =>
+                {
+                    b.HasOne("SimTECH.Data.Models.Race", "Race")
+                        .WithMany("Occurrences")
+                        .HasForeignKey("RaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Race");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Result", b =>
@@ -1639,12 +1786,18 @@ namespace SimTECH.Migrations
 
             modelBuilder.Entity("SimTECH.Data.Models.Race", b =>
                 {
+                    b.Navigation("Occurrences");
+
                     b.Navigation("Results");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Result", b =>
                 {
                     b.Navigation("LapScores");
+
+                    b.Navigation("PracticeScores");
+
+                    b.Navigation("QualifyingScores");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Season", b =>

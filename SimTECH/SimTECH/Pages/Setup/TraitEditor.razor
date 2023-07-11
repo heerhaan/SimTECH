@@ -4,19 +4,19 @@
         <MudText>PS: Wear is subtracted from tyre, so higher number = more wear</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model">
+        <MudForm>
             <MudGrid Spacing="2">
                 <MudItem xs="6">
                     <MudStack Justify="Justify.SpaceBetween" Class="py-2">
                         <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
-                        <div>
+                        <MudStack Spacing="0">
                             <MudText Typo="Typo.subtitle2">Entrant type</MudText>
                             @if (Model.Id == 0)
                             {
                                 <MudChipSet @bind-SelectedChip="entrantChip">
                                     @foreach (var entrant in EnumHelper.GetEntrantSelection)
                                     {
-                                        <MudChip Value="@entrant.Key">@entrant.Value</MudChip>
+                                        <MudChip Value="@entrant.Key" Color="Color.Primary">@entrant.Value</MudChip>
                                     }
                                 </MudChipSet>
                             }
@@ -24,11 +24,15 @@
                             {
                                 <MudText>@Model.Type.ToString()</MudText>
                             }
-                        </div>
+                        </MudStack>
                     </MudStack>
                 </MudItem>
                 <MudItem xs="6">
-                    <MudTextField T="string" @bind-Value="Model.Description" Label="Description" Variant="Variant.Outlined" Lines="5" />
+                    <MudTextField T="string"
+                                  @bind-Value="Model.Description"
+                                  Label="Description"
+                                  Variant="Variant.Outlined"
+                                  Lines="5" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudText Typo="Typo.h6">Modifiers</MudText>
@@ -48,10 +52,18 @@
                 <MudItem xs="6">
                     <MudStack>
                         <MudStack Row="true">
-                            <MudNumericField T="int" @bind-Value="Model.WearMax" Label="WearMax" />
                             <MudNumericField T="int" @bind-Value="Model.WearMin" Label="WearMin" />
+                            <MudNumericField T="int" @bind-Value="Model.WearMax" Label="WearMax" />
                         </MudStack>
-                        <MudSwitch @bind-Checked="Model.ForWetConditions" Label="Only applies during wet conditions" Color="Color.Tertiary" />
+                        <MudStack Row="true">
+                            <MudNumericField T="int" @bind-Value="Model.RngMin" Label="RngMin" />
+                            <MudNumericField T="int" @bind-Value="Model.RngMax" Label="RngMax" />
+                        </MudStack>
+                        <MudSwitchM3 @bind-Checked="Model.ForWetConditions"
+                                     ThumbIcon="@Icons.Material.Filled.Done"
+                                     ThumbOffIcon="@Icons.Material.Filled.Close"
+                                     Label="Only applies during wet conditions"
+                                     Color="Color.Tertiary" />
                     </MudStack>
                 </MudItem>
             </MudGrid>
@@ -64,11 +76,9 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? TraitDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? TraitDialog { get; set; }
 
-    [Parameter]
-    public Trait? Trait { get; set; }
+    [Parameter] public Trait? Trait { get; set; }
 
     private MudChip? entrantChip;
 

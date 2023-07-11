@@ -9,12 +9,12 @@
                     <MudPaper Elevation="5" Class="pa-4 mud-height-full">
                         <MudStack Spacing="6">
                             <div>
-                                <MudText Typo="Typo.subtitle1">Season information</MudText>
+                                <MudText Typo="Typo.subtitle1">Information</MudText>
                                 <MudDivider />
                                 <MudNumericField T="int" @bind-Value="Model.Year" Label="Year" Class="field-sm" />
                             </div>
                             <div>
-                                <MudText Typo="Typo.subtitle1">Qualifying (and practice) settings</MudText>
+                                <MudText Typo="Typo.subtitle1">Qualifying (and practice) setup</MudText>
                                 <MudDivider />
 
                                 <MudChipSet Mandatory="true" SelectedChipChanged="QualyFormatChanged">
@@ -34,7 +34,7 @@
                                 }
                             </div>
                             <div>
-                                <MudText Typo="Typo.subtitle1">Race settings</MudText>
+                                <MudText Typo="Typo.subtitle1">Race setup</MudText>
                                 <MudDivider />
 
                                 <MudStack Row="true" Spacing="4">
@@ -57,17 +57,20 @@
                                 <MudNumericField T="int" @bind-Value="Model.PointsPole" Label="Awarded points Pole" Class="field-md" />
                                 <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Awarded points Fastest Lap" Class="field-md" />
                             </div>
-                            <div>
-                                <MudText Typo="Typo.subtitle1">Select a league for this season</MudText>
-                                <MudDivider />
+                            @if (Model.Id == 0)
+                            {
+                                <div>
+                                    <MudText Typo="Typo.subtitle1">Select a league for this season</MudText>
+                                    <MudDivider />
 
-                                <MudSelect T="long" @bind-Value="Model.LeagueId" Label="League" ReadOnly="@(Model.Id != 0)">
-                                    @foreach (var select in Leagues)
-                                    {
-                                        <MudSelectItem Value="select.Id">@select.Name</MudSelectItem>
-                                    }
-                                </MudSelect>
-                            </div>
+                                    <MudSelect T="long" @bind-Value="Model.LeagueId" Label="League">
+                                        @foreach (var select in Leagues)
+                                        {
+                                            <MudSelectItem Value="select.Id">@select.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            }
                         </MudStack>
                     </MudPaper>
                 </MudItem>
@@ -77,11 +80,11 @@
                         <MudText Typo="Typo.subtitle1">Achieved points per position</MudText>
                         <MudDivider />
 
-                        <MudTable Items="@Model.PointAllotments" Dense="true" ReadOnly="false"
+                        <MudTable Items="@Model.PointAllotments" Dense="true" ReadOnly="false" Class="extra-dense"
                                   RowEditPreview="BackupAllotment" RowEditCancel="ResetAllotment" ApplyButtonPosition="TableApplyButtonPosition.End"
                                   EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
                             <ToolBarContent>
-                                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendAllotment" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendAllotment" Size="Size.Small" />
                             </ToolBarContent>
                             <HeaderContent>
                                 <MudTh>
@@ -117,12 +120,9 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? SeasonDialog { get; set; }
-    [Parameter]
-    public EditSeasonModel Model { get; set; }
-    [Parameter]
-    public List<League> Leagues { get; set; }
+    [CascadingParameter] protected MudDialogInstance? SeasonDialog { get; set; }
+    [Parameter] public EditSeasonModel Model { get; set; }
+    [Parameter] public List<League> Leagues { get; set; }
 
     private EditPointAllotmentModel allotmentBackup;
 
@@ -132,10 +132,6 @@
     {
         if (Model.PointAllotments.Any())
             _lowestPosition = Model.PointAllotments.Max(e => e.Position);
-
-        // TODO: Following is temp until this is set by default
-        if (Model.LeagueId == 0)
-            Model.LeagueId = 1;
     }
 
     private void QualyFormatChanged(MudChip? qualyChip)

@@ -10,14 +10,18 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Engines</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddEngine">New</MudButton>
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="ToggleDisplayArchived">
+                    @(showingArchived ? "Active" : "Archive")
+                </MudButton>
+                <MudButton OnClick="AddEngine">New</MudButton>
+            </MudButtonGroup>
         </MudStack>
     </MudPaper>
     <MudDataGrid T="Engine" Items="@EngineData" Dense="true">
         <Columns>
             <HierarchyColumn T="Engine" />
             <PropertyColumn Property="e => e!.Name" />
-            <PropertyColumn Property="e => e!.State" />
             <TemplateColumn T="Engine">
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small">
@@ -40,6 +44,8 @@
 
 @code {
     private List<Engine> EngineData { get; set; } = new();
+
+    private bool showingArchived = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -69,7 +75,17 @@
 
     async Task DeleteEngine(Engine engine)
     {
-        await EngineService.DeleteEngine(engine);
+        await EngineService.ArchiveEngine(engine);
         EngineData.Remove(engine);
+    }
+
+    async Task ToggleDisplayArchived()
+    {
+        if (showingArchived)
+            EngineData = await EngineService.GetEngines();
+        else
+            EngineData = await EngineService.GetEngines(StateFilter.Archived);
+
+        showingArchived = !showingArchived;
     }
 }

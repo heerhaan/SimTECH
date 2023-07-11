@@ -1,0 +1,41 @@
+﻿<MudPaper Elevation="15" Class="pa-4 mud-height-full">
+    <MudPaper MinHeight="60px">
+        <MudText Typo="Typo.h5">Drivers</MudText>
+    </MudPaper>
+    <MudTable T="StandingDriverModel" Items="@StandingDrivers" Dense="true">
+        <HeaderContent>
+            <MudTh Class="number-col"></MudTh>
+            <MudTh Class="accent-cell"></MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh Class="number-col">NO</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<StandingDriverModel, object>(e => e.Points)">PTS</MudTableSortLabel>
+            </MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd Class="number-col">
+                <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
+            </MudTd>
+            <MudTd Class="accent-cell">
+                <SmolAccent Colour="@context.Colour" />
+            </MudTd>
+            <MudTd>
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <MudText>@context.Name</MudText>
+                    <MudSpacer></MudSpacer>
+                    <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
+                </MudStack>
+            </MudTd>
+            <MudTd Class="number-col">
+                <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.caption">@context.Points</MudText>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    [Parameter] public List<StandingDriverModel> StandingDrivers { get; set; }
+}

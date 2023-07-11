@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ApexCharts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
@@ -10,7 +11,7 @@ namespace SimTECH.Data.Services
     public class RaceService
     {
         private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-        private SimConfig _config;
+        private readonly SimConfig _config;
 
         public RaceService(IDbContextFactory<SimTechDbContext> factory, IOptions<SimConfig> config)
         {
@@ -55,6 +56,7 @@ namespace SimTECH.Data.Services
             return await context.Result
                 .Where(e => e.RaceId == raceId)
                 .Include(e => e.Incident)
+                .Include(e => e.LapScores)
                 .Include(e => e.SeasonDriver)
                     .ThenInclude(e => e.Driver)
                 .ToListAsync();
@@ -164,7 +166,15 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task PersistGridPositions(Dictionary<long, int> driverPositions, long? raceToAdvance = null, int? maximumRace = null)
+        public async Task PersistPracticeResults(Dictionary<long, int> driverPositions)
+        {
+            await PersistGridPositions(driverPositions, null, null);
+        }
+        public async Task PersistQualifyingResults(Dictionary<long, int> driverPositions, long? raceToAdvance, int? maximumRace)
+        {
+            await PersistGridPositions(driverPositions, raceToAdvance, maximumRace);
+        }
+        private async Task PersistGridPositions(Dictionary<long, int> driverPositions, long? raceToAdvance, int? maximumRace)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -195,6 +205,24 @@ namespace SimTECH.Data.Services
 
                 context.Update(editedRecord);
             }
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task PersistPracticeScores(List<PracticeScore> practiceScores)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.PracticeScore.AddRange(practiceScores);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task PersistQualifyingScores(List<QualifyingScore> qualyScores)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.QualifyingScore.AddRange(qualyScores);
 
             await context.SaveChangesAsync();
         }
@@ -230,12 +258,24 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task PersistOccurrences(List<RaceOccurrence> occurrences)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            // Validation?
+
+            context.RaceOccurrence.AddRange(occurrences);
+
+            await context.SaveChangesAsync();
+        }
+
         public async Task FinishRace(long raceId, List<Result> finishedResults, List<ScoredPoints> scoredPoints)
         {
             using var context = _dbFactory.CreateDbContext();
 
             var finishedRace = await context.Race.SingleAsync(e => e.Id == raceId);
             finishedRace.State = State.Closed;
+            finishedRace.DateFinished = DateTime.UtcNow;
 
             context.Update(finishedRace);
             context.UpdateRange(finishedResults);
@@ -357,12 +397,15 @@ namespace SimTECH.Data.Services
                 }
             }
 
+            var racePracticeScores = await context.PracticeScore.Where(e => e.RaceId == raceId).ToListAsync();
+
             return new RaceWeekModel
             {
                 Race = race,
                 MaximumInRace = race.Season.MaximumDriversInRace,
                 RaceWeekDrivers = weekendDrivers,
                 TrackTraits = trackTraits,
+                PracticeCompletedCount = racePracticeScores.MaxBy(e => e.Index)?.Index ?? 0,
             };
         }
 
@@ -393,7 +436,7 @@ namespace SimTECH.Data.Services
             {
                 var calendarModel = new CalendarRaceModel
                 {
-                    Id = race.Id,
+                    RaceId = race.Id,
                     Round = race.Round,
                     Name = race.Name,
                     Country = race.Track.Country,
@@ -412,7 +455,7 @@ namespace SimTECH.Data.Services
                         var poleDriver = drivers.Single(e => e.Id == poleResult.SeasonDriverId);
                         var poleTeam = teams.Single(e => e.Id == poleResult.SeasonTeamId);
 
-                        calendarModel.PoleSitter = new DriverWinner
+                        calendarModel.PoleSitter = new CompactDriver
                         {
                             Name = poleDriver.Driver.FullName,
                             Country = poleDriver.Driver.Country,
@@ -429,7 +472,7 @@ namespace SimTECH.Data.Services
                         var winningDriver = drivers.Single(d => winningResult.SeasonDriverId == d.Id);
                         var driverTeam = teams.Find(e => e.Id == winningDriver.SeasonTeamId.GetValueOrDefault());
 
-                        calendarModel.DriverWinner = new DriverWinner
+                        calendarModel.DriverWinner = new CompactDriver
                         {
                             Name = winningDriver.Driver.FullName,
                             Country = winningDriver.Driver.Country,
@@ -444,7 +487,7 @@ namespace SimTECH.Data.Services
 
                         var winningTeam = teams.Single(t => winningResult.SeasonTeamId == t.Id);
 
-                        calendarModel.TeamWinner = new TeamWinner
+                        calendarModel.TeamWinner = new CompactTeam
                         {
                             Name = winningTeam.Name,
                             Colour = winningTeam.Colour,
@@ -465,8 +508,9 @@ namespace SimTECH.Data.Services
 
             // It's likely that this is a very unperformant implementation, consider a refactor
             return await context.Race
-                .Where(e => e.State == State.Closed && e.Results.Any())
-                .TakeLastSpecial(amount)
+                .Where(e => e.State == State.Closed && e.DateFinished.HasValue && e.Results.Any())
+                .OrderByDescending(e => e.DateFinished)
+                .Take(amount)
                 .Select(e => new FinishedRaceModel
                 {
                     RaceId = e.Id,
@@ -476,7 +520,7 @@ namespace SimTECH.Data.Services
                     LeagueName = e.Season.League.Name,
 
                     WinningDriver = e.Results.Where(e => e.Position == 1)
-                        .Select(d => new DriverWinner
+                        .Select(d => new CompactDriver
                         {
                             Name = d.SeasonDriver.Driver.FullName,
                             Country = d.SeasonDriver.Driver.Country,
@@ -487,7 +531,7 @@ namespace SimTECH.Data.Services
                         .First(),
 
                     WinningTeam = e.Results.Where(e => e.Position == 1)
-                        .Select(t => new TeamWinner
+                        .Select(t => new CompactTeam
                         {
                             Name = t.SeasonTeam.Name,
                             Country = t.SeasonTeam.Team.Country,
@@ -508,6 +552,7 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var race = await context.Race
+                .Include(e => e.Occurrences)
                 .Include(e => e.Climate)
                 .Include(e => e.Track)
                     .ThenInclude(e => e.TrackTraits)
@@ -585,7 +630,7 @@ namespace SimTECH.Data.Services
 
                 var actualDefense = ((driver.Defense + sumTraits.Defense) * race.Track?.DefenseMod ?? 1.0).RoundDouble();
 
-                raceDrivers.Add(new RaceDriver
+                var raceDriver = new RaceDriver
                 {
                     ResultId = driverResult.Id,
                     SeasonDriverId = driverResult.SeasonDriverId,
@@ -607,6 +652,9 @@ namespace SimTECH.Data.Services
                     Setup = driverResult.Setup,
                     TyreLife = driverResult.TyreLife,
                     CurrentTyre = driverResult.Tyre,
+                    HasFastestLap = driverResult.FastestLap,
+                    OvertakeCount = driverResult.Overtaken,
+                    DefensiveCount = driverResult.Defended,
 
                     Power = totalPower,
                     Attack = driver.Attack + sumTraits.Attack,
@@ -614,16 +662,30 @@ namespace SimTECH.Data.Services
                     DriverReliability = driver.Reliability + sumTraits.DriverReliability + weatherDnf,
                     CarReliability = team.Reliability + sumTraits.CarReliability,
                     EngineReliability = team.SeasonEngine.Reliability + sumTraits.EngineReliability,
-                    WearMaxMod = team.Manufacturer.WearMax + sumTraits.WearMaximum,
-                    WearMinMod = team.Manufacturer.WearMin + sumTraits.WearMinimum,
-                    RngMinMod = team.Manufacturer.Pace + sumTraits.MinRNG,
-                    RngMaxMod = team.Manufacturer.Pace + sumTraits.MaxRNG + weatherRng,
+                    WearMinMod = sumTraits.WearMinimum,
+                    WearMaxMod = sumTraits.WearMaximum,
+                    RngMinMod = sumTraits.MinRNG - weatherRng,
+                    RngMaxMod = sumTraits.MaxRNG + weatherRng,
 
                     Position = driverResult.Position,
 
                     LapScores = driverResult.LapScores?.ToList() ?? new(),
-                });
+                };
+
+                if (!race.Climate.IsWet)
+                {
+                    raceDriver.TyreLife += team.Manufacturer.Pace;
+                    raceDriver.LifeBonus = team.Manufacturer.Pace;
+                    raceDriver.WearMinMod = team.Manufacturer.WearMin;
+                    raceDriver.WearMaxMod = team.Manufacturer.WearMax;
+                }
+
+                raceDrivers.Add(raceDriver);
             }
+
+            var occurrences = new Dictionary<int, SituationOccurrence>();
+            if (race.Occurrences?.Any() == true)
+                occurrences = race.Occurrences.OrderBy(e => e.Order).ToDictionary(e => e.Order, e => e.Occurrences);
 
             return new RaceModel
             {
@@ -632,15 +694,17 @@ namespace SimTECH.Data.Services
                 TrackLength = race.Track?.Length ?? 0,
                 RaceLength = race.RaceLength,
                 Name = race.Name,
-                Country = race.Track?.Country ?? EnumHelper.DefaultCountry,
+                Country = race.Track?.Country ?? Constants.DefaultCountry,
                 ClimateId = race.ClimateId,
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
                 IsWet = race.Climate.IsWet,
                 Round = race.Round,
                 IsFinished = race.State == State.Closed,
+                SeasonId = season.Id,
 
                 RaceDrivers = raceDrivers,
+                Occurrences = occurrences,
 
                 Season = season,
                 LeagueOptions = season.League.Options,
@@ -657,12 +721,16 @@ namespace SimTECH.Data.Services
                     .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
 
-            var unconsumedPenalties = await context.GivenPenalty.Where(e => !e.Consumed).Include(e => e.Incident).ToListAsync();
+            var unconsumedPenalties = await context.GivenPenalty
+                .Where(e => !e.Consumed)
+                .Include(e => e.Incident)
+                .ToListAsync();
 
-            var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
+            Season season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
 
             var driverResults = await context.Result
                 .Where(e => e.RaceId == raceId)
+                .Include(e => e.QualifyingScores)
                 .ToListAsync();
 
             var drivers = await context.SeasonDriver
@@ -696,6 +764,7 @@ namespace SimTECH.Data.Services
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
                 IsWet = race.Climate.IsWet,
+                SeasonId = season.Id,
 
                 AmountRuns = season.RunAmountSession,
                 MaximumRaceDrivers = season.MaximumDriversInRace,
@@ -704,6 +773,18 @@ namespace SimTECH.Data.Services
                 QualyAmountQ3 = season.QualifyingAmountQ3,
                 QualifyingFormat = season.QualifyingFormat,
             };
+
+            int[] setQualyData(List<QualifyingScore> scores, int sessionNo)
+            {
+                var sessionResult = scores.Find(e => e.Index == sessionNo);
+                if (sessionResult?.Scores != null)
+                {
+                    model.IsFinished = true;
+                    return sessionResult.Scores;
+                }
+
+                return new int[season.RunAmountSession];
+            }
 
             var raceDrivers = new List<QualifyingDriver>();
 
@@ -733,6 +814,8 @@ namespace SimTECH.Data.Services
                 if (driverPenalties.Any())
                     model.PenaltiesToConsume.AddRange(driverPenalties.Select(e => e.Id));
 
+                var qualyScores = driverResult.QualifyingScores?.ToList() ?? new();
+
                 model.QualifyingDrivers.Add(new QualifyingDriver
                 {
                     ResultId = driverResult.Id,
@@ -749,16 +832,17 @@ namespace SimTECH.Data.Services
                     Power = driverPower + traitEffect.QualifyingPace,
                     PenaltyPunishment = driverPenalties.Any() ? driverPenalties.Sum(e => e.Incident.DoubledPunishment()) : 0,
 
-                    RunValuesQ1 = new int[season.RunAmountSession],
-                    RunValuesQ2 = new int[season.RunAmountSession],
-                    RunValuesQ3 = new int[season.RunAmountSession],
+                    Position = driverResult.Position,
+                    RunValuesQ1 = setQualyData(qualyScores, 1),
+                    RunValuesQ2 = setQualyData(qualyScores, 2),
+                    RunValuesQ3 = setQualyData(qualyScores, 3),
                 });
             }
 
             return model;
         }
 
-        public async Task<PracticeModel> RetrievePracticeModel(long raceId)
+        public async Task<PracticeModel> RetrievePracticeModel(long raceId, int practiceNum)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -772,6 +856,7 @@ namespace SimTECH.Data.Services
 
             var driverResults = await context.Result
                 .Where(e => e.RaceId == raceId)
+                .Include(e => e.PracticeScores)
                 .ToListAsync();
 
             var drivers = await context.SeasonDriver
@@ -799,6 +884,9 @@ namespace SimTECH.Data.Services
 
             var practiceDrivers = new List<PracticeDriver>();
 
+            int maxRunAmount = season.RunAmountSession;
+            bool isFinish = false;
+
             foreach (var driverResult in driverResults)
             {
                 var driverTraits = new List<Trait>(trackTraits);
@@ -823,6 +911,15 @@ namespace SimTECH.Data.Services
                 if (team.Team.TeamTraits?.Any() == true)
                     driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
+                int[] runScores = new int[season.RunAmountSession];
+                var currentPractice = driverResult.PracticeScores.FirstOrDefault(e => e.Index == practiceNum);
+
+                if (currentPractice?.Scores != null)
+                {
+                    runScores = currentPractice.Scores;
+                    isFinish = true;
+                }
+
                 practiceDrivers.Add(new PracticeDriver
                 {
                     ResultId = driverResult.Id,
@@ -836,9 +933,10 @@ namespace SimTECH.Data.Services
                     Colour = team.Colour,
                     Accent = team.Accent,
 
+                    Position = currentPractice?.Position ?? 0,
                     Power = driverPower,
 
-                    RunValues = new int[season.RunAmountSession],
+                    RunValues = runScores,
                 });
             }
 
@@ -850,8 +948,9 @@ namespace SimTECH.Data.Services
                 Climate = race.Climate.Terminology,
                 ClimateIcon = race.Climate.Icon,
                 IsWet = race.Climate.IsWet,
-
+                IsFinished = isFinish,
                 AmountRuns = season.RunAmountSession,
+                SeasonId = season.Id,
                 PracticeRng = season.QualifyingRNG / 2,
 
                 PracticeDrivers = practiceDrivers,

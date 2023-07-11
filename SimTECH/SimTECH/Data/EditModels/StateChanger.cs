@@ -5,7 +5,7 @@
     // Problem is, how can we make a new instance of a generic object? interface? abstract base classes? what else?
     public class StateChanger
     {
-        //private readonly BaseModel _model;
+        //private readonly ModelState _model;
 
         public long Id { get; set; }
         public State State { get; set; }

@@ -1,8 +1,7 @@
 ﻿namespace SimTECH.Data.Models
 {
-    public sealed class SeasonTeam
+    public sealed class SeasonTeam : ModelBase
     {
-        public long Id { get; set; }
         public string Name { get; set; } = default!;
         public string Principal { get; set; } = default!;
         public string Colour { get; set; } = default!;
@@ -30,5 +29,18 @@
 
         public IList<SeasonDriver>? SeasonDrivers { get; set; }
         public IList<Result>? Results { get; set; }
+    }
+
+    public static class ExtendSeasonTeam
+    {
+        public static int RetrieveAspectValue(this SeasonTeam team, Aspect aspect) => aspect switch
+        {
+            Aspect.BaseCar => team.BaseValue,
+            Aspect.Reliability => team.Reliability,
+            Aspect.Aero => team.Aero,
+            Aspect.Chassis => team.Chassis,
+            Aspect.Powertrain => team.Powertrain,
+            _ => throw new InvalidOperationException("Invalid aspect for this entrant")
+        };
     }
 }

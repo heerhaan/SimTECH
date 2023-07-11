@@ -13,6 +13,9 @@
             <MudText Typo="Typo.h3">Drivers</MudText>
             <MudSpacer />
             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="ToggleDisplayArchived">
+                    @(showingArchived ? "Active" : "Archive")
+                </MudButton>
                 <MudButton OnClick="GoToHumanGenerator">Generate</MudButton>
                 <MudButton OnClick="AddDriver">New</MudButton>
             </MudButtonGroup>
@@ -23,24 +26,22 @@
             <HierarchyColumn T="Driver" />
             <PropertyColumn Property="e => e!.FullName" Title="Name" />
             <PropertyColumn Property="e => e!.Abbreviation" Title="Tag" />
-            <PropertyColumn Property="e => e!.DateOfBirth" Title="DOB" Format="d" />
+            <PropertyColumn Property="e => e!.DateOfBirth" Title="Born in" Format="yyyy" />
             <TemplateColumn T="Driver" Title="Nation" SortBy="e => e.Country">
                 <CellTemplate>
-                    <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" Reverse="true" />
+                    <CountryNamedFlag Code="@context.Item.Country" Size="ElementSize.Small" Reverse="true" />
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn T="Driver" Title="League" Sortable="false">
                 <CellTemplate>
-                    <MudText>
-                        @ReadActiveLeague(context.Item.Id)
-                    </MudText>
+                    <MudText>@ReadActiveLeague(context.Item.Id)</MudText>
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn T="Driver" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small" Class="ml-auto">
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteDriver(context.Item))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await ArchiveDriver(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -50,14 +51,12 @@
             <MudStack Row="true">
                 <MudPaper>
                     <MudStack AlignItems="AlignItems.Center">
-                        <MudText>State</MudText>
-                        <MudText Typo="Typo.button">@(context.Item.State)</MudText>
+                        <MudText>State is currently @(context.Item.State)</MudText>
                     </MudStack>
                 </MudPaper>
                 <MudPaper>
                     <MudStack AlignItems="AlignItems.Center">
-                        <MudText>Alive?</MudText>
-                        <MudText Typo="Typo.button">@(context.Item.Alive ? "Yes" : "No")</MudText>
+                        <MudText>Driver is @(context.Item.Alive ? "still alive" : "has died").</MudText>
                     </MudStack>
                 </MudPaper>
             </MudStack>
@@ -71,6 +70,8 @@
 @code {
     private List<Driver> DriverData;
     private List<CurrentDriver> CurrentDrivers;
+
+    private bool showingArchived = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,7 +108,22 @@
             DriverData = await DriverService.GetDrivers();
         }
     }
-    async Task DeleteDriver(Driver driver) => await DriverService.DeleteDriver(driver);
+
+    async Task ArchiveDriver(Driver driver)
+    {
+        await DriverService.ArchiveDriver(driver);
+        DriverData.Remove(driver);
+    }
+
+    async Task ToggleDisplayArchived()
+    {
+        if (showingArchived)
+            DriverData = await DriverService.GetDrivers(StateFilter.Default);
+        else
+            DriverData = await DriverService.GetDrivers(StateFilter.Archived);
+
+        showingArchived = !showingArchived;
+    }
 
     // Navigation links
     void GoToHumanGenerator() => _nav.NavigateTo("humanbeinggenerator");

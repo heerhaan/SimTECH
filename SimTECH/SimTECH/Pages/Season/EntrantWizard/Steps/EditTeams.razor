@@ -4,7 +4,7 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudPaper Elevation="15">
         <MudForm>
-            <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true">
+            <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true" Class="overflow-hider">
                 <HeaderContent>
                     <MudTh Style="min-width: 200px;">Team</MudTh>
                     <MudTh Style="min-width: 200px;">Name</MudTh>
@@ -67,14 +67,11 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public AddEntrantsModel Model { get; set; }
+    [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    [Parameter, EditorRequired]
-    public long SeasonId { get; set; }
-
-    [Parameter]
-    public long? PreviousSeasonId { get; set; }
+    [Parameter, EditorRequired] public long LeagueId { get; set; }
+    [Parameter, EditorRequired] public long SeasonId { get; set; }
+    [Parameter] public long? PreviousSeasonId { get; set; }
 
     List<Manufacturer> manufacturers;
 
@@ -100,7 +97,7 @@
 
         foreach (var team in Model.BaseTeams.Where(e => !(Model.SeasonTeams.Select(st => st.TeamId).Contains(e.Id))))
         {
-            var previousTeam = await _entrantService.FindRecentSeasonTeam(team.Id);
+            var previousTeam = await _entrantService.FindRecentSeasonTeam(team.Id, LeagueId);
 
             var model = new EditSeasonTeamModel(previousTeam);
             model.ResetIdentifierFields();

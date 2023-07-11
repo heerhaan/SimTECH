@@ -24,6 +24,8 @@ namespace SimTECH.PageModels
         public int Power { get; set; }
         public int Attack { get; set; }
         public int Defense { get; set; }
+
+        public string GapAbove { get; set; }
     }
 
     public class RaceDriver : DriverBase
@@ -45,18 +47,19 @@ namespace SimTECH.PageModels
         public int WearMinMod { get; set; }
         public int RngMinMod { get; set; }
         public int RngMaxMod { get; set; }
+        public int LifeBonus { get; set; }
 
         public bool HasFastestLap { get; set; }
         public bool InstantOvertaken { get; set; }
+        public bool RecentMistake { get; set; }
 
         public List<LapScore> LapScores { get; set; }
 
         public int LapSum => LapScores.Sum(e => e.Score);
         public int GridChange => Grid - Position;
-        public int LastLapOrder => LapScores.Any() ? LapScores.Max(e => e.Order) : 0;
-        public int LastScore { get; set; } = 0;
-        public int OvertakeCount { get; set; } = 0;
-        public int DefensiveCount { get; set; } = 0;
+        public int LastScore { get; set; }
+        public int OvertakeCount { get; set; }
+        public int DefensiveCount { get; set; }
         public string? SingleOccurrence { get; set; }
 
         public Result ToResult(long raceId)
@@ -71,6 +74,9 @@ namespace SimTECH.PageModels
                 Incident = Incident,
                 Setup = Setup,
                 TyreLife = TyreLife,
+                FastestLap = HasFastestLap,
+                Overtaken = OvertakeCount,
+                Defended = DefensiveCount,
 
                 SeasonDriverId = SeasonDriverId,
                 SeasonTeamId = SeasonTeamId,
@@ -133,6 +139,47 @@ namespace SimTECH.PageModels
 
         public int GetQualifyingResult(int maxRng) => Power + NumberHelper.RandomInt(maxRng);
         public double PenaltyPosition() => Position + PenaltyPunishment;
+
+        public List<QualifyingScore> ToScoreResults(long raceId)
+        {
+            var scoreResults = new List<QualifyingScore>
+            {
+                new QualifyingScore
+                {
+                    Index = 1,
+                    Scores = RunValuesQ1,
+                    Position = PositionQ1,
+                    RaceId = raceId,
+                    ResultId = ResultId,
+                }
+            };
+
+            if (MaxScoreQ2 == 0)
+                return scoreResults;
+
+            scoreResults.Add(new QualifyingScore
+            {
+                Index = 2,
+                Scores = RunValuesQ2,
+                Position = PositionQ2,
+                RaceId = raceId,
+                ResultId = ResultId,
+            });
+
+            if (MaxScoreQ3 == 0)
+                return scoreResults;
+
+            scoreResults.Add(new QualifyingScore
+            {
+                Index = 3,
+                Scores = RunValuesQ3,
+                Position = PositionQ3,
+                RaceId = raceId,
+                ResultId = ResultId,
+            });
+
+            return scoreResults;
+        }
     }
 
     public class PracticeDriver : DriverBase
@@ -144,5 +191,8 @@ namespace SimTECH.PageModels
         public int Score { get; set; }
 
         public int MaxScore => RunValues.Max();
+
+        public PracticeScore ToScoreResult(long raceId, int num)
+            => new() { Index = num, Scores = RunValues, Position = Position, RaceId = raceId, ResultId = ResultId, };
     }
 }

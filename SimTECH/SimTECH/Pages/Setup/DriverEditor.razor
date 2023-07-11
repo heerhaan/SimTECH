@@ -3,106 +3,111 @@
         <MudText>Driver moment</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm @ref="form" @bind-IsValid="@isValid" @bind-Errors="@errors">
-            <MudGrid>
-                <MudItem xs="8">
-                    <MudPaper Elevation="15" Class="pa-2 mud-height-full">
-                        <MudStack>
-                            <MudStack Row="true" Spacing="4">
-                                <MudTextField T="string"
-                                              @bind-Value="Model.FirstName"
-                                              Label="First Name"
-                                              Class="field-md"
-                                              Required="true"
-                                              RequiredError="First name is required" />
-                                <MudTextField T="string"
-                                              @bind-Value="Model.LastName"
-                                              Label="Last Name"
-                                              Class="field-md"
-                                              TextChanged="AutoUpdateAbbreviation"
-                                              Required="true"
-                                              RequiredError="Last name is required" />
+        <MudPaper MinWidth="700px">
+            <MudForm @bind-Errors="@errors">
+                <MudGrid>
+                    <MudItem xs="8">
+                        <MudPaper Elevation="15" Class="pa-2 mud-height-full">
+                            <MudStack>
+                                <MudStack Row="true" Spacing="4">
+                                    <MudTextField @bind-Value="Model.FirstName"
+                                                  Label="First Name"
+                                                  Class="field-md"
+                                                  Required="true"
+                                                  RequiredError="First name is required" />
+                                    <MudTextField @bind-Value="Model.LastName"
+                                                  Label="Last Name"
+                                                  Class="field-md"
+                                                  TextChanged="AutoUpdateAbbreviation"
+                                                  Required="true"
+                                                  RequiredError="Last name is required" />
+                                </MudStack>
+                                <MudTextField @bind-Value="Model.Abbreviation"
+                                              Label="Abbreviation"
+                                              Class="field-sm"
+                                              Required="true" />
+
+                                <MudDatePicker @bind-Date=dateSetter
+                                               DisableToolbar="true"
+                                               DateFormat="yyyy"
+                                               FixDay="1" FixMonth="1" OpenTo="OpenTo.Year"
+                                               PickerVariant="PickerVariant.Dialog"
+                                               Editable="true"
+                                               Label="Born in"
+                                               Class="field-md"
+                                               Required="true" />
+
+                                <CountrySelect @bind-Value="Model.Country"
+                                               Class="field-md" />
+
+                                <MudTextField @bind-Value="Model.Biography"
+                                              T="string"
+                                              Label="Biography"
+                                              Lines="5"
+                                              Validation="@(new Func<string, string?>(TestValidation))" />
+
+                                <MudText Typo="Typo.subtitle1">Toggles</MudText>
+                                <MudDivider />
+                                <MudSwitchM3 @bind-Checked="Model.Alive"
+                                             Label="Alive"
+                                             Color="Color.Secondary"
+                                             ThumbIcon="@Icons.Material.Filled.Done"
+                                             ThumbOffIcon="@Icons.Material.Filled.Close" />
                             </MudStack>
-                            <MudTextField T="string"
-                                          @bind-Value="Model.Abbreviation"
-                                          Label="Abbreviation"
-                                          Class="field-sm"
-                                          Required="true" />
-                            <MudDatePicker @bind-Date="@dateSetter"
-                                           Editable="true"
-                                           Label="Date of Birth"
-                                           Class="field-md"
-                                           Required="true" />
-                            <CountrySelect @bind-Value="Model.Country"
-                                              Class="field-md" />
-                            <MudTextField T="string"
-                                          @bind-Value="Model.Biography"
-                                          Label="Biography"
-                                          Lines="5"
-                                          Validation="@(new Func<string, string?>(TestValidation))" />
+                        </MudPaper>
+                    </MudItem>
 
-                            <MudText Typo="Typo.subtitle1">Toggles</MudText>
-                            <MudDivider />
-                            <MudSwitchM3 @bind-Checked="Model.Alive"
-                                         Label="Alive"
-                                         Color="Color.Secondary"
-                                         ThumbIcon="@Icons.Material.Filled.Done"
-                                         ThumbOffIcon="@Icons.Material.Filled.Close" />
-                        </MudStack>
-                    </MudPaper>
-                </MudItem>
+                    <MudItem xs="4">
+                        <MudPaper Elevation="15" Class="pa-2 mud-height-full">
+                            <MudText Typo="Typo.subtitle1">Traits</MudText>
+                            <MudChipSet @bind-SelectedValues="@selectedTraits" MultiSelection="true" Filter="true">
+                                @foreach (var trait in selectableTraits)
+                                {
+                                    <MudChip Text="@trait.Name" Value="@trait.Id" Color="Color.Primary"></MudChip>
+                                }
+                            </MudChipSet>
 
-                <MudItem xs="4">
-                    <MudPaper Elevation="15" Class="pa-2 mud-height-full">
-                        <MudText Typo="Typo.subtitle1">Traits</MudText>
-                        <MudChipSet @bind-SelectedValues="@selectedTraits" MultiSelection="true" Filter="true">
-                            @foreach (var trait in Traits)
+                            @if (errors.Any())
                             {
-                                <MudChip Text="@trait.Name" Value="@trait.Id"></MudChip>
+                                <MudText Typo="Typo.subtitle1">Errors</MudText>
+                                @foreach (var error in errors)
+                                {
+                                    <MudText Color="@Color.Error">@error</MudText>
+                                }
                             }
-                        </MudChipSet>
-
-                        @if (errors.Any())
-                        {
-                            <MudText Typo="Typo.subtitle1">Errors</MudText>
-                            @foreach (var error in errors)
-                            {
-                                <MudText Color="@Color.Error">@error</MudText>
-                            }
-                        }
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
-        </MudForm>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudForm>
+        </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" Disabled="@(!isValid)" OnClick="Submit">Save</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? DriverDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
 
-    [Parameter]
-    public Driver? Driver { get; set; }
-    [Parameter]
-    public List<Trait> Traits { get; set; } = new();
+    [Parameter] public Driver? Driver { get; set; }
+    [Parameter] public List<Trait> Traits { get; set; } = new();
 
     private EditDriverModel Model;
     private DateTime? dateSetter { get; set; }
+    private List<Trait> selectableTraits;
     private ICollection<object>? selectedTraits { get; set; }
 
-    private bool isValid;
     private string[] errors = { };
-    private MudForm form;
 
     protected override void OnInitialized()
     {
         Model = new EditDriverModel(Driver);
         dateSetter = Model.DateOfBirth;
-        selectedTraits = Model.DriverTraits.Select(e => e.TraitId).Cast<object>().ToList();
+
+        var driverTraitIds = Model.DriverTraits.Select(e => e.TraitId).ToList();
+        selectableTraits = Traits.Where(e => e.State == State.Active || driverTraitIds.Contains(e.Id)).ToList();
+        selectedTraits = driverTraitIds.Cast<object>().ToList();
     }
 
     void AutoUpdateAbbreviation()
@@ -119,12 +124,8 @@
         return null;
     }
 
-    private async Task Submit()
+    private void Submit()
     {
-        await form.Validate();
-        if (!form.IsValid)
-            return;
-
         Model.DateOfBirth = dateSetter.GetValueOrDefault();
 
         if (selectedTraits != null)
@@ -136,9 +137,7 @@
         }
 
         if (Model.IsDirty)
-        {
             DriverDialog?.Close(DialogResult.Ok(Model.Record));
-        }
     }
 
     private void Cancel() => DriverDialog?.Cancel();

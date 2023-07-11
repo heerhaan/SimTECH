@@ -1,16 +1,54 @@
-﻿<div class="d-flex flex-row gap-0 pa-0 mud-width-full sim-progress-bar">
-    @foreach (var bar in Bars)
+﻿<div class="d-flex flex-row gap-0 pa-0 mud-width-full muted-background-primary" style="@_lineStyles">
+    @foreach (var (bar, index) in Bars.Select((bar, index) => (bar, index)))
     {
-        <span class="py-1" style="@(_barStyle(bar.Item1, bar.Item2))"></span>
+        <span class="py-1 text-center" style="@(BarStyle(bar.Item1, bar.Item2))">
+            @if (AddIndicator && (index % 2 == 0))
+            {
+                <MudText Typo="Typo.h5" Style="font-size: 0.75rem">@(IndicatorText(1 + index))</MudText>
+            }
+        </span>
     }
 </div>
 
 @code {
-    [Parameter, EditorRequired]
-    public List<(double, string)> Bars { get; set; }
+    [Parameter, EditorRequired] public List<(double, string)> Bars { get; set; }
+    [Parameter] public bool AddIndicator { get; set; } = false;
+    [Parameter] public int CalculationDistance { get; set; }
+    [Parameter] public double TrackLength { get; set; }
+    [Parameter] public ElementSize LineSize { get; set; } = ElementSize.Small;
 
-    private string _barStyle(double size, string colour)
+    private string _lineStyles
+    {
+        get
+        {
+            string lineSpacing = "height: ";
+
+            switch (LineSize)
+            {
+                case ElementSize.Tiny:
+                    lineSpacing += "4px"; break;
+                case ElementSize.Small:
+                    lineSpacing += "8px"; break;
+                case ElementSize.Normal:
+                    lineSpacing += "16px"; break;
+                case ElementSize.Large:
+                    lineSpacing += "32px"; break;
+                default:
+                    lineSpacing += "8px"; break;
+            }
+
+            return lineSpacing;
+        }
+    }
+
+    private string BarStyle(double size, string colour)
     {
         return $"width: {size}%; background-color: {colour}";
+    }
+
+    private string IndicatorText(int advanceNum)
+    {
+        var lapNumber = NumberHelper.CalcLapCount(advanceNum * CalculationDistance, TrackLength);
+        return lapNumber.ToString();
     }
 }

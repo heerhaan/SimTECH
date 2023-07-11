@@ -1,0 +1,87 @@
+﻿@using static SimTECH.Pages.Season.DevelopmentEntrants;
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">Summary season developments</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper>
+            <MudStack Row="true" Justify="Justify.SpaceBetween">
+                <div>
+                    <MudText Typo="Typo.body2" Color="Color.Info">For every aspect, left: total change, right: current value</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Warning">TODO: Ugly as hell</MudText>
+                </div>
+                <ScreenshotButton TargetId="developed-summary" />
+            </MudStack>
+        </MudPaper>
+        <MudPaper id="developed-summary">
+            <MudStack Row="true" Spacing="0" Class="flex-wrap">
+                @foreach (var entrantGroup in Summaries)
+                {
+                    <MudPaper Elevation="15" Class="px-4 py-2">
+                        <MudTable T="EntrantDevelopLog"
+                                  Items="@entrantGroup.EntrantLogs.OrderBy(e => e.Name)"
+                                  GroupBy="@_entrantDefinition"
+                                  GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                                  Bordered="true"
+                                  Dense="true">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h5" Color="Color.Tertiary">@entrantGroup.EntrantGroup.ToString()</MudText>
+                                <MudDivider Vertical="true" Class="mx-2" />
+                                <MudText Typo="Typo.h5">Boing</MudText>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                @foreach (var (aspect, i) in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()).Select((aspect, i) => (aspect, i)))
+                                {
+                                    <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")" Style="width: 150px" colspan="2">
+                                        @aspect.ReadableAspect()
+                                    </MudTh>
+                                }
+                            </HeaderContent>
+                            <GroupHeaderTemplate>
+                                <MudTh Class="mud-table-cell-custom-group" colspan="10">
+                                    <MudText>@context.Key</MudText>
+                                </MudTh>
+                            </GroupHeaderTemplate>
+                            <RowTemplate>
+                                @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()).Select((dev, i) => (dev, i)))
+                                {
+                                    <MudTd Class="@(InspectTheWheel(i))" Style="width: 75px">
+                                        <GradientColour Min="@entrantGroup.MinMaxValues[dev.Key].Item1"
+                                                        Max="@entrantGroup.MinMaxValues[dev.Key].Item2"
+                                                        Value="@dev.Value.Item1">
+                                            <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
+                                        </GradientColour>
+                                    </MudTd>
+                                    <MudTd Class="@(InspectTheWheel(i))" Style="width: 75px">
+                                        <MudText Typo="Typo.caption">@dev.Value.Item2</MudText>
+                                    </MudTd>
+                                }
+                            </RowTemplate>
+                        </MudTable>
+                    </MudPaper>
+                }
+            </MudStack>
+        </MudPaper>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? SummaryDialog { get; set; }
+    [Parameter, EditorRequired] public List<DevelopSummary> Summaries { get; set; }
+
+    private TableGroupDefinition<EntrantDevelopLog> _entrantDefinition = new()
+    {
+        GroupName = "Entrant",
+        Selector = (e) => e.Name
+    };
+
+    private static readonly string[] cycleWheel = new[] { "fallback-muted-background-primary", "fallback-muted-background-secondary", "fallback-muted-background-tertiary" };
+    private int colorCycler = 0;
+
+    private string InspectTheWheel(int numCycle)
+    {
+        numCycle %= cycleWheel.Length;
+        return cycleWheel[numCycle];
+    }
+}

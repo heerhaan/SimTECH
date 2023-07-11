@@ -4,15 +4,12 @@
 
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public string? Colour { get; set; }
+    [Parameter] public string Colour { get; set; } = "red";
 
     private string _styles
     {
         get
         {
-            if (string.IsNullOrEmpty(Colour))
-                return "border-color: red";
-
             return $"border-color: {Colour}";
         }
     }

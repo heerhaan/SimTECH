@@ -9,6 +9,10 @@ namespace SimTECH.Data.Configurations
         public void Configure(EntityTypeBuilder<LapScore> builder)
         {
             builder.HasKey(e => e.Id);
+
+            builder.Property(e => e.TyreColour)
+                .HasMaxLength(9)
+                .IsFixedLength();
         }
     }
 }

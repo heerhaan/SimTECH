@@ -3,7 +3,7 @@
 <MudContainer MaxWidth="MaxWidth.Small">
     <MudPaper Elevation="15">
         <MudForm>
-            <MudTable T="EditSeasonEngineModel" Items="@Model.SeasonEngines" Hover="true">
+            <MudTable T="EditSeasonEngineModel" Items="@Model.SeasonEngines" Hover="true" Class="overflow-hider">
                 <HeaderContent>
                     <MudTh>Name</MudTh>
                 </HeaderContent>
@@ -26,14 +26,11 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public AddEntrantsModel Model { get; set; }
+    [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    [Parameter, EditorRequired]
-    public long SeasonId { get; set; }
-
-    [Parameter]
-    public long? PreviousSeasonId { get; set; }
+    [Parameter, EditorRequired] public long LeagueId { get; set; }
+    [Parameter, EditorRequired] public long SeasonId { get; set; }
+    [Parameter] public long? PreviousSeasonId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,7 +43,7 @@
 
         foreach (var engine in Model.BaseEngines.Where(e => !(Model.SeasonEngines.Select(se => se.EngineId).Contains(e.Id))))
         {
-            var previousEngine = await _entrantService.FindRecentSeasonEngine(engine.Id);
+            var previousEngine = await _entrantService.FindRecentSeasonEngine(engine.Id, LeagueId);
 
             var model = new EditSeasonEngineModel(previousEngine);
             model.ResetIdentifierFields();

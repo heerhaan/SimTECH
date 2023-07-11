@@ -25,6 +25,32 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
+        public async Task<List<Driver>> GetAvailableDrivers()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Driver
+                .Where(e => e.State == State.Active && !e.SeasonDrivers!.Any(e => e.Season.State == State.Active))
+                .Include(e => e.DriverTraits)
+                .ToListAsync();
+        }
+
+        public async Task<List<CurrentDriver>> GetCurrentDrivers()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonDriver
+                .Where(sd => sd.Season.State == State.Active)
+                .Select(sd => new CurrentDriver
+                {
+                    SeasonDriverId = sd.Id,
+                    DriverId = sd.DriverId,
+                    League = sd.Season.League.Name,
+                    Colour = sd.SeasonTeam == null ? Constants.DefaultColour : sd.SeasonTeam.Colour
+                })
+                .ToListAsync();
+        }
+
         public async Task<Driver> GetDriverById(long driverId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -70,18 +96,25 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteDriver(Driver driver)
+        public async Task ArchiveDriver(Driver driver)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            if (context.SeasonDriver.Any(e => e.DriverId == driver.Id))
+            if (driver.State == State.Archived)
             {
-                driver.State = State.Archived;
-                context.Update(driver);
+                driver.State = State.Active;
             }
             else
             {
-                context.Remove(driver);
+                if (context.SeasonDriver.Any(e => e.DriverId == driver.Id))
+                {
+                    driver.State = State.Archived;
+                    context.Update(driver);
+                }
+                else
+                {
+                    context.Remove(driver);
+                }
             }
 
             await context.SaveChangesAsync();
@@ -93,22 +126,6 @@ namespace SimTECH.Data.Services
 
             return await context.Result
                 .Where(e => e.Race.State == State.Closed && e.SeasonDriver.Driver.Id == driverId)
-                .ToListAsync();
-        }
-
-        public async Task<List<CurrentDriver>> GetCurrentDrivers()
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.SeasonDriver
-                .Where(sd => sd.Season.State == State.Active)
-                .Select(sd => new CurrentDriver
-                {
-                    SeasonDriverId = sd.Id,
-                    DriverId = sd.DriverId,
-                    League = sd.Season.League.Name,
-                    Colour = sd.SeasonTeam == null ? Constants.DefaultColour : sd.SeasonTeam.Colour
-                })
                 .ToListAsync();
         }
     }

@@ -14,6 +14,8 @@ namespace SimTECH
 
     public enum StateFilter { All, Default, Active, Closed, Archived }
 
+    public enum ElementSize { Normal, Tiny, Small, Large }
+
     public enum Entrant
     {
         None = 0,
@@ -82,21 +84,21 @@ namespace SimTECH
         Caution = 256,
     }
 
+    [Flags]
+    public enum SituationOccurrence
+    {
+        Unknown = 0,
+        Raced = 1,
+        Caution = 2,
+    }
+
     public enum CategoryIncident
     {
         Driver, Car, Engine, Disqualified, Lethal
     }
-
-    public enum ProgressBarType
-    {
-        Default, Caution, Tyre
-    }
     #endregion racing
 
     #region countries
-
-    public enum FlagSize { Normal, Tiny, Small, Large }
-
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1154:Sort enum members.", Justification = "I don't care")]
     public enum Country
     {

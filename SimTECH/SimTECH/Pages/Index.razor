@@ -2,6 +2,7 @@
 @inject BreadcrumbProvider _bread
 @inject RaceService _raceService
 @inject SeasonService _seasonService
+@inject LeagueService _leagueService
 @inject ProtectedLocalStorage _localStorage
 @inject NavigationManager _nav
 @inject IOptions<SimConfig> _config
@@ -9,38 +10,98 @@
 <PageTitle>Home</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-16 px-8">
-    <MudGrid>
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
-
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
-                <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
-                    <MudText Typo="Typo.h2" Class="ma-auto">SimTECH</MudText>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="12" md="4">
-            <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
-
+    <MudGrid Spacing="1">
+        <MudItem xs="12">
+            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
+                <MudText Typo="Typo.h3">SimTECH</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudPaper Elevation="2" Class="pa-4 mud-height-full">
-                <MudTable id="recent-race-table" Items="@recentRaces" Dense="true">
+            <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
+                <MudTable Items="@activeSeasons" Dense="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h5">Active seasons</MudText>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>League</MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<Data.Models.Season, object>(e => e.Year)">
+                                Season
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText Typo="Typo.body2">@(DisplayLeagueName(context.LeagueId))</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText Typo="Typo.body2">@context.Year</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Text"
+                                        Color="Color.Secondary"
+                                        OnClick="@(() => GoToSeason(context.Id))">Overview</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
+                <MudTable T="FinishedRaceModel" Items="@upcomingRaces" Dense="true" Class="overflow-hider">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h5">Upcoming races</MudText>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<FinishedRaceModel, object>(e => e.LeagueName)">
+                                League
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>Season</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText Typo="Typo.body2">@context.LeagueName</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudText Typo="Typo.body2">@context.SeasonDisplay</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.body2">[R@(context.Round)] @(context.Name)</MudText>
+                                <MudSpacer />
+                                <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
+                            </MudStack>
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">Go</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="9">
+            <MudPaper Elevation="5" Class="pa-4 mud-height-full">
+                <MudTable id="recent-race-table" Items="@recentRaces" Dense="true" Class="overflow-hider">
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Last races</MudText>
                         <MudSpacer />
                         <ScreenshotButton TargetId="recent-race-table" />
                     </ToolBarContent>
                     <HeaderContent>
-                        <MudTh>League</MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<FinishedRaceModel, object>(e => e.LeagueName)">
+                                League
+                            </MudTableSortLabel>
+                        </MudTh>
                         <MudTh>Race</MudTh>
                         <MudTh Class="pa-0"></MudTh>
                         <MudTh>Team</MudTh>
-                        <MudTh Class="number-col">No.</MudTh>
+                        <MudTh Class="number-col">NO</MudTh>
                         <MudTh>Driver</MudTh>
                         <MudTh></MudTh>
                     </HeaderContent>
@@ -50,23 +111,23 @@
                         </MudTd>
                         <MudTd>
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.body2">
-                                    [R@(context.Round)] @(context.Name)
-                                </MudText>
+                                <MudText Typo="Typo.body2">[R@(context.Round)] @(context.Name)</MudText>
                                 <MudSpacer />
-                                <CountryFlag Code="@context.Country" Size="FlagSize.Tiny" />
+                                <MudPaper Class="px-2 fallback-muted-background-gray">
+                                    <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
+                                </MudPaper>
                             </MudStack>
                         </MudTd>
-                        <MudTd Class="pa-0">
-                            <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.WinningDriver.Colour))"></span>
+                        <MudTd Class="accent-cell">
+                            <SmolAccent Colour="@context.WinningDriver.Colour" />
                         </MudTd>
                         <MudTd>
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText Typo="Typo.body2">@context.WinningTeam.Name</MudText>
                             </MudStack>
                         </MudTd>
-                        <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.WinningDriver.Colour, context.WinningDriver.Accent))">
-                            <MudText Typo="Typo.caption">@context.WinningDriver.Number</MudText>
+                        <MudTd Class="number-col">
+                            <NumberDisplay Colour="@context.WinningDriver.Colour" Accent="@context.WinningDriver.Accent">@context.WinningDriver.Number</NumberDisplay>
                         </MudTd>
                         <MudTd>
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
@@ -74,40 +135,30 @@
                             </MudStack>
                         </MudTd>
                         <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToPostRace(context.RaceId))">Go</MudButton>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Secondary"
+                                       OnClick="@(() => GoToPostRace(context.RaceId))">Go</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
             </MudPaper>
         </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudPaper Elevation="2" Class="pa-4 mud-height-full">
-                <MudTable T="Race" Items="@upcomingRaces" Dense="true">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h5">Upcoming races</MudText>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>Round</MudTh>
-                        <MudTh>Name</MudTh>
-                        <MudTh></MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>R: @(context.Round)</MudTd>
-                        <MudTd>@(context.Name)</MudTd>
-                        <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.Id))">Go</MudButton>
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
+        <MudItem xs="12" md="3">
+            <MudPaper Elevation="5" Class="pa-4 mud-height-full">
+                
             </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
-    List<FinishedRaceModel> recentRaces;
-    List<Race> upcomingRaces = new();
-    int raceAmount = 5;
+    private List<League> activeLeagues;
+    private List<Data.Models.Season> activeSeasons = new();
+
+    private List<FinishedRaceModel> recentRaces = new();
+    private List<FinishedRaceModel> upcomingRaces = new();
+
+    private int raceAmount = 5;
 
     protected override async Task OnInitializedAsync()
     {
@@ -116,24 +167,43 @@
             new BreadcrumbItem("Home", href: "/", disabled: true),
         });
 
+        activeLeagues = await _leagueService.GetLeagues(StateFilter.Active);
+
+        var seasons = await _seasonService.GetSeasons(StateFilter.Active);
+        activeSeasons.AddRange(seasons);
+
         // following is possibly a very unoptimized call
-        recentRaces = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
-        recentRaces.Reverse();
+        var races = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
+        recentRaces.AddRange(races);
 
         await RetrieveUpcomingRaces();
     }
 
     private async Task RetrieveUpcomingRaces()
     {
-        var seasons = await _seasonService.GetSeasons(StateFilter.Active);
-        foreach (var season in seasons)
+        foreach (var season in activeSeasons)
         {
-            var upcomingRace = await _raceService.GetNextRaceOfSeason(season.Id);
-            if (upcomingRace != null)
-                upcomingRaces.Add(upcomingRace);
+            var nextRace = await _raceService.GetNextRaceOfSeason(season.Id);
+            if (nextRace != null)
+            {
+                var upcoming = new FinishedRaceModel
+                {
+                    RaceId = nextRace.Id,
+                    Name = nextRace.Name,
+                    Round = nextRace.Round,
+                    Country = nextRace.Track?.Country ?? Constants.DefaultCountry,
+                    SeasonDisplay = season.Year.ToString(),
+                    LeagueName = activeLeagues.Find(e => e.Id == season.LeagueId)?.Name ?? "[Unknown]",
+                };
+
+                upcomingRaces.Add(upcoming);
+            }
         }
     }
 
+    private string DisplayLeagueName(long leagueId) => activeLeagues.Find(e => e.Id == leagueId)?.Name ?? "[Unknown]";
+
+    private void GoToSeason(long seasonId) => _nav.NavigateTo($"/overview/{seasonId}");
     private void GoToPostRace(long raceId) => _nav.NavigateTo($"/postrace/{raceId}");
     private void GoToRaceWeek(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");
 }

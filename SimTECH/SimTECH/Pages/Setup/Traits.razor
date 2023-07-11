@@ -28,22 +28,8 @@
             <TemplateColumn T="Trait" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        @if (context.Item.State == State.Closed)
-                        {
-                            <MudIconButton Size="@Size.Small"
-                                       Icon="@Icons.Material.Filled.Block"
-                                       Color="Color.Warning"
-                                       Title="Unavailable"
-                                       OnClick="@(async () => await ToggleState(context.Item, State.Active))" />
-                        }
-                        else
-                        {
-                            <MudIconButton Size="@Size.Small"
-                                       Icon="@Icons.Material.Filled.CheckCircleOutline"
-                                       Color="Color.Success"
-                                       Title="Available"
-                                       OnClick="@(async () => await ToggleState(context.Item, State.Closed))" />
-                        }
+                        <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
+                                            Default="@(context.Item.State == State.Active)" />
                         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrait(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
@@ -77,10 +63,11 @@
                     <MudStack Row="true" AlignItems="AlignItems.Center">
                         @foreach (var modifier in context.Item.RetrieveNotZeroValues())
                         {
-                            <MudPaper Class="pa-2">
-                                <MudText Typo="Typo.caption">
-                                    @(modifier.Key): @(modifier.Value)
-                                </MudText>
+                            <MudPaper Elevation="5" Class="px-2 py-1">
+                                <MudStack AlignItems="AlignItems.Center">
+                                    <MudText>@modifier.Key</MudText>
+                                    <MudText Typo="Typo.caption">@modifier.Value</MudText>
+                                </MudStack>
                             </MudPaper>
                         }
                     </MudStack>
@@ -88,7 +75,7 @@
                     <MudDivider />
 
                     <MudText Typo="Typo.subtitle1">Used by:</MudText>
-                    <MudText>Todo</MudText>
+                    <MudText Color="Color.Warning">Todo</MudText>
                 </MudStack>
             </MudPaper>
         </ChildRowContent>
@@ -99,23 +86,19 @@
 </MudContainer>
 
 @code {
-    List<Trait> TraitData;
-
-    bool typeFilterOpen = false;
+    private List<Trait> TraitData;
 
     protected override async Task OnInitializedAsync()
     {
+        TraitData = await TraitService.GetTraits();
+
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Traits", href: "traits", disabled: true),
         });
-
-        TraitData = await TraitService.GetTraits();
     }
-
-    void OpenFilter() => typeFilterOpen = true;
 
     async Task AddTrait() => await UpdateTrait(null);
     async Task UpdateTrait(Trait? item)
@@ -132,6 +115,7 @@
         }
     }
 
+    async Task OnToggleChange(Trait trait, bool toggled) => await ToggleState(trait, (toggled ? State.Active : State.Closed));
     async Task ToggleState(Trait trait, State target)
     {
         await TraitService.ChangeState(trait, target);

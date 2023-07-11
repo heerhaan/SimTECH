@@ -2,7 +2,7 @@
 {
     public class CalendarRaceModel
     {
-        public long Id { get; set; }
+        public long RaceId { get; set; }
         public int Round { get; set; }
         public string Name { get; set; }
         public Country Country { get; set; }
@@ -11,8 +11,8 @@
         public string WeatherIcon { get; set; }
         public long TrackId { get; set; }
 
-        public DriverWinner PoleSitter { get; set; }
-        public DriverWinner DriverWinner { get; set; }
-        public TeamWinner TeamWinner { get; set; }
+        public CompactDriver PoleSitter { get; set; }
+        public CompactDriver DriverWinner { get; set; }
+        public CompactTeam TeamWinner { get; set; }
     }
 }

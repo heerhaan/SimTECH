@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
+using SimTECH.Pages.Leagues;
 
 namespace SimTECH.Data.Services
 {
@@ -12,6 +13,22 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
+        public async Task<List<DevelopmentLog>> GetDevelopmentLog(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.DevelopmentLog.Where(e => e.SeasonId == seasonId).ToListAsync();
+        }
+
+        public async Task SaveDevelopmentLog(List<DevelopmentLog> logs)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.DevelopmentLog.AddRange(logs);
+
+            await context.SaveChangesAsync();
+        }
+
         #region methods exclusively for season engines
         public async Task<List<SeasonEngine>> GetSeasonEngines(long seasonId)
         {
@@ -20,13 +37,14 @@ namespace SimTECH.Data.Services
             return await context.SeasonEngine.Where(e => e.SeasonId == seasonId).ToListAsync();
         }
 
-        public async Task<SeasonEngine?> FindRecentSeasonEngine(long engineId)
+        public async Task<SeasonEngine?> FindRecentSeasonEngine(long engineId, long leagueId)
         {
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonEngine
-                .Where(e => e.EngineId == engineId)
-                .LastOrDefaultAsync();
+                .Where(e => e.EngineId == engineId && e.Season.LeagueId == leagueId && e.Season.State == State.Closed)
+                .OrderByDescending(e => e.SeasonId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task UpdateSeasonEngine(SeasonEngine engne)
@@ -49,7 +67,7 @@ namespace SimTECH.Data.Services
 
             foreach (var engine in engines)
             {
-                if (target == Aspect.Skill)
+                if (target == Aspect.Engine)
                     engine.Power = developmentDict[engine.Id];
                 else
                     engine.Reliability = developmentDict[engine.Id];
@@ -94,13 +112,14 @@ namespace SimTECH.Data.Services
                 .SingleAsync(e => e.Id == seasonTeamId);
         }
 
-        public async Task<SeasonTeam?> FindRecentSeasonTeam(long teamId)
+        public async Task<SeasonTeam?> FindRecentSeasonTeam(long teamId, long leagueId)
         {
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonTeam
-                .Where(e => e.TeamId == teamId)
-                .LastOrDefaultAsync();
+                .Where(e => e.TeamId == teamId && e.Season.LeagueId == leagueId && e.Season.State == State.Closed)
+                .OrderByDescending(e => e.SeasonId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task UpdateSeasonTeam(SeasonTeam team)
@@ -125,7 +144,7 @@ namespace SimTECH.Data.Services
             {
                 switch (target)
                 {
-                    case Aspect.Skill:
+                    case Aspect.BaseCar:
                         team.BaseValue = developmentDict[team.Id];
                         break;
                     case Aspect.Reliability:
@@ -176,8 +195,9 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonDriver
-                .Where(e => e.DriverId == driverId)
-                .LastOrDefaultAsync();
+                .Where(e => e.DriverId == driverId && e.Season.State == State.Closed)
+                .OrderByDescending(e => e.SeasonId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task UpdateSeasonDriver(SeasonDriver driver)

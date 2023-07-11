@@ -17,16 +17,23 @@
                 <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="NewSeason">New</MudButton>
             </MudStack>
         </MudPaper>
-        <MudDataGrid T="SeasonListModel" Items="@SeasonList" Bordered="true" Dense="true">
+        <MudDataGrid T="SeasonListModel" Items="@SeasonList.OrderBy(e => e.Year)" Dense="true">
             <Columns>
                 <PropertyColumn Property="e => e!.Year" />
-                <PropertyColumn Property="e => e!.DriverNumber" SortBy="e => e!.DriverNumber" Title="No." HeaderClass="number-col hide-sort-icons" CellClass="number-col" />
+                <TemplateColumn T="SeasonListModel" Title="NO" SortBy="e => e!.DriverNumber" HeaderClass="number-col hide-sort-icons" CellClass="number-col">
+                    <CellTemplate>
+                        <NumberDisplay Colour="@Constants.PrimaryColourDefault"
+                                       Accent="@Constants.DefaultAccent">
+                            @context.Item.DriverNumber
+                        </NumberDisplay>
+                    </CellTemplate>
+                </TemplateColumn>
                 <TemplateColumn T="SeasonListModel" Title="Leading driver">
                     <CellTemplate>
                         <MudStack Row="true" AlignItems="AlignItems.Center">
-                            <MudText>@context.Item.DriverName</MudText>
+                            <MudText Class="overflow-hider">@context.Item.DriverName</MudText>
                             <MudSpacer />
-                            <CountryFlag Code="context.Item.DriverNationality" Size="FlagSize.Small" />
+                            <CountryFlag Code="context.Item.DriverNationality" Size="ElementSize.Small" />
                         </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
@@ -38,9 +45,9 @@
                 <TemplateColumn T="SeasonListModel" Title="Leading team">
                     <CellTemplate>
                         <MudStack Row="true" AlignItems="AlignItems.Center">
-                            <MudText>@context.Item.TeamName</MudText>
+                            <MudText Class="overflow-hider">@context.Item.TeamName</MudText>
                             <MudSpacer />
-                            <CountryFlag Code="context.Item.TeamNationality" Size="FlagSize.Small" />
+                            <CountryFlag Code="context.Item.TeamNationality" Size="ElementSize.Small" />
                         </MudStack>
                     </CellTemplate>
                 </TemplateColumn>

@@ -2,7 +2,14 @@
 
 <MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
-        <MudTable T="Team" Items="@Teams" @bind-SelectedItems="@Model.BaseTeams" MultiSelection="true" Dense="true" Hover="true">
+        <MudText Color="Color.Tertiary">Amount teams: @(Model.BaseTeams.Count)</MudText>
+        <MudTable T="Team"
+                  Items="@Teams"
+                  @bind-SelectedItems="@Model.BaseTeams"
+                  @ref="@_table"
+                  MultiSelection="true"
+                  Dense="true"
+                  Hover="true">
             <HeaderContent>
                 <MudTh>Name</MudTh>
                 <MudTh>Nation</MudTh>
@@ -15,18 +22,28 @@
                     <CountryNamedFlag Code="@context.Country" Reverse="true" />
                 </MudTd>
             </RowTemplate>
+            <PagerContent>
+                <MudPagination SelectedChanged="PageChange" Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)"
+                               Variant="Variant.Outlined"
+                               Class="pa-4" />
+            </PagerContent>
         </MudTable>
     </MudPaper>
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public AddEntrantsModel Model { get; set; }
+    [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    List<Team> Teams;
+    private MudTable<Team> _table;
+    private List<Team> Teams;
 
     protected override async Task OnInitializedAsync()
     {
         Teams = await _teamService.GetTeams();
+    }
+
+    private void PageChange(int index)
+    {
+        _table.NavigateTo(index - 1);
     }
 }

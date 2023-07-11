@@ -11,7 +11,10 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Teams</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddTeam">New</MudButton>
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="ToggleDisplayArchived">@(showingArchived ? "Active" : "Archive")</MudButton>
+                <MudButton OnClick="AddTeam">New</MudButton>
+            </MudButtonGroup>
         </MudStack>
     </MudPaper>
     <MudDataGrid T="Team" Items="@TeamData" Dense="true">
@@ -20,10 +23,9 @@
             <PropertyColumn Property="e => e!.Name" />
             <TemplateColumn T="Team" Title="Country" SortBy="e => e.Country">
                 <CellTemplate>
-                    <CountryNamedFlag Code="@context.Item.Country" Size="FlagSize.Small" Reverse="true" />
+                    <CountryNamedFlag Code="@context.Item.Country" Size="ElementSize.Small" Reverse="true" />
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e!.State" />
             <TemplateColumn T="Team" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
@@ -55,6 +57,8 @@
 
 @code {
     private List<Team> TeamData = new();
+
+    private bool showingArchived = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,7 +92,17 @@
 
     async Task DeleteTeam(Team item)
     {
-        await TeamService.DeleteTeam(item);
+        await TeamService.ArchiveTeam(item);
         TeamData.Remove(item);
+    }
+
+    async Task ToggleDisplayArchived()
+    {
+        if (showingArchived)
+            TeamData = await TeamService.GetTeams();
+        else
+            TeamData = await TeamService.GetTeams(StateFilter.Archived);
+
+        showingArchived = !showingArchived;
     }
 }

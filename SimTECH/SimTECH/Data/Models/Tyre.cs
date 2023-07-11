@@ -2,12 +2,10 @@
 
 namespace SimTECH.Data.Models
 {
-    public sealed class Tyre
+    public sealed class Tyre : ModelState
     {
-        public long Id { get; set; }
         public string Name { get; set; } = default!;
         public string Colour { get; set; } = default!;
-        public State State { get; set; }
 
         public int Pace { get; set; }
         public int WearMin { get; set; }
@@ -28,6 +26,18 @@ namespace SimTECH.Data.Models
             var averageLength = (tyre.Pace  / wearAvg) * distance;
 
             return averageLength.RoundDouble();
+        }
+
+        public static List<Tyre> FindValidTyres(this List<Tyre> tyres, int distanceLeft, bool isWet)
+        {
+            if (!tyres.Any())
+                return tyres;
+
+            return tyres
+                .Where(e => e.DistanceMin < distanceLeft
+                     && e.DistanceMax > distanceLeft
+                     && e.ForWet == isWet)
+                .ToList();
         }
     }
 }

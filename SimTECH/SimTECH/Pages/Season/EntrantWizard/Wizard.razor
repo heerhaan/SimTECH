@@ -7,6 +7,7 @@
 @inject SeasonService _seasonService
 @inject SeasonEntrantService _entrantService
 @inject NavigationManager _nav
+@inject IOptions<SimConfig> _config
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudPaper Elevation="5">
@@ -47,7 +48,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 1)
                             {
-                                <EditEngines SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
+                                <EditEngines LeagueId="@Season.LeagueId" SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
                             }
                         </ChildContent>
                     </MudStep>
@@ -63,7 +64,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 3)
                             {
-                                <EditTeams SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
+                                <EditTeams LeagueId="@Season.LeagueId" SeasonId="@SeasonId" PreviousSeasonId="@(PreviousSeason?.Id ?? null)" />
                             }
                         </ChildContent>
                     </MudStep>
@@ -114,8 +115,7 @@
 </MudContainer>
 
 @code {
-    [Parameter]
-    public long SeasonId { get; set; }
+    [Parameter] public long SeasonId { get; set; }
 
     public AddEntrantsModel Model { get; set; } = new();
     public Season Season { get; set; }
@@ -226,6 +226,16 @@
                     else
                     {
                         errors.Add("You fucked up");
+                    }
+                }
+                break;
+            case 7:
+                {
+                    if (!_config.Value.PersonalNumbersEnabled)
+                    {
+                        int numberIndexer = 0;
+                        foreach (var driver in Model.SeasonDrivers.OrderBy(e => e.BaseTeamId))
+                            driver.Number = ++numberIndexer;
                     }
                 }
                 break;

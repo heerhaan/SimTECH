@@ -1,7 +1,7 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h6">Modify league</MudText>
-        <MudText>
+        <MudText Typo="Typo.h3">Modify league</MudText>
+        <MudText Typo="Typo.body2">
             For the development ranges: the range which will be used is the first comparer ('less than') which is equal or less than
             the corresponding value. (For a skill of 31, it would take the first comparer which is equal or less than 31.)
             <br />
@@ -12,24 +12,22 @@
     <DialogContent>
         <MudForm Model="@Model">
             <MudGrid>
-                <MudItem xs="12">
+                <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">League settings</MudText>
                     <MudDivider />
-                </MudItem>
-
-                <MudItem xs="4">
                     <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
                     <MudNumericField T="int"
                                      @bind-Value="Model.RaceLength"
                                      Min="0"
                                      Step="10"
-                                     Label="Length (Km)"
+                                     Label="Length (km)"
                                      HelperText="Should round to nearest ten"
                                      Validation="@(new Func<int, string?>(LengthValidator))"
                                      Class="field-md" />
                 </MudItem>
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">Weighted development ranges</MudText>
+                    <MudDivider />
                     @if (!loading)
                     {
                         <MudChipSet @bind-SelectedValues="selectedAspects" MultiSelection="true" Filter="true">
@@ -42,6 +40,7 @@
                 </MudItem>
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">Options</MudText>
+                    <MudDivider />
                     <MudStack>
                         <MudSwitchM3 @bind-Checked="Model.UsePenalty"
                                      ThumbIcon="@Icons.Material.Filled.Done"
@@ -73,7 +72,7 @@
                 {
                     @foreach (var aspectRange in selectedAspects.Cast<Aspect>())
                     {
-                        <MudPaper Elevation="5" Width="550px">
+                        <MudPaper Elevation="5" Width="500px">
                             <RangeInput Items="@(weightedAspects[aspectRange])" RangeType="@aspectRange" />
                         </MudPaper>
                     }
@@ -97,7 +96,7 @@
 
     private Dictionary<Aspect, List<EditRangeModel>> weightedAspects = new();
 
-    private Aspect[] rangeables = EnumHelper.RangeableAspects;
+    private static readonly Aspect[] rangeables = EnumHelper.RangeableAspects;
     private ICollection<object>? selectedAspects { get; set; }
     private List<string> errorValidations = new();
 
@@ -105,15 +104,13 @@
     {
         Model = new EditLeagueModel(League);
 
-        foreach (var rngbl in rangeables)
-            weightedAspects.Add(rngbl, new());
+        foreach (var range in rangeables)
+            weightedAspects.Add(range, new());
 
         if (League != null)
         {
             foreach (var developGroup in Model.DevelopmentRanges.OrderBy(e => (int)e.Type).GroupBy(e => e.Type))
-            {
                 weightedAspects[developGroup.Key].AddRange(developGroup);
-            }
 
             selectedAspects = Model.DevelopmentRanges.Select(e => e.Type).Distinct().Cast<object>().ToList();
         }

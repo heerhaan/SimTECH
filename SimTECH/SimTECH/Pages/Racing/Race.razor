@@ -12,50 +12,14 @@
 
 <PageTitle>Race</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.False" Class="mt-4" id="race-display">
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     @if (!loading)
     {
-        <MudPaper MinHeight="60px" Width="100%">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
-                <CountryFlag Code="@Model.Country" />
-                <MudText Typo="Typo.h5">@Model.Name - ROUND @Model.Round</MudText>
-
-                <MudSpacer />
-
-                <MudIcon Icon="@Model.ClimateIcon" />
-                <MudText>@Model.Climate</MudText>
-                <MudIcon Icon="@Model.ClimateIcon" />
-
-                <MudSpacer />
-
-                <MudSwitchM3 @bind-Checked="tooMuchInfo"
-                             Label="TMI"
-                             Color="Color.Secondary"
-                             ThumbIcon="@Icons.Material.Filled.Done"
-                             ThumbOffIcon="@Icons.Material.Filled.Close" />
-            </MudStack>
-        </MudPaper>
-        <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)" Dense="true" Class="extra-dense overflow-x-hide">
-            <ToolBarContent>
-                <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
-                    <MudStack Spacing="0" AlignItems="AlignItems.Center">
-                        <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
-                        <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
-                            <MudChip Value="1">@(NumberHelper.CalcLapCount(1 * calculationDistance, Model.TrackLength))</MudChip>
-                            <MudChip Value="5" Default="true">@(NumberHelper.CalcLapCount(5 * calculationDistance, Model.TrackLength))</MudChip>
-                            <MudChip Value="10">@(NumberHelper.CalcLapCount(10 * calculationDistance, Model.TrackLength))</MudChip>
-                        </MudChipSet>
-                    </MudStack>
-                    
-                    <MudSpacer />
-
-                    <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
-                        <MudText Typo="Typo.h5">LAP @(racedLaps) / @(totalLaps)</MudText>
-                    </MudChip>
-
-                    <MudSpacer />
-
-                    <MudButtonGroup Color="Color.Tertiary">
+        <MudPaper Elevation="15" MinHeight="60px" Width="100%">
+            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
+                <div style="width:30%">
+                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                        <ScreenshotButton TargetId="race-display" />
                         @if (!Model.IsFinished)
                         {
                             @if (calculated >= calculationCount)
@@ -64,205 +28,212 @@
                             }
                             else
                             {
-
                                 <MudButton OnClick="Advance">Advance</MudButton>
                             }
                         }
-                        <ScreenshotButton TargetId="race-display" />
                     </MudButtonGroup>
+                </div>
+                
+                <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
+                    <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
+                        <MudChip Value="1" Color="Color.Primary">@(NumberHelper.CalcLapCount(1 * calculationDistance, Model.TrackLength))</MudChip>
+                        <MudChip Value="5" Default="true" Color="Color.Primary">@(NumberHelper.CalcLapCount(5 * calculationDistance, Model.TrackLength))</MudChip>
+                        <MudChip Value="10" Color="Color.Primary">@(NumberHelper.CalcLapCount(10 * calculationDistance, Model.TrackLength))</MudChip>
+                        <MudChip Value="@calculationCount" Color="Color.Primary">@(totalLaps)</MudChip>
+                    </MudChipSet>
                 </MudStack>
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh Style="width: 15px"></MudTh>
-                <MudTh Style="width: 40px">Grid</MudTh>
-                <MudTh Class="pa-0" Style="width: 5px"></MudTh>
-                <MudTh Style="width: 220px">Name</MudTh>
-                <MudTh Class="number-col">No</MudTh>
-                <MudTh Style="width: 220px">Team</MudTh>
-                <MudTh Class="number-col">PWR</MudTh>
-                <MudTh Style="width: 175px">ATT / DEF</MudTh>
-                <MudTh Class="tyre-col">Tyre</MudTh>
-                <MudTh Class="number-col">Pace</MudTh>
-                <MudTh Class="number-col-lg">Status</MudTh>
-                @if (tooMuchInfo)
-                {
-                    <MudTh Class="number-col">Score</MudTh>
-                }
-                <MudTh Style="width: 500px">Progression</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd>
-                    <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
-                </MudTd>
-                <MudTd>
-                    <GridChange Change="@context.GridChange" />
-                </MudTd>
-                <MudTd Class="pa-0">
-                    <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
-                </MudTd>
-                <MudTd Class="overflow-hider">
-                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                        <MudText Typo="Typo.body1">@context.FirstName</MudText>
-                        <MudText Typo="Typo.button">@context.LastName</MudText>
-                        @if (context.HasFastestLap)
-                        {
-                            <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
-                        }
-                        <MudSpacer />
-                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
+
+                <div class="d-flex flex-row-reverse align-center gap-2 pa-0" style="width:30%">
+                    <MudSwitchM3 @bind-Checked="tooMuchInfo"
+                                    Label="TMI"
+                                    LabelPosition="LabelPosition.Start"
+                                    Color="Color.Secondary"
+                                    ThumbIcon="@Icons.Material.Filled.Done"
+                                    ThumbOffIcon="@Icons.Material.Filled.Close" />
+
+                    <MudMenu Label="Charts" Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Secondary" Variant="Variant.Text">
+                        <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
+                        <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
+                    </MudMenu>
+                </div>
+            </MudStack>
+        </MudPaper>
+        <div id="race-display">
+            <MudTable Items="@Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)"
+                      Dense="true"
+                      Class="extra-dense overflow-x-hide">
+                <ToolBarContent>
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2 mud-width-full">
+                        <div class="d-flex flex-row gap-3 align-center pa-0" style="width:30%">
+                            <CountryFlag Code="@Model.Country" />
+                            <MudText Typo="Typo.h5" Class="overflow-hider">@Model.Name - ROUND @Model.Round</MudText>
+                        </div>
+
+                        <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
+                            <MudText Typo="Typo.h5">LAP @(racedLaps) / @(totalLaps)</MudText>
+                        </MudChip>
+
+                        <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
+                            <MudIcon Icon="@Model.ClimateIcon" />
+                            <MudText Typo="Typo.h5">@Model.Climate</MudText>
+                        </div>
                     </MudStack>
-                </MudTd>
-                <MudTd Class="number-col">
-                    <MudPaper Class="py-1 px-2" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                        <MudText Typo="Typo.caption">@context.Number</MudText>
-                    </MudPaper>
-                </MudTd>
-                <MudTd Class="overflow-hider">
-                    <MudText Typo="Typo.button">@context.TeamName</MudText>
-                </MudTd>
-                <MudTd Class="number-col">
-                    <MudText Typo="Typo.caption">@context.Power</MudText>
-                </MudTd>
-                <MudTd>
-                    <MudStack Row="true" Spacing="1" Justify="Justify.SpaceEvenly" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
-                        <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
-                        <MudText Typo="Typo.caption">@context.Attack</MudText>
-                        <sup>@(context.OvertakeCount)</sup>
-                        <span class="py-2" style="background-color: antiquewhite;padding-left: 1px;padding-right: 1px;"></span>
-                        <MudText Typo="Typo.caption">@context.Defense</MudText>
-                        <sup>@(context.DefensiveCount)</sup>
-                        <MudIcon Icon="@IconCollection.ShieldChevron" Size="Size.Small" />
-                    </MudStack>
-                </MudTd>
-                <MudTd Class="tyre-col">
-                    <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
-                        <TyreElement Colour="@context.CurrentTyre.Colour">@context.CurrentTyre.Name.ElementAt(0)</TyreElement>
-                        <sup>@(context.TyreLife)</sup>
-                    </MudStack>
-                </MudTd>
-                <MudTd Class="number-col">
-                    @if (context.Status == RaceStatus.Racing && context.SingleOccurrence == null)
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh Style="width: 15px"></MudTh>
+                    <MudTh Style="width: 40px">Grid</MudTh>
+                    <MudTh Class="pa-0" Style="width: 5px"></MudTh>
+                    <MudTh Style="width: 220px">Name</MudTh>
+                    <MudTh Class="number-col">NO</MudTh>
+                    <MudTh Style="width: 220px">Team</MudTh>
+                    <MudTh Class="number-col">PWR</MudTh>
+                    <MudTh Class="text-center" Style="width: 175px">ATT / DEF</MudTh>
+                    <MudTh Class="tyre-col">Tyre</MudTh>
+                    <MudTh Class="number-col">Pace</MudTh>
+                    <MudTh Class="number-col-lg">Status</MudTh>
+                    @if (tooMuchInfo)
                     {
-                        <GradientColour Min="@lastLowestScore" Max="@lastHighestScore" Value="@context.LastScore">
-                            <MudText Typo="Typo.caption" Color="Color.Inherit">@context.LastScore</MudText>
-                        </GradientColour>
+                        <MudTh Class="number-col">L.Gap</MudTh>
+                        <MudTh Class="number-col">Score</MudTh>
                     }
-                    else
-                    {
-                        <MudText Typo="Typo.button" Color="Color.Warning">@(context.SingleOccurrence ?? "-")</MudText>
-                    }
-                </MudTd>
-                <MudTd Class="number-col-lg">
-                    @if (context.Incident == null)
-                    {
-                        if (context.Position == 1)
+                    <MudTh Style="width: 500px">Progression</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
+                    </MudTd>
+                    <MudTd>
+                        <GridChange Change="@context.GridChange" />
+                    </MudTd>
+                    <MudTd Class="accent-cell">
+                        <SmolAccent Colour="@context.Colour" />
+                    </MudTd>
+                    <MudTd Class="overflow-hider">
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0">
+                            <MudText>@context.FirstName</MudText>
+                            <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
+                            @if (context.HasFastestLap)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
+                            }
+                            <MudSpacer />
+                            <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
+                        </MudStack>
+                    </MudTd>
+                    <MudTd Class="number-col">
+                        <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
+                    </MudTd>
+                    <MudTd Class="overflow-hider">
+                        <MudText Typo="Typo.button">@context.TeamName</MudText>
+                    </MudTd>
+                    <MudTd Class="number-col">
+                        <MudText Typo="Typo.caption">@context.Power</MudText>
+                    </MudTd>
+                    <MudTd>
+                        <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
+                            <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
+                            <MudText Typo="Typo.caption">@context.Attack</MudText>
+                            <sup>@(context.OvertakeCount)</sup>
+                            <span class="py-2" style="background-color: antiquewhite;padding-left: 1px;padding-right: 1px;"></span>
+                            <MudText Typo="Typo.caption">@context.Defense</MudText>
+                            <sup>@(context.DefensiveCount)</sup>
+                            <MudIcon Icon="@IconCollection.ShieldChevron" Size="Size.Small" />
+                        </MudStack>
+                    </MudTd>
+                    <MudTd Class="tyre-col">
+                        <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
+                            <TyreElement Colour="@context.CurrentTyre.Colour">@context.CurrentTyre.Name.ElementAt(0)</TyreElement>
+                            <sup>@(context.TyreLife)</sup>
+                        </MudStack>
+                    </MudTd>
+                    <MudTd Class="number-col">
+                        @if (context.Status == RaceStatus.Racing && context.SingleOccurrence == null)
                         {
-                            <MudText Typo="Typo.caption">LEADER</MudText>
+                            <GradientColour Min="@lastLowestScore" Max="@lastHighestScore" Value="@context.LastScore">
+                                <MudText Typo="Typo.caption" Color="Color.Inherit">@context.LastScore</MudText>
+                            </GradientColour>
                         }
                         else
                         {
-                            <MudText Typo="Typo.caption">+@((Math.Round((highestScore - context.LapSum) * gapMarge, 2)).ToString("F2"))</MudText>
+                            <MudText Typo="Typo.button" Color="Color.Warning">@(context.SingleOccurrence ?? "-")</MudText>
                         }
-                    }
-                    else
-                    {
-                        <MudText Typo="Typo.button" Color="Color.Error">@context.Incident.Name</MudText>
-                    }
-                </MudTd>
-                @if (tooMuchInfo)
-                {
-                    <MudTd Class="number-col">
-                        <MudText Typo="Typo.caption">@context.LapSum</MudText>
                     </MudTd>
-                }
-                <MudTd>
-                    <div class="relative" style="height:8px;width:100%">
-                        @foreach (var lapEvent in context.LapScores)
+                    <MudTd Class="number-col-lg">
+                        @if (context.Incident == null)
                         {
-                            @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
-                            {
-                                <SignalIcon LapPercentage="@(NumberHelper.Percentage(lapEvent.Order, calculationCount))"
-                                            Signal="@raceEvent.element.ToString()"
-                                            Index="@raceEvent.index" />
-                            }
+                            <MudText Typo="Typo.caption">@context.GapAbove</MudText>
                         }
-                    </div>
-
-                    @switch (progressType)
+                        else
+                        {
+                            <MudText Typo="Typo.button" Color="Color.Error">@context.Incident.Name</MudText>
+                        }
+                    </MudTd>
+                    @if (tooMuchInfo)
                     {
-                        case ProgressBarType.Tyre:
-                            {
-                                <SimProgressLinear Bars="@(context.LapScores.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.TyreColour)).ToList())" />
-                            }
-                            break;
-                        case ProgressBarType.Caution:
-                            {
-                                <SimProgressLinear Bars="@(context.LapScores.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.DetermineLapColour())).ToList())" />
-                            }
-                            break;
-                        default:
-                            {
-                                <MudProgressLinear Value="@(NumberHelper.CalcLapCount(context.LastLapOrder * calculationDistance, Model.TrackLength))"
-                                                   Min="0"
-                                                   Max="@totalLaps"
-                                                   Size="Size.Medium"
-                                                   Color="@Color.Primary"
-                                                   Class="my-2" />
-                            }
-                            break;
+                        <MudTd Class="number-col">
+                            <MudText Typo="Typo.caption">+@((Math.Round((highestScore - context.LapSum) * gapMarge, 2)).ToString("F2"))</MudText>
+                        </MudTd>
+                        <MudTd Class="number-col">
+                            <MudText Typo="Typo.caption">@context.LapSum</MudText>
+                        </MudTd>
                     }
-                </MudTd>
-            </RowTemplate>
-            <FooterContent>
-                <MudTd colspan="20">
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                        <MudText Typo="Typo.button">Legend</MudText>
-                        <MudChip Icon="@IconCollection.HelmetOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Crash
-                        </MudChip>
-                        <MudChip Icon="@IconCollection.CarCrash" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Issues
-                        </MudChip>
-                        <MudChip Icon="@IconCollection.EngineOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Engine
-                        </MudChip>
-                        <MudChip Icon="@Icons.Material.Filled.ErrorOutline" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Mistake
-                        </MudChip>
-                        <MudChip Icon="@IconCollection.RefreshDot" IconColor="Color.Success" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Pitstop
-                        </MudChip>
-                        <MudChip Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Info" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Swap
-                        </MudChip>
-                        <MudChip Icon="@Icons.Material.Filled.Healing" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Lethal
-                        </MudChip>
-                        <MudChip Icon="@IconCollection.AlertTriangle" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                            Caution
-                        </MudChip>
+                    <MudTd>
+                        <div class="relative" style="height:8px;width:100%">
+                            @foreach (var lapEvent in context.LapScores)
+                            {
+                                @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
+                                {
+                                    <SignalIcon LapPercentage="@(NumberHelper.Percentage((lapEvent.Order - 1), calculationCount))"
+                                                Signal="@raceEvent.element.ToString()"
+                                                Index="@raceEvent.index" />
+                                }
+                            }
+                        </div>
+                        <MudProgressLinear></MudProgressLinear>
+                        <SimProgressLinear Bars="@(context.LapScores.Select(e => ((NumberHelper.Percentage(1, calculationCount)), (e.TyreColour ?? Constants.DefaultColour))).ToList())" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+            <MudPaper Class="pt-2 px-1">
+                <SimProgressLinear Bars="@(Model.Occurrences.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
+                                   AddIndicator="true" CalculationDistance="@calculationDistance" TrackLength="@Model.TrackLength" />
 
-                        <MudSpacer />
-
-                        <MudMenu Label="Charts" Icon="@Icons.Material.Filled.InsertChart" Color="Color.Tertiary">
-                            <MudMenuItem OnClick="@(() => SetProgressBarType(ProgressBarType.Default))">Default progress</MudMenuItem>
-                            <MudMenuItem OnClick="@(() => SetProgressBarType(ProgressBarType.Caution))">Caution progress</MudMenuItem>
-                            <MudMenuItem OnClick="@(() => SetProgressBarType(ProgressBarType.Tyre))">Tyre progress</MudMenuItem>
-                            <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
-                            <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
-                        </MudMenu>
-                    </MudStack>
-                </MudTd>
-            </FooterContent>
-        </MudTable>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 pt-5 pb-2">
+                    <MudText Typo="Typo.button">Legend</MudText>
+                    <MudChip Icon="@IconCollection.HelmetOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                        Crash
+                    </MudChip>
+                    <MudChip Icon="@IconCollection.CarCrash" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                        Issues
+                    </MudChip>
+                    <MudChip Icon="@IconCollection.EngineOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                        Engine
+                    </MudChip>
+                    <MudChip Icon="@Icons.Material.Filled.ErrorOutline" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                        Mistake
+                    </MudChip>
+                    <MudChip Icon="@IconCollection.RefreshDot" IconColor="Color.Success" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                        Pitstop
+                    </MudChip>
+                    <MudChip Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Info" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                        Swap
+                    </MudChip>
+                    <MudChip Icon="@Icons.Material.Filled.Healing" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                        Injury
+                    </MudChip>
+                </MudStack>
+            </MudPaper>
+        </div>
     }
 </MudContainer>
 
 @code {
-    [Parameter]
-    public long RaceId { get; set; }
+    [Parameter] public long RaceId { get; set; }
 
     public RaceModel Model { get; set; }
+
+    private static readonly Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
 
     List<Tyre> tyres;
     List<Incident> possibleIncidents;
@@ -272,16 +243,16 @@
     bool tooMuchInfo = false;
     bool safetyCarOut = false;
     Color lapIndicatorColor = Color.Dark;
+
     Entrant activeReliabilityCheck = Entrant.Driver;
-    Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
     int reliablityCycler = 0;
-    ProgressBarType progressType = ProgressBarType.Tyre;
 
     // Supportive caluclation fields
     int fatalityOdds;
     int disqualifyChance;
     int safetyCarOdds;
     int safetyReturnOdds;
+    int safetyPitstopSubtract;
     int mistakeRolls;
     int mistakeMin;
     int mistakeMax;
@@ -307,6 +278,9 @@
     int safetyCarGap = 50;
     int safetyGapCloserDivider = 2;
     int safetyWearDivider = 3;
+    int minimumTyreLife = -25;
+
+    private bool isFirstLap => calculated == 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -324,23 +298,53 @@
         disqualifyChance = _config.Value.DisqualifyChance;
         safetyCarOdds = _config.Value.SafetyCarChance;
         safetyReturnOdds = _config.Value.SafetyCarReturnChance;
+        safetyPitstopSubtract = _config.Value.SafetyPitstopSubtracter;
+        safetyCarGap = _config.Value.SafetyCarGap;
         mistakeRolls = _config.Value.MistakeAmountRolls;
         mistakeMin = _config.Value.MistakeLowerValue;
         mistakeMax = _config.Value.MistakeUpperValue;
         battleRng = _config.Value.BattleRng;
         gapMarge = _config.Value.GapMarge;
+        minimumTyreLife = _config.Value.MinimumTyreLife;
 
         calculationDistance = _config.Value.CalculationDistance;
         calculated = Model.RaceDrivers.Select(e => e.LapScores.Count()).Max();
         calculationCount = Model.RaceLength / calculationDistance;
+
+        int occurOffset = 1 + Model.Occurrences.Count;
+        for (; occurOffset <= calculationCount; occurOffset++)
+        {
+            Model.Occurrences.Add(occurOffset, SituationOccurrence.Unknown);
+        }
 
         racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, Model.TrackLength);
         totalLaps = NumberHelper.CalcLapCount(Model.RaceLength, Model.TrackLength);
 
         if (Model.IsFinished)
         {
+            var scoreAbove = 0;
+            foreach (var driver in Model.RaceDrivers)
+            {
+                if (driver.HasFastestLap)
+                    fastestLap = driver.LapScores.Select(e => e.Score).Max();
+
+                if (driver.Position == 1)
+                    driver.GapAbove = "LEADER";
+                else
+                    driver.GapAbove = "+" + (Math.Round((scoreAbove - driver.LapSum) * gapMarge, 2)).ToString("F2");
+
+                scoreAbove = driver.LapSum;
+
+                var lastScore = driver.LapScores.MaxBy(e => e.Order)?.Score ?? 0;
+                driver.LastScore = lastScore;
+
+                if (lastScore > lastHighestScore)
+                    lastHighestScore = lastScore;
+                else if (lastScore < lastLowestScore)
+                    lastLowestScore = lastScore;
+            }
+
             highestScore = Model.RaceDrivers.Max(e => e.LapSum);
-            fastestLap = Model.RaceDrivers.SelectMany(e => e.LapScores).Max(e => e.Score);
         }
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -355,27 +359,18 @@
         loading = false;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var storedProgress = await _storage.GetAsync<ProgressBarType>("raceBar");
-            if (storedProgress.Success)
-                progressType = storedProgress.Value;
-        }
-    }
-
     void ChangeCalculationPerAdvance(MudChip? calcChip)
     {
         if (calcChip != null)
             calculationsPerAdvance = (int)calcChip.Value;
     }
 
-    async Task SetProgressBarType(ProgressBarType type)
+    void AddCalculationSituation()
     {
-        progressType = type;
-        await _storage.SetAsync("raceBar", type);
+        Model.Occurrences[calculated] = safetyCarOut ? SituationOccurrence.Caution : SituationOccurrence.Raced;
     }
+
+    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
     void Advance()
     {
@@ -391,6 +386,8 @@
 
             ++calculated;
             long? newFastestLapScorer = null;
+
+            AddCalculationSituation();
 
             // Logic for what happens during a SC goes here
             if (safetyCarOut)
@@ -410,6 +407,7 @@
             {
                 driver.SingleOccurrence = null;
                 driver.InstantOvertaken = false;
+                driver.RecentMistake = false;
 
                 var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
@@ -425,7 +423,7 @@
                     int lapValue = NumberHelper.RandomInt(minRng, maxRng);
 
                     // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
-                    if (calculated == 1)
+                    if (isFirstLap)
                         lapValue += Model.QualifyingBonus(driver.Grid);
 
                     // Check if driver made a mistake, if so then it's going to cost him
@@ -435,7 +433,7 @@
                         {
                             lapValue -= NumberHelper.RandomInt(mistakeMin, mistakeMax);
                             lapScore.RacerEvents |= RacerEvent.Mistake;
-                            driver.InstantOvertaken = true;
+                            driver.RecentMistake = true;
                             break;
                         }
                     }
@@ -448,16 +446,28 @@
 
                     if (lapValue > fastestLap)
                     {
-                        fastestLap = lapValue;
-                        newFastestLapScorer = driver.ResultId;
+                        if (calculated == 1)
+                        {
+                            int actualLap = lapValue - Model.QualifyingBonus(driver.Grid);
+                            if (actualLap > fastestLap)
+                            {
+                                fastestLap = actualLap;
+                                newFastestLapScorer = driver.ResultId;
+                            }
+                        }
+                        else
+                        {
+                            fastestLap = lapValue;
+                            newFastestLapScorer = driver.ResultId;
+                        }
                     }
 
                     // Finally add the score to the lap results
                     lapScore.Score = lapValue;
                 }
+                // If this get's triggered then the current driver caused a safety car, racing goes on as normal until the next advance
                 else if (safetyCarOccurrence)
                 {
-                    // all sort of calculations to do here in relation to the current driver who caused a SC
                     safetyCarOut = safetyCarOccurrence;
                 }
 
@@ -469,7 +479,6 @@
             // Determine new positions (keep team role in mind here!)
             PostProcessAdvance(newFastestLapScorer);
 
-            // TODO: handle something to deal with an active safety car which occurred in a previous advance
             if (safetyCarOut)
             {
                 lapIndicatorColor = Color.Warning;
@@ -481,8 +490,11 @@
         racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, Model.TrackLength);
 
         var lastScores = Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
-        lastLowestScore = lastScores.Min();
-        lastHighestScore = lastScores.Max();
+        if (lastScores.Any())
+        {
+            lastLowestScore = lastScores.Min();
+            lastHighestScore = lastScores.Max();
+        }
 
         // Persist the new stint results, yes after doing all whats needed to show them
         //PersistLapScores(lapScoresToPersist);
@@ -507,9 +519,18 @@
             lapScore.RacerEvents |= RacerEvent.EngineDnf;
             driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Engine).ToList().TakeRandomIncident();
         }
-        else { return safetyCar; }
+        // Additional reliability check happens on the opening lap, as crashes are more frequent then
+        else if (isFirstLap && DidReliabilityFail(driver.DriverReliability))
+        {
+            lapScore.RacerEvents |= RacerEvent.DriverDnf;
+            driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Driver).ToList().TakeRandomIncident();
+        }
+        else
+        {
+            return safetyCar;
+        }
 
-        // Driver had a reliability failure, meaning he will immediatly be overtaken by any attacking driver
+        // Relability failure = instant overtake by attacking drivers
         driver.InstantOvertaken = true;
 
         // If enabled, then we're also going to check if anyone experienced a fatal crash
@@ -520,6 +541,7 @@
             driver.Status = RaceStatus.Fatal;
             driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Lethal).ToList().TakeRandomIncident();
             lapScore.RacerEvents = RacerEvent.Death;
+            lapIndicatorColor = Color.Error;
 
             return safetyCar;
         }
@@ -528,10 +550,8 @@
         safetyCar = NumberHelper.RandomInt(safetyCarOdds) == 0;
         driver.Status = RaceStatus.Dnf;
 
-        return true;
+        return safetyCar;
     }
-
-    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
     // Returns a number which will be added to the users lap score
     int HandleStrategy(RaceDriver driver, LapScore lapScore)
@@ -552,31 +572,22 @@
         if (tyreMaxWear > driver.TyreLife)
         {
             var distanceLeft = Model.RaceLength - (calculated * calculationDistance);
-            var validTyres = tyres
-                .Where(e => e.DistanceMin < distanceLeft && e.DistanceMax > distanceLeft && e.ForWet == Model.IsWet)
-                .ToList();
+            var validTyres = tyres.FindValidTyres(distanceLeft, Model.IsWet);
 
             if (validTyres.Count > 0)
             {
-                Tyre nextTyre;
-                if (validTyres.Count > 1)
-                    nextTyre = validTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList().TakeRandomItem();
-                else
-                    nextTyre = validTyres.First();
-
-                driver.CurrentTyre = nextTyre;
-                driver.TyreLife = nextTyre.Pace;
-                driver.InstantOvertaken = true;
-
-                lapScore.RacerEvents |= RacerEvent.Pitstop;
+                var pitCost = PitstopDriver(driver, lapScore, validTyres);
 
                 valueScoreResult = driver.TyreLife;
-                valueScoreResult -= NumberHelper.RandomInt(pitMin, pitMax);
+                valueScoreResult -= pitCost;
             }
         }
 
         // Adds wear to the tyre
         driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
+
+        if (driver.TyreLife < minimumTyreLife)
+            driver.TyreLife = minimumTyreLife;
 
         return valueScoreResult;
     }
@@ -585,11 +596,7 @@
     bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
     {
         var distanceLeft = Model.RaceLength - (calculated * calculationDistance);
-        var validTyres = tyres
-            .Where(e => e.DistanceMin < distanceLeft 
-                     && e.DistanceMax > distanceLeft 
-                     && e.ForWet == Model.IsWet)
-            .ToList();
+        var validTyres = tyres.FindValidTyres(distanceLeft, Model.IsWet);
 
         int scoreAboveDriver = 0;
         foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
@@ -602,25 +609,14 @@
             // If the tyre life is less than half of the tyres overall pace, then check for a pitstop
             if (validTyres.Count > 0 && driver.TyreLife < (driver.CurrentTyre.Pace / 2))
             {
-                Tyre nextTyre;
-                if (validTyres.Count > 1)
-                    nextTyre = validTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList().TakeRandomItem();
-                else
-                    nextTyre = validTyres.First();
-
-                driver.CurrentTyre = nextTyre;
-                driver.TyreLife = nextTyre.Pace;
-                driver.InstantOvertaken = true;
-
-                lapScore.RacerEvents |= RacerEvent.Pitstop;
-
-                lapScore.Score -= NumberHelper.RandomInt(pitMin / 2, pitMax / 2);
+                var pitCost = PitstopDriver(driver, lapScore, validTyres);
+                lapScore.Score -= pitCost;
             }
             else
             {
+                // closes the gap to the driver above
                 var scoreGap = scoreAboveDriver - driver.LapSum;
 
-                // Consider making the score gap configureable, it fits well with grid bonus?
                 if (scoreGap > safetyCarGap)
                 {
                     var closingGap = scoreGap / safetyGapCloserDivider;
@@ -630,18 +626,58 @@
 
             var tyreMinWear = (driver.CurrentTyre.WearMin + driver.WearMinMod) / safetyWearDivider;
             var tyreMaxWear = (driver.CurrentTyre.WearMax + driver.WearMaxMod) / safetyWearDivider;
+
             driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
+
+            if (driver.TyreLife < minimumTyreLife)
+                driver.TyreLife = minimumTyreLife;
 
             lapScore.RacerEvents |= RacerEvent.Caution;
             lapScore.TyreColour = driver.CurrentTyre.Colour;
 
             driver.LapScores.Add(lapScore);
             lapScoresToPersist.Add(lapScore);
+            scoreAboveDriver = driver.LapSum;
         }
 
-        DeterminePositions();
+        int positionIndexer = 0;
+        foreach (var driver in Model.RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
+        {
+            driver.Position = ++positionIndexer;
+
+            if (positionIndexer == 1)
+                driver.GapAbove = "LEADER";
+            else
+                driver.GapAbove = "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
+
+            scoreAboveDriver = driver.LapSum;
+        }
 
         return NumberHelper.RandomInt(safetyReturnOdds) == 0;
+    }
+
+    // Returns the score cost which the pitstop took
+    int PitstopDriver(RaceDriver driver, LapScore lapScore, List<Tyre> validTyres)
+    {
+        Tyre nextTyre;
+        if (validTyres.Count > 1)
+            nextTyre = validTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList().TakeRandomItem();
+        else
+            nextTyre = validTyres.First();
+
+        driver.CurrentTyre = nextTyre;
+        driver.TyreLife = nextTyre.Pace + driver.LifeBonus;
+        driver.InstantOvertaken = true;
+
+        lapScore.RacerEvents |= RacerEvent.Pitstop;
+
+        // Pitstop duration is reduced since this is a safety car moment
+        var pitCost = NumberHelper.RandomInt(pitMin, pitMax);
+
+        if (safetyCarOut && pitCost > safetyPitstopSubtract)
+            pitCost -= safetyPitstopSubtract;
+
+        return pitCost;
     }
 
     void PostProcessAdvance(long? newFastestLapHolder)
@@ -669,8 +705,7 @@
     void DeterminePositions()
     {
         var allPositionsAligned = false;
-        // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe)
-        // altough i dont think this matters
+        // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe) / altough i dont think this matters
         var actualPositions = GetCurrentActualPositions();
 
         // This likely can be optimized further
@@ -697,6 +732,17 @@
                 if (driver.Position != actualPositions[driver.SeasonDriverId])
                     allPositionsAligned = false;
             }
+        }
+
+        int scoreAboveDriver = 0;
+        foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
+        {
+            if (driver.Position == 1)
+                driver.GapAbove = "LEADER";
+            else
+                driver.GapAbove = "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
+
+            scoreAboveDriver = driver.LapSum;
         }
     }
 
@@ -734,8 +780,13 @@
             if (!defendingDriver.InstantOvertaken)
             {
                 // Subtract attack value from defense, what's left is how much the attacker is hindered
-                var attackingResult = driver.Attack + NumberHelper.RandomInt(battleRng);
-                var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt(battleRng);
+                var attackingResult = driver.Attack + NumberHelper.RandomInt((battleRng * -1), battleRng);
+                var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt((battleRng * -1), battleRng);
+
+                // Defender frequently made a mistake, so we're punishing him for it :)
+                if (defendingDriver.RecentMistake)
+                    defendingResult = defendingResult / 2;
+
                 var battleCost = defendingResult - attackingResult;
 
                 if (battleCost > 0)
@@ -750,10 +801,6 @@
 
                 // It only counts as an overtake if it wasn't in an instant
                 driver.OvertakeCount++;
-
-                // Not sure if this can even happen but we gotta make sure
-                if (safetyCarOut)
-                    driver.SingleOccurrence = "Overtook under SC";
             }
 
             // Overtake succeeded, driver gains a position!
@@ -801,6 +848,7 @@
 
         //Consider never storing lap scores in the first place (and disabling access to finished races)
         await _raceService.PersistLapScores(allLapScores);
+        await _raceService.PersistOccurrences(Model.ToRaceOccurrences());
         await _raceService.FinishRace(RaceId, finishedResults, scoredPoints);
 
         if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
@@ -809,14 +857,8 @@
         _nav.NavigateTo($"/postrace/{RaceId}");
     }
 
-    async Task ShowGapperChart()
-    {
-        var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
-        _ = await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", parameters);
-    }
-    async Task ShowPositionChart()
-    {
-        var parameters = new DialogParameters { ["Drivers"] = Model.RaceDrivers };
-        _ = await _dialogService.ShowAsync<PositionChangeChart>("Position chart", parameters);
-    }
+    async Task ShowGapperChart() => _ = 
+        await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", new DialogParameters { ["Drivers"] = Model.RaceDrivers });
+    async Task ShowPositionChart() => _ =
+        await _dialogService.ShowAsync<PositionChangeChart>("Position chart", new DialogParameters { ["Drivers"] = Model.RaceDrivers });
 }

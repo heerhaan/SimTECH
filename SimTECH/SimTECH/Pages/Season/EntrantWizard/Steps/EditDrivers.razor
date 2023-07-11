@@ -3,8 +3,12 @@
 
 <MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
+        @if (!_config.Value.PersonalNumbersEnabled)
+        {
+            <MudText Color="Color.Info">Don't worry about the numbers, these fix themselves</MudText>
+        }
         <MudForm>
-            <MudTable T="EditSeasonDriverModel" Items="@Model.SeasonDrivers" Hover="true">
+            <MudTable T="EditSeasonDriverModel" Items="@Model.SeasonDrivers" Hover="true" Class="overflow-hider">
                 <HeaderContent>
                     <MudTh>Name</MudTh>
                     <MudTh>Number</MudTh>
@@ -15,7 +19,7 @@
                         <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                             <MudText>@context.Driver?.FullName</MudText>
                             <MudSpacer />
-                            <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="FlagSize.Small" />
+                            <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
                         </MudStack>
                     </MudTd>
                     <MudTd DataLabel="Number">
@@ -30,7 +34,7 @@
                         <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                             <MudText>@context.Driver?.FullName</MudText>
                             <MudSpacer />
-                            <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="FlagSize.Small" />
+                            <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
                         </MudStack>
                     </MudTd>
                     <MudTd DataLabel="Number">
@@ -54,14 +58,11 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public AddEntrantsModel Model { get; set; }
+    [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    [Parameter, EditorRequired]
-    public long SeasonId { get; set; }
+    [Parameter, EditorRequired] public long SeasonId { get; set; }
 
-    [Parameter]
-    public long? PreviousSeasonId { get; set; }
+    [Parameter] public long? PreviousSeasonId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

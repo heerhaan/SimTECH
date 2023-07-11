@@ -12,6 +12,7 @@ namespace SimTECH.Data
 
         public DbSet<Climate> Climate => Set<Climate>();
         public DbSet<Contract> Contract => Set<Contract>();
+        public DbSet<DevelopmentLog> DevelopmentLog => Set<DevelopmentLog>();
         public DbSet<DevelopmentRange> DevelopmentRange => Set<DevelopmentRange>();
         public DbSet<Driver> Driver => Set<Driver>();
         public DbSet<DriverTrait> DriverTrait => Set<DriverTrait>();
@@ -22,7 +23,10 @@ namespace SimTECH.Data
         public DbSet<League> League => Set<League>();
         public DbSet<Manufacturer> Manufacturer => Set<Manufacturer>();
         public DbSet<PointAllotment> PointAllotment => Set<PointAllotment>();
+        public DbSet<PracticeScore> PracticeScore => Set<PracticeScore>();
+        public DbSet<QualifyingScore> QualifyingScore => Set<QualifyingScore>();
         public DbSet<Race> Race => Set<Race>();
+        public DbSet<RaceOccurrence> RaceOccurrence => Set<RaceOccurrence>();
         public DbSet<Result> Result => Set<Result>();
         public DbSet<Season> Season => Set<Season>();
         public DbSet<SeasonDriver> SeasonDriver => Set<SeasonDriver>();
@@ -35,7 +39,6 @@ namespace SimTECH.Data
         public DbSet<TrackTrait> TrackTrait => Set<TrackTrait>();
         public DbSet<Trait> Trait => Set<Trait>();
         public DbSet<Tyre> Tyre => Set<Tyre>();
-        public DbSet<User> User => Set<User>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

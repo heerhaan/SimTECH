@@ -6,60 +6,65 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudContainer MaxWidth="MaxWidth.False">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Races</MudText>
             <MudSpacer />
             @if (Season.State == State.Concept)
             {
-                <MudButtonGroup Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large">
-                    <MudButton StartIcon="@Icons.Material.Outlined.CarRepair" IconColor="Color.Primary" OnClick="AddRaces">Add races</MudButton>
-                </MudButtonGroup>
+                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair"
+                           IconColor="Color.Primary"
+                           Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           OnClick="AddRaces">
+                    Add races
+                </MudButton>
             }
         </MudStack>
     </MudPaper>
-    <MudTable Items="@RaceCalendar">
+    <MudTable Items="@RaceCalendar" Dense="true">
         <HeaderContent>
             <MudTh Class="number-col">Round</MudTh>
             <MudTh>Country</MudTh>
             <MudTh>Race</MudTh>
             <MudTh>Weather</MudTh>
-            <MudTh Class="number-col"></MudTh>
             <MudTh>Polesitter</MudTh>
-            <MudTh Class="number-col"></MudTh>
-            <MudTh>Winner</MudTh>
-            <MudTh>Winner</MudTh>
-            <MudTh>Status</MudTh>
+            <MudTh Class="number-col">NO</MudTh>
+            <MudTh>Winner driver</MudTh>
+            <MudTh Class="number-col">NO</MudTh>
+            <MudTh>Winner team</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd Class="number-col">
-                <MudText>@context.Round</MudText>
+                <MudText Typo="Typo.caption">@context.Round</MudText>
             </MudTd>
             <MudTd>
-                <CountryNamedFlag Code="context.Country" Size="FlagSize.Small" />
+                <CountryNamedFlag Code="@context.Country" Size="ElementSize.Small" Reverse="true" Class="overflow-hider" />
+            </MudTd>
+            <MudTd Style="max-width:300px">
+                <MudText Class="overflow-hider">@context.Name</MudText>
             </MudTd>
             <MudTd>
-                <MudText>@context.Name</MudText>
-            </MudTd>
-            <MudTd>
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
                     <MudIcon Icon="@context.WeatherIcon" />
                     <MudText>@context.Weather</MudText>
                 </MudStack>
             </MudTd>
+
             @if (context.PoleSitter != null)
             {
-                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.PoleSitter.Colour, context.PoleSitter.Accent))">
-                    <MudText Typo="Typo.caption">@(context.PoleSitter.Number)</MudText>
-                </MudTd>
-                <MudTd>
-                    <MudStack Row="true" AlignItems="AlignItems.Center">
-                        <MudText>@context.PoleSitter.Name</MudText>
+                <MudTd Style="max-width:250px">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Style="max-width:250px">
+                        <MudText Class="overflow-hider">@context.PoleSitter.Name</MudText>
                         <MudSpacer />
-                        <CountryFlag Code="@context.PoleSitter.Country" Size="FlagSize.Small" />
+                        <CountryFlag Code="@context.PoleSitter.Country" Size="ElementSize.Small" />
                     </MudStack>
+                </MudTd>
+                <MudTd Class="number-col">
+                    <NumberDisplay Colour="@context.PoleSitter.Colour" Accent="@context.PoleSitter.Accent">@context.PoleSitter.Number</NumberDisplay>
                 </MudTd>
             }
             else
@@ -70,15 +75,15 @@
 
             @if (context.DriverWinner != null)
             {
-                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.DriverWinner.Colour, context.DriverWinner.Accent))">
-                    <MudText Typo="Typo.caption">@(context.DriverWinner.Number)</MudText>
-                </MudTd>
-                <MudTd>
+                <MudTd Style="max-width:250px">
                     <MudStack Row="true" AlignItems="AlignItems.Center">
-                        <MudText>@context.DriverWinner.Name</MudText>
+                        <MudText Class="overflow-hider">@context.DriverWinner.Name</MudText>
                         <MudSpacer />
-                        <CountryFlag Code="@context.DriverWinner.Country" Size="FlagSize.Small" />
+                        <CountryFlag Code="@context.DriverWinner.Country" Size="ElementSize.Small" />
                     </MudStack>
+                </MudTd>
+                <MudTd Class="number-col">
+                    <NumberDisplay Colour="@context.DriverWinner.Colour" Accent="@context.DriverWinner.Accent">@context.DriverWinner.Number</NumberDisplay>
                 </MudTd>
             }
             else
@@ -87,18 +92,11 @@
                 <MudTd></MudTd>
             }
 
-            @if (context.TeamWinner != null)
-            {
-                <MudTd>
-                    <MudText Typo="Typo.button">@context.TeamWinner.Name</MudText>
-                </MudTd>
-            }
-            else
-            {
-                <MudTd></MudTd>
-            }
             <MudTd>
-                <MudText>@context.State</MudText>
+                @if (context.TeamWinner != null)
+                {
+                    <MudText Typo="Typo.button" Class="overflow-hider">@context.TeamWinner.Name</MudText>
+                }
             </MudTd>
             <MudTd>
                 <MudButtonGroup Size="@Size.Small">
@@ -110,10 +108,10 @@
                     {
                         <MudIconButton Icon="@Icons.Material.Filled.Flag" OnClick="@(() => GoToRaceWeek(context))" />
                     }
-                    else
+                    else if (Season.State != State.Closed)
                     {
-                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.Id))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.Id))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.RaceId))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.RaceId))" />
                     }
                 </MudButtonGroup>
             </MudTd>
@@ -131,7 +129,7 @@
     protected override async Task OnInitializedAsync()
     {
         RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
-        Climates = await _climateService.GetClimates(StateFilter.Active);
+        Climates = await _climateService.GetClimates(StateFilter.All);
 
         _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? 0;
     }
@@ -161,7 +159,7 @@
                 ["SeasonId"] = Season.Id,
                 ["OffsetRound"] = (RaceCalendar.Count + 1),
                 ["DefaultRaceLength"] = seasonLeague.RaceLength,
-                ["Climates"] = Climates,
+                ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
             };
 
         var dialog = await DialogService.ShowAsync<AddRaces>("Insert races", parameters);
@@ -191,7 +189,7 @@
                 ["SeasonId"] = Season.Id,
                 ["IncomingRound"] = item.Round,
                 ["DefaultRaceLength"] = seasonLeague.RaceLength,
-                ["Climates"] = Climates,
+                ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
             };
 
         var dialog = await DialogService.ShowAsync<RaceEditor>("Modify Race", parameters);
@@ -207,22 +205,22 @@
     private async Task DeleteRace(long raceId)
     {
         await RaceService.DeleteRace(raceId);
-        RaceCalendar.Remove(RaceCalendar.First(e => e.Id == raceId));
+        RaceCalendar.Remove(RaceCalendar.First(e => e.RaceId == raceId));
     }
 
     private async Task GoToRaceWeek(CalendarRaceModel race)
     {
         if (race.State == State.Concept)
         {
-            if (race.Round == _nextRound)
-                await RaceService.ActivateRace(race.Id);
-            else
+            if (race.Round != _nextRound)
             {
                 Snackbar.Add("oi oi oi, a previous round hasn't been finished (or even started!) yet. do that one first, cunt.", Severity.Error);
                 return;
             }
+
+            await RaceService.ActivateRace(race.RaceId);
         }
 
-        Nav.NavigateTo($"/raceweek/{race.Id}");
+        Nav.NavigateTo($"/raceweek/{race.RaceId}");
     }
 }

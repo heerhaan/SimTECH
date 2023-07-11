@@ -3,7 +3,7 @@
 @inject ManufacturerService ManufacturerService
 @inject IDialogService DialogService
 
-<PageTitle>Manufacturers</PageTitle>
+<PageTitle>Tyre suppliers</PageTitle>
 
 <MudContainer Class="mt-4">
     <MudPaper MinHeight="60px">
@@ -12,17 +12,19 @@
             <MudSpacer />
             <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddItem">New</MudButton>
         </MudStack>
+        <MudText Typo="Typo.body2" Color="Color.Info" Class="px-4">These values do not apply when using wet tyres.</MudText>
     </MudPaper>
     <MudTable Items="@ManufacturerData" Bordered="true" Dense="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
-            <MudTh>Pace</MudTh>
+            <MudTh>Life Bonus</MudTh>
             <MudTh>Wear</MudTh>
-            <MudTh>State</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd Style="@ViewHelper.SetFullColourstyle(context.Colour, context.Accent)">@context.Name</MudTd>
+            <MudTd>
+                <SupplierDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Name</SupplierDisplay>
+            </MudTd>
             <MudTd>
                 <MudText Typo="Typo.caption">@context.Pace</MudText>
             </MudTd>
@@ -32,9 +34,6 @@
                     <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
                     <MudText Typo="Typo.caption">@context.WearMax</MudText>
                 </MudStack>
-            </MudTd>
-            <MudTd>
-                <MudText>@context.State</MudText>
             </MudTd>
             <MudTd>
                 <MudButtonGroup Size="@Size.Small">

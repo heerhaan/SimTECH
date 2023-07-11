@@ -4,25 +4,27 @@
     {
         public const string SectionKey = "SimConfig";
 
-        public int FatalityChance { get; set; } = 250;
-        public int DisqualifyChance { get; set; } = 100;
-        public int SafetyCarChance { get; set; } = 10;
-        //public int SafetyCarGap { get; set; } = 25;
-        public int SafetyCarReturnChance { get; set; } = 2;
-        public int SafetyStopDurationDivider { get; set; } = 2;
-        public double GapMarge { get; set; } = 0.001;
-        public bool PersonalNumbersEnabled { get; set; }
-        public bool FormationLapEnabled { get; set; }
+        public int CalculationDistance { get; set; } = 10;
 
-        // MistakeAmountRolls refers to the consequent rolls that need to be done before a driver makes a mistake, mistakes are accounted for in each stint for each driver
+        public int DisqualifyChance { get; set; } = 100;
+        public int FatalityChance { get; set; } = 250;
+
+        public int SafetyCarChance { get; set; } = 3;
+        public int SafetyCarGap { get; set; } = 25;
+        public int SafetyCarReturnChance { get; set; } = 2;
+        public int SafetyPitstopSubtracter { get; set; } = 200;
+
         public int MistakeAmountRolls { get; set; } = 1;
         public int MistakeLowerValue { get; set; } = 150;
         public int MistakeUpperValue { get; set; } = 300;
-        public int BattleRng { get; set; } = 10;
 
-        // Pace modifier a #1 driver gets and a #2 driver loses
+        public int BattleRng { get; set; } = 5;
         public int CarDriverStatusModifier { get; set; } = 4;
+        public int MinimumTyreLife { get; set; } = -25;
 
-        public int CalculationDistance { get; set; } = 10;
+        public double GapMarge { get; set; } = 0.04;
+
+        public bool PersonalNumbersEnabled { get; set; }
+        //public bool FormationLapEnabled { get; set; }
     }
 }

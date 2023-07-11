@@ -1,5 +1,5 @@
-﻿@inject SeasonEntrantService EntrantService
-@inject RaceService RaceService
+﻿@inject SeasonEntrantService _entrantService
+@inject RaceService _raceService
 @inject IDialogService _dialog
 
 @if (!loading)
@@ -8,253 +8,55 @@
         <MudTabPanel Text="Standings">
             <MudGrid Spacing="2" id="standings-numerical-overview">
                 <MudItem xs="12">
-                    <MudPaper Height="75px" Class="pa-4">
+                    <MudPaper Height="75px" Class="pa-2">
                         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                            <span>e</span>
+                            <span style="width:10%"></span>
                             <MudText Typo="Typo.h3">Season standings @(Season.Year)</MudText>
-                            <ScreenshotButton TargetId="standings-numerical-overview" />
+                            <ScreenshotButton TargetId="standings-numerical-overview" Styles="@("width:10%")" />
                         </MudStack>
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
-                    <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-                        <MudPaper MinHeight="60px">
-                            <MudText Typo="Typo.h5">Drivers</MudText>
-                        </MudPaper>
-                        <MudTable Items="@DriverResultsModel" Dense="true">
-                            <HeaderContent>
-                                <MudTh Class="number-col">#</MudTh>
-                                <MudTh Class="accent-cell"></MudTh>
-                                <MudTh>Name</MudTh>
-                                <MudTh Class="number-col">No.</MudTh>
-                                <MudTh>
-                                    <MudTableSortLabel SortBy="new Func<StandingDriverModel, object>(e => e.Points)">PTS</MudTableSortLabel>
-                                </MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd Class="number-col">
-                                    <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
-                                </MudTd>
-                                <MudTd Class="accent-cell">
-                                    <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
-                                </MudTd>
-                                <MudTd>
-                                    <MudStack Row="true">
-                                        <MudText>@context.Name</MudText>
-                                        <MudSpacer></MudSpacer>
-                                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
-                                    </MudStack>
-                                </MudTd>
-                                <MudTd Class="number-col" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                                    <MudText Typo="Typo.caption">@context.Number</MudText>
-                                </MudTd>
-                                <MudTd>
-                                    <MudText Typo="Typo.caption">@context.Points</MudText>
-                                </MudTd>
-                            </RowTemplate>
-                        </MudTable>
-                    </MudPaper>
+                    <DriverStandings StandingDrivers="@DriverResultsModel" />
                 </MudItem>
                 <MudItem xs="6">
-                    <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-                        <MudPaper MinHeight="60px">
-                            <MudText Typo="Typo.h5">Constructors</MudText>
-                        </MudPaper>
-                        <MudTable Items="@TeamResultsModel" Dense="true">
-                            <HeaderContent>
-                                <MudTh Class="number-col">#</MudTh>
-                                <MudTh Class="accent-cell"></MudTh>
-                                <MudTh>Principal</MudTh>
-                                <MudTh>Name</MudTh>
-                                <MudTh>PTS</MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="#" Class="number-col">
-                                    <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
-                                </MudTd>
-                                <MudTd Class="accent-cell">
-                                    <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
-                                </MudTd>
-                                <MudTd>
-                                    <MudText>@context.Principal</MudText>
-                                </MudTd>
-                                <MudTd>
-                                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                        <MudText Typo="Typo.body1">@context.Name</MudText>
-                                        <MudSpacer />
-                                        <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
-                                    </MudStack>
-                                </MudTd>
-                                <MudTd>
-                                    <MudText Typo="Typo.caption">@context.Points</MudText>
-                                </MudTd>
-                            </RowTemplate>
-                        </MudTable>
-                    </MudPaper>
+                    <ConstructorStandings StandingConstructors="@TeamResultsModel" />
                 </MudItem>
             </MudGrid>
         </MudTabPanel>
         <MudTabPanel Text="WDC results">
-            <MudPaper Elevation="15">
-                <MudPaper MinHeight="60px">
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
-                        <MudText Typo="Typo.h4">WDC results @(Season.Year)</MudText>
-                        <MudSpacer />
-                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-                            <ScreenshotButton TargetId="wdc-season-results" />
-                            <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" />
-                        </MudButtonGroup>
-                    </MudStack>
-                </MudPaper>
-                <MudTable Items="@DriverResultsModel" Dense="true" Class="extra-dense" id="wdc-season-results">
-                    <HeaderContent>
-                        <MudTh Class="number-col">#</MudTh>
-                        <MudTh Class="accent-cell"></MudTh>
-                        <MudTh>Driver</MudTh>
-                        <MudTh Class="number-col">No.</MudTh>
-                        <MudTh>Team</MudTh>
-                        <MudTh>PTS</MudTh>
-                        @foreach (var race in Races.OrderBy(e => e.Round))
-                        {
-                            <MudTh>
-                                <CountryFlag Code="@race.Track.Country" Size="FlagSize.Small" />
-                            </MudTh>
-                        }
-                        <MudTh class="number-col">AVG</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd Class="number-col">
-                            <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
-                        </MudTd>
-                        <MudTd Class="accent-cell">
-                            <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
-                        </MudTd>
-                        <MudTd>
-                            <MudStack Row="true" Spacing="1" Class="align-center">
-                                <MudText>@context.Name</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
-                            </MudStack>
-                        </MudTd>
-                        <MudTd Class="number-col-lg" Style="@(ViewHelper.SetFullColourstyle(context.Colour, context.Accent))">
-                            <MudText Typo="Typo.caption">@context.Number</MudText>
-                        </MudTd>
-                        <MudTd>
-                            <MudText>@context.Team</MudText>
-                        </MudTd>
-                        <MudTd>
-                            <MudText Typo="Typo.caption">@context.Points</MudText>
-                        </MudTd>
-                        @foreach (var round in Races.OrderBy(e => e.Round))
-                        {
-                            var result = context.ResultCells.Find(e => e.Round == round.Round);
-                            if (result == null)
-                            {
-                                <MudTd Class="result-cell">-</MudTd>
-                            }
-                            else
-                            {
-                                <MudTdResult Result="@result" LowestScoringPosition="@lowestScoringPosition" />
-                            }
-                        }
-                        <MudTd>
-                            <MudText Typo="Typo.caption">@context.Average.ToString("F1")</MudText>
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
+            <DriverResults StandingDrivers="@DriverResultsModel"
+                           CountryRounds="@countryRounds"/>
         </MudTabPanel>
         <MudTabPanel Text="WCC results">
-            <MudTable Items="@TeamResultsModel" Dense="true" id="wcc-season-results">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h4">WCC results @(Season.Year)</MudText>
-                    <MudSpacer />
-                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-                        <ScreenshotButton TargetId="wcc-season-results" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWccResultGraph" />
-                    </MudButtonGroup>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh Class="number-col">#</MudTh>
-                    <MudTh Class="accent-cell"></MudTh>
-                    <MudTh>Team</MudTh>
-                    <MudTh>Principal</MudTh>
-                    <MudTh>PTS</MudTh>
-                    @foreach (var race in Races.OrderBy(e => e.Round))
-                    {
-                        <MudTh Class="number-col-lg">
-                            <CountryFlag Code="@race.Track.Country" Size="FlagSize.Small" />
-                        </MudTh>
-                    }
-                    <MudTh>AVG</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd Class="number-col">
-                        <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
-                    </MudTd>
-                    <MudTd Class="accent-cell">
-                        <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Colour))"></span>
-                    </MudTd>
-                    <MudTd Style="@(ViewHelper.SetBorderRightStyle(context.Colour))">
-                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                            <MudText Typo="Typo.body1">@context.Name</MudText>
-                            <MudSpacer />
-                            <CountryFlag Code="@context.Nationality" Size="FlagSize.Small" />
-                        </MudStack>
-                    </MudTd>
-                    <MudTd>
-                        <MudText Typo="Typo.body1">@context.Principal</MudText>
-                    </MudTd>
-                    <MudTd>
-                        <MudText Typo="Typo.caption">@context.Points</MudText>
-                    </MudTd>
-                    @foreach (var round in Races.OrderBy(e => e.Round))
-                    {
-                        var teamResults = context.ResultCells.Where(e => e.Round == round.Round).ToList();
-
-                        <MudTd Class="result-cell">
-                            @if (teamResults.Any())
-                            {
-                                @foreach (var result in teamResults)
-                                {
-                                    <div class="result-cell" style="@(result.GetResultStyle(lowestScoringPosition))">
-                                        <MudText Typo="Typo.caption">@result.GetResultText()</MudText>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <MudText>-</MudText>
-                            }
-                        </MudTd>
-                    }
-                    <MudTd>
-                        <MudText Typo="Typo.caption">@context.Average.ToString("F1")</MudText>
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
+            <ConstructorResults StandingConstructors="@TeamResultsModel"
+                                CountryRounds="@countryRounds" />
         </MudTabPanel>
     </MudTabs>
 }
 
 @code {
-    [CascadingParameter]
-    public Season Season { get; set; }
+    [CascadingParameter] public Season Season { get; set; }
 
     List<SeasonDriver> SeasonDrivers { get; set; }
     List<SeasonTeam> SeasonTeams { get; set; }
     List<Race> Races { get; set; }
+
     List<StandingDriverModel> DriverResultsModel { get; set; }
     List<StandingTeamModel> TeamResultsModel { get; set; }
 
-    public int lowestScoringPosition = 3;
+    Dictionary<int, Country> countryRounds = new();
+
     bool loading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        Races = await RaceService.GetRacesBySeason(Season.Id);
-        SeasonDrivers = await EntrantService.GetSeasonDriversWithResults(Season.Id);
-        SeasonTeams = await EntrantService.GetSeasonTeamsWithResults(Season.Id);
+        Races = await _raceService.GetRacesBySeason(Season.Id);
+        SeasonDrivers = await _entrantService.GetSeasonDriversWithResults(Season.Id);
+        SeasonTeams = await _entrantService.GetSeasonTeamsWithResults(Season.Id);
+
+        foreach (var round in Races.OrderBy(e => e.Round))
+            countryRounds.Add(round.Round, round.Track?.Country ?? Constants.DefaultCountry);
 
         int indexer = 0;
 
@@ -272,22 +74,7 @@
             .Select(e => ToTeamResultModel(e, ++indexer))
             .ToList();
 
-        if (Season != null && Season.PointAllotments?.Any() == true)
-            lowestScoringPosition = Season.PointAllotments.Max(e => e.Position);
-
         loading = false;
-    }
-
-    async Task ShowWdcResultGraph()
-    {
-        var parameters = new DialogParameters { ["Drivers"] = DriverResultsModel, ["Season"] = Season };
-        _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters);
-    }
-
-    async Task ShowWccResultGraph()
-    {
-        var parameters = new DialogParameters { ["Teams"] = TeamResultsModel, ["Season"] = Season };
-        _ = await _dialog.ShowAsync<WccResultChart>("WCC results chart", parameters);
     }
 
     private StandingDriverModel ToDriverResultModel(SeasonDriver driver, int position)
@@ -305,7 +92,7 @@
                 Points = driver.Points,
                 HiddenPoints = driver.HiddenPoints,
                 SeasonTeamId = driver.SeasonTeamId,
-                Team = driverTeam?.Name ?? "None",
+                Team = driverTeam?.Team?.Name ?? "None",
 
                 ResultCells = driver.Results.Select(ToResultCell).ToList(),
             };
@@ -317,7 +104,7 @@
             {
                 Id = team.Id,
                 Position = position,
-                Name = team.Name,
+                Name = team.Team.Name,
                 Principal = team.Principal,
                 Nationality = team.Team.Country,
                 Colour = team.Colour,
@@ -337,6 +124,7 @@
                 Status = result.Status,
                 Round = Races.Single(e => e.Id == result.RaceId).Round,
                 Pole = result.Grid == 1,
+                FL = result.FastestLap,
             };
     }
 }

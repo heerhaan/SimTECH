@@ -4,26 +4,28 @@
         <ToolBarContent>
             <MudText Typo="Typo.h6">@_displayTitle</MudText>
             <MudSpacer />
-            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendRow" />
+            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" Size="Size.Small" OnClick="AppendRow" />
         </ToolBarContent>
         <HeaderContent>
-            <MudTh>Less than</MudTh>
-            <MudTh>Minimum</MudTh>
-            <MudTh>Maximum</MudTh>
+            <MudTh>&lt; LESS</MudTh>
+            <MudTh>MIN</MudTh>
+            <MudTh>MAX</MudTh>
+            <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="Comparer">
+            <MudTd>
                 <MudNumericField @bind-Value="@context.Comparer" Class="field-xs" />
             </MudTd>
-            <MudTd DataLabel="Minimum">
+            <MudTd>
                 <MudNumericField @bind-Value="@context.Minimum" Class="field-xs" />
             </MudTd>
-            <MudTd DataLabel="Maximum">
+            <MudTd>
                 <MudNumericField @bind-Value="@context.Maximum" Class="field-xs" />
             </MudTd>
             <MudTd>
                 <MudIconButton Icon="@Icons.Material.Outlined.Delete"
                                Color="Color.Error"
+                               Size="Size.Small"
                                OnClick="@(() => RemoveRow(context))"/>
             </MudTd>
         </RowTemplate>

@@ -5,7 +5,7 @@
     <MudGrid>
         <MudItem xs="3">
             <MudPaper Elevation="5">
-                <MudTable Items="@Model.SeasonEngines">
+                <MudTable Items="@Model.SeasonEngines" Class="overflow-hider">
                     <ToolBarContent>
                         <MudText Typo="Typo.h6">Engines</MudText>
                     </ToolBarContent>
@@ -22,7 +22,7 @@
         </MudItem>
         <MudItem xs="5">
             <MudPaper Elevation="5">
-                <MudTable Items="@Model.SeasonTeams">
+                <MudTable Items="@Model.SeasonTeams" Class="overflow-hider">
                     <ToolBarContent>
                         <MudText Typo="Typo.h6">Teams</MudText>
                     </ToolBarContent>
@@ -38,7 +38,7 @@
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText>@context.Name</MudText>
                                 <MudSpacer />
-                                <CountryFlag Code="@(context.Team?.Country ?? Constants.DefaultCountry)" Size="FlagSize.Small" />
+                                <CountryFlag Code="@(context.Team?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
                             </MudStack>
                         </MudTd>
                         <MudTd DataLabel="Principal">
@@ -59,7 +59,7 @@
         </MudItem>
         <MudItem xs="4">
             <MudPaper Elevation="5">
-                <MudTable Items="@Model.SeasonDrivers">
+                <MudTable Items="@Model.SeasonDrivers" Class="overflow-hider">
                     <ToolBarContent>
                         <MudText Typo="Typo.h6">Drivers</MudText>
                     </ToolBarContent>
@@ -73,7 +73,7 @@
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText>@context.Driver?.FullName</MudText>
                                 <MudSpacer />
-                                <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="FlagSize.Small" />
+                                <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
                             </MudStack>
                         </MudTd>
                         <MudTd DataLabel="Number">
@@ -90,22 +90,9 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public AddEntrantsModel Model { get; set; }
+    [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    [Parameter, EditorRequired]
-    public long SeasonId { get; set; }
-
-    private async Task AddAllEntrants()
-    {
-        Model.CombineEntrantModels();
-
-        var rootEntrants = Model.SeasonEngines.Select(e => e.Record).ToList();
-
-        await _entrantService.PersistSeasonEntrants(rootEntrants);
-
-        _nav.NavigateTo($"/overview/{SeasonId}");
-    }
+    [Parameter, EditorRequired] public long SeasonId { get; set; }
 
     private string ReadEngineName(long id) => Model.SeasonEngines.Find(e => e.EngineId == id)?.Name ?? "Unknown";
 }
