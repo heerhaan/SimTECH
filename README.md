@@ -6,7 +6,7 @@ An application in where one can run motorsport simulations, an useful and fun ac
 |_Fig.1: Race in SimTECH_|
 
 ## Requirements
-It is required to have an instance of MSSQL localdb installed and running, if you don't like that then feel free to change it to something else yourself.
+It is required to have an instance of MSSQL localdb installed and running, if you don't like that then that's your problem.
 
 ## Installation
 Get the .zip from the release, unpack it somewhere and run the EXE. Done!
