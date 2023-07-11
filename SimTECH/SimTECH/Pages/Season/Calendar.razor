@@ -1,6 +1,6 @@
 ﻿@inject ClimateService _climateService
-@inject LeagueService LeagueService
-@inject RaceService RaceService
+@inject LeagueService _leagueService
+@inject RaceService _raceService
 @inject TrackService TrackService
 @inject NavigationManager Nav
 @inject IDialogService DialogService
@@ -128,15 +128,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
+        RaceCalendar = await _raceService.GetRaceCalendar(Season.Id);
         Climates = await _climateService.GetClimates(StateFilter.All);
 
-        _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? 0;
+        _nextRound = (await _raceService.GetNextRaceOfSeason(Season.Id))?.Round ?? 0;
     }
 
     private async Task AddRaces()
     {
-        var seasonLeague = await LeagueService.GetLeagueById(Season.LeagueId);
+        var seasonLeague = await _leagueService.GetLeagueById(Season.LeagueId);
         var availableTracks = (await TrackService.GetTracks())
             .Where(e => !RaceCalendar.Select(r => r.TrackId).Contains(e.Id))
             .ToList();
@@ -167,15 +167,15 @@
 
         if (!result.Canceled && result.Data != null && result.Data is List<Race> addedRaces)
         {
-            await RaceService.InsertRaces(addedRaces);
-            RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
+            await _raceService.InsertRaces(addedRaces);
+            RaceCalendar = await _raceService.GetRaceCalendar(Season.Id);
         }
     }
 
     private async Task UpdateRace(long raceId)
     {
-        var item = await RaceService.GetRaceById(raceId);
-        var seasonLeague = await LeagueService.GetLeagueById(Season.LeagueId);
+        var item = await _raceService.GetRaceById(raceId);
+        var seasonLeague = await _leagueService.GetLeagueById(Season.LeagueId);
 
         if (seasonLeague == null)
         {
@@ -197,14 +197,14 @@
 
         if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
         {
-            await RaceService.UpdateRace(updatedRace);
-            RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
+            await _raceService.UpdateRace(updatedRace);
+            RaceCalendar = await _raceService.GetRaceCalendar(Season.Id);
         }
     }
 
     private async Task DeleteRace(long raceId)
     {
-        await RaceService.DeleteRace(raceId);
+        await _raceService.DeleteRace(raceId);
         RaceCalendar.Remove(RaceCalendar.First(e => e.RaceId == raceId));
     }
 
@@ -218,7 +218,7 @@
                 return;
             }
 
-            await RaceService.ActivateRace(race.RaceId);
+            await _raceService.ActivateRace(race.RaceId);
         }
 
         Nav.NavigateTo($"/raceweek/{race.RaceId}");
