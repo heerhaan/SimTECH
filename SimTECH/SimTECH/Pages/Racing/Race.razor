@@ -45,16 +45,17 @@
                 </MudStack>
 
                 <div class="d-flex flex-row-reverse align-center gap-2 pa-0" style="width:30%">
-                    <MudMenu Label="Charts" Icon="@Icons.Material.Filled.InsertChart" Color="Color.Secondary" Variant="Variant.Outlined">
+                    <MudSwitchM3 @bind-Checked="tooMuchInfo"
+                                    Label="TMI"
+                                    LabelPosition="LabelPosition.Start"
+                                    Color="Color.Secondary"
+                                    ThumbIcon="@Icons.Material.Filled.Done"
+                                    ThumbOffIcon="@Icons.Material.Filled.Close" />
+
+                    <MudMenu Label="Charts" Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Secondary" Variant="Variant.Text">
                         <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
                         <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
                     </MudMenu>
-                    <MudSwitchM3 @bind-Checked="tooMuchInfo"
-                                 Label="TMI"
-                                 LabelPosition="LabelPosition.Start"
-                                 Color="Color.Secondary"
-                                 ThumbIcon="@Icons.Material.Filled.Done"
-                                 ThumbOffIcon="@Icons.Material.Filled.Close" />
                 </div>
             </MudStack>
         </MudPaper>
@@ -279,6 +280,8 @@
     int safetyWearDivider = 3;
     int minimumTyreLife = -25;
 
+    private bool isFirstLap => calculated == 1;
+
     protected override async Task OnInitializedAsync()
     {
         tyres = await _tyreService.GetTyres(StateFilter.Active);
@@ -362,6 +365,13 @@
             calculationsPerAdvance = (int)calcChip.Value;
     }
 
+    void AddCalculationSituation()
+    {
+        Model.Occurrences[calculated] = safetyCarOut ? SituationOccurrence.Caution : SituationOccurrence.Raced;
+    }
+
+    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
+
     void Advance()
     {
         // Use this variable to persist the lap scores which were generated in this advance
@@ -397,7 +407,7 @@
             {
                 driver.SingleOccurrence = null;
                 driver.InstantOvertaken = false;
-                driver.FrequentMistake = false;
+                driver.RecentMistake = false;
 
                 var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
@@ -413,7 +423,7 @@
                     int lapValue = NumberHelper.RandomInt(minRng, maxRng);
 
                     // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
-                    if (calculated == 1)
+                    if (isFirstLap)
                         lapValue += Model.QualifyingBonus(driver.Grid);
 
                     // Check if driver made a mistake, if so then it's going to cost him
@@ -423,7 +433,7 @@
                         {
                             lapValue -= NumberHelper.RandomInt(mistakeMin, mistakeMax);
                             lapScore.RacerEvents |= RacerEvent.Mistake;
-                            driver.FrequentMistake = true;
+                            driver.RecentMistake = true;
                             break;
                         }
                     }
@@ -455,9 +465,9 @@
                     // Finally add the score to the lap results
                     lapScore.Score = lapValue;
                 }
+                // If this get's triggered then the current driver caused a safety car, racing goes on as normal until the next advance
                 else if (safetyCarOccurrence)
                 {
-                    // all sort of calculations to do here in relation to the current driver who caused a SC
                     safetyCarOut = safetyCarOccurrence;
                 }
 
@@ -490,11 +500,6 @@
         //PersistLapScores(lapScoresToPersist);
     }
 
-    void AddCalculationSituation()
-    {
-        Model.Occurrences[calculated] = safetyCarOut ? SituationOccurrence.Caution : SituationOccurrence.Raced;
-    }
-
     bool CheckReliability(RaceDriver driver, LapScore lapScore)
     {
         var safetyCar = false;
@@ -515,7 +520,7 @@
             driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Engine).ToList().TakeRandomIncident();
         }
         // Additional reliability check happens on the opening lap, as crashes are more frequent then
-        else if (calculated == 1 && DidReliabilityFail(driver.DriverReliability))
+        else if (isFirstLap && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
             driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Driver).ToList().TakeRandomIncident();
@@ -525,7 +530,7 @@
             return safetyCar;
         }
 
-        // Driver had a reliability failure, meaning he will immediatly be overtaken by any attacking driver
+        // Relability failure = instant overtake by attacking drivers
         driver.InstantOvertaken = true;
 
         // If enabled, then we're also going to check if anyone experienced a fatal crash
@@ -548,8 +553,6 @@
         return safetyCar;
     }
 
-    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
-
     // Returns a number which will be added to the users lap score
     int HandleStrategy(RaceDriver driver, LapScore lapScore)
     {
@@ -569,9 +572,7 @@
         if (tyreMaxWear > driver.TyreLife)
         {
             var distanceLeft = Model.RaceLength - (calculated * calculationDistance);
-            var validTyres = tyres
-                .Where(e => e.DistanceMin < distanceLeft && e.DistanceMax > distanceLeft && e.ForWet == Model.IsWet)
-                .ToList();
+            var validTyres = tyres.FindValidTyres(distanceLeft, Model.IsWet);
 
             if (validTyres.Count > 0)
             {
@@ -595,11 +596,7 @@
     bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
     {
         var distanceLeft = Model.RaceLength - (calculated * calculationDistance);
-        var validTyres = tyres
-            .Where(e => e.DistanceMin < distanceLeft 
-                     && e.DistanceMax > distanceLeft 
-                     && e.ForWet == Model.IsWet)
-            .ToList();
+        var validTyres = tyres.FindValidTyres(distanceLeft, Model.IsWet);
 
         int scoreAboveDriver = 0;
         foreach (var driver in Model.RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
@@ -613,14 +610,13 @@
             if (validTyres.Count > 0 && driver.TyreLife < (driver.CurrentTyre.Pace / 2))
             {
                 var pitCost = PitstopDriver(driver, lapScore, validTyres);
-
                 lapScore.Score -= pitCost;
             }
             else
             {
+                // closes the gap to the driver above
                 var scoreGap = scoreAboveDriver - driver.LapSum;
 
-                // Consider making the score gap configureable, it fits well with grid bonus?
                 if (scoreGap > safetyCarGap)
                 {
                     var closingGap = scoreGap / safetyGapCloserDivider;
@@ -709,8 +705,7 @@
     void DeterminePositions()
     {
         var allPositionsAligned = false;
-        // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe)
-        // altough i dont think this matters
+        // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe) / altough i dont think this matters
         var actualPositions = GetCurrentActualPositions();
 
         // This likely can be optimized further
@@ -789,7 +784,7 @@
                 var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt((battleRng * -1), battleRng);
 
                 // Defender frequently made a mistake, so we're punishing him for it :)
-                if (defendingDriver.FrequentMistake)
+                if (defendingDriver.RecentMistake)
                     defendingResult = defendingResult / 2;
 
                 var battleCost = defendingResult - attackingResult;

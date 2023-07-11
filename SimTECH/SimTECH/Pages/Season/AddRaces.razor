@@ -8,17 +8,10 @@
         @if (errorValidations.Any())
         {
             <MudPaper Class="pa-2">
-                <MudList>
-                    <MudListSubheader>
-                        <MudText Typo="Typo.subtitle1">Error messages</MudText>
-                    </MudListSubheader>
-                    @foreach (var error in errorValidations)
-                    {
-                        <MudListItem>
-                            <MudText Color="Color.Error">@error</MudText>
-                        </MudListItem>
-                    }
-                </MudList>
+                @foreach (var error in errorValidations)
+                {
+                    <MudText Color="Color.Error">@error</MudText>
+                }
             </MudPaper>
         }
         <MudContainer Class="@(stepIndex == 0 ? string.Empty : "d-none")">
@@ -28,11 +21,11 @@
                         <MudTh>Name</MudTh>
                         <MudTh>Country</MudTh>
                         <MudTh>Length</MudTh>
-                        <MudTh>AER.</MudTh>
-                        <MudTh>CHA.</MudTh>
-                        <MudTh>POW.</MudTh>
-                        <MudTh>QUA.</MudTh>
-                        <MudTh>DEF.</MudTh>
+                        <MudTh>AER</MudTh>
+                        <MudTh>CHA</MudTh>
+                        <MudTh>POW</MudTh>
+                        <MudTh>QUA</MudTh>
+                        <MudTh>DEF</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>
@@ -42,7 +35,7 @@
                             <CountryNamedFlag Code="@context.Country" Size="ElementSize.Small" Reverse="true" />
                         </MudTd>
                         <MudTd>
-                            <MudText Typo="Typo.caption">@(context.Length)Km</MudText>
+                            <MudText Typo="Typo.caption">@(context.Length)km</MudText>
                         </MudTd>
                         <MudTd>
                             <MudText>@(context.AeroMod.ToString("F2"))x</MudText>
@@ -83,7 +76,7 @@
                             <MudText>@(context.RaceLength)km</MudText>
                         </MudTd>
                         <MudTd>
-                            <MudText>@(Climates.Find(e => e.Id == context.ClimateId)?.Terminology ?? "Unknown")</MudText>
+                            <MudText>@(FindClimateTerminology(context.ClimateId))</MudText>
                         </MudTd>
                     </RowTemplate>
                     <RowEditingTemplate>
@@ -115,8 +108,9 @@
         </MudContainer>
         <MudContainer Class="@(stepIndex == 2 ? string.Empty : "d-none")">
             <MudText Typo="Typo.body2" Color="Color.Info">
-                Drag to re-order in which round the races occur.<br/>
-                Don't worry about the numeric round value, this will be restored properly when storing the races.
+                Drag to re-order in which round the races occur.
+                <br/>
+                Don't worry about the represented round number, this will be applied properly when saving the races.
             </MudText>
             <MudPaper MinWidth="1000px">
                 <MudDropContainer @ref="reorderContainer"
@@ -187,31 +181,21 @@
             addedRaces.Add(new EditRaceModel
             {
                 Round = OffsetRound++,
-                Name = track.Name, // TODO: find previously used name for this track, perhaps
+                Name = track.Name, // TODO: find previously used name for this track
                 RaceLength = DefaultRaceLength,
                 TrackId = track.Id,
                 SeasonId = SeasonId,
-                ClimateId = climateIdentifiers.TakeRandomItem(),
+                ClimateId = Climates.TakeRandomClimate().Id,
             });
         }
     }
 
     private void ReorderItems(MudItemDropInfo<EditRaceModel> item)
     {
-        addedRaces.UpdateOrder(item, e => e.Round);
+        addedRaces.UpdateOrder(item, e => e.Round, 1);
     }
 
-    private void Submit()
-    {
-        if (!RunValidations())
-            return;
-
-        var raceRecords = addedRaces.Select(e => e.Record).ToList();
-
-        RaceDialog?.Close(DialogResult.Ok(raceRecords));
-    }
-
-    private void Cancel() => RaceDialog?.Cancel();
+    private string FindClimateTerminology(long climateId) => Climates.Find(e => e.Id == climateId)?.Terminology ?? "Unknown";
 
     private bool RunValidations()
     {
@@ -232,4 +216,16 @@
 
         return isValid;
     }
+
+    private void Submit()
+    {
+        if (!RunValidations())
+            return;
+
+        var raceRecords = addedRaces.Select(e => e.Record).ToList();
+
+        RaceDialog?.Close(DialogResult.Ok(raceRecords));
+    }
+
+    private void Cancel() => RaceDialog?.Cancel();
 }

@@ -6,7 +6,7 @@
 <PageTitle>Components</PageTitle>
 
 <MudContainer>
-    @if (PartsPerDriver != null)
+    @if (driverComponentModel != null)
     {
         <MudGrid>
             <MudItem xs="9">
@@ -14,10 +14,10 @@
                     <MudPaper MinHeight="60px" Class="pa-4">
                         <MudText Typo="Typo.h3">Components</MudText>
                     </MudPaper>
-                    <MudTable Items="@PartsPerDriver">
+                    <MudTable Items="@driverComponentModel" Dense="true">
                         <HeaderContent>
                             <MudTh>Name</MudTh>
-                            <MudTh Class="pa-0">NO</MudTh>
+                            <MudTh Class="number-col">NO</MudTh>
                             <MudTh>DNF</MudTh>
                             <MudTh>DSQ</MudTh>
                         </HeaderContent>
@@ -25,7 +25,7 @@
                             <MudTd>
                                 <MudText>@context.Name</MudText>
                             </MudTd>
-                            <MudTd Class="pa-0">
+                            <MudTd Class="number-col">
                                 <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                             </MudTd>
                             <MudTd>
@@ -44,19 +44,22 @@
             </MudItem>
             <MudItem xs="3">
                 <MudPaper Class="pa-4 mud-height-full">
-                    <MudText Typo="Typo.h4">Penalties</MudText>
+                    <MudText Typo="Typo.h5">Consumed penalties</MudText>
                     <MudList>
-                        @foreach (var driver in PartsPerDriver)
+                        @foreach (var consum in consumedPenalties.OrderBy(e => e.Key))
                         {
-                            @foreach (var penalty in driver.ConsumedPenalties)
-                            {
-                                <MudListItem>
-                                    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
-                                        <MudText>@driver.Name</MudText>
-                                        <MudText>@penalty</MudText>
-                                    </MudStack>
-                                </MudListItem>
-                            }
+                            <MudListItem Text="@consum.Key" InitiallyExpanded="true">
+                                <NestedList>
+                                    @foreach (var incidentale in consum.Value)
+                                    {
+                                        <MudListItem>
+                                            <MudText>
+                                                @incidentale.Consumed | @incidentale.Incident | @incidentale.Punishment
+                                            </MudText>
+                                        </MudListItem>
+                                    }
+                                </NestedList>
+                            </MudListItem>
                         }
                     </MudList>
                 </MudPaper>
@@ -68,8 +71,9 @@
 @code {
     [Parameter] public long SeasonId { get; set; }
 
-    List<Incident> Incidents;
-    List<PartsUsedByDriver> PartsPerDriver;
+    private List<Incident> incidents;
+    private List<PartsUsedByDriver> driverComponentModel;
+    private Dictionary<string, List<PenaltyConsoom>> consumedPenalties = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,7 +85,35 @@
             new BreadcrumbItem("Components", href: $"components/{SeasonId}", disabled: true),
         });
 
-        Incidents = await _incidentService.GetIncidents();
-        PartsPerDriver = await _seasonService.GetPartsUsageModel(SeasonId);
+        incidents = await _incidentService.GetIncidents();
+        driverComponentModel = await _seasonService.GetPartsUsageModel(SeasonId);
+
+        BuildConsumedPenalties();
+    }
+
+    private void BuildConsumedPenalties()
+    {
+        foreach (var driver in driverComponentModel.Where(e => e.GivenPenalties.Any()))
+        {
+            var consoom = new List<PenaltyConsoom>();
+            foreach (var penalty in driver.GivenPenalties)
+            {
+                var inchident = incidents.Find(x => x.Id == penalty.IncidentId);
+                consoom.Add(new PenaltyConsoom
+                {
+                    Consumed = penalty.Consumed,
+                    Incident = inchident?.Name ?? "[Unknown]",
+                    Punishment = inchident?.Punishment ?? 0,
+                });
+            }
+            consumedPenalties.Add(driver.Name, consoom);
+        }
+    }
+
+    internal class PenaltyConsoom
+    {
+        public bool Consumed { get; set; }
+        public string Incident { get; set; }
+        public int Punishment { get; set; }
     }
 }

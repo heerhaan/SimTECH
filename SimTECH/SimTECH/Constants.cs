@@ -30,12 +30,13 @@ namespace SimTECH
         #region charts
         public static readonly Chart.ApexChartOptions<DataPoint> ChartOptionsDefault = new()
         {
-            Chart = new Chart.Chart
+            Chart = new()
             {
-                Animations = new Chart.Animations { Enabled = false },
-                Background = "#0d0d0d",
+                Animations = new() { Enabled = false },
+                Background = "#525252BF",
+                Toolbar = new() { Show = false },
             },
-            Theme = new Chart.Theme
+            Theme = new()
             {
                 Mode = Chart.Mode.Dark,
             },
@@ -43,13 +44,15 @@ namespace SimTECH
         #endregion
 
         #region themes
+
+        #region custom colours
         private static readonly MudColor UltraDarkFadedRed = new("#100a0a");
         private static readonly MudColor DeepDarkFadedRed = new("#110808");
         private static readonly MudColor DarkFadedRed = new("#250e0e");
 
-        private static readonly MudColor UltraDarkFadedPink = new("#13060b");
-        private static readonly MudColor DeepDarkFadedPink = new("#170209");
-        private static readonly MudColor DarkFadedPink = new("#201318");
+        private static readonly MudColor UltraDarkFadedPink = new("#130D0F");
+        private static readonly MudColor DeepDarkFadedPink = new("#170B11");
+        private static readonly MudColor DarkFadedPink = new("#200A12");
         private static readonly MudColor LiteFadedPink = new("#280b16");
 
         private static readonly MudColor UltraDeepDarkPurple = new("#0d0a10");
@@ -61,6 +64,7 @@ namespace SimTECH
         private static readonly MudColor DeepDarkFadedBlue = new("#09131a");
         private static readonly MudColor DarkFadedBlue = new("#0c1e27");
         private static readonly MudColor LiteDarkFadedBlue = new("#122d3b");
+        #endregion
 
         public static Dictionary<string, MudTheme> SimThemes => new()
         {
@@ -102,12 +106,6 @@ namespace SimTECH
             Typography = CommonTypo,
         };
 
-        /*Background = DarkFadedPurple,
-        BackgroundGrey = DeepDarkFadedPurple,
-        Surface = DarkFadedPurple,
-        DrawerBackground = DeepDarkFadedPurple,
-        AppbarBackground = DeepDarkFadedPurple*/
-
         public static MudTheme SynthAltTheme => new()
         {
             Palette = new PaletteLight()
@@ -116,7 +114,6 @@ namespace SimTECH
                 Secondary = Colors.Indigo.Default,
                 Tertiary = Colors.Purple.Accent3,
 
-                DrawerBackground = LiteDarkFadedPurple,
                 AppbarBackground = Colors.DeepPurple.Default,
             },
             PaletteDark = new PaletteDark()
@@ -173,7 +170,9 @@ namespace SimTECH
             {
                 Primary = Colors.Red.Default,
                 Secondary = Colors.Orange.Darken1,
-                Tertiary = Colors.Yellow.Default,
+                Tertiary = Colors.Yellow.Lighten2,
+                
+                TertiaryContrastText = Colors.Shades.Black,
 
                 Background = DeepDarkFadedRed,
                 BackgroundGrey = DeepDarkFadedRed,
@@ -200,9 +199,9 @@ namespace SimTECH
                 Secondary = Colors.Pink.Accent2,
                 Tertiary = Colors.DeepPurple.Lighten2,
 
-                Background = UltraDarkFadedPink,
-                BackgroundGrey = UltraDarkFadedPink,
-                Surface = DeepDarkFadedPink,
+                Background = DeepDarkFadedPink,
+                BackgroundGrey = DeepDarkFadedPink,
+                Surface = DarkFadedPink,
                 DrawerBackground = UltraDarkFadedPink,
                 AppbarBackground = UltraDarkFadedPink,
             },

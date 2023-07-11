@@ -19,14 +19,14 @@
                 <MudCard>
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.body1">@topic.Title</MudText>
+                            <MudText Typo="Typo.h5">@topic.Title</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
                         <MudText Typo="Typo.body2">@topic.Description</MudText>
                     </MudCardContent>
                     <MudCardActions>
-                        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@topic.GraphCall">Show</MudButton>
+                        <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Secondary" OnClick="@topic.GraphCall">Show</MudButton>
                     </MudCardActions>
                 </MudCard>
             </MudItem>
@@ -35,7 +35,7 @@
 </MudContainer>
 
 @code {
-    List<StatTopic> Topics = new();
+    private List<StatTopic> Topics = new();
 
     protected override void OnInitialized()
     {
@@ -51,25 +51,24 @@
 
     private void LoadTopics()
     {
-        var driverDetail = new StatTopic
-            {
-                Title = "Driver details",
-                Description = "Get detailed statistics about the results of a driver.",
-                GraphCall = ShowDriverDetail
-            };
-        var driverCompare = new StatTopic
-            {
-                Title = "Compare drivers",
-                Description = "Compare statistics between two drivers.",
-                GraphCall = ShowDriverCompare
-            };
+        AddTopic("Driver details", "Get detailed statistics about the results of a driver", ShowDriverDetail);
+        AddTopic("Compare drivers", "Compare statistics between two drivers", ShowDriverCompare);
+        //AddTopic("Records drivers", "Ge", ShowDriverCompare);
+    }
 
-        Topics.Add(driverDetail);
-        Topics.Add(driverCompare);
+    private void AddTopic(string title, string descript, Func<Task> call)
+    {
+        Topics.Add(new StatTopic
+        {
+            Title = title,
+            Description = descript,
+            GraphCall = call
+        });
     }
 
     async Task ShowDriverDetail() => _ = await DialogService.ShowAsync<DriverDetailStat>("Driver detail data");
     async Task ShowDriverCompare() => _ = await DialogService.ShowAsync<DriverCompareStat>("Compare drivers");
+    async Task ShowDriverRecords() => _ = await DialogService.ShowAsync<DriverRecord>("Records drivers");
 
     internal class StatTopic
     {

@@ -18,27 +18,30 @@
                         <div style="width:20%">
                             
                         </div>
-                        <div class="text-center" style="width:60%">
-                            <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
-                        </div>
-                        <div style="width:20%">
-                            <ScreenshotButton TargetId="raceweek-container" Styles="@("float:right")" />
+
+                        <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
+
+                        <div class="d-flex flex-row-reverse align-center" style="width:20%">
+                            <ScreenshotButton TargetId="raceweek-container" />
                         </div>
                     </MudStack>
                 </MudPaper>
             </MudItem>
             <MudItem xs="3">
+                <MudText Typo="Typo.h5">Track information</MudText>
+                <MudDivider />
+                <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
+                
                 <MudPaper Class="pa-4 mud-height-full">
-                    <MudText Typo="Typo.h5">Track information</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
-
                     <MudListExtended T="string">
                         <MudListItemExtended T="string" SecondaryText="Country">
                             <CountryNamedFlag Code="@Model.Race.Track.Country" Size="ElementSize.Normal" Reverse="true" />
                         </MudListItemExtended>
                         <MudListItemExtended T="string" Text="@Model.Race.Climate.Terminology" SecondaryText="Weather">
-                            <MudIcon Icon="@Model.Race.Climate.Icon" />
-                            <MudText>@Model.Race.Climate.Terminology</MudText>
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                <MudIcon Icon="@Model.Race.Climate.Icon" />
+                                <MudText>@Model.Race.Climate.Terminology</MudText>
+                            </MudStack>
                         </MudListItemExtended>
                         <MudListItemExtended T="string" Text="@($"{Model.Race.Track.Length}km")" SecondaryText="Length" />
                         <MudListItemExtended T="string" Text="@($"{NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length)}")" SecondaryText="Laps" />
@@ -135,11 +138,11 @@
             </MudItem>
             <MudItem xs="3">
                 <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.h5">Session navigators</MudText>
+                    <MudDivider />
+                    <MudText Typo="Typo.body2" Color="Color.Error">Wtf am I going to put here?</MudText>
+                    
                     <MudStack Spacing="1">
-                        <MudText Typo="Typo.body2" Color="Color.Error">Wtf am I going to put here?</MudText>
-
-                        <MudSpacer />
-
                         <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined">
                             @for (int i = 1; i <= Model.PracticeCompletedCount; i++)
                             {

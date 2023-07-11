@@ -5,6 +5,7 @@ using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
 using SimTECH.PageModels.SeasonModels;
+using System.ComponentModel;
 
 namespace SimTECH.Data.Services
 {
@@ -369,11 +370,7 @@ namespace SimTECH.Data.Services
                     Team = driver.SeasonTeam?.Name ?? "None",
                     Colour = driver.SeasonTeam?.Colour ?? Constants.DefaultColour,
                     Accent = driver.SeasonTeam?.Accent ?? Constants.DefaultAccent,
-
-                    // TODO: Underneath is ugly as hell and therefore temporarily
-                    ConsumedPenalties = driver.GivenPenalties.Any()
-                                        ? driver.GivenPenalties.Select(e => $"cons:{e.Consumed}, inciID: {e.IncidentId}").ToList()
-                                        : new(),
+                    GivenPenalties = driver.GivenPenalties?.ToList() ?? new(),
                 };
 
                 var driverResults = results.Where(e => e.SeasonDriverId == driver.Id).ToList();

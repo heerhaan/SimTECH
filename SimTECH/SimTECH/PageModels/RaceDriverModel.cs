@@ -51,7 +51,7 @@ namespace SimTECH.PageModels
 
         public bool HasFastestLap { get; set; }
         public bool InstantOvertaken { get; set; }
-        public bool FrequentMistake { get; set; }
+        public bool RecentMistake { get; set; }
 
         public List<LapScore> LapScores { get; set; }
 

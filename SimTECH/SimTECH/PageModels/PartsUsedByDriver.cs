@@ -1,4 +1,6 @@
-﻿namespace SimTECH.PageModels
+﻿using SimTECH.Data.Models;
+
+namespace SimTECH.PageModels
 {
     public class PartsUsedByDriver
     {
@@ -13,6 +15,6 @@
         public int TotalDsq { get; set; }
 
         public Dictionary<long, int> DriverIncidents { get; set; } = new();
-        public List<string> ConsumedPenalties { get; set; }
+        public List<GivenPenalty> GivenPenalties { get; set; } = new();
     }
 }
