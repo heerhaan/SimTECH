@@ -1,16 +1,97 @@
-﻿@inject DriverService DriverService
+﻿@inject DriverService _driverService
+@inject SeasonEntrantService _entrantService
 
 <MudDialog>
     <TitleContent>
-        <MudText>Records among drivers</MudText>
+        <MudText Typo="Typo.h5" Class="px-4 py-2">Records among drivers</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Warning">Does net yet filter based on which league</MudText>
     </TitleContent>
     <DialogContent>
         <MudContainer>
-            <MudPaper></MudPaper>
+            <MudPaper>
+                <MudStack>
+                    <MudStack Row="true">
+                        <MudSelect T="RecordStat"
+                                   Label="Record"
+                                   Placeholder="Select a record then, ya daft cunt"
+                                   ValueChanged="RetrieveRecords">
+                            @foreach (var record in recordStats)
+                            {
+                                <MudSelectItem Value="@record">
+                                    @record.ToString()
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudStack>
+
+                    <MudPaper MinHeight="500px" MinWidth="500px">
+                        @if (loaded && DriverRecords != null)
+                        {
+                            <MudText Typo="Typo.h5">@currentRecord</MudText>
+                            <MudDivider />
+                            <MudSimpleTable Dense="true" Class="extra-dense">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Name</th>
+                                        <th>VAL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var (driverData, index) in DriverRecords.WithIndex())
+                                    {
+                                        <tr>
+                                            <td>@(1 + index)</td>
+                                            <td style="width: 220px">
+                                                <MudStack Row="true" AlignItems="AlignItems.Center">
+                                                    <MudText Class="overflow-hider">@driverData.Key.FullName</MudText>
+                                                    <MudSpacer />
+                                                    <CountryFlag Code="@driverData.Key.Country" Size="ElementSize.Small" />
+                                                </MudStack>
+                                            </td>
+                                            <td>
+                                                @driverData.Value
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </MudSimpleTable>
+                        }
+                    </MudPaper>
+                </MudStack>
+            </MudPaper>
         </MudContainer>
     </DialogContent>
 </MudDialog>
 
 @code {
     [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
+
+    private Dictionary<Driver, int>? DriverRecords { get; set; }
+
+    private RecordStat[] recordStats = EnumHelper.DriverRecordStats;
+
+    private bool loaded;
+    private string currentRecord = "Unknown";
+    private int amount = 10;
+
+    private async Task RetrieveRecords(RecordStat selected)
+    {
+        long? leagueFilter = null;
+
+        var allDrivers = await _driverService.GetDrivers(StateFilter.All);
+        var recordData = await _entrantService.RecordDrivers(selected, amount, leagueFilter);
+
+        var driverRecords = new Dictionary<Driver, int>(amount);
+        foreach (var record in recordData.OrderByDescending(e => e.Value))
+        {
+            var matchingDriver = allDrivers.First(e => e.Id == record.Key);
+            driverRecords.Add(matchingDriver, record.Value);
+        }
+
+        DriverRecords = driverRecords;
+        currentRecord = selected.ToString();
+
+        loaded = true;
+    }
 }
