@@ -190,14 +190,13 @@
                                 }
                             }
                         </div>
-                        <MudProgressLinear></MudProgressLinear>
                         <SimProgressLinear Bars="@(context.LapScores.Select(e => ((NumberHelper.Percentage(1, calculationCount)), (e.TyreColour ?? Constants.DefaultColour))).ToList())" />
                     </MudTd>
                 </RowTemplate>
             </MudTable>
             <MudPaper Class="pt-2 px-1">
                 <SimProgressLinear Bars="@(Model.Occurrences.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
-                                   AddIndicator="true" CalculationDistance="@calculationDistance" TrackLength="@Model.TrackLength" />
+                                   AddIndicator="true" LineSize="ElementSize.Normal" CalculationDistance="@calculationDistance" TrackLength="@Model.TrackLength" />
 
                 <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 pt-5 pb-2">
                     <MudText Typo="Typo.button">Legend</MudText>

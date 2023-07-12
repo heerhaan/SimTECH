@@ -18,8 +18,12 @@
                         <HeaderContent>
                             <MudTh>Name</MudTh>
                             <MudTh Class="number-col">NO</MudTh>
-                            <MudTh>DNF</MudTh>
-                            <MudTh>DSQ</MudTh>
+                            @foreach (var incident in incidents.Where(e => e.HasLimit()).OrderBy(e => e.Name))
+                            {
+                                <MudTh Class="number-col">@incident.Name</MudTh>
+                            }
+                            <MudTh Class="number-col">DNF</MudTh>
+                            <MudTh Class="number-col">DSQ</MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd>
@@ -28,16 +32,30 @@
                             <MudTd Class="number-col">
                                 <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                             </MudTd>
-                            <MudTd>
+                            @foreach (var incident in incidents.Where(e => e.HasLimit()).OrderBy(e => e.Name))
+                            {
+                                <MudTd Class="number-col">
+                                    <MudText Typo="Typo.caption">
+                                        @(context.DriverIncidents.ContainsKey(incident.Id) ? context.DriverIncidents[incident.Id] : 0)
+                                    </MudText>
+                                </MudTd>
+                            }
+                            <MudTd Class="number-col">
                                 <MudText Typo="Typo.caption">@context.TotalDnf</MudText>
                             </MudTd>
-                            <MudTd>
+                            <MudTd Class="number-col">
                                 <MudText Typo="Typo.caption">@context.TotalDsq</MudText>
                             </MudTd>
                         </RowTemplate>
                         <FooterContent>
                             <MudTd>LIMIT</MudTd>
-                            <MudTd>TODO</MudTd>
+                            <MudTd></MudTd>
+                            @foreach (var incident in incidents.Where(e => e.HasLimit()).OrderBy(e => e.Name))
+                            {
+                                <MudTd>@incident.Limit</MudTd>
+                            }
+                            <MudTd></MudTd>
+                            <MudTd></MudTd>
                         </FooterContent>
                     </MudTable>
                 </MudPaper>

@@ -152,6 +152,7 @@
 </MudContainer>
 
 @code {
+    private SimConfig config;
     private List<League> activeLeagues;
     private List<Data.Models.Season> activeSeasons = new();
 
@@ -167,6 +168,7 @@
             new BreadcrumbItem("Home", href: "/", disabled: true),
         });
 
+        config = _config.Value;
         activeLeagues = await _leagueService.GetLeagues(StateFilter.Active);
 
         var seasons = await _seasonService.GetSeasons(StateFilter.Active);
