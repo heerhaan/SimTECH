@@ -33,7 +33,7 @@
                 <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
                 
                 <MudPaper Class="pa-4 mud-height-full">
-                    <MudListExtended T="string">
+                    <MudListExtended T="string" Dense="true">
                         <MudListItemExtended T="string" SecondaryText="Country">
                             <CountryNamedFlag Code="@Model.Race.Track.Country" Size="ElementSize.Normal" Reverse="true" />
                         </MudListItemExtended>
@@ -138,9 +138,9 @@
             </MudItem>
             <MudItem xs="3">
                 <MudPaper Class="pa-4 mud-height-full">
-                    <MudText Typo="Typo.h5">Session navigators</MudText>
+                    <MudText Typo="Typo.h5">Navigators</MudText>
                     <MudDivider />
-                    <MudText Typo="Typo.body2" Color="Color.Error">Wtf am I going to put here?</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Error" Class="mb-1">Wtf am I going to put here?</MudText>
                     
                     <MudStack Spacing="1">
                         <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined">
@@ -155,10 +155,10 @@
                                 <MudButton FullWidth="true" OnClick="@(() => GoToPractice(nextPractice))" Class="overflow-hider">FP@(nextPractice)</MudButton>
                             }
                         </MudButtonGroup>
-                        <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoToQualifying">Qualifying</MudButton>
+                        <MudButton FullWidth="true" Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoToQualifying">Qualifying</MudButton>
                         @if (Model.Race.State != State.Concept && Model.Race.State != State.Active)
                         {
-                            <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoToRace">Race</MudButton>
+                            <MudButton FullWidth="true" Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoToRace">Race</MudButton>
                         }
                     </MudStack>
                 </MudPaper>
@@ -209,12 +209,10 @@
         if (!result.Canceled && result.Data != null && result.Data is Tyre pickedTyre)
         {
             await _raceService.PickTyre(resultId, pickedTyre);
-
-            Model.RaceWeekDrivers.Single(e => e.ResultId == resultId).Tyre = pickedTyre;
+            Model.RaceWeekDrivers.First(e => e.ResultId == resultId).Tyre = pickedTyre;
         }
     }
 
-    // Navigation links
     private void GoToPractice(int num) => _nav.NavigateTo($"/practice/{RaceId}/{num}");
     private void GoToQualifying() => _nav.NavigateTo($"/qualifying/{RaceId}");
     private void GoToRace() => _nav.NavigateTo($"/race/{RaceId}");
