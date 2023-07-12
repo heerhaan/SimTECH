@@ -16,7 +16,13 @@
         }
         <MudContainer Class="@(stepIndex == 0 ? string.Empty : "d-none")">
             <MudPaper MinWidth="1000px">
-                <MudTable T="Track" @bind-SelectedItems="selectedTracks" Items="@Tracks" MultiSelection="true" Hover="true">
+                <MudTable T="Track"
+                          @bind-SelectedItems="selectedTracks"
+                          Items="@Tracks"
+                          MultiSelection="true"
+                          RowsPerPage="15"
+                          Dense="true"
+                          Hover="true">
                     <HeaderContent>
                         <MudTh>Name</MudTh>
                         <MudTh>Country</MudTh>
@@ -53,6 +59,11 @@
                             <MudText>@(context.DefenseMod.ToString("F2"))x</MudText>
                         </MudTd>
                     </RowTemplate>
+                    <PagerContent>
+                        <MudPagination SelectedChanged="PageChange" Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)"
+                                       Variant="Variant.Outlined"
+                                       Class="pa-4" />
+                    </PagerContent>
                 </MudTable>
             </MudPaper>
         </MudContainer>
@@ -155,6 +166,7 @@
     [Parameter] public int DefaultRaceLength { get; set; }
     [Parameter] public List<Climate> Climates { get; set; }
 
+    private MudTable<Driver> _table;
     private MudDropContainer<EditRaceModel> reorderContainer;
 
     private HashSet<Track> selectedTracks = new();
@@ -188,6 +200,11 @@
                 ClimateId = Climates.TakeRandomClimate().Id,
             });
         }
+    }
+
+    private void PageChange(int index)
+    {
+        _table.NavigateTo(index - 1);
     }
 
     private void ReorderItems(MudItemDropInfo<EditRaceModel> item)

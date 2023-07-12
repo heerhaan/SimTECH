@@ -6,7 +6,7 @@
 <PageTitle>Components</PageTitle>
 
 <MudContainer>
-    @if (driverComponentModel != null)
+    @if (!loading)
     {
         <MudGrid>
             <MudItem xs="9">
@@ -18,6 +18,7 @@
                         <HeaderContent>
                             <MudTh>Name</MudTh>
                             <MudTh Class="number-col">NO</MudTh>
+
                             <MudTh>DNF</MudTh>
                             <MudTh>DSQ</MudTh>
                         </HeaderContent>
@@ -28,6 +29,7 @@
                             <MudTd Class="number-col">
                                 <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                             </MudTd>
+
                             <MudTd>
                                 <MudText Typo="Typo.caption">@context.TotalDnf</MudText>
                             </MudTd>
@@ -75,6 +77,8 @@
     private List<PartsUsedByDriver> driverComponentModel;
     private Dictionary<string, List<PenaltyConsoom>> consumedPenalties = new();
 
+    private bool loading = true;
+
     protected override async Task OnInitializedAsync()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -89,6 +93,8 @@
         driverComponentModel = await _seasonService.GetPartsUsageModel(SeasonId);
 
         BuildConsumedPenalties();
+
+        loading = false;
     }
 
     private void BuildConsumedPenalties()
