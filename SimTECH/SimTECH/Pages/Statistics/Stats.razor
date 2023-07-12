@@ -7,8 +7,8 @@
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     <MudGrid>
         <MudItem xs=12>
-            <MudPaper Elevation="15" Height="60px" Class="pa-2">
-                <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudPaper Elevation="15" MinHeight="60px" Class="pa-2">
+                <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Class="pa-0">
                     <MudText Typo="Typo.h3">Statistics</MudText>
                 </MudStack>
             </MudPaper>
@@ -16,7 +16,7 @@
         @foreach (var topic in Topics)
         {
             <MudItem xs="4">
-                <MudCard>
+                <MudCard Class="mud-height-full">
                     <MudCardHeader>
                         <CardHeaderContent>
                             <MudText Typo="Typo.h5">@topic.Title</MudText>
@@ -26,7 +26,7 @@
                         <MudText Typo="Typo.body2">@topic.Description</MudText>
                     </MudCardContent>
                     <MudCardActions>
-                        <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Secondary" OnClick="@topic.GraphCall">Show</MudButton>
+                        <MudButton FullWidth="true" Variant="Variant.Outlined" Color="Color.Secondary" OnClick="@topic.GraphCall">Show</MudButton>
                     </MudCardActions>
                 </MudCard>
             </MudItem>
@@ -52,8 +52,8 @@
     private void LoadTopics()
     {
         AddTopic("Driver details", "Get detailed statistics about the results of a driver", ShowDriverDetail);
-        AddTopic("Compare drivers", "Compare statistics between two drivers", ShowDriverCompare);
-        //AddTopic("Records drivers", "Ge", ShowDriverCompare);
+        AddTopic("Compare drivers", "Compare statistics between multiple drivers", ShowDriverCompare);
+        AddTopic("Records drivers", "Leaderboards of drivers with the most of something", ShowDriverRecords);
     }
 
     private void AddTopic(string title, string descript, Func<Task> call)

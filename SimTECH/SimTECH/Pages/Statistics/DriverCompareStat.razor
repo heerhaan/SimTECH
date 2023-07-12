@@ -1,10 +1,9 @@
 ﻿@inject DriverService DriverService
 
-<!--*bind-SelectedValues="SelectedDrivers"-->
-
 <MudDialog>
     <TitleContent>
         <MudText>Driver comparison</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Warning">Does net yet filter based on which league</MudText>
     </TitleContent>
     <DialogContent>
         <MudContainer Class="pa-2">
@@ -142,9 +141,7 @@
 
         var tasks = new List<Task>();
         foreach (var addable in selectedDrivers.Where(e => !ComparableDrivers.ContainsKey(e)))
-        {
             tasks.Add(AddDataSet(addable));
-        }
 
         var taskRunner = Task.WhenAll(tasks);
 

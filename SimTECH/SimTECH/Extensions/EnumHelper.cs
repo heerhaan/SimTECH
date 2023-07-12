@@ -73,6 +73,15 @@ namespace SimTECH.Extensions
             Aspect.Defense,
         };
 
+        public static readonly RecordStat[] DriverRecordStats = new RecordStat[]
+        {
+            RecordStat.Entry,
+            RecordStat.Start,
+            RecordStat.Win,
+            RecordStat.Pole,
+            RecordStat.DNF
+        };
+
         public static string RacerEventIcon(this RacerEvent racerEvent) => racerEvent switch
         {
             RacerEvent.DriverDnf => IconCollection.HelmetOff,

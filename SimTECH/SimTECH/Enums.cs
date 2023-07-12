@@ -50,6 +50,8 @@ namespace SimTECH
         EnableFatality = 2,
     }
 
+    public enum RecordStat { None = 0, Entry, Start, Win, Pole, DNF }
+
     #region racing
     public enum TeamRole
     {
