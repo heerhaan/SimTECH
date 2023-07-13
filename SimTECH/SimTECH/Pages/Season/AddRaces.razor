@@ -17,6 +17,7 @@
         <MudContainer Class="@(stepIndex == 0 ? string.Empty : "d-none")">
             <MudPaper MinWidth="1000px">
                 <MudTable T="Track"
+                          @ref="_table"
                           @bind-SelectedItems="selectedTracks"
                           Items="@Tracks"
                           MultiSelection="true"
@@ -166,7 +167,7 @@
     [Parameter] public int DefaultRaceLength { get; set; }
     [Parameter] public List<Climate> Climates { get; set; }
 
-    private MudTable<Driver> _table;
+    private MudTable<Track> _table;
     private MudDropContainer<EditRaceModel> reorderContainer;
 
     private HashSet<Track> selectedTracks = new();

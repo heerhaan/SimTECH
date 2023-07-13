@@ -57,7 +57,7 @@
                                 <MudText Typo="Typo.button">@context.Grid</MudText>
                             </MudTd>
                             <MudTd Class="accent-cell">
-                                <SmolAccent Colour="@context.SeasonTeam.Colour" />
+                                <SmolAccent Colour="@(context.SeasonTeam?.Colour ?? Constants.DefaultColour)" />
                             </MudTd>
                             <MudTd Class="overflow-hider">
                                 <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
@@ -73,10 +73,10 @@
                                 </MudStack>
                             </MudTd>
                             <MudTd Class="number-col">
-                                <NumberDisplay Colour="@context.SeasonTeam.Colour" Accent="@context.SeasonTeam.Accent">@context.SeasonDriver.Number</NumberDisplay>
+                                <NumberDisplay Colour="@(context.SeasonTeam?.Colour ?? Constants.DefaultColour)" Accent="@(context.SeasonTeam?.Accent ?? Constants.DefaultAccent)">@context.SeasonDriver.Number</NumberDisplay>
                             </MudTd>
                             <MudTd Class="overflow-hider">
-                                <MudText Typo="Typo.button">@context.SeasonTeam.Name</MudText>
+                                <MudText Typo="Typo.button">@(context.SeasonTeam?.Name ?? "[Unknown]")</MudText>
                             </MudTd>
                             <MudTd>
                                 <MudText Typo="Typo.caption">@(ReadScoredResult(context))</MudText>
@@ -93,6 +93,7 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
+                                    <th class="number-col">NO</th>
                                     <th>Incident</th>
                                     <th>Status</th>
                                 </tr>
@@ -102,10 +103,12 @@
                                 {
                                     <tr>
                                         <td>@result.SeasonDriver.Driver.FullName</td>
-                                        <td>
-                                            <NumberDisplay Colour="@result.SeasonTeam.Colour" Accent="@result.SeasonTeam.Accent">@result.SeasonDriver.Number</NumberDisplay>
+                                        <td class="number-col">
+                                            <NumberDisplay>@result.SeasonDriver.Number</NumberDisplay>
                                         </td>
-                                        <td>@(result.Incident?.Name)</td>
+                                        <td>
+                                            @(result.Incident?.Name)
+                                        </td>
                                         <td>
                                             <MudPaper Class="px-1 py-0" Style="@(ViewHelper.SetBackgroundColour(result.Status.StatusColour()))">
                                                 @result.Status
