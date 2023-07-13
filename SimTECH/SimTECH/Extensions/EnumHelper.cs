@@ -25,14 +25,14 @@ namespace SimTECH.Extensions
             RaceStatus.Dsq => "black",
             RaceStatus.Dnq => "rebeccapurple",
             RaceStatus.Fatal => "white",
-            _ => Constants.DefaultBackground
+            _ => Constants.DefaultColour
         };
 
         public static string SituationColour(this SituationOccurrence situation) => situation switch
         {
             SituationOccurrence.Raced => "Green",
             SituationOccurrence.Caution => "Yellow",
-            _ => Constants.DefaultBackground
+            _ => "muted-background-primary"
         };
 
         public static string GenderIcon(this Gender gender) => gender switch

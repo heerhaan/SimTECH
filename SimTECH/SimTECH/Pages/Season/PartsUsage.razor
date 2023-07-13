@@ -6,7 +6,7 @@
 <PageTitle>Components</PageTitle>
 
 <MudContainer>
-    @if (driverComponentModel != null)
+    @if (!loading)
     {
         <MudGrid>
             <MudItem xs="9">
@@ -18,7 +18,7 @@
                         <HeaderContent>
                             <MudTh>Name</MudTh>
                             <MudTh Class="number-col">NO</MudTh>
-                            @foreach (var incident in incidents.Where(e => e.HasLimit()).OrderBy(e => e.Name))
+                            @foreach (var incident in incidents.Where(e => e.Penalized).OrderBy(e => e.Name))
                             {
                                 <MudTh Class="number-col">@incident.Name</MudTh>
                             }
@@ -32,7 +32,7 @@
                             <MudTd Class="number-col">
                                 <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                             </MudTd>
-                            @foreach (var incident in incidents.Where(e => e.HasLimit()).OrderBy(e => e.Name))
+                            @foreach (var incident in incidents.Where(e => e.Penalized).OrderBy(e => e.Name))
                             {
                                 <MudTd Class="number-col">
                                     <MudText Typo="Typo.caption">
@@ -50,7 +50,7 @@
                         <FooterContent>
                             <MudTd>LIMIT</MudTd>
                             <MudTd></MudTd>
-                            @foreach (var incident in incidents.Where(e => e.HasLimit()).OrderBy(e => e.Name))
+                            @foreach (var incident in incidents.Where(e => e.Penalized).OrderBy(e => e.Name))
                             {
                                 <MudTd>@incident.Limit</MudTd>
                             }
@@ -93,6 +93,8 @@
     private List<PartsUsedByDriver> driverComponentModel;
     private Dictionary<string, List<PenaltyConsoom>> consumedPenalties = new();
 
+    private bool loading = true;
+
     protected override async Task OnInitializedAsync()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -107,6 +109,8 @@
         driverComponentModel = await _seasonService.GetPartsUsageModel(SeasonId);
 
         BuildConsumedPenalties();
+
+        loading = false;
     }
 
     private void BuildConsumedPenalties()

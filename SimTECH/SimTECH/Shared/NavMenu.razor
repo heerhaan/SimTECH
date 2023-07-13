@@ -1,9 +1,7 @@
-﻿@inject ProtectedLocalStorage _storage
-
-<MudNavMenu Color="Color.Primary">
+﻿<MudNavMenu Color="Color.Primary">
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
 
-    <MudNavGroup Title="Entrants" Icon="@Icons.Material.Filled.Settings" ExpandedChanged="OnEntrantExpand">
+    <MudNavGroup Title="Entrants" Icon="@Icons.Material.Filled.Settings" @bind-Expanded="entrantsExpanded">
         <MudNavLink Href="/drivers" Match="NavLinkMatch.Prefix" Icon="@IconCollection.Helmet">Drivers</MudNavLink>
         <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.CarRepair">Teams</MudNavLink>
         <MudNavLink Href="/engines" Match="NavLinkMatch.Prefix" Icon="@IconCollection.Engine">Engines</MudNavLink>
@@ -11,7 +9,7 @@
         <MudNavLink Href="/traits" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FlashOn">Traits</MudNavLink>
     </MudNavGroup>
 
-    <MudNavGroup Title="Race factors" Icon="@IconCollection.SteeringWheel" ExpandedChanged="OnFactorExpand">
+    <MudNavGroup Title="Race factors" Icon="@IconCollection.SteeringWheel" @bind-Expanded="factorsExpanded">
         <MudNavLink Href="/manufacturers" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Garage">Suppliers</MudNavLink>
         <MudNavLink Href="/tyres" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.LocalGasStation">Tyres</MudNavLink>
         <MudNavLink Href="/incidents" Match="NavLinkMatch.Prefix" Icon="@IconCollection.TrafficCone">Incidents</MudNavLink>
@@ -34,31 +32,4 @@
 @code {
     bool entrantsExpanded = true;
     bool factorsExpanded = true;
-
-    private const string entrantExpansionKey = "entrantMenuExpanded";
-    private const string factorExpansionKey = "factorMenuExpanded";
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var storedEntrantsExpanded = await _storage.GetAsync<bool>(entrantExpansionKey);
-            var storedFactorsExapnded = await _storage.GetAsync<bool>(factorExpansionKey);
-
-            entrantsExpanded = storedEntrantsExpanded.Success && storedEntrantsExpanded.Value;
-            factorsExpanded = storedFactorsExapnded.Success && storedFactorsExapnded.Value;
-        }
-    }
-
-    private async Task OnEntrantExpand(bool toggle)
-    {
-        entrantsExpanded = toggle;
-        await _storage.SetAsync(entrantExpansionKey, toggle);
-    }
-
-    private async Task OnFactorExpand(bool toggle)
-    {
-        factorsExpanded = toggle;
-        await _storage.SetAsync(factorExpansionKey, toggle);
-    }
 }

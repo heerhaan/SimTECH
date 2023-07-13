@@ -30,13 +30,13 @@
                                  Min="0"
                                  Label="Odds" />
 
-                <MudSwitchM3 @bind-Checked="@hasPunishment"
-                             Label="Has punishment"
+                <MudSwitchM3 @bind-Checked="@Model.Penalized"
+                             Label="Is penalized"
                              Color="Color.Secondary"
                              ThumbIcon="@Icons.Material.Filled.Done"
                              ThumbOffIcon="@Icons.Material.Filled.Close" />
 
-                @if (hasPunishment)
+                @if (Model.Penalized)
                 {
                     <MudNumericField T="int" @bind-Value="@Model.Limit"
                                  Min="0"
@@ -60,15 +60,12 @@
     [Parameter] public Incident? Incident { get; set; }
 
     MudChip? categoryChip;
-    bool hasPunishment = false;
 
     EditIncident Model;
 
     protected override void OnInitialized()
     {
         Model = new EditIncident(Incident);
-
-        hasPunishment = Model.Punishment > 0;
     }
 
     private void Submit()

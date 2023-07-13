@@ -1,4 +1,4 @@
-﻿<MudTd Class="@_class" Style="@_cellStyles">
+﻿<div class="result-cell" style="@_cellStyles">
     <MudStack Row="true"
               Spacing="1"
               Justify="Justify.Center"
@@ -15,13 +15,12 @@
             <sup style="font-size: 0.65rem">F</sup>
         }
     </MudStack>
-</MudTd>
+</div>
 
 @code {
     [Parameter] public StandingResultCell? Result { get; set; }
     [Parameter] public int LowestScoringPosition { get; set; }
     [Parameter] public Typo? OverrideTypo { get; set; }
-    [Parameter] public string Class { get; set; } = string.Empty;
 
     private Typo _typo { get; set; } = Typo.h4;
 
@@ -31,15 +30,6 @@
             _typo = OverrideTypo.Value;
         else if (Result?.Status != RaceStatus.Racing)
             _typo = Typo.caption;
-    }
-
-    private string _class
-    {
-        get
-        {
-            var classes = "result-cell " + Class;
-            return classes;
-        }
     }
 
     private string _resultDisplay

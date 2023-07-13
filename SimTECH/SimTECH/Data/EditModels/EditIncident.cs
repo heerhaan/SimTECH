@@ -14,6 +14,7 @@ namespace SimTECH.Data.EditModels
         public CategoryIncident Category { get; set; }
         public int Limit { get; set; }
         public int Punishment { get; set; }
+        public bool Penalized { get; set; }
 
         public EditIncident(Incident? incident)
         {
@@ -30,6 +31,7 @@ namespace SimTECH.Data.EditModels
                 Category = incident.Category;
                 Limit = incident.Limit;
                 Punishment = incident.Punishment;
+                Penalized = incident.Penalized;
 
                 _incident = incident;
             }
@@ -44,7 +46,8 @@ namespace SimTECH.Data.EditModels
                 State = State,
                 Category = Category,
                 Limit = Limit,
-                Punishment = Punishment
+                Punishment = Punishment,
+                Penalized = Penalized,
             };
 
         public bool IsDirty => _incident != Record;
