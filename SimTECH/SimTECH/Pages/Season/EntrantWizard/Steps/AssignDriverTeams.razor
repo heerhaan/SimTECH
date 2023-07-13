@@ -3,6 +3,7 @@
         <MudDropContainer @ref="dropperDrivers"
                           T="EditSeasonDriverModel"
                           Items="@Model.SeasonDrivers"
+                          ItemIsDisabled="@((driver) => driver.Contracted == true)"
                           ItemsSelector="@((item,dropzone) => item.BaseTeamId.ToString() == dropzone)"
                           ItemDropped="DriverTeamDropped"
                           ApplyDropClassesOnDragStarted="true"
@@ -10,7 +11,7 @@
             <ChildContent>
                 <MudGrid>
                     <MudItem xs="3">
-                        <MudPaper Width="225px" Class="ma-2 mud-height-full">
+                        <MudPaper Width="250px" Class="ma-2 mud-height-full">
                             <MudDropZone T="EditSeasonDriverModel"
                                          Identifier="0"
                                          Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4">
@@ -22,7 +23,7 @@
                         <MudStack Row="true" Class="flex-wrap">
                             @foreach (var seasonTeam in Model.SeasonTeams)
                             {
-                                <MudPaper Width="225px" Class="ma-2" Style="min-height:200px">
+                                <MudPaper Width="250px" Class="ma-2" Style="min-height:250px">
                                     <MudDropZone T="EditSeasonDriverModel"
                                                  Identifier="@seasonTeam.TeamId.ToString()"
                                                  Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4">
@@ -39,7 +40,7 @@
                 </MudGrid>
             </ChildContent>
             <ItemRenderer>
-                <MudPaper Class="mud-width-full border-2 border-dashed mud-border-tertiary pa-1 my-2">
+                <MudPaper Class="mud-width-full border-2 border-dashed mud-border-tertiary pa-1 my-2" Style="@IsContractedStyles(context.Contracted)">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-1">
                         <MudText Class="overflow-hider">@(context.Driver?.FullName)</MudText>
                         <MudSpacer />
@@ -66,5 +67,18 @@
     {
         if (dropItem.Item != null)
             dropItem.Item.BaseTeamId = long.Parse(dropItem.DropzoneIdentifier);
+    }
+
+    private string IsContractedStyles(bool contracted)
+    {
+        if (contracted)
+        {
+            return @"color: var(--mud-palette-action-disabled) !important;
+                     cursor: default !important;
+                     pointer-events: none !important;
+                     background-color: red !important;";
+        }
+
+        return string.Empty;
     }
 }

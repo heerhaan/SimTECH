@@ -1,0 +1,125 @@
+﻿@inject ContractService _contractService
+@inject IDialogService _dialogService
+
+<MudDialog>
+    <TitleContent>
+        <MudText>Contract Editor</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper MinHeight="300px" MinWidth="500px">
+            @if (Model.Id == 0)
+            {
+                <MudText>League</MudText>
+                <MudSelect T="long" Label="League" Class="field-md" ValueChanged="OnLeagueSelected">
+                    @foreach (var league in Leagues.OrderBy(e => e.Name))
+                    {
+                        <MudSelectItem Value="@league.Id">
+                            <MudText>@league.Name</MudText>
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudText>Team</MudText>
+                <MudSelect T="long" @bind-Value="@Model.TeamId" Label="Team" Class="field-md">
+                    @foreach (var team in Teams.OrderBy(e => e.Name))
+                    {
+                        <MudSelectItem Value="@team.Id">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                <MudText>@team.Name</MudText>
+                                <MudSpacer />
+                                <CountryFlag Code="@team.Country" Size="ElementSize.Tiny" />
+                            </MudStack>
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+
+                @if (FreeAgents != null)
+                {
+                    <MudText>Driver</MudText>
+                    <MudSelect T="long" @bind-Value="@Model.DriverId" Label="Driver" Class="field-md">
+                        @foreach (var driver in FreeAgents.OrderBy(e => e.FirstName))
+                        {
+                            <MudSelectItem Value="@driver.Id">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText>@driver.FullName</MudText>
+                                    <MudSpacer />
+                                    <CountryFlag Code="@driver.Country" Size="ElementSize.Tiny" />
+                                </MudStack>
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+            }
+            else
+            {
+                <MudText>@Model.LeagueId</MudText>
+                <MudText>@Model.TeamId</MudText>
+                <MudText>@Model.DriverId</MudText>
+            }
+
+            <MudDivider />
+
+            <MudNumericField @bind-Value="@Model.Duration" Label="Duration" Class="field-md" />
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
+
+    [Parameter, EditorRequired] public List<Contract> ActiveContracts { get; set; }
+    [Parameter, EditorRequired] public List<League> Leagues { get; set; }
+    [Parameter, EditorRequired] public List<Team> Teams { get; set; }
+    [Parameter, EditorRequired] public List<Driver> Drivers { get; set; }
+
+    [Parameter] public Contract? Contract { get; set; }
+
+    private EditContract Model;
+    private List<Driver>? FreeAgents;
+
+    protected override void OnInitialized()
+    {
+        Model = new EditContract(Contract);
+    }
+
+    private void OnLeagueSelected(long leagueId)
+    {
+        Model.LeagueId = leagueId;
+
+        var signedDrivers = ActiveContracts
+            .Where(e => e.LeagueId == leagueId)
+            .Select(e => e.DriverId)
+            .ToArray();
+
+        FreeAgents = Drivers.Where(e => !signedDrivers.Contains(e.Id)).ToList();
+    }
+
+    private async Task Submit()
+    {
+        if (!Model.IsDirty)
+            return;
+
+        if (Model.SetToZero)
+        {
+            // Don't save a new contract without a duration
+            if (Model.Id == 0)
+                return;
+
+            bool? confirm = await _dialogService.ShowMessageBox(
+                "Warning",
+                "Are you sure you want to break the contract of this driver?",
+                yesText: "Jawöhl", cancelText: "Nein");
+
+            if (confirm != true)
+                return;
+        }
+
+        EditDialog?.Close(DialogResult.Ok(Model.Record));
+    }
+
+    private void Cancel() => EditDialog?.Cancel();
+}

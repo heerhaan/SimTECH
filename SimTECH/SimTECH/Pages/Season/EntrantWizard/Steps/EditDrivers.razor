@@ -1,4 +1,5 @@
-﻿@inject SeasonEntrantService _entrantService
+﻿@inject ContractService _contractService
+@inject SeasonEntrantService _entrantService
 @inject IOptions<SimConfig> _config
 
 <MudContainer MaxWidth="MaxWidth.Medium">
@@ -64,6 +65,9 @@
 
     [Parameter] public long? PreviousSeasonId { get; set; }
 
+    private bool tempContracting;
+    private long tempLeagueId;
+
     protected override async Task OnInitializedAsync()
     {
         await SetDriverEditors();
@@ -79,8 +83,13 @@
         {
             var existingTeamIds = Model.SeasonTeams.Select(e => e.TeamId).ToArray();
             var allPrevious = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);
+
             previousTeams = allPrevious.Where(e => existingTeamIds.Contains(e.TeamId)).ToList();
         }
+
+        List<Contract>? leagueContracts = null;
+        if (tempContracting)
+            leagueContracts = await _contractService.GetLeagueContracts(tempLeagueId);
 
         int indexer = 0;
         foreach (var driver in Model.BaseDrivers.Where(e => !(Model.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))))
@@ -97,7 +106,17 @@
             if (!_config.Value.PersonalNumbersEnabled)
                 model.Number = ++indexer;
 
-            if (previousDriver != null && previousTeams != null)
+            if (leagueContracts != null)
+            {
+                var possibleContract = leagueContracts.Find(e => e.DriverId == driver.Id);
+                if (possibleContract != null)
+                {
+                    model.BaseTeamId = possibleContract.TeamId;
+                    model.Contracted = true;
+                }
+            }
+
+            if (model.BaseTeamId == 0 && previousDriver != null && previousTeams != null)
                 model.BaseTeamId = previousTeams.Find(e => e.Id == previousDriver.SeasonTeamId)?.TeamId ?? 0;
 
             Model.SeasonDrivers.Add(model);

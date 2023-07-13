@@ -1,9 +1,106 @@
 ﻿@page "/contracts"
+@inject BreadcrumbProvider _bread
+@inject ContractService _contractService
+@inject DriverService _driverService
+@inject LeagueService _leagueService
+@inject TeamService _teamService
+@inject IDialogService _dialogService
 
 <MudContainer Class="mt-4">
-    <MudText>TODO</MudText>
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Contracts</MudText>
+            <MudSpacer />
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="ToggleExpired">
+                    @(showingExpired ? "Active" : "Expired")
+                </MudButton>
+                <MudButton OnClick="AddItem">New</MudButton>
+            </MudButtonGroup>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="Contract" Items="@ContractData" Dense="true">
+        <Columns>
+            <PropertyColumn Property="e => e.League.Name" />
+            <PropertyColumn Property="e => e.Team.Name" />
+            <PropertyColumn Property="e => e.Driver.FullName" />
+            <PropertyColumn Property="e => e.Duration" />
+            <TemplateColumn>
+                <CellTemplate>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   OnClick="@(async () => await UpdateItem(context.Item))" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Contract" />
+        </PagerContent>
+    </MudDataGrid>
 </MudContainer>
 
 @code {
+    private List<Contract> ContractData { get; set; } = new();
 
+    private List<League>? Leagues { get; set; }
+    private List<Team>? Teams { get; set; }
+    private List<Driver>? Drivers { get; set; }
+
+    private bool showingExpired = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Contracts", href: "contracts", disabled: true),
+        });
+
+        ContractData = await _contractService.GetExtendedContracts();
+    }
+
+    async Task ToggleExpired()
+    {
+        if (showingExpired)
+            ContractData = await _contractService.GetExtendedContracts(false);
+        else
+            ContractData = await _contractService.GetExtendedContracts(true);
+
+        showingExpired = !showingExpired;
+    }
+
+    async Task RetrieveParticipants()
+    {
+        if (Leagues == null)
+            Leagues = (await _leagueService.GetLeagues()).Where(e => e.Options.HasFlag(LeagueOptions.AllowContracting)).ToList();
+
+        if (Teams == null)
+            Teams = await _teamService.GetTeams();
+
+        if (Drivers == null)
+            Drivers = await _driverService.GetDrivers();
+    }
+
+    async Task AddItem() => await UpdateItem(null);
+    async Task UpdateItem(Contract? item)
+    {
+        await RetrieveParticipants();
+
+        var parameters = new DialogParameters
+            {
+                ["ActiveContracts"] = ContractData,
+                ["Leagues"] = Leagues,
+                ["Teams"] = Teams,
+                ["Drivers"] = Drivers,
+            };
+
+        var dialog = await _dialogService.ShowAsync<ContractEditor>("Modify contract", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Contract updatedItem)
+        {
+            await _contractService.UpdateContract(updatedItem);
+            ContractData = await _contractService.GetExtendedContracts();
+        }
+    }
 }

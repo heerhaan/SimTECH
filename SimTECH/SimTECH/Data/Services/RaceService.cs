@@ -53,12 +53,15 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
+            // Too many includes, optimize?
             return await context.Result
                 .Where(e => e.RaceId == raceId)
                 .Include(e => e.Incident)
                 .Include(e => e.LapScores)
                 .Include(e => e.SeasonDriver)
                     .ThenInclude(e => e.Driver)
+                .Include(e => e.SeasonDriver)
+                    .ThenInclude(e => e.SeasonTeam)
                 .ToListAsync();
         }
 

@@ -28,12 +28,16 @@
                 </MudPaper>
             </MudItem>
             <MudItem xs="6">
-                <MudPaper Class="mud-height-full">
+                <MudPaper Class="mud-height-full pa-4">
                     <MudText Typo="Typo.h5">Final standings</MudText>
                     <MudTable T="Result" Items="@Results.OrderBy(e => e.Position)" Dense="true" Class="extra-dense">
                         <HeaderContent>
                             <MudTh></MudTh>
-                            <MudTh>Name</MudTh>
+                            <MudTh>Grid</MudTh>
+                            <MudTh Class="accent-cell"></MudTh>
+                            <MudTh Style="width: 220px">Name</MudTh>
+                            <MudTh Class="number-col">NO</MudTh>
+                            <MudTh Style="width: 220px">Team</MudTh>
                             <MudTh>Points</MudTh>
                         </HeaderContent>
                         <RowTemplate>
@@ -44,12 +48,18 @@
                                 }
                                 else
                                 {
-                                    <MudText Typo="Typo.button" Style="@(ViewHelper.SetBackgroundColour(context.Status.StatusColour()))">
+                                    <MudPaper Class="px-1 py-0" Style="@(ViewHelper.SetBackgroundColour(context.Status.StatusColour()))">
                                         @context.Status
-                                    </MudText>
+                                    </MudPaper>
                                 }
                             </MudTd>
                             <MudTd>
+                                <MudText Typo="Typo.button">@context.Grid</MudText>
+                            </MudTd>
+                            <MudTd Class="accent-cell">
+                                <SmolAccent Colour="@context.SeasonTeam.Colour" />
+                            </MudTd>
+                            <MudTd Class="overflow-hider">
                                 <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                     <MudText>@context.SeasonDriver.Driver.FullName</MudText>
                                     @if (context.Grid == 1)
@@ -62,6 +72,12 @@
                                     }
                                 </MudStack>
                             </MudTd>
+                            <MudTd Class="number-col">
+                                <NumberDisplay Colour="@context.SeasonTeam.Colour" Accent="@context.SeasonTeam.Accent">@context.SeasonDriver.Number</NumberDisplay>
+                            </MudTd>
+                            <MudTd Class="overflow-hider">
+                                <MudText Typo="Typo.button">@context.SeasonTeam.Name</MudText>
+                            </MudTd>
                             <MudTd>
                                 <MudText Typo="Typo.caption">@(ReadScoredResult(context))</MudText>
                             </MudTd>
@@ -71,7 +87,7 @@
             </MudItem>
             <MudItem xs="6">
                 <MudStack Class="mud-height-full">
-                    <MudPaper Height="50%">
+                        <MudPaper Height="50%" Class="pa-4">
                         <MudText Typo="Typo.h5">Race incidents</MudText>
                         <MudSimpleTable Dense="true" Class="extra-dense">
                             <thead>
@@ -86,16 +102,21 @@
                                 {
                                     <tr>
                                         <td>@result.SeasonDriver.Driver.FullName</td>
+                                        <td>
+                                            <NumberDisplay Colour="@result.SeasonTeam.Colour" Accent="@result.SeasonTeam.Accent">@result.SeasonDriver.Number</NumberDisplay>
+                                        </td>
                                         <td>@(result.Incident?.Name)</td>
-                                        <td style="@(ViewHelper.SetBackgroundColour(result.Status.StatusColour()))">
-                                            @result.Status
+                                        <td>
+                                            <MudPaper Class="px-1 py-0" Style="@(ViewHelper.SetBackgroundColour(result.Status.StatusColour()))">
+                                                @result.Status
+                                            </MudPaper>
                                         </td>
                                     </tr>
                                 }
                             </tbody>
                         </MudSimpleTable>
                     </MudPaper>
-                    <MudPaper Height="50%">
+                    <MudPaper Height="50%" Class="pa-4">
                         <MudText Typo="Typo.h5">Upcoming penalties</MudText>
                         <MudTable T="DriverPenalty" Items="@DriverPenalties" Dense="true" Class="extra-dense">
                             <HeaderContent>
