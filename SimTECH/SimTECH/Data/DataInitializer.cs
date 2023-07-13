@@ -70,22 +70,22 @@ namespace SimTECH.Data
         private void SeedIncidents()
         {
             builder.Entity<Incident>().HasData(
-                new Incident { Id = 1, Name = "Damage", Category = CategoryIncident.Driver, Limit = 0, Punishment = 0, Odds = 2, State = State.Active, },
-                new Incident { Id = 2, Name = "Collision", Category = CategoryIncident.Driver, Limit = 2, Punishment = 3, Odds = 1, State = State.Active, },
-                new Incident { Id = 3, Name = "Accident", Category = CategoryIncident.Driver, Limit = 5, Punishment = 3, Odds = 2, State = State.Active, },
-                new Incident { Id = 4, Name = "Puncture", Category = CategoryIncident.Driver, Limit = 0, Punishment = 0, Odds = 1, State = State.Active, },
-                new Incident { Id = 5, Name = "Engine", Category = CategoryIncident.Engine, Limit = 5, Punishment = 10, Odds = 3, State = State.Active, },
-                new Incident { Id = 6, Name = "Electrics", Category = CategoryIncident.Car, Limit = 3, Punishment = 5, Odds = 1, State = State.Active, },
-                new Incident { Id = 7, Name = "Exhaust", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, State = State.Active, },
-                new Incident { Id = 8, Name = "Gearbox", Category = CategoryIncident.Car, Limit = 4, Punishment = 5, Odds = 2, State = State.Active, },
-                new Incident { Id = 9, Name = "Hydraulics", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, State = State.Active, },
-                new Incident { Id = 10, Name = "Wheel", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, State = State.Active, },
-                new Incident { Id = 11, Name = "Brakes", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, State = State.Active, },
-                new Incident { Id = 12, Name = "Illegal", Category = CategoryIncident.Disqualified, Limit = 0, Punishment = 10, Odds = 1, State = State.Active, },
-                new Incident { Id = 13, Name = "Fuel", Category = CategoryIncident.Disqualified, Limit = 0, Punishment = 10, Odds = 1, State = State.Active, },
-                new Incident { Id = 14, Name = "Dangerous", Category = CategoryIncident.Disqualified, Limit = 0, Punishment = 10, Odds = 1, State = State.Active, },
-                new Incident { Id = 15, Name = "Hospital", Category = CategoryIncident.Lethal, Limit = 0, Punishment = 0, Odds = 5, State = State.Active, },
-                new Incident { Id = 16, Name = "Death", Category = CategoryIncident.Lethal, Limit = 0, Punishment = 0, Odds = 1, State = State.Active, }
+                new Incident { Id = 1, Name = "Damage", Category = CategoryIncident.Driver, Limit = 0, Punishment = 0, Odds = 2, Penalized = false, State = State.Active, },
+                new Incident { Id = 2, Name = "Collision", Category = CategoryIncident.Driver, Limit = 2, Punishment = 3, Odds = 1, Penalized = true, State = State.Active, },
+                new Incident { Id = 3, Name = "Accident", Category = CategoryIncident.Driver, Limit = 5, Punishment = 3, Odds = 2, Penalized = true, State = State.Active, },
+                new Incident { Id = 4, Name = "Puncture", Category = CategoryIncident.Driver, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
+                new Incident { Id = 5, Name = "Engine", Category = CategoryIncident.Engine, Limit = 5, Punishment = 10, Odds = 3, Penalized = true, State = State.Active, },
+                new Incident { Id = 6, Name = "Electrics", Category = CategoryIncident.Car, Limit = 3, Punishment = 5, Odds = 1, Penalized = true, State = State.Active, },
+                new Incident { Id = 7, Name = "Exhaust", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
+                new Incident { Id = 8, Name = "Gearbox", Category = CategoryIncident.Car, Limit = 4, Punishment = 5, Odds = 2, Penalized = true, State = State.Active, },
+                new Incident { Id = 9, Name = "Hydraulics", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
+                new Incident { Id = 10, Name = "Wheel", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
+                new Incident { Id = 11, Name = "Brakes", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
+                new Incident { Id = 12, Name = "Illegal", Category = CategoryIncident.Disqualified, Limit = 0, Punishment = 10, Odds = 1, Penalized = true, State = State.Active, },
+                new Incident { Id = 13, Name = "Fuel", Category = CategoryIncident.Disqualified, Limit = 0, Punishment = 10, Odds = 1, Penalized = true, State = State.Active, },
+                new Incident { Id = 14, Name = "Dangerous", Category = CategoryIncident.Disqualified, Limit = 0, Punishment = 10, Odds = 1, Penalized = true, State = State.Active, },
+                new Incident { Id = 15, Name = "Hospital", Category = CategoryIncident.Lethal, Limit = 0, Punishment = 0, Odds = 5, Penalized = false, State = State.Active, },
+                new Incident { Id = 16, Name = "Death", Category = CategoryIncident.Lethal, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, }
             );
         }
     }

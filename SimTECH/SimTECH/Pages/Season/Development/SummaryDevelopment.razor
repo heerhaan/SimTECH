@@ -18,22 +18,25 @@
             <MudStack Row="true" Spacing="0" Class="flex-wrap">
                 @foreach (var entrantGroup in Summaries)
                 {
-                    <MudPaper Elevation="15" Class="px-4 py-2">
+                    <MudPaper Elevation="15" Class="px-4 py-2" id="@(entrantGroup.SummaryElementId)">
                         <MudTable T="EntrantDevelopLog"
                                   Items="@entrantGroup.EntrantLogs.OrderBy(e => e.Name)"
                                   GroupBy="@_entrantDefinition"
                                   GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
                                   Bordered="true"
-                                  Dense="true">
+                                  Dense="true"
+                                  Class="extra-dense">
                             <ToolBarContent>
                                 <MudText Typo="Typo.h5" Color="Color.Tertiary">@entrantGroup.EntrantGroup.ToString()</MudText>
                                 <MudDivider Vertical="true" Class="mx-2" />
                                 <MudText Typo="Typo.h5">Boing</MudText>
+                                <MudSpacer />
+                                <ScreenshotButton TargetId="@(entrantGroup.SummaryElementId)" />
                             </ToolBarContent>
                             <HeaderContent>
                                 @foreach (var (aspect, i) in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()).Select((aspect, i) => (aspect, i)))
                                 {
-                                    <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")" Style="width: 150px" colspan="2">
+                                    <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")">
                                         @aspect.ReadableAspect()
                                     </MudTh>
                                 }
@@ -46,15 +49,18 @@
                             <RowTemplate>
                                 @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()).Select((dev, i) => (dev, i)))
                                 {
-                                    <MudTd Class="@(InspectTheWheel(i))" Style="width: 75px">
-                                        <GradientColour Min="@entrantGroup.MinMaxValues[dev.Key].Item1"
-                                                        Max="@entrantGroup.MinMaxValues[dev.Key].Item2"
-                                                        Value="@dev.Value.Item1">
-                                            <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
-                                        </GradientColour>
-                                    </MudTd>
-                                    <MudTd Class="@(InspectTheWheel(i))" Style="width: 75px">
-                                        <MudText Typo="Typo.caption">@dev.Value.Item2</MudText>
+                                    <MudTd Class="@(InspectTheWheel(i))">
+                                        <MudStack Row="true" Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                            <MudText Typo="Typo.caption" Style="color:white !important">@(@dev.Value.Item1 - dev.Value.Item2)</MudText>
+                                            <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
+                                            <GradientColour Min="@entrantGroup.MinMaxValues[dev.Key].Item1"
+                                                            Max="@entrantGroup.MinMaxValues[dev.Key].Item2"
+                                                            Value="@dev.Value.Item1">
+                                                <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
+                                            </GradientColour>
+                                            <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
+                                            <MudText Typo="Typo.caption" Style="color:white !important">@dev.Value.Item2</MudText>
+                                        </MudStack>
                                     </MudTd>
                                 }
                             </RowTemplate>

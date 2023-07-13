@@ -18,7 +18,7 @@
                         <HeaderContent>
                             <MudTh>Name</MudTh>
                             <MudTh Class="number-col">NO</MudTh>
-                            @foreach (var incident in incidents.Where(e => e.HasLimit()).OrderBy(e => e.Name))
+                            @foreach (var incident in incidents.Where(e => e.Penalized).OrderBy(e => e.Name))
                             {
                                 <MudTh Class="number-col">@incident.Name</MudTh>
                             }
@@ -32,7 +32,7 @@
                             <MudTd Class="number-col">
                                 <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                             </MudTd>
-                            @foreach (var incident in incidents.Where(e => e.HasLimit()).OrderBy(e => e.Name))
+                            @foreach (var incident in incidents.Where(e => e.Penalized).OrderBy(e => e.Name))
                             {
                                 <MudTd Class="number-col">
                                     <MudText Typo="Typo.caption">
@@ -50,7 +50,7 @@
                         <FooterContent>
                             <MudTd>LIMIT</MudTd>
                             <MudTd></MudTd>
-                            @foreach (var incident in incidents.Where(e => e.HasLimit()).OrderBy(e => e.Name))
+                            @foreach (var incident in incidents.Where(e => e.Penalized).OrderBy(e => e.Name))
                             {
                                 <MudTd>@incident.Limit</MudTd>
                             }

@@ -137,7 +137,7 @@ namespace SimTECH.Data.Services
 
             var newPenalties = new List<GivenPenalty>();
 
-            foreach (var dnfResult in raceResults.Where(e => e.Incident?.HasLimit() == true))
+            foreach (var dnfResult in raceResults.Where(e => e.Incident?.Penalized == true))
             {
                 var incidentFrequency = await context.Result
                     .Where(e => e.SeasonDriverId == dnfResult.SeasonDriverId && e.IncidentId == dnfResult.IncidentId)
