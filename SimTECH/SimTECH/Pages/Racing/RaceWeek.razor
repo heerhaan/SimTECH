@@ -16,7 +16,7 @@
                 <MudPaper MinHeight="60px" Class="pa-2">
                     <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                         <div style="width:20%">
-                            
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Next: @Model.NextSession</MudText>
                         </div>
 
                         <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
@@ -28,11 +28,11 @@
                 </MudPaper>
             </MudItem>
             <MudItem xs="3">
-                <MudText Typo="Typo.h5">Track information</MudText>
-                <MudDivider />
-                <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
-                
                 <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.h5">Track information</MudText>
+                    <MudDivider />
+                    <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
+
                     <MudListExtended T="string" Dense="true">
                         <MudListItemExtended T="string" SecondaryText="Country">
                             <CountryNamedFlag Code="@Model.Race.Track.Country" Size="ElementSize.Normal" Reverse="true" />
@@ -96,7 +96,7 @@
                                     @if (context.Penalty.HasValue)
                                     {
                                         <MudBadge Content="@($"+{context.Penalty.Value}")"
-                                                  Color="Color.Dark"
+                                                  Color="Color.Secondary"
                                                   Origin="Origin.CenterRight"
                                                   BadgeClass="ml-1">
                                             <DriverPosition Number="@context.Grid" />

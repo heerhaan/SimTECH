@@ -1,5 +1,6 @@
 ﻿@page "/leagues"
 @inject BreadcrumbProvider _bread
+@inject NavigationManager _nav
 @inject LeagueService LeagueService
 @inject IDialogService DialogService
 
@@ -21,6 +22,11 @@
             <TemplateColumn T="League" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">
+                        @if (context.Item.Options.HasFlag(LeagueOptions.AllowContracting))
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.AssignmentTurnedIn"
+                                           OnClick="@(() => GoToLeagueContracts(context.Item.Id))" />
+                        }
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit"
                                        OnClick="@(async () => await UpdateLeague(context.Item))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete"
@@ -123,4 +129,6 @@
         await LeagueService.DeleteLeague(league);
         LeagueData.Remove(league);
     }
+
+    void GoToLeagueContracts(long leagueId) => _nav.NavigateTo($"league/contracts/{leagueId}");
 }

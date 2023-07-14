@@ -12,6 +12,10 @@ namespace SimTECH.Data.EditModels
         public long DriverId { get; set; }
         public long LeagueId { get; set; }
 
+        // Supportive fields
+        public Team? Team { get; set; }
+        public Driver? Driver { get; set; }
+
         public EditContract(Contract? contract)
         {
             if (contract == null)

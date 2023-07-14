@@ -1,10 +1,106 @@
-﻿<MudContainer>
-    <MudPaper>
-        <MudText>Current contracts</MudText>
-        <MudText>Assign new contracts</MudText>
-    </MudPaper>
+﻿@page "/league/contracts/{LeagueId:long}"
+@inject ContractService _contractService
+@inject DriverService _driverService
+@inject TeamService _teamService
+
+<PageTitle>League Contracts</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    @if (!loading)
+    {
+        <MudPaper Elevation="25" Class="@(finalize ? "d-none" : string.Empty)">
+            <MudDropContainer T="EditContract"
+                              @ref="dropzone"
+                              ApplyDropClassesOnDragStarted="true"
+                              CanDropClass="mud-border-success">
+                <ChildContent>
+                    <MudStack Row="true">
+                        <MudPaper MaxWidth="300px">
+                            <MudDropZone T="EditContract"
+                                         Identifier="0"
+                                         Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4">
+                                <MudText Typo="Typo.subtitle1">Free agents</MudText>
+                            </MudDropZone>
+                        </MudPaper>
+                        <MudPaper>
+                            <MudStack Row="true" Class="pa-0 flex-wrap">
+                                @foreach (var team in Teams)
+                                {
+                                    <MudPaper MinHeight="250px" MaxWidth="300px" Class="ma-2">
+                                        <MudDropZone T="EditContract"
+                                                     Identifier="@($"{team.Id}")"
+                                                     Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                                <MudText Class="overflow-hider">@team.Name</MudText>
+                                                <MudSpacer />
+                                                <CountryFlag Code="@team.Country" Size="ElementSize.Small" />
+                                            </MudStack>
+                                        </MudDropZone>
+                                    </MudPaper>
+                                }
+                            </MudStack>
+                        </MudPaper>
+                    </MudStack>
+                </ChildContent>
+                <ItemRenderer>
+                    <MudPaper Class="mud-width-full border-2 border-dashed mud-border-tertiary pa-1 my-2">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                            <MudText Class="overflow-hider">@(context.Driver?.FullName ?? "[Unknown]")</MudText>
+                            <MudSpacer />
+                            <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
+                        </MudStack>
+                    </MudPaper>
+                </ItemRenderer>
+            </MudDropContainer>
+            <MudStack Row="true">
+                <MudPaper></MudPaper>
+            </MudStack>
+        </MudPaper>
+        <MudPaper Class="@(finalize ? string.Empty : "d-none")">
+
+        </MudPaper>
+        <MudPaper>
+            <MudStack Row="true" Reverse="true">
+                <MudButton>Next</MudButton>
+            </MudStack>
+        </MudPaper>
+    }
 </MudContainer>
 
 @code {
+    [Parameter] public long LeagueId { get; set; }
 
+    private List<EditContract> Contracts { get; set; }
+    private List<Team> Teams { get; set; }
+
+    private MudDropContainer<EditContract> dropzone;
+
+    private bool loading = true;
+    private bool finalize = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var leagueContracts = await _contractService.GetLeagueContracts(LeagueId);
+        var drivers = await _driverService.GetDrivers();
+        var teams = await _teamService.GetTeams();
+
+        var editContracts = leagueContracts.Select(e => new EditContract(e)).ToList();
+        foreach (var editable in editContracts)
+        {
+            editable.Team = teams.Find(e => e.Id == editable.TeamId);
+            editable.Driver = drivers.Find(e => e.Id == editable.DriverId);
+        }
+
+        Contracts = editContracts;
+        Teams = teams;
+
+        loading = false;
+        StateHasChanged();
+    }
+
+    private void DriverDropped(MudItemDropInfo<EditContract> dropItem)
+    {
+        if (dropItem.Item != null)
+            dropItem.Item.TeamId = long.Parse(dropItem.DropzoneIdentifier);
+    }
 }
