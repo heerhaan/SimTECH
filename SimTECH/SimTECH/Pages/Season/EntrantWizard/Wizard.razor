@@ -4,6 +4,7 @@
 @using MudExtensions.Utilities
 @using SimTECH.Pages.Season.EntrantWizard.Steps
 @inject BreadcrumbProvider _bread
+@inject LeagueService _leagueService
 @inject SeasonService _seasonService
 @inject SeasonEntrantService _entrantService
 @inject NavigationManager _nav
@@ -18,7 +19,6 @@
                         Variant="Variant.Outlined"
                         Linear="true"
                         DisableSkipButton="true"
-                        DisablePreviousButton="true"
                         HeaderTextView="HeaderTextView.All"
                         HeaderBadgeView="HeaderBadgeView.GreyOutIncomplete"
                         PreventStepChangeAsync="InvalidStepPrevention">
@@ -131,6 +131,10 @@
     {
         Season = await _seasonService.GetSeasonById(SeasonId);
         PreviousSeason = await _seasonService.FindRecentClosedSeason(Season.LeagueId);
+
+        var league = await _leagueService.GetLeagueById(Season.LeagueId);
+        Model.LeagueId = league.Id;
+        Model.HasContracting = league.Options.HasFlag(LeagueOptions.AllowContracting);
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {

@@ -55,5 +55,16 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+
+        public async Task AddContracts(List<Contract> contracts)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            // Validations to check if there are no running contracts?
+
+            context.AddRange(contracts);
+
+            await context.SaveChangesAsync();
+        }
     }
 }

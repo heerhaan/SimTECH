@@ -9,6 +9,9 @@ namespace SimTECH.Extensions
             return Enum.GetValues(e.GetType()).Cast<Enum>().Where(e.HasFlag);
         }
 
+        public static TEnum[] GetEnumValues<TEnum>()
+            => (TEnum[])Enum.GetValues(typeof(TEnum));
+
         public static State[] StatesForFilter(this StateFilter filter) => filter switch
         {
             StateFilter.All => new State[] { State.Concept, State.Active, State.Advanced, State.Closed, State.Archived },
@@ -48,7 +51,7 @@ namespace SimTECH.Extensions
         {
             Aspect.Skill => "Skill",
             Aspect.Age => "Age",
-            Aspect.BaseCar => "BaseCar",
+            Aspect.BaseCar => "Car",
             Aspect.Engine => "Engine",
             Aspect.Aero => "Aero",
             Aspect.Chassis => "Chassis",

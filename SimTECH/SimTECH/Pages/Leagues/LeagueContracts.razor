@@ -2,20 +2,44 @@
 @inject ContractService _contractService
 @inject DriverService _driverService
 @inject TeamService _teamService
+@inject NavigationManager _nav
+@inject ISnackbar _snack
 
 <PageTitle>League Contracts</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudPaper Elevation="15" MinHeight="60px" Class="pa-4">
+        <MudStack Row="true" Justify="Justify.SpaceBetween">
+            <div style="width:30%">
+                <MudText Typo="Typo.body2">
+                    You can only add new contracts here, if you want to break a contract then go to <MudLink Href="/contracts" Typo="Typo.body2">Contracts</MudLink>.
+                </MudText>
+            </div>
+            
+            <MudText Typo="Typo.h3">League contracts</MudText>
+
+            <div class="d-flex flex-row-reverse align-center" style="width:30%">
+                <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="Next">
+                    @(finalize ? "Save" : "Next")
+                </MudButton>
+            </div>
+        </MudStack>
+    </MudPaper>
+    
     @if (!loading)
     {
         <MudPaper Elevation="25" Class="@(finalize ? "d-none" : string.Empty)">
             <MudDropContainer T="EditContract"
                               @ref="dropzone"
+                              Items="@Contracts"
+                              ItemIsDisabled="@((contract) => contract.Id != 0)"
+                              ItemsSelector="@((item, dropzone) => $"{item.TeamId}" == dropzone)"
+                              ItemDropped="DriverDropped"
                               ApplyDropClassesOnDragStarted="true"
                               CanDropClass="mud-border-success">
                 <ChildContent>
                     <MudStack Row="true">
-                        <MudPaper MaxWidth="300px">
+                        <MudPaper Width="275px">
                             <MudDropZone T="EditContract"
                                          Identifier="0"
                                          Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4">
@@ -26,7 +50,7 @@
                             <MudStack Row="true" Class="pa-0 flex-wrap">
                                 @foreach (var team in Teams)
                                 {
-                                    <MudPaper MinHeight="250px" MaxWidth="300px" Class="ma-2">
+                                    <MudPaper MinHeight="250px" Width="275px" Class="ma-2">
                                         <MudDropZone T="EditContract"
                                                      Identifier="@($"{team.Id}")"
                                                      Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4">
@@ -43,8 +67,8 @@
                     </MudStack>
                 </ChildContent>
                 <ItemRenderer>
-                    <MudPaper Class="mud-width-full border-2 border-dashed mud-border-tertiary pa-1 my-2">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                    <MudPaper Class="mud-width-full border-2 border-dashed mud-border-tertiary pa-1 my-2" Style="@IsDisabledStyles(context.Id)">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0 mx-1">
                             <MudText Class="overflow-hider">@(context.Driver?.FullName ?? "[Unknown]")</MudText>
                             <MudSpacer />
                             <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
@@ -57,11 +81,16 @@
             </MudStack>
         </MudPaper>
         <MudPaper Class="@(finalize ? string.Empty : "d-none")">
-
-        </MudPaper>
-        <MudPaper>
-            <MudStack Row="true" Reverse="true">
-                <MudButton>Next</MudButton>
+            <MudText Color="Color.Warning">Make this prettier, you idiot</MudText>
+            <MudStack>
+                @foreach (var contract in Contracts)
+                {
+                    <MudStack Row="true">
+                        <MudText>@(contract.Driver?.FullName ?? "[Unknown driver]")</MudText>
+                        <MudText>@(contract.Team?.Name ?? "[Unknown team]")</MudText>
+                        <MudNumericField @bind-Value="contract.Duration" Label="Duration" Min="1" Class="field-sm" />
+                    </MudStack>
+                }
             </MudStack>
         </MudPaper>
     }
@@ -91,6 +120,17 @@
             editable.Driver = drivers.Find(e => e.Id == editable.DriverId);
         }
 
+        foreach (var freeAgent in drivers.Where(e => !editContracts.Select(c => c.DriverId).Contains(e.Id)))
+        {
+            var agentContract = new EditContract(null);
+            agentContract.DriverId = freeAgent.Id;
+            agentContract.Driver = freeAgent;
+            agentContract.LeagueId = LeagueId;
+            agentContract.Duration = 1;
+
+            editContracts.Add(agentContract);
+        }
+
         Contracts = editContracts;
         Teams = teams;
 
@@ -98,9 +138,52 @@
         StateHasChanged();
     }
 
+    private async Task Next()
+    {
+        if (!finalize)
+        {
+            // Do we need validations after the dropper?
+            Contracts = Contracts.Where(e => e.Id == 0 && e.TeamId != 0).ToList();
+            finalize = true;
+            return;
+        }
+
+        if (Contracts.Any(e => e.Duration == 0))
+        {
+            _snack.Add("Add an actual duration or something?", Severity.Warning);
+            return;
+        }
+
+        if (Contracts.Any(e => e.LeagueId == 0 || e.DriverId == 0))
+        {
+            _snack.Add("Somehow the new contracts have some invalid data, dunno man. Weird shit.", Severity.Error);
+        }
+
+        var contractEntities = Contracts.Select(e => e.Record).ToList();
+        await _contractService.AddContracts(contractEntities);
+
+        _nav.NavigateTo("contracts");
+    }
+
     private void DriverDropped(MudItemDropInfo<EditContract> dropItem)
     {
         if (dropItem.Item != null)
-            dropItem.Item.TeamId = long.Parse(dropItem.DropzoneIdentifier);
+        {
+            var teamId = long.Parse(dropItem.DropzoneIdentifier);
+            dropItem.Item.TeamId = teamId;
+            dropItem.Item.Team = Teams.Find(e => e.Id == teamId);
+        }
+    }
+
+    private string IsDisabledStyles(long contractId)
+    {
+        if (contractId != 0)
+        {
+            return @"color: var(--mud-palette-action-disabled) !important;
+                     cursor: default !important;
+                     pointer-events: none !important;";
+        }
+
+        return string.Empty;
     }
 }

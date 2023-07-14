@@ -16,7 +16,8 @@ namespace SimTECH.PageModels
         public HashSet<Team> BaseTeams { get; set; } = new();
         public HashSet<Driver> BaseDrivers { get; set; } = new();
 
-
+        public long LeagueId { get; set; }
+        public bool HasContracting { get; set; }
     }
 
     public static class EntrantModelExtensions
