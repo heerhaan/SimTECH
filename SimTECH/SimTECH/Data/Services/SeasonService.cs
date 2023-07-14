@@ -97,6 +97,7 @@ namespace SimTECH.Data.Services
                 .Include(e => e.SeasonTeams)
                 .Include(e => e.SeasonDrivers)
                 .Include(e => e.Races)
+                .Include(e => e.League)
                 .SingleAsync(e => e.Id == seasonId);
 
             if (season.State != State.Concept)
@@ -114,9 +115,11 @@ namespace SimTECH.Data.Services
             season.State = State.Active;
 
             context.Update(season);
+            
             await context.SaveChangesAsync();
 
             return null;
+            // Don't forget to subtract contract durations if you call this method again elsewhere
         }
 
         public async Task FinishSeason(long seasonId)

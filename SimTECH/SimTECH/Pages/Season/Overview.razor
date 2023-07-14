@@ -3,6 +3,7 @@
 @using SimTECH.Pages.Season.Entrants;
 @using SimTECH.Pages.Season.Stats;
 @using SimTECH.Pages.Season.ScoreStandings
+@inject ContractService _contractService
 @inject RaceService _raceService
 @inject SeasonService _seasonService
 @inject SeasonEntrantService _entrantService
@@ -199,6 +200,9 @@
 
             if (error == null)
             {
+                // Subtract the contract durations with 1 (if it is valid)
+                await _contractService.SubtractDurations(Season.LeagueId, SeasonId);
+
                 Season.State = State.Active; // NOTE: It always changes to active if started
                 NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
                 _snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);

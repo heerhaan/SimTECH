@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
+using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.Services
 {
@@ -65,6 +66,23 @@ namespace SimTECH.Data.Services
             context.AddRange(contracts);
 
             await context.SaveChangesAsync();
+        }
+
+        public async Task SubtractDurations(long leagueId, long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var league = await context.League.FirstAsync(e => e.Id == leagueId);
+
+            if (league.Options.HasFlag(LeagueOptions.AllowContracting))
+            {
+                var driversInSeason = await context.SeasonDriver.Where(e => e.SeasonId == seasonId).Select(e => e.DriverId).ToListAsync();
+
+                var leagueContracts = await context.Contract
+                    .Where(e => e.LeagueId == leagueId && e.Duration > 0 && driversInSeason.Contains(e.DriverId))
+                    .ExecuteUpdateAsync(e =>
+                        e.SetProperty(prop => prop.Duration, prop => prop.Duration - 1));
+            }
         }
     }
 }
