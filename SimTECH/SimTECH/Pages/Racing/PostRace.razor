@@ -48,9 +48,9 @@
                                 }
                                 else
                                 {
-                                    <MudPaper Class="px-1 py-0" Style="@(ViewHelper.SetBackgroundColour(context.Status.StatusColour()))">
-                                        @context.Status
-                                    </MudPaper>
+                                    <div class="result-cell" style="@(ViewHelper.SetBackgroundColour(context.Status.StatusColour()))">
+                                        <MudText Typo="Typo.caption" Color="Color.Inherit">@context.Status</MudText>
+                                    </div>
                                 }
                             </MudTd>
                             <MudTd>
@@ -104,15 +104,17 @@
                                     <tr>
                                         <td>@result.SeasonDriver.Driver.FullName</td>
                                         <td class="number-col">
-                                            <NumberDisplay>@result.SeasonDriver.Number</NumberDisplay>
+                                            <NumberDisplay Colour="@(result.SeasonTeam?.Colour ?? Constants.DefaultColour)" Accent="@(result.SeasonTeam?.Accent ?? Constants.DefaultAccent)">
+                                                @result.SeasonDriver.Number
+                                            </NumberDisplay>
                                         </td>
                                         <td>
                                             @(result.Incident?.Name)
                                         </td>
                                         <td class="number-col-lg">
-                                            <MudPaper Class="px-1 py-0" Style="@(ViewHelper.SetBackgroundColour(result.Status.StatusColour()))">
-                                                @result.Status
-                                            </MudPaper>
+                                            <div class="result-cell" style="@(ViewHelper.SetBackgroundColour(result.Status.StatusColour()))">
+                                                <MudText Typo="Typo.caption" Color="Color.Inherit">@result.Status</MudText>
+                                            </div>
                                         </td>
                                     </tr>
                                 }
@@ -173,7 +175,7 @@
         if (followingRace != null)
         {
             var allPenalties = await _raceService.GetPenalties();
-            //Penalties = allPenalties.Where(e => e.)
+            Penalties = allPenalties.Where(e => !e.Consumed || e.ConsumedAtRaceId == followingRace.Id).ToList();
         }
 
         allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();

@@ -6,11 +6,11 @@
               Class="pa-0 mud-width-full"
               Style="color:inherit">
         <MudText Typo="@_typo" Color="Color.Inherit">@_resultDisplay</MudText>
-        @if (_hasPole)
+        @if (_hasPole && WithBonus)
         {
             <sup style="font-size: 0.65rem">P</sup>
         }
-        @if (_hasFastestLap)
+        @if (_hasFastestLap && WithBonus)
         {
             <sup style="font-size: 0.65rem">F</sup>
         }
@@ -21,6 +21,7 @@
     [Parameter] public StandingResultCell? Result { get; set; }
     [Parameter] public int LowestScoringPosition { get; set; }
     [Parameter] public Typo? OverrideTypo { get; set; }
+    [Parameter] public bool WithBonus { get; set; } = true;
 
     private Typo _typo { get; set; } = Typo.h4;
 

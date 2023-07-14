@@ -67,8 +67,7 @@ namespace SimTECH.Data.Services
                 .Include(e => e.LapScores)
                 .Include(e => e.SeasonDriver)
                     .ThenInclude(e => e.Driver)
-                .Include(e => e.SeasonDriver)
-                    .ThenInclude(e => e.SeasonTeam)
+                .Include(e => e.SeasonTeam)
                 .ToListAsync();
         }
 
