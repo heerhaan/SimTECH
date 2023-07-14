@@ -87,7 +87,7 @@
             </MudItem>
             <MudItem xs="6">
                 <MudStack Class="mud-height-full">
-                        <MudPaper Height="50%" Class="pa-4">
+                    <MudPaper Class="pa-4 mud-height-full">
                         <MudText Typo="Typo.h5">Race incidents</MudText>
                         <MudSimpleTable Dense="true" Class="extra-dense">
                             <thead>
@@ -95,7 +95,7 @@
                                     <th>Name</th>
                                     <th class="number-col">NO</th>
                                     <th>Incident</th>
-                                    <th>Status</th>
+                                    <th class="number-col-lg">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -109,7 +109,7 @@
                                         <td>
                                             @(result.Incident?.Name)
                                         </td>
-                                        <td>
+                                        <td class="number-col-lg">
                                             <MudPaper Class="px-1 py-0" Style="@(ViewHelper.SetBackgroundColour(result.Status.StatusColour()))">
                                                 @result.Status
                                             </MudPaper>
@@ -119,7 +119,7 @@
                             </tbody>
                         </MudSimpleTable>
                     </MudPaper>
-                    <MudPaper Height="50%" Class="pa-4">
+                    <MudPaper Class="pa-4 mud-height-full">
                         <MudText Typo="Typo.h5">Upcoming penalties</MudText>
                         <MudTable T="DriverPenalty" Items="@DriverPenalties" Dense="true" Class="extra-dense">
                             <HeaderContent>
@@ -152,7 +152,7 @@
     SimTECH.Data.Models.Race Race;
     Season Season;
     List<Result> Results;
-    List<GivenPenalty> Penalties;
+    List<GivenPenalty> Penalties = new();
 
     Dictionary<int, int> allotments;
     int lowestScoring;
@@ -168,7 +168,13 @@
         Race = await _raceService.GetRaceById(RaceId);
         Results = await _raceService.GetResultsOfRace(RaceId);
         Season = await _seasonService.GetSeasonById(Race.SeasonId);
-        Penalties = await _raceService.GetUnconsumedPenalties();
+
+        var followingRace = await _raceService.GetRaceByRound(Race.SeasonId, (1 + Race.Round));
+        if (followingRace != null)
+        {
+            var allPenalties = await _raceService.GetPenalties();
+            //Penalties = allPenalties.Where(e => e.)
+        }
 
         allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
         if (allotments.Any())

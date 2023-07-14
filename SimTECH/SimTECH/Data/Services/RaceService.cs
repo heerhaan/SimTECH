@@ -1,5 +1,4 @@
-﻿using ApexCharts;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
@@ -36,6 +35,14 @@ namespace SimTECH.Data.Services
             return await context.Race
                 .Include(e => e.Track)
                 .SingleAsync(e => e.Id == raceId);
+        }
+
+        public async Task<Race> GetRaceByRound(long seasonId, int round)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Race
+                .FirstAsync(e => e.SeasonId == seasonId && e.Round == round);
         }
 
         public async Task<Race?> GetNextRaceOfSeason(long seasonId)
@@ -166,6 +173,8 @@ namespace SimTECH.Data.Services
             result.TyreId = tyre.Id;
             result.TyreLife = tyre.Pace;
 
+            context.Update(result);
+
             await context.SaveChangesAsync();
         }
 
@@ -228,6 +237,13 @@ namespace SimTECH.Data.Services
             context.QualifyingScore.AddRange(qualyScores);
 
             await context.SaveChangesAsync();
+        }
+
+        public async Task<List<GivenPenalty>> GetPenalties()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.GivenPenalty.Include(e => e.Incident).ToListAsync();
         }
 
         public async Task<List<GivenPenalty>> GetUnconsumedPenalties()
@@ -386,7 +402,10 @@ namespace SimTECH.Data.Services
                 throw new InvalidOperationException("We're going to need some actual drivers too");
 
             // Set eventual penalties
-            var unconsumedPenalties = await context.GivenPenalty.Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId).ToListAsync();
+            var unconsumedPenalties = await context.GivenPenalty
+                .Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId)
+                .Include(e => e.Incident)
+                .ToListAsync();
             if (unconsumedPenalties?.Any() == true)
             {
                 foreach (var penalty in unconsumedPenalties.GroupBy(e => e.SeasonDriverId))
