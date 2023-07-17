@@ -68,8 +68,8 @@ namespace SimTECH
 
         public static Dictionary<string, MudTheme> SimThemes => new()
         {
-            { "Galaxy", SynthTheme },
-            { "Galaxy (Alt)", SynthAltTheme },
+            { "Galaxy", GalacticTheme },
+            { "Galaxy (Alt)", GalacticAltTheme },
             { "Oceanic", OceanicTheme },
             { "Fiery", FieryTheme },
             { "Neon", NeonTheme },
@@ -81,7 +81,7 @@ namespace SimTECH
             Typography = CommonTypo,
         };
 
-        public static MudTheme SynthTheme => new()
+        public static MudTheme GalacticTheme => new()
         {
             Palette = new PaletteLight()
             {
@@ -106,7 +106,7 @@ namespace SimTECH
             Typography = CommonTypo,
         };
 
-        public static MudTheme SynthAltTheme => new()
+        public static MudTheme GalacticAltTheme => new()
         {
             Palette = new PaletteLight()
             {

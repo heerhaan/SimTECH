@@ -4,14 +4,16 @@
 @inject DriverService _driverService
 @inject LeagueService _leagueService
 @inject TeamService _teamService
+@inject NavigationManager _nav
 @inject IDialogService _dialogService
 
-<MudContainer Class="mt-4">
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Contracts</MudText>
             <MudSpacer />
             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="GoToManager">Manager</MudButton>
                 <MudButton OnClick="ToggleExpired">
                     @(showingExpired ? "Active" : "Expired")
                 </MudButton>
@@ -103,4 +105,6 @@
             ContractData = await _contractService.GetExtendedContracts();
         }
     }
+
+    private void GoToManager() => _nav.NavigateTo("contractmanager");
 }

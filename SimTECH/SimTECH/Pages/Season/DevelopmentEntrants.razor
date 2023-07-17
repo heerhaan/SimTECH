@@ -24,6 +24,8 @@
                         </MudChipSet>
                     </MudStack>
 
+                    <MudDivider />
+
                     <MudStack Spacing="0">
                         <MudTooltip Text="Which aspect is going to be developed">
                             <MudText Typo="Typo.subtitle1">Target</MudText>
@@ -51,6 +53,8 @@
                         </MudChipSet>
                     </MudStack>
 
+                    <MudDivider />
+
                     <MudStack Spacing="0">
                         <MudTooltip Text="How the development ranges are determined">
                             <MudText Typo="Typo.subtitle1">Type</MudText>
@@ -64,6 +68,8 @@
 
                     @if (_selectedType == Quantifier.Range)
                     {
+                        <MudDivider />
+
                         <MudStack Spacing="0">
                             <MudText Typo="Typo.subtitle1">Development range</MudText>
                             <MudNumericField T="int" Label="Min" ValueChanged="ApplyMinRange" Class="field-sm" />
@@ -71,7 +77,7 @@
                         </MudStack>
                     }
 
-                    <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="ShowSummary" Class="mt-4">Summary</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ShowSummary" Class="mt-4">Summary</MudButton>
                 </MudStack>
             </MudPaper>
             <MudPaper Class="flex-grow-1 ">
@@ -82,9 +88,21 @@
                         <MudButtonGroup Color="Color.Info" Variant="Variant.Outlined">
                             @if (_ranDevelop)
                             {
-                                <MudButton StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" Variant="Variant.Outlined" OnClick="SaveDevelopment">Save</MudButton>
+                                <MudButton
+                                    StartIcon="@Icons.Material.Filled.Save"
+                                    Color="Color.Success"
+                                    Variant="Variant.Outlined"
+                                    OnClick="SaveDevelopment">
+                                    Save
+                                </MudButton>
                             }
-                            <MudButton StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" Variant="Variant.Outlined" OnClick="RunDevelop">Run</MudButton>
+                            <MudButton
+                                StartIcon="@Icons.Material.Filled.Recycling"
+                                Color="Color.Info"
+                                Variant="Variant.Outlined"
+                                OnClick="RunDevelop">
+                                Run
+                            </MudButton>
                             <ScreenshotButton TargetId="development-results" />
                         </MudButtonGroup>
                     </ToolBarContent>

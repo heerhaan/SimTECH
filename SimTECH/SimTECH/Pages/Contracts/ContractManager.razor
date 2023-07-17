@@ -1,0 +1,101 @@
+﻿@page "/contractmanager"
+@inject ContractService _contractService
+@inject LeagueService _leagueService
+@inject DriverService _driverService
+@inject TeamService _teamService
+@inject NavigationManager _nav
+@inject ISnackbar _snack
+
+<PageTitle>Contract Manager</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-4">
+    <MudPaper MaxHeight="125px">
+        <MudStack AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h3">Manage contracts</MudText>
+
+            @if (Leagues != null)
+            {
+                <MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                    <MudSelect T="long" @bind-Value="@selectedLeagueId" Label="League" Class="field-md">
+                        @foreach (var league in Leagues)
+                        {
+                            <MudSelectItem Value="@league.Id">@league.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudSwitchM3 @bind-Checked="@onlyLeagueTeams"
+                                 ThumbIcon="@Icons.Material.Filled.Done"
+                                 ThumbOffIcon="@Icons.Material.Filled.Close"
+                                 Label="Limit teams to active in League"
+                                 Color="Color.Secondary" />
+
+                    <MudSwitchM3 @bind-Checked="@onlyLeagueDrivers"
+                                 ThumbIcon="@Icons.Material.Filled.Done"
+                                 ThumbOffIcon="@Icons.Material.Filled.Close"
+                                 Label="Limit drivers to active in League"
+                                 Color="Color.Secondary" />
+
+                    <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="LoadManager">Load</MudButton>
+                </MudStack>
+            }
+        </MudStack>
+    </MudPaper>
+    @if (showManager)
+    {
+        <AssignContracts LeagueId="@selectedLeagueId"
+                         Contracts="@Contracts"
+                         Drivers="@Drivers"
+                         Teams="@Teams"
+                         OnSave="SaveContracts" />
+    }
+</MudContainer>
+
+@code {
+    public List<Contract> Contracts { get; set; } = new();
+    public List<Driver> Drivers { get; set; } = new();
+    public List<Team> Teams { get; set; } = new();
+
+    private List<League>? Leagues { get; set; }
+
+    private long selectedLeagueId;
+    private bool onlyLeagueDrivers = true;
+    private bool onlyLeagueTeams = true;
+    private bool showManager = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var existingLeagues = await _leagueService.GetLeagues();
+        Leagues = existingLeagues.Where(e => e.Options.HasFlag(LeagueOptions.AllowContracting)).ToList();
+    }
+
+    private async Task LoadManager()
+    {
+        if (selectedLeagueId == 0)
+        {
+            _snack.Add("How about selecting a league, idiot.", Severity.Error);
+            return;
+        }
+
+        if (onlyLeagueTeams)
+            Teams = await _teamService.GetLeagueTeams(selectedLeagueId);
+        else
+            Teams = await _teamService.GetTeams();
+
+        if (onlyLeagueDrivers)
+            Drivers = await _driverService.GetLeagueDrivers(selectedLeagueId);
+        else
+            Drivers = await _driverService.GetDrivers();
+
+        Contracts = await _contractService.GetLeagueContracts(selectedLeagueId);
+
+        StateHasChanged();
+
+        showManager = true;
+    }
+
+    private async Task SaveContracts(List<Contract> addedContracts)
+    {
+        await _contractService.AddContracts(addedContracts);
+        _nav.NavigateTo("contracts");
+    }
+}

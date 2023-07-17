@@ -6,7 +6,7 @@
 
 <PageTitle>Post race</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.False" Class="mt-4" id="postrace-container">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4" id="postrace-container">
     @if (!loading)
     {
         <MudGrid Spacing="1">
@@ -27,21 +27,21 @@
                     </MudStack>
                 </MudPaper>
             </MudItem>
-            <MudItem xs="6">
+            <MudItem xs="8">
                 <MudPaper Class="mud-height-full pa-4">
                     <MudText Typo="Typo.h5">Final standings</MudText>
                     <MudTable T="Result" Items="@Results.OrderBy(e => e.Position)" Dense="true" Class="extra-dense">
                         <HeaderContent>
-                            <MudTh></MudTh>
-                            <MudTh>Grid</MudTh>
+                            <MudTh Class="number-col-lg"></MudTh>
+                            <MudTh Class="number-col">Grid</MudTh>
                             <MudTh Class="accent-cell"></MudTh>
                             <MudTh Style="width: 220px">Name</MudTh>
                             <MudTh Class="number-col">NO</MudTh>
                             <MudTh Style="width: 220px">Team</MudTh>
-                            <MudTh>Points</MudTh>
+                            <MudTh Class="number-col">Points</MudTh>
                         </HeaderContent>
                         <RowTemplate>
-                            <MudTd>
+                            <MudTd Class="number-col-lg">
                                 @if (context.Status == RaceStatus.Racing)
                                 {
                                     <DriverPosition Number="@context.Position" />
@@ -53,7 +53,7 @@
                                     </div>
                                 }
                             </MudTd>
-                            <MudTd>
+                            <MudTd Class="number-col">
                                 <MudText Typo="Typo.button">@context.Grid</MudText>
                             </MudTd>
                             <MudTd Class="accent-cell">
@@ -78,14 +78,14 @@
                             <MudTd Class="overflow-hider">
                                 <MudText Typo="Typo.button">@(context.SeasonTeam?.Name ?? "[Unknown]")</MudText>
                             </MudTd>
-                            <MudTd>
+                                <MudTd Class="number-col">
                                 <MudText Typo="Typo.caption">@(ReadScoredResult(context))</MudText>
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
                 </MudPaper>
             </MudItem>
-            <MudItem xs="6">
+            <MudItem xs="4">
                 <MudStack Class="mud-height-full">
                     <MudPaper Class="pa-4 mud-height-full">
                         <MudText Typo="Typo.h5">Race incidents</MudText>

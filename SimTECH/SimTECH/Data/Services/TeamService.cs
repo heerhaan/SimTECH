@@ -24,6 +24,16 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
+        public async Task<List<Team>> GetLeagueTeams(long leagueId) => await GetLeagueTeams(leagueId, StateFilter.Default);
+        public async Task<List<Team>> GetLeagueTeams(long leagueId, StateFilter filter)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Team
+                .Where(e => filter.StatesForFilter().Contains(e.State) && e.SeasonTeams.Any(e => e.Season.LeagueId == leagueId))
+                .ToListAsync();
+        }
+
         public async Task UpdateTeam(Team team)
         {
             using var context = _dbFactory.CreateDbContext();

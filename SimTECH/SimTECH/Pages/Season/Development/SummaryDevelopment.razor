@@ -23,6 +23,7 @@
                                   Items="@entrantGroup.EntrantLogs.OrderBy(e => e.Name)"
                                   GroupBy="@_entrantDefinition"
                                   GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                                  FixedHeader="true"
                                   Bordered="true"
                                   Dense="true"
                                   Class="extra-dense">
@@ -34,7 +35,7 @@
                                 <ScreenshotButton TargetId="@(entrantGroup.SummaryElementId)" />
                             </ToolBarContent>
                             <HeaderContent>
-                                @foreach (var (aspect, i) in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()).Select((aspect, i) => (aspect, i)))
+                                @foreach (var (aspect, i) in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()).WithIndex())
                                 {
                                     <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")">
                                         @aspect.ReadableAspect()
@@ -47,7 +48,7 @@
                                 </MudTh>
                             </GroupHeaderTemplate>
                             <RowTemplate>
-                                @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()).Select((dev, i) => (dev, i)))
+                                @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()).WithIndex())
                                 {
                                     <MudTd Class="@(InspectTheWheel(i))">
                                         <MudStack Row="true" Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">

@@ -51,6 +51,17 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
+        public async Task<List<Driver>> GetLeagueDrivers(long leagueId) => await GetLeagueDrivers(leagueId, StateFilter.Default);
+        public async Task<List<Driver>> GetLeagueDrivers(long leagueId, StateFilter filter)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Driver
+                .Where(e => filter.StatesForFilter().Contains(e.State) && e.SeasonDrivers.Any(e => e.Season.LeagueId == leagueId))
+                .Include(e => e.DriverTraits)
+                .ToListAsync();
+        }
+
         public async Task<Driver> GetDriverById(long driverId)
         {
             using var context = _dbFactory.CreateDbContext();
