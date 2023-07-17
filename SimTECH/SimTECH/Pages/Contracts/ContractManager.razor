@@ -4,63 +4,42 @@
 @inject DriverService _driverService
 @inject TeamService _teamService
 @inject NavigationManager _nav
-@inject ISnackbar _snack
 
 <PageTitle>Contract Manager</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-4">
-    <MudPaper MaxHeight="125px">
-        <MudStack AlignItems="AlignItems.Center">
-            <MudText Typo="Typo.h3">Manage contracts</MudText>
+    <MudPaper MaxHeight="150px">
+        <MudText Typo="Typo.h3" Class="mx-auto">Manage contracts</MudText>
 
-            @if (Leagues != null)
-            {
-                <MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
-                    <MudSelect T="long" @bind-Value="@selectedLeagueId" Label="League" Class="field-md">
-                        @foreach (var league in Leagues)
-                        {
-                            <MudSelectItem Value="@league.Id">@league.Name</MudSelectItem>
-                        }
-                    </MudSelect>
-
-                    <MudSwitchM3 @bind-Checked="@onlyLeagueTeams"
-                                 ThumbIcon="@Icons.Material.Filled.Done"
-                                 ThumbOffIcon="@Icons.Material.Filled.Close"
-                                 Label="Limit teams to active in League"
-                                 Color="Color.Secondary" />
-
-                    <MudSwitchM3 @bind-Checked="@onlyLeagueDrivers"
-                                 ThumbIcon="@Icons.Material.Filled.Done"
-                                 ThumbOffIcon="@Icons.Material.Filled.Close"
-                                 Label="Limit drivers to active in League"
-                                 Color="Color.Secondary" />
-
-                    <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="LoadManager">Load</MudButton>
-                </MudStack>
-            }
-        </MudStack>
+        @if (Leagues is not null)
+        {
+            <ManagerSettings Leagues="Leagues" OnLoadSetting="HandleSettingLoad" />
+        }
     </MudPaper>
-    @if (showManager)
+
+    @if (showDropper)
     {
-        <AssignContracts LeagueId="@selectedLeagueId"
-                         Contracts="@Contracts"
-                         Drivers="@Drivers"
-                         Teams="@Teams"
-                         OnSave="SaveContracts" />
+        <MudPaper Elevation="10">
+            <ManagerDropper Teams="Teams" EditableContracts="EditableContracts" OnDriversDropped="HandleDriversDropped" />
+        </MudPaper>
+    }
+
+    @if (showDurationAssigner)
+    {
+        <MudPaper Elevation="25">
+            <ManagerDuration EditableContracts="EditableContracts" OnSave="SaveContracts" />
+        </MudPaper>
     }
 </MudContainer>
 
 @code {
-    public List<Contract> Contracts { get; set; } = new();
-    public List<Driver> Drivers { get; set; } = new();
-    public List<Team> Teams { get; set; } = new();
-
     private List<League>? Leagues { get; set; }
+    private List<Contract> Contracts { get; set; } = new();
+    private List<Team> Teams { get; set; } = new();
+    private List<EditContract> EditableContracts { get; set; } = new();
 
-    private long selectedLeagueId;
-    private bool onlyLeagueDrivers = true;
-    private bool onlyLeagueTeams = true;
-    private bool showManager = false;
+    private bool showDropper = false;
+    private bool showDurationAssigner = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,29 +47,62 @@
         Leagues = existingLeagues.Where(e => e.Options.HasFlag(LeagueOptions.AllowContracting)).ToList();
     }
 
-    private async Task LoadManager()
+    private async Task HandleSettingLoad(Tuple<long, bool, bool> settings)
     {
-        if (selectedLeagueId == 0)
+        showDurationAssigner = false;
+
+        var selectedLeagueId = settings.Item1;
+        var onlyCertainTeams = settings.Item2;
+        var onlyCertainDrivers = settings.Item3;
+
+        List<Team> teams;
+        if (onlyCertainTeams)
+            teams = await _teamService.GetLeagueTeams(selectedLeagueId);
+        else
+            teams = await _teamService.GetTeams();
+
+        List<Driver> drivers;
+        if (onlyCertainDrivers)
+            drivers = await _driverService.GetLeagueDrivers(selectedLeagueId);
+        else
+            drivers = await _driverService.GetDrivers();
+
+        var leagueContracts = await _contractService.GetLeagueContracts(selectedLeagueId);
+
+        var editableContracts = leagueContracts.Select(e => new EditContract(e)).ToList();
+        foreach (var editable in editableContracts)
         {
-            _snack.Add("How about selecting a league, idiot.", Severity.Error);
-            return;
+            editable.Team = teams.Find(e => e.Id == editable.TeamId);
+            editable.Driver = drivers.Find(e => e.Id == editable.DriverId);
         }
 
-        if (onlyLeagueTeams)
-            Teams = await _teamService.GetLeagueTeams(selectedLeagueId);
-        else
-            Teams = await _teamService.GetTeams();
+        foreach (var freeAgent in drivers.Where(e => !editableContracts.Select(c => c.DriverId).Contains(e.Id)))
+        {
+            var agentContract = new EditContract(null);
+            agentContract.DriverId = freeAgent.Id;
+            agentContract.Driver = freeAgent;
+            agentContract.LeagueId = selectedLeagueId;
+            agentContract.Duration = 1;
 
-        if (onlyLeagueDrivers)
-            Drivers = await _driverService.GetLeagueDrivers(selectedLeagueId);
-        else
-            Drivers = await _driverService.GetDrivers();
+            editableContracts.Add(agentContract);
+        }
 
-        Contracts = await _contractService.GetLeagueContracts(selectedLeagueId);
+        Teams = teams;
+        EditableContracts = editableContracts
+            .Where(e => e.Driver != null)
+            .OrderBy(e => e.Driver!.FirstName)
+            .ToList();
 
-        StateHasChanged();
+        showDropper = true;
+    }
 
-        showManager = true;
+    private void HandleDriversDropped(List<EditContract> editableContracts)
+    {
+        showDropper = false;
+
+        EditableContracts = editableContracts;
+
+        showDurationAssigner = true;
     }
 
     private async Task SaveContracts(List<Contract> addedContracts)
