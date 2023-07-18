@@ -24,14 +24,15 @@
 
     <MudNavLink Href="/contracts" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AssignmentInd">Contracts</MudNavLink>
 
-    <MudNavLink Href="/legacy" Match="NavLinkMatch.Prefix" Icon="@IconCollection.Planet">Legacy</MudNavLink>
-
-    <MudNavLink Href="/credits" Match="NavLinkMatch.Prefix" Icon="@IconCollection.BrandVolkswagen">Credits</MudNavLink>
-
-    <MudNavLink Href="/test" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Lightbulb">Test</MudNavLink>
+    <MudNavGroup Title="Extra" @bind-Expanded="extraExpanded">
+        <MudNavLink Href="/test" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Lightbulb">Test</MudNavLink>
+        <MudNavLink Href="/legacy" Match="NavLinkMatch.Prefix" Icon="@IconCollection.Planet">Legacy</MudNavLink>
+        <MudNavLink Href="/credits" Match="NavLinkMatch.Prefix" Icon="@IconCollection.BrandVolkswagen">Credits</MudNavLink>
+    </MudNavGroup>
 </MudNavMenu>
 
 @code {
     bool entrantsExpanded = true;
     bool factorsExpanded = true;
+    bool extraExpanded = false;
 }

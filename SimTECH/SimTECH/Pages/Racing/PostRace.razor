@@ -1,8 +1,8 @@
 ﻿@page "/postrace/{RaceId:long}"
-@inject BreadcrumbProvider _bread
-@inject NavigationManager _nav
 @inject RaceService _raceService
 @inject SeasonService _seasonService
+@inject BreadcrumbProvider _bread
+@inject NavigationManager _nav
 
 <PageTitle>Post race</PageTitle>
 
@@ -181,6 +181,8 @@
         allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
         if (allotments.Any())
             lowestScoring = allotments.Keys.Max();
+
+        BuildDriverPenalties();
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
