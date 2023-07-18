@@ -3,12 +3,13 @@
 @inject LeagueService _leagueService
 @inject DriverService _driverService
 @inject TeamService _teamService
+@inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 
 <PageTitle>Contract Manager</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-4">
-    <MudPaper MaxHeight="150px">
+    <MudPaper MaxHeight="150px" Class="text-center">
         <MudText Typo="Typo.h3" Class="mx-auto">Manage contracts</MudText>
 
         @if (Leagues is not null)
@@ -45,6 +46,13 @@
     {
         var existingLeagues = await _leagueService.GetLeagues();
         Leagues = existingLeagues.Where(e => e.Options.HasFlag(LeagueOptions.AllowContracting)).ToList();
+
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Contracts", href: "contracts"),
+            new BreadcrumbItem("Manager", href: "contractmanager", disabled: true),
+        });
     }
 
     private async Task HandleSettingLoad(Tuple<long, bool, bool> settings)

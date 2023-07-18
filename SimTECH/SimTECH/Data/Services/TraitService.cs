@@ -5,14 +5,9 @@ using SimTECH.PageModels;
 
 namespace SimTECH.Data.Services
 {
-    public class TraitService
+    public class TraitService : StateService<Trait>
     {
-        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-
-        public TraitService(IDbContextFactory<SimTechDbContext> factory)
-        {
-            _dbFactory = factory;
-        }
+        public TraitService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
 
         public async Task<List<Trait>> GetTraits() => await GetTraits(StateFilter.Default);
         public async Task<List<Trait>> GetTraits(StateFilter filter)
@@ -47,17 +42,6 @@ namespace SimTECH.Data.Services
             {
                 context.Update(trait);
             }
-
-            await context.SaveChangesAsync();
-        }
-
-        public async Task ChangeState(Trait trait, State target)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            trait.State = target;
-
-            context.Update(trait);
 
             await context.SaveChangesAsync();
         }

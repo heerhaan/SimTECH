@@ -1,0 +1,24 @@
+﻿<MudPaper Class="absolute overflow-visible" Style="@_styles">
+    <SignalIcon Signal="Signal" Size="Size" />
+</MudPaper>
+
+@code {
+    [Parameter] public double LapPercentage { get; set; }
+    [Parameter] public string Signal { get; set; }
+    [Parameter] public Size Size { get; set; } = Size.Small;
+
+    private string _styles
+    {
+        get
+        {
+            var styles = $"margin-left:{LapPercentage}%";
+
+            styles += "; line-height:0; background-color:var(--mud-palette-surface)";
+
+            if (Signal == "Death")
+                styles += "; color: white";
+
+            return styles;
+        }
+    }
+}

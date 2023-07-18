@@ -2,17 +2,13 @@
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
+using System.Linq.Expressions;
 
 namespace SimTECH.Data.Services
 {
-    public sealed class DriverService
+    public sealed class DriverService : StateService<Driver>
     {
-        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-
-        public DriverService(IDbContextFactory<SimTechDbContext> factory)
-        {
-            _dbFactory = factory;
-        }
+        public DriverService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
 
         public async Task<List<Driver>> GetDrivers() => await GetDrivers(StateFilter.Default);
         public async Task<List<Driver>> GetDrivers(StateFilter filter)
@@ -24,6 +20,18 @@ namespace SimTECH.Data.Services
                 .Include(e => e.DriverTraits)
                 .ToListAsync();
         }
+        // First test whether this impacts the performance significantly before (possibly) replacing the above
+        public async Task<List<Driver>> GetDrivers(Expression<Func<Driver, bool>>? selector = null, StateFilter filter = StateFilter.Default)
+        {
+            selector ??= s => true;
+
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Driver
+                .Where(e => filter.StatesForFilter().Contains(e.State))
+                .Where(selector)
+                .ToListAsync();
+        }
 
         public async Task<List<Driver>> GetAvailableDrivers()
         {
@@ -31,7 +39,6 @@ namespace SimTECH.Data.Services
 
             return await context.Driver
                 .Where(e => e.State == State.Active && !e.SeasonDrivers!.Any(e => e.Season.State == State.Active))
-                .Include(e => e.DriverTraits)
                 .ToListAsync();
         }
 
@@ -58,7 +65,6 @@ namespace SimTECH.Data.Services
 
             return await context.Driver
                 .Where(e => filter.StatesForFilter().Contains(e.State) && e.SeasonDrivers.Any(e => e.Season.LeagueId == leagueId))
-                .Include(e => e.DriverTraits)
                 .ToListAsync();
         }
 

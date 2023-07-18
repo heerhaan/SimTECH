@@ -20,9 +20,9 @@
         public int DriverRel { get; set; }
         public int CarRel { get; set; }
         public int EngineRel { get; set; }
-        public int WearMax { get; set; }
         public int WearMin { get; set; }
-
-        public TraitEffect? TraitEffect { get; set; }// if we still want to display this somehow in the PWR
+        public int WearMax { get; set; }
+        public int RngMin { get; set; }
+        public int RngMax { get; set; }
     }
 }

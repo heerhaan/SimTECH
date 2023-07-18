@@ -31,7 +31,7 @@
                         <MudTreeViewItem Text="Reliability" Value="@(typeof(Reliability))" Icon="@Icons.Custom.FileFormats.FileExcel" />
                         <MudTreeViewItem Text="Strategy" Value="@(typeof(Strategy))" Icon="@Icons.Custom.FileFormats.FileExcel" />
                         <MudTreeViewItem Text="Overtaking" Value="@(typeof(Overtaking))" Icon="@Icons.Custom.FileFormats.FileExcel" />
-                        <MudTreeViewItem Text="Safety / Caution" Value="@(typeof(SafetyMoment))" Icon="@IconCollection.AlertTriangle" />
+                        <MudTreeViewItem Text="Safety car" Value="@(typeof(SafetyMoment))" Icon="@IconCollection.AlertTriangle" />
                         <MudTreeViewItem Text="Modifiers" Value="@(typeof(Modifiers))" Icon="@IconCollection.Polygon" />
                     </MudTreeViewItem>
                     <MudTreeViewItem Text="Glossary" Value="@(typeof(Glossary))" Icon="@Icons.Custom.FileFormats.FileExcel" />
@@ -40,17 +40,17 @@
         </MudItem>
         <MudItem xs="9">
             <MudPaper Class="px-2 py-4 mud-height-full">
-                <DynamicComponent Type="@TopicContent" />
+                <DynamicComponent Type="@ActiveTopic" />
             </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
-    Type TopicContent { get; set; } = typeof(Hello);
+    public Type ActiveTopic { get; set; } = typeof(Hello);
 
-    bool setupFolderExpanded;
-    bool racingFolderExpanded;
+    private bool setupFolderExpanded;
+    private bool racingFolderExpanded;
 
     protected override void OnInitialized()
     {
@@ -61,9 +61,9 @@
         });
     }
 
-    void ActiveTopicChanged(Type activeTopic)
+    private void ActiveTopicChanged(Type activeTopic)
     {
-        TopicContent = activeTopic;
+        ActiveTopic = activeTopic;
     }
 
     internal class GuidePage

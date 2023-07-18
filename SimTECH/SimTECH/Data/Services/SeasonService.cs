@@ -5,7 +5,6 @@ using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
 using SimTECH.PageModels.SeasonModels;
-using System.ComponentModel;
 
 namespace SimTECH.Data.Services
 {
@@ -200,7 +199,6 @@ namespace SimTECH.Data.Services
             });
         }
 
-        // Consider moving this code completely to the page itself
         public async Task<List<QualyBattle>> GetQualifyingBattles(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -288,6 +286,7 @@ namespace SimTECH.Data.Services
                     DriverNumber = driver.Number,
                     Nationality = driver.Driver.Country,
                 };
+
                 var driverTraits = new List<Trait>();
 
                 if (driver.Driver.DriverTraits?.Any() == true)
@@ -335,10 +334,10 @@ namespace SimTECH.Data.Services
                 powerModel.DriverRel += sumTraits.DriverReliability;
                 powerModel.CarRel += sumTraits.CarReliability;
                 powerModel.EngineRel += sumTraits.EngineReliability;
-                powerModel.WearMax += sumTraits.WearMaximum;
                 powerModel.WearMin += sumTraits.WearMinimum;
-
-                powerModel.TraitEffect = sumTraits;
+                powerModel.WearMax += sumTraits.WearMaximum;
+                powerModel.RngMin += sumTraits.MinRNG;
+                powerModel.RngMax += sumTraits.MaxRNG;
 
                 powerDrivers.Add(powerModel);
             }

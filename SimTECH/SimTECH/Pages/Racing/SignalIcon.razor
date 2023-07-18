@@ -1,13 +1,9 @@
-﻿<MudPaper Class="absolute overflow-visible" Style="@_styles">
-    <MudIcon Icon="@_signalIcon"
-             Size="@Size"
-             Color="@_signalColour" />
-</MudPaper>
+﻿<MudIcon Icon="@_signalIcon"
+         Size="@Size"
+         Color="@_signalColour" />
 
 @code {
-    [Parameter] public double LapPercentage { get; set; }
     [Parameter] public string Signal { get; set; }
-    [Parameter] public int Index { get; set; }
     [Parameter] public Size Size { get; set; } = Size.Small;
 
     // We might want to make the following common somewhere
@@ -62,22 +58,6 @@
                 default:
                     return Color.Warning;
             }
-        }
-    }
-
-    private string _styles
-    {
-        get
-        {
-            // removed styling ;margin-right:-{(Index * 2)}px;z-index:{(1 + Index)}
-            var styles = $"margin-left:{LapPercentage}%";
-
-            styles += "; line-height:0; background-color:var(--mud-palette-surface)";
-
-            if (Signal == "Death")
-                styles += "; color: white";
-
-            return styles;
         }
     }
 }

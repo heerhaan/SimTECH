@@ -1,11 +1,10 @@
 ﻿@page "/race/{RaceId:long}"
-@inject BreadcrumbProvider _bread
-@inject ProtectedLocalStorage _storage
-@inject NavigationManager _nav
 @inject IncidentService _incidentService
 @inject RaceService _raceService
 @inject SeasonService _seasonService
 @inject TyreService _tyreService
+@inject BreadcrumbProvider _bread
+@inject NavigationManager _nav
 @inject IDialogService _dialogService
 @inject ISnackbar _snackbar
 @inject IOptions<SimConfig> _config
@@ -18,7 +17,7 @@
         <MudPaper Elevation="15" MinHeight="60px" Width="100%">
             <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
                 <div style="width:30%">
-                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" >
                         <ScreenshotButton TargetId="race-display" />
                         @if (!Model.IsFinished)
                         {
@@ -44,14 +43,7 @@
                     </MudChipSet>
                 </MudStack>
 
-                <div class="d-flex flex-row-reverse align-center gap-2 pa-0" style="width:30%">
-                    <MudSwitchM3 @bind-Checked="tooMuchInfo"
-                                    Label="TMI"
-                                    LabelPosition="LabelPosition.Start"
-                                    Color="Color.Secondary"
-                                    ThumbIcon="@Icons.Material.Filled.Done"
-                                    ThumbOffIcon="@Icons.Material.Filled.Close" />
-
+                <div class="d-flex flex-row-reverse align-center pa-0" style="width:30%">
                     <MudMenu Label="Charts" Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Secondary" Variant="Variant.Text">
                         <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
                         <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
@@ -182,11 +174,10 @@
                         <div class="relative" style="height:8px;width:100%">
                             @foreach (var lapEvent in context.LapScores)
                             {
-                                @foreach (var raceEvent in lapEvent.ListOfDubiousEvents().Select((element, index) => new { index, element }))
+                                @foreach (var raceEvent in lapEvent.ListOfDubiousEvents())
                                 {
-                                    <SignalIcon LapPercentage="@(NumberHelper.Percentage((lapEvent.Order - 1), calculationCount))"
-                                                Signal="@raceEvent.element.ToString()"
-                                                Index="@raceEvent.index" />
+                                    <SignalNote LapPercentage="@(NumberHelper.Percentage((lapEvent.Order - 1), calculationCount))"
+                                                Signal="@raceEvent.ToString()" />
                                 }
                             }
                         </div>
@@ -239,7 +230,6 @@
 
     // Controls for the view
     bool loading = true;
-    bool tooMuchInfo = false;
     bool safetyCarOut = false;
     Color lapIndicatorColor = Color.Dark;
 
@@ -257,6 +247,7 @@
     int mistakeMax;
     int battleRng;
     double gapMarge;
+    bool tooMuchInfo;
 
     int fastestLap;
     int highestScore;
@@ -304,6 +295,7 @@
         mistakeMax = _config.Value.MistakeUpperValue;
         battleRng = _config.Value.BattleRng;
         gapMarge = _config.Value.GapMarge;
+        tooMuchInfo = _config.Value.TooMuchInfo;
         minimumTyreLife = _config.Value.MinimumTyreLife;
 
         calculationDistance = _config.Value.CalculationDistance;
