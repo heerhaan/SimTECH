@@ -34,12 +34,29 @@
 @code {
     [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
+    [Parameter] public List<Contract>? Contracts { get; set; }
+
     private MudTable<Team> _table;
     private List<Team> Teams;
 
     protected override async Task OnInitializedAsync()
     {
         Teams = await _teamService.GetTeams();
+
+        if (Contracts?.Any() == true)
+            Preselect();
+    }
+
+    private void Preselect()
+    {
+        if (Contracts == null)
+            return;
+
+        var contractedTeamIds = Contracts.Select(e => e.TeamId).ToArray();
+        var preselectedTeams = Teams.Where(e => contractedTeamIds.Contains(e.Id)).ToArray();
+
+        foreach (var team in preselectedTeams)
+            Model.BaseTeams.Add(team);
     }
 
     private void PageChange(int index)

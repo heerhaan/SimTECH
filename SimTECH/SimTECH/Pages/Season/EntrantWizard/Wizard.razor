@@ -3,10 +3,11 @@
 @using MudExtensions.Enums;
 @using MudExtensions.Utilities
 @using SimTECH.Pages.Season.EntrantWizard.Steps
-@inject BreadcrumbProvider _bread
+@inject ContractService _contractService
 @inject LeagueService _leagueService
 @inject SeasonService _seasonService
 @inject SeasonEntrantService _entrantService
+@inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject IOptions<SimConfig> _config
 
@@ -56,7 +57,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 2)
                             {
-                                <AddTeams />
+                                <AddTeams Contracts="Contracts" />
                             }
                         </ChildContent>
                     </MudStep>
@@ -80,7 +81,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 5)
                             {
-                                <AddDrivers Year="@(Season.Year)" />
+                                <AddDrivers Year="@(Season.Year)" Contracts="Contracts" />
                             }
                         </ChildContent>
                     </MudStep>
@@ -120,6 +121,7 @@
     public AddEntrantsModel Model { get; set; } = new();
     public Season Season { get; set; }
     public Season? PreviousSeason { get; set; }
+    protected List<Contract> Contracts { get; set; } = new();
 
     MudStepper stepper;
 
@@ -131,6 +133,7 @@
     {
         Season = await _seasonService.GetSeasonById(SeasonId);
         PreviousSeason = await _seasonService.FindRecentClosedSeason(Season.LeagueId);
+        Contracts = await _contractService.GetLeagueContracts(Season.LeagueId);
 
         var league = await _leagueService.GetLeagueById(Season.LeagueId);
         Model.LeagueId = league.Id;

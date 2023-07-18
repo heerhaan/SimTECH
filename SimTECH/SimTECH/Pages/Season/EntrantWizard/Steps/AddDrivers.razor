@@ -40,6 +40,7 @@
 @code {
     [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
+    [Parameter] public List<Contract>? Contracts { get; set; }
     [Parameter, EditorRequired] public int Year { get; set; }
 
     private MudTable<Driver> _table;
@@ -48,6 +49,21 @@
     protected override async Task OnInitializedAsync()
     {
         Drivers = await _driverService.GetAvailableDrivers();
+
+        if (Contracts?.Any() == true)
+            Preselect();
+    }
+
+    private void Preselect()
+    {
+        if (Contracts == null)
+            return;
+
+        var contractedDriverIds = Contracts.Select(e => e.DriverId).ToArray();
+        var preselectedDrivers = Drivers.Where(e => contractedDriverIds.Contains(e.Id)).ToArray();
+
+        foreach (var driver in preselectedDrivers)
+            Model.BaseDrivers.Add(driver);
     }
 
     private void PageChange(int index)
