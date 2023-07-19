@@ -146,7 +146,7 @@
         PreviousSeason = await _seasonService.FindRecentClosedSeason(Season.LeagueId);
         // TODO: Wizard deserves a refactor in that we might want to retrieve these values on a per-step basis instead of all at once
         Engines = await _engineService.GetEngines();
-        Teams = await _teamService.GetTeams();
+        Teams = await _teamService.GetAvailableTeams();
         Drivers = await _driverService.GetAvailableDrivers();
         Contracts = await _contractService.GetLeagueContracts(Season.LeagueId);
 

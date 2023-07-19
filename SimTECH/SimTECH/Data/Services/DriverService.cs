@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
@@ -8,7 +9,12 @@ namespace SimTECH.Data.Services
 {
     public sealed class DriverService : StateService<Driver>
     {
-        public DriverService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
+        private readonly SimConfig _config;
+
+        public DriverService(IDbContextFactory<SimTechDbContext> factory, IOptions<SimConfig> config) : base(factory)
+        {
+            _config = config.Value;
+        }
 
         public async Task<List<Driver>> GetDrivers() => await GetDrivers(StateFilter.Default);
         public async Task<List<Driver>> GetDrivers(StateFilter filter)
@@ -23,7 +29,7 @@ namespace SimTECH.Data.Services
         // First test whether this impacts the performance significantly before (possibly) replacing the above
         public async Task<List<Driver>> GetDrivers(Expression<Func<Driver, bool>>? selector = null, StateFilter filter = StateFilter.Default)
         {
-            selector ??= s => true;
+            selector ??= _ => true;
 
             using var context = _dbFactory.CreateDbContext();
 
@@ -37,9 +43,11 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Driver
-                .Where(e => e.State == State.Active && !e.SeasonDrivers!.Any(e => e.Season.State == State.Active))
-                .ToListAsync();
+            var query = context.Driver.Where(e => e.State == State.Active);
+            if (!_config.AllowMultiLeagueEntry)
+                query = query.Where(e => !e.SeasonDrivers!.Any(e => e.Season.State == State.Active));
+
+            return await query.ToListAsync();
         }
 
         public async Task<List<CurrentDriver>> GetCurrentDrivers()
