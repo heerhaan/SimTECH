@@ -1,8 +1,8 @@
-﻿@inject LeagueService LeagueService
-@inject SeasonEntrantService EntrantService
+﻿@inject LeagueService _leagueService
+@inject SeasonEntrantService _entrantService
 @inject SeasonService SeasonService
 @inject IDialogService _dialogService
-@inject ISnackbar _snackbar
+@inject ISnackbar _snack
 @using SimTECH.Pages.Season.Development
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
@@ -269,7 +269,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        League = await LeagueService.GetLeagueById(Season.LeagueId);
+        League = await _leagueService.GetLeagueById(Season.LeagueId);
         AgeRanges = League.DevelopmentRanges?.GetAspectRanges(Aspect.Age) ?? new();
 
         await ReloadDeveloped(Entrant.Driver);
@@ -296,7 +296,7 @@
     async Task DevelopDrivers()
     {
         if (SeasonDrivers == null)
-            SeasonDrivers = await EntrantService.GetSeasonDrivers(Season.Id);
+            SeasonDrivers = await _entrantService.GetSeasonDrivers(Season.Id);
 
         DevelopedEntrants = SeasonDrivers.Select(e =>
             new DevelopedEntrant
@@ -315,7 +315,7 @@
     async Task DevelopTeams()
     {
         if (SeasonTeams == null)
-            SeasonTeams = await EntrantService.GetSeasonTeams(Season.Id);
+            SeasonTeams = await _entrantService.GetSeasonTeams(Season.Id);
 
         DevelopedEntrants = SeasonTeams.Select(e =>
             new DevelopedEntrant
@@ -334,7 +334,7 @@
     async Task DevelopEngines()
     {
         if (SeasonEngines == null)
-            SeasonEngines = await EntrantService.GetSeasonEngines(Season.Id);
+            SeasonEngines = await _entrantService.GetSeasonEngines(Season.Id);
 
         DevelopedEntrants = SeasonEngines.Select(e =>
             new DevelopedEntrant
@@ -471,7 +471,7 @@
         {
             if (entrant.Min > entrant.Max)
             {
-                _snackbar.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
+                _snack.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
                 return;
             }
 
@@ -503,20 +503,20 @@
         switch (_activeEntrant)
         {
             case Entrant.Driver:
-                await EntrantService.SaveDriverDevelopment(developedValues, _selectedTarget);
-                SeasonDrivers = await EntrantService.GetSeasonDrivers(Season.Id);
+                await _entrantService.SaveDriverDevelopment(developedValues, _selectedTarget);
+                SeasonDrivers = await _entrantService.GetSeasonDrivers(Season.Id);
                 break;
             case Entrant.Team:
-                await EntrantService.SaveTeamDevelopment(developedValues, _selectedTarget);
-                SeasonTeams = await EntrantService.GetSeasonTeams(Season.Id);
+                await _entrantService.SaveTeamDevelopment(developedValues, _selectedTarget);
+                SeasonTeams = await _entrantService.GetSeasonTeams(Season.Id);
                 break;
             case Entrant.Engine:
-                await EntrantService.SaveEngineDevelopment(developedValues, _selectedTarget);
-                SeasonEngines = await EntrantService.GetSeasonEngines(Season.Id);
+                await _entrantService.SaveEngineDevelopment(developedValues, _selectedTarget);
+                SeasonEngines = await _entrantService.GetSeasonEngines(Season.Id);
                 break;
         }
 
-        await EntrantService.SaveDevelopmentLog(CreateLog);
+        await _entrantService.SaveDevelopmentLog(CreateLog);
         await ReloadDeveloped(_activeEntrant);
     }
 
@@ -533,15 +533,15 @@
 
     async Task ShowSummary()
     {
-        var seasonLog = await EntrantService.GetDevelopmentLog(Season.Id);
+        var seasonLog = await _entrantService.GetDevelopmentLog(Season.Id);
 
         // We directly take data from here so we're going to need it
         if (SeasonDrivers == null)
-            SeasonDrivers = await EntrantService.GetSeasonDrivers(Season.Id);
+            SeasonDrivers = await _entrantService.GetSeasonDrivers(Season.Id);
         if (SeasonTeams == null)
-            SeasonTeams = await EntrantService.GetSeasonTeams(Season.Id);
+            SeasonTeams = await _entrantService.GetSeasonTeams(Season.Id);
         if (SeasonEngines == null)
-            SeasonEngines = await EntrantService.GetSeasonEngines(Season.Id);
+            SeasonEngines = await _entrantService.GetSeasonEngines(Season.Id);
 
         var summaries = new List<DevelopSummary>();
         foreach (var groupSummary in seasonLog.GroupBy(e => e.EntrantGroup))

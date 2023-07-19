@@ -15,9 +15,15 @@
             <MudItem xs="12">
                 <MudPaper MinHeight="60px" Class="pa-2">
                     <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                        <div style="width:20%">
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">Next: @Model.NextSession</MudText>
-                        </div>
+                        <MudStack Row="true" Spacing="0" AlignItems="AlignItems.Center" Style="width:20%">
+                            @if (Model.Race.State == State.Active)
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@($"FP{nextPractice}")</MudText>
+                                <MudDivider Vertical="true" Class="mx-2" />
+                            }
+                            
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@nextSession</MudText>
+                        </MudStack>
 
                         <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
 
@@ -96,7 +102,7 @@
                                     @if (context.Penalty.HasValue)
                                     {
                                         <MudBadge Content="@($"+{context.Penalty.Value}")"
-                                                  Color="Color.Secondary"
+                                                  Color="Color.Error"
                                                   Origin="Origin.CenterRight"
                                                   BadgeClass="ml-1">
                                             <DriverPosition Number="@context.Grid" />
@@ -128,7 +134,7 @@
                             <MudTd>
                                 <MudLink OnClick="@(async () => await PickStrategy(context.ResultId))">
                                     <TyreElement Colour="@context.Tyre.Colour">
-                                        @(context.Tyre.Name.ElementAt(0))
+                                        @context.Tyre.Name.ElementAt(0)
                                     </TyreElement>
                                 </MudLink>
                             </MudTd>
@@ -174,6 +180,7 @@
     private List<Tyre> Tyres { get; set; }
 
     private bool loading = true;
+    private string nextSession = "None";
     private int nextPractice = 1;
 
     protected override async Task OnInitializedAsync()

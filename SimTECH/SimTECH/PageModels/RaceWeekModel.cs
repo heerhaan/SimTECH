@@ -10,20 +10,6 @@ namespace SimTECH.PageModels
 
         public List<RaceWeekDriver> RaceWeekDrivers { get; set; }
         public List<Trait>? TrackTraits { get; set; }
-
-        public string NextSession
-        {
-            get
-            {
-                if (Race.State == State.Closed)
-                    return "None";
-
-                if (Race.State == State.Advanced)
-                    return "Race";
-
-                return $"FP{PracticeCompletedCount} / Qualifying";
-            }
-        }
     }
 
     public class RaceWeekDriver
