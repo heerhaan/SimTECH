@@ -1,6 +1,4 @@
-﻿@inject DriverService _driverService
-
-<MudContainer MaxWidth="MaxWidth.Medium">
+﻿<MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
         <MudText Color="Color.Tertiary">Amount drivers: @(Model.BaseDrivers.Count)</MudText>
         <MudTable T="Driver"
@@ -40,16 +38,14 @@
 @code {
     [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    [Parameter] public List<Contract>? Contracts { get; set; }
+    [Parameter, EditorRequired] public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
     [Parameter, EditorRequired] public int Year { get; set; }
+    [Parameter] public IList<Contract>? Contracts { get; set; }
 
     private MudTable<Driver> _table;
-    private List<Driver> Drivers = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Drivers = await _driverService.GetAvailableDrivers();
-
         if (Contracts?.Any() == true)
             Preselect();
     }

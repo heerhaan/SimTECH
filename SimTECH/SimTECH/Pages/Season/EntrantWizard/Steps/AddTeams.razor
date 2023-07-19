@@ -1,6 +1,4 @@
-﻿@inject TeamService _teamService
-
-<MudContainer MaxWidth="MaxWidth.Medium">
+﻿<MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
         <MudText Color="Color.Tertiary">Amount teams: @(Model.BaseTeams.Count)</MudText>
         <MudTable T="Team"
@@ -34,15 +32,13 @@
 @code {
     [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    [Parameter] public List<Contract>? Contracts { get; set; }
+    [Parameter, EditorRequired] public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
+    [Parameter] public IList<Contract>? Contracts { get; set; }
 
     private MudTable<Team> _table;
-    private List<Team> Teams;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Teams = await _teamService.GetTeams();
-
         if (Contracts?.Any() == true)
             Preselect();
     }
