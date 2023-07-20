@@ -1,17 +1,12 @@
-﻿@inject ManufacturerService ManufacturerService
-@inject SeasonEntrantService EntrantService
-@inject TeamService TeamService
-@inject IDialogService DialogService
-
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
+﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Teams</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterTeam">New</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterItem">New</MudButton>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="SeasonTeam" Items="@SeasonTeamEntrants" Dense="true" Class="overflow-hider">
+    <MudDataGrid T="SeasonTeam" Items="@TeamEntrants" Dense="true" Class="overflow-hider">
         <Columns>
             <TemplateColumn Sortable="false" Class="accent-cell">
                 <CellTemplate>
@@ -32,7 +27,7 @@
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="e => e!.Reliability" CellClass="font-caption" />
-            <TemplateColumn T="SeasonTeam" SortBy="e => e.SeasonEngine.Name" Title="Engine">
+            @*<TemplateColumn T="SeasonTeam" SortBy="e => e.SeasonEngine.Name" Title="Engine">
                 <CellTemplate>
                     <MudText>
                         @(SeasonEngineData.Find(e => e.Id == context.Item.SeasonEngineId)?.Name ?? "WTF WHERE ENGINE?")
@@ -45,11 +40,11 @@
                         @(ManufacturerData.Find(e => e.Id == context.Item.ManufacturerId)?.Name ?? "WTF WHERE TYRE?")
                     </MudText>
                 </CellTemplate>
-            </TemplateColumn>
+            </TemplateColumn>*@
             <TemplateColumn T="SeasonTeam" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeam(context.Item))" />
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -59,39 +54,12 @@
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
+    [Parameter] public IEnumerable<SeasonTeam> TeamEntrants { get; set; } = Enumerable.Empty<SeasonTeam>();
+    [Parameter] public EventCallback<SeasonTeam?> OnEditorOpen { get; set; }
 
-    private List<SeasonTeam> SeasonTeamEntrants { get; set; }
-    private List<Team> TeamData { get; set; }
-    private List<SeasonEngine> SeasonEngineData { get; set; }
-    private List<Manufacturer> ManufacturerData { get; set; }
-
-    protected override async Task OnInitializedAsync()
+    async Task EnterItem() => await UpdateItem(null);
+    async Task UpdateItem(SeasonTeam? item)
     {
-        SeasonTeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
-        TeamData = await TeamService.GetTeams();
-        SeasonEngineData = await EntrantService.GetSeasonEngines(Season.Id);
-        ManufacturerData = await ManufacturerService.GetManufacturers();
-    }
-
-    async Task EnterTeam() => await UpdateTeam(new SeasonTeam());
-    async Task UpdateTeam(SeasonTeam item)
-    {
-        var parameters = new DialogParameters
-            {
-                ["SeasonId"] = Season.Id,
-                ["Teams"] = TeamData,
-                ["Manufacturers"] = ManufacturerData,
-                ["SeasonEngines"] = SeasonEngineData,
-                ["SeasonTeam"] = item,
-            };
-
-        var dialog = await DialogService.ShowAsync<SeasonTeamEditor>("Modify in-season team", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data != null && result.Data is SeasonTeam updatedTeam)
-        {
-            await EntrantService.UpdateSeasonTeam(updatedTeam);
-            SeasonTeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
-        }
+        await OnEditorOpen.InvokeAsync(item);
     }
 }

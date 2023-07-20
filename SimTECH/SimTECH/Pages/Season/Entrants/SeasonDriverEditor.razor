@@ -1,6 +1,4 @@
-﻿@inject DriverService _driverService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>Modify in-season driver</MudText>
     </TitleContent>
@@ -69,19 +67,18 @@
     [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
 
     [Parameter, EditorRequired] public long SeasonId { get; set; }
+    [Parameter] public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
     [Parameter, EditorRequired] public List<SeasonTeam> SeasonTeams { get; set; }
     [Parameter] public SeasonDriver? SeasonDriver { get; set; }
 
-    EditSeasonDriverModel Model;
-    List<Driver>? Drivers;
-    long seasonTeamId;
-    bool loading = true;
-    bool isDropped = false;
+    private EditSeasonDriverModel Model;
+    private List<Driver>? Drivers;
+    private long seasonTeamId;
+    private bool loading = true;
+    private bool isDropped = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Drivers = await _driverService.GetAvailableDrivers();
-
         Model = new EditSeasonDriverModel(SeasonDriver);
         Model.SeasonId = SeasonId;
         seasonTeamId = Model.SeasonTeamId.GetValueOrDefault();

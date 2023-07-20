@@ -1,8 +1,4 @@
-﻿@inject EngineService EngineService
-@inject SeasonEntrantService EntrantService
-@inject IDialogService DialogService
-
-<MudContainer MaxWidth="MaxWidth.Medium">
+﻿<MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Engines</MudText>
@@ -10,7 +6,7 @@
             <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterEngine">New</MudButton>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="SeasonEngine" Items="SeasonEngineData" Dense="true">
+    <MudDataGrid T="SeasonEngine" Items="@EngineEntrants" Dense="true">
         <Columns>
             <PropertyColumn Property="e => e!.Name" />
             <PropertyColumn Property="e => e!.Power" />
@@ -29,33 +25,12 @@
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
+    [Parameter] public IEnumerable<SeasonEngine> EngineEntrants { get; set; } = Enumerable.Empty<SeasonEngine>();
+    [Parameter] public EventCallback<SeasonEngine?> OnEditorOpen { get; set; }
 
-    private List<SeasonEngine> SeasonEngineData = new();
-    private List<Engine> EngineData = new();
-
-    protected override async Task OnInitializedAsync()
+    async Task EnterEngine() => await UpdateEngine(null);
+    async Task UpdateEngine(SeasonEngine? item)
     {
-        SeasonEngineData = await EntrantService.GetSeasonEngines(Season.Id);
-        EngineData = await EngineService.GetEngines();
-    }
-
-    async Task EnterEngine() => await UpdateEngine(new SeasonEngine());
-    async Task UpdateEngine(SeasonEngine item)
-    {
-        var parameters = new DialogParameters 
-            { 
-                ["SeasonId"] = Season.Id,
-                ["Engines"] = EngineData,
-                ["SeasonEngine"] = item,
-            };
-
-        var dialog = await DialogService.ShowAsync<SeasonEngineEditor>("Modify in-season engine", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data != null && result.Data is SeasonEngine updatedEngine)
-        {
-            await EntrantService.UpdateSeasonEngine(updatedEngine);
-            SeasonEngineData = await EntrantService.GetSeasonEngines(Season.Id);
-        }
+        await OnEditorOpen.InvokeAsync(item);
     }
 }

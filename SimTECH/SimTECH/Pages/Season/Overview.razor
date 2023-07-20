@@ -1,10 +1,13 @@
 ﻿@page "/overview/{SeasonId:long}"
 @page "/overview/{SeasonId:long}/{TabIndex:int}"
 @inject ContractService _contractService
+@inject EngineService _engineService
 @inject LeagueService _leagueService
+@inject ManufacturerService _manufacturerService
 @inject RaceService _raceService
 @inject SeasonService _seasonService
 @inject SeasonEntrantService _entrantService
+@inject TeamService _teamService
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject IDialogService _dialogService
@@ -48,11 +51,21 @@
                                     OnEditorOpen="UpdateDriver" />
                             }
                         </MudTabPanel>
-                        <MudTabPanel Text="Teams">
-                            <SeasonTeams />
+                        <MudTabPanel Text="Teams" OnClick="OnOpenTeams">
+                            @if (teamsLoaded)
+                            {
+                                <SeasonTeams
+                                    TeamEntrants="@SeasonTeams"
+                                    OnEditorOpen="UpdateTeam" />
+                            }
                         </MudTabPanel>
-                        <MudTabPanel Text="Engines">
-                            <SeasonEngines />
+                        <MudTabPanel Text="Engines" OnClick="OnOpenEngines">
+                            @if (enginesLoaded)
+                            {
+                                <SeasonEngines
+                                    EngineEntrants="@SeasonEngines"
+                                    OnEditorOpen="UpdateEngine" />
+                            }
                         </MudTabPanel>
                         <MudTabPanel Text="Power rankings">
                             <PowerRankings />
@@ -84,6 +97,10 @@
     public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
     public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
     public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
+    public IEnumerable<Engine> Engines { get; set; } = Enumerable.Empty<Engine>();
+    public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
+    public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
+    public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
 
     public Race? NextRace { get; set; }
 
@@ -93,6 +110,7 @@
     bool calendarLoaded = false;
     private bool driversLoaded = false;
     private bool teamsLoaded = false;
+    private bool enginesLoaded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -125,10 +143,34 @@
         if (driversLoaded)
             return;
 
-        SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-        SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        if (!SeasonDrivers.Any())
+            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        if (!SeasonTeams.Any())
+            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
 
         driversLoaded = true;
+    }
+
+    private async Task OnOpenTeams()
+    {
+        if (teamsLoaded)
+            return;
+
+        if (!SeasonTeams.Any())
+            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+
+        teamsLoaded = true;
+    }
+
+    private async Task OnOpenEngines()
+    {
+        if (enginesLoaded)
+            return;
+
+        if (!SeasonEngines.Any())
+            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
+
+        enginesLoaded = true;
     }
 
     async Task StartSeason()
@@ -216,6 +258,58 @@
         {
             await _entrantService.UpdateSeasonDriver(updatedDriver);
             SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        }
+    }
+
+    async Task UpdateTeam(SeasonTeam? item)
+    {
+        if (!Teams.Any())
+            Teams = await _teamService.GetTeams();
+        if (!Manufacturers.Any())
+            Manufacturers = await _manufacturerService.GetManufacturers();
+        if (!SeasonEngines.Any())
+            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
+
+        var parameters = new DialogParameters
+            {
+                ["SeasonId"] = SeasonId,
+                ["Teams"] = Teams,
+                ["Manufacturers"] = Manufacturers,
+                ["SeasonEngines"] = SeasonEngines,
+                ["SeasonTeam"] = item,
+            };
+
+        var dialog = await _dialogService.ShowAsync<SeasonTeamEditor>("Modify in-season team", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is SeasonTeam updatedTeam)
+        {
+            await _entrantService.UpdateSeasonTeam(updatedTeam);
+            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        }
+    }
+
+    async Task UpdateEngine(SeasonEngine? item)
+    {
+        if (!Engines.Any())
+            Engines = await _engineService.GetEngines();
+
+        var parameters = new DialogParameters
+            {
+                ["SeasonId"] = SeasonId,
+                ["Engines"] = Engines,
+                ["SeasonEngine"] = item,
+            };
+
+        var dialog = await _dialogService.ShowAsync<SeasonEngineEditor>("Modify in-season engine", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is SeasonEngine updatedEngine)
+        {
+            await _entrantService.UpdateSeasonEngine(updatedEngine);
+
+            var seasonEngine = SeasonEngines.FirstOrDefault(e => e.Id == updatedEngine.Id);
+            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
         }
     }
 
