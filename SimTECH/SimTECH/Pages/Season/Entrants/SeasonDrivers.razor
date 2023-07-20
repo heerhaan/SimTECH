@@ -1,16 +1,12 @@
-﻿@inject DriverService DriverService
-@inject SeasonEntrantService EntrantService
-@inject IDialogService DialogService
-
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
+﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Drivers</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterDriver">New</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="AddItem">New</MudButton>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="SeasonDriver" Items="@DriverEntrants" Dense="true" Loading="@_loading">
+    <MudDataGrid T="SeasonDriver" Items="@DriverEntrants" Dense="true" Loading="@loading">
         <Columns>
             <TemplateColumn T="SeasonDriver" Sortable="false" Class="accent-cell">
                 <CellTemplate>
@@ -48,7 +44,7 @@
             </TemplateColumn>
             <TemplateColumn T="SeasonDriver" Sortable="false">
                 <CellTemplate>
-                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
+                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
@@ -57,47 +53,25 @@
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
+    [Parameter] public IEnumerable<SeasonDriver> DriverEntrants { get; set; } = Enumerable.Empty<SeasonDriver>();
+    [Parameter] public IEnumerable<SeasonTeam> TeamEntrants { get; set; } = Enumerable.Empty<SeasonTeam>();
+    [Parameter] public EventCallback<SeasonDriver?> OnEditorOpen { get; set; }
 
-    List<SeasonDriver> DriverEntrants = new();
-    List<SeasonTeam> TeamEntrants = new();
+    bool loading = true;
 
-    bool _loading = true;
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-        DriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
-        TeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
+        loading = true;
 
         foreach (var sdriver in DriverEntrants)
             sdriver.SeasonTeam = TeamEntrants.FirstOrDefault(e => e.Id == sdriver.SeasonTeamId);
 
-        _loading = false;
+        loading = false;
     }
 
-    async Task EnterDriver() => await UpdateDriver(null);
-    async Task UpdateDriver(SeasonDriver? item)
+    async Task AddItem() => await UpdateItem(null);
+    async Task UpdateItem(SeasonDriver? item)
     {
-        var parameters = new DialogParameters
-            {
-                ["SeasonId"] = Season.Id,
-                ["SeasonTeams"] = TeamEntrants,
-                ["SeasonDriver"] = item,
-            };
-
-        var dialog = await DialogService.ShowAsync<SeasonDriverEditor>("Modify in-season driver", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data != null && result.Data is SeasonDriver updatedDriver)
-        {
-            _loading = true;
-
-            await EntrantService.UpdateSeasonDriver(updatedDriver);
-
-            DriverEntrants = await EntrantService.GetSeasonDrivers(Season.Id);
-            foreach (var sdriver in DriverEntrants)
-                sdriver.SeasonTeam = TeamEntrants.FirstOrDefault(e => e.Id == sdriver.SeasonTeamId);
-
-            _loading = false;
-        }
+        await OnEditorOpen.InvokeAsync(item);
     }
 }
