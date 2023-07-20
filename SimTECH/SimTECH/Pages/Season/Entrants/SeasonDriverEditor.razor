@@ -67,12 +67,12 @@
     [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
 
     [Parameter, EditorRequired] public long SeasonId { get; set; }
-    [Parameter] public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
+    //[Parameter] public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
     [Parameter, EditorRequired] public List<SeasonTeam> SeasonTeams { get; set; }
+    [Parameter] public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
     [Parameter] public SeasonDriver? SeasonDriver { get; set; }
 
     private EditSeasonDriverModel Model;
-    private List<Driver>? Drivers;
     private long seasonTeamId;
     private bool loading = true;
     private bool isDropped = false;

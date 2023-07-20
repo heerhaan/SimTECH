@@ -1,6 +1,7 @@
 ﻿@page "/overview/{SeasonId:long}"
 @page "/overview/{SeasonId:long}/{TabIndex:int}"
 @inject ContractService _contractService
+@inject DriverService _driverService
 @inject EngineService _engineService
 @inject LeagueService _leagueService
 @inject ManufacturerService _manufacturerService
@@ -244,10 +245,14 @@
 
     async Task UpdateDriver(SeasonDriver? item)
     {
+        if (!Drivers.Any())
+            Drivers = await _driverService.GetAvailableDrivers();
+
         var parameters = new DialogParameters
             {
                 ["SeasonId"] = Season.Id,
                 ["SeasonTeams"] = SeasonTeams,
+                ["Drivers"] = Drivers,
                 ["SeasonDriver"] = item,
             };
 

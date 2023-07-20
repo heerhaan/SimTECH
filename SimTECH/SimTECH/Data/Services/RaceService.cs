@@ -323,12 +323,11 @@ namespace SimTECH.Data.Services
                 }
             }
 
-            // De-activate the drivers which had a lethal crash
+            // Drop drivers which had a lethal crash
             foreach (var death in finishedResults.Where(e => e.Incident?.Category == CategoryIncident.Lethal))
             {
                 var ripSeasonDriver = seasonDrivers.Single(e => e.Id == death.SeasonDriverId);
                 ripSeasonDriver.SeasonTeamId = null;
-                ripSeasonDriver.Driver.Alive = false;
             }
 
             context.UpdateRange(seasonTeams);
