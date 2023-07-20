@@ -6,7 +6,10 @@ public class OverviewModel
 {
     // Consider using this as a generic cascading model class for the overview and it's components
     // Also yeah
+    public Season Season { get; set; }
     public List<SeasonEngine> SeasonEngines { get; set; }
     public List<SeasonTeam> SeasonTeams { get; set; }
     public List<SeasonDriver> SeasonDrivers { get; set; }
+
+    public List<League> Leagues { get; set; }
 }
