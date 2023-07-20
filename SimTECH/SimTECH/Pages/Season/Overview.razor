@@ -15,123 +15,20 @@
 <PageTitle>Overview</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    @if (Season != null)
+    @if (!loading)
     {
         <CascadingValue Value="@Season" IsFixed="true">
             <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="@activeTabIndex">
                 <MudTabPanel Text="Overview">
-                    <MudGrid Spacing="2">
-                        <MudItem xs="12">
-                            <MudPaper Class="pa-4">
-                                <MudStack>
-                                    <MudText Typo="Typo.h3">Season @Season.Year</MudText>
-                                    <MudDivider />
-                                    <MudSpacer />
-                                    <MudStack Row="true" Class="pa-0">
-                                        <MudText Typo="Typo.body2">Currenly in status: @Season.State.ToString()</MudText>
-                                        <MudSpacer />
-                                        <MudText Typo="Typo.body2" Color="Color.Dark">Hello from the other side</MudText>
-                                    </MudStack>
-                                </MudStack>
-                            </MudPaper>
-                        </MudItem>
-
-                        <MudItem xs="6">
-                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
-                                <MudStack Class="mud-height-full">
-                                    <MudText Typo="Typo.h5">Upcoming race</MudText>
-                                    <MudDivider />
-                                    @if (Season.State == State.Active)
-                                    {
-                                        @if (NextRace is null)
-                                        {
-                                            <MudText Typo="Typo.body2">no upcoming race for this season detected</MudText>
-                                        }
-                                        else
-                                        {
-                                            <CountryNamedFlag Code="@NextRace.Track.Country" Justify="Justify.FlexStart" Size="ElementSize.Normal" />
-                                            <MudText>Round @NextRace.Round - @NextRace.Name</MudText>
-
-                                            <MudSpacer />
-
-                                            <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToNextRace">Go</MudButton>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <MudText Typo="Typo.body2">
-                                            Ya utter dimwit, of course there is no next race since this season isn't even active.
-                                            <br />
-                                            Doubt anything is going to happen here so go do something or fuck off, willy.
-                                        </MudText>
-                                    }
-                                </MudStack>
-                            </MudPaper>
-                        </MudItem>
-
-                        <MudItem xs="6">
-                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
-                                <MudStack Class="mud-height-full">
-                                    <MudText Typo="Typo.h5">Controls</MudText>
-                                    <MudDivider />
-                                    <MudText Typo="Typo.body2">
-                                        Control the world, bring ruin to all who oppose you.
-                                    </MudText>
-
-                                    <MudSpacer />
-
-                                    @if (Season.State == State.Concept)
-                                    {
-                                        <MudButtonGroup Variant="Variant.Text" Color="Color.Primary">
-                                            <MudButton FullWidth="true" OnClick="StartSeason">Start season</MudButton>
-                                            <MudButton FullWidth="true" OnClick="GoToAddEntrants">Add participants</MudButton>
-                                        </MudButtonGroup>
-                                    }
-                                    else if (Season.State == State.Active)
-                                    {
-                                        <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Primary" OnClick="FinishSeason">Finish season</MudButton>
-                                    }
-                                </MudStack>
-                            </MudPaper>
-                        </MudItem>
-
-                        <MudItem xs="6">
-                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
-                                <MudStack Class="mud-height-full">
-                                    <MudText Typo="Typo.h5">Statistics</MudText>
-                                    <MudDivider />
-                                    <MudText Typo="Typo.body2">
-                                        Links to different statistics specific to this season (wow really?)
-                                    </MudText>
-
-                                    <MudSpacer />
-
-                                    <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small">
-                                        <MudButton FullWidth="true" OnClick="ShowQualyBattles">Q.Battles</MudButton>
-                                    </MudButtonGroup>
-                                </MudStack>
-                            </MudPaper>
-                        </MudItem>
-
-                        <MudItem xs="6">
-                            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
-                                <MudStack Class="mud-height-full">
-                                    <MudText Typo="Typo.h5">Components</MudText>
-                                    <MudDivider />
-                                    <MudText Typo="Typo.body2">
-                                        Redirect to page with overview of the used components and any upcoming penalty's for this season
-                                    </MudText>
-
-                                    <MudSpacer />
-
-                                    <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToComponentUsage">Components</MudButton>
-                                </MudStack>
-                            </MudPaper>
-                        </MudItem>
-                    </MudGrid>
+                    <Landing NextRace="@NextRace"
+                             OnStartSeason="StartSeason"
+                             OnFinishSeason="FinishSeason"
+                             OnShowQualyBattles="ShowQualyBattles"
+                             OnNextRace="GoToNextRace"
+                             OnNavigate="GoToCommon" />
                 </MudTabPanel>
                 <MudTabPanel Text="Calendar" OnClick="OnOpenCalendar">
-                    @if (tempCalendarVisible)
+                    @if (calendarLoaded)
                     {
                         <Calendar />
                     }
@@ -173,20 +70,27 @@
     [Parameter] public long SeasonId { get; set; }
     [Parameter] public int TabIndex { get; set; }
 
-    public Season? Season { get; set; }
+    public Season Season { get; set; }
+
+    public List<SeasonEngine>? SeasonEngines { get; set; }
+    public List<SeasonTeam>? SeasonTeams { get; set; }
+    public List<SeasonDriver>? SeasonDrivers { get; set; }
+    public List<Race>? Races { get; set; }
+    public List<League>? Leagues { get; set; }
+
     public Race? NextRace { get; set; }
 
     int activeTabIndex = 0;
-    bool tempCalendarVisible = false;
+
+    bool loading = true;
+    bool calendarLoaded = false;
 
     protected override async Task OnInitializedAsync()
     {
         activeTabIndex = TabIndex;
 
         Season = await _seasonService.GetSeasonById(SeasonId);
-
-        if (Season != null)
-            NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
+        NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -194,12 +98,14 @@
             new BreadcrumbItem("Seasons", href: "seasons"),
             new BreadcrumbItem("Overview", href: $"overview/{SeasonId}", disabled: true),
         });
+
+        loading = false;
     }
 
     private async Task OnOpenCalendar()
     {
         await Task.Delay(5000);
-        tempCalendarVisible = true;
+        calendarLoaded = true;
     }
 
     async Task StartSeason()
@@ -255,6 +161,5 @@
     async Task ShowQualyBattles() => 
         _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", new DialogParameters { ["SeasonId"] = SeasonId });
 
-    void GoToAddEntrants() => _nav.NavigateTo($"/entrantwizard/{SeasonId}");
-    void GoToComponentUsage() => _nav.NavigateTo($"/components/{SeasonId}");
+    void GoToCommon(string url) => _nav.NavigateTo(url);
 }

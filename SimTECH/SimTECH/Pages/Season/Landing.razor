@@ -1,0 +1,129 @@
+﻿<MudGrid Spacing="2">
+    <MudItem xs="12">
+        <MudPaper Class="pa-4">
+            <MudStack>
+                <MudText Typo="Typo.h3">Season @Season.Year</MudText>
+                <MudDivider />
+                <MudSpacer />
+                <MudStack Row="true" Class="pa-0">
+                    <MudText Typo="Typo.body2">Currenly in status: @Season.State.ToString()</MudText>
+                    <MudSpacer />
+                    <MudText Typo="Typo.body2" Color="Color.Dark">Hello from the other side</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="6">
+        <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
+            <MudStack Class="mud-height-full">
+                <MudText Typo="Typo.h5">Upcoming race</MudText>
+                <MudDivider />
+                @if (Season.State == State.Active)
+                {
+                    @if (NextRace is null)
+                    {
+                        <MudText Typo="Typo.body2">no upcoming race for this season detected</MudText>
+                    }
+                    else
+                    {
+                        <CountryNamedFlag Code="@NextRace.Track.Country" Justify="Justify.FlexStart" Size="ElementSize.Normal" />
+                        <MudText>Round @NextRace.Round - @NextRace.Name</MudText>
+
+                        <MudSpacer />
+
+                        <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToNextRace">Go</MudButton>
+                    }
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2">
+                        Ya dimwit, of course there is no next race since this season isn't even active.
+                        <br />
+                        Doubt anything is going to happen here so fuck off or start this bich, willy schlobberer.
+                    </MudText>
+                }
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="6">
+        <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
+            <MudStack Class="mud-height-full">
+                <MudText Typo="Typo.h5">Controls</MudText>
+                <MudDivider />
+                <MudText Typo="Typo.body2">
+                    Control the world, bring ruin to all who oppose you.
+                </MudText>
+
+                <MudSpacer />
+
+                @if (Season.State == State.Concept)
+                {
+                    <MudButtonGroup Variant="Variant.Text" Color="Color.Primary">
+                        <MudButton FullWidth="true" OnClick="TriggerStart">Start season</MudButton>
+                        <MudButton FullWidth="true" OnClick="GoToAddEntrants">Add participants</MudButton>
+                    </MudButtonGroup>
+                }
+                else if (Season.State == State.Active)
+                {
+                    <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Primary" OnClick="TriggerFinish">Finish season</MudButton>
+                }
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="6">
+        <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
+            <MudStack Class="mud-height-full">
+                <MudText Typo="Typo.h5">Statistics</MudText>
+                <MudDivider />
+                <MudText Typo="Typo.body2">
+                    Links to different statistics specific to this season (wow really?)
+                </MudText>
+
+                <MudSpacer />
+
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small">
+                    <MudButton FullWidth="true" OnClick="ShowQualyBattles">Q.Battles</MudButton>
+                </MudButtonGroup>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="6">
+        <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
+            <MudStack Class="mud-height-full">
+                <MudText Typo="Typo.h5">Components</MudText>
+                <MudDivider />
+                <MudText Typo="Typo.body2">
+                    Redirect to page with overview of the used components and any upcoming penalty's for this season
+                </MudText>
+
+                <MudSpacer />
+
+                <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToComponentUsage">Components</MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [CascadingParameter] public Season Season { get; set; }
+    [Parameter] public Race? NextRace { get; set; }
+    [Parameter] public EventCallback OnStartSeason { get; set; }
+    [Parameter] public EventCallback OnFinishSeason { get; set; }
+    [Parameter] public EventCallback OnShowQualyBattles { get; set; }
+    [Parameter] public EventCallback OnNextRace { get; set; }
+    [Parameter] public EventCallback<string> OnNavigate { get; set; }
+
+    async Task TriggerStart() => await OnStartSeason.InvokeAsync();
+    async Task TriggerFinish() => await OnFinishSeason.InvokeAsync();
+
+    async Task ShowQualyBattles() => await OnShowQualyBattles.InvokeAsync();
+
+    async Task GoToNextRace() => await OnNextRace.InvokeAsync();
+
+    async Task GoToAddEntrants() => await OnNavigate.InvokeAsync($"/entrantwizard/{Season.Id}");
+    async Task GoToComponentUsage() => await OnNavigate.InvokeAsync($"/components/{Season.Id}");
+}
