@@ -1,14 +1,17 @@
 ﻿@page "/overview/{SeasonId:long}"
 @page "/overview/{SeasonId:long}/{TabIndex:int}"
 @inject ContractService _contractService
+@inject ClimateService _climateService
 @inject DriverService _driverService
 @inject EngineService _engineService
 @inject LeagueService _leagueService
 @inject ManufacturerService _manufacturerService
 @inject RaceService _raceService
+@inject ResultService _resultService
 @inject SeasonService _seasonService
 @inject SeasonEntrantService _entrantService
 @inject TeamService _teamService
+@inject TrackService _trackService
 @inject TraitService _traitService
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
@@ -37,7 +40,16 @@
                 <MudTabPanel Text="Calendar" OnClick="OnOpenCalendar">
                     @if (calendarLoaded)
                     {
-                        <Calendar />
+                        <Calendar
+                            Races="@Races"
+                            Results="@Results"
+                            SeasonDrivers="@SeasonDrivers"
+                            SeasonTeams="@SeasonTeams"
+                            Climates="@Climates"
+                            OnAddRaces="AddRaces"
+                            OnEditorOpen="UpdateRace"
+                            OnDelete="DeleteRace"
+                            OnGoToRace="GoToRace" />
                     }
                 </MudTabPanel>
                 <MudTabPanel Text="Standings">
@@ -106,24 +118,27 @@
 
     public Season Season { get; set; }
 
-    public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
     public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
+    public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
+    public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
+    public IEnumerable<Climate> Climates { get; set; } = Enumerable.Empty<Climate>();
     public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
     public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
     public IEnumerable<Engine> Engines { get; set; } = Enumerable.Empty<Engine>();
     public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
     public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
-    public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
     public IEnumerable<Trait> Traits { get; set; } = Enumerable.Empty<Trait>();
+    public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
 
     public Race? NextRace { get; set; }
 
     private SimConfig config;
 
     private int activeTabIndex = 0;
-
     private bool loading = true;
+    private int nextRound;
+
     private bool calendarLoaded = false;
     private bool driversLoaded = false;
     private bool teamsLoaded = false;
@@ -135,7 +150,13 @@
         activeTabIndex = TabIndex;
 
         Season = await _seasonService.GetSeasonById(SeasonId);
-        NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
+        Races = await _raceService.GetRacesBySeason(SeasonId);
+
+        if (Season.State == State.Active)
+        {
+            NextRace = Races.FindNext();
+            nextRound = NextRace?.Round ?? 0;
+        }
 
         config = _config.Value;
 
@@ -151,7 +172,17 @@
 
     private async Task OnOpenCalendar()
     {
-        await Task.Delay(1000);
+        if (!Races.Any())
+            Races = await _raceService.GetRacesBySeason(SeasonId);
+        if (!Results.Any())
+            Results = await _resultService.GetResultsOfSeason(SeasonId);
+        if (!SeasonDrivers.Any())
+            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        if (!SeasonTeams.Any())
+            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        if (!Climates.Any())
+            Climates = await _climateService.GetClimates(StateFilter.All);
+
         calendarLoaded = true;
     }
 
@@ -256,18 +287,104 @@
         }
     }
 
-    async Task GoToNextRace()
+    async Task AddRaces()
     {
-        if (NextRace is null)
+        if (!Leagues.Any())
+            Leagues = await _leagueService.GetLeagues();
+        if (!Races.Any())
+            Races = await _raceService.GetRacesBySeason(SeasonId);
+        if (!Climates.Any())
+            Climates = await _climateService.GetClimates(StateFilter.All);
+
+        var league = Leagues.First(e => e.Id == Season.LeagueId);
+
+        var usedTrackIds = Races.Select(e => e.TrackId).ToArray();
+        var availableTracks = (await _trackService.GetTracks())
+            .Where(e => !usedTrackIds.Contains(e.Id))
+            .ToList();
+
+        if (!availableTracks.Any())
+        {
+            _snackbar.Add("there aren't any tracks left to add to this season, ya absolute willy", Severity.Error);
+            return;
+        }
+
+        var parameters = new DialogParameters
+            {
+                ["Tracks"] = availableTracks,
+                ["SeasonId"] = SeasonId,
+                ["OffsetRound"] = 1 + Races.Count(),
+                ["DefaultRaceLength"] = league.RaceLength,
+                ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
+            };
+
+        var dialog = await _dialogService.ShowAsync<AddRaces>("Insert races", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is List<Race> addedRaces)
+        {
+            await _raceService.InsertRaces(addedRaces);
+            Races = await _raceService.GetRacesBySeason(SeasonId);
+        }
+    }
+
+    async Task UpdateRace(Race? item)
+    {
+        if (!Leagues.Any())
+            Leagues = await _leagueService.GetLeagues();
+
+        var currentLeague = Leagues.First(e => e.Id == Season.LeagueId);
+
+        var parameters = new DialogParameters
+            {
+                ["Race"] = item,
+                ["SeasonId"] = SeasonId,
+                ["IncomingRound"] = 1 + Races.Count(),
+                ["DefaultRaceLength"] = currentLeague.RaceLength,
+                ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
+            };
+
+        var dialog = await _dialogService.ShowAsync<RaceEditor>("Modify Race", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
+        {
+            await _raceService.UpdateRace(updatedRace);
+            Races = await _raceService.GetRacesBySeason(SeasonId);
+        }
+    }
+
+    async Task DeleteRace(long raceId)
+    {
+        await _raceService.DeleteRace(raceId);
+        Races = await _raceService.GetRacesBySeason(SeasonId);
+    }
+
+    async Task GoToNextRace() => await GoToRace(nextRound);
+    async Task GoToRace(int round)
+    {
+        if (!Races.Any())
+            Races = await _raceService.GetRacesBySeason(SeasonId);
+
+        var race = Races.FirstOrDefault(e => e.Round == round);
+        if (race is null)
         {
             _snackbar.Add("can't find the next race, you sure it exists lad?");
             return;
         }
 
-        if (NextRace.State == State.Concept)
-            await _raceService.ActivateRace(NextRace.Id);
+        if (race.State == State.Concept)
+        {
+            if (race.Round != nextRound)
+            {
+                _snackbar.Add("oi oi oi, a previous round hasn't been finished (or even started!) yet. do that one first, cunt.", Severity.Error);
+                return;
+            }
 
-        _nav.NavigateTo($"/raceweek/{NextRace.Id}");
+            await _raceService.ActivateRace(race.Id);
+        }
+
+        _nav.NavigateTo($"/raceweek/{race.Id}");
     }
 
     async Task UpdateDriver(SeasonDriver? item)

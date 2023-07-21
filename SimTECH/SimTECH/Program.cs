@@ -53,6 +53,7 @@ namespace SimTECH
             builder.Services.AddScoped<LeagueService>();
             builder.Services.AddScoped<ManufacturerService>();
             builder.Services.AddScoped<RaceService>();
+            builder.Services.AddScoped<ResultService>();
             builder.Services.AddScoped<SeasonService>();
             builder.Services.AddScoped<SeasonEntrantService>();
             builder.Services.AddScoped<TeamService>();
