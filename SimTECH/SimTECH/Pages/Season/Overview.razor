@@ -140,6 +140,7 @@
     private int nextRound;
 
     private bool calendarLoaded = false;
+    private bool standingsLoaded = false;
     private bool driversLoaded = false;
     private bool teamsLoaded = false;
     private bool enginesLoaded = false;
@@ -184,6 +185,11 @@
             Climates = await _climateService.GetClimates(StateFilter.All);
 
         calendarLoaded = true;
+    }
+
+    private async Task OnOpenStandings()
+    {
+        standingsLoaded = true;
     }
 
     private async Task OnOpenDrivers()
