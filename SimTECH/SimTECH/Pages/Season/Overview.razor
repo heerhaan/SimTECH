@@ -48,7 +48,7 @@
                             {
                                 <SeasonDrivers
                                     DriverEntrants="@SeasonDrivers"
-                                    TeamEntrants="@SeasonTeams"
+                                    SeasonTeams="@SeasonTeams"
                                     OnEditorOpen="UpdateDriver" />
                             }
                         </MudTabPanel>
@@ -57,6 +57,8 @@
                             {
                                 <SeasonTeams
                                     TeamEntrants="@SeasonTeams"
+                                    SeasonEngines="@SeasonEngines"
+                                    Manufacturers="@Manufacturers"
                                     OnEditorOpen="UpdateTeam" />
                             }
                         </MudTabPanel>
@@ -93,11 +95,11 @@
 
     public Season Season { get; set; }
 
+    public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
+    public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
     public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
     public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
-    public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
-    public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
     public IEnumerable<Engine> Engines { get; set; } = Enumerable.Empty<Engine>();
     public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
     public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
@@ -105,10 +107,10 @@
 
     public Race? NextRace { get; set; }
 
-    int activeTabIndex = 0;
+    private int activeTabIndex = 0;
 
-    bool loading = true;
-    bool calendarLoaded = false;
+    private bool loading = true;
+    private bool calendarLoaded = false;
     private bool driversLoaded = false;
     private bool teamsLoaded = false;
     private bool enginesLoaded = false;
@@ -132,18 +134,12 @@
 
     private async Task OnOpenCalendar()
     {
-        if (calendarLoaded)
-            return;
-
-        await Task.Delay(5000);
+        await Task.Delay(1000);
         calendarLoaded = true;
     }
 
     private async Task OnOpenDrivers()
     {
-        if (driversLoaded)
-            return;
-
         if (!SeasonDrivers.Any())
             SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
         if (!SeasonTeams.Any())
@@ -154,20 +150,18 @@
 
     private async Task OnOpenTeams()
     {
-        if (teamsLoaded)
-            return;
-
         if (!SeasonTeams.Any())
             SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        if (!SeasonEngines.Any())
+            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
+        if (!Manufacturers.Any())
+            Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
 
         teamsLoaded = true;
     }
 
     private async Task OnOpenEngines()
     {
-        if (enginesLoaded)
-            return;
-
         if (!SeasonEngines.Any())
             SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
 
@@ -247,6 +241,8 @@
     {
         if (!Drivers.Any())
             Drivers = await _driverService.GetAvailableDrivers();
+        if (!SeasonTeams.Any())
+            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
 
         var parameters = new DialogParameters
             {
@@ -269,9 +265,9 @@
     async Task UpdateTeam(SeasonTeam? item)
     {
         if (!Teams.Any())
-            Teams = await _teamService.GetTeams();
+            Teams = await _teamService.GetAvailableTeams();
         if (!Manufacturers.Any())
-            Manufacturers = await _manufacturerService.GetManufacturers();
+            Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
         if (!SeasonEngines.Any())
             SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
 
@@ -279,7 +275,7 @@
             {
                 ["SeasonId"] = SeasonId,
                 ["Teams"] = Teams,
-                ["Manufacturers"] = Manufacturers,
+                ["Manufacturers"] = Manufacturers.Where(e => e.State == State.Active).ToList(),
                 ["SeasonEngines"] = SeasonEngines,
                 ["SeasonTeam"] = item,
             };

@@ -10,7 +10,7 @@
         <Columns>
             <PropertyColumn Property="e => e!.Name" />
             <PropertyColumn Property="e => e!.Power" />
-            <PropertyColumn Property="e => e!.Reliability" />
+            <PropertyColumn Property="e => e!.Reliability" Title="REL" />
             <PropertyColumn Property="e => e!.Rebadged" />
             <TemplateColumn T="SeasonEngine" Sortable="false">
                 <CellTemplate>
@@ -27,6 +27,11 @@
     [CascadingParameter] public Season Season { get; set; }
     [Parameter] public IEnumerable<SeasonEngine> EngineEntrants { get; set; } = Enumerable.Empty<SeasonEngine>();
     [Parameter] public EventCallback<SeasonEngine?> OnEditorOpen { get; set; }
+
+    // Warning: this is also triggered when just pressing the button to start editing
+    protected override void OnParametersSet()
+    {
+    }
 
     async Task EnterEngine() => await UpdateEngine(null);
     async Task UpdateEngine(SeasonEngine? item)
