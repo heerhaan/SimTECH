@@ -9,9 +9,11 @@
 @inject SeasonService _seasonService
 @inject SeasonEntrantService _entrantService
 @inject TeamService _teamService
+@inject TraitService _traitService
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject IDialogService _dialogService
+@inject IOptions<SimConfig> _config
 @inject ISnackbar _snackbar
 @using SimTECH.Pages.Season.Entrants;
 @using SimTECH.Pages.Season.Stats;
@@ -70,8 +72,17 @@
                                     OnEditorOpen="UpdateEngine" />
                             }
                         </MudTabPanel>
-                        <MudTabPanel Text="Power rankings">
-                            <PowerRankings />
+                        <MudTabPanel Text="Power rankings" OnClick="OnOpenPower">
+                            @if (powerLoaded)
+                            {
+                                <PowerRankings
+                                    SeasonDrivers="@SeasonDrivers"
+                                    SeasonTeams="@SeasonTeams"
+                                    SeasonEngines="@SeasonEngines"
+                                    Manufacturers="@Manufacturers"
+                                    Traits="@Traits"
+                                    TeamRoleCarModifier="@config.CarDriverStatusModifier" />
+                            }
                         </MudTabPanel>
                     </MudTabs>
                 </MudTabPanel>
@@ -104,8 +115,11 @@
     public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
     public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
     public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
+    public IEnumerable<Trait> Traits { get; set; } = Enumerable.Empty<Trait>();
 
     public Race? NextRace { get; set; }
+
+    private SimConfig config;
 
     private int activeTabIndex = 0;
 
@@ -114,6 +128,7 @@
     private bool driversLoaded = false;
     private bool teamsLoaded = false;
     private bool enginesLoaded = false;
+    private bool powerLoaded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -121,6 +136,8 @@
 
         Season = await _seasonService.GetSeasonById(SeasonId);
         NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
+
+        config = _config.Value;
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -166,6 +183,22 @@
             SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
 
         enginesLoaded = true;
+    }
+
+    private async Task OnOpenPower()
+    {
+        if (!SeasonDrivers.Any())
+            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        if (!SeasonTeams.Any())
+            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        if (!SeasonEngines.Any())
+            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
+        if (!Manufacturers.Any())
+            Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
+        if (!Traits.Any())
+            Traits = await _traitService.GetTraits(StateFilter.All);
+
+        powerLoaded = true;
     }
 
     async Task StartSeason()

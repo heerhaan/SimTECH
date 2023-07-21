@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
-using SimTECH.Pages.Leagues;
 
 namespace SimTECH.Data.Services
 {
@@ -87,6 +86,7 @@ namespace SimTECH.Data.Services
             return await context.SeasonTeam
                 .Where(e => e.SeasonId == seasonId)
                 .Include(e => e.Team)
+                    .ThenInclude(e => e.TeamTraits)
                 .ToListAsync();
         }
 
@@ -175,6 +175,7 @@ namespace SimTECH.Data.Services
 
             return await context.SeasonDriver
                 .Include(e => e.Driver)
+                    .ThenInclude(e => e.DriverTraits)
                 .Where(e => e.SeasonId == seasonId)
                 .ToListAsync();
         }

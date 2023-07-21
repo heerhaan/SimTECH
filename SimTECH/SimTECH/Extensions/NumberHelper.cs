@@ -44,6 +44,16 @@
             var avg = sum / amountValues;
             return Math.Round(avg, 2);
         }
+        public static double Average(params int[] numbers)
+        {
+            var length = numbers.Length;
+            if (length == 0)
+                return 0;
+
+            var sum = (double)numbers.Sum();
+            var average = sum / length;
+            return Math.Round(average, 1);
+        }
 
         public static int CalcLapCount(int raceLength, double trackLength) =>
             (int)Math.Round(raceLength / trackLength);
