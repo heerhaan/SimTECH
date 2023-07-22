@@ -52,8 +52,15 @@
                             OnGoToRace="GoToRace" />
                     }
                 </MudTabPanel>
-                <MudTabPanel Text="Standings">
-                    <Standings />
+                <MudTabPanel Text="Standings" OnClick="OnOpenStandings">
+                    @if (standingsLoaded)
+                    {
+                        <Standings
+                            SeasonDrivers="@SeasonDrivers"
+                            SeasonTeams="@SeasonTeams"
+                            Races="@Races"
+                            Results="@Results" />
+                    }
                 </MudTabPanel>
                 <MudTabPanel Text="Entrants" OnClick="OnOpenDrivers">
                     <MudTabs Outlined="true" Centered="true">
@@ -189,6 +196,15 @@
 
     private async Task OnOpenStandings()
     {
+        if (!SeasonDrivers.Any())
+            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        if (!SeasonTeams.Any())
+            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        if (!Races.Any())
+            Races = await _raceService.GetRacesBySeason(SeasonId);
+        if (!Results.Any())
+            Results = await _resultService.GetResultsOfSeason(SeasonId);
+
         standingsLoaded = true;
     }
 
@@ -470,8 +486,24 @@
         }
     }
 
-    async Task ShowQualyBattles() => 
-        _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", new DialogParameters { ["SeasonId"] = SeasonId });
+    async Task ShowQualyBattles()
+    {
+        if (!SeasonDrivers.Any())
+            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        if (!SeasonTeams.Any())
+            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        if (!Results.Any())
+            Results = await _resultService.GetResultsOfSeason(SeasonId);
+
+        var parameters = new DialogParameters
+        {
+            ["SeasonDrivers"] = SeasonDrivers,
+            ["SeasonTeams"] = SeasonTeams,
+            ["Results"] = Results
+        };
+
+        _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters);
+    }
 
     void GoToCommon(string url) => _nav.NavigateTo(url);
 }

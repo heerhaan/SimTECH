@@ -1,6 +1,4 @@
-﻿using SimTECH.Data.Models;
-
-namespace SimTECH.PageModels.SeasonModels
+﻿namespace SimTECH.PageModels.SeasonModels
 {
     public class QualyBattle
     {
