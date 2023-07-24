@@ -176,17 +176,17 @@
 </MudContainer>
 
 @code {
-    string activeCustomIcon = IconCollection.BrandToyota;
-    string[] customIcons = IconCollection.ArrayOfIcons;
-    int iconCycler = 0;
-    string? exampleStore;
-    string newExampleString = "Stored and retrieved from the local storage";
-    SimConfig config;
+    private string activeCustomIcon = IconCollection.BrandToyota;
+    private string[] customIcons = IconCollection.ArrayOfIcons;
+    private int iconCycler = 0;
+    private string? exampleStore;
+    private string newExampleString = "Stored and retrieved from the local storage";
+    private SimConfig config;
 
-    List<int> randomOld = new();
-    List<int> randomNew = new();
-    double deviateOld;
-    double deviateNew;
+    private List<int> randomOld = new();
+    private List<int> randomNew = new();
+    private double deviateOld;
+    private double deviateNew;
 
     protected override void OnInitialized()
     {
@@ -219,7 +219,7 @@
         }
     }
 
-    void CycleCustomIcon()
+    private void CycleCustomIcon()
     {
         iconCycler++;
         iconCycler %= customIcons.Length;

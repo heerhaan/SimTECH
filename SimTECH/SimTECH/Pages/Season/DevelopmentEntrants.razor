@@ -1,9 +1,6 @@
 ﻿@inject LeagueService _leagueService
 @inject SeasonEntrantService _entrantService
-@inject SeasonService SeasonService
-@inject IDialogService _dialogService
 @inject ISnackbar _snack
-@using SimTECH.Pages.Season.Development
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
     @if (DevelopedEntrants != null)
@@ -71,7 +68,7 @@
                         </MudStack>
                     }
 
-                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ShowSummary" Class="mt-4">Summary</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ShowDevSummary" Class="mt-4">Summary</MudButton>
                 </MudStack>
             </MudPaper>
             <MudPaper Class="flex-grow-1 ">
@@ -210,7 +207,7 @@
                     <MudSimpleTable>
                         <thead>
                             <tr>
-                                <th>Less than</th>
+                                <th>&lt; LESS</th>
                                 <th>Lower</th>
                                 <th>Upper</th>
                             </tr>
@@ -234,6 +231,7 @@
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
+    [Parameter] public EventCallback OnShowSummary { get; set; }
 
     List<DevelopmentRange>? ActiveAspectRanges { get; set; }
     List<DevelopmentRange> AgeRanges { get; set; }
@@ -525,124 +523,5 @@
         })
         .ToList();
 
-    async Task ShowSummary()
-    {
-        var seasonLog = await _entrantService.GetDevelopmentLog(Season.Id);
-
-        // We directly take data from here so we're going to need it
-        if (SeasonDrivers == null)
-            SeasonDrivers = await _entrantService.GetSeasonDrivers(Season.Id);
-        if (SeasonTeams == null)
-            SeasonTeams = await _entrantService.GetSeasonTeams(Season.Id);
-        if (SeasonEngines == null)
-            SeasonEngines = await _entrantService.GetSeasonEngines(Season.Id);
-
-        var summaries = new List<DevelopSummary>();
-        foreach (var groupSummary in seasonLog.GroupBy(e => e.EntrantGroup))
-        {
-            var entrantLog = new List<EntrantDevelopLog>();
-
-            foreach (var developed in groupSummary.ToArray().GroupBy(e => e.EntrantId))
-            {
-                EntrantDevelopLog? currentLogs;
-                var developedLogs = developed.ToArray();
-
-                switch (groupSummary.Key)
-                {
-                    case Entrant.Driver:
-                        currentLogs = CreateDriverLog(developed.Key, developedLogs); break;
-                    case Entrant.Team:
-                        currentLogs = CreateTeamLog(developed.Key, developedLogs); break;
-                    case Entrant.Engine:
-                        currentLogs = CreateEngineLog(developed.Key, developedLogs); break;
-                    default:
-                        currentLogs = null; break;
-                }
-
-                if (currentLogs != null)
-                    entrantLog.Add(currentLogs);
-            }
-
-            var minMaxPerAspect = new Dictionary<Aspect, (int, int)>();
-            foreach (var allChanged in entrantLog.SelectMany(e => e.DevelopedAspects).GroupBy(e => e.Key))
-            {
-                var lowest = allChanged.Select(e => e.Value.Item1).Min();
-                var highest = allChanged.Select(e => e.Value.Item1).Max();
-                minMaxPerAspect.Add(allChanged.Key, (lowest, highest));
-            }
-
-            summaries.Add(new DevelopSummary
-            {
-                EntrantGroup = groupSummary.Key,
-                Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),
-                EntrantLogs = entrantLog,
-                MinMaxValues = minMaxPerAspect,
-            });
-        }
-
-        await _dialogService.ShowAsync<SummaryDevelopment>(
-            "Summary development", new DialogParameters { ["Summaries"] = summaries }, SummaryDialogOptions);
-    }
-
-    EntrantDevelopLog? CreateDriverLog(long driverId, DevelopmentLog[] logs)
-    {
-        var matchingDriver = SeasonDrivers?.Find(e => e.Id == driverId);
-
-        if (matchingDriver == null)
-            return null;
-
-        var developedAspects = logs
-            .GroupBy(e => e.DevelopedAspect)
-            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingDriver.RetrieveAspectValue(e.Key)));
-
-        return new EntrantDevelopLog
-            {
-                EntrantId = driverId,
-                Entrant = Entrant.Driver,
-                Name = matchingDriver.Driver.FullName,
-                Nationality = matchingDriver.Driver.Country,
-                DevelopedAspects = developedAspects,
-            };
-    }
-
-    EntrantDevelopLog? CreateTeamLog(long teamId, DevelopmentLog[] logs)
-    {
-        var matchingTeam = SeasonTeams?.Find(e => e.Id == teamId);
-
-        if (matchingTeam == null)
-            return null;
-
-        var developedAspects = logs
-            .GroupBy(e => e.DevelopedAspect)
-            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingTeam.RetrieveAspectValue(e.Key)));
-
-        return new EntrantDevelopLog
-            {
-                EntrantId = teamId,
-                Entrant = Entrant.Team,
-                Name = matchingTeam.Name,
-                Nationality = matchingTeam.Team.Country,
-                DevelopedAspects = developedAspects,
-            };
-    }
-
-    EntrantDevelopLog? CreateEngineLog(long engineId, DevelopmentLog[] logs)
-    {
-        var matchingEngine = SeasonEngines?.Find(e => e.Id == engineId);
-
-        if (matchingEngine == null)
-            return null;
-
-        var developedAspects = logs
-            .GroupBy(e => e.DevelopedAspect)
-            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingEngine.RetrieveAspectValue(e.Key)));
-
-        return new EntrantDevelopLog
-            {
-                EntrantId = engineId,
-                Entrant = Entrant.Engine,
-                Name = matchingEngine.Name,
-                DevelopedAspects = developedAspects,
-            };
-    }
+    private async Task ShowDevSummary() => await OnShowSummary.InvokeAsync();
 }

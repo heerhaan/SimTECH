@@ -1,4 +1,6 @@
-﻿namespace SimTECH.PageModels.SeasonModels
+﻿using SimTECH.Data.Models;
+
+namespace SimTECH.PageModels.SeasonModels
 {
     public class CompletedDevelopment
     {

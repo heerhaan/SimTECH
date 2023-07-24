@@ -18,6 +18,7 @@
 @inject IDialogService _dialogService
 @inject IOptions<SimConfig> _config
 @inject ISnackbar _snackbar
+@using SimTECH.Pages.Season.Development;
 @using SimTECH.Pages.Season.Entrants;
 @using SimTECH.Pages.Season.Stats;
 @using SimTECH.Pages.Season.ScoreStandings
@@ -107,8 +108,11 @@
                 </MudTabPanel>
                 @if (Season.State != State.Closed)
                 {
-                    <MudTabPanel Text="Development">
-                        <DevelopmentEntrants />
+                    <MudTabPanel Text="Development" OnClick="OnOpenDevelopment">
+                        @if (developerLoaded)
+                        {
+                            <DevelopmentEntrants OnShowSummary="ShowDevelopmentSummary" />                        
+                        }
                     </MudTabPanel>
                 }
                 <MudTabPanel Text="Settings">
@@ -255,6 +259,11 @@
         powerLoaded = true;
     }
 
+    private async Task OnOpenDevelopment()
+    {
+        developerLoaded = true;
+    }
+
     async Task StartSeason()
     {
         if (Season != null)
@@ -384,6 +393,7 @@
     }
 
     async Task GoToNextRace() => await GoToRace(nextRound);
+
     async Task GoToRace(int round)
     {
         if (!Races.Any())
@@ -506,5 +516,33 @@
         _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters);
     }
 
+    private async Task ShowDevelopmentSummary()
+    {
+        if (!SeasonDrivers.Any())
+            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        if (!SeasonTeams.Any())
+            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        if (!SeasonEngines.Any())
+            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
+
+        var developmentLog = await _entrantService.GetDevelopmentLog(SeasonId);
+
+        var parameters = new DialogParameters
+        {
+            ["DevelopmentLog"] = developmentLog,
+            ["SeasonDrivers"] = SeasonDrivers,
+            ["SeasonTeams"] = SeasonTeams,
+            ["SeasonEngines"] = SeasonEngines
+        };
+
+        await _dialogService.ShowAsync<SummaryDevelopment>("Summary development", parameters, _summaryDialogOptions);
+    }
+
     void GoToCommon(string url) => _nav.NavigateTo(url);
+
+    private static readonly DialogOptions _summaryDialogOptions = new()
+        {
+            MaxWidth = MaxWidth.ExtraLarge,
+            CloseButton = true,
+        };
 }
