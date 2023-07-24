@@ -24,7 +24,6 @@
 
         public double GapMarge { get; set; } = 0.04;
 
-        public bool PersonalNumbersEnabled { get; set; }
         public bool TooMuchInfo { get; set; }
         public bool AllowMultiLeagueEntry { get; set; }
         //public bool FormationLapEnabled { get; set; }

@@ -49,6 +49,7 @@ namespace SimTECH
         EnablePenalty = 1,
         EnableFatality = 2,
         AllowContracting = 4,
+        PersonalNumbers = 8,
     }
 
     public enum RecordStat { None = 0, Entry, Start, Win, Pole, DNF }

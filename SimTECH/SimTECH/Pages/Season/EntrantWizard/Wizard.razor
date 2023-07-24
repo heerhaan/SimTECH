@@ -136,6 +136,8 @@
     protected List<Contract> Contracts { get; set; } = new();
     public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
 
+    private bool allowPersonalNumbers;
+
     private MudStepper stepper;
 
     private bool loading = true;
@@ -156,6 +158,7 @@
         var league = await _leagueService.GetLeagueById(Season.LeagueId);
         Model.LeagueId = league.Id;
         Model.HasContracting = league.Options.HasFlag(LeagueOptions.AllowContracting);
+        allowPersonalNumbers = league.Options.HasFlag(LeagueOptions.PersonalNumbers);
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -256,7 +259,7 @@
                 break;
             case 7:
                 {
-                    if (!_config.Value.PersonalNumbersEnabled)
+                    if (!allowPersonalNumbers)
                     {
                         int numberIndexer = 0;
                         foreach (var driver in Model.SeasonDrivers.OrderBy(e => e.BaseTeamId))
@@ -405,7 +408,7 @@
             model.DriverId = driver.Id;
             model.Driver = driver;
 
-            if (!_config.Value.PersonalNumbersEnabled)
+            if (!allowPersonalNumbers)
                 model.Number = ++indexer;
 
             if (Contracts.Any())
