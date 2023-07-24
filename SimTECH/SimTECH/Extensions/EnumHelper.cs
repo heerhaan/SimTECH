@@ -18,12 +18,30 @@ namespace SimTECH.Extensions
             _ => new State[] { State.Concept, State.Active, State.Advanced, State.Closed }
         };
 
+        public static string ReadableStatus(this RaceStatus status) => status switch
+        {
+            RaceStatus.Dnf => "DNF",
+            RaceStatus.Dsq => "DSQ",
+            RaceStatus.Dnq => "DNQ",
+            RaceStatus.Fatal => "INJURY",
+            _ => "[Unknown]"
+        };
+
         public static string StatusColour(this RaceStatus status) => status switch
         {
             RaceStatus.Dnf => "red",
             RaceStatus.Dsq => "black",
             RaceStatus.Dnq => "rebeccapurple",
             RaceStatus.Fatal => "white",
+            _ => Constants.DefaultColour
+        };
+
+        public static string StatusStyles(this RaceStatus status) => status switch
+        {
+            RaceStatus.Dnf => "background-color: red",
+            RaceStatus.Dsq => "background-color: black;color:white !important",
+            RaceStatus.Dnq => "background-color: rebeccapurple",
+            RaceStatus.Fatal => "background-color: white",
             _ => Constants.DefaultColour
         };
 

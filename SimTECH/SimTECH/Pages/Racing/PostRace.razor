@@ -21,7 +21,7 @@
                         <MudText Typo="Typo.h3">Post race</MudText>
 
                         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Style="width: 30%">
-                            <MudButton FullWidth="true" OnClick="GoToStandings">Standings</MudButton>
+                            <MudButton FullWidth="true" OnClick="GoToOverview">Standings</MudButton>
                             <ScreenshotButton TargetId="postrace-container" FullWidth="true" />
                         </MudButtonGroup>
                     </MudStack>
@@ -48,13 +48,13 @@
                                 }
                                 else
                                 {
-                                    <div class="result-cell" style="@(ViewHelper.SetBackgroundColour(context.Status.StatusColour()))">
-                                        <MudText Typo="Typo.caption" Color="Color.Inherit">@context.Status</MudText>
+                                    <div class="result-cell" style="@(context.Status.StatusStyles())">
+                                        <MudText Typo="Typo.caption" Color="Color.Inherit">@context.Status.ReadableStatus()</MudText>
                                     </div>
                                 }
                             </MudTd>
                             <MudTd Class="number-col">
-                                <MudText Typo="Typo.button">@context.Grid</MudText>
+                                <MudText Typo="Typo.caption">@context.Grid</MudText>
                             </MudTd>
                             <MudTd Class="accent-cell">
                                 <SmolAccent Colour="@(context.SeasonTeam?.Colour ?? Constants.DefaultColour)" />
@@ -112,8 +112,8 @@
                                             @(result.Incident?.Name)
                                         </td>
                                         <td class="number-col-lg">
-                                            <div class="result-cell" style="@(ViewHelper.SetBackgroundColour(result.Status.StatusColour()))">
-                                                <MudText Typo="Typo.caption" Color="Color.Inherit">@result.Status</MudText>
+                                            <div class="result-cell" style="@(result.Status.StatusStyles())">
+                                                <MudText Typo="Typo.caption" Color="Color.Inherit">@result.Status.ReadableStatus()</MudText>
                                             </div>
                                         </td>
                                     </tr>
@@ -217,7 +217,7 @@
     }
 
     // NOTE: Not a definitive solution probably as it could be done much better
-    void BuildDriverPenalties()
+    private void BuildDriverPenalties()
     {
         foreach (var penalty in Penalties)
         {
@@ -229,19 +229,19 @@
                         Name = driverResult.SeasonDriver.Driver.FullName,
                         Reason = penalty.Incident.Name,
                         Punishment = penalty.Incident.Punishment,
-                        Styles = driverResult.Status.StatusColour(),
+                        //Styles = driverResult.Status.StatusStyles(),
                     });
             }
         }
     }
 
-    void GoToStandings() => _nav.NavigateTo($"/overview/{Race.SeasonId}/2");
+    private void GoToOverview() => _nav.NavigateTo($"/overview/{Race.SeasonId}");
 
     internal class DriverPenalty
     {
         public string Name { get; set; } = string.Empty;
         public string Reason { get; set; } = string.Empty;
         public int Punishment { get; set; }
-        public string Styles { get; set; } = Constants.DefaultBackground;
+        public string Styles { get; set; } = string.Empty;
     }
 }
