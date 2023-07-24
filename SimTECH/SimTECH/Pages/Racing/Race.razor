@@ -62,8 +62,8 @@
                             <MudText Typo="Typo.h5" Class="overflow-hider">@Model.Name - ROUND @Model.Round</MudText>
                         </div>
 
-                        <MudChip Color="@lapIndicatorColor" Label="true" DisableRipple="true">
-                            <MudText Typo="Typo.h5">LAP @(racedLaps) / @(totalLaps)</MudText>
+                        <MudChip Color="@lapIndicatorBackground" Label="true" DisableRipple="true">
+                            <MudText Typo="Typo.h5" Color="@lapIndicatorColour">LAP @(racedLaps) / @(totalLaps)</MudText>
                         </MudChip>
 
                         <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
@@ -231,7 +231,8 @@
     // Controls for the view
     bool loading = true;
     bool safetyCarOut = false;
-    Color lapIndicatorColor = Color.Dark;
+    Color lapIndicatorBackground = Color.Dark;
+    Color lapIndicatorColour = Color.Default;
 
     Entrant activeReliabilityCheck = Entrant.Driver;
     int reliablityCycler = 0;
@@ -302,8 +303,7 @@
         calculated = Model.RaceDrivers.Select(e => e.LapScores.Count()).Max();
         calculationCount = Model.RaceLength / calculationDistance;
 
-        int occurOffset = 1 + Model.Occurrences.Count;
-        for (; occurOffset <= calculationCount; occurOffset++)
+        for (int occurOffset = 1 + Model.Occurrences.Count; occurOffset <= calculationCount; occurOffset++)
         {
             Model.Occurrences.Add(occurOffset, SituationOccurrence.Unknown);
         }
@@ -314,7 +314,7 @@
         if (Model.IsFinished)
         {
             var scoreAbove = 0;
-            foreach (var driver in Model.RaceDrivers)
+            foreach (var driver in Model.RaceDrivers.OrderBy(e => e.Position))
             {
                 if (driver.HasFastestLap)
                     fastestLap = driver.LapScores.Select(e => e.Score).Max();
@@ -387,7 +387,8 @@
                 if (safetyCarGoesBackIn)
                 {
                     // After handling a safety car round, it goes back in
-                    lapIndicatorColor = Color.Dark;
+                    lapIndicatorBackground = Color.Dark;
+                    lapIndicatorColour = Color.Default;
                     safetyCarOut = false;
                 }
 
@@ -472,7 +473,8 @@
 
             if (safetyCarOut)
             {
-                lapIndicatorColor = Color.Warning;
+                lapIndicatorBackground = Color.Warning;
+                lapIndicatorColour = Color.Dark;
                 // Stop iterating through all advances since SC occurrence
                 break;
             }
@@ -532,7 +534,8 @@
             driver.Status = RaceStatus.Fatal;
             driver.Incident = possibleIncidents.Where(e => e.Category == CategoryIncident.Lethal).ToList().TakeRandomIncident();
             lapScore.RacerEvents = RacerEvent.Death;
-            lapIndicatorColor = Color.Error;
+            lapIndicatorBackground = Color.Error;
+            lapIndicatorColour = Color.Default;
 
             return safetyCar;
         }
