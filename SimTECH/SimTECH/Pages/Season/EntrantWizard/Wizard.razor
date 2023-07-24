@@ -2,6 +2,7 @@
 @inject ContractService _contractService
 @inject DriverService _driverService
 @inject EngineService _engineService
+@inject ManufacturerService _manufacturerService
 @inject TeamService _teamService
 @inject LeagueService _leagueService
 @inject SeasonService _seasonService
@@ -57,7 +58,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 1)
                             {
-                                <EditEngines LeagueId="@Season.LeagueId" SeasonId="@SeasonId" PreviousSeasonId="@PreviousSeason?.Id" />
+                                <EditEngines />
                             }
                         </ChildContent>
                     </MudStep>
@@ -65,7 +66,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 2)
                             {
-                                <AddTeams Teams="Teams" Contracts="Contracts" />
+                                <AddTeams Teams="@Teams" Contracts="@Contracts" />
                             }
                         </ChildContent>
                     </MudStep>
@@ -73,7 +74,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 3)
                             {
-                                <EditTeams LeagueId="@Season.LeagueId" SeasonId="@SeasonId" PreviousSeasonId="@PreviousSeason?.Id" />
+                                <EditTeams Manufacturers="@Manufacturers" />
                             }
                         </ChildContent>
                     </MudStep>
@@ -89,7 +90,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 5)
                             {
-                                <AddDrivers Drivers="Drivers" Year="@Season.Year" Contracts="Contracts" />
+                                <AddDrivers Drivers="@Drivers" Year="@Season.Year" Contracts="Contracts" />
                             }
                         </ChildContent>
                     </MudStep>
@@ -97,7 +98,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 6)
                             {
-                                <EditDrivers SeasonId="@SeasonId" PreviousSeasonId="@PreviousSeason?.Id" />
+                                <EditDrivers />
                             }
                         </ChildContent>
                     </MudStep>
@@ -133,6 +134,7 @@
     protected List<Team> Teams { get; set; } = new();
     protected List<Driver> Drivers { get; set; } = new();
     protected List<Contract> Contracts { get; set; } = new();
+    public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
 
     private MudStepper stepper;
 
@@ -149,6 +151,7 @@
         Teams = await _teamService.GetAvailableTeams();
         Drivers = await _driverService.GetAvailableDrivers();
         Contracts = await _contractService.GetLeagueContracts(Season.LeagueId);
+        Manufacturers = await _manufacturerService.GetManufacturers();
 
         var league = await _leagueService.GetLeagueById(Season.LeagueId);
         Model.LeagueId = league.Id;
@@ -165,7 +168,7 @@
         loading = false;
     }
 
-    private Task<bool> InvalidStepPrevention(StepChangeDirection direction)
+    private async Task<bool> InvalidStepPrevention(StepChangeDirection direction)
     {
         errors.Clear();
 
@@ -174,7 +177,7 @@
         if (direction == StepChangeDirection.Backward)
         {
             SetTitle(--activeIndex);
-            return Task.FromResult(false);
+            return false;
         }
 
         loading = true;
@@ -263,45 +266,166 @@
                 break;
         }
 
+        if (errors.Any())
+        {
+            loading = false;
+            return true;
+        }
+
+        await PreProcessUpcomingStep(++activeIndex);
+
         loading = false;
 
-        if (errors.Any())
-            return Task.FromResult(true);
-
-        SetTitle(++activeIndex);
-
-        return Task.FromResult(false);
+        return false;
     }
 
-    //private async Task RetrieveStepData(int index)
-    //{
-    //    switch (index)
-    //    {
-    //        case 0:
-                
-    //            break;
-    //    }
-    //}
+    private async Task PreProcessUpcomingStep(int stepIndex)
+    {
+        switch (stepIndex)
+        {
+            case 0:
+                stepTitle = "Add engines";
+                break;
+            case 1:
+                {
+                    await SetEngineEditors();
+                    stepTitle = "Edit engines";
+                }
+                break;
+            case 2:
+                {
+                    stepTitle = "Add teams";
+                }
+                break;
+            case 3:
+                {
+                    await SetTeamEditors();
+                    stepTitle = "Edit teams";
+                }
+                break;
+            case 4:
+                stepTitle = "Assign teams";
+                break;
+            case 5:
+                stepTitle = "Add drivers";
+                break;
+            case 6:
+                {
+                    await SetDriverEditors();
+                    stepTitle = "Edit drivers";
+                }
+                break;
+            case 7:
+                stepTitle = "Assign drivers";
+                break;
+            case 8:
+                stepTitle = "Participants";
+                break;
+        }
+    }
 
-    //private async Task SetEngineEditors()
-    //{
-    //    Model.SeasonEngines.Clear();
+    private async Task SetEngineEditors()
+    {
+        Model.SeasonEngines.Clear();
 
-    //    foreach (var engine in Model.BaseEngines.Where(e => !(Model.SeasonEngines.Select(se => se.EngineId).Contains(e.Id))))
-    //    {
-    //        var previousEngine = await _entrantService.FindRecentSeasonEngine(engine.Id, Model.LeagueId);
+        foreach (var engine in Model.BaseEngines.Where(e => !(Model.SeasonEngines.Select(se => se.EngineId).Contains(e.Id))))
+        {
+            var previousEngine = await _entrantService.FindRecentSeasonEngine(engine.Id, Model.LeagueId);
 
-    //        var model = new EditSeasonEngineModel(previousEngine);
-    //        model.ResetIdentifierFields();
-    //        model.SeasonId = SeasonId;
-    //        model.EngineId = engine.Id;
-    //        model.Name = string.IsNullOrEmpty(model.Name) ? engine.Name : model.Name;
+            var model = new EditSeasonEngineModel(previousEngine);
+            model.ResetIdentifierFields();
+            model.SeasonId = SeasonId;
+            model.EngineId = engine.Id;
+            model.Name = string.IsNullOrEmpty(model.Name) ? engine.Name : model.Name;
 
-    //        Model.SeasonEngines.Add(model);
-    //    }
+            Model.SeasonEngines.Add(model);
+        }
 
-    //    Model.RemoveUnsetEngines();
-    //}
+        Model.RemoveUnsetEngines();
+    }
+
+    private async Task SetTeamEditors()
+    {
+        Model.SeasonTeams.Clear();
+
+        List<SeasonEngine>? previousEngines = null;
+
+        if (PreviousSeason != null)
+        {
+            var existingEngineIds = Model.SeasonEngines.Select(e => e.EngineId).ToArray();
+            var allPrevious = await _entrantService.GetSeasonEngines(PreviousSeason.Id);
+            previousEngines = allPrevious.Where(e => existingEngineIds.Contains(e.EngineId)).ToList();
+        }
+
+        foreach (var team in Model.BaseTeams.Where(e => !(Model.SeasonTeams.Select(st => st.TeamId).Contains(e.Id))))
+        {
+            var previousTeam = await _entrantService.FindRecentSeasonTeam(team.Id, Season.LeagueId);
+
+            var model = new EditSeasonTeamModel(previousTeam);
+            model.ResetIdentifierFields();
+            model.SeasonId = SeasonId;
+            model.TeamId = team.Id;
+            model.Team = team;
+            model.Name = string.IsNullOrEmpty(model.Name) ? team.Name : model.Name;
+            model.Principal = string.IsNullOrEmpty(model.Principal) ? "Principal" : model.Principal;
+            model.ManufacturerId = model.ManufacturerId == 0 ? Manufacturers.First().Id : model.ManufacturerId;
+
+            if (previousTeam != null && previousEngines != null)
+                model.BaseEngineId = previousEngines.Find(e => e.Id == previousTeam.SeasonEngineId)?.EngineId ?? 0;
+
+            Model.SeasonTeams.Add(model);
+        }
+
+        Model.RemoveUnsetTeams();
+    }
+
+    private async Task SetDriverEditors()
+    {
+        Model.SeasonDrivers.Clear();
+
+        List<SeasonTeam>? previousTeams = null;
+
+        if (PreviousSeason != null)
+        {
+            var existingTeamIds = Model.SeasonTeams.Select(e => e.TeamId).ToArray();
+            var allPrevious = await _entrantService.GetSeasonTeams(PreviousSeason.Id);
+
+            previousTeams = allPrevious.Where(e => existingTeamIds.Contains(e.TeamId)).ToList();
+        }
+
+        int indexer = 0;
+        foreach (var driver in Model.BaseDrivers.Where(e => !(Model.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))))
+        {
+            var previousDriver = await _entrantService.FindRecentSeasonDriver(driver.Id);
+
+            // Create a new edit model from the nullable entity, reset the identifying fields and assign the new ones
+            var model = new EditSeasonDriverModel(previousDriver);
+            model.ResetIdentifierFields();
+            model.SeasonId = SeasonId;
+            model.DriverId = driver.Id;
+            model.Driver = driver;
+
+            if (!_config.Value.PersonalNumbersEnabled)
+                model.Number = ++indexer;
+
+            if (Contracts.Any())
+            {
+                var possibleContract = Contracts.FirstOrDefault(e => e.DriverId == driver.Id);
+                if (possibleContract != null)
+                {
+                    model.BaseTeamId = possibleContract.TeamId;
+                    model.Contracted = true;
+                }
+            }
+
+            if (model.BaseTeamId == 0 && previousDriver != null && previousTeams != null)
+                model.BaseTeamId = previousTeams.Find(e => e.Id == previousDriver.SeasonTeamId)?.TeamId ?? 0;
+
+            Model.SeasonDrivers.Add(model);
+        }
+
+        Model.RemoveUnsetDrivers();
+    }
 
     private void SetTitle(int forIndex)
     {

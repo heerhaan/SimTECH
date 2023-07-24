@@ -1,13 +1,6 @@
-﻿@inject ContractService _contractService
-@inject SeasonEntrantService _entrantService
-@inject IOptions<SimConfig> _config
-
-<MudContainer MaxWidth="MaxWidth.Medium">
+﻿<MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
-        @if (!_config.Value.PersonalNumbersEnabled)
-        {
-            <MudText Typo="Typo.body2" Color="Color.Info">Don't worry about the order of the numbers, these fix themselves on save</MudText>
-        }
+        <MudText Typo="Typo.body2" Color="Color.Info">Don't worry about the order of the numbers, these fix themselves on save</MudText>
         <MudForm>
             <MudTable T="EditSeasonDriverModel" Items="@Model.SeasonDrivers" Hover="true" Class="overflow-hider">
                 <HeaderContent>
@@ -60,64 +53,4 @@
 
 @code {
     [CascadingParameter] public AddEntrantsModel Model { get; set; }
-
-    [Parameter, EditorRequired] public long SeasonId { get; set; }
-    [Parameter] public long? PreviousSeasonId { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await SetDriverEditors();
-    }
-
-    private async Task SetDriverEditors()
-    {
-        Model.SeasonDrivers.Clear();
-
-        List<SeasonTeam>? previousTeams = null;
-
-        if (PreviousSeasonId.HasValue)
-        {
-            var existingTeamIds = Model.SeasonTeams.Select(e => e.TeamId).ToArray();
-            var allPrevious = await _entrantService.GetSeasonTeams(PreviousSeasonId.Value);
-
-            previousTeams = allPrevious.Where(e => existingTeamIds.Contains(e.TeamId)).ToList();
-        }
-
-        List<Contract>? leagueContracts = null;
-        if (Model.HasContracting)
-            leagueContracts = await _contractService.GetLeagueContracts(Model.LeagueId);
-
-        int indexer = 0;
-        foreach (var driver in Model.BaseDrivers.Where(e => !(Model.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))))
-        {
-            var previousDriver = await _entrantService.FindRecentSeasonDriver(driver.Id);
-
-            // Create a new edit model from the nullable entity, reset the identifying fields and assign the new ones
-            var model = new EditSeasonDriverModel(previousDriver);
-            model.ResetIdentifierFields();
-            model.SeasonId = SeasonId;
-            model.DriverId = driver.Id;
-            model.Driver = driver;
-
-            if (!_config.Value.PersonalNumbersEnabled)
-                model.Number = ++indexer;
-
-            if (leagueContracts != null)
-            {
-                var possibleContract = leagueContracts.Find(e => e.DriverId == driver.Id);
-                if (possibleContract != null)
-                {
-                    model.BaseTeamId = possibleContract.TeamId;
-                    model.Contracted = true;
-                }
-            }
-
-            if (model.BaseTeamId == 0 && previousDriver != null && previousTeams != null)
-                model.BaseTeamId = previousTeams.Find(e => e.Id == previousDriver.SeasonTeamId)?.TeamId ?? 0;
-
-            Model.SeasonDrivers.Add(model);
-        }
-
-        Model.RemoveUnsetDrivers();
-    }
 }
