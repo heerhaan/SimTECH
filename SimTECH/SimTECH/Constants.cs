@@ -18,13 +18,17 @@ namespace SimTECH
         {
             Icons.Material.Filled.WbSunny,
             Icons.Material.Filled.Cloud,
-            Icons.Material.Filled.WaterDrop,
-            Icons.Material.Filled.Tsunami,
             Icons.Material.Filled.Air,
-            Icons.Material.Filled.NightsStay,
-            IconCollection.Storm,
-            IconCollection.Snowflake,
+            Icons.Material.Filled.WaterDrop,
+            IconCollection.Sunset,
             IconCollection.CloudBolt,
+            Icons.Material.Filled.Tsunami,
+            IconCollection.Storm,
+            IconCollection.Mist,
+            IconCollection.Rainbow,
+            IconCollection.Snowflake,
+            IconCollection.Comet,
+            Icons.Material.Filled.NightsStay,
         };
 
         #region charts

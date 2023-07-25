@@ -3,7 +3,7 @@
     // Small = 24px
     public static class IconCollection
     {
-        public static string[] ArrayOfIcons => new[]
+        public static readonly string[] ArrayOfIcons = new[]
         {
             BrandCupra, BrandMercedes, BrandToyota, BrandVolkswagen,
             CarCrash, CrossFilled, Engine, Helmet, Skull, SteeringWheel, TrafficCone
@@ -108,6 +108,13 @@
            <path d=""M17.5 15.5l1.5 1.5""></path>
            <path d=""M17.5 8.5l1.5 -1.5""></path>
         </svg>";
+        public static string Comet => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-comet"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M15.5 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z""></path>
+           <path d=""M4 4l7 7""></path>
+           <path d=""M9 4l3.5 3.5""></path>
+           <path d=""M4 9l3.5 3.5""></path>
+        </svg>";
         public static string CloudBolt => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-cloud-storm"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
            <path d=""M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1""></path>
@@ -160,6 +167,13 @@
         // K
         // L
         // M
+        public static string Mist => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-mist"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M5 5h3m4 0h9""></path>
+           <path d=""M3 10h11m4 0h1""></path>
+           <path d=""M5 15h5m4 0h7""></path>
+           <path d=""M3 20h9m4 0h3""></path>
+        </svg>";
         // N
         // O
         // P
@@ -186,6 +200,12 @@
         </svg>";
         // Q
         // R
+        public static string Rainbow => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-rainbow"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M22 17c0 -5.523 -4.477 -10 -10 -10s-10 4.477 -10 10""></path>
+           <path d=""M18 17a6 6 0 1 0 -12 0""></path>
+           <path d=""M14 17a2 2 0 1 0 -4 0""></path>
+        </svg>";
         public static string RefreshDot => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-refresh-dot"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
            <path d=""M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4""></path>
@@ -258,6 +278,18 @@
            <path d=""M12 12m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0""></path>
            <path d=""M5.369 14.236c-1.839 -3.929 -1.561 -7.616 -.704 -11.236""></path>
            <path d=""M18.63 9.76c1.837 3.928 1.561 7.615 .703 11.236""></path>
+        </svg>";
+        public static string Sunset => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-sunset-2"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M3 13h1""></path>
+           <path d=""M20 13h1""></path>
+           <path d=""M5.6 6.6l.7 .7""></path>
+           <path d=""M18.4 6.6l-.7 .7""></path>
+           <path d=""M8 13a4 4 0 1 1 8 0""></path>
+           <path d=""M3 17h18""></path>
+           <path d=""M7 20h5""></path>
+           <path d=""M16 20h1""></path>
+           <path d=""M12 5v-1""></path>
         </svg>";
         public static string Sword => @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-sword"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
