@@ -66,7 +66,7 @@
         </MudItem>
         <MudItem xs="6">
             <MudPaper Class="pa-4 mud-height-full">
-                <MudTable Items="@Model.RaweCeekDrivers.OrderBy(e => e.Result.Grid)" Dense="true" Class="extra-dense">
+                <MudTable Items="@Model.RaweCeekDrivers.OrderBy(e => e.Grid)" Dense="true" Class="extra-dense">
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Starting grid</MudText>
                     </ToolBarContent>
@@ -81,7 +81,7 @@
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>
-                            @if (context.Result.Grid > Model.Season.MaximumDriversInRace)
+                            @if (context.Grid > Model.Season.MaximumDriversInRace)
                             {
                                 <MudText Typo="Typo.caption">DNQ</MudText>
                             }
@@ -93,12 +93,12 @@
                                               Color="Color.Error"
                                               Origin="Origin.CenterRight"
                                               BadgeClass="ml-1">
-                                        <DriverPosition Number="@context.Result.Grid" />
+                                        <DriverPosition Number="@context.Grid" />
                                     </MudBadge>
                                 }
                                 else
                                 {
-                                    <DriverPosition Number="@context.Result.Grid" />
+                                    <DriverPosition Number="@context.Grid" />
                                 }
                             }
                         </MudTd>

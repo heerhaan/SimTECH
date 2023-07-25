@@ -25,11 +25,13 @@
                 </MudTabPanel>
                 @for (int i = 1; i <= practiceCompleted; i++)
                 {
-                    var j = i;
-                    <MudTabPanel Text="@($"FP{j}-{i}")">
+                    <MudTabPanel Text="@($"FP{i}")">
 
                     </MudTabPanel>
                 }
+                <MudTabPanel Text="@($"FP{nextPractice}")">
+
+                </MudTabPanel>
                 <MudTabPanel Text="Qualifying">
 
                 </MudTabPanel>
@@ -51,15 +53,10 @@
 
     RaweCeekModel raweCeek;
 
-    private List<SeasonDriver> seasonDrivers;
-    private List<SeasonTeam> seasonTeams;
-    private List<SeasonEngine> seasonEngines;
-    private List<Result> raceResults;
     private List<Climate> climates;
     private List<Incident> incidents;
     private List<Manufacturer> manufacturers;
     private List<Tyre> tyres;
-    private List<GivenPenalty> penalties;
 
     bool loading = true;
     bool raceDisabled = true;
@@ -72,22 +69,16 @@
     {
         Model = await _raceService.GetRaceWeekModel(RaceId);
 
-        var race = await _raceService.GetRaceById(RaceId);
-        var season = await _seasonService.GetSeasonById(race.SeasonId);
-        var climate = climates.First(e => e.Id == race.ClimateId);
-
-        seasonDrivers = await _entrantService.GetSeasonDrivers(race.SeasonId);
-        seasonTeams = await _entrantService.GetSeasonTeams(race.SeasonId);
-        seasonEngines = await _entrantService.GetSeasonEngines(race.SeasonId);
-        raceResults = await _raceService.GetResultsOfRace(RaceId);
         climates = await _climateService.GetClimates(StateFilter.All);
         incidents = await _incidentService.GetIncidents(StateFilter.All);
-        manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
-        tyres = await _tyreService.GetTyres();
-        penalties = await _raceService.GetRacePenalties(RaceId);
+        tyres = await _tyreService.GetTyres(StateFilter.All);
         practiceCompleted = await _raceService.PracticeSessionsCompleted(RaceId);
 
         nextPractice = 1 + practiceCompleted;
+
+        var race = await _raceService.GetRaceById(RaceId);
+        var season = await _seasonService.GetSeasonById(race.SeasonId);
+        var climate = climates.First(e => e.Id == race.ClimateId);
 
         raweCeek = new RaweCeekModel
         {
@@ -95,6 +86,8 @@
             Climate = climate,
             Season = season,
         };
+
+        await LoadDrivers(race, climate);
 
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -110,13 +103,19 @@
 
     private async Task LoadDrivers(EntityRace race, Climate climate)
     {
+        var seasonDrivers = await _entrantService.GetSeasonDrivers(race.SeasonId);
+        var seasonTeams = await _entrantService.GetSeasonTeams(race.SeasonId);
+        var seasonEngines = await _entrantService.GetSeasonEngines(race.SeasonId);
+        var manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
+        var raceResults = await _raceService.GetResultsOfRace(RaceId);
         var allTraits = await _traitService.GetTraits();
+
         var traits = allTraits.Where(e => !e.ForWetConditions || e.ForWetConditions == climate.IsWet).ToList();
 
         var trackTraitIds = race.Track.TrackTraits?.Select(e => e.TraitId).ToList() ?? new();
         var trackTraits = traits.Where(e => trackTraitIds.Contains(e.Id)).ToList();
 
-        var rawecekDrivers = new List<RaweCeekDriver>();
+        var raweceekDrivers = new List<RaweCeekDriver>();
         foreach (var result in raceResults)
         {
             var driverTraits = new List<Trait>(trackTraits);
@@ -174,17 +173,42 @@
                     RngMinMod = driverTraits.Sum(e => e.RngMin) - climate.RngModifier,
                     RngMaxMod = driverTraits.Sum(e => e.RngMax) + climate.RngModifier,
 
-                    LapScores = result.LapScores?.ToList() ?? new()
+                    ResultId = result.Id,
+                    Grid = result.Grid,
+                    Position = result.Position,
+                    Status = result.Status,
+                    TyreLife = result.TyreLife,
+                    FastestLap = result.FastestLap,
+                    Overtaken = result.Overtaken,
+                    Defended = result.Defended,
+
+                    IncidentId = result.IncidentId,
+                    Tyre = tyres.First(e => e.Id == result.TyreId)
                 };
 
             if (!climate.IsWet)
             {
+                // Adds on to the existing tyre, should probably be added when activating instead
+                raweDriver.TyreLife += manufacturer.Pace;
+
                 raweDriver.LifeBonus = manufacturer.Pace;
                 raweDriver.WearMinMod += manufacturer.WearMin;
                 raweDriver.WearMaxMod += manufacturer.WearMax;
             }
 
-            rawecekDrivers.Add(raweDriver);
+            raweceekDrivers.Add(raweDriver);
+        }
+
+        var penalties = await _raceService.GetRacePenalties(RaceId);
+
+        foreach (var penalty in penalties.GroupBy(e => e.SeasonDriverId))
+        {
+            var matchingDriver = raweceekDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.Key);
+            if (matchingDriver != null)
+            {
+                matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
+                matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
+            }
         }
     }
 

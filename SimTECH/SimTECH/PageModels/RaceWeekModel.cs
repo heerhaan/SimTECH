@@ -50,8 +50,18 @@ namespace SimTECH.PageModels
         public int? Penalty { get; set; }
         public string? Reasons { get; set; }
 
-        public Result Result { get; set; }
-        public List<LapScore> LapScores { get; set; }
+        public long ResultId { get; set; }
+        public int Grid { get; set; }
+        public int Position { get; set; }
+        public int Score { get; set; }
+        public RaceStatus Status { get; set; }
+        //public int Setup { get; set; }
+        public int TyreLife { get; set; }
+        public bool FastestLap { get; set; }
+        public int Overtaken { get; set; }
+        public int Defended { get; set; }
+        public long? IncidentId { get; set; }
+        public Tyre Tyre { get; set; }
 
         public string FullName => FirstName + " " + LastName;
     }

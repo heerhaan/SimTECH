@@ -81,6 +81,51 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
+        public async Task<List<LapScore>> GetLapScores(long raceId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.LapScore
+                .Where(e => e.Result.RaceId == raceId)
+                .ToListAsync();
+        }
+
+        public async Task<List<QualifyingScore>> GetQualifyingScores(long raceId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.QualifyingScore
+                .Where(e => e.Result.RaceId == raceId)
+                .ToListAsync();
+        }
+
+        public async Task<List<PracticeScore>> GetPracticeScores(long raceId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.PracticeScore
+                .Where(e => e.Result.RaceId == raceId)
+                .ToListAsync();
+        }
+
+        public async Task<List<PracticeScore>> GetPracticeScores(long raceId, int index)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.PracticeScore
+                .Where(e => e.Result.RaceId == raceId && e.Index == index)
+                .ToListAsync();
+        }
+
+        //public async Task<List<LapScore>> GetLapScores(long raceId)
+        //{
+        //    using var context = _dbFactory.CreateDbContext();
+
+        //    return await context.LapScore
+        //        .Where(e => e.Result.RaceId == raceId)
+        //        .ToListAsync();
+        //}
+
         public async Task UpdateRace(Race race)
         {
             using var context = _dbFactory.CreateDbContext();
