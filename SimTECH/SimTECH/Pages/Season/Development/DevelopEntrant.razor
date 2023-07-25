@@ -52,12 +52,12 @@
                 New
             </MudTableSortLabel>
         </MudTh>
-        <MudTh Style="min-width:225px">Range</MudTh>
+        <MudTh Style="width: 150px">Range</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd>
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                <MudText>@context.Name</MudText>
+                <MudText Class="overflow-hider">@context.Name</MudText>
                 <MudSpacer />
                 @if (context.Nationality.HasValue)
                 {
@@ -83,14 +83,14 @@
             <MudText Typo="Typo.caption">@context.New</MudText>
         </MudTd>
         <MudTd>
-            <MudStack Row="true" Class="pa-0">
+            <MudStack Row="true" Class="pa-0 flex-nowrap">
                 <MudNumericField T="int"
                                  @bind-Value="@context.Min"
-                                 ReadOnly="@(SelectedType != Quantifier.Direct)"
+                                 ReadOnly="@notDirectQuantifier"
                                  Class="field-xs" />
                 <MudNumericField T="int"
                                  @bind-Value="@context.Max"
-                                 ReadOnly="@(SelectedType != Quantifier.Direct)"
+                                 ReadOnly="@notDirectQuantifier"
                                  Class="field-xs" />
             </MudStack>
         </MudTd>
@@ -98,15 +98,22 @@
 </MudTable>
 
 @code {
-    [Parameter] public IEnumerable<DevelopedEntrant> DevelopedEntrants { get; set; }
-    [Parameter] public Aspect SelectedAspect { get; set; }
+    [Parameter] public IEnumerable<DevelopedEntrant> DevelopedEntrants { get; set; } = Enumerable.Empty<DevelopedEntrant>();
     [Parameter] public Quantifier SelectedType { get; set; }
     [Parameter] public bool ShowOptionalColumn { get; set; }
     [Parameter] public EventCallback OnSaveDevelopment { get; set; }
 
-    private bool ranDevelop = false;
-    private int minChange = 0;
-    private int maxChange = 0;
+    bool ranDevelop = false;
+    bool notDirectQuantifier = false;
+    int minChange = 0;
+    int maxChange = 0;
+
+    protected override void OnParametersSet()
+    {
+        notDirectQuantifier = SelectedType != Quantifier.Direct;
+
+        RunDevelop();
+    }
 
     private void RunDevelop()
     {
@@ -121,22 +128,22 @@
             entrant.Change = NumberHelper.RandomInt(entrant.Min, entrant.Max);
             entrant.New = entrant.Old + entrant.Change;
 
-            if (entrant.New < 0)
-                entrant.New = 0;
-
-            if (SelectedAspect == Aspect.Reliability)
-            {
-                // The maximum value for reliability is 1000
-                if (entrant.New > 1000)
-                    entrant.New = 1000;
-            }
+            // Sets the minimum and maximum value limit if those are set
+            if (entrant.New < entrant.ValueMinimumLimit)
+                entrant.New = entrant.ValueMinimumLimit;
+            else if (entrant.New > entrant.ValueMaximumLimit)
+                entrant.New = entrant.ValueMaximumLimit;
         }
 
-        var allChanges = DevelopedEntrants.Select(e => e.Change).ToArray();
-        minChange = allChanges.Min();
-        maxChange = allChanges.Max();
+        var allChanges = DevelopedEntrants.Select(e => e.Change).Where(e => e != 0).ToArray();
 
-        ranDevelop = true;
+        if (allChanges.Any())
+        {
+            minChange = allChanges.Min();
+            maxChange = allChanges.Max();
+
+            ranDevelop = true;
+        }
     }
 
     private async Task SaveDevelopment() => await OnSaveDevelopment.InvokeAsync();

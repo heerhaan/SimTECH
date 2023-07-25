@@ -85,7 +85,6 @@ namespace SimTECH
         Pitstop = 32,
         Swap = 64,
         Death = 128,
-        Caution = 256,
     }
 
     [Flags]

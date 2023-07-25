@@ -9,8 +9,17 @@ namespace SimTECH.Data.Configurations
         public void Configure(EntityTypeBuilder<Climate> builder)
         {
             builder.HasKey(x => x.Id);
-            builder.Property(e => e.Terminology).HasColumnType("nvarchar(100)").IsRequired();
-            builder.Property(e => e.Icon).HasColumnType("varchar(max)").IsRequired();
+
+            builder.Property(e => e.Terminology)
+                .HasColumnType("nvarchar(100)")
+                .IsRequired();
+
+            builder.Property(e => e.Icon)
+                .HasColumnType("varchar(max)")
+                .IsRequired();
+
+            builder.Property(e => e.Colour)
+                .HasMaxLength(9);
         }
     }
 }

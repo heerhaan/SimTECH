@@ -10,6 +10,9 @@ namespace SimTECH.Data.Configurations
         {
             builder.HasKey(x => x.Id);
             builder.Property(e => e.Name).HasColumnType("nvarchar(200)").IsRequired();
+
+            builder.Property(e => e.Colour)
+                .HasMaxLength(9);
         }
     }
 }

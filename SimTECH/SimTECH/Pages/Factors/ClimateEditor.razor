@@ -1,6 +1,4 @@
-﻿@using MudExtensions
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">Climate editor</MudText>
     </TitleContent>
@@ -10,13 +8,13 @@
                 <MudSelect T="string" @bind-Value="@Model.Icon" Label="Icon" Class="field-xs">
                     @foreach (var wIcon in weatherIcons)
                     {
-                        <MudSelectItem Value="wIcon">
+                        <MudSelectItem Value="@wIcon">
                             <MudIcon Icon="@wIcon" />
                         </MudSelectItem>
                     }
                 </MudSelect>
 
-                <MudColorPicker @bind-Text="@colour" Label="Colour" Placeholder="Select colour" Class="field-sm" />
+                <MudColorPicker @bind-Text="@Model.Colour" Label="Colour" Placeholder="Select colour" Class="field-sm" />
 
                 <MudTextField T="string" @bind-Text="@Model.Terminology" Label="Terminology" />
             </MudStack>

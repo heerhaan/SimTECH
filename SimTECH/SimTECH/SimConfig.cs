@@ -26,6 +26,5 @@
 
         public bool TooMuchInfo { get; set; }
         public bool AllowMultiLeagueEntry { get; set; }
-        //public bool FormationLapEnabled { get; set; }
     }
 }

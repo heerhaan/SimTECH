@@ -31,12 +31,13 @@
         <CascadingValue Value="@Season" IsFixed="true">
             <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="@activeTabIndex">
                 <MudTabPanel Text="Overview">
-                    <Landing NextRace="@NextRace"
-                             OnStartSeason="StartSeason"
-                             OnFinishSeason="FinishSeason"
-                             OnShowQualyBattles="ShowQualyBattles"
-                             OnNextRace="GoToNextRace"
-                             OnNavigate="GoToCommon" />
+                    <Landing
+                        NextRace="@NextRace"
+                        OnStartSeason="StartSeason"
+                        OnFinishSeason="FinishSeason"
+                        OnShowQualyBattles="ShowQualyBattles"
+                        OnNextRace="GoToNextRace"
+                        OnNavigate="GoToCommon" />
                 </MudTabPanel>
                 <MudTabPanel Text="Calendar" OnClick="OnOpenCalendar">
                     @if (calendarLoaded)
@@ -106,12 +107,6 @@
                         </MudTabPanel>
                     </MudTabs>
                 </MudTabPanel>
-                @if (Season.State != State.Closed)
-                {
-                    <MudTabPanel Text="Development">
-                        <DevelopmentEntrants OnShowSummary="ShowDevelopmentSummary" />
-                    </MudTabPanel>
-                }
                 <MudTabPanel Text="Settings">
                     <Settings OnEditorOpen="UpdateSeason" />
                 </MudTabPanel>
@@ -125,34 +120,32 @@
     [Parameter] public int TabIndex { get; set; }
 
     public Season Season { get; set; }
-
-    public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
-    public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
-    public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
-    public IEnumerable<Climate> Climates { get; set; } = Enumerable.Empty<Climate>();
-    public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
-    public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
-    public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
-    public IEnumerable<Engine> Engines { get; set; } = Enumerable.Empty<Engine>();
-    public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
-    public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
-    public IEnumerable<Trait> Traits { get; set; } = Enumerable.Empty<Trait>();
-    public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
-
     public Race? NextRace { get; set; }
+    public List<League> Leagues { get; set; }
+    public List<Race> Races { get; set; }
+    public List<Result> Results { get; set; }
+    public List<Climate> Climates { get; set; }
+    public List<SeasonEngine> SeasonEngines { get; set; }
+    public List<SeasonTeam> SeasonTeams { get; set; }
+    public List<SeasonDriver> SeasonDrivers { get; set; }
+    public List<Engine> Engines { get; set; }
+    public List<Team> Teams { get; set; }
+    public List<Driver> Drivers { get; set; }
+    public List<Trait> Traits { get; set; }
+    public List<Manufacturer> Manufacturers { get; set; }
 
-    private SimConfig config;
+    SimConfig config;
 
-    private int activeTabIndex = 0;
-    private bool loading = true;
-    private int nextRound;
+    int activeTabIndex = 0;
+    bool loading = true;
+    int nextRound;
 
-    private bool calendarLoaded = false;
-    private bool standingsLoaded = false;
-    private bool driversLoaded = false;
-    private bool teamsLoaded = false;
-    private bool enginesLoaded = false;
-    private bool powerLoaded = false;
+    bool calendarLoaded = false;
+    bool standingsLoaded = false;
+    bool driversLoaded = false;
+    bool teamsLoaded = false;
+    bool enginesLoaded = false;
+    bool powerLoaded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -507,33 +500,5 @@
         _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters);
     }
 
-    private async Task ShowDevelopmentSummary()
-    {
-        if (!SeasonDrivers.Any())
-            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-        if (!SeasonTeams.Any())
-            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-        if (!SeasonEngines.Any())
-            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
-
-        var developmentLog = await _entrantService.GetDevelopmentLog(SeasonId);
-
-        var parameters = new DialogParameters
-        {
-            ["DevelopmentLog"] = developmentLog,
-            ["SeasonDrivers"] = SeasonDrivers,
-            ["SeasonTeams"] = SeasonTeams,
-            ["SeasonEngines"] = SeasonEngines
-        };
-
-        await _dialogService.ShowAsync<SummaryDevelopment>("Summary development", parameters, _summaryDialogOptions);
-    }
-
     void GoToCommon(string url) => _nav.NavigateTo(url);
-
-    private static readonly DialogOptions _summaryDialogOptions = new()
-        {
-            MaxWidth = MaxWidth.ExtraLarge,
-            CloseButton = true,
-        };
 }

@@ -126,17 +126,17 @@
                         <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
                             <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
                             <MudText Typo="Typo.caption">@context.Attack</MudText>
-                            <sup>@(context.OvertakeCount)</sup>
+                            <sup>@context.OvertakeCount</sup>
                             <span class="py-2" style="background-color: antiquewhite;padding-left: 1px;padding-right: 1px;"></span>
                             <MudText Typo="Typo.caption">@context.Defense</MudText>
-                            <sup>@(context.DefensiveCount)</sup>
+                            <sup>@context.DefensiveCount</sup>
                             <MudIcon Icon="@IconCollection.ShieldChevron" Size="Size.Small" />
                         </MudStack>
                     </MudTd>
                     <MudTd Class="tyre-col">
                         <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
                             <TyreElement Colour="@context.CurrentTyre.Colour">@context.CurrentTyre.Name.ElementAt(0)</TyreElement>
-                            <sup>@(context.TyreLife)</sup>
+                            <sup>@context.TyreLife</sup>
                         </MudStack>
                     </MudTd>
                     <MudTd Class="number-col">
@@ -271,7 +271,7 @@
     int safetyWearDivider = 3;
     int minimumTyreLife = -25;
 
-    private bool isFirstLap => calculated == 1;
+    bool isFirstLap => calculated == 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -350,20 +350,20 @@
         loading = false;
     }
 
-    void ChangeCalculationPerAdvance(MudChip? calcChip)
+    private void ChangeCalculationPerAdvance(MudChip? calcChip)
     {
         if (calcChip != null)
             calculationsPerAdvance = (int)calcChip.Value;
     }
 
-    void AddCalculationSituation()
+    private void AddCalculationSituation()
     {
         Model.Occurrences[calculated] = safetyCarOut ? SituationOccurrence.Caution : SituationOccurrence.Raced;
     }
 
-    bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
+    private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
-    void Advance()
+    private void Advance()
     {
         // Use this variable to persist the lap scores which were generated in this advance
         var lapScoresToPersist = new List<LapScore>();
@@ -493,7 +493,7 @@
         //PersistLapScores(lapScoresToPersist);
     }
 
-    bool CheckReliability(RaceDriver driver, LapScore lapScore)
+    private bool CheckReliability(RaceDriver driver, LapScore lapScore)
     {
         var safetyCar = false;
 
@@ -548,9 +548,9 @@
     }
 
     // Returns a number which will be added to the users lap score
-    int HandleStrategy(RaceDriver driver, LapScore lapScore)
+    private int HandleStrategy(RaceDriver driver, LapScore lapScore)
     {
-        int valueScoreResult = driver.TyreLife;
+        int assignedLifeScore = driver.TyreLife;
 
         var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
         var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
@@ -563,7 +563,8 @@
 
         // Maximum wear is more than the tyre can handle, it's time for a pitstop!
         // Or minimum wear? Or 0?
-        if (tyreMaxWear > driver.TyreLife)
+        // We might want to make this an option to something
+        if (driver.CurrentTyre.PitWhenBelow > driver.TyreLife)
         {
             var distanceLeft = Model.RaceLength - (calculated * calculationDistance);
             var validTyres = tyres.FindValidTyres(distanceLeft, Model.IsWet);
@@ -572,8 +573,8 @@
             {
                 var pitCost = PitstopDriver(driver, lapScore, validTyres);
 
-                valueScoreResult = driver.TyreLife;
-                valueScoreResult -= pitCost;
+                assignedLifeScore = driver.TyreLife;
+                assignedLifeScore -= pitCost;
             }
         }
 
@@ -583,11 +584,11 @@
         if (driver.TyreLife < minimumTyreLife)
             driver.TyreLife = minimumTyreLife;
 
-        return valueScoreResult;
+        return assignedLifeScore;
     }
 
     // returns bool which indicates whether a safety car has been caused by a DNF-result
-    bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
+    private bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
     {
         var distanceLeft = Model.RaceLength - (calculated * calculationDistance);
         var validTyres = tyres.FindValidTyres(distanceLeft, Model.IsWet);
@@ -626,7 +627,6 @@
             if (driver.TyreLife < minimumTyreLife)
                 driver.TyreLife = minimumTyreLife;
 
-            lapScore.RacerEvents |= RacerEvent.Caution;
             lapScore.TyreColour = driver.CurrentTyre.Colour;
 
             driver.LapScores.Add(lapScore);
@@ -651,7 +651,7 @@
     }
 
     // Returns the score cost which the pitstop took
-    int PitstopDriver(RaceDriver driver, LapScore lapScore, List<Tyre> validTyres)
+    private int PitstopDriver(RaceDriver driver, LapScore lapScore, List<Tyre> validTyres)
     {
         Tyre nextTyre;
         if (validTyres.Count > 1)
@@ -674,7 +674,7 @@
         return pitCost;
     }
 
-    void PostProcessAdvance(long? newFastestLapHolder)
+    private void PostProcessAdvance(long? newFastestLapHolder)
     {
         DeterminePositions();
 
@@ -696,7 +696,7 @@
         activeReliabilityCheck = cycleableReliablities[reliablityCycler];
     }
 
-    void DeterminePositions()
+    private void DeterminePositions()
     {
         var allPositionsAligned = false;
         // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe) / altough i dont think this matters
@@ -740,7 +740,7 @@
         }
     }
 
-    Dictionary<long, int> GetCurrentActualPositions()
+    private Dictionary<long, int> GetCurrentActualPositions()
     {
         var actualPositions = new Dictionary<long, int>();
         int positionIndex = 0;
@@ -751,7 +751,7 @@
         return actualPositions;
     }
 
-    void HandlePositionGain(RaceDriver driver, LapScore lastScore, int gainedPositions)
+    private void HandlePositionGain(RaceDriver driver, LapScore lastScore, int gainedPositions)
     {
         while (gainedPositions > 0)
         {
@@ -804,7 +804,7 @@
         }
     }
 
-    void PreProcessFinish()
+    private void PreProcessFinish()
     {
         bool anyoneDisqualified = false;
 
@@ -827,7 +827,7 @@
         }
     }
 
-    async Task Finish()
+    private async Task Finish()
     {
         PreProcessFinish();
 
@@ -851,8 +851,8 @@
         _nav.NavigateTo($"/postrace/{RaceId}");
     }
 
-    async Task ShowGapperChart() => _ = 
+    private async Task ShowGapperChart() => _ = 
         await _dialogService.ShowAsync<GapChartDialog>("Gapper chart", new DialogParameters { ["Drivers"] = Model.RaceDrivers });
-    async Task ShowPositionChart() => _ =
+    private async Task ShowPositionChart() => _ =
         await _dialogService.ShowAsync<PositionChangeChart>("Position chart", new DialogParameters { ["Drivers"] = Model.RaceDrivers });
 }

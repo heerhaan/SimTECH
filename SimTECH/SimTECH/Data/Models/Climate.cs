@@ -12,6 +12,7 @@ namespace SimTECH.Data.Models
         public int ReliablityModifier { get; set; }
         public int RngModifier { get; set; }
         public int Odds { get; set; }
+        public string? Colour { get; set; }
     }
 
     public static class ExtendClimate

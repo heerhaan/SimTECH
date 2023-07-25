@@ -1,6 +1,4 @@
-﻿using SimTECH.Data.Models;
-
-namespace SimTECH.PageModels
+﻿namespace SimTECH.PageModels
 {
     public enum Quantifier { Set, Range, Direct }
 
@@ -15,5 +13,8 @@ namespace SimTECH.PageModels
         public int New { get; set; }
         public int Min { get; set; }
         public int Max { get; set; }
+
+        public int ValueMinimumLimit { get; set; }
+        public int ValueMaximumLimit { get; set; } = int.MaxValue;
     }
 }

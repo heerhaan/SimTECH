@@ -1,53 +1,51 @@
-﻿@using MudExtensions
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">Incident editor</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model">
-            <MudStack>
-                <MudTextField T="string" @bind-Text="@Model.Name" Label="Name" />
+        <MudStack>
+            <MudTextField T="string" @bind-Text="@Model.Name" Label="Name" />
 
-                <div>
-                    <MudText Typo="Typo.subtitle2">Category</MudText>
-                    @if (Model.Id == 0)
-                    {
-                        <MudChipSet @bind-SelectedChip="categoryChip" Mandatory="true">
-                            @foreach (var cat in EnumHelper.GetIncidentCategories)
-                            {
-                                <MudChip Value="@cat.Key">@cat.Value</MudChip>
-                            }
-                        </MudChipSet>
-                    }
-                    else
-                    {
-                        <MudText>@Model.Category.ToString()</MudText>
-                    }
-                </div>
-
-                <MudNumericField T="int" @bind-Value="@Model.Odds"
-                                 Min="0"
-                                 Label="Odds" />
-
-                <MudSwitchM3 @bind-Checked="@Model.Penalized"
-                             Label="Is penalized"
-                             Color="Color.Secondary"
-                             ThumbIcon="@Icons.Material.Filled.Done"
-                             ThumbOffIcon="@Icons.Material.Filled.Close" />
-
-                @if (Model.Penalized)
+            <div>
+                <MudText Typo="Typo.subtitle2">Category</MudText>
+                @if (Model.Id == 0)
                 {
-                    <MudNumericField T="int" @bind-Value="@Model.Limit"
+                    <MudChipSet @bind-SelectedChip="categoryChip" Mandatory="true">
+                        @foreach (var cat in EnumHelper.GetIncidentCategories)
+                        {
+                            <MudChip Value="@cat.Key">@cat.Value</MudChip>
+                        }
+                    </MudChipSet>
+                }
+                else
+                {
+                    <MudText>@Model.Category.ToString()</MudText>
+                }
+            </div>
+
+            <MudColorPicker @bind-Text="@Model.Colour" Label="Colour" Placeholder="Select colour" Class="field-sm" />
+
+            <MudNumericField T="int" @bind-Value="@Model.Odds"
+                             Min="0"
+                             Label="Odds" />
+
+            <MudSwitchM3 @bind-Checked="@Model.Penalized"
+                         Label="Is penalized"
+                         Color="Color.Secondary"
+                         ThumbIcon="@Icons.Material.Filled.Done"
+                         ThumbOffIcon="@Icons.Material.Filled.Close" />
+
+            @if (Model.Penalized)
+            {
+                <MudNumericField T="int" @bind-Value="@Model.Limit"
                                  Min="0"
                                  Label="Limit" />
 
-                    <MudNumericField T="int" @bind-Value="@Model.Punishment"
-                                 Min="0"
+                <MudNumericField T="int" @bind-Value="@Model.Punishment"
+                                 Min="1"
                                  Label="Punishment" />
-                }
-            </MudStack>
-        </MudForm>
+            }
+        </MudStack>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -77,6 +75,12 @@
                 return;
 
             Model.Category = (CategoryIncident)categoryChip.Value;
+        }
+
+        if (Model.Penalized)
+        {
+            Model.Limit = 0;
+            Model.Punishment = 0;
         }
 
         if (Model.IsDirty)

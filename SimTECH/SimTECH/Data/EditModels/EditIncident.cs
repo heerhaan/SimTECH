@@ -9,6 +9,7 @@ namespace SimTECH.Data.EditModels
         public long Id { get; set; }
         public string Name { get; set; }
         public int Odds { get; set; }
+        public string? Colour { get; set; }
         public State State { get; set; }
 
         public CategoryIncident Category { get; set; }
@@ -27,6 +28,7 @@ namespace SimTECH.Data.EditModels
                 Id = incident.Id;
                 Name = incident.Name;
                 Odds = incident.Odds;
+                Colour = incident.Colour;
                 State = incident.State;
                 Category = incident.Category;
                 Limit = incident.Limit;
@@ -43,6 +45,7 @@ namespace SimTECH.Data.EditModels
                 Id = Id,
                 Name = Name,
                 Odds = Odds,
+                Colour = Colour,
                 State = State,
                 Category = Category,
                 Limit = Limit,

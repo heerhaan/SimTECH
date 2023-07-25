@@ -11,6 +11,7 @@ namespace SimTECH.Data.Models
         public int Punishment { get; set; }
         public int Odds { get; set; }
         public bool Penalized { get; set; }
+        public string? Colour { get; set; }
     }
 
     public static class ExtendIncident
