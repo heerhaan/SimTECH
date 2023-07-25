@@ -5,25 +5,25 @@
                 <MudPaper Height="75px" Class="pa-2">
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                         <span style="width:10%"></span>
-                        <MudText Typo="Typo.h3">Season standings @(Season.Year)</MudText>
+                        <MudText Typo="Typo.h3">Season standings for @(Season.Year)</MudText>
                         <ScreenshotButton TargetId="standings-numerical-overview" Styles="@("width:10%")" />
                     </MudStack>
                 </MudPaper>
             </MudItem>
             <MudItem xs="6">
-                <DriverStandings StandingDrivers="@DriverResultsModel" />
+                <DriverStandings StandingDrivers="@driverResultsModel" />
             </MudItem>
             <MudItem xs="6">
-                <ConstructorStandings StandingConstructors="@TeamResultsModel" />
+                <ConstructorStandings StandingConstructors="@teamResultsModel" />
             </MudItem>
         </MudGrid>
     </MudTabPanel>
     <MudTabPanel Text="WDC results">
-        <DriverResults StandingDrivers="@DriverResultsModel"
-                        CountryRounds="@countryRounds" />
+        <DriverResults StandingDrivers="@driverResultsModel"
+                       CountryRounds="@countryRounds" />
     </MudTabPanel>
     <MudTabPanel Text="WCC results">
-        <ConstructorResults StandingConstructors="@TeamResultsModel"
+        <ConstructorResults StandingConstructors="@teamResultsModel"
                             CountryRounds="@countryRounds" />
     </MudTabPanel>
 </MudTabs>
@@ -36,27 +36,27 @@
     [Parameter] public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
     [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
 
-    private List<StandingDriverModel> DriverResultsModel = new();
-    private List<StandingTeamModel> TeamResultsModel = new();
+    private List<StandingDriverModel> driverResultsModel = new();
+    private List<StandingTeamModel> teamResultsModel = new();
 
-    private Dictionary<int, Country> countryRounds = new();
+    Dictionary<int, Country> countryRounds = new();
 
-    private bool loading = true;
+    bool loading = true;
 
     protected override void OnInitialized()
     {
         loading = true;
 
         countryRounds.Clear();
-        DriverResultsModel.Clear();
-        TeamResultsModel.Clear();
+        driverResultsModel.Clear();
+        teamResultsModel.Clear();
 
         foreach (var round in Races.OrderBy(e => e.Round))
             countryRounds.Add(round.Round, round.Track?.Country ?? Constants.DefaultCountry);
 
         int indexer = 0;
 
-        DriverResultsModel = SeasonDrivers
+        driverResultsModel = SeasonDrivers
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
             .Select(e =>
@@ -65,7 +65,7 @@
 
         indexer = 0;
 
-        TeamResultsModel = SeasonTeams
+        teamResultsModel = SeasonTeams
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
             .Select(e =>

@@ -19,7 +19,8 @@
         <Columns>
             <PropertyColumn Property="e => e!.Name" CellStyleFunc="@_applyTyreColouring" />
             <PropertyColumn Property="e => e!.ForWet" />
-            <PropertyColumn Property="e => e!.Pace" CellStyle="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.Pace" Title="Life" CellStyle="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e!.PitWhenBelow" Title="&lt; PIT" />
             <TemplateColumn T="Tyre" Title="Length" SortBy="e => e.ExpectedLength(advanceDistance)">
                 <CellTemplate>
                     <MudText Typo="Typo.caption">@(context.Item.ExpectedLength(advanceDistance))Km</MudText>

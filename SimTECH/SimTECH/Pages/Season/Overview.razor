@@ -248,7 +248,7 @@
         powerLoaded = true;
     }
 
-    async Task StartSeason()
+    private async Task StartSeason()
     {
         if (Season != null)
         {
@@ -256,7 +256,7 @@
 
             if (error == null)
             {
-                // Subtract the contract durations with 1 (if it is valid)
+                // Subtract active and added contract durations with 1 (if it is valid)
                 await _contractService.SubtractDurations(Season.LeagueId, SeasonId);
 
                 Season.State = State.Active; // NOTE: It always changes to active if started
@@ -270,7 +270,7 @@
         }
     }
 
-    async Task FinishSeason()
+    private async Task FinishSeason()
     {
         bool? confirm = await _dialogService.ShowMessageBox(
             "Warning",
@@ -284,7 +284,7 @@
         }
     }
 
-    async Task UpdateSeason()
+    private async Task UpdateSeason()
     {
         var editModel = new EditSeasonModel(Season);
 
@@ -303,7 +303,7 @@
         }
     }
 
-    async Task AddRaces()
+    private async Task AddRaces()
     {
         if (!Leagues.Any())
             Leagues = await _leagueService.GetLeagues();
@@ -344,7 +344,7 @@
         }
     }
 
-    async Task UpdateRace(Race? item)
+    private async Task UpdateRace(Race? item)
     {
         if (!Leagues.Any())
             Leagues = await _leagueService.GetLeagues();
@@ -370,15 +370,15 @@
         }
     }
 
-    async Task DeleteRace(long raceId)
+    private async Task DeleteRace(long raceId)
     {
         await _raceService.DeleteRace(raceId);
         Races = await _raceService.GetRacesBySeason(SeasonId);
     }
 
-    async Task GoToNextRace() => await GoToRace(nextRound);
+    private async Task GoToNextRace() => await GoToRace(nextRound);
 
-    async Task GoToRace(int round)
+    private async Task GoToRace(int round)
     {
         if (!Races.Any())
             Races = await _raceService.GetRacesBySeason(SeasonId);
@@ -404,7 +404,7 @@
         _nav.NavigateTo($"/raceweek/{race.Id}");
     }
 
-    async Task UpdateDriver(SeasonDriver? item)
+    private async Task UpdateDriver(SeasonDriver? item)
     {
         if (!Drivers.Any())
             Drivers = await _driverService.GetAvailableDrivers();
@@ -429,7 +429,7 @@
         }
     }
 
-    async Task UpdateTeam(SeasonTeam? item)
+    private async Task UpdateTeam(SeasonTeam? item)
     {
         if (!Teams.Any())
             Teams = await _teamService.GetAvailableTeams();
@@ -457,7 +457,7 @@
         }
     }
 
-    async Task UpdateEngine(SeasonEngine? item)
+    private async Task UpdateEngine(SeasonEngine? item)
     {
         if (!Engines.Any())
             Engines = await _engineService.GetEngines();
@@ -481,7 +481,7 @@
         }
     }
 
-    async Task ShowQualyBattles()
+    private async Task ShowQualyBattles()
     {
         if (!SeasonDrivers.Any())
             SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
@@ -500,5 +500,5 @@
         _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters);
     }
 
-    void GoToCommon(string url) => _nav.NavigateTo(url);
+    private void GoToCommon(string url) => _nav.NavigateTo(url);
 }
