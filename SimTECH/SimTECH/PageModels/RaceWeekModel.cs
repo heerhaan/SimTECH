@@ -2,6 +2,61 @@
 
 namespace SimTECH.PageModels
 {
+    public class RaweCeekModel
+    {
+        public Race Race { get; set; }
+        public Climate Climate { get; set; }
+        public Season Season { get; set; }
+
+        public LeagueOptions LeagueOptions { get; set; }
+
+        public List<RaweCeekDriver> RaweCeekDrivers { get; set; }
+    }
+
+    public class RaweCeekDriver
+    {
+        public long SeasonDriverId { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public Country Nationality { get; set; }
+        public int Number { get; set; }
+        public TeamRole Role { get; set; }
+
+        public long SeasonTeamId { get; set; }
+        public string TeamName { get; set; }
+        public string Colour { get; set; }
+        public string Accent { get; set; }
+
+        public long ManufacturerId { get; set; }
+        public string ManufacturerName { get; set; }
+        public string ManufacturerColour { get; set; }
+        public string ManufacturerAccent { get; set; }
+
+        public int QualyPower { get; set; }
+        public int RacePower { get; set; }
+
+        public int Attack { get; set; }
+        public int Defense { get; set; }
+        public int DriverReliability { get; set; }
+        public int CarReliability { get; set; }
+        public int EngineReliability { get; set; }
+        public int WearMinMod { get; set; }
+        public int WearMaxMod { get; set; }
+        public int RngMinMod { get; set; }
+        public int RngMaxMod { get; set; }
+        public int LifeBonus { get; set; }
+        public bool HasFastestLap { get; set; }
+
+        public int? Penalty { get; set; }
+        public string? Reasons { get; set; }
+
+        public Result Result { get; set; }
+        public List<LapScore> LapScores { get; set; }
+
+        public string FullName => FirstName + " " + LastName;
+    }
+
+    // Underneath the legacy one
     public class RaceWeekModel
     {
         public Race Race { get; set; }

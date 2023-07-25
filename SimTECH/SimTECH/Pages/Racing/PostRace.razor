@@ -170,7 +170,7 @@
         loading = true;
 
         Race = await _raceService.GetRaceById(RaceId);
-        Results = await _raceService.GetResultsOfRace(RaceId);
+        Results = await _raceService.LegacyGetResultsOfRace(RaceId);
         Season = await _seasonService.GetSeasonById(Race.SeasonId);
 
         var followingRace = await _raceService.GetRaceByRound(Race.SeasonId, (1 + Race.Round));

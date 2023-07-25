@@ -25,7 +25,6 @@ namespace SimTECH.Data.Services
 
             return await context.Season
                 .Where(e => filter.StatesForFilter().Contains(e.State))
-                .Include(e => e.PointAllotments)
                 .ToListAsync();
         }
 
