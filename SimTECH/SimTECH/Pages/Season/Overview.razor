@@ -108,11 +108,8 @@
                 </MudTabPanel>
                 @if (Season.State != State.Closed)
                 {
-                    <MudTabPanel Text="Development" OnClick="OnOpenDevelopment">
-                        @if (developerLoaded)
-                        {
-                            <DevelopmentEntrants OnShowSummary="ShowDevelopmentSummary" />                        
-                        }
+                    <MudTabPanel Text="Development">
+                        <DevelopmentEntrants OnShowSummary="ShowDevelopmentSummary" />
                     </MudTabPanel>
                 }
                 <MudTabPanel Text="Settings">
@@ -156,7 +153,6 @@
     private bool teamsLoaded = false;
     private bool enginesLoaded = false;
     private bool powerLoaded = false;
-    private bool developerLoaded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -257,11 +253,6 @@
             Traits = await _traitService.GetTraits(StateFilter.All);
 
         powerLoaded = true;
-    }
-
-    private async Task OnOpenDevelopment()
-    {
-        developerLoaded = true;
     }
 
     async Task StartSeason()

@@ -71,5 +71,14 @@ namespace SimTECH.Data.Services
 
             await context.SaveChangesAsync();
         }
+
+        public async Task<List<DevelopmentRange>> GetLeagueDevelopmentRanges(long leagueId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.DevelopmentRange
+                .Where(e => e.LeagueId == leagueId)
+                .ToListAsync();
+        }
     }
 }

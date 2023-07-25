@@ -1,45 +1,100 @@
-﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
-    <MudStack Row="true" Class="mud-width-full">
-        <MudPaper Width="20%" Class="pa-2">
-            <DevelopSettings />
+﻿@page "/developer/{SeasonId:long}"
+@inject LeagueService _leagueService
+@inject SeasonEntrantService _entrantService
+@inject SeasonService _seasonService
+@inject IDialogService _dialogService
 
-            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ShowDevSummary" Class="mt-4">Summary</MudButton>
-        </MudPaper>
-        <MudPaper Class="flex-grow-1">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
+    <MudPaper Elevation="15" MinHeight="60px" Class="pa-2">
+        <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Class="pa-0">
+            <MudText Typo="Typo.h3">Entrant Development</MudText>
+        </MudStack>
+    </MudPaper>
+    @if (!loading)
+    {
+        <MudStack Row="true" Class="mud-width-full">
+            <MudPaper Width="20%" Class="pa-2">
+                <MudText Typo="Typo.h5">Settings</MudText>
+                <MudDivider />
+                
+                <DevelopSettings />
 
-        </MudPaper>
-        <MudPaper Width="20%" Class="pa-2">
-            <MudText Typo="Typo.h5">Set DEV ranges</MudText>
-            <MudDivider />
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ShowDevelopmentSummary" Class="mt-4">Summary</MudButton>
+            </MudPaper>
 
-            @if (ActiveRanges?.Any() == true)
-            {
-                <DefinedSetRanges SelectedAspect="@selectedAspect" SetRanges="@ActiveRanges" />
-            }
+            <MudPaper Class="flex-grow-1">
+                <DevelopEntrant DevelopedEntrants="@DevelopedEntrants"
+                                SelectedAspect="@selectedAspect"
+                                SelectedType="@selectedType"
+                                ShowOptionalColumn="false" />
+            </MudPaper>
 
-            @if (selectedEntrant == Entrant.Driver && selectedAspect == Aspect.Skill && AgeRanges?.Any() == true)
-            {
-                <DefinedSetRanges SelectedAspect="@(Aspect.Age)" SetRanges="@AgeRanges" />
-            }
-        </MudPaper>
-    </MudStack>
+            <MudPaper Width="20%" Class="pa-2">
+                <MudText Typo="Typo.h5">Defined SET ranges for @selectedEntrant.ToString()</MudText>
+                <MudDivider />
+
+                @if (ActiveRanges?.Any() == true)
+                {
+                    <DefinedSetRanges SelectedAspect="@selectedAspect" SetRanges="@ActiveRanges" />
+                }
+
+                @if (selectedEntrant == Entrant.Driver && selectedAspect == Aspect.Skill && AgeRanges?.Any() == true)
+                {
+                    <DefinedSetRanges SelectedAspect="@Aspect.Age" SetRanges="@AgeRanges" />
+                }
+            </MudPaper>
+        </MudStack>
+    }
 </MudContainer>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [Parameter] public long SeasonId { get; set; }
 
-    [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
-    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
-    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
-    [Parameter] public IEnumerable<DevelopmentRange> LeagueDevelopmentRanges { get; set; } = Enumerable.Empty<DevelopmentRange>();
-    [Parameter] public EventCallback OnShowSummary { get; set; }
+    private List<SeasonEngine> SeasonEngines { get; set; }
+    private List<SeasonTeam> SeasonTeams { get; set; }
+    private List<SeasonDriver> SeasonDrivers { get; set; }
+    private List<DevelopmentRange> LeagueDevelopmentRanges { get; set; }
 
-    private List<DevelopedEntrant> DevelopedEntrants;
-    private List<DevelopmentRange>? ActiveRanges;
-    private List<DevelopmentRange>? AgeRanges;
+    private List<DevelopedEntrant> DevelopedEntrants { get; set; } = new();
+    private List<DevelopmentRange> ActiveRanges { get; set; } = new();
+    private List<DevelopmentRange> AgeRanges { get; set; } = new();
 
     private Entrant selectedEntrant = Entrant.Driver;
     private Aspect selectedAspect = Aspect.Skill;
+    private Quantifier selectedType = Quantifier.Range;
 
-    private async Task ShowDevSummary() => await OnShowSummary.InvokeAsync();
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
+        SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+
+        var season = await _seasonService.GetSeasonById(SeasonId);
+        LeagueDevelopmentRanges = await _leagueService.GetLeagueDevelopmentRanges(season.LeagueId);
+
+        loading = false;
+    }
+
+    private async Task ShowDevelopmentSummary()
+    {
+        var developmentLog = await _entrantService.GetDevelopmentLog(SeasonId);
+
+        var parameters = new DialogParameters
+            {
+                ["DevelopmentLog"] = developmentLog,
+                ["SeasonDrivers"] = SeasonDrivers,
+                ["SeasonTeams"] = SeasonTeams,
+                ["SeasonEngines"] = SeasonEngines
+            };
+
+        await _dialogService.ShowAsync<SummaryDevelopment>("Summary development", parameters, _summaryDialogOptions);
+    }
+
+    private static readonly DialogOptions _summaryDialogOptions = new()
+        {
+            MaxWidth = MaxWidth.ExtraLarge,
+            CloseButton = true,
+        };
 }

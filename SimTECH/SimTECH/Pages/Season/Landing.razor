@@ -67,7 +67,10 @@
                 }
                 else if (Season.State == State.Active)
                 {
-                    <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Primary" OnClick="TriggerFinish">Finish season</MudButton>
+                    <MudButtonGroup Variant="Variant.Text" Color="Color.Primary">
+                        <MudButton FullWidth="true" OnClick="GoToDeveloper">Development</MudButton>
+                        <MudButton FullWidth="true" OnClick="TriggerFinish">Finish season</MudButton>
+                    </MudButtonGroup>
                 }
             </MudStack>
         </MudPaper>
@@ -110,6 +113,7 @@
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
+
     [Parameter] public Race? NextRace { get; set; }
     [Parameter] public EventCallback OnStartSeason { get; set; }
     [Parameter] public EventCallback OnFinishSeason { get; set; }
@@ -126,4 +130,5 @@
 
     async Task GoToAddEntrants() => await OnNavigate.InvokeAsync($"/entrantwizard/{Season.Id}");
     async Task GoToComponentUsage() => await OnNavigate.InvokeAsync($"/components/{Season.Id}");
+    async Task GoToDeveloper() => await OnNavigate.InvokeAsync($"/developer/{Season.Id}");
 }
