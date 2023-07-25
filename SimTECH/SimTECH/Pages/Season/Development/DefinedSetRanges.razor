@@ -1,0 +1,25 @@
+﻿<MudText Typo="Typo.subtitle1">@SelectedAspect.ReadableAspect()</MudText>
+<MudSimpleTable>
+    <thead>
+        <tr>
+            <th>&lt; LESS</th>
+            <th>Lower</th>
+            <th>Upper</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var range in SetRanges.OrderBy(e => e.Comparer))
+        {
+            <tr>
+                <td>@range.Comparer</td>
+                <td>@range.Minimum</td>
+                <td>@range.Maximum</td>
+            </tr>
+        }
+    </tbody>
+</MudSimpleTable>
+
+@code {
+    [Parameter] public Aspect SelectedAspect { get; set; }
+    [Parameter] public IEnumerable<DevelopmentRange> SetRanges { get; set; } = Enumerable.Empty<DevelopmentRange>();
+}

@@ -1,0 +1,45 @@
+﻿<MudContainer>
+    <MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
+        <MudSelect T="long" @bind-Value="@selectedLeagueId" Label="League" Class="field-md">
+            @foreach (var league in Leagues)
+            {
+                <MudSelectItem Value="@league.Id">@league.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSwitchM3 @bind-Checked="@onlyLeagueTeams"
+                     ThumbIcon="@Icons.Material.Filled.Done"
+                     ThumbOffIcon="@Icons.Material.Filled.Close"
+                     Label="Limit teams to active in League"
+                     Color="Color.Secondary" />
+
+        <MudSwitchM3 @bind-Checked="@onlyLeagueDrivers"
+                     ThumbIcon="@Icons.Material.Filled.Done"
+                     ThumbOffIcon="@Icons.Material.Filled.Close"
+                     Label="Limit drivers to active in League"
+                     Color="Color.Secondary" />
+
+        <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="HandleSettingLoad">Load</MudButton>
+    </MudStack>
+</MudContainer>
+
+@code {
+    [Parameter] public List<League> Leagues { get; set; }
+    [Parameter] public EventCallback<Tuple<long, bool, bool>> OnLoadSetting { get; set; }
+
+    private long selectedLeagueId;
+    private bool onlyLeagueTeams;
+    private bool onlyLeagueDrivers;
+
+    private async Task HandleSettingLoad()
+    {
+        if (OnLoadSetting.HasDelegate)
+        {
+            if (selectedLeagueId != 0)
+            {
+                var resultTuple = Tuple.Create(selectedLeagueId, onlyLeagueTeams, onlyLeagueDrivers);
+                await OnLoadSetting.InvokeAsync(resultTuple);
+            }
+        }
+    }
+}

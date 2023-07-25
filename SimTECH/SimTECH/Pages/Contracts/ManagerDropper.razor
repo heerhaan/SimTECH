@@ -1,0 +1,99 @@
+﻿<MudContainer>
+    <MudButton Variant="Variant.Outlined" Color="Color.Success" FullWidth="true" OnClick="HandleContractsDropped" Class="pa-2 my-2">
+        Next
+    </MudButton>
+</MudContainer>
+
+@if (EditableContracts?.Any() == true)
+{
+    <MudDropContainer T="EditContract"
+                      @ref="dropzone"
+                      Items="@EditableContracts"
+                      ItemIsDisabled="@((contract) => contract.Id != 0)"
+                      ItemsSelector="@((item, dropzone) => $"{item.TeamId}" == dropzone)"
+                      ItemDropped="DriverDropped"
+                      ApplyDropClassesOnDragStarted="true"
+                      CanDropClass="mud-border-success">
+        <ChildContent>
+            <MudStack Row="true" Style="max-height: 1100px">
+                <MudPaper MaxHeight="100%" Width="300px">
+                    <MudDropZone T="EditContract"
+                                 Identifier="0"
+                                 Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4"
+                                 Style="overflow-y:scroll">
+                        <MudText Typo="Typo.subtitle1">Free agents</MudText>
+                    </MudDropZone>
+                </MudPaper>
+                <MudPaper MaxHeight="100%" MaxWidth="100%">
+                    <MudStack Row="true" Class="pa-0 flex-wrap" Style="max-height:100%; overflow-y:scroll">
+                        @foreach (var team in Teams.OrderBy(e => e.Name))
+                        {
+                            <MudPaper MinHeight="250px" Width="300px" Class="ma-2">
+                                <MudDropZone T="EditContract"
+                                             Identifier="@($"{team.Id}")"
+                                             Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                        <MudText Class="overflow-hider">@team.Name</MudText>
+                                        <MudSpacer />
+                                        <CountryFlag Code="@team.Country" Size="ElementSize.Small" />
+                                    </MudStack>
+                                </MudDropZone>
+                            </MudPaper>
+                        }
+                    </MudStack>
+                </MudPaper>
+            </MudStack>
+        </ChildContent>
+        <ItemRenderer>
+            <MudPaper Class="mud-width-full border-2 border-dashed mud-border-tertiary pa-1 my-2" Style="@IsDisabledStyles(context.Id)">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0 mx-1">
+                    <MudText Class="overflow-hider">@(context.Duration) - @(context.Driver?.FullName ?? "[Unknown]")</MudText>
+                    <MudSpacer />
+                    <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
+                </MudStack>
+            </MudPaper>
+        </ItemRenderer>
+    </MudDropContainer>
+}
+
+@code {
+    [Parameter] public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
+    [Parameter] public IList<EditContract> EditableContracts { get; set; } = new List<EditContract>();
+    [Parameter] public EventCallback<List<EditContract>> OnDriversDropped { get; set; }
+
+    private MudDropContainer<EditContract> dropzone;
+
+    private void DriverDropped(MudItemDropInfo<EditContract> dropItem)
+    {
+        if (dropItem.Item != null)
+        {
+            var teamId = long.Parse(dropItem.DropzoneIdentifier);
+            dropItem.Item.TeamId = teamId;
+            dropItem.Item.Team = Teams.FirstOrDefault(e => e.Id == teamId);
+        }
+    }
+
+    private string IsDisabledStyles(long contractId)
+    {
+        if (contractId != 0)
+        {
+            return @"color: var(--mud-palette-action-disabled) !important;
+                     cursor: default !important;
+                     pointer-events: none !important;";
+        }
+
+        return string.Empty;
+    }
+
+    private async Task HandleContractsDropped()
+    {
+        if (OnDriversDropped.HasDelegate)
+        {
+            var editableContracts = EditableContracts
+                .Where(e => e.Id == 0 && e.TeamId != 0 && e.Team is not null)
+                .ToList();
+
+            await OnDriversDropped.InvokeAsync(editableContracts);
+        }
+    }
+}

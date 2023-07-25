@@ -70,12 +70,13 @@
 
     protected override void OnInitialized()
     {
-        Model = new EditRaceModel(Race)
-            {
-                Round = IncomingRound,
-                SeasonId = SeasonId,
-                RaceLength = DefaultRaceLength,
-            };
+        Model = new EditRaceModel(Race) { SeasonId = SeasonId };
+
+        if (Model.Id == 0)
+        {
+            Model.Round = IncomingRound;
+            Model.RaceLength = DefaultRaceLength;
+        }
 
         if (Model.ClimateId == 0)
             Model.ClimateId = Climates.TakeRandomClimate().Id;

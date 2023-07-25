@@ -4,8 +4,6 @@ using MudBlazor;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
-using SimTECH.PageModels.SeasonModels;
-using System.ComponentModel;
 
 namespace SimTECH.Data.Services
 {
@@ -97,6 +95,7 @@ namespace SimTECH.Data.Services
                 .Include(e => e.SeasonTeams)
                 .Include(e => e.SeasonDrivers)
                 .Include(e => e.Races)
+                .Include(e => e.League)
                 .SingleAsync(e => e.Id == seasonId);
 
             if (season.State != State.Concept)
@@ -114,9 +113,11 @@ namespace SimTECH.Data.Services
             season.State = State.Active;
 
             context.Update(season);
+
             await context.SaveChangesAsync();
 
             return null;
+            // Don't forget to subtract contract durations if you call this method again elsewhere
         }
 
         public async Task FinishSeason(long seasonId)
@@ -137,7 +138,7 @@ namespace SimTECH.Data.Services
 
             var newPenalties = new List<GivenPenalty>();
 
-            foreach (var dnfResult in raceResults.Where(e => e.Incident?.HasLimit() == true))
+            foreach (var dnfResult in raceResults.Where(e => e.Incident?.Penalized == true))
             {
                 var incidentFrequency = await context.Result
                     .Where(e => e.SeasonDriverId == dnfResult.SeasonDriverId && e.IncidentId == dnfResult.IncidentId)
@@ -195,152 +196,6 @@ namespace SimTECH.Data.Services
                 TeamColour = s.SeasonTeams?.FirstOrDefault()?.Colour ?? "Unknown",
                 TeamNationality = s.SeasonTeams?.FirstOrDefault()?.Team.Country ?? Constants.DefaultCountry,
             });
-        }
-
-        // Consider moving this code completely to the page itself
-        public async Task<List<QualyBattle>> GetQualifyingBattles(long seasonId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var races = await context.Race
-                .Where(e => e.SeasonId == seasonId && e.State == State.Closed)
-                .Include(e => e.Results)
-                .ToListAsync();
-
-            var drivers = await context.SeasonDriver
-                .Where(e => e.SeasonId == seasonId)
-                .Include(e => e.Driver)
-                .ToListAsync();
-
-            var battleVictories = new Dictionary<long, int>();
-
-            foreach (var driver in drivers)
-                battleVictories.Add(driver.Id, 0);
-
-            foreach (var race in races)
-            {
-                foreach (var byTeam in race.Results.GroupBy(e => e.SeasonTeamId))
-                {
-                    var bestResult = byTeam.OrderBy(e => e.Grid).FirstOrDefault();
-
-                    if (bestResult != null)
-                        battleVictories[bestResult.SeasonDriverId]++;
-                }
-            }
-
-            var teams = await context.SeasonTeam
-                .Where(e => e.SeasonId == seasonId)
-                .Include(e => e.Team)
-                .ToArrayAsync();
-
-            var qualyBattles = new List<QualyBattle>();
-            foreach (var victory in battleVictories)
-            {
-                var driver = drivers.First(e => e.Id == victory.Key);
-
-                SeasonTeam? team = null;
-                if (driver.SeasonTeamId.HasValue)
-                    team = teams.First(e => e.Id == driver.SeasonTeamId.Value);
-
-                qualyBattles.Add(new QualyBattle
-                {
-                    Name = driver.Driver.FullName,
-                    Score = victory.Value,
-                    Colour = team?.Colour ?? "var(--mud-palette-primary)",
-                    Team = team?.Team.Name ?? "None",
-                });
-            }
-
-            return qualyBattles;
-        }
-
-        public async Task<List<PowerRankModel>> GetPowerRankings(long seasonId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var drivers = await context.SeasonDriver
-                .Where(e => e.SeasonId == seasonId)
-                .Include(e => e.Driver)
-                    .ThenInclude(e => e.DriverTraits)
-                .ToListAsync();
-
-            var teams = await context.SeasonTeam
-                .Where(e => e.SeasonId == seasonId)
-                .Include(e => e.SeasonEngine)
-                .Include(e => e.Team)
-                    .ThenInclude(e => e.TeamTraits)
-                .ToListAsync();
-
-            var allTraits = await context.Trait.ToListAsync();
-
-            var allManufacturers = await context.Manufacturer.ToListAsync();
-
-            var powerDrivers = new List<PowerRankModel>();
-
-            foreach (var driver in drivers)
-            {
-                var powerModel = new PowerRankModel
-                {
-                    DriverName = driver.Driver.FullName,
-                    DriverNumber = driver.Number,
-                    Nationality = driver.Driver.Country,
-                };
-                var driverTraits = new List<Trait>();
-
-                if (driver.Driver.DriverTraits?.Any() == true)
-                    driverTraits.AddRange(allTraits.Where(e => driver.Driver.DriverTraits.Select(dt => dt.TraitId).Contains(e.Id)));
-
-                powerModel.QualyPower += driver.Skill + driver.RetrieveStatusBonus(_config.CarDriverStatusModifier);
-                powerModel.RacePower += driver.Skill + driver.RetrieveStatusBonus(_config.CarDriverStatusModifier);
-                powerModel.DriverRel = driver.Reliability;
-
-                if (driver.SeasonTeamId.HasValue)
-                {
-                    var team = teams.Single(e => e.Id == driver.SeasonTeamId);
-                    var manufacturer = allManufacturers.Single(e => e.Id == team.ManufacturerId);
-
-                    if (team.Team.TeamTraits?.Any() == true)
-                        driverTraits.AddRange(allTraits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
-
-                    powerModel.QualyPower += team.BaseValue + team.SeasonEngine.Power + manufacturer.Pace;
-                    powerModel.RacePower += team.BaseValue + team.SeasonEngine.Power + manufacturer.Pace;
-
-                    powerModel.Aero = team.Aero;
-                    powerModel.Chassis = team.Chassis;
-                    powerModel.Powertrain = team.Powertrain;
-                    powerModel.CarRel = team.Reliability;
-                    powerModel.EngineRel = team.SeasonEngine.Reliability;
-                    powerModel.WearMax = manufacturer.WearMax;
-                    powerModel.WearMin = manufacturer.WearMin;
-
-                    powerModel.TeamName = team.Name;
-                    powerModel.Colour = team.Colour;
-                    powerModel.Accent = team.Accent;
-                    powerModel.Engine = team.SeasonEngine.Name;
-                    powerModel.Manufacturer = manufacturer.Name;
-                }
-                else
-                {
-                    powerModel.TeamName = "Dropped";
-                    powerModel.Engine = "None";
-                }
-
-                var sumTraits = driverTraits.SumTraitEffects();
-
-                powerModel.QualyPower += sumTraits.QualifyingPace;
-                powerModel.RacePower += sumTraits.RacePace;
-                powerModel.DriverRel += sumTraits.DriverReliability;
-                powerModel.CarRel += sumTraits.CarReliability;
-                powerModel.EngineRel += sumTraits.EngineReliability;
-                powerModel.WearMax += sumTraits.WearMaximum;
-                powerModel.WearMin += sumTraits.WearMinimum;
-
-                powerModel.TraitEffect = sumTraits;
-
-                powerDrivers.Add(powerModel);
-            }
-
-            return powerDrivers;
         }
 
         public async Task<List<PartsUsedByDriver>> GetPartsUsageModel(long seasonId)

@@ -10,6 +10,7 @@ namespace SimTECH.Data.EditModels
         public string? Name { get; set; }
         public Country Country { get; set; }
         public string? Biography { get; set; }
+        public bool Mark { get; set; }
         public State State { get; set; }
 
         public IList<EditTeamTraitModel> TeamTraits { get; set; } = new List<EditTeamTraitModel>();
@@ -26,6 +27,7 @@ namespace SimTECH.Data.EditModels
                 Name = team.Name;
                 Country = team.Country;
                 Biography = team.Biography;
+                Mark = team.Mark;
                 State = team.State;
 
                 if (team.TeamTraits != null)
@@ -42,6 +44,7 @@ namespace SimTECH.Data.EditModels
                 Name = Name ?? "Unknown",
                 Country = Country,
                 Biography = Biography ?? string.Empty,
+                Mark = Mark,
                 State = State,
 
                 TeamTraits = TeamTraits.Select(e => e.Record).ToList()

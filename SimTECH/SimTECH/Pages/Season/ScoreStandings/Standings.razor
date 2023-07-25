@@ -1,85 +1,83 @@
-﻿@inject SeasonEntrantService _entrantService
-@inject RaceService _raceService
-@inject IDialogService _dialog
-
-@if (!loading)
-{
-    <MudTabs Outlined="true" Centered="true">
-        <MudTabPanel Text="Standings">
-            <MudGrid Spacing="2" id="standings-numerical-overview">
-                <MudItem xs="12">
-                    <MudPaper Height="75px" Class="pa-2">
-                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                            <span style="width:10%"></span>
-                            <MudText Typo="Typo.h3">Season standings @(Season.Year)</MudText>
-                            <ScreenshotButton TargetId="standings-numerical-overview" Styles="@("width:10%")" />
-                        </MudStack>
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="6">
-                    <DriverStandings StandingDrivers="@DriverResultsModel" />
-                </MudItem>
-                <MudItem xs="6">
-                    <ConstructorStandings StandingConstructors="@TeamResultsModel" />
-                </MudItem>
-            </MudGrid>
-        </MudTabPanel>
-        <MudTabPanel Text="WDC results">
-            <DriverResults StandingDrivers="@DriverResultsModel"
-                           CountryRounds="@countryRounds"/>
-        </MudTabPanel>
-        <MudTabPanel Text="WCC results">
-            <ConstructorResults StandingConstructors="@TeamResultsModel"
-                                CountryRounds="@countryRounds" />
-        </MudTabPanel>
-    </MudTabs>
-}
+﻿<MudTabs Outlined="true" Centered="true">
+    <MudTabPanel Text="Standings">
+        <MudGrid Spacing="2" id="standings-numerical-overview">
+            <MudItem xs="12">
+                <MudPaper Height="75px" Class="pa-2">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <span style="width:10%"></span>
+                        <MudText Typo="Typo.h3">Season standings for @(Season.Year)</MudText>
+                        <ScreenshotButton TargetId="standings-numerical-overview" Styles="@("width:10%")" />
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <DriverStandings StandingDrivers="@driverResultsModel" />
+            </MudItem>
+            <MudItem xs="6">
+                <ConstructorStandings StandingConstructors="@teamResultsModel" />
+            </MudItem>
+        </MudGrid>
+    </MudTabPanel>
+    <MudTabPanel Text="WDC results">
+        <DriverResults StandingDrivers="@driverResultsModel"
+                       CountryRounds="@countryRounds" />
+    </MudTabPanel>
+    <MudTabPanel Text="WCC results">
+        <ConstructorResults StandingConstructors="@teamResultsModel"
+                            CountryRounds="@countryRounds" />
+    </MudTabPanel>
+</MudTabs>
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
-    List<SeasonDriver> SeasonDrivers { get; set; }
-    List<SeasonTeam> SeasonTeams { get; set; }
-    List<Race> Races { get; set; }
+    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
+    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
+    [Parameter] public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
+    [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
 
-    List<StandingDriverModel> DriverResultsModel { get; set; }
-    List<StandingTeamModel> TeamResultsModel { get; set; }
+    private List<StandingDriverModel> driverResultsModel = new();
+    private List<StandingTeamModel> teamResultsModel = new();
 
     Dictionary<int, Country> countryRounds = new();
 
     bool loading = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Races = await _raceService.GetRacesBySeason(Season.Id);
-        SeasonDrivers = await _entrantService.GetSeasonDriversWithResults(Season.Id);
-        SeasonTeams = await _entrantService.GetSeasonTeamsWithResults(Season.Id);
+        loading = true;
+
+        countryRounds.Clear();
+        driverResultsModel.Clear();
+        teamResultsModel.Clear();
 
         foreach (var round in Races.OrderBy(e => e.Round))
             countryRounds.Add(round.Round, round.Track?.Country ?? Constants.DefaultCountry);
 
         int indexer = 0;
 
-        DriverResultsModel = SeasonDrivers
+        driverResultsModel = SeasonDrivers
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
-            .Select(e => ToDriverResultModel(e, ++indexer))
+            .Select(e =>
+                ToDriverResultModel(e, Results.Where(r => r.SeasonDriverId == e.Id).ToList(), ++indexer))
             .ToList();
 
         indexer = 0;
 
-        TeamResultsModel = SeasonTeams
+        teamResultsModel = SeasonTeams
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
-            .Select(e => ToTeamResultModel(e, ++indexer))
+            .Select(e =>
+                ToTeamResultModel(e, Results.Where(r => r.SeasonTeamId == e.Id).ToList(), ++indexer))
             .ToList();
 
         loading = false;
     }
 
-    private StandingDriverModel ToDriverResultModel(SeasonDriver driver, int position)
+    private StandingDriverModel ToDriverResultModel(SeasonDriver driver, List<Result> results, int position)
     {
-        var driverTeam = SeasonTeams.Find(e => e.Id == driver.SeasonTeamId);
+        var team = SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
         return new StandingDriverModel
             {
                 Id = driver.Id,
@@ -87,18 +85,19 @@
                 Name = driver.Driver.FullName,
                 Number = driver.Number,
                 Nationality = driver.Driver.Country,
-                Colour = driverTeam?.Colour ?? "var(--mud-palette-primary)",
-                Accent = driverTeam?.Accent ?? "var(--mud-palette-primary-text)",
+                Colour = team?.Colour ?? "var(--mud-palette-primary)",
+                Accent = team?.Accent ?? "var(--mud-palette-primary-text)",
                 Points = driver.Points,
                 HiddenPoints = driver.HiddenPoints,
+                Mark = driver.Driver.Mark,
                 SeasonTeamId = driver.SeasonTeamId,
-                Team = driverTeam?.Team?.Name ?? "None",
+                Team = team?.Team?.Name ?? "None",
 
-                ResultCells = driver.Results.Select(ToResultCell).ToList(),
+                ResultCells = results.Select(ToResultCell).ToList(),
             };
     }
 
-    private StandingTeamModel ToTeamResultModel(SeasonTeam team, int position)
+    private StandingTeamModel ToTeamResultModel(SeasonTeam team, List<Result> results, int position)
     {
         return new StandingTeamModel
             {
@@ -111,8 +110,9 @@
                 Accent = team.Accent,
                 Points = team.Points,
                 HiddenPoints = team.HiddenPoints,
+                Mark = team.Team.Mark,
 
-                ResultCells = team.Results?.Select(ToResultCell).ToList() ?? new(),
+                ResultCells = results.Select(ToResultCell).ToList() ?? new(),
             };
     }
 

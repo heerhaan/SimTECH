@@ -1,0 +1,84 @@
+﻿@inject ISnackbar _snack
+
+<MudContainer>
+    <MudButton Variant="Variant.Outlined" Color="Color.Success" FullWidth="true" OnClick="HandleSaveMoment" Class="pa-2 my-2">
+        Save
+    </MudButton>
+    <MudText Color="Color.Warning">Make this prettier, you idiot</MudText>
+
+    @if (EditableContracts?.Any() == true)
+    {
+        <MudTable T="EditContract"
+                  Items="@EditableContracts"
+                  GroupBy="@_contractDefinition"
+                  GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                  EditTrigger="TableEditTrigger.EditButton"
+                  Dense="true">
+            <HeaderContent>
+                <MudTh>Driver</MudTh>
+                <MudTh>Duration</MudTh>
+            </HeaderContent>
+            <GroupHeaderTemplate>
+                <MudTh Class="mud-table-cell-custom-group" colspan="10">
+                    <MudText>@context.GroupName - @context.Key</MudText>
+                </MudTh>
+            </GroupHeaderTemplate>
+            <RowTemplate>
+                <MudTd>
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudText>@(context.Driver?.FullName ?? "[Unknown driver]")</MudText>
+                        <MudSpacer />
+                        <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
+                    </MudStack>
+                </MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.caption">@context.Duration</MudText>
+                </MudTd>
+            </RowTemplate>
+            <RowEditingTemplate>
+                <MudTd>
+                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                        <MudText>@(context.Driver?.FullName ?? "[Unknown driver]")</MudText>
+                        <MudSpacer />
+                        <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
+                    </MudStack>
+                </MudTd>
+                <MudTd>
+                    <MudNumericField @bind-Value="@context.Duration" Min="1" Class="field-sm" />
+                </MudTd>
+            </RowEditingTemplate>
+            <EditButtonContent Context="button">
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+            </EditButtonContent>
+        </MudTable>
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public IList<EditContract> EditableContracts { get; set; } = new List<EditContract>();
+    [Parameter] public EventCallback<List<Contract>> OnSave { get; set; }
+
+    private TableGroupDefinition<EditContract> _contractDefinition = new()
+        {
+            GroupName = "Team",
+            Selector = (e) => e.Team!.Name
+        };
+
+    private async Task HandleSaveMoment()
+    {
+        if (EditableContracts.Any(e => e.Duration == 0))
+        {
+            _snack.Add("Add an actual duration or something?", Severity.Warning);
+            return;
+        }
+
+        if (EditableContracts.Any(e => e.LeagueId == 0 || e.DriverId == 0))
+        {
+            _snack.Add("Somehow the new contracts have some invalid data, dunno man. Weird shit.", Severity.Error);
+            return;
+        }
+
+        var contractEntities = EditableContracts.Select(e => e.Record).ToList();
+        await OnSave.InvokeAsync(contractEntities);
+    }
+}

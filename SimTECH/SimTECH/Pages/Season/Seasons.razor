@@ -17,7 +17,7 @@
                 <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="NewSeason">New</MudButton>
             </MudStack>
         </MudPaper>
-        <MudDataGrid T="SeasonListModel" Items="@SeasonList.OrderBy(e => e.Year)" Dense="true">
+        <MudDataGrid T="SeasonListModel" Items="@SeasonList.OrderByDescending(e => e.Year)" Dense="true">
             <Columns>
                 <PropertyColumn Property="e => e!.Year" />
                 <TemplateColumn T="SeasonListModel" Title="NO" SortBy="e => e!.DriverNumber" HeaderClass="number-col hide-sort-icons" CellClass="number-col">

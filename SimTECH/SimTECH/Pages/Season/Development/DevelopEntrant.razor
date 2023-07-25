@@ -1,6 +1,150 @@
-﻿<h3>DevelopEntrant</h3>
-<p>This page is as an idea where we can make components of certain components</p>
+﻿@inject ISnackbar _snack
+
+<MudTable Items="@DevelopedEntrants" Dense="true" id="development-results">
+    <ToolBarContent>
+        <MudText Typo="Typo.h5">Development</MudText>
+        <MudSpacer />
+        <MudButtonGroup Color="Color.Info" Variant="Variant.Outlined">
+            @if (ranDevelop)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.Save"
+                           Color="Color.Success"
+                           Variant="Variant.Outlined"
+                           OnClick="SaveDevelopment">
+                    Save
+                </MudButton>
+            }
+            <MudButton StartIcon="@Icons.Material.Filled.Recycling"
+                       Color="Color.Info"
+                       Variant="Variant.Outlined"
+                       OnClick="RunDevelop">
+                Run
+            </MudButton>
+            <ScreenshotButton TargetId="development-results" />
+        </MudButtonGroup>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>
+            <MudTableSortLabel T="DevelopedEntrant" SortBy="@(e => e.Name)">
+                Name
+            </MudTableSortLabel>
+        </MudTh>
+        @if (ShowOptionalColumn)
+        {
+            <MudTh>
+                <MudTableSortLabel T="DevelopedEntrant" SortBy="@(e => e.Optional)">
+                    Age
+                </MudTableSortLabel>
+            </MudTh>
+        }
+        <MudTh Class="number-col-lg">
+            <MudTableSortLabel T="DevelopedEntrant" SortBy="@(e => e.Old)">
+                Old
+            </MudTableSortLabel>
+        </MudTh>
+        <MudTh Class="number-col-lg">
+            <MudTableSortLabel T="DevelopedEntrant" SortBy="@(e => e.Change)">
+                Change
+            </MudTableSortLabel>
+        </MudTh>
+        <MudTh Class="number-col-lg">
+            <MudTableSortLabel T="DevelopedEntrant" SortBy="@(e => e.New)">
+                New
+            </MudTableSortLabel>
+        </MudTh>
+        <MudTh Style="width: 150px">Range</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                <MudText Class="overflow-hider">@context.Name</MudText>
+                <MudSpacer />
+                @if (context.Nationality.HasValue)
+                {
+                    <CountryFlag Code="@context.Nationality.Value" Size="ElementSize.Small" />
+                }
+            </MudStack>
+        </MudTd>
+        @if (ShowOptionalColumn)
+        {
+            <MudTd>
+                <MudText Typo="Typo.caption">@(context.Optional.HasValue ? context.Optional.Value : "?")</MudText>
+            </MudTd>
+        }
+        <MudTd Class="number-col-lg">
+            <MudText Typo="Typo.caption">@context.Old</MudText>
+        </MudTd>
+        <MudTd Class="number-col-lg">
+            <GradientColour Min="@minChange" Max="@maxChange" Value="@context.Change">
+                <MudText Typo="Typo.caption">@context.Change</MudText>
+            </GradientColour>
+        </MudTd>
+        <MudTd Class="number-col-lg">
+            <MudText Typo="Typo.caption">@context.New</MudText>
+        </MudTd>
+        <MudTd>
+            <MudStack Row="true" Class="pa-0 flex-nowrap">
+                <MudNumericField T="int"
+                                 @bind-Value="@context.Min"
+                                 ReadOnly="@notDirectQuantifier"
+                                 Class="field-xs" />
+                <MudNumericField T="int"
+                                 @bind-Value="@context.Max"
+                                 ReadOnly="@notDirectQuantifier"
+                                 Class="field-xs" />
+            </MudStack>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
 
 @code {
+    [Parameter] public IEnumerable<DevelopedEntrant> DevelopedEntrants { get; set; } = Enumerable.Empty<DevelopedEntrant>();
+    [Parameter] public Quantifier SelectedType { get; set; }
+    [Parameter] public bool ShowOptionalColumn { get; set; }
+    [Parameter] public EventCallback OnSaveDevelopment { get; set; }
 
+    bool ranDevelop = false;
+    bool notDirectQuantifier = false;
+    int minChange = 0;
+    int maxChange = 0;
+
+    protected override void OnParametersSet()
+    {
+        notDirectQuantifier = SelectedType != Quantifier.Direct;
+
+        RunDevelop();
+    }
+
+    private void RunDevelop()
+    {
+        foreach (var entrant in DevelopedEntrants)
+        {
+            if (entrant.Min > entrant.Max)
+            {
+                _snack.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
+                return;
+            }
+
+            entrant.Change = NumberHelper.RandomInt(entrant.Min, entrant.Max);
+            entrant.New = entrant.Old + entrant.Change;
+
+            // Sets the minimum and maximum value limit if those are set
+            if (entrant.New < entrant.ValueMinimumLimit)
+                entrant.New = entrant.ValueMinimumLimit;
+            else if (entrant.New > entrant.ValueMaximumLimit)
+                entrant.New = entrant.ValueMaximumLimit;
+        }
+
+        var allChanges = DevelopedEntrants.Select(e => e.Change).Where(e => e != 0).ToArray();
+
+        if (allChanges.Any())
+        {
+            minChange = allChanges.Min();
+            maxChange = allChanges.Max();
+
+            ranDevelop = true;
+        }
+    }
+
+    private async Task SaveDevelopment() => await OnSaveDevelopment.InvokeAsync();
 }

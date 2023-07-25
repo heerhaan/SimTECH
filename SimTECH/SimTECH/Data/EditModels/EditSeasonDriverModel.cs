@@ -23,6 +23,7 @@ namespace SimTECH.Data.EditModels
         // Supportive properties
         public long BaseTeamId { get; set; }
         public Driver? Driver { get; set; }
+        public bool Contracted { get; set; }
 
         public EditSeasonDriverModel(SeasonDriver? seasonDriver)
         {

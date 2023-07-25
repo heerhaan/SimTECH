@@ -10,8 +10,6 @@ namespace SimTECH.PageModels
 
         public List<RaceWeekDriver> RaceWeekDrivers { get; set; }
         public List<Trait>? TrackTraits { get; set; }
-
-        public bool AnyPenalties => RaceWeekDrivers?.Any(e => e.Penalty.HasValue) ?? false;
     }
 
     public class RaceWeekDriver

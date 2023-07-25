@@ -1,0 +1,21 @@
+﻿<MudElement HtmlTag="span" Style="@_elementStyles">
+    <MudIcon Icon="@Icon" Color="Color.Inherit" />
+</MudElement>
+
+@code {
+    [Parameter, EditorRequired] public string Icon { get; set; } = string.Empty;
+    [Parameter] public string? CustomColour { get; set; }
+
+    private string _elementStyles
+    {
+        get
+        {
+            var styles = string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(CustomColour))
+                styles += "color: " + CustomColour;
+
+            return styles;
+        }
+    }
+}

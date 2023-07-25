@@ -11,7 +11,8 @@ namespace SimTECH.Data.EditModels
         public string Colour { get; set; } = string.Empty;
         public State State { get; set; }
 
-        public int Pace { get; set; }
+        public int LifeBonus { get; set; }
+        public int PitWhenBelow { get; set; }
         public int WearMin { get; set; }
         public int WearMax { get; set; }
         public int DistanceMin { get; set; }
@@ -30,7 +31,8 @@ namespace SimTECH.Data.EditModels
                 Name = tyre.Name;
                 Colour = tyre.Colour;
                 State = tyre.State;
-                Pace = tyre.Pace;
+                LifeBonus = tyre.Pace;
+                PitWhenBelow = tyre.PitWhenBelow;
                 WearMin = tyre.WearMin;
                 WearMax = tyre.WearMax;
                 DistanceMin = tyre.DistanceMin;
@@ -48,7 +50,8 @@ namespace SimTECH.Data.EditModels
                 Name = Name,
                 Colour = Colour,
                 State = State,
-                Pace = Pace,
+                Pace = LifeBonus,
+                PitWhenBelow = PitWhenBelow,
                 WearMax = WearMax,
                 WearMin = WearMin,
                 DistanceMin = DistanceMin,

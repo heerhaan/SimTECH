@@ -1,18 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services
 {
-    public sealed class ManufacturerService
+    public sealed class ManufacturerService : StateService<Manufacturer>
     {
-        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-
-        public ManufacturerService(IDbContextFactory<SimTechDbContext> factory)
-        {
-            _dbFactory = factory;
-        }
+        public ManufacturerService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
 
         public async Task<List<Manufacturer>> GetManufacturers() => await GetManufacturers(StateFilter.Default);
         public async Task<List<Manufacturer>> GetManufacturers(StateFilter filter)
@@ -45,13 +39,8 @@ namespace SimTECH.Data.Services
 
             if (context.SeasonTeam.Any(e => e.ManufacturerId == manufacturer.Id))
             {
-                var editModel = new EditManufacturerModel(manufacturer)
-                {
-                    State = State.Archived
-                };
-
-                var modified = editModel.Record;
-                context.Update(modified);
+                manufacturer.State = State.Archived;
+                context.Update(manufacturer);
             }
             else
             {

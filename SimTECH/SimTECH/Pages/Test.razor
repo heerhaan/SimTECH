@@ -6,14 +6,23 @@
 
 <PageTitle>Test</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.False" Class="mt-16 px-8">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16 px-8 cubic-repeat-bg">
     <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
+                <div class="header-special">Testing Zone</div>
+            </MudPaper>
+        </MudItem>
         <MudItem xs="9">
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
-                        ΩΩΩΩΩΩλλλλλλλλλλλλλλ
-                        ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+                        <MudText>
+                            ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+                            ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+                        </MudText>
+
+                        <ClimateIcon Icon="@IconCollection.Mist" Colour="@("#FF81219B")" />
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="12" sm="6">
@@ -38,14 +47,54 @@
                         <MudStack>
                             <MudText Typo="Typo.h5">Examples</MudText>
                             <div>
-                                <!-- Local storage value -->
                                 <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">
                                     Set local stored info
                                 </MudButton>
                                 <MudText>@exampleStore</MudText>
                             </div>
+
+                            <MudDivider />
+
                             <MudText Typo="Typo.overline">Custom emblems</MudText>
                             <Emblem Icon="@IconCollection.Polygon" Colour="#49f2e7" Accent="#bf34fa" />
+
+                            <MudDivider />
+
+                            <MudText Typo="Typo.overline">Muted backgrounds</MudText>
+                            <MudStack Row="true">
+                                <MudPaper Class="pa-3 fallback-muted-background-primary"></MudPaper>
+                                <MudPaper Class="pa-3 fallback-muted-background-secondary"></MudPaper>
+                                <MudPaper Class="pa-3 fallback-muted-background-tertiary"></MudPaper>
+                            </MudStack>
+
+                            <MudText>Arrows</MudText>
+                            <MudStack>
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText Typo="Typo.caption">5</MudText>
+                                    <MudIcon Icon="@IconCollection.ArrowBadgeRight"></MudIcon>
+                                    <MudText Typo="Typo.caption">5</MudText>
+                                </MudStack>
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText Typo="Typo.caption">5</MudText>
+                                    <MudIcon Icon="@IconCollection.ArrowBigRight"></MudIcon>
+                                    <MudText Typo="Typo.caption">5</MudText>
+                                </MudStack>
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText Typo="Typo.caption">5</MudText>
+                                    <MudIcon Icon="@IconCollection.ArrowBigRightLines"></MudIcon>
+                                    <MudText Typo="Typo.caption">5</MudText>
+                                </MudStack>
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText Typo="Typo.caption">5</MudText>
+                                    <MudIcon Icon="@IconCollection.ArrowNarrowRight"></MudIcon>
+                                    <MudText Typo="Typo.caption">5</MudText>
+                                </MudStack>
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText Typo="Typo.caption">5</MudText>
+                                    <MudIcon Icon="@IconCollection.ArrowRight"></MudIcon>
+                                    <MudText Typo="Typo.caption">5</MudText>
+                                </MudStack>
+                            </MudStack>
                         </MudStack>
                     </MudPaper>
                 </MudItem>
@@ -106,75 +155,42 @@
         </MudItem>
         <MudItem xs="3">
             <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
-                <MudText Typo="Typo.overline">Config</MudText>
+                <MudText Typo="Typo.h5">Config settings</MudText>
                 <MudDivider />
-                <MudSimpleTable>
-                    <thead>
-                        <tr>
-                            <th>Setting</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Fatal odds</td>
-                            <td>@config.FatalityChance</td>
-                        </tr>
-                        <tr>
-                            <td>Dsq odds</td>
-                            <td>@config.DisqualifyChance</td>
-                        </tr>
-                        <tr>
-                            <td>Mistake rolls</td>
-                            <td>@config.MistakeAmountRolls</td>
-                        </tr>
-                        <tr>
-                            <td>Mistake min rng</td>
-                            <td>@config.MistakeLowerValue</td>
-                        </tr>
-                        <tr>
-                            <td>Mistake max rng</td>
-                            <td>@config.MistakeUpperValue</td>
-                        </tr>
-                        <tr>
-                            <td>Battle RNG</td>
-                            <td>@config.BattleRng</td>
-                        </tr>
-                        <tr>
-                            <td>Gap marge p/pt</td>
-                            <td>@config.GapMarge</td>
-                        </tr>
-                        <tr>
-                            <td>Team status car mod</td>
-                            <td>@config.CarDriverStatusModifier</td>
-                        </tr>
-                        <tr>
-                            <td>Use personal numbers</td>
-                            <td>@config.PersonalNumbersEnabled</td>
-                        </tr>
-                        <tr>
-                            <td>Calc distance ref</td>
-                            <td>@config.CalculationDistance</td>
-                        </tr>
-                    </tbody>
-                </MudSimpleTable>
+
+                <MudListExtended T="string" Dense="true">
+                    <MudListItemExtended T="string" Text="@config.CalculationDistance.ToString()" SecondaryText="Calculation distance" />
+                    <MudListItemExtended T="string" Text="@config.DisqualifyChance.ToString()" SecondaryText="Disqualification odds" />
+                    <MudListItemExtended T="string" Text="@config.FatalityChance.ToString()" SecondaryText="Fatality odds" />
+                    <MudListItemExtended T="string" Text="@config.SafetyCarChance.ToString()" SecondaryText="Safety car odds" />
+                    <MudListItemExtended T="string" Text="@config.SafetyCarGap.ToString()" SecondaryText="Safety car gap" />
+                    <MudListItemExtended T="string" Text="@config.SafetyCarReturnChance.ToString()" SecondaryText="Safety car return odds" />
+                    <MudListItemExtended T="string" Text="@config.SafetyPitstopSubtracter.ToString()" SecondaryText="Pit cost during caution subtract" />
+                    <MudListItemExtended T="string" Text="@config.MistakeAmountRolls.ToString()" SecondaryText="Mistake rolls" />
+                    <MudListItemExtended T="string" Text="@config.MistakeLowerValue.ToString()" SecondaryText="Mistake lower RNG" />
+                    <MudListItemExtended T="string" Text="@config.MistakeUpperValue.ToString()" SecondaryText="Mistake upper RNG" />
+                    <MudListItemExtended T="string" Text="@config.BattleRng.ToString()" SecondaryText="Battle RNG" />
+                    <MudListItemExtended T="string" Text="@config.CarDriverStatusModifier.ToString()" SecondaryText="Team status modifier" />
+                    <MudListItemExtended T="string" Text="@config.MinimumTyreLife.ToString()" SecondaryText="Minimum tyre life" />
+                    <MudListItemExtended T="string" Text="@config.GapMarge.ToString()" SecondaryText="Time score equivalent" />
+                </MudListExtended>
             </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
-    string activeCustomIcon = IconCollection.BrandToyota;
-    string[] customIcons = IconCollection.ArrayOfIcons;
-    int iconCycler = 0;
-    string? exampleStore;
-    string newExampleString = "Stored and retrieved from the local storage";
-    SimConfig config;
+    private string activeCustomIcon = IconCollection.BrandToyota;
+    private string[] customIcons = IconCollection.ArrayOfIcons;
+    private int iconCycler = 0;
+    private string? exampleStore;
+    private string newExampleString = "Stored and retrieved from the local storage";
+    private SimConfig config;
 
-    List<int> randomOld = new();
-    List<int> randomNew = new();
-    double deviateOld;
-    double deviateNew;
+    private List<int> randomOld = new();
+    private List<int> randomNew = new();
+    private double deviateOld;
+    private double deviateNew;
 
     protected override void OnInitialized()
     {
@@ -207,7 +223,7 @@
         }
     }
 
-    void CycleCustomIcon()
+    private void CycleCustomIcon()
     {
         iconCycler++;
         iconCycler %= customIcons.Length;

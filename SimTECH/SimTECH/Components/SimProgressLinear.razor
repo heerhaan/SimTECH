@@ -1,5 +1,5 @@
-﻿<div class="d-flex flex-row gap-0 pa-0 mud-width-full muted-background-primary" style="@_lineStyles">
-    @foreach (var (bar, index) in Bars.Select((bar, index) => (bar, index)))
+﻿<div class="@_lineClass" style="@_lineStyles">
+    @foreach (var (bar, index) in Bars.WithIndex())
     {
         <span class="py-1 text-center" style="@(BarStyle(bar.Item1, bar.Item2))">
             @if (AddIndicator && (index % 2 == 0))
@@ -17,6 +17,15 @@
     [Parameter] public double TrackLength { get; set; }
     [Parameter] public ElementSize LineSize { get; set; } = ElementSize.Small;
 
+    private string _lineClass
+    {
+        get
+        {
+            var classes = "d-flex flex-row gap-0 pa-0 mud-width-full fallback-muted-background-primary";
+            return classes;
+        }
+    }
+
     private string _lineStyles
     {
         get
@@ -30,9 +39,9 @@
                 case ElementSize.Small:
                     lineSpacing += "8px"; break;
                 case ElementSize.Normal:
-                    lineSpacing += "16px"; break;
+                    lineSpacing += "12px"; break;
                 case ElementSize.Large:
-                    lineSpacing += "32px"; break;
+                    lineSpacing += "16px"; break;
                 default:
                     lineSpacing += "8px"; break;
             }

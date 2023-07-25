@@ -1,5 +1,4 @@
-﻿using ApexCharts;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
@@ -38,6 +37,14 @@ namespace SimTECH.Data.Services
                 .SingleAsync(e => e.Id == raceId);
         }
 
+        public async Task<Race> GetRaceByRound(long seasonId, int round)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Race
+                .FirstAsync(e => e.SeasonId == seasonId && e.Round == round);
+        }
+
         public async Task<Race?> GetNextRaceOfSeason(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -53,12 +60,14 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
+            // Too many includes, optimize?
             return await context.Result
                 .Where(e => e.RaceId == raceId)
                 .Include(e => e.Incident)
                 .Include(e => e.LapScores)
                 .Include(e => e.SeasonDriver)
                     .ThenInclude(e => e.Driver)
+                .Include(e => e.SeasonTeam)
                 .ToListAsync();
         }
 
@@ -163,6 +172,8 @@ namespace SimTECH.Data.Services
             result.TyreId = tyre.Id;
             result.TyreLife = tyre.Pace;
 
+            context.Update(result);
+
             await context.SaveChangesAsync();
         }
 
@@ -225,6 +236,13 @@ namespace SimTECH.Data.Services
             context.QualifyingScore.AddRange(qualyScores);
 
             await context.SaveChangesAsync();
+        }
+
+        public async Task<List<GivenPenalty>> GetPenalties()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.GivenPenalty.Include(e => e.Incident).ToListAsync();
         }
 
         public async Task<List<GivenPenalty>> GetUnconsumedPenalties()
@@ -305,12 +323,11 @@ namespace SimTECH.Data.Services
                 }
             }
 
-            // De-activate the drivers which had a lethal crash
+            // Drop drivers which had a lethal crash
             foreach (var death in finishedResults.Where(e => e.Incident?.Category == CategoryIncident.Lethal))
             {
                 var ripSeasonDriver = seasonDrivers.Single(e => e.Id == death.SeasonDriverId);
                 ripSeasonDriver.SeasonTeamId = null;
-                ripSeasonDriver.Driver.Alive = false;
             }
 
             context.UpdateRange(seasonTeams);
@@ -383,7 +400,10 @@ namespace SimTECH.Data.Services
                 throw new InvalidOperationException("We're going to need some actual drivers too");
 
             // Set eventual penalties
-            var unconsumedPenalties = await context.GivenPenalty.Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId).ToListAsync();
+            var unconsumedPenalties = await context.GivenPenalty
+                .Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId)
+                .Include(e => e.Incident)
+                .ToListAsync();
             if (unconsumedPenalties?.Any() == true)
             {
                 foreach (var penalty in unconsumedPenalties.GroupBy(e => e.SeasonDriverId))

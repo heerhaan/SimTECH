@@ -1,6 +1,4 @@
-﻿@using static SimTECH.Pages.Season.DevelopmentEntrants;
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">Summary season developments</MudText>
     </TitleContent>
@@ -9,7 +7,6 @@
             <MudStack Row="true" Justify="Justify.SpaceBetween">
                 <div>
                     <MudText Typo="Typo.body2" Color="Color.Info">For every aspect, left: total change, right: current value</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Warning">TODO: Ugly as hell</MudText>
                 </div>
                 <ScreenshotButton TargetId="developed-summary" />
             </MudStack>
@@ -18,22 +15,26 @@
             <MudStack Row="true" Spacing="0" Class="flex-wrap">
                 @foreach (var entrantGroup in Summaries)
                 {
-                    <MudPaper Elevation="15" Class="px-4 py-2">
+                    <MudPaper Elevation="15" Class="px-4 py-2" id="@(entrantGroup.SummaryElementId)">
                         <MudTable T="EntrantDevelopLog"
                                   Items="@entrantGroup.EntrantLogs.OrderBy(e => e.Name)"
                                   GroupBy="@_entrantDefinition"
                                   GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                                  FixedHeader="true"
                                   Bordered="true"
-                                  Dense="true">
+                                  Dense="true"
+                                  Class="extra-dense">
                             <ToolBarContent>
                                 <MudText Typo="Typo.h5" Color="Color.Tertiary">@entrantGroup.EntrantGroup.ToString()</MudText>
                                 <MudDivider Vertical="true" Class="mx-2" />
                                 <MudText Typo="Typo.h5">Boing</MudText>
+                                <MudSpacer />
+                                <ScreenshotButton TargetId="@(entrantGroup.SummaryElementId)" />
                             </ToolBarContent>
                             <HeaderContent>
-                                @foreach (var (aspect, i) in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()).Select((aspect, i) => (aspect, i)))
+                                @foreach (var (aspect, i) in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()).WithIndex())
                                 {
-                                    <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")" Style="width: 150px" colspan="2">
+                                    <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")">
                                         @aspect.ReadableAspect()
                                     </MudTh>
                                 }
@@ -44,17 +45,20 @@
                                 </MudTh>
                             </GroupHeaderTemplate>
                             <RowTemplate>
-                                @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()).Select((dev, i) => (dev, i)))
+                                @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()).WithIndex())
                                 {
-                                    <MudTd Class="@(InspectTheWheel(i))" Style="width: 75px">
-                                        <GradientColour Min="@entrantGroup.MinMaxValues[dev.Key].Item1"
-                                                        Max="@entrantGroup.MinMaxValues[dev.Key].Item2"
-                                                        Value="@dev.Value.Item1">
-                                            <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
-                                        </GradientColour>
-                                    </MudTd>
-                                    <MudTd Class="@(InspectTheWheel(i))" Style="width: 75px">
-                                        <MudText Typo="Typo.caption">@dev.Value.Item2</MudText>
+                                    <MudTd Class="@(InspectTheWheel(i))">
+                                        <MudStack Row="true" Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                            <MudText Typo="Typo.caption" Style="color:white !important">@(@dev.Value.Item1 - dev.Value.Item2)</MudText>
+                                            <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
+                                            <GradientColour Min="@entrantGroup.MinMaxValues[dev.Key].Item1"
+                                                            Max="@entrantGroup.MinMaxValues[dev.Key].Item2"
+                                                            Value="@dev.Value.Item1">
+                                                <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
+                                            </GradientColour>
+                                            <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
+                                            <MudText Typo="Typo.caption" Style="color:white !important">@dev.Value.Item2</MudText>
+                                        </MudStack>
                                     </MudTd>
                                 }
                             </RowTemplate>
@@ -68,13 +72,66 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? SummaryDialog { get; set; }
-    [Parameter, EditorRequired] public List<DevelopSummary> Summaries { get; set; }
+
+    [Parameter] public IEnumerable<DevelopmentLog> DevelopmentLog { get; set; } = Enumerable.Empty<DevelopmentLog>();
+    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
+    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
+    [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
+
+    private List<DevelopSummary> Summaries { get; set; } = new();
 
     private TableGroupDefinition<EntrantDevelopLog> _entrantDefinition = new()
     {
         GroupName = "Entrant",
         Selector = (e) => e.Name
     };
+
+    protected override void OnInitialized()
+    {
+        // Build summaries first
+        foreach (var entrantSummary in DevelopmentLog.GroupBy(e => e.EntrantGroup))
+        {
+            var entrantLog = new List<EntrantDevelopLog>();
+
+            // Iterates through the logs of a single entrant
+            foreach (var developed in entrantSummary.ToArray().GroupBy(e => e.EntrantId))
+            {
+                EntrantDevelopLog? currentLog;
+                var developedLogs = developed.ToArray();
+
+                switch (entrantSummary.Key)
+                {
+                    case Entrant.Driver:
+                        currentLog = CreateDriverLog(developed.Key, developedLogs); break;
+                    case Entrant.Team:
+                        currentLog = CreateTeamLog(developed.Key, developedLogs); break;
+                    case Entrant.Engine:
+                        currentLog = CreateEngineLog(developed.Key, developedLogs); break;
+                    default:
+                        currentLog = null; break;
+                }
+
+                if (currentLog != null)
+                    entrantLog.Add(currentLog);
+            }
+
+            var minMaxPerAspect = new Dictionary<Aspect, (int, int)>();
+            foreach (var allChanged in entrantLog.SelectMany(e => e.DevelopedAspects).GroupBy(e => e.Key))
+            {
+                var lowest = allChanged.Select(e => e.Value.Item1).Min();
+                var highest = allChanged.Select(e => e.Value.Item1).Max();
+                minMaxPerAspect.Add(allChanged.Key, (lowest, highest));
+            }
+
+            Summaries.Add(new DevelopSummary
+                {
+                    EntrantGroup = entrantSummary.Key,
+                    Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),
+                    EntrantLogs = entrantLog,
+                    MinMaxValues = minMaxPerAspect,
+                });
+        }
+    }
 
     private static readonly string[] cycleWheel = new[] { "fallback-muted-background-primary", "fallback-muted-background-secondary", "fallback-muted-background-tertiary" };
     private int colorCycler = 0;
@@ -83,5 +140,67 @@
     {
         numCycle %= cycleWheel.Length;
         return cycleWheel[numCycle];
+    }
+
+    private EntrantDevelopLog? CreateDriverLog(long driverId, DevelopmentLog[] logs)
+    {
+        var matchingDriver = SeasonDrivers?.FirstOrDefault(e => e.Id == driverId);
+
+        if (matchingDriver == null)
+            return null;
+
+        var developedAspects = logs
+            .GroupBy(e => e.DevelopedAspect)
+            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingDriver.RetrieveAspectValue(e.Key)));
+
+        return new EntrantDevelopLog
+            {
+                EntrantId = driverId,
+                Entrant = Entrant.Driver,
+                Name = matchingDriver.Driver.FullName,
+                Nationality = matchingDriver.Driver.Country,
+                DevelopedAspects = developedAspects,
+            };
+    }
+
+    private EntrantDevelopLog? CreateTeamLog(long teamId, DevelopmentLog[] logs)
+    {
+        var matchingTeam = SeasonTeams?.FirstOrDefault(e => e.Id == teamId);
+
+        if (matchingTeam == null)
+            return null;
+
+        var developedAspects = logs
+            .GroupBy(e => e.DevelopedAspect)
+            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingTeam.RetrieveAspectValue(e.Key)));
+
+        return new EntrantDevelopLog
+            {
+                EntrantId = teamId,
+                Entrant = Entrant.Team,
+                Name = matchingTeam.Name,
+                Nationality = matchingTeam.Team.Country,
+                DevelopedAspects = developedAspects,
+            };
+    }
+
+    private EntrantDevelopLog? CreateEngineLog(long engineId, DevelopmentLog[] logs)
+    {
+        var matchingEngine = SeasonEngines?.FirstOrDefault(e => e.Id == engineId);
+
+        if (matchingEngine == null)
+            return null;
+
+        var developedAspects = logs
+            .GroupBy(e => e.DevelopedAspect)
+            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingEngine.RetrieveAspectValue(e.Key)));
+
+        return new EntrantDevelopLog
+            {
+                EntrantId = engineId,
+                Entrant = Entrant.Engine,
+                Name = matchingEngine.Name,
+                DevelopedAspects = developedAspects,
+            };
     }
 }

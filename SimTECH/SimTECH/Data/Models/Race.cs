@@ -17,4 +17,17 @@
         public IList<RaceOccurrence> Occurrences { get; set; } = default!;
         public IList<Result> Results { get; set; } = default!;
     }
+
+    public static class ExtendRace
+    {
+        public static Race? FindNext(this IEnumerable<Race> races)
+        {
+            if (!races.Any())
+                return null;
+
+            return races
+                .OrderBy(e => e.Round)
+                .FirstOrDefault(e => e.State == State.Concept || e.State == State.Active || e.State == State.Advanced);
+        }
+    }
 }

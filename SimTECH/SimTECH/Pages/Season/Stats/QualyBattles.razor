@@ -1,44 +1,61 @@
-﻿@inject SeasonService _seasonService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>Qualifying battles</MudText>
-        <MudText Color="Color.Warning">Screen might break or just not work properly for teams with more than 2 drivers</MudText>
     </TitleContent>
     <DialogContent>
         <MudContainer>
-            @* use a grouped table here, dimwit *@
             <MudPaper>
-                @if (QualifyingBattles != null)
-                {
-                    <MudSimpleTable>
-                        <thead>
-                            <tr>
-                                <th>Name A</th>
-                                <th>Score A</th>
-                                <th>Score B</th>
-                                <th>Name B</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var teamgroup in QualifyingBattles.GroupBy(e => e.Team))
+                <MudTable T="QualyBattleComparison"
+                          Items="@QualyBattleList"
+                          GroupBy="@_groupDefinition"
+                          GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                          FixedHeader="true"
+                          Dense="true"
+                          Class="extra=dense"
+                          id="qualy-battles-table"
+                          >
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h5">Qualifying battles</MudText>
+                        <MudSpacer />
+                        <ScreenshotButton TargetId="qualy-battles-table" />
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh Class="accent-cell"></MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh Class="number-col">NO</MudTh>
+                        <MudTh>Victorious</MudTh>
+                    </HeaderContent>
+                    <GroupHeaderTemplate>
+                        <MudTh Class="mud-table-cell-custom-group" colspan="10">
+                            @if (context.Key is SeasonTeam teamObj)
                             {
-                                <tr>
-                                    <td colspan="4" style="text-align:center">
-                                        <MudText Typo="Typo.subtitle1">@teamgroup.Key</MudText>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    @foreach (var driver in teamgroup)
-                                    {
-                                        <td>@driver.Name</td>
-                                        <td>@driver.Score</td>
-                                    }
-                                </tr>
+                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText>@teamObj.Name</MudText>
+                                    <MudSpacer />
+                                    <CountryFlag Code="@teamObj.Team.Country" Size="ElementSize.Small" />
+                                </MudStack>
                             }
-                        </tbody>
-                    </MudSimpleTable>
-                }
+                        </MudTh>
+                    </GroupHeaderTemplate>
+                    <RowTemplate>
+                        <MudTd Class="accent-cell">
+                            <SmolAccent Colour="@context.Colour" />
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0">
+                                <MudText>@context.Name</MudText>
+                                <MudSpacer></MudSpacer>
+                                <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
+                            </MudStack>
+                        </MudTd>
+                        <MudTd Class="number-col">
+                            <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
+                        </MudTd>
+                        <MudTd>
+                            <MudText Typo="Typo.h5">@context.VictoryCount</MudText>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
             </MudPaper>
         </MudContainer>
     </DialogContent>
@@ -47,12 +64,75 @@
 @code {
     [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
 
-    [Parameter, EditorRequired] public long SeasonId { get; set; }
+    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
+    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
+    [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
 
-    private List<QualyBattle>? QualifyingBattles;
+    private List<QualyBattleComparison> QualyBattleList = new();
 
-    protected override async Task OnInitializedAsync()
+    private TableGroupDefinition<QualyBattleComparison> _groupDefinition = new()
     {
-        QualifyingBattles = await _seasonService.GetQualifyingBattles(SeasonId);
+        GroupName = "Team",
+        Selector = e => e.Team
+    };
+
+    protected override void OnInitialized()
+    {
+        // Iterate through all the results of a team
+        foreach (var teamResults in Results.GroupBy(e => e.SeasonTeamId))
+        {
+            var team = SeasonTeams.First(e => e.Id == teamResults.Key);
+
+            var driverVictories = new Dictionary<long, int>();
+
+            // Iterate through the results of a team per race
+            foreach (var raceResults in teamResults.GroupBy(e => e.RaceId).Where(e => e.Any()))
+            {
+                var highestPlaced = raceResults.MinBy(e => e.Grid);
+
+                if (highestPlaced == null)
+                    continue;
+
+                if (driverVictories.ContainsKey(highestPlaced.SeasonDriverId))
+                    driverVictories[highestPlaced.SeasonDriverId]++;
+                else
+                    driverVictories.Add(highestPlaced.SeasonDriverId, 1);
+            }
+
+            foreach (var victory in driverVictories)
+            {
+                var driver = SeasonDrivers.First(e => e.Id == victory.Key);
+
+                QualyBattleList.Add(new QualyBattleComparison
+                {
+                    Name = driver.Driver.FullName,
+                    Number = driver.Number,
+                    Country = driver.Driver.Country,
+                    VictoryCount = victory.Value,
+
+                    TeamId = team.Id,
+                    TeamName = team.Name,
+                    Colour = team.Colour,
+                    Accent = team.Accent,
+
+                    Team = team
+                });
+            }
+        }
+    }
+
+    internal class QualyBattleComparison
+    {
+        public string Name { get; set; }
+        public int Number { get; set; }
+        public Country Country { get; set; }
+        public int VictoryCount { get; set; }
+
+        public long TeamId { get; set; }
+        public string TeamName { get; set; }
+        public string Colour { get; set; }
+        public string Accent { get; set; }
+
+        public SeasonTeam Team { get; set; }
     }
 }

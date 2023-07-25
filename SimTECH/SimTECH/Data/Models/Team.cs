@@ -5,6 +5,7 @@
         public string Name { get; set; } = default!;
         public Country Country { get; set; }
         public string Biography { get; set; } = default!;
+        public bool Mark { get; set; }
 
         // We need a very worked out design for how finances will be used and how to implement it in such a way that it can work automatically too
         // Thus far sponsors each season are a swell idea, (so part of SeasonTeam). But how will the money be used, contracts?

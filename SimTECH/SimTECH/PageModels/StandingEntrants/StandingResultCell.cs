@@ -1,4 +1,6 @@
-﻿namespace SimTECH.PageModels.StandingEntrants
+﻿using SimTECH.Extensions;
+
+namespace SimTECH.PageModels.StandingEntrants
 {
     public class StandingResultCell
     {
@@ -14,27 +16,9 @@
     {
         public static string GetResultStyle(this StandingResultCell cell, int lowestScoringPosition)
         {
-            string? cellStyle;
-
-            if (cell.Status == RaceStatus.Dnq)
+            if (cell.Status == RaceStatus.Racing)
             {
-                cellStyle = "background-color: rebeccapurple;";
-            }
-            else if (cell.Status == RaceStatus.Dsq)
-            {
-                cellStyle = "background-color: black;color:white !important";
-            }
-            else if (cell.Status == RaceStatus.Dnf)
-            {
-                cellStyle = "background-color: red;";
-            }
-            else if (cell.Status == RaceStatus.Fatal)
-            {
-                cellStyle = "background-color: white;";
-            }
-            else
-            {
-                cellStyle = cell.Position switch
+                return cell.Position switch
                 {
                     1 => "background-color: gold;",
                     2 => "background-color: silver;",
@@ -44,20 +28,15 @@
                 };
             }
 
-            // Possibly can return immediatly depending on whether we want to do more with this or not
-            return cellStyle;
+            return cell.Status.StatusStyles();
         }
 
         public static string GetResultText(this StandingResultCell cell)
         {
-            return cell.Status switch
-            {
-                RaceStatus.Dnq => "DNQ",
-                RaceStatus.Dsq => "DSQ",
-                RaceStatus.Dnf => "DNF",
-                RaceStatus.Fatal => "RIP",
-                _ => cell.Position.ToString(),
-            };
+            if (cell.Status == RaceStatus.Racing)
+                return cell.Position.ToString();
+
+            return cell.Status.ReadableStatus();
         }
     }
 }

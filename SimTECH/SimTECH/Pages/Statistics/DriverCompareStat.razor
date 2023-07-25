@@ -3,21 +3,28 @@
 <MudDialog>
     <TitleContent>
         <MudText>Driver comparison</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Warning">Does net yet filter based on which league</MudText>
     </TitleContent>
     <DialogContent>
         <MudContainer Class="pa-2">
             <MudPaper Width="1100px">
-                @if (Drivers != null)
+                @if (!loading)
                 {
                     <MudStack>
-                        <MudText>Add drivers to comparison</MudText>
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <MudText>Add drivers to comparison</MudText>
+                            @if (rendered)
+                            {
+                                <MudButton Color="Color.Primary" OnClick="UpdateChart">Update</MudButton>
+                            }
+                        </MudStack>
                         <MudStack Row="true" Justify="Justify.SpaceBetween">
                             <MudSelectExtended
                                 ItemCollection="@Drivers"
                                 T="Driver"
+                                SelectedValuesChanged="SelectionChanged"
                                 MultiSelection="true"
                                 MultiSelectionTextFunc="GetSelectedText"
-                                SelectedValuesChanged="SelectionChanged"
                                 Label="Driver One"
                                 SearchBox="true"
                                 SearchFunc="SearchDrivers"
@@ -33,7 +40,7 @@
                             </MudSelectExtended>
                             
                             <div>
-                                @foreach (var compared in comparableDrivers)
+                                @foreach (var compared in ComparableDrivers)
                                 {
                                     <MudText Typo="Typo.body1">
                                         <CountryFlag Code="@compared.Key.Country" Size="ElementSize.Small" />
@@ -46,15 +53,15 @@
                         <MudDivider />
 
                         <div class="pa-2" style="min-height: 600px">
-                            @if (comparableDrivers.Any())
+                            @if (rendered)
                             {
                                 <ApexCharts.ApexChart @ref="chart"
                                                       TItem="DataPoint"
-                                                      Title="Driver compare"
+                                                      Title="Compare drivers"
                                                       Options="@options"
                                                       Height="500"
                                                       Width="@("100%")">
-                                    @foreach (var driverCompare in comparableDrivers)
+                                    @foreach (var driverCompare in ComparableDrivers)
                                     {
                                         <ApexCharts.ApexPointSeries TItem="DataPoint"
                                                                     Items="@driverCompare.Value.DataPoints"
@@ -76,13 +83,16 @@
 @code {
     [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
 
+    private List<Driver> Drivers;
+    private IEnumerable<Driver> SelectedDrivers { get; set; } = new HashSet<Driver>();
+    private Dictionary<Driver, DataSet> ComparableDrivers { get; set; } = new();
+
     ApexCharts.ApexChart<DataPoint>? chart;
     ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
-    List<Driver>? Drivers;
 
-    Dictionary<Driver, DataSet> comparableDrivers = new();
-
-    bool preparedData = false;
+    bool loading = true;
+    bool rendered = false;
+    string message = "none";
 
     protected override void OnInitialized()
     {
@@ -98,6 +108,8 @@
     protected override async Task OnInitializedAsync()
     {
         Drivers = await DriverService.GetDrivers();
+
+        loading = false;
     }
 
     private bool SearchDrivers(Driver driver, string text)
@@ -124,18 +136,22 @@
         if (selectedDrivers == null || selectedDrivers.Count() == 0)
             return;
 
-        foreach (var removeable in comparableDrivers.Keys.Where(e => !selectedDrivers.Contains(e)))
-            comparableDrivers.Remove(removeable);
+        foreach (var removeable in ComparableDrivers.Keys.Where(e => !selectedDrivers.Contains(e)))
+            ComparableDrivers.Remove(removeable);
 
-        foreach (var addable in selectedDrivers.Where(e => !comparableDrivers.ContainsKey(e)))
+        var tasks = new List<Task>();
+        foreach (var addable in selectedDrivers.Where(e => !ComparableDrivers.ContainsKey(e)))
+            tasks.Add(AddDataSet(addable));
+
+        var taskRunner = Task.WhenAll(tasks);
+
+        await taskRunner;
+
+        if (taskRunner.IsCompleted)
         {
-            await AddDataSet(addable);
+            StateHasChanged();
+            rendered = true;
         }
-
-        if (chart != null)
-            await chart.RenderAsync();
-
-        preparedData = true;
     }
 
     async Task AddDataSet(Driver driver)
@@ -150,6 +166,15 @@
         dataSet.DataPoints.Add(new DataPoint("Poles", driverResults.Count(e => e.Grid == 1)));
         dataSet.DataPoints.Add(new DataPoint("DNFs", driverResults.Count(e => e.Status == RaceStatus.Dnf || e.Status == RaceStatus.Dsq)));
 
-        comparableDrivers.Add(driver, dataSet);
+        ComparableDrivers.Add(driver, dataSet);
+    }
+
+    private async Task UpdateChart()
+    {
+        if (!ComparableDrivers.Any() || chart == null)
+            return;
+
+        await chart.ResetSeriesAsync(true, true);
+        await chart.RenderAsync();
     }
 }

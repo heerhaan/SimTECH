@@ -17,22 +17,11 @@ namespace SimTECH.Data.Models
     {
         public static IEnumerable<Enum> ListOfDubiousEvents(this LapScore lapScore) =>
             lapScore.RacerEvents.GetFlagged()
-                .Where(e => e.ToString() != "Unknown" && e.ToString() != "Racing" && e.ToString() != "Caution");
+                .Where(e => e.ToString() != "Unknown" && e.ToString() != "Racing");
 
         public static bool HasDnfed(this LapScore lapScore) =>
                    lapScore.RacerEvents.HasFlag(RacerEvent.DriverDnf)
                 || lapScore.RacerEvents.HasFlag(RacerEvent.CarDnf)
                 || lapScore.RacerEvents.HasFlag(RacerEvent.EngineDnf);
-
-        public static string DetermineLapColour(this LapScore lapScore)
-        {
-            if (lapScore.HasDnfed())
-                return "red";
-
-            if (lapScore.RacerEvents.HasFlag(RacerEvent.Caution))
-                return "yellow";
-
-            return "green";
-        }
     }
 }

@@ -9,11 +9,13 @@ namespace SimTECH.Data.EditModels
         public long Id { get; set; }
         public string Name { get; set; }
         public int Odds { get; set; }
+        public string? Colour { get; set; }
         public State State { get; set; }
 
         public CategoryIncident Category { get; set; }
         public int Limit { get; set; }
         public int Punishment { get; set; }
+        public bool Penalized { get; set; }
 
         public EditIncident(Incident? incident)
         {
@@ -26,10 +28,12 @@ namespace SimTECH.Data.EditModels
                 Id = incident.Id;
                 Name = incident.Name;
                 Odds = incident.Odds;
+                Colour = incident.Colour;
                 State = incident.State;
                 Category = incident.Category;
                 Limit = incident.Limit;
                 Punishment = incident.Punishment;
+                Penalized = incident.Penalized;
 
                 _incident = incident;
             }
@@ -41,10 +45,12 @@ namespace SimTECH.Data.EditModels
                 Id = Id,
                 Name = Name,
                 Odds = Odds,
+                Colour = Colour,
                 State = State,
                 Category = Category,
                 Limit = Limit,
-                Punishment = Punishment
+                Punishment = Punishment,
+                Penalized = Penalized,
             };
 
         public bool IsDirty => _incident != Record;

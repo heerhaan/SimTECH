@@ -1,115 +1,200 @@
-﻿@inject SeasonService SeasonService
-
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
-    @if (DriverRankings != null)
-    {
-        <MudPaper MinHeight="60px">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
-                <MudText Typo="Typo.h3">Power rankings</MudText>
+﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Power rankings</MudText>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="PowerRankListing" Items="@PowahList" Dense="true" Loading="@loading">
+        <Columns>
+            <HierarchyColumn T="PowerRankListing" />
+            <TemplateColumn T="PowerRankListing" SortBy="e => e.DriverName" Title="Driver">
+                <CellTemplate>
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
+                        <MudText Typo="Typo.body2" Class="overflow-hider">@context.Item.DriverName</MudText>
+                        <CountryFlag Code="@context.Item.Nationality" Size="ElementSize.Small" />
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn T="PowerRankListing"
+                            SortBy="e => e.DriverNumber"
+                            Title="NO"
+                            HeaderClass="number-col hide-sort-icons"
+                            CellClass="number-col">
+                <CellTemplate>
+                    <NumberDisplay Colour="@context.Item.Colour" Accent="@context.Item.Accent">@context.Item.DriverNumber</NumberDisplay>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="e => e.TeamName" Title="Team" CellClass="overflow-hider" CellStyleFunc="@SimpleCellStyle" />
+            <PropertyColumn Property="e => e!.Engine" Title="Engine" HeaderClass="hide-sort-icons" />
+            <PropertyColumn Property="e => e!.Manufacturer" Title="Supplier" HeaderClass="hide-sort-icons" />
+            <PropertyColumn Property="e => e!.QualyPower" Title="Q.PWR" HeaderClass="hide-sort-icons" CellClass="font-caption" />
+            <PropertyColumn Property="e => e!.RacePower" Title="R.PWR" HeaderClass="hide-sort-icons" CellClass="font-caption" />
+            <TemplateColumn T="PowerRankListing" Title="A/C/P" SortBy="e => e.CarPartAvg" HeaderClass="hide-sort-icons">
+                <CellTemplate>
+                    <MudText Typo="Typo.caption">@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="e => e!.RelAvg" Title="REL.AVG" HeaderClass="hide-sort-icons" CellClass="font-caption" />
+        </Columns>
+        <ChildRowContent>
+            <MudText Color="Color.Warning">Should still be designed properly</MudText>
+            <MudText Color="Color.Warning">Would a complete overview of all the supporting numbers be useufl?</MudText>
+            <MudStack Row="true" Spacing="1">
+                <MudPaper Class="px-4 py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Driver reliability</MudText>
+                        <MudDivider />
+                        <MudText Typo="Typo.caption">@(context.Item.DriverRel)</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper Class="px-4 py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Car reliability</MudText>
+                        <MudDivider />
+                        <MudText Typo="Typo.caption">@(context.Item.CarRel)</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper Class="px-4 py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Engine reliability</MudText>
+                        <MudDivider />
+                        <MudText Typo="Typo.caption">@(context.Item.EngineRel)</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper Class="px-4 py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Tyre life bonus</MudText>
+                        <MudDivider />
+                        <MudText Typo="Typo.caption">@context.Item.LifeBonus</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper Class="px-4 py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>Wear modifiers</MudText>
+                        <MudDivider />
+                        <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
+                            <MudText Typo="Typo.caption">@context.Item.WearMin</MudText>
+                            <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                            <MudText Typo="Typo.caption">@context.Item.WearMax</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper Class="px-4 py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText>RNG modifiers</MudText>
+                        <MudDivider />
+                        <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
+                            <MudText Typo="Typo.caption">@context.Item.RngMin</MudText>
+                            <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                            <MudText Typo="Typo.caption">@context.Item.RngMax</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudPaper>
             </MudStack>
-        </MudPaper>
-        <MudDataGrid T="PowerRankModel" Items="@DriverRankings" Dense="true">
-            <Columns>
-                <HierarchyColumn T="PowerRankModel" />
-                <TemplateColumn T="PowerRankModel" SortBy="e => e.DriverName" Title="Driver">
-                    <CellTemplate>
-                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
-                            <MudText Typo="Typo.body2" Class="overflow-hider">@context.Item.DriverName</MudText>
-                            <CountryFlag Code="@context.Item.Nationality" Size="ElementSize.Small" />
-                        </MudStack>
-                    </CellTemplate>
-                </TemplateColumn>
-                <TemplateColumn T="PowerRankModel"
-                                SortBy="e => e.DriverNumber"
-                                Title="NO"
-                                HeaderClass="number-col hide-sort-icons"
-                                CellClass="number-col">
-                    <CellTemplate>
-                        <NumberDisplay Colour="@context.Item.Colour" Accent="@context.Item.Accent">@context.Item.DriverNumber</NumberDisplay>
-                    </CellTemplate>
-                </TemplateColumn>
-                <PropertyColumn Property="e => e.TeamName" Title="Team" CellClass="overflow-hider" CellStyleFunc="@SimpleCellStyle" />
-                <PropertyColumn Property="e => e!.Engine" Title="Engine" HeaderClass="hide-sort-icons" />
-                <PropertyColumn Property="e => e!.Manufacturer" Title="Supplier" HeaderClass="hide-sort-icons" />
-                <PropertyColumn Property="e => e!.QualyPower" Title="Q.PWR" CellClass="font-caption" HeaderClass="hide-sort-icons" />
-                <PropertyColumn Property="e => e!.RacePower" Title="R.PWR" CellClass="font-caption" HeaderClass="hide-sort-icons" />
-                <TemplateColumn T="PowerRankModel" Title="A/C/P" Sortable="false">
-                    <CellTemplate>
-                        <MudText Typo="Typo.caption">@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
-                    </CellTemplate>
-                </TemplateColumn>
-                <TemplateColumn T="PowerRankModel" Title="Rel. avg." Sortable="false">
-                    <CellTemplate>
-                        <MudText Typo="Typo.caption">
-                            @(NumberHelper.Average((context.Item.DriverRel + context.Item.CarRel + context.Item.EngineRel), 3))
-                        </MudText>
-                    </CellTemplate>
-                </TemplateColumn>
-            </Columns>
-            <ChildRowContent>
-                <MudText Color="Color.Warning">Should still be designed properly</MudText>
-                <MudStack Row="true" Spacing="1">
-                    <MudPaper Class="px-4 py-2">
-                        <MudStack AlignItems="AlignItems.Center">
-                            <MudText>Driver reliability</MudText>
-                            <MudDivider />
-                            <MudText Typo="Typo.caption">@(context.Item.DriverRel)</MudText>
-                        </MudStack>
-                    </MudPaper>
-                    <MudPaper Class="px-4 py-2">
-                        <MudStack AlignItems="AlignItems.Center">
-                            <MudText>Car reliability</MudText>
-                            <MudDivider />
-                            <MudText Typo="Typo.caption">@(context.Item.CarRel)</MudText>
-                        </MudStack>
-                    </MudPaper>
-                    <MudPaper Class="px-4 py-2">
-                        <MudStack AlignItems="AlignItems.Center">
-                            <MudText>Engine reliability</MudText>
-                            <MudDivider />
-                            <MudText Typo="Typo.caption">@(context.Item.EngineRel)</MudText>
-                        </MudStack>
-                    </MudPaper>
-                    <MudPaper Class="px-4 py-2">
-                        <MudStack AlignItems="AlignItems.Center">
-                            <MudText>Wear modifiers</MudText>
-                            <MudDivider />
-                            <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
-                                <MudText Typo="Typo.caption">@context.Item.WearMin</MudText>
-                                <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
-                                <MudText Typo="Typo.caption">@context.Item.WearMax</MudText>
-                            </MudStack>
-                        </MudStack>
-                    </MudPaper>
-                    <MudPaper Class="px-4 py-2">
-                        <MudStack AlignItems="AlignItems.Center">
-                            <MudText>RNG modifiers</MudText>
-                            <MudDivider />
-                            @if (context.Item.TraitEffect != null)
-                            {
-                                <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
-                                    <MudText Typo="Typo.caption">@context.Item.TraitEffect.MinRNG</MudText>
-                                    <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
-                                    <MudText Typo="Typo.caption">@context.Item.TraitEffect.MaxRNG</MudText>
-                                </MudStack>
-                            }
-                        </MudStack>
-                    </MudPaper>
-                </MudStack>
-            </ChildRowContent>
-        </MudDataGrid>
-    }
+        </ChildRowContent>
+    </MudDataGrid>
 </MudContainer>
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
-    List<PowerRankModel> DriverRankings;
+    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
+    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
+    [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
+    [Parameter] public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
+    [Parameter] public IEnumerable<Trait> Traits { get; set; } = Enumerable.Empty<Trait>();
+    [Parameter] public int TeamRoleCarModifier { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    private List<PowerRankListing> PowahList = new();
+
+    private bool loading = true;
+
+    protected override void OnInitialized()
     {
-        DriverRankings = await SeasonService.GetPowerRankings(Season.Id);
+        loading = true;
+
+        foreach (var driver in SeasonDrivers)
+        {
+            var team = SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
+            // Skip any driver who isn't currently part of a team
+            if (team == null)
+                continue;
+
+            var engine = SeasonEngines.First(e => e.Id == team.SeasonEngineId);
+            var manufacturer = Manufacturers.First(e => e.Id == team.ManufacturerId);
+
+            var driverTraitIds = driver.Driver.DriverTraits?.Select(e => e.TraitId).ToList() ?? new();
+            var teamTraitIds = team.Team.TeamTraits?.Select(e => e.TraitId).ToList() ?? new();
+
+            var relevantTraits = Traits.Where(e => driverTraitIds.Contains(e.Id) || teamTraitIds.Contains(e.Id)).ToList();
+
+            var basePower = driver.Skill + driver.RetrieveStatusBonus(TeamRoleCarModifier) + team.BaseValue + engine.Power;
+
+            var listing = new PowerRankListing
+            {
+                DriverName = driver.Driver.FullName,
+                DriverNumber = driver.Number,
+                Nationality = driver.Driver.Country,
+                TeamName = team.Team.Name,
+                Colour = team.Colour,
+                Accent = team.Accent,
+                Engine = engine.Name,
+                Manufacturer = manufacturer.Name,
+                QualyPower = basePower + relevantTraits.Sum(e => e.QualifyingPace),
+                RacePower = basePower + relevantTraits.Sum(e => e.RacePace),
+                Aero = team.Aero,
+                Chassis = team.Chassis,
+                Powertrain = team.Powertrain,
+                DriverRel = driver.Reliability,
+                CarRel = team.Reliability,
+                EngineRel = engine.Reliability,
+                LifeBonus = manufacturer.Pace,
+                WearMin = manufacturer.WearMin + relevantTraits.Sum(e => e.WearMin),
+                WearMax = manufacturer.WearMax + relevantTraits.Sum(e => e.WearMax),
+                RngMin = relevantTraits.Sum(e => e.RngMin),
+                RngMax = relevantTraits.Sum(e => e.RngMax),
+
+                CarPartAvg = NumberHelper.Average(team.Aero, team.Chassis, team.Powertrain),
+                RelAvg = NumberHelper.Average(driver.Reliability, team.Reliability, engine.Reliability),
+            };
+
+            PowahList.Add(listing);
+        }
+
+        loading = false;
     }
 
-    private Func<PowerRankModel, string> SimpleCellStyle => power => ViewHelper.SetBorderRightStyle(power.Colour);
+    private Func<PowerRankListing, string> SimpleCellStyle => power => ViewHelper.SetBorderRightStyle(power.Colour);
+
+    internal class PowerRankListing
+    {
+        public string DriverName { get; set; }
+        public int DriverNumber { get; set; }
+        public Country Nationality { get; set; }
+
+        public string TeamName { get; set; }
+        public string Colour { get; set; } = Constants.DefaultColour;
+        public string Accent { get; set; } = Constants.DefaultAccent;
+
+        public string Engine { get; set; }
+
+        public string Manufacturer { get; set; }
+
+        public int QualyPower { get; set; }
+        public int RacePower { get; set; }
+        public int Aero { get; set; }
+        public int Chassis { get; set; }
+        public int Powertrain { get; set; }
+        public int DriverRel { get; set; }
+        public int CarRel { get; set; }
+        public int EngineRel { get; set; }
+        public int LifeBonus { get; set; }
+        public int WearMin { get; set; }
+        public int WearMax { get; set; }
+        public int RngMin { get; set; }
+        public int RngMax { get; set; }
+
+        public double CarPartAvg { get; set; }
+        public double RelAvg { get; set; }
+    }
 }

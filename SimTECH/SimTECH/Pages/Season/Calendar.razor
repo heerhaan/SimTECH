@@ -1,12 +1,4 @@
-﻿@inject ClimateService _climateService
-@inject LeagueService LeagueService
-@inject RaceService RaceService
-@inject TrackService TrackService
-@inject NavigationManager Nav
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
-
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
+﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Races</MudText>
@@ -24,7 +16,7 @@
             }
         </MudStack>
     </MudPaper>
-    <MudTable Items="@RaceCalendar" Dense="true">
+    <MudTable T="CalendarListing" Items="@SeasonCalendar" Dense="true" Loading="@loading">
         <HeaderContent>
             <MudTh Class="number-col">Round</MudTh>
             <MudTh>Country</MudTh>
@@ -100,17 +92,17 @@
             </MudTd>
             <MudTd>
                 <MudButtonGroup Size="@Size.Small">
-                    @if (Season.State == State.Active && (context.Round == _nextRound))
+                    @if (Season.State == State.Active && (context.Round == nextRound))
                     {
-                        <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRaceWeek(context))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRaceWeek(context.Round))" />
                     }
                     else if (context.State == State.Closed)
                     {
-                        <MudIconButton Icon="@Icons.Material.Filled.Flag" OnClick="@(() => GoToRaceWeek(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Flag" OnClick="@(() => GoToRaceWeek(context.Round))" />
                     }
                     else if (Season.State != State.Closed)
                     {
-                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.RaceId))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.Race))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.RaceId))" />
                     }
                 </MudButtonGroup>
@@ -122,105 +114,114 @@
 @code {
     [CascadingParameter] public Season Season { get; set; }
 
-    List<CalendarRaceModel> RaceCalendar = new();
-    List<Climate> Climates = new();
-    int _nextRound;
+    [Parameter] public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
+    [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
+    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
+    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
+    [Parameter] public IEnumerable<Climate> Climates { get; set; } = Enumerable.Empty<Climate>();
+    [Parameter] public EventCallback OnAddRaces { get; set; }
+    [Parameter] public EventCallback<Race?> OnEditorOpen { get; set; }
+    [Parameter] public EventCallback<long> OnDelete { get; set; }
+    [Parameter] public EventCallback<int> OnGoToRace { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    private List<CalendarListing> SeasonCalendar = new();
+
+    private bool loading = true;
+    private int nextRound;
+
+    protected override void OnParametersSet()
     {
-        RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
-        Climates = await _climateService.GetClimates(StateFilter.All);
+        loading = true;
+        nextRound = Races.FindNext()?.Round ?? 0;
+        SeasonCalendar.Clear();
 
-        _nextRound = (await RaceService.GetNextRaceOfSeason(Season.Id))?.Round ?? 0;
-    }
-
-    private async Task AddRaces()
-    {
-        var seasonLeague = await LeagueService.GetLeagueById(Season.LeagueId);
-        var availableTracks = (await TrackService.GetTracks())
-            .Where(e => !RaceCalendar.Select(r => r.TrackId).Contains(e.Id))
-            .ToList();
-
-        if (seasonLeague == null)
+        foreach (var race in Races)
         {
-            Snackbar.Add("how in the hell is it unknown which league this is, cant do shit now?!", Severity.Error);
-            return;
-        }
+            var climate = Climates.First(e => e.Id == race.ClimateId);
 
-        if (!availableTracks.Any())
-        {
-            Snackbar.Add("there aren't any tracks left to add to this season, ya absolute willy", Severity.Error);
-            return;
-        }
-
-        var parameters = new DialogParameters
+            var listing = new CalendarListing
             {
-                ["Tracks"] = availableTracks,
-                ["SeasonId"] = Season.Id,
-                ["OffsetRound"] = (RaceCalendar.Count + 1),
-                ["DefaultRaceLength"] = seasonLeague.RaceLength,
-                ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
+                RaceId = race.Id,
+                Round = race.Round,
+                Name = race.Name,
+                Country = race.Track.Country,
+                State = race.State,
+                Weather = climate.Terminology,
+                WeatherIcon = climate.Icon,
+                TrackId = race.TrackId,
+
+                Race = race
             };
 
-        var dialog = await DialogService.ShowAsync<AddRaces>("Insert races", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data != null && result.Data is List<Race> addedRaces)
-        {
-            await RaceService.InsertRaces(addedRaces);
-            RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
-        }
-    }
-
-    private async Task UpdateRace(long raceId)
-    {
-        var item = await RaceService.GetRaceById(raceId);
-        var seasonLeague = await LeagueService.GetLeagueById(Season.LeagueId);
-
-        if (seasonLeague == null)
-        {
-            Snackbar.Add("how in the hell is it unknown which league this is, cant do shit now?!", Severity.Error);
-            return;
-        }
-
-        var parameters = new DialogParameters 
+            var polesitter = Results.FirstOrDefault(e => e.RaceId == race.Id && e.Grid == 1);
+            if (polesitter != null)
             {
-                ["Race"] = item,
-                ["SeasonId"] = Season.Id,
-                ["IncomingRound"] = item.Round,
-                ["DefaultRaceLength"] = seasonLeague.RaceLength,
-                ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
-            };
+                var poleDriver = SeasonDrivers.First(e => e.Id == polesitter.SeasonDriverId);
+                var poleTeam = SeasonTeams.First(e => e.Id == polesitter.SeasonTeamId);
 
-        var dialog = await DialogService.ShowAsync<RaceEditor>("Modify Race", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
-        {
-            await RaceService.UpdateRace(updatedRace);
-            RaceCalendar = await RaceService.GetRaceCalendar(Season.Id);
-        }
-    }
-
-    private async Task DeleteRace(long raceId)
-    {
-        await RaceService.DeleteRace(raceId);
-        RaceCalendar.Remove(RaceCalendar.First(e => e.RaceId == raceId));
-    }
-
-    private async Task GoToRaceWeek(CalendarRaceModel race)
-    {
-        if (race.State == State.Concept)
-        {
-            if (race.Round != _nextRound)
-            {
-                Snackbar.Add("oi oi oi, a previous round hasn't been finished (or even started!) yet. do that one first, cunt.", Severity.Error);
-                return;
+                listing.PoleSitter = new CompactDriver
+                {
+                    Name = poleDriver.Driver.FullName,
+                    Country = poleDriver.Driver.Country,
+                    Number = poleDriver.Number,
+                    Colour = poleTeam.Colour,
+                    Accent = poleTeam.Accent
+                };
             }
 
-            await RaceService.ActivateRace(race.RaceId);
+            var winner = Results.FirstOrDefault(e => e.RaceId == race.Id && e.Grid == 1);
+            if (winner != null)
+            {
+                var winnerDriver = SeasonDrivers.First(e => e.Id == winner.SeasonDriverId);
+                var winnerTeam = SeasonTeams.First(e => e.Id == winner.SeasonTeamId);
+
+                listing.DriverWinner = new CompactDriver
+                {
+                    Name = winnerDriver.Driver.FullName,
+                    Country = winnerDriver.Driver.Country,
+                    Number = winnerDriver.Number,
+                    Colour = winnerTeam.Colour,
+                    Accent = winnerTeam.Accent
+                };
+
+                listing.TeamWinner = new CompactTeam
+                {
+                    Name = winnerTeam.Name,
+                    Country = winnerTeam.Team.Country,
+                    Colour = winnerTeam.Colour,
+                    Accent = winnerTeam.Accent
+                };
+            }
+
+            SeasonCalendar.Add(listing);
         }
 
-        Nav.NavigateTo($"/raceweek/{race.RaceId}");
+        loading = false;
+    }
+
+    private async Task AddRaces() => await OnAddRaces.InvokeAsync();
+
+    private async Task UpdateRace(Race? item) => await OnEditorOpen.InvokeAsync(item);
+
+    private async Task DeleteRace(long raceId) => await OnDelete.InvokeAsync(raceId);
+
+    private async Task GoToRaceWeek(int round) => await OnGoToRace.InvokeAsync(round);
+
+    internal class CalendarListing
+    {
+        public long RaceId { get; set; }
+        public int Round { get; set; }
+        public string Name { get; set; }
+        public Country Country { get; set; }
+        public State State { get; set; }
+        public string Weather { get; set; }
+        public string WeatherIcon { get; set; }
+        public long TrackId { get; set; }
+
+        public CompactDriver PoleSitter { get; set; }
+        public CompactDriver DriverWinner { get; set; }
+        public CompactTeam TeamWinner { get; set; }
+
+        public Race Race { get; set; }
     }
 }

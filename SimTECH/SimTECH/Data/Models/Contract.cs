@@ -7,8 +7,15 @@
         //public int Cost { get; set; }
 
         public long DriverId { get; set; }
-        public Driver Driver { get; set; } = default!;
+        public Driver Driver { get; set; }
         public long TeamId { get; set; }
-        public Team Team { get; set; } = default!;
+        public Team Team { get; set; }
+        public long LeagueId { get; set; }
+        public League League { get; set; }
+    }
+
+    public static class ExtendContract
+    {
+        public static bool IsExpired(this Contract contract) => contract.Duration == 0;
     }
 }

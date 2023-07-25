@@ -9,7 +9,7 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.False" Class="mt-16 px-8">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16 px-8">
     <MudGrid Spacing="1">
         <MudItem xs="12">
             <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
@@ -113,9 +113,7 @@
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
                                 <MudText Typo="Typo.body2">[R@(context.Round)] @(context.Name)</MudText>
                                 <MudSpacer />
-                                <MudPaper Class="px-2 fallback-muted-background-gray">
-                                    <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
-                                </MudPaper>
+                                <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
                             </MudStack>
                         </MudTd>
                         <MudTd Class="accent-cell">
@@ -145,13 +143,15 @@
         </MudItem>
         <MudItem xs="12" md="3">
             <MudPaper Elevation="5" Class="pa-4 mud-height-full">
-                
+                <MudText Typo="Typo.h5">Nothing yet</MudText>
+                <MudDivider />
             </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
+    private SimConfig config;
     private List<League> activeLeagues;
     private List<Data.Models.Season> activeSeasons = new();
 
@@ -167,6 +167,7 @@
             new BreadcrumbItem("Home", href: "/", disabled: true),
         });
 
+        config = _config.Value;
         activeLeagues = await _leagueService.GetLeagues(StateFilter.Active);
 
         var seasons = await _seasonService.GetSeasons(StateFilter.Active);

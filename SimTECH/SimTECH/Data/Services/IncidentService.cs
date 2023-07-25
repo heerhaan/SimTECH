@@ -4,14 +4,9 @@ using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services
 {
-    public class IncidentService
+    public class IncidentService : StateService<Incident>
     {
-        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-
-        public IncidentService(IDbContextFactory<SimTechDbContext> factory)
-        {
-            _dbFactory = factory;
-        }
+        public IncidentService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
 
         public async Task<List<Incident>> GetIncidents() => await GetIncidents(StateFilter.Default);
         public async Task<List<Incident>> GetIncidents(StateFilter filter)
@@ -34,16 +29,6 @@ namespace SimTECH.Data.Services
             {
                 context.Update(incident);
             }
-
-            await context.SaveChangesAsync();
-        }
-
-        public async Task ChangeState(Incident incident, State targetState)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            incident.State = targetState;
-            context.Update(incident);
 
             await context.SaveChangesAsync();
         }

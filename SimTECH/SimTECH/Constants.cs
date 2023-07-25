@@ -8,7 +8,7 @@ namespace SimTECH
     public static class Constants
     {
         public const string DefaultBackground = "var(--mud-palette-background)";
-        public const string DefaultColour = "var(--mud-palette-background)";
+        public const string DefaultColour = "var(--mud-palette-primary)";
         public const string DefaultAccent = "var(--mud-palette-text-primary)";
         public const string PrimaryColourDefault = "var(--mud-palette-primary)";
 
@@ -18,13 +18,17 @@ namespace SimTECH
         {
             Icons.Material.Filled.WbSunny,
             Icons.Material.Filled.Cloud,
-            Icons.Material.Filled.WaterDrop,
-            Icons.Material.Filled.Tsunami,
             Icons.Material.Filled.Air,
-            Icons.Material.Filled.NightsStay,
-            IconCollection.Storm,
-            IconCollection.Snowflake,
+            Icons.Material.Filled.WaterDrop,
+            IconCollection.Sunset,
             IconCollection.CloudBolt,
+            Icons.Material.Filled.Tsunami,
+            IconCollection.Storm,
+            IconCollection.Mist,
+            IconCollection.Rainbow,
+            IconCollection.Snowflake,
+            IconCollection.Comet,
+            Icons.Material.Filled.NightsStay,
         };
 
         #region charts
@@ -68,8 +72,8 @@ namespace SimTECH
 
         public static Dictionary<string, MudTheme> SimThemes => new()
         {
-            { "Galaxy", SynthTheme },
-            { "Galaxy (Alt)", SynthAltTheme },
+            { "Galaxy", GalacticTheme },
+            { "Galaxy (Alt)", GalacticAltTheme },
             { "Oceanic", OceanicTheme },
             { "Fiery", FieryTheme },
             { "Neon", NeonTheme },
@@ -81,7 +85,7 @@ namespace SimTECH
             Typography = CommonTypo,
         };
 
-        public static MudTheme SynthTheme => new()
+        public static MudTheme GalacticTheme => new()
         {
             Palette = new PaletteLight()
             {
@@ -106,7 +110,7 @@ namespace SimTECH
             Typography = CommonTypo,
         };
 
-        public static MudTheme SynthAltTheme => new()
+        public static MudTheme GalacticAltTheme => new()
         {
             Palette = new PaletteLight()
             {

@@ -3,13 +3,14 @@
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">Tyre editor</MudText>
-        <MudText>Tyres get replaced when their life is about to reach 0</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm Model="@Model">
             <MudTextField T="string" @bind-Value="@Model.Name" Label="Name" Class="field-md" />
             <MudColorPicker @bind-Text="@Model.Colour" Label="Colour" Placeholder="Select colour" Class="field-md" />
-            <MudNumericField T="int" @bind-Value="@Model.Pace" Label="Pace" Class="field-md" />
+            
+            <MudNumericField T="int" @bind-Value="@Model.LifeBonus" Label="Life Bonus" Class="field-md" />
+            <MudNumericField T="int" @bind-Value="@Model.PitWhenBelow" Label="Pit when life is below" Class="field-md" />
 
             <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
                 <MudNumericField T="int" @bind-Value="Model.WearMin" Min="0" Label="WearMin" Class="field-sm" />
@@ -18,7 +19,7 @@
 
             <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
                 <MudNumericField T="int" @bind-Value="Model.DistanceMin" Min="0" Label="DistanceMin" Class="field-sm" />
-                <MudNumericField T="int" @bind-Value="Model.DistanceMax" Min="@(Model.DistanceMin)" Label="DistanceMax" Class="field-sm" />
+                <MudNumericField T="int" @bind-Value="Model.DistanceMax" Min="@Model.DistanceMin" Label="DistanceMax" Class="field-sm" />
             </MudStack>
 
             <MudSwitch @bind-Checked="Model.ForWet" Label="For wet conditions" Color="Color.Tertiary" />
@@ -30,14 +31,16 @@
                         <MudText>Preview tyre</MudText>
                         @if (!string.IsNullOrEmpty(Model.Name))
                         {
-                            <span class="tyre" style="border-color:@(Model.Colour)">@Model.Name.ElementAt(0)</span>
+                            <TyreElement Colour="@Model.Colour">
+                                @Model.Name.ElementAt(0)
+                            </TyreElement>
                         }
                     </MudCardContent>
                 </MudCard>
                 <MudCard>
                     <MudCardContent>
                         <MudText>Predicted length</MudText>
-                        <MudText Typo="Typo.body2">@(PredLen())km</MudText>
+                        <MudText Typo="Typo.body2">@(PredictedLength())km</MudText>
                     </MudCardContent>
                 </MudCard>
             </MudStack>
@@ -53,8 +56,8 @@
     [CascadingParameter] protected MudDialogInstance? TyreDialog { get; set; }
     [Parameter] public Tyre? Tyre { get; set; }
 
-    private EditTyreModel Model;
-    private int advanceLength;
+    EditTyreModel Model;
+    int advanceLength;
 
     protected override void OnInitialized()
     {
@@ -62,13 +65,13 @@
         advanceLength = _config.Value.CalculationDistance;
     }
 
-    int PredLen()
+    private int PredictedLength()
     {
-        if (Model.Pace == 0 || (Model.WearMin == 0 && Model.WearMax == 0))
+        if (Model.LifeBonus == 0 || (Model.WearMin == 0 && Model.WearMax == 0))
             return 0;
 
         var wearAvg = (double)(Model.WearMax + Model.WearMin) / 2;
-        var averageLen = (Model.Pace / wearAvg) * 10;
+        var averageLen = (Model.LifeBonus / wearAvg) * 10;
 
         return averageLen.RoundDouble();
     }

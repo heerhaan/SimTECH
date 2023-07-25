@@ -1,11 +1,11 @@
-﻿<MudTd Class="result-cell" Style="@_cellStyles">
+﻿<MudTd Class="@_class" Style="@_cellStyles">
     <MudStack Row="true"
               Spacing="1"
               Justify="Justify.Center"
               AlignItems="AlignItems.Center"
               Class="pa-0 mud-width-full"
               Style="color:inherit">
-        <MudText Typo="@Typo" Color="Color.Inherit">@_resultDisplay</MudText>
+        <MudText Typo="@_typo" Color="Color.Inherit">@_resultDisplay</MudText>
         @if (_hasPole)
         {
             <sup style="font-size: 0.65rem">P</sup>
@@ -20,13 +20,27 @@
 @code {
     [Parameter] public StandingResultCell? Result { get; set; }
     [Parameter] public int LowestScoringPosition { get; set; }
+    [Parameter] public Typo? OverrideTypo { get; set; }
+    [Parameter] public bool WithBonus { get; set; } = true;
+    [Parameter] public string Class { get; set; } = string.Empty;
 
-    private Typo Typo { get; set; } = Typo.h4;
+    private Typo _typo { get; set; } = Typo.h4;
 
     protected override void OnInitialized()
     {
-        if (Result?.Status != RaceStatus.Racing)
-            Typo = Typo.caption;
+        if (OverrideTypo.HasValue)
+            _typo = OverrideTypo.Value;
+        else if (Result?.Status != RaceStatus.Racing)
+            _typo = Typo.caption;
+    }
+
+    private string _class
+    {
+        get
+        {
+            var classes = "result-cell " + Class;
+            return classes;
+        }
     }
 
     private string _resultDisplay

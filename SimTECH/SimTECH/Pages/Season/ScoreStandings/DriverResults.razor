@@ -39,7 +39,7 @@
             </MudTd>
             <MudTd Class="overflow-hider">
                 <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                    <MudText Class="overflow-hider">@context.Name</MudText>
+                    <MudText Class="overflow-hider" Style="@(context.Mark ? "text-decoration: underline" : "")">@context.Name</MudText>
                     <MudSpacer />
                     <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
                 </MudStack>
@@ -52,7 +52,12 @@
             </MudTd>
             @foreach (var round in CountryRounds.OrderBy(e => e.Key))
             {
-                <MudTdResult Result="@(context.ResultCells.Find(e => e.Round == round.Key))" LowestScoringPosition="@lowestScoringPosition" />
+                @*<MudTd Class="result-cell">
+                    <ResultCell Result="@(context.ResultCells.Find(e => e.Round == round.Key))"
+                                LowestScoringPosition="@lowestScoringPosition" />
+                </MudTd>*@
+                <MudTdResult Result="@(context.ResultCells.Find(e => e.Round == round.Key))"
+                             LowestScoringPosition="@lowestScoringPosition" />
             }
             <MudTd>
                 <MudText Typo="Typo.caption">@context.Average.ToString("F1")</MudText>

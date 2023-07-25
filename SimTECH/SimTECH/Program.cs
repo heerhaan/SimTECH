@@ -45,6 +45,7 @@ namespace SimTECH
             builder.Services.AddScoped<HumanBeingProvider>();
 
             // Data services
+            builder.Services.AddScoped<ContractService>();
             builder.Services.AddScoped<ClimateService>();
             builder.Services.AddScoped<DriverService>();
             builder.Services.AddScoped<EngineService>();
@@ -52,6 +53,7 @@ namespace SimTECH
             builder.Services.AddScoped<LeagueService>();
             builder.Services.AddScoped<ManufacturerService>();
             builder.Services.AddScoped<RaceService>();
+            builder.Services.AddScoped<ResultService>();
             builder.Services.AddScoped<SeasonService>();
             builder.Services.AddScoped<SeasonEntrantService>();
             builder.Services.AddScoped<TeamService>();

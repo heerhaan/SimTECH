@@ -10,12 +10,12 @@ namespace SimTECH.Data.Models
         public int Limit { get; set; }
         public int Punishment { get; set; }
         public int Odds { get; set; }
+        public bool Penalized { get; set; }
+        public string? Colour { get; set; }
     }
 
     public static class ExtendIncident
     {
-        public static bool HasLimit(this Incident incident) => incident.Limit > 0;
-
         public static Incident TakeRandomIncident(this List<Incident> incidents)
         {
             var weightedList = new List<long>();

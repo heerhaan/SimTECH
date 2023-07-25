@@ -7,7 +7,7 @@
 
 <PageTitle>Drivers</PageTitle>
 
-<MudContainer Class="mt-4">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Drivers</MudText>
@@ -21,7 +21,7 @@
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Driver" Items="@DriverData" Dense="true">
+    <MudDataGrid T="Driver" Items="@DriverData" RowsPerPage="15" Dense="true">
         <Columns>
             <HierarchyColumn T="Driver" />
             <PropertyColumn Property="e => e!.FullName" Title="Name" />
@@ -52,11 +52,6 @@
                 <MudPaper>
                     <MudStack AlignItems="AlignItems.Center">
                         <MudText>State is currently @(context.Item.State)</MudText>
-                    </MudStack>
-                </MudPaper>
-                <MudPaper>
-                    <MudStack AlignItems="AlignItems.Center">
-                        <MudText>Driver is @(context.Item.Alive ? "still alive" : "has died").</MudText>
                     </MudStack>
                 </MudPaper>
             </MudStack>

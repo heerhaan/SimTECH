@@ -9,8 +9,8 @@
                 <MudSelect T="long" @bind-Value="@Model.TeamId" Label="Team">
                     @foreach (var team in Teams)
                     {
-                        <MudSelectItem Value="team.Id">
-                            <CountryFlag Code="team.Country" Size="ElementSize.Tiny" />
+                        <MudSelectItem Value="@team.Id">
+                            <CountryFlag Code="@team.Country" Size="ElementSize.Tiny" />
                             @team.Name
                         </MudSelectItem>
                     }
@@ -29,7 +29,7 @@
 
             @if (Manufacturers is not null)
             {
-                <MudSelect T="long" @bind-Value="@Model.ManufacturerId" Label="Tyre manufacturer">
+                <MudSelect T="long" @bind-Value="@Model.ManufacturerId" Label="Tyre manufacturer" Required="true">
                     @foreach (var manufacturer in Manufacturers)
                     {
                         <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
@@ -39,7 +39,7 @@
             
             @if (SeasonEngines is not null)
             {
-                <MudSelect T="long" @bind-Value="@Model.SeasonEngineId" Label="Engine">
+                <MudSelect T="long" @bind-Value="@Model.SeasonEngineId" Label="Engine" Required="true">
                     @foreach (var engine in SeasonEngines)
                     {
                         <MudSelectItem Value="engine.Id">@engine.Name</MudSelectItem>
@@ -62,7 +62,6 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? TeamDialog { get; set; }
-
     [Parameter] public long SeasonId { get; set; }
     [Parameter] public List<Team>? Teams { get; set; }
     [Parameter] public List<Manufacturer>? Manufacturers { get; set; }

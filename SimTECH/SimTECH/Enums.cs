@@ -48,7 +48,11 @@ namespace SimTECH
         None = 0,
         EnablePenalty = 1,
         EnableFatality = 2,
+        AllowContracting = 4,
+        PersonalNumbers = 8,
     }
+
+    public enum RecordStat { None = 0, Entry, Start, Win, Pole, DNF }
 
     #region racing
     public enum TeamRole
@@ -81,7 +85,6 @@ namespace SimTECH
         Pitstop = 32,
         Swap = 64,
         Death = 128,
-        Caution = 256,
     }
 
     [Flags]

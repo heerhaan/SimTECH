@@ -17,7 +17,7 @@ namespace SimTECH.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.7")
+                .HasAnnotation("ProductVersion", "7.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -29,6 +29,10 @@ namespace SimTECH.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Colour")
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
 
                     b.Property<double>("EngineMultiplier")
                         .HasColumnType("float");
@@ -113,7 +117,7 @@ namespace SimTECH.Migrations
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
-                    b.Property<long?>("LeagueId")
+                    b.Property<long>("LeagueId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("TeamId")
@@ -202,9 +206,6 @@ namespace SimTECH.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<bool>("Alive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Biography")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -224,6 +225,9 @@ namespace SimTECH.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("Mark")
+                        .HasColumnType("bit");
 
                     b.Property<int>("State")
                         .HasColumnType("int");
@@ -255,6 +259,9 @@ namespace SimTECH.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("Mark")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -308,6 +315,10 @@ namespace SimTECH.Migrations
                     b.Property<int>("Category")
                         .HasColumnType("int");
 
+                    b.Property<string>("Colour")
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
+
                     b.Property<int>("Limit")
                         .HasColumnType("int");
 
@@ -317,6 +328,9 @@ namespace SimTECH.Migrations
 
                     b.Property<int>("Odds")
                         .HasColumnType("int");
+
+                    b.Property<bool>("Penalized")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Punishment")
                         .HasColumnType("int");
@@ -336,6 +350,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Damage",
                             Odds = 2,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -346,6 +361,7 @@ namespace SimTECH.Migrations
                             Limit = 2,
                             Name = "Collision",
                             Odds = 1,
+                            Penalized = true,
                             Punishment = 3,
                             State = 1
                         },
@@ -356,6 +372,7 @@ namespace SimTECH.Migrations
                             Limit = 5,
                             Name = "Accident",
                             Odds = 2,
+                            Penalized = true,
                             Punishment = 3,
                             State = 1
                         },
@@ -366,6 +383,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Puncture",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -376,6 +394,7 @@ namespace SimTECH.Migrations
                             Limit = 5,
                             Name = "Engine",
                             Odds = 3,
+                            Penalized = true,
                             Punishment = 10,
                             State = 1
                         },
@@ -386,6 +405,7 @@ namespace SimTECH.Migrations
                             Limit = 3,
                             Name = "Electrics",
                             Odds = 1,
+                            Penalized = true,
                             Punishment = 5,
                             State = 1
                         },
@@ -396,6 +416,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Exhaust",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -406,6 +427,7 @@ namespace SimTECH.Migrations
                             Limit = 4,
                             Name = "Gearbox",
                             Odds = 2,
+                            Penalized = true,
                             Punishment = 5,
                             State = 1
                         },
@@ -416,6 +438,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Hydraulics",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -426,6 +449,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Wheel",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -436,6 +460,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Brakes",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -446,6 +471,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Illegal",
                             Odds = 1,
+                            Penalized = true,
                             Punishment = 10,
                             State = 1
                         },
@@ -456,6 +482,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Fuel",
                             Odds = 1,
+                            Penalized = true,
                             Punishment = 10,
                             State = 1
                         },
@@ -466,6 +493,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Dangerous",
                             Odds = 1,
+                            Penalized = true,
                             Punishment = 10,
                             State = 1
                         },
@@ -476,6 +504,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Hospital",
                             Odds = 5,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -486,6 +515,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Death",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         });
@@ -1084,6 +1114,9 @@ namespace SimTECH.Migrations
                         .HasMaxLength(2)
                         .HasColumnType("varchar(2)");
 
+                    b.Property<bool>("Mark")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(200)");
@@ -1350,6 +1383,9 @@ namespace SimTECH.Migrations
                     b.Property<int>("Pace")
                         .HasColumnType("int");
 
+                    b.Property<int>("PitWhenBelow")
+                        .HasColumnType("int");
+
                     b.Property<int>("State")
                         .HasColumnType("int");
 
@@ -1373,6 +1409,7 @@ namespace SimTECH.Migrations
                             ForWet = false,
                             Name = "Soft",
                             Pace = 200,
+                            PitWhenBelow = 0,
                             State = 1,
                             WearMax = 25,
                             WearMin = 15
@@ -1386,6 +1423,7 @@ namespace SimTECH.Migrations
                             ForWet = false,
                             Name = "Medium",
                             Pace = 180,
+                            PitWhenBelow = 0,
                             State = 1,
                             WearMax = 15,
                             WearMin = 9
@@ -1399,6 +1437,7 @@ namespace SimTECH.Migrations
                             ForWet = false,
                             Name = "Hard",
                             Pace = 160,
+                            PitWhenBelow = 0,
                             State = 1,
                             WearMax = 10,
                             WearMin = 6
@@ -1412,6 +1451,7 @@ namespace SimTECH.Migrations
                             ForWet = false,
                             Name = "Grooved",
                             Pace = 100,
+                            PitWhenBelow = 0,
                             State = 2,
                             WearMax = 3,
                             WearMin = 1
@@ -1425,6 +1465,7 @@ namespace SimTECH.Migrations
                             ForWet = true,
                             Name = "Wet",
                             Pace = 50,
+                            PitWhenBelow = 0,
                             State = 1,
                             WearMax = 1,
                             WearMin = 0
@@ -1439,9 +1480,11 @@ namespace SimTECH.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SimTECH.Data.Models.League", null)
+                    b.HasOne("SimTECH.Data.Models.League", "League")
                         .WithMany("Contracts")
-                        .HasForeignKey("LeagueId");
+                        .HasForeignKey("LeagueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SimTECH.Data.Models.Team", "Team")
                         .WithMany("Contracts")
@@ -1450,6 +1493,8 @@ namespace SimTECH.Migrations
                         .IsRequired();
 
                     b.Navigation("Driver");
+
+                    b.Navigation("League");
 
                     b.Navigation("Team");
                 });

@@ -16,22 +16,27 @@ namespace SimTECH.PageModels
         public HashSet<Team> BaseTeams { get; set; } = new();
         public HashSet<Driver> BaseDrivers { get; set; } = new();
 
-        public void CombineEntrantModels()
-        {
-            foreach (var engine in SeasonEngines)
-            {
-                engine.SeasonTeams = SeasonTeams.Where(e => e.BaseEngineId == engine.EngineId).ToList();
-
-                foreach (var team in engine.SeasonTeams)
-                {
-                    team.SeasonDrivers = SeasonDrivers.Where(e => e.BaseTeamId == team.TeamId).ToList();
-                }
-            }
-        }
+        public long LeagueId { get; set; }
+        public bool HasContracting { get; set; }
     }
 
     public static class EntrantModelExtensions
     {
+        public static List<SeasonEngine> CombineEntrantsToRoot(this AddEntrantsModel model)
+        {
+            foreach (var engine in model.SeasonEngines)
+            {
+                engine.SeasonTeams = model.SeasonTeams.Where(e => e.BaseEngineId == engine.EngineId).ToList();
+
+                foreach (var team in engine.SeasonTeams)
+                {
+                    team.SeasonDrivers = model.SeasonDrivers.Where(e => e.BaseTeamId == team.TeamId).ToList();
+                }
+            }
+
+            return model.SeasonEngines.Select(e => e.Record).ToList();
+        }
+
         public static void RemoveUnsetEngines(this AddEntrantsModel model)
         {
             foreach (var unset in model.SeasonEngines.Where(se => !model.BaseEngines.Select(e => e.Id).Contains(se.EngineId)))

@@ -8,6 +8,7 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public bool Mark { get; set; }
         public State State { get; set; }
 
         public EditEngineModel(Engine? engine)
@@ -21,6 +22,7 @@ namespace SimTECH.Data.EditModels
                 Id = engine.Id;
                 Name = engine.Name;
                 State = engine.State;
+                Mark = engine.Mark;
 
                 _engine = engine;
             }
@@ -31,6 +33,7 @@ namespace SimTECH.Data.EditModels
             {
                 Id = Id,
                 Name = Name,
+                Mark = Mark,
                 State = State.HasFlag(State.Concept) ? State.Active : State,
             };
 

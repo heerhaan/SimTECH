@@ -1,90 +1,85 @@
-﻿@inject SeasonEntrantService _entrantService
-@inject NavigationManager _nav
-
-<MudContainer MaxWidth="MaxWidth.False">
+﻿<MudContainer MaxWidth="MaxWidth.False">
     <MudGrid>
-        <MudItem xs="3">
-            <MudPaper Elevation="5">
-                <MudTable Items="@Model.SeasonEngines" Class="overflow-hider">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h6">Engines</MudText>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>Name</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Name">
-                            <MudText>@context.Name</MudText>
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
+        <MudItem xs="6">
+            <MudTable Items="@Model.SeasonDrivers" Class="overflow-hider">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h5">Drivers</MudText>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Number</MudTh>
+                    <MudTh>TeamRole</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                            <MudText>@context.Driver?.FullName</MudText>
+                            <MudSpacer />
+                            <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
+                        </MudStack>
+                    </MudTd>
+                    <MudTd DataLabel="Number">
+                        <MudText Typo="Typo.caption">@context.Number</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="TeamRole">
+                        <MudText>@context.TeamRole</MudText>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
         </MudItem>
-        <MudItem xs="5">
-            <MudPaper Elevation="5">
-                <MudTable Items="@Model.SeasonTeams" Class="overflow-hider">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h6">Teams</MudText>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>Name</MudTh>
-                        <MudTh>Principal</MudTh>
-                        <MudTh>Colour</MudTh>
-                        <MudTh>Accent</MudTh>
-                        <MudTh>Engine</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Name">
-                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+        <MudItem xs="6">
+            <MudStack>
+                <MudPaper Elevation="5">
+                    <MudTable Items="@Model.SeasonTeams" Class="overflow-hider">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h5">Teams</MudText>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>Name</MudTh>
+                            <MudTh>Principal</MudTh>
+                            <MudTh>Colour</MudTh>
+                            <MudTh>Accent</MudTh>
+                            <MudTh>Engine</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Name">
+                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                    <MudText>@context.Name</MudText>
+                                    <MudSpacer />
+                                    <CountryFlag Code="@(context.Team?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
+                                </MudStack>
+                            </MudTd>
+                            <MudTd DataLabel="Principal">
+                                <MudText>@context.Principal</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Colour" Style="@ViewHelper.SetBackgroundColour(context.Colour)">
+                                <MudText>@context.Colour</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Accent" Style="@ViewHelper.SetBackgroundColour(context.Accent)">
+                                <MudText>@context.Accent</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText>@(ReadEngineName(context.BaseEngineId))</MudText>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
+                <MudPaper Elevation="5">
+                    <MudTable Items="@Model.SeasonEngines" Class="overflow-hider">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h5">Engines</MudText>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>Name</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Name">
                                 <MudText>@context.Name</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@(context.Team?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
-                            </MudStack>
-                        </MudTd>
-                        <MudTd DataLabel="Principal">
-                            <MudText>@context.Principal</MudText>
-                        </MudTd>
-                        <MudTd DataLabel="Colour" Style="@ViewHelper.SetBackgroundColour(context.Colour)">
-                            <MudText>@context.Colour</MudText>
-                        </MudTd>
-                        <MudTd DataLabel="Accent" Style="@ViewHelper.SetBackgroundColour(context.Accent)">
-                            <MudText>@context.Accent</MudText>
-                        </MudTd>
-                        <MudTd>
-                            <MudText>@(ReadEngineName(context.BaseEngineId))</MudText>
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="4">
-            <MudPaper Elevation="5">
-                <MudTable Items="@Model.SeasonDrivers" Class="overflow-hider">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h6">Drivers</MudText>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>Name</MudTh>
-                        <MudTh>Number</MudTh>
-                        <MudTh>TeamRole</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Name">
-                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudText>@context.Driver?.FullName</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@(context.Driver?.Country ?? Constants.DefaultCountry)" Size="ElementSize.Small" />
-                            </MudStack>
-                        </MudTd>
-                        <MudTd DataLabel="Number">
-                            <MudText Typo="Typo.caption">@context.Number</MudText>
-                        </MudTd>
-                        <MudTd DataLabel="TeamRole">
-                            <MudText>@context.TeamRole</MudText>
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
+            </MudStack>
         </MudItem>
     </MudGrid>
 </MudContainer>

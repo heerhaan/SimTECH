@@ -1,17 +1,12 @@
-﻿@inject ManufacturerService ManufacturerService
-@inject SeasonEntrantService EntrantService
-@inject TeamService TeamService
-@inject IDialogService DialogService
-
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
+﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Teams</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterTeam">New</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterItem">New</MudButton>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="SeasonTeam" Items="@SeasonTeamEntrants" Dense="true" Class="overflow-hider">
+    <MudDataGrid T="SeasonTeamListing" Items="@TeamList" Dense="true" Loading="@loading" Class="overflow-hider">
         <Columns>
             <TemplateColumn Sortable="false" Class="accent-cell">
                 <CellTemplate>
@@ -19,37 +14,31 @@
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="e => e!.Name" />
-            <TemplateColumn T="SeasonTeam" SortBy="e => e.Team.Country" Title="Country">
+            <TemplateColumn T="SeasonTeamListing" SortBy="e => e.Country" Title="Country">
                 <CellTemplate>
-                    <CountryNamedFlag Code="@context.Item.Team.Country" Size="ElementSize.Small" Reverse="true" Typo="Typo.body2" />
+                    <CountryNamedFlag Code="@context.Item.Country" Size="ElementSize.Small" Reverse="true" Typo="Typo.body2" />
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="e => e!.Principal" />
             <PropertyColumn Property="e => e!.BaseValue" Title="Base" CellClass="font-caption" />
-            <TemplateColumn T="SeasonTeam" Title="A/C/P" Sortable="false">
+            <TemplateColumn T="SeasonTeamListing" Title="A/C/P" Sortable="false">
                 <CellTemplate>
                     <MudText Typo="Typo.caption">@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e!.Reliability" CellClass="font-caption" />
-            <TemplateColumn T="SeasonTeam" SortBy="e => e.SeasonEngine.Name" Title="Engine">
+            <PropertyColumn Property="e => e!.Reliability" CellClass="font-caption" Title="REL" />
+            <PropertyColumn Property="e => e.Engine" />
+            <TemplateColumn T="SeasonTeamListing" SortBy="e => e.Manufacturer" Title="Manufacturer">
                 <CellTemplate>
-                    <MudText>
-                        @(SeasonEngineData.Find(e => e.Id == context.Item.SeasonEngineId)?.Name ?? "WTF WHERE ENGINE?")
-                    </MudText>
+                    <SupplierDisplay Colour="@context.Item.ManColour" Accent="@context.Item.ManAccent">
+                        @context.Item.Manufacturer
+                    </SupplierDisplay>
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="SeasonTeam" SortBy="e => e.Manufacturer.Name" Title="Manufacturer">
-                <CellTemplate>
-                    <MudText>
-                        @(ManufacturerData.Find(e => e.Id == context.Item.ManufacturerId)?.Name ?? "WTF WHERE TYRE?")
-                    </MudText>
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn T="SeasonTeam" Sortable="false">
+            <TemplateColumn T="SeasonTeamListing" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTeam(context.Item))" />
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item.SeasonTeam))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -59,39 +48,74 @@
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
+    [Parameter] public IEnumerable<SeasonTeam> TeamEntrants { get; set; } = Enumerable.Empty<SeasonTeam>();
+    [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
+    [Parameter] public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
+    [Parameter] public EventCallback<SeasonTeam?> OnEditorOpen { get; set; }
 
-    private List<SeasonTeam> SeasonTeamEntrants { get; set; }
-    private List<Team> TeamData { get; set; }
-    private List<SeasonEngine> SeasonEngineData { get; set; }
-    private List<Manufacturer> ManufacturerData { get; set; }
+    private List<SeasonTeamListing> TeamList { get; set; } = new();
 
-    protected override async Task OnInitializedAsync()
+    private bool loading = true;
+
+    // Warning: this is also triggered when just pressing the button to start editing
+    protected override void OnParametersSet()
     {
-        SeasonTeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
-        TeamData = await TeamService.GetTeams();
-        SeasonEngineData = await EntrantService.GetSeasonEngines(Season.Id);
-        ManufacturerData = await ManufacturerService.GetManufacturers();
-    }
+        loading = true;
 
-    async Task EnterTeam() => await UpdateTeam(new SeasonTeam());
-    async Task UpdateTeam(SeasonTeam item)
-    {
-        var parameters = new DialogParameters
+        TeamList.Clear();
+
+        foreach (var team in TeamEntrants)
+        {
+            var engine = SeasonEngines.FirstOrDefault(e => e.Id == team.SeasonEngineId);
+            var manufacturer = Manufacturers.FirstOrDefault(e => e.Id == team.ManufacturerId);
+
+            var listing = new SeasonTeamListing
             {
-                ["SeasonId"] = Season.Id,
-                ["Teams"] = TeamData,
-                ["Manufacturers"] = ManufacturerData,
-                ["SeasonEngines"] = SeasonEngineData,
-                ["SeasonTeam"] = item,
+                Name = team.Name,
+                Country = team.Team.Country,
+                Principal = team.Principal,
+                Colour = team.Colour,
+                BaseValue = team.BaseValue,
+                Aero = team.Aero,
+                Chassis = team.Chassis,
+                Powertrain = team.Powertrain,
+                Reliability = team.Reliability,
+                Engine = engine?.Name ?? "[Unknown]",
+                Manufacturer = manufacturer?.Name ?? "[Unknown]",
+                ManColour = manufacturer?.Colour ?? Constants.DefaultColour,
+                ManAccent = manufacturer?.Accent ?? Constants.DefaultAccent,
+
+                SeasonTeam = team
             };
 
-        var dialog = await DialogService.ShowAsync<SeasonTeamEditor>("Modify in-season team", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data != null && result.Data is SeasonTeam updatedTeam)
-        {
-            await EntrantService.UpdateSeasonTeam(updatedTeam);
-            SeasonTeamEntrants = await EntrantService.GetSeasonTeams(Season.Id);
+            TeamList.Add(listing);
         }
+
+        loading = false;
+    }
+
+    async Task EnterItem() => await UpdateItem(null);
+    async Task UpdateItem(SeasonTeam? item)
+    {
+        await OnEditorOpen.InvokeAsync(item);
+    }
+
+    internal class SeasonTeamListing
+    {
+        public string Name { get; set; } = string.Empty;
+        public Country Country { get; set; }
+        public string Principal { get; set; } = string.Empty;
+        public string Colour { get; set; } = string.Empty;
+        public int BaseValue { get; set; }
+        public int Aero { get; set; }
+        public int Chassis { get; set; }
+        public int Powertrain { get; set; }
+        public int Reliability { get; set; }
+        public string Engine { get; set; } = string.Empty;
+        public string Manufacturer { get; set; } = string.Empty;
+        public string ManColour { get; set; } = string.Empty;
+        public string ManAccent { get; set; } = string.Empty;
+
+        public SeasonTeam SeasonTeam { get; set; }
     }
 }

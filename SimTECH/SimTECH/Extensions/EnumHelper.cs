@@ -4,10 +4,9 @@ namespace SimTECH.Extensions
 {
     public static class EnumHelper
     {
-        public static IEnumerable<Enum> GetFlagged(this Enum e)
-        {
-            return Enum.GetValues(e.GetType()).Cast<Enum>().Where(e.HasFlag);
-        }
+        public static IEnumerable<Enum> GetFlagged(this Enum e) => Enum.GetValues(e.GetType()).Cast<Enum>().Where(e.HasFlag);
+
+        public static TEnum[] GetEnumValues<TEnum>() => (TEnum[])Enum.GetValues(typeof(TEnum));
 
         public static State[] StatesForFilter(this StateFilter filter) => filter switch
         {
@@ -19,20 +18,38 @@ namespace SimTECH.Extensions
             _ => new State[] { State.Concept, State.Active, State.Advanced, State.Closed }
         };
 
+        public static string ReadableStatus(this RaceStatus status) => status switch
+        {
+            RaceStatus.Dnf => "DNF",
+            RaceStatus.Dsq => "DSQ",
+            RaceStatus.Dnq => "DNQ",
+            RaceStatus.Fatal => "INJURY",
+            _ => "[Unknown]"
+        };
+
         public static string StatusColour(this RaceStatus status) => status switch
         {
             RaceStatus.Dnf => "red",
             RaceStatus.Dsq => "black",
             RaceStatus.Dnq => "rebeccapurple",
             RaceStatus.Fatal => "white",
-            _ => Constants.DefaultBackground
+            _ => Constants.DefaultColour
+        };
+
+        public static string StatusStyles(this RaceStatus status) => status switch
+        {
+            RaceStatus.Dnf => "background-color: red",
+            RaceStatus.Dsq => "background-color: black;color:white !important",
+            RaceStatus.Dnq => "background-color: rebeccapurple",
+            RaceStatus.Fatal => "background-color: white",
+            _ => Constants.DefaultColour
         };
 
         public static string SituationColour(this SituationOccurrence situation) => situation switch
         {
             SituationOccurrence.Raced => "Green",
             SituationOccurrence.Caution => "Yellow",
-            _ => Constants.DefaultBackground
+            _ => "muted-background-primary"
         };
 
         public static string GenderIcon(this Gender gender) => gender switch
@@ -48,7 +65,7 @@ namespace SimTECH.Extensions
         {
             Aspect.Skill => "Skill",
             Aspect.Age => "Age",
-            Aspect.BaseCar => "BaseCar",
+            Aspect.BaseCar => "Car",
             Aspect.Engine => "Engine",
             Aspect.Aero => "Aero",
             Aspect.Chassis => "Chassis",
@@ -71,6 +88,15 @@ namespace SimTECH.Extensions
             Aspect.Reliability,
             Aspect.Attack,
             Aspect.Defense,
+        };
+
+        public static readonly RecordStat[] DriverRecordStats = new RecordStat[]
+        {
+            RecordStat.Entry,
+            RecordStat.Start,
+            RecordStat.Win,
+            RecordStat.Pole,
+            RecordStat.DNF
         };
 
         public static string RacerEventIcon(this RacerEvent racerEvent) => racerEvent switch

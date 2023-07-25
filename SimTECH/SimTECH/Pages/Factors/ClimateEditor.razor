@@ -1,46 +1,45 @@
-﻿@using MudExtensions
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">Climate editor</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model">
-            <MudStack>
-                <MudStack Row="true" Spacing="6">
-                    <MudSelect T="string" @bind-Value="@Model.Icon" Label="Icon" Class="field-xs">
-                        @foreach (var wIcon in weatherIcons)
-                        {
-                            <MudSelectItem Value="wIcon">
-                                <MudIcon Icon="@wIcon" />
-                            </MudSelectItem>
-                        }
-                    </MudSelect>
-                    <MudTextField T="string" @bind-Text="@Model.Terminology" Label="Terminology" />
-                </MudStack>
+        <MudStack>
+            <MudStack Row="true" Spacing="3">
+                <MudSelect T="string" @bind-Value="@Model.Icon" Label="Icon" Class="field-xs">
+                    @foreach (var wIcon in weatherIcons)
+                    {
+                        <MudSelectItem Value="@wIcon">
+                            <MudIcon Icon="@wIcon" />
+                        </MudSelectItem>
+                    }
+                </MudSelect>
 
-                <MudSwitchM3 @bind-Checked="@Model.IsWet"
-                             Label="Is wet"
-                             Color="Color.Secondary"
-                             ThumbIcon="@Icons.Material.Filled.Done"
-                             ThumbOffIcon="@Icons.Material.Filled.Close" />
+                <MudColorPicker @bind-Text="@Model.Colour" Label="Colour" Placeholder="Select colour" Class="field-sm" />
 
-                <MudNumericField T="int" @bind-Value="@Model.Odds"
-                                 Min="0"
-                                 Label="Odds" />
-
-                <MudNumericField T="double" @bind-Value="@Model.EngineMultiplier"
-                                 Step="0.1"
-                                 Min="0"
-                                 Label="Engine multiplier" />
-
-                <MudNumericField T="int" @bind-Value="@Model.ReliablityModifier"
-                                 Label="Reliability modifier" />
-
-                <MudNumericField T="int" @bind-Value="@Model.RngModifier"
-                                 Label="RNG modifier" />
+                <MudTextField T="string" @bind-Text="@Model.Terminology" Label="Terminology" />
             </MudStack>
-        </MudForm>
+
+            <MudSwitchM3 @bind-Checked="@Model.IsWet"
+                         Label="Is wet"
+                         Color="Color.Secondary"
+                         ThumbIcon="@Icons.Material.Filled.Done"
+                         ThumbOffIcon="@Icons.Material.Filled.Close" />
+
+            <MudNumericField T="int" @bind-Value="@Model.Odds"
+                             Min="1"
+                             Label="Odds" />
+
+            <MudNumericField T="double" @bind-Value="@Model.EngineMultiplier"
+                             Step="0.1"
+                             Min="0"
+                             Label="Engine multiplier" />
+
+            <MudNumericField T="int" @bind-Value="@Model.ReliablityModifier"
+                             Label="Reliability modifier" />
+
+            <MudNumericField T="int" @bind-Value="@Model.RngModifier"
+                             Label="RNG modifier" />
+        </MudStack>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -54,7 +53,8 @@
 
     private string[] weatherIcons = Constants.AllWeatherIcons;
 
-    EditClimate Model;
+    private EditClimate Model;
+    private string colour = string.Empty;
 
     protected override void OnInitialized()
     {

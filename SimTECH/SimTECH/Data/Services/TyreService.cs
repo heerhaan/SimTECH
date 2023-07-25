@@ -5,14 +5,9 @@ using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services
 {
-    public class TyreService
+    public class TyreService : StateService<Tyre>
     {
-        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-
-        public TyreService(IDbContextFactory<SimTechDbContext> factory)
-        {
-            _dbFactory = factory;
-        }
+        public TyreService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
 
         public async Task<List<Tyre>> GetTyres() => await GetTyres(StateFilter.Default);
         public async Task<List<Tyre>> GetTyres(StateFilter filter)
@@ -33,16 +28,6 @@ namespace SimTECH.Data.Services
             }
             else
                 context.Update(tyre);
-
-            await context.SaveChangesAsync();
-        }
-
-        public async Task ChangeState(Tyre tyre, State targetState)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            tyre.State = targetState;
-            context.Update(tyre);
 
             await context.SaveChangesAsync();
         }

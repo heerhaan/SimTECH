@@ -1,11 +1,11 @@
 ﻿@page "/manufacturers"
+@inject ManufacturerService _manufacturerService
 @inject BreadcrumbProvider _bread
-@inject ManufacturerService ManufacturerService
-@inject IDialogService DialogService
+@inject IDialogService _dialogService
 
 <PageTitle>Tyre suppliers</PageTitle>
 
-<MudContainer Class="mt-4">
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Tyre suppliers</MudText>
@@ -37,11 +37,11 @@
             </MudTd>
             <MudTd>
                 <MudButtonGroup Size="@Size.Small">
-                    <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                    <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context, toggled))"
+                                        Default="@(context.State == State.Active)" />
+                    <MudIconButton Size="@Size.Small"
+                                   Icon="@Icons.Material.Outlined.Edit"
                                    OnClick="@(async () => await UpdateItem(context))" />
-                    <MudIconButton Icon="@Icons.Material.Outlined.Delete"
-                                   Color="Color.Error"
-                                   OnClick="@(async () => await DeleteItem(context))" />
                 </MudButtonGroup>
             </MudTd>
         </RowTemplate>
@@ -59,7 +59,7 @@
             new BreadcrumbItem("Manufacturers", href: "manufacturers", disabled: true),
         });
 
-        ManufacturerData = await ManufacturerService.GetManufacturers();
+        ManufacturerData = await _manufacturerService.GetManufacturers(StateFilter.All);
     }
 
     async Task AddItem() => await UpdateItem(null);
@@ -67,19 +67,20 @@
     {
         var parameters = new DialogParameters { ["Manufacturer"] = item };
 
-        var dialog = await DialogService.ShowAsync<ManufacturerEditor>("Modify manufacturer", parameters);
+        var dialog = await _dialogService.ShowAsync<ManufacturerEditor>("Modify manufacturer", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Manufacturer updatedItem)
         {
-            await ManufacturerService.UpdateManufacturer(updatedItem);
-            ManufacturerData = await ManufacturerService.GetManufacturers();
+            await _manufacturerService.UpdateManufacturer(updatedItem);
+            ManufacturerData = await _manufacturerService.GetManufacturers();
         }
     }
 
-    async Task DeleteItem(Manufacturer manufacturer)
+    async Task OnToggleChange(Manufacturer manufacturer, bool toggled) => await ToggleState(manufacturer, (toggled ? State.Active : State.Closed));
+    async Task ToggleState(Manufacturer manufacturer, State targetState)
     {
-        await ManufacturerService.DeleteManufacturer(manufacturer);
-        ManufacturerData.Remove(manufacturer);
+        await _manufacturerService.ChangeState(manufacturer, targetState);
+        manufacturer.State = targetState;
     }
 }

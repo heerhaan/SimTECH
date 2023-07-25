@@ -4,14 +4,9 @@ using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services
 {
-    public class ClimateService
+    public class ClimateService : StateService<Climate>
     {
-        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-
-        public ClimateService(IDbContextFactory<SimTechDbContext> factory)
-        {
-            _dbFactory = factory;
-        }
+        public ClimateService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
 
         public async Task<List<Climate>> GetClimates() => await GetClimates(StateFilter.Active);
         public async Task<List<Climate>> GetClimates(StateFilter filter)
@@ -34,16 +29,6 @@ namespace SimTECH.Data.Services
             {
                 context.Update(climate);
             }
-
-            await context.SaveChangesAsync();
-        }
-
-        public async Task ChangeState(Climate climate, State targetState)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            climate.State = targetState;
-            context.Update(climate);
 
             await context.SaveChangesAsync();
         }

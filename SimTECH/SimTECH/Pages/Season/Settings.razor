@@ -1,8 +1,4 @@
-﻿@inject LeagueService _leagueService
-@inject SeasonService _seasonService
-@inject IDialogService _dialogService
-
-<MudGrid>
+﻿<MudGrid>
     <MudItem xs="12">
         <MudPaper Elevation="15" Class="pa-4">
             <MudStack Row="true">
@@ -10,14 +6,15 @@
                 <MudSpacer />
                 <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Outlined.Edit" OnClick="UpdateSeason">Edit</MudButton>
             </MudStack>
+            <MudText Typo="Typo.body2" Color="Color.Warning">TODO: Fuck ugly page, improve design right meow</MudText>
         </MudPaper>
     </MudItem>
     <MudItem xs="4">
         <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-            <MudText Typo="Typo.h6">Settings 1</MudText>
+            <MudText Typo="Typo.h5">Settings 1</MudText>
             <MudTextField @bind-Value="Season.Year" Label="Year" ReadOnly="true"></MudTextField>
             <MudTextField @bind-Value="Season.MaximumDriversInRace" Label="MaximumDriversInRace" ReadOnly="true"></MudTextField>
-            <MudText>@(Season.QualifyingFormat)</MudText>
+            <MudText>@Season.QualifyingFormat</MudText>
                 <MudTextField @bind-Value="Season.QualifyingAmountQ2" Label="QualifyingAmountQ2" ReadOnly="true"></MudTextField>
                 <MudTextField @bind-Value="Season.QualifyingAmountQ3" Label="QualifyingAmountQ3" ReadOnly="true"></MudTextField>
                 <MudTextField @bind-Value="Season.QualifyingRNG" Label="QualifyingRNG" ReadOnly="true"></MudTextField>
@@ -26,7 +23,7 @@
         </MudItem>
         <MudItem xs="4">
             <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-                <MudText Typo="Typo.h6">Settings 2</MudText>
+                <MudText Typo="Typo.h5">Settings 2</MudText>
                 <MudTextField @bind-Value="Season.GridBonus" Label="GridBonus" ReadOnly="true"></MudTextField>
                 <MudTextField @bind-Value="Season.RngMinimum" Label="RngMinimum" ReadOnly="true"></MudTextField>
                 <MudTextField @bind-Value="Season.RngMaximum" Label="RngMaximum" ReadOnly="true"></MudTextField>
@@ -38,8 +35,8 @@
         </MudItem>
         <MudItem xs="4">
             <MudPaper Elevation="15" Class="pa-4 mud-height-full">
-                <MudText Typo="Typo.h6">Points per position</MudText>
-                @if (Season.PointAllotments != null)
+                <MudText Typo="Typo.h5">Points per position</MudText>
+                @if (Season.PointAllotments?.Any() == true)
                 {
                     <MudSimpleTable Dense="true">
                         <thead>
@@ -69,22 +66,7 @@
 
 @code {
     [CascadingParameter] public Season Season { get; set; }
+    [Parameter] public EventCallback OnEditorOpen { get; set; }
 
-    async Task UpdateSeason()
-    {
-        var editModel = new EditSeasonModel(Season);
-        // unless I see a reason to retrieve this for a reason elsewhere on this page
-        var leagues = await _leagueService.GetLeagues();
-
-        var parameters = new DialogParameters { ["Model"] = editModel, ["Leagues"] = leagues };
-
-        var dialog = await _dialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
-        {
-            await _seasonService.UpdateSeason(updatedItem);
-            Season = updatedItem;
-        }
-    }
+    async Task UpdateSeason() => await OnEditorOpen.InvokeAsync();
 }

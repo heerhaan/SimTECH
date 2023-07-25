@@ -8,6 +8,7 @@
         public Country Nationality { get; set; }
         public int Points { get; set; }
         public int HiddenPoints { get; set; }
+        public bool Mark { get; set; }
 
         public string Colour { get; set; }
         public string Accent { get; set; }
