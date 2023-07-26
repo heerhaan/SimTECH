@@ -9,7 +9,7 @@
         public int DisqualifyChance { get; set; } = 100;
         public int FatalityChance { get; set; } = 250;
 
-        public int SafetyCarChance { get; set; } = 3;
+        public int SafetyCarChance { get; set; } = 5;
         public int SafetyCarGap { get; set; } = 25;
         public int SafetyCarReturnChance { get; set; } = 2;
         public int SafetyPitstopSubtracter { get; set; } = 200;

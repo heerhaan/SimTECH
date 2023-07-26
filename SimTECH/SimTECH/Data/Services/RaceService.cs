@@ -34,6 +34,7 @@ namespace SimTECH.Data.Services
 
             return await context.Race
                 .Include(e => e.Track)
+                    .ThenInclude(e => e.TrackTraits)
                 .SingleAsync(e => e.Id == raceId);
         }
 
@@ -54,21 +55,6 @@ namespace SimTECH.Data.Services
                 .Include(e => e.Track)
                 .OrderBy(e => e.Round)
                 .FirstOrDefaultAsync();
-        }
-
-        public async Task<List<Result>> LegacyGetResultsOfRace(long raceId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            // Too many includes, optimize?
-            return await context.Result
-                .Where(e => e.RaceId == raceId)
-                .Include(e => e.Incident)
-                .Include(e => e.LapScores)
-                .Include(e => e.SeasonDriver)
-                    .ThenInclude(e => e.Driver)
-                .Include(e => e.SeasonTeam)
-                .ToListAsync();
         }
 
         public async Task<List<Result>> GetResultsOfRace(long raceId)
@@ -392,98 +378,6 @@ namespace SimTECH.Data.Services
         }
 
         #region single-purpose calls
-        public async Task<RaceWeekModel> GetRaceWeekModel(long raceId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var race = await context.Race
-                .Include(e => e.Track)
-                .Include(e => e.Climate)
-                .Include(e => e.Season)
-                .SingleAsync(e => e.Id == raceId);
-
-            if (race.State == State.Concept)
-            {
-                var nextRace = await GetNextRaceOfSeason(race.SeasonId);
-                if (nextRace?.Id == race.Id)
-                {
-                    await ActivateRace(race.Id);
-                    race.State = State.Active;
-                }
-                else
-                {
-                    throw new InvalidOperationException("Can only open the race week page for the upcoming race!");
-                }
-            }
-
-            var trackTraits = await context.Trait
-                .Where(trait => trait.TrackTraits.Any(tt => tt.TrackId == race.TrackId))
-                .ToListAsync();
-
-            // Prepare the drivers for this weekend
-            var weekendDrivers = await context.Result
-                .Include(e => e.SeasonDriver)
-                    .ThenInclude(e => e.Driver)
-                .Include(e => e.SeasonTeam)
-                .Include(e => e.Tyre)
-                .Where(e => e.RaceId == raceId)
-                .Select(result => new RaceWeekDriver
-                {
-                    SeasonDriverId = result.SeasonDriverId,
-                    FullName = result.SeasonDriver.Driver.FullName,
-                    Number = result.SeasonDriver.Number,
-                    Role = result.SeasonDriver.TeamRole,
-                    Country = result.SeasonDriver.Driver.Country,
-
-                    SeasonTeamId = result.SeasonTeamId,
-                    TeamName = result.SeasonTeam.Team.Name,
-                    Colour = result.SeasonTeam.Colour,
-                    Accent = result.SeasonTeam.Accent,
-                    ManufacturerName = result.SeasonTeam.Manufacturer.Name,
-                    ManufacturerColour = result.SeasonTeam.Manufacturer.Colour,
-                    ManufacturerAccent = result.SeasonTeam.Manufacturer.Accent,
-
-                    ResultId = result.Id,
-                    Grid = result.Grid,
-                    Position = result.Position,
-                    Status = result.Status,
-                    Tyre = result.Tyre,
-                })
-                .ToListAsync();
-
-            if (weekendDrivers?.Any() != true)
-                throw new InvalidOperationException("We're going to need some actual drivers too");
-
-            // Set eventual penalties
-            var unconsumedPenalties = await context.GivenPenalty
-                .Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId)
-                .Include(e => e.Incident)
-                .ToListAsync();
-            if (unconsumedPenalties?.Any() == true)
-            {
-                foreach (var penalty in unconsumedPenalties.GroupBy(e => e.SeasonDriverId))
-                {
-                    var matchingDriver = weekendDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.Key);
-                    if (matchingDriver != null)
-                    {
-                        matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
-                        matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
-                    }
-                }
-            }
-
-            var racePracticeScores = await context.PracticeScore.Where(e => e.RaceId == raceId).ToListAsync();
-
-            return new RaceWeekModel
-            {
-                Race = race,
-                MaximumInRace = race.Season.MaximumDriversInRace,
-                RaceWeekDrivers = weekendDrivers,
-                TrackTraits = trackTraits,
-                PracticeCompletedCount = racePracticeScores.MaxBy(e => e.Index)?.Index ?? 0,
-            };
-        }
-
         public async Task<int> PracticeSessionsCompleted(long raceId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -498,6 +392,7 @@ namespace SimTECH.Data.Services
 
             return await context.GivenPenalty
                 .Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId)
+                .Include(e => e.Incident)
                 .ToListAsync();
         }
 

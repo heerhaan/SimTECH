@@ -1,0 +1,98 @@
+﻿<MudTable Items="@Drivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="session-table">
+    <ToolBarContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <CountryFlag Code="@raceCountry" />
+            <MudText Typo="Typo.h5">@raceTitle</MudText>
+            <MudSpacer />
+            <ScreenshotButton TargetId="session-table" />
+        </MudStack>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh></MudTh>
+        <MudTh Class="accent-cell"></MudTh>
+        <MudTh>Driver</MudTh>
+        <MudTh Class="number-col">NO</MudTh>
+        <MudTh>Team</MudTh>
+        <MudTh Class="number-col-xl">PWR</MudTh>
+        @for (int i = 1; i <= amountRuns; i++)
+        {
+            var j = i;
+            <MudTh Class="number-col-lg">@j</MudTh>
+        }
+        <MudTh Class="number-col-xl">Score</MudTh>
+        <MudTh>Gap</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
+        </MudTd>
+        <MudTd Class="accent-cell">
+            <SmolAccent Colour="@context.Colour" />
+        </MudTd>
+        <MudTd Class="overflow-hider">
+            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.body1">@context.FirstName</MudText>
+                <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
+                <MudSpacer />
+                <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
+            </MudStack>
+        </MudTd>
+        <MudTd Class="number-col">
+            <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
+        </MudTd>
+        <MudTd Class="overflow-hider">
+            <MudText>@context.TeamName</MudText>
+        </MudTd>
+        <MudTd Class="number-col-xl">
+            <MudText Typo="Typo.caption">@context.Power</MudText>
+        </MudTd>
+        @for (int i = 0; i < context.Scores.Length; i++)
+        {
+            var j = i;
+            <MudTd Class="number-col-xl">
+                <GradientColour Min="@worstScore" Max="@bestScore" Value="@(context.Scores[j])">
+                    <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.Scores[j])</MudText>
+                </GradientColour>
+            </MudTd>
+        }
+        <MudTd Class="number-col-xl">
+            <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScore()</MudText>
+        </MudTd>
+        <MudTd>
+            <MudText Typo="Typo.button">@context.GapAbove</MudText>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [Parameter] public IEnumerable<SessionDriver> Drivers { get; set; } = Enumerable.Empty<SessionDriver>();
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public Country Country { get; set; } = Constants.DefaultCountry;
+    [Parameter] public int AmountRuns { get; set; }
+
+    //bool loading = true;
+    string raceTitle;
+    Country raceCountry;
+    int amountRuns;
+
+    int worstScore;
+    int bestScore;
+
+    protected override void OnInitialized()
+    {
+        raceTitle = Title;
+        raceCountry = Country;
+        amountRuns = AmountRuns == 0 ? 2 : AmountRuns;
+    }
+
+    protected override void OnParametersSet()
+    {
+        //loading = true;
+
+        var scoreNumbers = Drivers.SelectMany(e => e.Scores).ToArray();
+        worstScore = scoreNumbers.Min();
+        bestScore = scoreNumbers.Max();
+
+        //loading = false;
+    }
+}

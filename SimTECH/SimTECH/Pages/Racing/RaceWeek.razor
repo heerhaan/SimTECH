@@ -11,36 +11,47 @@
 @inject NavigationManager _nav
 @inject IDialogService _dialogService
 @inject ISnackbar _snack
-@using EntityRace = SimTECH.Data.Models.Race;
 
 <PageTitle>Raweceek</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     @if (!loading)
     {
-        <CascadingValue Value="@Model">
+        <CascadingValue Value="@RaweCeek">
             <MudTabs Centered="true">
                 <MudTabPanel Text="Raweceek">
-
+                    <Landing
+                        TrackTraits="@trackTraits"
+                        OnOpenTyrePicker="PickRaceTyre"/>
                 </MudTabPanel>
                 @for (int i = 1; i <= practiceCompleted; i++)
                 {
                     <MudTabPanel Text="@($"FP{i}")">
-
+                        <Practice
+                            PracticeIndex="@i"
+                            PracticeScores="@practiceScores"
+                            OnFinish="PersistPractice" />
                     </MudTabPanel>
                 }
                 <MudTabPanel Text="@($"FP{nextPractice}")">
-
+                    <Practice PracticeIndex="@nextPractice"
+                              PracticeScores="@practiceScores"
+                              OnFinish="PersistPractice" />
                 </MudTabPanel>
                 <MudTabPanel Text="Qualifying">
-
+                    <MudText>
+                        Not yet implemented but consider having a tab for each
+                        qualifying session
+                    </MudText>
                 </MudTabPanel>
                 <MudTabPanel Text="Race" Disabled="@raceDisabled">
-
+                    <MudText>
+                        What are you, raceist?
+                    </MudText>
                 </MudTabPanel>
-                <MudTabPanel Text="Post race" Disabled="@postraceDisabled">
+                @*<MudTabPanel Text="Post race" Disabled="@postraceDisabled">
 
-                </MudTabPanel>
+                </MudTabPanel>*@
             </MudTabs>
         </CascadingValue>
     }
@@ -49,14 +60,16 @@
 @code {
     [Parameter] public long RaceId { get; set; }
 
-    public RaceWeekModel Model { get; set; }
-
-    RaweCeekModel raweCeek;
+    public RaweCeekModel RaweCeek { get; set; } = new();
 
     private List<Climate> climates;
     private List<Incident> incidents;
     private List<Manufacturer> manufacturers;
+    private List<Trait> trackTraits = new();
     private List<Tyre> tyres;
+
+    private List<PracticeScore> practiceScores = new();
+    private List<QualifyingScore> qualyScores = new();
 
     bool loading = true;
     bool raceDisabled = true;
@@ -67,42 +80,39 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Model = await _raceService.GetRaceWeekModel(RaceId);
-
         climates = await _climateService.GetClimates(StateFilter.All);
         incidents = await _incidentService.GetIncidents(StateFilter.All);
         tyres = await _tyreService.GetTyres(StateFilter.All);
         practiceCompleted = await _raceService.PracticeSessionsCompleted(RaceId);
 
+        practiceScores = await _raceService.GetPracticeScores(RaceId);
+        qualyScores = await _raceService.GetQualifyingScores(RaceId);
+
         nextPractice = 1 + practiceCompleted;
 
-        var race = await _raceService.GetRaceById(RaceId);
-        var season = await _seasonService.GetSeasonById(race.SeasonId);
-        var climate = climates.First(e => e.Id == race.ClimateId);
+        RaweCeek.Race = await _raceService.GetRaceById(RaceId);
+        RaweCeek.Season = await _seasonService.GetSeasonById(RaweCeek.Race.SeasonId);
+        RaweCeek.Climate = climates.First(e => e.Id == RaweCeek.Race.ClimateId);
 
-        raweCeek = new RaweCeekModel
-        {
-            Race = race,
-            Climate = climate,
-            Season = season,
-        };
-
-        await LoadDrivers(race, climate);
+        await LoadDrivers();
 
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Seasons", href: "seasons"),
-            new BreadcrumbItem("Overview", href: $"overview/{Model.Race.SeasonId}"),
+            new BreadcrumbItem("Overview", href: $"overview/{RaweCeek.Season.Id}"),
             new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}", disabled: true),
         });
 
         loading = false;
     }
 
-    private async Task LoadDrivers(EntityRace race, Climate climate)
+    private async Task LoadDrivers()
     {
+        var race = RaweCeek.Race;
+        var climate = RaweCeek.Climate;
+
         var seasonDrivers = await _entrantService.GetSeasonDrivers(race.SeasonId);
         var seasonTeams = await _entrantService.GetSeasonTeams(race.SeasonId);
         var seasonEngines = await _entrantService.GetSeasonEngines(race.SeasonId);
@@ -113,7 +123,7 @@
         var traits = allTraits.Where(e => !e.ForWetConditions || e.ForWetConditions == climate.IsWet).ToList();
 
         var trackTraitIds = race.Track.TrackTraits?.Select(e => e.TraitId).ToList() ?? new();
-        var trackTraits = traits.Where(e => trackTraitIds.Contains(e.Id)).ToList();
+        trackTraits = traits.Where(e => trackTraitIds.Contains(e.Id)).ToList();
 
         var raweceekDrivers = new List<RaweCeekDriver>();
         foreach (var result in raceResults)
@@ -203,21 +213,23 @@
 
         foreach (var penalty in penalties.GroupBy(e => e.SeasonDriverId))
         {
-            var matchingDriver = raweceekDrivers.SingleOrDefault(e => e.SeasonDriverId == penalty.Key);
+            var matchingDriver = raweceekDrivers.FirstOrDefault(e => e.SeasonDriverId == penalty.Key);
             if (matchingDriver != null)
             {
                 matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
                 matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
             }
         }
+
+        RaweCeek.RaweCeekDrivers = raweceekDrivers;
     }
 
-    private async Task PickStrategy(long resultId)
+    private async Task PickRaceTyre(long resultId)
     {
         var parameters = new DialogParameters 
             {
                 ["ResultId"] = resultId,
-                ["Tyres"] = tyres,
+                ["Tyres"] = tyres.Where(e => e.State == State.Active).ToList(),
             };
 
         var dialog = await _dialogService.ShowAsync<TyrePicker>("Set tyre", parameters);
@@ -226,11 +238,16 @@
         if (!result.Canceled && result.Data != null && result.Data is Tyre pickedTyre)
         {
             await _raceService.PickTyre(resultId, pickedTyre);
-            Model.RaceWeekDrivers.First(e => e.ResultId == resultId).Tyre = pickedTyre;
+
+            // Assign the picked tyre and ofc dont forget the life bonus
+            var driver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == resultId);
+            driver.Tyre = pickedTyre;
+            driver.TyreLife = pickedTyre.Pace + driver.LifeBonus;
         }
     }
 
-    private void GoToPractice(int num) => _nav.NavigateTo($"/practice/{RaceId}/{num}");
-    private void GoToQualifying() => _nav.NavigateTo($"/qualifying/{RaceId}");
-    private void GoToRace() => _nav.NavigateTo($"/race/{RaceId}");
+    private Task PersistPractice()
+    {
+        throw new NotImplementedException();
+    }
 }

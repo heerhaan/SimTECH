@@ -1,19 +1,14 @@
-﻿@page "/practice/{RaceId:long}/{PracticeNum:int}"
-@inject BreadcrumbProvider _bread
-@inject RaceService _raceService
-@inject NavigationManager _nav
-@inject IOptions<SimConfig> _config
+﻿@inject IOptions<SimConfig> _config
 
 <MudContainer Class="mt-4">
     @if (!loading)
     {
         <MudPaper MinHeight="60px">
-            <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
                 <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
-                    <ScreenshotButton TargetId="practice-table" />
-                    @if (!Model.IsFinished)
+                    @if (!tempIsFinished)
                     {
-                        @if (advancedRuns == Model.AmountRuns)
+                        @if (advancedRuns == amountRuns)
                         {
                             <MudButton OnClick="Finish">Finish</MudButton>
                         }
@@ -25,112 +20,64 @@
                 </MudButtonGroup>
             </MudStack>
         </MudPaper>
-        <MudTable Items="@Model.PracticeDrivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="practice-table">
-            <ToolBarContent>
-                <MudStack Row="true" AlignItems="AlignItems.Center">
-                    <CountryFlag Code="@Model.Country" />
-                    <MudText Typo="Typo.h5">@Model.Name - PRACTICE @PracticeNum</MudText>
-                </MudStack>
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh></MudTh>
-                <MudTh Class="accent-cell"></MudTh>
-                <MudTh>Driver</MudTh>
-                <MudTh Class="number-col">NO</MudTh>
-                <MudTh>Team</MudTh>
-                <MudTh Class="number-col-xl">PWR</MudTh>
-                @for (int i = 1; i <= Model.AmountRuns; i++)
-                {
-                    var j = i;
-                    <MudTh Class="number-col-lg">@j</MudTh>
-                }
-                <MudTh Class="number-col-xl">Score</MudTh>
-                <MudTh>Gap</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd>
-                    <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
-                </MudTd>
-                <MudTd Class="accent-cell">
-                    <SmolAccent Colour="@context.Colour" />
-                </MudTd>
-                <MudTd Class="overflow-hider">
-                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                        <MudText Typo="Typo.body1">@context.FirstName</MudText>
-                        <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
-                        <MudSpacer />
-                        <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
-                    </MudStack>
-                </MudTd>
-                <MudTd Class="number-col">
-                    <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
-                </MudTd>
-                <MudTd Class="overflow-hider">
-                    <MudText>@context.TeamName</MudText>
-                </MudTd>
-                <MudTd Class="number-col-xl">
-                    <MudText Typo="Typo.caption">@context.Power</MudText>
-                </MudTd>
-                @for (int i = 0; i < context.RunValues.Length; i++)
-                {
-                    var j = i;
-                    <MudTd Class="number-col-xl">
-                        <GradientColour Min="@(worstScoresPerSession[j])" Max="@(bestScoresPerSession[j])" Value="@(context.RunValues[j])">
-                            <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.RunValues[j])</MudText>
-                        </GradientColour>
-                    </MudTd>
-                }
-                <MudTd Class="number-col-xl">
-                    <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScore</MudText>
-                </MudTd>
-                <MudTd>
-                    @if (context.Position == 1)
-                    {
-                        <MudText Typo="Typo.button">LEADER</MudText>
-                    }
-                    else
-                    {
-                        <MudText Typo="Typo.caption">+@(Math.Round((highestScore - context.MaxScore) * gapMarge, 2))</MudText>
-                    }
-                </MudTd>
-            </RowTemplate>
-        </MudTable>
+        <MudPaper>
+            <CommonSession
+                Drivers="@practiceDrivers"
+                Title="@raceName"
+                Country="@raceCountry"
+                AmountRuns="@amountRuns" />
+        </MudPaper>
     }
 </MudContainer>
 
 @code {
-    [Parameter] public long RaceId { get; set; }
-    [Parameter] public int PracticeNum { get; set; }
+    [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
 
-    public PracticeModel Model { get; set; }
+    [Parameter] public int PracticeIndex { get; set; }
+    [Parameter] public IEnumerable<PracticeScore> PracticeScores { get; set; } = Enumerable.Empty<PracticeScore>();
+    [Parameter] public EventCallback OnFinish { get; set; }
+
+    private List<SessionDriver> practiceDrivers = new();
 
     bool loading = true;
-    int advancedRuns = 0;
-    int lowestScore = int.MaxValue;
-    int highestScore = 0;
-    int[] worstScoresPerSession;
-    int[] bestScoresPerSession;
+    bool tempIsFinished = false;
+    string raceName = string.Empty;
+    Country raceCountry = Constants.DefaultCountry;
+    int amountRuns;
+    int practiceRng;
+
+    int advancedRuns;
+
     double gapMarge;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Model = await _raceService.RetrievePracticeModel(RaceId, PracticeNum);
-
-        worstScoresPerSession = new int[Model.AmountRuns];
-        bestScoresPerSession = new int[Model.AmountRuns];
         gapMarge = _config.Value.GapMarge;
+    }
 
-        if (Model.IsFinished)
-            SetExistingScores();
+    protected override void OnParametersSet()
+    {
+        loading = true;
 
-        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        raceName = RaweCeek.Race.Name;
+        raceCountry = RaweCeek.Race.Track.Country;
+        amountRuns = RaweCeek.Season.RunAmountSession;
+
+        var currentSessionScores = PracticeScores.Where(e => e.Index == PracticeIndex).ToList();
+
+        foreach (var driver in RaweCeek.RaweCeekDrivers)
         {
-            new BreadcrumbItem("Home", href: ""),
-            new BreadcrumbItem("Seasons", href: "seasons"),
-            new BreadcrumbItem("Overview", href: $"overview/{Model.SeasonId}"),
-            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
-            new BreadcrumbItem("Practice", href: $"practice/{RaceId}/{PracticeNum}", disabled: true),
-        });
+            var mappedDriver = driver.MapToSessionDriver(amountRuns);
+
+            var driverScore = PracticeScores.FirstOrDefault(e => e.ResultId == driver.ResultId && e.Index == PracticeIndex);
+            if (driverScore != null && driverScore.Scores != null)
+            {
+                mappedDriver.Scores = driverScore.Scores;
+                mappedDriver.Position = driverScore.Position;
+            }
+
+            practiceDrivers.Add(mappedDriver);
+        }
 
         loading = false;
     }
@@ -139,21 +86,13 @@
     {
         var positionIndex = 0;
 
-        foreach (var driver in Model.PracticeDrivers)
+        foreach (var driver in practiceDrivers)
         {
-            var result = driver.Power + NumberHelper.RandomInt(Model.PracticeRng);
-            driver.RunValues[advancedRuns] = result;
-
-            if (result > highestScore)
-                highestScore = result;
-            else if (result < lowestScore)
-                lowestScore = result;
+            var result = driver.Power + NumberHelper.RandomInt(practiceRng);
+            driver.Scores[advancedRuns] = result;
         }
 
-        worstScoresPerSession[advancedRuns] = lowestScore;
-        bestScoresPerSession[advancedRuns] = highestScore;
-
-        foreach (var driver in Model.PracticeDrivers.OrderByDescending(e => e.MaxScore))
+        foreach (var driver in practiceDrivers.OrderByDescending(e => e.MaxScore()))
         {
             driver.Position = ++positionIndex;
         }
@@ -163,31 +102,10 @@
 
     private async Task Finish()
     {
-        var positionResults = Model.PracticeDrivers.ToDictionary(e => e.ResultId, e => e.Position);
-        var actualResults = Model.PracticeDrivers.Select(e => e.ToScoreResult(RaceId, PracticeNum)).ToList();
+        //var positionResults = PracticeDataModel.PracticeDrivers.ToDictionary(e => e.ResultId, e => e.Position);
+        //var actualResults = PracticeDataModel.PracticeDrivers.Select(e => e.ToScoreResult(RaceId, PracticeNum)).ToList();
 
-        await _raceService.PersistPracticeResults(positionResults);
-        await _raceService.PersistPracticeScores(actualResults);
-
-        _nav.NavigateTo("/raceweek/" + RaceId);
-    }
-
-    private void SetExistingScores()
-    {
-        for (int i = 0; i < Model.AmountRuns; i++)
-        {
-            foreach (var driver in Model.PracticeDrivers)
-            {
-                var score = driver.RunValues[i];
-
-                if (score > highestScore)
-                    highestScore = score;
-                else if (score < lowestScore)
-                    lowestScore = score;
-            }
-
-            worstScoresPerSession[i] = lowestScore;
-            bestScoresPerSession[i] = highestScore;
-        }
+        //await _raceService.PersistPracticeResults(positionResults);
+        //await _raceService.PersistPracticeScores(actualResults);
     }
 }

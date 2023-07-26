@@ -1,4 +1,5 @@
 ﻿@inject IOptions<SimConfig> _config
+@using LegacyQualyDriver = SimTECH.PageModels.QualifyingDriver;
 
 <MudTabs>
     <MudTabPanel Text="Q1">
@@ -270,9 +271,9 @@
     [Parameter] public EventCallback CallbackFinish { get; set; }
 
     // big ass hmm about doing it like this tbh
-    private List<QualifyingDriver> DriversInQ1 { get; set; } = new();
-    private List<QualifyingDriver> DriversInQ2 { get; set; } = new();
-    private List<QualifyingDriver> DriversInQ3 { get; set; } = new();
+    private List<LegacyQualyDriver> DriversInQ1 { get; set; } = new();
+    private List<LegacyQualyDriver> DriversInQ2 { get; set; } = new();
+    private List<LegacyQualyDriver> DriversInQ3 { get; set; } = new();
 
     private int advancedQ1, advancedQ2, advancedQ3 = 0;
     private int lowestQ1, lowestQ2, lowestQ3 = 0;

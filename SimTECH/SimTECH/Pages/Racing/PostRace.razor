@@ -152,10 +152,10 @@
 
 @code {
     [Parameter] public long RaceId { get; set; }
-
+    // Consider moving PostRace all together to the common raceweek area
     SimTECH.Data.Models.Race Race;
     Season Season;
-    List<Result> Results;
+    List<Result> Results = new();
     List<GivenPenalty> Penalties = new();
 
     Dictionary<int, int> allotments;
@@ -170,7 +170,7 @@
         loading = true;
 
         Race = await _raceService.GetRaceById(RaceId);
-        Results = await _raceService.LegacyGetResultsOfRace(RaceId);
+        //Results = await _raceService.LegacyGetResultsOfRace(RaceId);
         Season = await _seasonService.GetSeasonById(Race.SeasonId);
 
         var followingRace = await _raceService.GetRaceByRound(Race.SeasonId, (1 + Race.Round));
