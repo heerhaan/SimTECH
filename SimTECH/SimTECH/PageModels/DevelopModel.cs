@@ -13,6 +13,7 @@
         public int New { get; set; }
         public int Min { get; set; }
         public int Max { get; set; }
+        public bool Mark { get; set; }
 
         public int ValueMinimumLimit { get; set; }
         public int ValueMaximumLimit { get; set; } = int.MaxValue;

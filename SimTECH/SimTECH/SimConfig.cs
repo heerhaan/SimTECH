@@ -22,7 +22,7 @@
         public int CarDriverStatusModifier { get; set; } = 4;
         public int MinimumTyreLife { get; set; } = -25;
 
-        public double GapMarge { get; set; } = 0.04;
+        public double GapMarge { get; set; } = 0.08;
 
         public bool TooMuchInfo { get; set; }
         public bool AllowMultiLeagueEntry { get; set; }
