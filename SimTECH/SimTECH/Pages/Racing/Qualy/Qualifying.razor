@@ -1,61 +1,138 @@
-﻿@page "/qualifying/{RaceId:long}"
-@inject BreadcrumbProvider _bread
-@inject RaceService _raceService
-@inject NavigationManager _nav
-@inject IOptions<SimConfig> _config
+﻿@inject IOptions<SimConfig> _config
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
     @if (!loading)
     {
-        <CascadingValue Value="@Model">
-            @if (Model.QualifyingFormat == QualyFormat.TripleEliminate)
-            {
-                <EliminationQualy CallbackFinish="Finish" />
-            }
-            else
-            {
-                <SingleSessionQualy CallbackFinish="Finish" />
-            }
-        </CascadingValue>
+        <MudPaper MinHeight="60px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+                <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
+                    @if (!tempIsFinished)
+                    {
+                        @if (advancedRuns == amountRuns)
+                        {
+                            <MudButton OnClick="Finish">Finish</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton OnClick="Advance">Advance</MudButton>
+                        }
+                    }
+                </MudButtonGroup>
+            </MudStack>
+        </MudPaper>
+        <MudPaper>
+            <CommonSession Drivers="@qualyDrivers"
+                           Title="@raceName"
+                           Country="@raceCountry"
+                           AmountRuns="@amountRuns" />
+        </MudPaper>
     }
 </MudContainer>
 
 @code {
-    [Parameter] public long RaceId { get; set; }
+    [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
 
-    public QualifyingModel Model { get; set; }
+    [Parameter] public int QualifyingIndex { get; set; }
+    [Parameter] public List<QualifyingScore> QualifyingScores { get; set; } = new();
+    [Parameter] public EventCallback<int> OnFinish { get; set; }
 
-    private bool loading = true;
+    private List<SessionDriver> qualyDrivers = new();
 
-    protected override async Task OnInitializedAsync()
+    bool loading = true;
+    bool tempIsFinished = false;
+    string raceName = string.Empty;
+    Country raceCountry = Constants.DefaultCountry;
+    int amountRuns;
+    int qualyRng;
+
+    int advancedRuns;
+
+    double gapMarge;
+
+    protected override void OnInitialized()
     {
-        Model = await _raceService.RetrieveQualifyingModel(RaceId);
+        gapMarge = _config.Value.GapMarge;
+        tempIsFinished = !OnFinish.HasDelegate;
+    }
 
-        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+    protected override void OnParametersSet()
+    {
+        loading = true;
+
+        qualyDrivers.Clear();
+
+        raceName = RaweCeek.Race.Name;
+        raceCountry = RaweCeek.Race.Track.Country;
+        amountRuns = RaweCeek.Season.RunAmountSession;
+        qualyRng = RaweCeek.Season.QualifyingRNG;
+
+        var currentSessionScores = QualifyingScores.Where(e => e.Index == QualifyingIndex).ToList();
+
+        foreach (var driver in RaweCeek.RaweCeekDrivers)
         {
-            new BreadcrumbItem("Home", href: ""),
-            new BreadcrumbItem("Seasons", href: "seasons"),
-            new BreadcrumbItem("Overview", href: $"overview/{Model.SeasonId}"),
-            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
-            new BreadcrumbItem("Qualifying", href: $"qualifying/{RaceId}", disabled: true),
-        });
+            var mappedDriver = driver.MapToSessionDriver(amountRuns);
+            mappedDriver.PenaltyPunish = driver.Penalty.GetValueOrDefault();
+
+            var driverScore = currentSessionScores.FirstOrDefault(e => 
+                e.ResultId == driver.ResultId && e.Index == QualifyingIndex);
+
+            if (driverScore != null && driverScore.Scores != null)
+            {
+                mappedDriver.Scores = driverScore.Scores;
+                mappedDriver.Position = driverScore.Position;
+            }
+
+            qualyDrivers.Add(mappedDriver);
+        }
 
         loading = false;
+    }
+
+    private void Advance()
+    {
+        var positionIndex = 0;
+
+        foreach (var driver in qualyDrivers)
+        {
+            var result = driver.Power + NumberHelper.RandomInt(qualyRng);
+            driver.Scores[advancedRuns] = result;
+        }
+
+        foreach (var driver in qualyDrivers.OrderByDescending(e => e.MaxScore()))
+        {
+            driver.Position = ++positionIndex;
+        }
+
+        advancedRuns++;
     }
 
     private async Task Finish()
     {
         // Check for the possible penalties and apply assigning new positions
-        int positionIndexer = 0;
-        var positionResults = Model.QualifyingDrivers
-            .OrderBy(e => e.PenaltyPosition())
-            .ToDictionary(e => e.ResultId, e => ++positionIndexer);
-        var scoreResults = Model.QualifyingDrivers.SelectMany(e => e.ToScoreResults(RaceId)).ToList();
+        //int positionIndexer = 0;
+        //var positionResults = Model.QualifyingDrivers
+        //    .OrderBy(e => e.PenaltyPosition())
+        //    .ToDictionary(e => e.ResultId, e => ++positionIndexer);
 
-        await _raceService.PersistQualifyingResults(positionResults, RaceId, Model.MaximumRaceDrivers);
-        await _raceService.PersistQualifyingScores(scoreResults);
-        await _raceService.ConsumePenalties(Model.PenaltiesToConsume, RaceId);
+        var newScores = qualyDrivers.Select(e => new QualifyingScore
+            {
+                Index = QualifyingIndex,
+                Scores = e.Scores,
+                Position = e.Position,
+                RaceId = RaweCeek.Race.Id,
+                ResultId = e.ResultId,
 
-        _nav.NavigateTo("/raceweek/" + RaceId);
+                PenaltyPunish = e.PenaltyPunish
+            })
+            .ToList();
+
+        QualifyingScores.AddRange(newScores);
+
+        //await _raceService.PersistQualifyingResults(positionResults, RaceId, Model.MaximumRaceDrivers);
+        //await _raceService.PersistQualifyingScores(scoreResults);
+        //await _raceService.ConsumePenalties(Model.PenaltiesToConsume, RaceId);
+
+        await OnFinish.InvokeAsync(QualifyingIndex);
+        tempIsFinished = true;
     }
 }

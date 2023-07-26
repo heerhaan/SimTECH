@@ -18,7 +18,7 @@
     @if (!loading)
     {
         <CascadingValue Value="@RaweCeek">
-            <MudTabs Centered="true">
+            <MudTabs @ref="_tabs" Centered="true">
                 <MudTabPanel Text="Raweceek">
                     <Landing
                         TrackTraits="@trackTraits"
@@ -26,11 +26,11 @@
                 </MudTabPanel>
                 @for (int i = 1; i <= practiceCompleted; i++)
                 {
-                    <MudTabPanel Text="@($"FP{i}")">
+                    var j = i;
+                    <MudTabPanel Text="@($"FP{j}")">
                         <Practice
-                            PracticeIndex="@i"
-                            PracticeScores="@practiceScores"
-                            OnFinish="PersistPractice" />
+                            PracticeIndex="@j"
+                            PracticeScores="@practiceScores" />
                     </MudTabPanel>
                 }
                 <MudTabPanel Text="@($"FP{nextPractice}")">
@@ -71,12 +71,15 @@
     private List<PracticeScore> practiceScores = new();
     private List<QualifyingScore> qualyScores = new();
 
+    MudTabs _tabs;
+
     bool loading = true;
     bool raceDisabled = true;
     bool postraceDisabled = true;
     string nextSession = "None";
     int practiceCompleted;
     int nextPractice = 1;
+    int qualySessions;
 
     protected override async Task OnInitializedAsync()
     {
@@ -90,9 +93,22 @@
 
         nextPractice = 1 + practiceCompleted;
 
-        RaweCeek.Race = await _raceService.GetRaceById(RaceId);
-        RaweCeek.Season = await _seasonService.GetSeasonById(RaweCeek.Race.SeasonId);
-        RaweCeek.Climate = climates.First(e => e.Id == RaweCeek.Race.ClimateId);
+        var race = await _raceService.GetRaceById(RaceId);
+        if (race.State == State.Concept)
+        {
+            var idNextRace = await _raceService.GetNextRaceIdOfSeason(race.SeasonId);
+            if (idNextRace.GetValueOrDefault() != race.Id)
+                throw new InvalidOperationException("Somehow you landed inside a raceweek which is not valid for activation, dumbass");
+
+            await _raceService.ActivateRace(race.Id);
+            race.State = State.Active;
+        }
+
+        RaweCeek.Race = race;
+        RaweCeek.Season = await _seasonService.GetSeasonById(race.SeasonId);
+        RaweCeek.Climate = climates.First(e => e.Id == race.ClimateId);
+
+        qualySessions = RaweCeek.Season.QualifyingFormat.SessionCount();
 
         await LoadDrivers();
 
@@ -246,8 +262,36 @@
         }
     }
 
-    private Task PersistPractice()
+    private async Task PersistPractice(int practiceIndex)
     {
-        throw new NotImplementedException();
+        // This DOES save succesfully BUT it does not handle the reloading very well
+        var practiceResult = practiceScores.Where(e => e.Index == practiceIndex).ToList();
+        var gridResults = practiceResult.ToDictionary(e => e.ResultId, e => e.Position);
+
+        await _raceService.PersistPracticeResults(gridResults);
+        await _raceService.PersistPracticeScores(practiceResult);
+
+        // Update the new grid and position
+        foreach (var res in gridResults)
+        {
+            var matchingDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == res.Key);
+            matchingDriver.Grid = res.Value;
+            matchingDriver.Position = res.Value;
+        }
+
+        _tabs.ActivatePanel(0);
+    }
+
+    private async Task PersistQualifying(int qualyIndex)
+    {
+        var qualyResult = qualyScores.Where(e => e.Index == qualyIndex).ToList();
+
+        int positionIndexer = 0;
+        var gridResults = qualyResult
+            .OrderBy(e => e.PenaltyPosition())
+            .ToDictionary(e => e.ResultId, e => ++positionIndexer);
+        //var gridResults = qualyResult.ToDictionary(e => e.ResultId, e => e.Position);
+
+        _tabs.ActivatePanel(0);
     }
 }

@@ -21,11 +21,10 @@
             </MudStack>
         </MudPaper>
         <MudPaper>
-            <CommonSession
-                Drivers="@practiceDrivers"
-                Title="@raceName"
-                Country="@raceCountry"
-                AmountRuns="@amountRuns" />
+            <CommonSession Drivers="@practiceDrivers"
+                           Title="@raceName"
+                           Country="@raceCountry"
+                           AmountRuns="@amountRuns" />
         </MudPaper>
     }
 </MudContainer>
@@ -34,8 +33,8 @@
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
 
     [Parameter] public int PracticeIndex { get; set; }
-    [Parameter] public IEnumerable<PracticeScore> PracticeScores { get; set; } = Enumerable.Empty<PracticeScore>();
-    [Parameter] public EventCallback OnFinish { get; set; }
+    [Parameter] public List<PracticeScore> PracticeScores { get; set; } = new();
+    [Parameter] public EventCallback<int> OnFinish { get; set; }
 
     private List<SessionDriver> practiceDrivers = new();
 
@@ -53,15 +52,19 @@
     protected override void OnInitialized()
     {
         gapMarge = _config.Value.GapMarge;
+        tempIsFinished = !OnFinish.HasDelegate;
     }
 
     protected override void OnParametersSet()
     {
         loading = true;
 
+        practiceDrivers.Clear();
+
         raceName = RaweCeek.Race.Name;
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
+        practiceRng = RaweCeek.Season.QualifyingRNG / 2;
 
         var currentSessionScores = PracticeScores.Where(e => e.Index == PracticeIndex).ToList();
 
@@ -69,7 +72,7 @@
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
 
-            var driverScore = PracticeScores.FirstOrDefault(e => e.ResultId == driver.ResultId && e.Index == PracticeIndex);
+            var driverScore = currentSessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId && e.Index == PracticeIndex);
             if (driverScore != null && driverScore.Scores != null)
             {
                 mappedDriver.Scores = driverScore.Scores;
@@ -102,10 +105,19 @@
 
     private async Task Finish()
     {
-        //var positionResults = PracticeDataModel.PracticeDrivers.ToDictionary(e => e.ResultId, e => e.Position);
-        //var actualResults = PracticeDataModel.PracticeDrivers.Select(e => e.ToScoreResult(RaceId, PracticeNum)).ToList();
+        var newScores = practiceDrivers.Select(e => new PracticeScore
+            {
+                Index = PracticeIndex,
+                Scores = e.Scores,
+                Position = e.Position,
+                RaceId = RaweCeek.Race.Id,
+                ResultId = e.ResultId
+            })
+            .ToList();
 
-        //await _raceService.PersistPracticeResults(positionResults);
-        //await _raceService.PersistPracticeScores(actualResults);
+        PracticeScores.AddRange(newScores);
+
+        await OnFinish.InvokeAsync(PracticeIndex);
+        tempIsFinished = true;
     }
 }

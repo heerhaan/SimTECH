@@ -46,6 +46,17 @@ namespace SimTECH.Data.Services
                 .FirstAsync(e => e.SeasonId == seasonId && e.Round == round);
         }
 
+        public async Task<long?> GetNextRaceIdOfSeason(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Race
+                .Where(e => e.SeasonId == seasonId && (e.State == State.Concept || e.State == State.Active || e.State == State.Advanced))
+                .OrderBy(e => e.Round)
+                .Select(e => e.Id)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<Race?> GetNextRaceOfSeason(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -290,7 +301,10 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.GivenPenalty.Where(e => !e.Consumed).Include(e => e.Incident).ToListAsync();
+            return await context.GivenPenalty
+                .Where(e => !e.Consumed)
+                .Include(e => e.Incident)
+                .ToListAsync();
         }
 
         public async Task ConsumePenalties(List<long> consumables, long raceId)

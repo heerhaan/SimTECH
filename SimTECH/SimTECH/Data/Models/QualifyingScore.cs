@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SimTECH.Data.Models
 {
     public sealed class QualifyingScore : ModelBase
     {
@@ -9,5 +11,16 @@
         public long RaceId { get; set; }
         public long ResultId { get; set; }
         public Result Result { get; set; }
+
+        [NotMapped]
+        public int PenaltyPunish { get; set; }
+    }
+
+    public static class ExtendQualifyingScore
+    {
+        public static int PenaltyPosition(this QualifyingScore score)
+        {
+            return score.Position + score.PenaltyPunish;
+        }
     }
 }

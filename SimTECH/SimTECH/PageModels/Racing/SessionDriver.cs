@@ -18,6 +18,7 @@
 
         public int[] Scores { get; set; }
         public int Position { get; set; }
+        public int PenaltyPunish { get; set; }
         public string GapAbove { get; set; } = string.Empty;
     }
 
