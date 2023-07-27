@@ -12,6 +12,8 @@ namespace SimTECH.PageModels
         public LeagueOptions LeagueOptions { get; set; }
 
         public List<RaweCeekDriver> RaweCeekDrivers { get; set; }
+
+        public List<long> ConsumablePenalties { get; set; } = new();
     }
 
     public class RaweCeekDriver
@@ -48,6 +50,7 @@ namespace SimTECH.PageModels
         public int LifeBonus { get; set; }
         public bool HasFastestLap { get; set; }
 
+        public long? PenaltyId { get; set; }
         public int? Penalty { get; set; }
         public string? Reasons { get; set; }
 

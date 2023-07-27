@@ -68,6 +68,9 @@
 
         var currentSessionScores = PracticeScores.Where(e => e.Index == PracticeIndex).ToList();
 
+        if (currentSessionScores.Any())
+            advancedRuns = currentSessionScores.Select(e => e.Index).Max();
+
         foreach (var driver in RaweCeek.RaweCeekDrivers)
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);

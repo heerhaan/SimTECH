@@ -27,17 +27,26 @@
                 @for (int i = 1; i <= practiceCompleted; i++)
                 {
                     var j = i;
-                    <MudTabPanel Text="@($"FP{j}")">
+                    <MudTabPanel Text="@($"FP{j}")" ID="@($"fp_{j}")">
                         <Practice
                             PracticeIndex="@j"
                             PracticeScores="@practiceScores" />
                     </MudTabPanel>
                 }
-                <MudTabPanel Text="@($"FP{nextPractice}")">
+                <MudTabPanel Text="@($"FP{nextPractice}")" ID="@($"fp_{nextPractice}")">
                     <Practice PracticeIndex="@nextPractice"
                               PracticeScores="@practiceScores"
                               OnFinish="PersistPractice" />
                 </MudTabPanel>
+                @for (int i = 1; i <= qualySessions; i++)
+                {
+                    var j = i;
+                    <MudTabPanel Text="@($"Q{j}")" ID="@($"q_{j}")">
+                        <Qualifying QualifyingIndex="@j"
+                                    QualifyingScores="@qualyScores"
+                                    OnFinish="PersistQualifying" />
+                    </MudTabPanel>
+                }
                 <MudTabPanel Text="Qualifying">
                     <MudText>
                         Not yet implemented but consider having a tab for each
@@ -234,6 +243,8 @@
             {
                 matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
                 matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
+
+                RaweCeek.ConsumablePenalties.AddRange(penalty.Select(e => e.Id));
             }
         }
 
@@ -279,19 +290,59 @@
             matchingDriver.Position = res.Value;
         }
 
+        practiceCompleted++;
+
         _tabs.ActivatePanel(0);
     }
 
     private async Task PersistQualifying(int qualyIndex)
     {
-        var qualyResult = qualyScores.Where(e => e.Index == qualyIndex).ToList();
+        var persistedQualyScores = qualyScores.Where(e => e.Index == qualyIndex).ToList();
 
-        int positionIndexer = 0;
-        var gridResults = qualyResult
-            .OrderBy(e => e.PenaltyPosition())
-            .ToDictionary(e => e.ResultId, e => ++positionIndexer);
-        //var gridResults = qualyResult.ToDictionary(e => e.ResultId, e => e.Position);
+        await _raceService.PersistQualifyingScores(persistedQualyScores);
 
-        _tabs.ActivatePanel(0);
+        if (qualySessions == qualyIndex)
+        {
+            int positionIndexer = 0;
+            var gridResults = qualyScores
+                .GroupBy(e => e.ResultId)
+                .Select(e => e.MaxBy(r => r.Index))
+                .OrderBy(e => e.PenaltyPosition())
+                .ToDictionary(e => e.ResultId, e => ++positionIndexer);
+
+            await _raceService.PersistQualifyingResults(gridResults, RaceId, RaweCeek.Season.MaximumDriversInRace);
+
+            if (RaweCeek.ConsumablePenalties.Any())
+                await _raceService.ConsumePenalties(RaweCeek.ConsumablePenalties, RaceId);
+
+            // Update the new grid and position
+            foreach (var res in gridResults)
+            {
+                var matchingDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == res.Key);
+                matchingDriver.Grid = res.Value;
+                matchingDriver.Position = res.Value;
+            }
+
+            _tabs.ActivatePanel(0);
+        }
+        else
+        {
+            // Update the new grid and position
+            foreach (var res in persistedQualyScores)
+            {
+                var matchingDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == res.ResultId);
+                matchingDriver.Grid = res.Position;
+                matchingDriver.Position = res.Position;
+            }
+
+            var nextQ = 1 + qualyIndex;
+            _tabs.ActivatePanel($"q_{nextQ}");
+        }
+    }
+
+    internal class QualySession
+    {
+        public int Index { get; set; }
+        public int MaximumAllowed { get; set; }
     }
 }

@@ -34,6 +34,7 @@
 
     [Parameter] public int QualifyingIndex { get; set; }
     [Parameter] public List<QualifyingScore> QualifyingScores { get; set; } = new();
+    [Parameter] public int MaximumAllowed { get; set; } = 100;
     [Parameter] public EventCallback<int> OnFinish { get; set; }
 
     private List<SessionDriver> qualyDrivers = new();
@@ -68,7 +69,10 @@
 
         var currentSessionScores = QualifyingScores.Where(e => e.Index == QualifyingIndex).ToList();
 
-        foreach (var driver in RaweCeek.RaweCeekDrivers)
+        if (currentSessionScores.Any())
+            advancedRuns = currentSessionScores.Select(e => e.Index).Max();
+
+        foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.Position).Take(MaximumAllowed))
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
             mappedDriver.PenaltyPunish = driver.Penalty.GetValueOrDefault();
@@ -108,12 +112,6 @@
 
     private async Task Finish()
     {
-        // Check for the possible penalties and apply assigning new positions
-        //int positionIndexer = 0;
-        //var positionResults = Model.QualifyingDrivers
-        //    .OrderBy(e => e.PenaltyPosition())
-        //    .ToDictionary(e => e.ResultId, e => ++positionIndexer);
-
         var newScores = qualyDrivers.Select(e => new QualifyingScore
             {
                 Index = QualifyingIndex,
@@ -127,10 +125,6 @@
             .ToList();
 
         QualifyingScores.AddRange(newScores);
-
-        //await _raceService.PersistQualifyingResults(positionResults, RaceId, Model.MaximumRaceDrivers);
-        //await _raceService.PersistQualifyingScores(scoreResults);
-        //await _raceService.ConsumePenalties(Model.PenaltiesToConsume, RaceId);
 
         await OnFinish.InvokeAsync(QualifyingIndex);
         tempIsFinished = true;
