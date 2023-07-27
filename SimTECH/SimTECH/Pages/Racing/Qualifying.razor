@@ -1,6 +1,4 @@
-﻿@inject IOptions<SimConfig> _config
-
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+﻿<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
     @if (!loading)
     {
         <MudPaper MinHeight="60px">
@@ -35,6 +33,7 @@
     [Parameter] public int QualifyingIndex { get; set; }
     [Parameter] public List<QualifyingScore> QualifyingScores { get; set; } = new();
     [Parameter] public int MaximumAllowed { get; set; } = 100;
+    [Parameter] public SimConfig Config { get; set; } = new();
     [Parameter] public EventCallback<int> OnFinish { get; set; }
 
     private List<SessionDriver> qualyDrivers = new();
@@ -52,7 +51,7 @@
 
     protected override void OnInitialized()
     {
-        gapMarge = _config.Value.GapMarge;
+        gapMarge = Config.GapMarge;
         tempIsFinished = !OnFinish.HasDelegate;
     }
 
@@ -62,7 +61,7 @@
 
         qualyDrivers.Clear();
 
-        raceName = RaweCeek.Race.Name;
+        raceName = $"Qualifying {QualifyingIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
         qualyRng = RaweCeek.Season.QualifyingRNG;

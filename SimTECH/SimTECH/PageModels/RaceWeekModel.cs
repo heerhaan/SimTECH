@@ -89,5 +89,48 @@ namespace SimTECH.PageModels
                 Scores = new int[amountRuns]
             };
         }
+
+        public static RaceDriver MapToRaceDriver(this RaweCeekDriver driver)
+        {
+            return new RaceDriver
+            {
+                ResultId = driver.ResultId,
+                SeasonDriverId = driver.SeasonDriverId,
+                SeasonTeamId = driver.SeasonTeamId,
+                FirstName = driver.FirstName,
+                LastName = driver.LastName,
+                FullName = driver.FullName,
+                Nationality = driver.Nationality,
+                Number = driver.Number,
+                Role = driver.Role,
+
+                TeamName = driver.TeamName,
+                Colour = driver.Colour,
+                Accent = driver.Accent,
+
+                Power = driver.RacePower,
+                Attack = driver.Attack,
+                Defense = driver.Defense,
+
+                Status = driver.Status,
+                Position = driver.Position,
+                Grid = driver.Grid,
+                //Setup = driver.Setup,
+                TyreLife = driver.TyreLife,
+                CurrentTyre = driver.Tyre,
+                DriverReliability = driver.DriverReliability,
+                CarReliability = driver.CarReliability,
+                EngineReliability = driver.EngineReliability,
+                WearMinMod = driver.WearMinMod,
+                WearMaxMod = driver.WearMaxMod,
+                RngMinMod = driver.RngMinMod,
+                RngMaxMod = driver.RngMaxMod,
+                LifeBonus = driver.LifeBonus,
+
+                HasFastestLap = driver.HasFastestLap,
+                OvertakeCount = driver.Overtaken,
+                DefensiveCount = driver.Defended,
+            };
+        }
     }
 }

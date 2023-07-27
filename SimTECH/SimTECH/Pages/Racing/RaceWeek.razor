@@ -11,52 +11,58 @@
 @inject NavigationManager _nav
 @inject IDialogService _dialogService
 @inject ISnackbar _snack
+@inject IOptions<SimConfig> _config
 
 <PageTitle>Raweceek</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     @if (!loading)
     {
+        <MudPaper Height="75px">
+            <MudStack Row="true" Justify="Justify.Center">
+                <MudText Typo="Typo.h3">@RaweCeek.Race.Name</MudText>
+            </MudStack>
+        </MudPaper>
         <CascadingValue Value="@RaweCeek">
             <MudTabs @ref="_tabs" Centered="true">
                 <MudTabPanel Text="Raweceek">
-                    <Landing
-                        TrackTraits="@trackTraits"
-                        OnOpenTyrePicker="PickRaceTyre"/>
+                    <Landing TrackTraits="@trackTraits"
+                             OnOpenTyrePicker="PickRaceTyre"/>
                 </MudTabPanel>
                 @for (int i = 1; i <= practiceCompleted; i++)
                 {
                     var j = i;
                     <MudTabPanel Text="@($"FP{j}")" ID="@($"fp_{j}")">
-                        <Practice
-                            PracticeIndex="@j"
-                            PracticeScores="@practiceScores" />
+                        <Practice PracticeIndex="@j"
+                                  PracticeScores="@practiceScores"
+                                  Config="@config" />
                     </MudTabPanel>
                 }
-                <MudTabPanel Text="@($"FP{nextPractice}")" ID="@($"fp_{nextPractice}")">
-                    <Practice PracticeIndex="@nextPractice"
-                              PracticeScores="@practiceScores"
-                              OnFinish="PersistPractice" />
-                </MudTabPanel>
+                @if (RaweCeek.Race.State != State.Advanced && RaweCeek.Race.State != State.Closed)
+                {
+                    <MudTabPanel Text="@($"FP{nextPractice}")" ID="@($"fp_{nextPractice}")">
+                        <Practice PracticeIndex="@nextPractice"
+                                  PracticeScores="@practiceScores"
+                                  Config="@config"
+                                  OnFinish="PersistPractice" />
+                    </MudTabPanel>
+                }
                 @for (int i = 1; i <= qualySessions; i++)
                 {
                     var j = i;
                     <MudTabPanel Text="@($"Q{j}")" ID="@($"q_{j}")">
                         <Qualifying QualifyingIndex="@j"
                                     QualifyingScores="@qualyScores"
+                                    Config="@config"
                                     OnFinish="PersistQualifying" />
                     </MudTabPanel>
                 }
-                <MudTabPanel Text="Qualifying">
-                    <MudText>
-                        Not yet implemented but consider having a tab for each
-                        qualifying session
-                    </MudText>
-                </MudTabPanel>
                 <MudTabPanel Text="Race" Disabled="@raceDisabled">
-                    <MudText>
-                        What are you, raceist?
-                    </MudText>
+                    <Race LapScores="@lapScores"
+                          Occurrences="@occurrences"
+                          Incidents="@incidents"
+                          Tyres="@tyres"
+                          Config="@config" />
                 </MudTabPanel>
                 @*<MudTabPanel Text="Post race" Disabled="@postraceDisabled">
 
@@ -79,6 +85,10 @@
 
     private List<PracticeScore> practiceScores = new();
     private List<QualifyingScore> qualyScores = new();
+    private List<LapScore> lapScores = new();
+    private List<RaceOccurrence> occurrences = new();
+
+    private SimConfig config;
 
     MudTabs _tabs;
 
@@ -99,6 +109,9 @@
 
         practiceScores = await _raceService.GetPracticeScores(RaceId);
         qualyScores = await _raceService.GetQualifyingScores(RaceId);
+        lapScores = await _raceService.GetLapScores(RaceId);
+        occurrences = await _raceService.GetRaceOccurrences(RaceId);
+        config = _config.Value;
 
         nextPractice = 1 + practiceCompleted;
 
@@ -117,6 +130,7 @@
         RaweCeek.Season = await _seasonService.GetSeasonById(race.SeasonId);
         RaweCeek.Climate = climates.First(e => e.Id == race.ClimateId);
 
+        raceDisabled = race.State != State.Advanced && race.State != State.Closed;
         qualySessions = RaweCeek.Season.QualifyingFormat.SessionCount();
 
         await LoadDrivers();
@@ -323,6 +337,9 @@
                 matchingDriver.Position = res.Value;
             }
 
+            RaweCeek.Race.State = State.Advanced;
+            raceDisabled = false;
+
             _tabs.ActivatePanel(0);
         }
         else
@@ -340,9 +357,8 @@
         }
     }
 
-    internal class QualySession
+    private async Task PersistRace()
     {
-        public int Index { get; set; }
-        public int MaximumAllowed { get; set; }
+        
     }
 }

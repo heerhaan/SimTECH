@@ -1,6 +1,4 @@
-﻿@inject IOptions<SimConfig> _config
-
-<MudContainer Class="mt-4">
+﻿<MudContainer Class="mt-4">
     @if (!loading)
     {
         <MudPaper MinHeight="60px">
@@ -34,6 +32,7 @@
 
     [Parameter] public int PracticeIndex { get; set; }
     [Parameter] public List<PracticeScore> PracticeScores { get; set; } = new();
+    [Parameter] public SimConfig Config { get; set; } = new();
     [Parameter] public EventCallback<int> OnFinish { get; set; }
 
     private List<SessionDriver> practiceDrivers = new();
@@ -51,7 +50,7 @@
 
     protected override void OnInitialized()
     {
-        gapMarge = _config.Value.GapMarge;
+        gapMarge = Config.GapMarge;
         tempIsFinished = !OnFinish.HasDelegate;
     }
 
@@ -61,7 +60,7 @@
 
         practiceDrivers.Clear();
 
-        raceName = RaweCeek.Race.Name;
+        raceName = $"Free Practice {PracticeIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
         practiceRng = RaweCeek.Season.QualifyingRNG / 2;

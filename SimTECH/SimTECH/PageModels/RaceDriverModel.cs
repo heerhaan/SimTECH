@@ -3,7 +3,6 @@ using SimTECH.Extensions;
 
 namespace SimTECH.PageModels
 {
-    // Er is een betere manier om de sessies te implementeren maar ik weet even niet hoe
     public abstract class DriverBase
     {
         public long ResultId { get; set; }
@@ -13,9 +12,9 @@ namespace SimTECH.PageModels
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string FullName { get; set; }
+        public Country Nationality { get; set; }
         public int Number { get; set; }
         public TeamRole Role { get; set; }
-        public Country Nationality { get; set; }
 
         public string TeamName { get; set; }
         public string Colour { get; set; }
@@ -37,7 +36,6 @@ namespace SimTECH.PageModels
         public int Grid { get; set; }
         public int Setup { get; set; }
         public int TyreLife { get; set; }
-
         public Tyre CurrentTyre { get; set; }
 
         public int DriverReliability { get; set; }
@@ -53,7 +51,7 @@ namespace SimTECH.PageModels
         public bool InstantOvertaken { get; set; }
         public bool RecentMistake { get; set; }
 
-        public List<LapScore> LapScores { get; set; }
+        public List<LapScore> LapScores { get; set; } = new();
 
         public int LapSum => LapScores.Sum(e => e.Score);
         public int GridChange => Grid - Position;
@@ -114,85 +112,5 @@ namespace SimTECH.PageModels
                 HiddenPoints = hiddenPoints,
             };
         }
-    }
-
-    public class QualifyingDriver : DriverBase
-    {
-        // We now repeat these properties three times, enforcing (for now) three sessions but it's not too hard to make a list of this
-        public int[] RunValuesQ1 { get; set; }
-        public int PositionQ1 { get; set; }
-        public int MaxScoreQ1 => RunValuesQ1.Max();
-        public double GapQ1 { get; set; }
-
-        public int[] RunValuesQ2 { get; set; }
-        public int PositionQ2 { get; set; }
-        public int MaxScoreQ2 => RunValuesQ2.Max();
-        public double GapQ2 { get; set; }
-
-        public int[] RunValuesQ3 { get; set; }
-        public int PositionQ3 { get; set; }
-        public int MaxScoreQ3 => RunValuesQ3.Max();
-        public double GapQ3 { get; set; }
-
-        public int Position { get; set; }
-        public double PenaltyPunishment { get; set; }
-
-        public int GetQualifyingResult(int maxRng) => Power + NumberHelper.RandomInt(maxRng);
-        public double PenaltyPosition() => Position + PenaltyPunishment;
-
-        public List<QualifyingScore> ToScoreResults(long raceId)
-        {
-            var scoreResults = new List<QualifyingScore>
-            {
-                new QualifyingScore
-                {
-                    Index = 1,
-                    Scores = RunValuesQ1,
-                    Position = PositionQ1,
-                    RaceId = raceId,
-                    ResultId = ResultId,
-                }
-            };
-
-            if (MaxScoreQ2 == 0)
-                return scoreResults;
-
-            scoreResults.Add(new QualifyingScore
-            {
-                Index = 2,
-                Scores = RunValuesQ2,
-                Position = PositionQ2,
-                RaceId = raceId,
-                ResultId = ResultId,
-            });
-
-            if (MaxScoreQ3 == 0)
-                return scoreResults;
-
-            scoreResults.Add(new QualifyingScore
-            {
-                Index = 3,
-                Scores = RunValuesQ3,
-                Position = PositionQ3,
-                RaceId = raceId,
-                ResultId = ResultId,
-            });
-
-            return scoreResults;
-        }
-    }
-
-    public class PracticeDriver : DriverBase
-    {
-        public int[] RunValues { get; set; }
-
-        // Properties underneath are optionable, depending on circumstances
-        public int Position { get; set; }
-        public int Score { get; set; }
-
-        public int MaxScore => RunValues.Max();
-
-        public PracticeScore ToScoreResult(long raceId, int num)
-            => new() { Index = num, Scores = RunValues, Position = Position, RaceId = raceId, ResultId = ResultId, };
     }
 }
