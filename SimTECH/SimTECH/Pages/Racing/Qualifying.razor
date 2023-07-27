@@ -1,58 +1,58 @@
-﻿<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
-    @if (!loading)
-    {
-        <MudPaper MinHeight="60px">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
-                <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
-                    @if (!tempIsFinished)
+﻿@if (!loading)
+{
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+            <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
+                @if (!isFinished)
+                {
+                    @if (advancedRuns == amountRuns)
                     {
-                        @if (advancedRuns == amountRuns)
-                        {
-                            <MudButton OnClick="Finish">Finish</MudButton>
-                        }
-                        else
-                        {
-                            <MudButton OnClick="Advance">Advance</MudButton>
-                        }
+                        <MudButton OnClick="Finish">Finish</MudButton>
                     }
-                </MudButtonGroup>
-            </MudStack>
-        </MudPaper>
-        <MudPaper>
-            <CommonSession Drivers="@qualyDrivers"
-                           Title="@raceName"
-                           Country="@raceCountry"
-                           AmountRuns="@amountRuns" />
-        </MudPaper>
-    }
-</MudContainer>
+                    else
+                    {
+                        <MudButton OnClick="Advance">Advance</MudButton>
+                    }
+                }
+            </MudButtonGroup>
+        </MudStack>
+    </MudPaper>
+    <MudPaper>
+        <CommonSession Drivers="@qualyDrivers"
+                       Title="@raceName"
+                       Country="@raceCountry"
+                       AmountRuns="@amountRuns"
+                       EntryCutoff="@entryCutoff"
+                       ProgressCutoff="@progressCutoff" />
+    </MudPaper>
+}
 
 @code {
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
 
     [Parameter] public int QualifyingIndex { get; set; }
     [Parameter] public List<QualifyingScore> QualifyingScores { get; set; } = new();
-    [Parameter] public int MaximumAllowed { get; set; } = 100;
+    [Parameter] public int MaximumAllowed { get; set; } = int.MaxValue;
     [Parameter] public SimConfig Config { get; set; } = new();
     [Parameter] public EventCallback<int> OnFinish { get; set; }
 
     private List<SessionDriver> qualyDrivers = new();
 
     bool loading = true;
-    bool tempIsFinished = false;
+    bool isFinished = false;
     string raceName = string.Empty;
     Country raceCountry = Constants.DefaultCountry;
     int amountRuns;
-    int qualyRng;
-
     int advancedRuns;
+    int qualyRng;
+    int entryCutoff;
+    int progressCutoff;
 
     double gapMarge;
 
     protected override void OnInitialized()
     {
         gapMarge = Config.GapMarge;
-        tempIsFinished = !OnFinish.HasDelegate;
     }
 
     protected override void OnParametersSet()
@@ -65,11 +65,20 @@
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
         qualyRng = RaweCeek.Season.QualifyingRNG;
+        entryCutoff = RaweCeek.Season.MaximumDriversInRace;
+
+        if (QualifyingIndex == 1)
+            progressCutoff = RaweCeek.Season.QualifyingAmountQ2;
+        else if (QualifyingIndex == 2)
+            progressCutoff = RaweCeek.Season.QualifyingAmountQ3;
 
         var currentSessionScores = QualifyingScores.Where(e => e.Index == QualifyingIndex).ToList();
 
+        // Should be refactored when saving results on click instead of on finish
         if (currentSessionScores.Any())
-            advancedRuns = currentSessionScores.Select(e => e.Index).Max();
+            isFinished = true;
+
+        isFinished = amountRuns == advancedRuns && RaweCeek.Race.State != State.Active;
 
         foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.Position).Take(MaximumAllowed))
         {
@@ -126,6 +135,6 @@
         QualifyingScores.AddRange(newScores);
 
         await OnFinish.InvokeAsync(QualifyingIndex);
-        tempIsFinished = true;
+        isFinished = true;
     }
 }

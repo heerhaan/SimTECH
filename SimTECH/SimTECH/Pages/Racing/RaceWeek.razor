@@ -18,13 +18,13 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     @if (!loading)
     {
-        <MudPaper Height="75px">
+        @*<MudPaper Height="75px">
             <MudStack Row="true" Justify="Justify.Center">
                 <MudText Typo="Typo.h3">@RaweCeek.Race.Name</MudText>
             </MudStack>
-        </MudPaper>
+        </MudPaper>*@
         <CascadingValue Value="@RaweCeek">
-            <MudTabs @ref="_tabs" Centered="true">
+            <MudTabs @ref="_tabs" Border="true" Centered="true" Outlined="true">
                 <MudTabPanel Text="Raweceek">
                     <Landing TrackTraits="@trackTraits"
                              OnOpenTyrePicker="PickRaceTyre"/>
@@ -50,7 +50,7 @@
                 @for (int i = 1; i <= qualySessions; i++)
                 {
                     var j = i;
-                    <MudTabPanel Text="@($"Q{j}")" ID="@($"q_{j}")">
+                    <MudTabPanel Text="@($"Q{j}")" Icon="@Icons.Material.Filled.AccessTime" ID="@($"q_{j}")">
                         <Qualifying QualifyingIndex="@j"
                                     QualifyingScores="@qualyScores"
                                     Config="@config"
@@ -62,11 +62,9 @@
                           Occurrences="@occurrences"
                           Incidents="@incidents"
                           Tyres="@tyres"
-                          Config="@config" />
+                          Config="@config"
+                          OnFinish="PersistRace" />
                 </MudTabPanel>
-                @*<MudTabPanel Text="Post race" Disabled="@postraceDisabled">
-
-                </MudTabPanel>*@
             </MudTabs>
         </CascadingValue>
     }
@@ -231,7 +229,9 @@
                     Overtaken = result.Overtaken,
                     Defended = result.Defended,
 
-                    IncidentId = result.IncidentId,
+                    Incident = result.IncidentId.HasValue 
+                        ? incidents.FirstOrDefault(e => e.Id == result.IncidentId) 
+                        : null,
                     Tyre = tyres.First(e => e.Id == result.TyreId)
                 };
 
@@ -359,6 +359,30 @@
 
     private async Task PersistRace()
     {
-        
+        if (!lapScores.Any() || !occurrences.Any())
+        {
+            _snack.Add("good god, saving a race for which we see resulting data. How wrong!", Severity.Error);
+            return;
+        }
+
+        loading = true;
+
+        var allotments = RaweCeek.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
+        var finalResults = RaweCeek.RaweCeekDrivers
+            .Select(e => e.MapToResult(RaceId))
+            .ToList();
+        var scoredPoints = RaweCeek.RaweCeekDrivers
+            .Select(e => e.MapToScoredPoints(allotments, RaweCeek.Season.PointsPole, RaweCeek.Season.PointsFastestLap))
+            .ToList();
+
+        await _raceService.PersistLapScores(lapScores);
+        await _raceService.PersistOccurrences(occurrences);
+        await _raceService.FinishRace(RaceId, finalResults, scoredPoints);
+
+        if (RaweCeek.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
+            await _seasonService.CheckPenalties(finalResults);
+
+        RaweCeek.Race.State = State.Closed;
+        loading = false;
     }
 }

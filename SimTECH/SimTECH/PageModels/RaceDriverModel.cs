@@ -59,58 +59,5 @@ namespace SimTECH.PageModels
         public int OvertakeCount { get; set; }
         public int DefensiveCount { get; set; }
         public string? SingleOccurrence { get; set; }
-
-        public Result ToResult(long raceId)
-        {
-            return new Result
-            {
-                Id = ResultId,
-                Grid = Grid,
-                Position = Position,
-                Score = LapSum,
-                Status = Status,
-                Incident = Incident,
-                Setup = Setup,
-                TyreLife = TyreLife,
-                FastestLap = HasFastestLap,
-                Overtaken = OvertakeCount,
-                Defended = DefensiveCount,
-
-                SeasonDriverId = SeasonDriverId,
-                SeasonTeamId = SeasonTeamId,
-                RaceId = raceId,
-                TyreId = CurrentTyre.Id,
-                IncidentId = Incident?.Id,
-            };
-        }
-
-        public ScoredPoints ToScoredPoints(Dictionary<int, int> allotments, int polePoints, int fastLapPoints)
-        {
-            var points = 0;
-            var hiddenPoints = 0;
-
-            if (allotments.TryGetValue(Position, out int allotedPoints))
-                points += allotedPoints;
-
-            if (Grid == 1)
-                points += polePoints;
-
-            if (HasFastestLap)
-                points += fastLapPoints;
-
-            if (Status == RaceStatus.Racing)
-            {
-                double positionCalc = 200000 / Position;
-                hiddenPoints = positionCalc.RoundDouble();
-            }
-
-            return new ScoredPoints
-            {
-                SeasonDriverId = SeasonDriverId,
-                SeasonTeamId = SeasonTeamId,
-                Points = points,
-                HiddenPoints = hiddenPoints,
-            };
-        }
     }
 }

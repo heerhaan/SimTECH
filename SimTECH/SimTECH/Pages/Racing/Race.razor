@@ -209,10 +209,11 @@
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
 
     [Parameter] public List<LapScore> LapScores { get; set; } = new();
-    [Parameter] public IEnumerable<RaceOccurrence> Occurrences { get; set; } = Enumerable.Empty<RaceOccurrence>();
+    [Parameter] public List<RaceOccurrence> Occurrences { get; set; } = new();
     [Parameter] public IEnumerable<Incident> Incidents { get; set; } = Enumerable.Empty<Incident>();
     [Parameter] public IEnumerable<Tyre> Tyres { get; set; } = Enumerable.Empty<Tyre>();
     [Parameter] public SimConfig Config { get; set; } = new();
+    [Parameter] public EventCallback OnFinish { get; set; } = new();
 
     private static readonly Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
 
@@ -831,24 +832,40 @@
     {
         PreProcessFinish();
 
-        var allotments = RaweCeek.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
-        var finishedResults = raceDrivers.Select(e => e.ToResult(RaweCeek.Race.Id)).ToList();
-        var scoredPoints = raceDrivers
-            .Select(e => e.ToScoredPoints(allotments, RaweCeek.Season.PointsPole, RaweCeek.Season.PointsFastestLap))
-            .ToList();
+        // Update object references
+        foreach (var raceDriver in raceDrivers)
+        {
+            var matchDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == raceDriver.ResultId);
+            matchDriver.Position = raceDriver.Position;
+            matchDriver.Score = raceDriver.LapSum;
+            matchDriver.Status = raceDriver.Status;
+            matchDriver.TyreLife = raceDriver.TyreLife;
+            matchDriver.Tyre = raceDriver.CurrentTyre;
+            matchDriver.FastestLap = raceDriver.HasFastestLap;
+            matchDriver.Overtaken = raceDriver.OvertakeCount;
+            matchDriver.Defended = raceDriver.DefensiveCount;
+            matchDriver.Incident = raceDriver.Incident;
+        }
 
         // Should be removed when it is done per advance
         var allLapScores = raceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();
+        LapScores.AddRange(allLapScores);
 
-        //Consider never storing lap scores in the first place (and disabling access to finished races)
-        //await _raceService.PersistLapScores(allLapScores);
-        //await _raceService.PersistOccurrences(Model.ToRaceOccurrences());
-        //await _raceService.FinishRace(RaceId, finishedResults, scoredPoints);
+        int initialHighestOccurr = 0;
+        if (Occurrences.Any())
+            initialHighestOccurr = Occurrences.Select(e => e.Order).Max();
 
-        //if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
-        //    await _seasonService.CheckPenalties(finishedResults);
+        foreach (var occurr in occurrences.Where(e => e.Key > initialHighestOccurr))
+        {
+            Occurrences.Add(new RaceOccurrence
+            {
+                Order = occurr.Key,
+                Occurrences = occurr.Value,
+                RaceId = RaweCeek.Race.Id,
+            });
+        }
 
-        //_nav.NavigateTo($"/postrace/{RaceId}");
+        await OnFinish.InvokeAsync();
     }
 
     //private async Task ShowGapperChart() => _ = 

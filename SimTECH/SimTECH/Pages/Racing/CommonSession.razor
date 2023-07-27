@@ -23,9 +23,9 @@
         <MudTh>Gap</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd>
-            <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
-        </MudTd>
+        <MudTdCutoffStyled Position="@context.Position" ProgressLimit="@ProgressCutoff" EntryLimit="@EntryCutoff" Class="number-col">
+            <DriverPosition Number="@context.Position" />
+        </MudTdCutoffStyled>
         <MudTd Class="accent-cell">
             <SmolAccent Colour="@context.Colour" />
         </MudTd>
@@ -69,6 +69,8 @@
     [Parameter] public string Title { get; set; } = string.Empty;
     [Parameter] public Country Country { get; set; } = Constants.DefaultCountry;
     [Parameter] public int AmountRuns { get; set; }
+    [Parameter] public int EntryCutoff { get; set; }
+    [Parameter] public int ProgressCutoff { get; set; }
 
     //bool loading = true;
     string raceTitle;
