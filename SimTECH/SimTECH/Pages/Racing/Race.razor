@@ -1,209 +1,207 @@
-﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    @if (!loading)
-    {
-        <MudPaper Elevation="15" MinHeight="60px" Width="100%">
-            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
-                <div style="width:30%">
-                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" >
-                        <ScreenshotButton TargetId="race-display" />
-                        @if (RaweCeek.Race.State != State.Closed)
+﻿@if (!loading)
+{
+    <MudPaper Elevation="15" MinHeight="60px" Width="100%">
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
+            <div style="width:30%">
+                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" >
+                    <ScreenshotButton TargetId="race-display" />
+                    @if (RaweCeek.Race.State != State.Closed)
+                    {
+                        @if (calculated >= calculationCount)
                         {
-                            @if (calculated >= calculationCount)
+                            <MudButton OnClick="Finish">Finish</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton OnClick="Advance">Advance</MudButton>
+                        }
+                    }
+                </MudButtonGroup>
+            </div>
+                
+            <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
+                <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
+                    <MudChip Value="1" Color="Color.Primary">@(NumberHelper.CalcLapCount(1 * calculationDistance, RaweCeek.Race.Track.Length))</MudChip>
+                    <MudChip Value="5" Default="true" Color="Color.Primary">@(NumberHelper.CalcLapCount(5 * calculationDistance, RaweCeek.Race.Track.Length))</MudChip>
+                    <MudChip Value="10" Color="Color.Primary">@(NumberHelper.CalcLapCount(10 * calculationDistance, RaweCeek.Race.Track.Length))</MudChip>
+                    <MudChip Value="@calculationCount" Color="Color.Primary">@totalLaps</MudChip>
+                </MudChipSet>
+            </MudStack>
+
+            <div class="d-flex flex-row-reverse align-center pa-0" style="width:30%">
+                <MudMenu Label="Charts" Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Secondary" Variant="Variant.Text">
+                    @*<MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
+                    <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>*@
+                </MudMenu>
+            </div>
+        </MudStack>
+    </MudPaper>
+    <div id="race-display">
+        <MudTable Items="@raceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)"
+                    Dense="true"
+                    Class="extra-dense overflow-x-hide">
+            <ToolBarContent>
+                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2 mud-width-full">
+                    <div class="d-flex flex-row gap-3 align-center pa-0" style="width:30%">
+                        <CountryFlag Code="@RaweCeek.Race.Track.Country" />
+                        <MudText Typo="Typo.h5" Class="overflow-hider">@RaweCeek.Race.Name - ROUND @RaweCeek.Race.Round</MudText>
+                    </div>
+
+                    <MudChip Color="@lapIndicatorBackground" Label="true" DisableRipple="true">
+                        <MudText Typo="Typo.h5" Color="@lapIndicatorColour">LAP @(racedLaps) / @(totalLaps)</MudText>
+                    </MudChip>
+
+                    <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
+                        <MudIcon Icon="@RaweCeek.Climate.Icon" />
+                        <MudText Typo="Typo.h5">@RaweCeek.Climate.Terminology</MudText>
+                    </div>
+                </MudStack>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh Style="width: 15px"></MudTh>
+                <MudTh Style="width: 40px">Grid</MudTh>
+                <MudTh Class="pa-0" Style="width: 5px"></MudTh>
+                <MudTh Style="width: 220px">Name</MudTh>
+                <MudTh Class="number-col">NO</MudTh>
+                <MudTh Style="width: 220px">Team</MudTh>
+                <MudTh Class="number-col">PWR</MudTh>
+                <MudTh Class="text-center" Style="width: 175px">ATT / DEF</MudTh>
+                <MudTh Class="tyre-col">Tyre</MudTh>
+                <MudTh Class="number-col">Pace</MudTh>
+                <MudTh Class="number-col-lg">Status</MudTh>
+                @if (tooMuchInfo)
+                {
+                    <MudTh Class="number-col">L.Gap</MudTh>
+                    <MudTh Class="number-col">Score</MudTh>
+                }
+                <MudTh Style="width: 500px">Progression</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <DriverPosition Number="@context.Position" />
+                </MudTd>
+                <MudTd>
+                    <GridChange Change="@context.GridChange" />
+                </MudTd>
+                <MudTd Class="accent-cell">
+                    <SmolAccent Colour="@context.Colour" />
+                </MudTd>
+                <MudTd Class="overflow-hider">
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0">
+                        <MudText>@context.FirstName</MudText>
+                        <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
+                        @if (context.HasFastestLap)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
+                        }
+                        <MudSpacer />
+                        <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
+                    </MudStack>
+                </MudTd>
+                <MudTd Class="number-col">
+                    <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
+                </MudTd>
+                <MudTd Class="overflow-hider">
+                    <MudText Typo="Typo.button">@context.TeamName</MudText>
+                </MudTd>
+                <MudTd Class="number-col">
+                    <MudText Typo="Typo.caption">@context.Power</MudText>
+                </MudTd>
+                <MudTd>
+                    <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
+                        <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
+                        <MudText Typo="Typo.caption">@context.Attack</MudText>
+                        <sup>@context.OvertakeCount</sup>
+                        <span class="py-2" style="background-color: antiquewhite;padding-left: 1px;padding-right: 1px;"></span>
+                        <MudText Typo="Typo.caption">@context.Defense</MudText>
+                        <sup>@context.DefensiveCount</sup>
+                        <MudIcon Icon="@IconCollection.ShieldChevron" Size="Size.Small" />
+                    </MudStack>
+                </MudTd>
+                <MudTd Class="tyre-col">
+                    <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
+                        <TyreElement Colour="@context.CurrentTyre.Colour">@context.CurrentTyre.Name.ElementAt(0)</TyreElement>
+                        <sup>@context.TyreLife</sup>
+                    </MudStack>
+                </MudTd>
+                <MudTd Class="number-col">
+                    @if (context.Status == RaceStatus.Racing && context.SingleOccurrence == null)
+                    {
+                        <GradientColour Min="@lastLowestScore" Max="@lastHighestScore" Value="@context.LastScore">
+                            <MudText Typo="Typo.caption" Color="Color.Inherit">@context.LastScore</MudText>
+                        </GradientColour>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.button" Color="Color.Warning">@(context.SingleOccurrence ?? "-")</MudText>
+                    }
+                </MudTd>
+                <MudTd Class="number-col-lg">
+                    @if (context.Incident == null)
+                    {
+                        <MudText Typo="Typo.caption">@context.GapAbove</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.button" Color="Color.Error">@context.Incident.Name</MudText>
+                    }
+                </MudTd>
+                @if (tooMuchInfo)
+                {
+                    <MudTd Class="number-col">
+                        <MudText Typo="Typo.caption">+@((Math.Round((highestScore - context.LapSum) * gapMarge, 2)).ToString("F2"))</MudText>
+                    </MudTd>
+                    <MudTd Class="number-col">
+                        <MudText Typo="Typo.caption">@context.LapSum</MudText>
+                    </MudTd>
+                }
+                <MudTd>
+                    <div class="relative" style="height:8px;width:100%">
+                        @foreach (var lapEvent in context.LapScores)
+                        {
+                            @foreach (var raceEvent in lapEvent.ListOfDubiousEvents())
                             {
-                                <MudButton OnClick="Finish">Finish</MudButton>
-                            }
-                            else
-                            {
-                                <MudButton OnClick="Advance">Advance</MudButton>
+                                <SignalNote LapPercentage="@(NumberHelper.Percentage((lapEvent.Order - 1), calculationCount))"
+                                            Signal="@raceEvent.ToString()" />
                             }
                         }
-                    </MudButtonGroup>
-                </div>
-                
-                <MudStack Spacing="0" AlignItems="AlignItems.Center">
-                    <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
-                    <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
-                        <MudChip Value="1" Color="Color.Primary">@(NumberHelper.CalcLapCount(1 * calculationDistance, RaweCeek.Race.Track.Length))</MudChip>
-                        <MudChip Value="5" Default="true" Color="Color.Primary">@(NumberHelper.CalcLapCount(5 * calculationDistance, RaweCeek.Race.Track.Length))</MudChip>
-                        <MudChip Value="10" Color="Color.Primary">@(NumberHelper.CalcLapCount(10 * calculationDistance, RaweCeek.Race.Track.Length))</MudChip>
-                        <MudChip Value="@calculationCount" Color="Color.Primary">@totalLaps</MudChip>
-                    </MudChipSet>
-                </MudStack>
+                    </div>
+                    <SimProgressLinear Bars="@(context.LapScores.Select(e => ((NumberHelper.Percentage(1, calculationCount)), (e.TyreColour ?? Constants.DefaultColour))).ToList())" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+        <MudPaper Class="pt-2 px-1">
+            <SimProgressLinear Bars="@(occurrences.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
+                                AddIndicator="true" LineSize="ElementSize.Normal" CalculationDistance="@calculationDistance" TrackLength="@RaweCeek.Race.Track.Length" />
 
-                <div class="d-flex flex-row-reverse align-center pa-0" style="width:30%">
-                    <MudMenu Label="Charts" Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Secondary" Variant="Variant.Text">
-                        @*<MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
-                        <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>*@
-                    </MudMenu>
-                </div>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 pt-5 pb-2">
+                <MudText Typo="Typo.button">Legend</MudText>
+                <MudChip Icon="@IconCollection.HelmetOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                    Crash
+                </MudChip>
+                <MudChip Icon="@IconCollection.CarCrash" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                    Issues
+                </MudChip>
+                <MudChip Icon="@IconCollection.EngineOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                    Engine
+                </MudChip>
+                <MudChip Icon="@Icons.Material.Filled.ErrorOutline" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                    Mistake
+                </MudChip>
+                <MudChip Icon="@IconCollection.RefreshDot" IconColor="Color.Success" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                    Pitstop
+                </MudChip>
+                <MudChip Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Info" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                    Swap
+                </MudChip>
+                <MudChip Icon="@Icons.Material.Filled.Healing" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                    Injury
+                </MudChip>
             </MudStack>
         </MudPaper>
-        <div id="race-display">
-            <MudTable Items="@raceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)"
-                      Dense="true"
-                      Class="extra-dense overflow-x-hide">
-                <ToolBarContent>
-                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2 mud-width-full">
-                        <div class="d-flex flex-row gap-3 align-center pa-0" style="width:30%">
-                            <CountryFlag Code="@RaweCeek.Race.Track.Country" />
-                            <MudText Typo="Typo.h5" Class="overflow-hider">@RaweCeek.Race.Name - ROUND @RaweCeek.Race.Round</MudText>
-                        </div>
-
-                        <MudChip Color="@lapIndicatorBackground" Label="true" DisableRipple="true">
-                            <MudText Typo="Typo.h5" Color="@lapIndicatorColour">LAP @(racedLaps) / @(totalLaps)</MudText>
-                        </MudChip>
-
-                        <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
-                            <MudIcon Icon="@RaweCeek.Climate.Icon" />
-                            <MudText Typo="Typo.h5">@RaweCeek.Climate.Terminology</MudText>
-                        </div>
-                    </MudStack>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh Style="width: 15px"></MudTh>
-                    <MudTh Style="width: 40px">Grid</MudTh>
-                    <MudTh Class="pa-0" Style="width: 5px"></MudTh>
-                    <MudTh Style="width: 220px">Name</MudTh>
-                    <MudTh Class="number-col">NO</MudTh>
-                    <MudTh Style="width: 220px">Team</MudTh>
-                    <MudTh Class="number-col">PWR</MudTh>
-                    <MudTh Class="text-center" Style="width: 175px">ATT / DEF</MudTh>
-                    <MudTh Class="tyre-col">Tyre</MudTh>
-                    <MudTh Class="number-col">Pace</MudTh>
-                    <MudTh Class="number-col-lg">Status</MudTh>
-                    @if (tooMuchInfo)
-                    {
-                        <MudTh Class="number-col">L.Gap</MudTh>
-                        <MudTh Class="number-col">Score</MudTh>
-                    }
-                    <MudTh Style="width: 500px">Progression</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>
-                        <DriverPosition Number="@context.Position" />
-                    </MudTd>
-                    <MudTd>
-                        <GridChange Change="@context.GridChange" />
-                    </MudTd>
-                    <MudTd Class="accent-cell">
-                        <SmolAccent Colour="@context.Colour" />
-                    </MudTd>
-                    <MudTd Class="overflow-hider">
-                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0">
-                            <MudText>@context.FirstName</MudText>
-                            <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
-                            @if (context.HasFastestLap)
-                            {
-                                <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
-                            }
-                            <MudSpacer />
-                            <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
-                        </MudStack>
-                    </MudTd>
-                    <MudTd Class="number-col">
-                        <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
-                    </MudTd>
-                    <MudTd Class="overflow-hider">
-                        <MudText Typo="Typo.button">@context.TeamName</MudText>
-                    </MudTd>
-                    <MudTd Class="number-col">
-                        <MudText Typo="Typo.caption">@context.Power</MudText>
-                    </MudTd>
-                    <MudTd>
-                        <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
-                            <MudIcon Icon="@IconCollection.Sword" Size="Size.Small" />
-                            <MudText Typo="Typo.caption">@context.Attack</MudText>
-                            <sup>@context.OvertakeCount</sup>
-                            <span class="py-2" style="background-color: antiquewhite;padding-left: 1px;padding-right: 1px;"></span>
-                            <MudText Typo="Typo.caption">@context.Defense</MudText>
-                            <sup>@context.DefensiveCount</sup>
-                            <MudIcon Icon="@IconCollection.ShieldChevron" Size="Size.Small" />
-                        </MudStack>
-                    </MudTd>
-                    <MudTd Class="tyre-col">
-                        <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
-                            <TyreElement Colour="@context.CurrentTyre.Colour">@context.CurrentTyre.Name.ElementAt(0)</TyreElement>
-                            <sup>@context.TyreLife</sup>
-                        </MudStack>
-                    </MudTd>
-                    <MudTd Class="number-col">
-                        @if (context.Status == RaceStatus.Racing && context.SingleOccurrence == null)
-                        {
-                            <GradientColour Min="@lastLowestScore" Max="@lastHighestScore" Value="@context.LastScore">
-                                <MudText Typo="Typo.caption" Color="Color.Inherit">@context.LastScore</MudText>
-                            </GradientColour>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.button" Color="Color.Warning">@(context.SingleOccurrence ?? "-")</MudText>
-                        }
-                    </MudTd>
-                    <MudTd Class="number-col-lg">
-                        @if (context.Incident == null)
-                        {
-                            <MudText Typo="Typo.caption">@context.GapAbove</MudText>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.button" Color="Color.Error">@context.Incident.Name</MudText>
-                        }
-                    </MudTd>
-                    @if (tooMuchInfo)
-                    {
-                        <MudTd Class="number-col">
-                            <MudText Typo="Typo.caption">+@((Math.Round((highestScore - context.LapSum) * gapMarge, 2)).ToString("F2"))</MudText>
-                        </MudTd>
-                        <MudTd Class="number-col">
-                            <MudText Typo="Typo.caption">@context.LapSum</MudText>
-                        </MudTd>
-                    }
-                    <MudTd>
-                        <div class="relative" style="height:8px;width:100%">
-                            @foreach (var lapEvent in context.LapScores)
-                            {
-                                @foreach (var raceEvent in lapEvent.ListOfDubiousEvents())
-                                {
-                                    <SignalNote LapPercentage="@(NumberHelper.Percentage((lapEvent.Order - 1), calculationCount))"
-                                                Signal="@raceEvent.ToString()" />
-                                }
-                            }
-                        </div>
-                        <SimProgressLinear Bars="@(context.LapScores.Select(e => ((NumberHelper.Percentage(1, calculationCount)), (e.TyreColour ?? Constants.DefaultColour))).ToList())" />
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
-            <MudPaper Class="pt-2 px-1">
-                <SimProgressLinear Bars="@(occurrences.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
-                                   AddIndicator="true" LineSize="ElementSize.Normal" CalculationDistance="@calculationDistance" TrackLength="@RaweCeek.Race.Track.Length" />
-
-                <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 pt-5 pb-2">
-                    <MudText Typo="Typo.button">Legend</MudText>
-                    <MudChip Icon="@IconCollection.HelmetOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                        Crash
-                    </MudChip>
-                    <MudChip Icon="@IconCollection.CarCrash" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                        Issues
-                    </MudChip>
-                    <MudChip Icon="@IconCollection.EngineOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                        Engine
-                    </MudChip>
-                    <MudChip Icon="@Icons.Material.Filled.ErrorOutline" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                        Mistake
-                    </MudChip>
-                    <MudChip Icon="@IconCollection.RefreshDot" IconColor="Color.Success" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                        Pitstop
-                    </MudChip>
-                    <MudChip Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Info" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                        Swap
-                    </MudChip>
-                    <MudChip Icon="@Icons.Material.Filled.Healing" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                        Injury
-                    </MudChip>
-                </MudStack>
-            </MudPaper>
-        </div>
-    }
-</MudContainer>
+    </div>
+}
 
 @code {
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
