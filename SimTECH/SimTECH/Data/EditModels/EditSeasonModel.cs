@@ -13,13 +13,17 @@ namespace SimTECH.Data.EditModels
         public int MaximumDriversInRace { get; set; }
         public int QualifyingAmountQ2 { get; set; }
         public int QualifyingAmountQ3 { get; set; }
-        public int QualifyingRNG { get; set; }
-        public int RunAmountSession { get; set; }
-        public int GridBonus { get; set; }
-        public int PitMinimum { get; set; }
-        public int PitMaximum { get; set; }
+        public int QualifyingRNG { get; set; } = 50;
+        public int RunAmountSession { get; set; } = 2;
+        public int GridBonus { get; set; } = 25;
+        public int PitMinimum { get; set; } = 100;
+        public int PitMaximum { get; set; } = 300;
+        public int PitCostSubtractCaution { get; set; } = 100;
         public int RngMinimum { get; set; }
-        public int RngMaximum { get; set; }
+        public int RngMaximum { get; set; } = 50;
+        public int MistakeRolls { get; set; } = 1;
+        public int MistakeMinimum { get; set; } = 150;
+        public int MistakeMaximum { get; set; } = 300;
         public int PointsPole { get; set; }
         public int PointsFastestLap { get; set; }
         public QualyFormat QualifyingFormat { get; set; }
@@ -45,8 +49,12 @@ namespace SimTECH.Data.EditModels
                 GridBonus = season.GridBonus;
                 PitMinimum = season.PitMinimum;
                 PitMaximum = season.PitMaximum;
+                PitCostSubtractCaution = season.PitCostSubtractCaution;
                 RngMinimum = season.RngMinimum;
                 RngMaximum = season.RngMaximum;
+                MistakeRolls = season.MistakeRolls;
+                MistakeMinimum = season.MistakeMinimum;
+                MistakeMaximum = season.MistakeMaximum;
                 PointsPole = season.PointsPole;
                 PointsFastestLap = season.PointsFastestLap;
                 QualifyingFormat = season.QualifyingFormat;
@@ -74,8 +82,12 @@ namespace SimTECH.Data.EditModels
                 GridBonus = GridBonus,
                 PitMinimum = PitMinimum,
                 PitMaximum = PitMaximum,
+                PitCostSubtractCaution = PitCostSubtractCaution,
                 RngMinimum = RngMinimum,
                 RngMaximum = RngMaximum,
+                MistakeRolls = MistakeRolls,
+                MistakeMinimum = MistakeMinimum,
+                MistakeMaximum = MistakeMaximum,
                 PointsPole = PointsPole,
                 PointsFastestLap = PointsFastestLap,
                 LeagueId = LeagueId,

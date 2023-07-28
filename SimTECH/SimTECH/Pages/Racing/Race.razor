@@ -53,8 +53,9 @@
                     </MudChip>
 
                     <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
-                        <MudIcon Icon="@RaweCeek.Climate.Icon" />
-                        <MudText Typo="Typo.h5">@RaweCeek.Climate.Terminology</MudText>
+                        <CustomIcon Icon="@RaweCeek.Climate.Icon" Colour="@RaweCeek.Climate.Colour">
+                            <MudText Typo="Typo.h5" Color="Color.Inherit">@RaweCeek.Climate.Terminology</MudText>
+                        </CustomIcon>
                     </div>
                 </MudStack>
             </ToolBarContent>
@@ -272,16 +273,16 @@
         maxLapRng = RaweCeek.Season.RngMaximum;
         pitMin = RaweCeek.Season.PitMinimum;
         pitMax = RaweCeek.Season.PitMaximum;
+        mistakeRolls = RaweCeek.Season.MistakeRolls;
+        mistakeMin = RaweCeek.Season.MistakeMinimum;
+        mistakeMax = RaweCeek.Season.MistakeMaximum;
+        safetyPitstopSubtract = RaweCeek.Season.PitCostSubtractCaution;
 
         fatalityOdds = Config.FatalityChance;
         disqualifyChance = Config.DisqualifyChance;
         safetyCarOdds = Config.SafetyCarChance;
         safetyReturnOdds = Config.SafetyCarReturnChance;
-        safetyPitstopSubtract = Config.SafetyPitstopSubtracter;
         safetyCarGap = Config.SafetyCarGap;
-        mistakeRolls = Config.MistakeAmountRolls;
-        mistakeMin = Config.MistakeLowerValue;
-        mistakeMax = Config.MistakeUpperValue;
         battleRng = Config.BattleRng;
         gapMarge = Config.GapMarge;
         tooMuchInfo = Config.TooMuchInfo;
@@ -618,8 +619,13 @@
                 }
             }
 
-            var tyreMinWear = (driver.CurrentTyre.WearMin + driver.WearMinMod) / safetyWearDivider;
-            var tyreMaxWear = (driver.CurrentTyre.WearMax + driver.WearMaxMod) / safetyWearDivider;
+            var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
+            var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
+
+            if (tyreMinWear > 0)
+                tyreMinWear = tyreMinWear / safetyWearDivider;
+            if (tyreMaxWear > 0)
+                tyreMaxWear = tyreMaxWear / safetyWearDivider;
 
             driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 

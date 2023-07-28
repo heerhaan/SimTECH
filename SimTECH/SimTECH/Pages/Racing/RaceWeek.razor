@@ -19,11 +19,6 @@
     <MudPaper Elevation="100">
         @if (!loading)
         {
-            @*<MudPaper Height="75px">
-        <MudStack Row="true" Justify="Justify.Center">
-        <MudText Typo="Typo.h3">@RaweCeek.Race.Name</MudText>
-        </MudStack>
-        </MudPaper>*@
             <CascadingValue Value="@RaweCeek">
                 <MudTabs @ref="_tabs" Centered="true" Outlined="true">
                     <MudTabPanel Text="Raceweek">
@@ -115,11 +110,12 @@
     MudTabs _qualyTabs;
 
     bool loading = true;
-    bool raceDisabled = true;
-    bool postraceDisabled => RaweCeek.Race.State == State.Closed;
     int practiceCompleted;
     int nextPractice = 1;
     int qualySessions;
+
+    bool raceDisabled => RaweCeek.Race.State != State.Advanced && RaweCeek.Race.State != State.Closed;
+    bool postraceDisabled => RaweCeek.Race.State != State.Closed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -151,7 +147,6 @@
         RaweCeek.Season = await _seasonService.GetSeasonById(race.SeasonId);
         RaweCeek.Climate = climates.First(e => e.Id == race.ClimateId);
 
-        raceDisabled = race.State != State.Advanced && race.State != State.Closed;
         qualySessions = RaweCeek.Season.QualifyingFormat.SessionCount();
 
         await LoadDrivers();
@@ -344,8 +339,8 @@
             var gridResults = qualyScores
                 .GroupBy(e => e.ResultId)
                 .Select(e => e.MaxBy(r => r.Index))
-                .OrderBy(e => e.PenaltyPosition())
-                .ToDictionary(e => e.ResultId, e => ++positionIndexer);
+                .OrderBy(e => e!.PenaltyPosition())
+                .ToDictionary(e => e!.ResultId, e => ++positionIndexer);
 
             await _raceService.PersistQualifyingResults(gridResults, RaceId, RaweCeek.Season.MaximumDriversInRace);
 
@@ -361,7 +356,6 @@
             }
 
             RaweCeek.Race.State = State.Advanced;
-            raceDisabled = false;
 
             _tabs.ActivatePanel(0);
         }

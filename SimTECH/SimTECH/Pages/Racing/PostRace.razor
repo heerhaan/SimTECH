@@ -69,29 +69,29 @@
                             </MudTd>
                             <MudTd Class="overflow-hider">
                                 <MudText Typo="Typo.button">@context.TeamName</MudText>
-                                </MudTd>
-                                <MudTd Class="number-col">
-                                    <MudText Typo="Typo.caption">@(ReadScoredResult(context))</MudText>
-                                </MudTd>
-                            </RowTemplate>
-                        </MudTable>
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="4">
-                    <MudStack Class="mud-height-full">
-                        <MudPaper Class="pa-4 mud-height-full">
-                            <MudText Typo="Typo.h5">Race incidents</MudText>
-                            <MudSimpleTable Dense="true" Class="extra-dense">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th class="number-col">NO</th>
-                                        <th>Incident</th>
-                                        <th class="number-col-lg">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var result in RaweCeek.RaweCeekDrivers.Where(e => e.Incident != null))
+                            </MudTd>
+                            <MudTd Class="number-col">
+                                <MudText Typo="Typo.caption">@ReadScoredResult(context)</MudText>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="4">
+                <MudStack Class="mud-height-full">
+                    <MudPaper Class="pa-4 mud-height-full">
+                        <MudText Typo="Typo.h5">Race incidents</MudText>
+                        <MudSimpleTable Dense="true" Class="extra-dense">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th class="number-col">NO</th>
+                                    <th>Incident</th>
+                                    <th class="number-col-lg">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var result in RaweCeek.RaweCeekDrivers.Where(e => e.Incident != null))
                                 {
                                     <tr>
                                         <td>@result.FullName</td>
@@ -100,9 +100,7 @@
                                                 @result.Number
                                             </NumberDisplay>
                                         </td>
-                                        <td>
-                                            @(result.Incident?.Name)
-                                        </td>
+                                        <td>@result.Incident?.Name</td>
                                         <td class="number-col-lg">
                                             <div class="result-cell" style="@(result.Status.StatusStyles())">
                                                 <MudText Typo="Typo.caption" Color="Color.Inherit">@result.Status.ReadableStatus()</MudText>

@@ -1,7 +1,13 @@
 ﻿@if (!loading)
 {
     <MudPaper MinHeight="60px">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <CountryFlag Code="@raceCountry" />
+            <MudText Typo="Typo.h5">@raceName</MudText>
+
+            <MudSpacer />
+
+            <ScreenshotButton TargetId="practice-table" />
             <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
                 @if (!isFinished)
                 {
@@ -17,10 +23,8 @@
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudPaper>
+    <MudPaper id="practice-table">
         <CommonSession Drivers="@practiceDrivers"
-                       Title="@raceName"
-                       Country="@raceCountry"
                        AmountRuns="@amountRuns" />
     </MudPaper>
 }
@@ -41,7 +45,6 @@
     Country raceCountry = Constants.DefaultCountry;
     int amountRuns;
     int practiceRng;
-
     int advancedRuns;
 
     double gapMarge;
@@ -61,7 +64,7 @@
         raceName = $"Free Practice {PracticeIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
-        practiceRng = RaweCeek.Season.QualifyingRNG / 2;
+        practiceRng = RaweCeek.Season.QualifyingRNG;
 
         var currentSessionScores = PracticeScores.Where(e => e.Index == PracticeIndex).ToList();
 
@@ -92,7 +95,7 @@
 
         foreach (var driver in practiceDrivers)
         {
-            var result = driver.Power + NumberHelper.RandomInt(practiceRng);
+            var result = driver.Power + NumberHelper.RandomInt((practiceRng * -1), practiceRng);
             driver.Scores[advancedRuns] = result;
         }
 

@@ -1,7 +1,13 @@
 ﻿@if (!loading)
 {
     <MudPaper MinHeight="60px">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <CountryFlag Code="@raceCountry" />
+            <MudText Typo="Typo.h5">@raceName</MudText>
+
+            <MudSpacer />
+
+            <ScreenshotButton TargetId="qualy-table" />
             <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
                 @if (!isFinished)
                 {
@@ -17,10 +23,13 @@
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudPaper>
+    <MudStack Row="true">
+        <p>b</p>
+        <MudSpacer />
+        <p>e</p>
+    </MudStack>
+    <MudPaper id="qualy-table">
         <CommonSession Drivers="@qualyDrivers"
-                       Title="@raceName"
-                       Country="@raceCountry"
                        AmountRuns="@amountRuns"
                        EntryCutoff="@entryCutoff"
                        ProgressCutoff="@progressCutoff" />

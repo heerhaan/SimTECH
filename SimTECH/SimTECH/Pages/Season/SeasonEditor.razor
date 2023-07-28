@@ -38,13 +38,20 @@
                                 <MudDivider />
 
                                 <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="Model.RngMinimum" Label="Race Min. RNG" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="Model.RngMaximum" Label="Race Max. RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.RngMinimum" Label="Race MIN RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.RngMaximum" Label="Race MAX RNG" Class="field-md" />
                                 </MudStack>
 
                                 <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="Model.PitMinimum" Min="0" Label="Pit Min. RNG" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="Model.PitMaximum" Min="@(Model.PitMinimum)" Label="Pit Max. RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.MistakeMinimum" Min="0" Label="Mistake MIN RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.MistakeMaximum" Min="@Model.MistakeMinimum" Label="Mistake MAX RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.MistakeRolls" Min="0" Label="Mistake rolls (per advance)" Class="field-md" />
+                                </MudStack>
+
+                                <MudStack Row="true" Spacing="4">
+                                    <MudNumericField T="int" @bind-Value="Model.PitMinimum" Min="0" Label="Pit MIN RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.PitMaximum" Min="@Model.PitMinimum" Label="Pit MAX RNG" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.PitCostSubtractCaution" Min="0" Label="Subtracted during SC" Class="field-md" />
                                 </MudStack>
 
                                 <MudNumericField T="int" @bind-Value="Model.MaximumDriversInRace" Label="Maximum allowed drivers in race" Class="field-md" />
@@ -54,8 +61,10 @@
                                 <MudText Typo="Typo.subtitle1">Additional points</MudText>
                                 <MudDivider />
 
-                                <MudNumericField T="int" @bind-Value="Model.PointsPole" Label="Awarded points Pole" Class="field-md" />
-                                <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Awarded points Fastest Lap" Class="field-md" />
+                                <MudStack Row="true" Spacing="4">
+                                    <MudNumericField T="int" @bind-Value="Model.PointsPole" Label="Awarded points Pole" Class="field-md" />
+                                    <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Awarded points Fastest Lap" Class="field-md" />
+                                </MudStack>
                             </div>
                             @if (Model.Id == 0)
                             {
@@ -88,9 +97,11 @@
                             </ToolBarContent>
                             <HeaderContent>
                                 <MudTh>
-                                    <MudTableSortLabel SortBy="new Func<EditPointAllotmentModel, object>(e => e.Position)">Position</MudTableSortLabel>
+                                    <MudTableSortLabel SortBy="new Func<EditPointAllotmentModel, object>(e => e.Position)">
+                                        POS
+                                    </MudTableSortLabel>
                                 </MudTh>
-                                <MudTh>Points</MudTh>
+                                <MudTh>PTS</MudTh>
                                 <MudTh></MudTh>
                             </HeaderContent>
                             <RowTemplate>
@@ -104,9 +115,6 @@
                                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveAllotment(context))" />
                                 </MudTd>
                             </RowTemplate>
-                            <EditButtonContent Context="button">
-                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
-                            </EditButtonContent>
                         </MudTable>
                     </MudPaper>
                 </MudItem>

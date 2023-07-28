@@ -7,42 +7,88 @@
                 </MudStack>
             </MudPaper>
         </MudItem>
-        <MudItem xs="8">
+        <MudItem xs="3">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.h5">Track information</MudText>
+                <MudDivider />
+                <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
+
+                <MudListExtended T="string" Dense="true">
+                    <MudListItemExtended T="string" SecondaryText="Country">
+                        <CountryNamedFlag Code="@Model.Race.Track.Country" Size="ElementSize.Normal" Reverse="true" />
+                    </MudListItemExtended>
+                    <MudListItemExtended T="string" Text="@Model.Climate.Terminology" SecondaryText="Weather">
+                        <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour">
+                            <MudText Color="Color.Inherit">@Model.Climate.Terminology</MudText>
+                        </CustomIcon>
+                    </MudListItemExtended>
+                    <MudListItemExtended T="string"
+                                         Text="@($"{Model.Race.Track.Length}km")"
+                                         SecondaryText="Length" />
+                    <MudListItemExtended T="string"
+                                         Text="@($"{NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length)}")"
+                                         SecondaryText="Laps" />
+                    <MudListItemExtended T="double"
+                                         Text="@Model.Race.Track.AeroMod.ToString("F2")"
+                                         SecondaryText="Aero modifier" />
+                    <MudListItemExtended T="double"
+                                         Text="@Model.Race.Track.ChassisMod.ToString("F2")"
+                                         SecondaryText="Chassis modifier" />
+                    <MudListItemExtended T="double"
+                                         Text="@Model.Race.Track.PowerMod.ToString("F2")"
+                                         SecondaryText="Powertrain modifier" />
+                    <MudListItemExtended T="double"
+                                         Text="@Model.Race.Track.QualifyingMod.ToString("F2")"
+                                         SecondaryText="Qualifying modifier" />
+                    <MudListItemExtended T="double"
+                                         Text="@Model.Race.Track.DefenseMod.ToString("F2")"
+                                         SecondaryText="Defense modifier" />
+                </MudListExtended>
+
+                @if (TrackTraits.Any() == true)
+                {
+                    <MudText Typo="Typo.subtitle1">Circuit Traits</MudText>
+                    <MudList>
+                        @foreach (var trait in TrackTraits)
+                        {
+                            <MudListItem>
+                                <MudStack Spacing="1">
+                                    <MudText Typo="Typo.subtitle2">@trait.Name</MudText>
+                                    <MudDivider />
+                                    <MudText Typo="Typo.body2">@trait.Description</MudText>
+                                </MudStack>
+                            </MudListItem>
+                        }
+                    </MudList>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
             <MudPaper Class="pa-4 mud-height-full">
                 <MudTable Items="@Model.RaweCeekDrivers.OrderBy(e => e.Grid)" Dense="true" Class="extra-dense">
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Starting grid</MudText>
                     </ToolBarContent>
                     <HeaderContent>
-                        <MudTh Class="number-col-lg">POS</MudTh>
                         <MudTh Class="number-col">Grid</MudTh>
                         <MudTh Class="accent-cell"></MudTh>
                         <MudTh Style="max-width: 220px">Name</MudTh>
                         <MudTh Class="number-col">NO</MudTh>
                         <MudTh Style="max-width: 220px">Team</MudTh>
                         <MudTh Class="number-col">SUPP</MudTh>
-                        <MudTh>
-                            @if (Model.Race.State == State.Closed)
-                            {
-                                <span>PTS</span>
-                            }
-                            else
-                            {
-                                <span>Tyre</span>
-                            }
-                        </MudTh>
+                        <MudTh>Tyre</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd Class="number-col-lg">
-                            @if (context.Status == RaceStatus.Racing)
-                            {
-                                <DriverPosition Number="@context.Position" />
-                            }
-                            else
+                        <MudTd Class="number-col">
+                            @if (context.Status == RaceStatus.Dnq)
                             {
                                 <div class="result-cell" style="@(context.Status.StatusStyles())">
                                     <MudText Typo="Typo.caption" Color="Color.Inherit">@context.Status.ReadableStatus()</MudText>
                                 </div>
+                            }
+                            else
+                            {
+                                <DriverPosition Number="@context.Grid" />
                             }
 
                             @if (context.Penalty.HasValue)
@@ -54,9 +100,6 @@
                                     <sup>x</sup>
                                 </MudBadge>
                             }
-                        </MudTd>
-                        <MudTd Class="number-col">
-                            <MudText Typo="Typo.caption">@context.Grid</MudText>
                         </MudTd>
                         <MudTd Class="accent-cell">
                             <SmolAccent Colour="@context.Colour" />
@@ -86,94 +129,28 @@
                             </SupplierDisplay>
                         </MudTd>
                         <MudTd>
-                            @if (Model.Race.State == State.Closed)
-                            {
-                                @if (context.Incident != null)
-                                {
-                                    <MudText Typo="Typo.button" Color="Color.Warning">@context.Incident.Name</MudText>
-                                }
-                                else
-                                {
-                                    <MudText Typo="Typo.caption">???</MudText>
-                                }
-                            }
-                            else
-                            {
-                                <MudLink OnClick="@(async () => await HandleTyrePicker(context.ResultId))">
-                                    <TyreElement Colour="@context.Tyre.Colour">
-                                        @context.Tyre.Name.ElementAt(0)
-                                    </TyreElement>
-                                </MudLink>
-                            }
+                            <MudLink OnClick="@(async () => await HandleTyrePicker(context.ResultId))">
+                                <TyreElement Colour="@context.Tyre.Colour">
+                                    @context.Tyre.Name.ElementAt(0)
+                                </TyreElement>
+                            </MudLink>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
             </MudPaper>
         </MudItem>
-        <MudItem xs="2">
-            <MudPaper Class="pa-4 mud-height-full">
-                <MudText Typo="Typo.h5">Track information</MudText>
-                <MudDivider />
-                <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
-
-                <MudListExtended T="string" Dense="true">
-                    <MudListItemExtended T="string" SecondaryText="Country">
-                        <CountryNamedFlag Code="@Model.Race.Track.Country" Size="ElementSize.Normal" Reverse="true" />
-                    </MudListItemExtended>
-                    <MudListItemExtended T="string" Text="@Model.Climate.Terminology" SecondaryText="Weather">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                            <MudIcon Icon="@Model.Climate.Icon" />
-                            <MudText>@Model.Climate.Terminology</MudText>
-                        </MudStack>
-                    </MudListItemExtended>
-                    <MudListItemExtended T="string"
-                        Text="@($"{Model.Race.Track.Length}km")"
-                        SecondaryText="Length" />
-                    <MudListItemExtended T="string"
-                        Text="@($"{NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length)}")"
-                        SecondaryText="Laps" />
-                    <MudListItemExtended T="double"
-                        Text="@Model.Race.Track.AeroMod.ToString("F2")"
-                        SecondaryText="Aero modifier" />
-                    <MudListItemExtended T="double"
-                        Text="@Model.Race.Track.ChassisMod.ToString("F2")"
-                        SecondaryText="Chassis modifier" />
-                    <MudListItemExtended T="double"
-                        Text="@Model.Race.Track.PowerMod.ToString("F2")"
-                        SecondaryText="Powertrain modifier" />
-                    <MudListItemExtended T="double"
-                        Text="@Model.Race.Track.QualifyingMod.ToString("F2")"
-                        SecondaryText="Qualifying modifier" />
-                    <MudListItemExtended T="double"
-                        Text="@Model.Race.Track.DefenseMod.ToString("F2")"
-                        SecondaryText="Defense modifier" />
-                </MudListExtended>
-
-                @if (TrackTraits.Any() == true)
-                {
-                    <MudText Typo="Typo.subtitle1">Circuit Traits</MudText>
-                    <MudList>
-                        @foreach (var trait in TrackTraits)
-                        {
-                            <MudListItem>
-                                <MudStack Spacing="1">
-                                    <MudText Typo="Typo.subtitle2">@trait.Name</MudText>
-                                    <MudDivider />
-                                    <MudText Typo="Typo.body2">@trait.Description</MudText>
-                                </MudStack>
-                            </MudListItem>
-                        }
-                    </MudList>
-                }
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="2">
+        <MudItem xs="3">
             <MudPaper Class="pa-4 mud-height-full">
                 <MudText Typo="Typo.h5">???</MudText>
                 <MudDivider />
                 <MudText Typo="Typo.body2" Color="Color.Error" Class="mb-1">Wtf am I going to put here?</MudText>
 
-                <MudText Color="Color.Warning">TODO: upcoming penalties</MudText>
+                <MudText>
+                    Do NOT think about replacing the post race completely and adding all that to this page as the content does not fit nicely 
+                    and on top of that it makes it way harder to notice the pre-race vs post-race conditions.
+                    <br/>
+                    Also you're an absolute blithering idiot.
+                </MudText>
             </MudPaper>
         </MudItem>
     </MudGrid>

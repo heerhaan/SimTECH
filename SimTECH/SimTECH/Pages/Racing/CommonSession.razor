@@ -1,12 +1,4 @@
 ﻿<MudTable Items="@Drivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="session-table">
-    <ToolBarContent>
-        <MudStack Row="true" AlignItems="AlignItems.Center" Class="mud-width-full">
-            <CountryFlag Code="@raceCountry" />
-            <MudText Typo="Typo.h5">@raceTitle</MudText>
-            <MudSpacer />
-            <ScreenshotButton TargetId="session-table" />
-        </MudStack>
-    </ToolBarContent>
     <HeaderContent>
         <MudTh></MudTh>
         <MudTh Class="accent-cell"></MudTh>
@@ -66,13 +58,10 @@
 
 @code {
     [Parameter] public IEnumerable<SessionDriver> Drivers { get; set; } = Enumerable.Empty<SessionDriver>();
-    [Parameter] public string Title { get; set; } = string.Empty;
-    [Parameter] public Country Country { get; set; } = Constants.DefaultCountry;
     [Parameter] public int AmountRuns { get; set; }
     [Parameter] public int EntryCutoff { get; set; }
     [Parameter] public int ProgressCutoff { get; set; }
 
-    //bool loading = true;
     string raceTitle;
     Country raceCountry;
     int amountRuns;
@@ -80,21 +69,12 @@
     int worstScore;
     int bestScore;
 
-    protected override void OnInitialized()
-    {
-        raceTitle = Title;
-        raceCountry = Country;
-        amountRuns = AmountRuns == 0 ? 2 : AmountRuns;
-    }
-
     protected override void OnParametersSet()
     {
-        //loading = true;
-
         var scoreNumbers = Drivers.SelectMany(e => e.Scores).ToArray();
         worstScore = scoreNumbers.Min();
         bestScore = scoreNumbers.Max();
 
-        //loading = false;
+        amountRuns = AmountRuns == 0 ? 2 : AmountRuns;
     }
 }
