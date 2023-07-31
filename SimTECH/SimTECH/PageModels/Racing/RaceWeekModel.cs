@@ -1,6 +1,6 @@
 ﻿using SimTECH.Data.Models;
 
-namespace SimTECH.PageModels
+namespace SimTECH.PageModels.Racing
 {
     public class RaweCeekModel
     {

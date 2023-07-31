@@ -1,8 +1,7 @@
 ﻿using SimTECH.Data.Models;
 using SimTECH.Extensions;
-using SimTECH.PageModels.Racing;
 
-namespace SimTECH.PageModels;
+namespace SimTECH.PageModels.Racing;
 
 public class RaweCeekDriver
 {
@@ -38,7 +37,6 @@ public class RaweCeekDriver
     public int LifeBonus { get; set; }
     public bool HasFastestLap { get; set; }
 
-    public long? PenaltyId { get; set; }
     public int? Penalty { get; set; }
     public string? Reasons { get; set; }
 

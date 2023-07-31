@@ -143,6 +143,7 @@
 
 @code {
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
+    [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
     List<GivenPenalty> Penalties = new();
 
@@ -204,7 +205,7 @@
         }
     }
 
-    private void GoToOverview() => throw new NotImplementedException();
+    private async Task GoToOverview() => await OnNavigate.InvokeAsync($"overview/{RaweCeek.Season.Id}");
 
     internal class DriverPenalty
     {

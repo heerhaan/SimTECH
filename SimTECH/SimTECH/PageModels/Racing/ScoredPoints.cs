@@ -1,4 +1,4 @@
-﻿namespace SimTECH.PageModels
+﻿namespace SimTECH.PageModels.Racing
 {
     public class ScoredPoints
     {
