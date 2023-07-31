@@ -28,7 +28,7 @@
         <MudSpacer />
         <p>e</p>
     </MudStack>
-    <MudPaper id="qualy-table">
+    <MudPaper Elevation="25" id="qualy-table">
         <CommonSession Drivers="@qualyDrivers"
                        AmountRuns="@amountRuns"
                        EntryCutoff="@entryCutoff"
@@ -56,6 +56,7 @@
     int qualyRng;
     int entryCutoff;
     int progressCutoff;
+    int highestScore;
 
     double gapMarge;
 
@@ -70,7 +71,7 @@
 
         qualyDrivers.Clear();
 
-        raceName = $"Qualifying {QualifyingIndex}";
+        raceName = $"{RaweCeek.Race.Name} - QUALIFYING {QualifyingIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
         qualyRng = RaweCeek.Season.QualifyingRNG;
@@ -85,7 +86,10 @@
 
         // Should be refactored when saving results on click instead of on finish
         if (currentSessionScores.Any())
+        {
             isFinished = true;
+            highestScore = currentSessionScores.Where(e => e.Scores != null).SelectMany(e => e.Scores).Max();
+        }
 
         isFinished = amountRuns == advancedRuns && RaweCeek.Race.State != State.Active;
 
@@ -101,6 +105,11 @@
             {
                 mappedDriver.Scores = driverScore.Scores;
                 mappedDriver.Position = driverScore.Position;
+
+                if (mappedDriver.Position == 1)
+                    mappedDriver.GapAbove = "LEADER";
+                else
+                    mappedDriver.GapAbove = "+" + (Math.Round((highestScore - mappedDriver.MaxScore()) * gapMarge, 2)).ToString("F2");
             }
 
             qualyDrivers.Add(mappedDriver);
@@ -122,6 +131,11 @@
         foreach (var driver in qualyDrivers.OrderByDescending(e => e.MaxScore()))
         {
             driver.Position = ++positionIndex;
+
+            if (driver.Position == 1)
+                driver.GapAbove = "LEADER";
+            else
+                driver.GapAbove = "+" + (Math.Round((highestScore - driver.MaxScore()) * gapMarge, 2)).ToString("F2");
         }
 
         advancedRuns++;

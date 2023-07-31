@@ -35,7 +35,6 @@ public class RaweCeekDriver
     public int RngMinMod { get; set; }
     public int RngMaxMod { get; set; }
     public int LifeBonus { get; set; }
-    public bool HasFastestLap { get; set; }
 
     public int? Penalty { get; set; }
     public string? Reasons { get; set; }
@@ -114,7 +113,7 @@ public static class ExtendRaweCeekDriver
             RngMaxMod = driver.RngMaxMod,
             LifeBonus = driver.LifeBonus,
 
-            HasFastestLap = driver.HasFastestLap,
+            HasFastestLap = driver.FastestLap,
             OvertakeCount = driver.Overtaken,
             DefensiveCount = driver.Defended,
             Incident = driver.Incident,
@@ -132,7 +131,7 @@ public static class ExtendRaweCeekDriver
             Status = driver.Status,
             //Setup = Setup,
             TyreLife = driver.TyreLife,
-            FastestLap = driver.HasFastestLap,
+            FastestLap = driver.FastestLap,
             Overtaken = driver.Overtaken,
             Defended = driver.Defended,
 
@@ -152,7 +151,7 @@ public static class ExtendRaweCeekDriver
         if (driver.Grid == 1)
             points += polePoints;
 
-        if (driver.HasFastestLap)
+        if (driver.FastestLap)
             points += fastLapPoints;
 
         if (driver.Status == RaceStatus.Racing)

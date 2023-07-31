@@ -46,6 +46,7 @@
     int amountRuns;
     int practiceRng;
     int advancedRuns;
+    int highestScore;
 
     double gapMarge;
 
@@ -61,7 +62,7 @@
 
         practiceDrivers.Clear();
 
-        raceName = $"Free Practice {PracticeIndex}";
+        raceName = $"{RaweCeek.Race.Name} - PRACTICE {PracticeIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
         practiceRng = RaweCeek.Season.QualifyingRNG;
@@ -70,7 +71,10 @@
 
         // Should be refactored when saving results on click instead of on finish
         if (currentSessionScores.Any())
+        {
             isFinished = true;
+            highestScore = currentSessionScores.Where(e => e.Scores != null).SelectMany(e => e.Scores).Max();
+        }
 
         foreach (var driver in RaweCeek.RaweCeekDrivers)
         {
@@ -81,6 +85,7 @@
             {
                 mappedDriver.Scores = driverScore.Scores;
                 mappedDriver.Position = driverScore.Position;
+                mappedDriver.GapAbove = "+" + (Math.Round((highestScore - mappedDriver.MaxScore()) * gapMarge, 2)).ToString("F2");
             }
 
             practiceDrivers.Add(mappedDriver);
@@ -97,11 +102,15 @@
         {
             var result = driver.Power + NumberHelper.RandomInt((practiceRng * -1), practiceRng);
             driver.Scores[advancedRuns] = result;
+
+            if (result > highestScore)
+                highestScore = result;
         }
 
         foreach (var driver in practiceDrivers.OrderByDescending(e => e.MaxScore()))
         {
             driver.Position = ++positionIndex;
+            driver.GapAbove = "+" + (Math.Round((highestScore - driver.MaxScore()) * gapMarge, 2)).ToString("F2");
         }
 
         advancedRuns++;

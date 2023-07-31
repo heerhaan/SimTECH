@@ -125,8 +125,6 @@
 </MudContainer>
 
 @code {
-    private MudTable<EntrantAssignee> _table;
-
     List<Trait> AllTraits { get; set; }
     List<Trait>? RelevantTraits { get; set; }
     List<EntrantAssignee> Entrants { get; set; } = new();
@@ -134,7 +132,6 @@
 
     MudChip? entrantChip;
 
-    bool loadingEntrants = false;
     Entrant activeEntrant = Entrant.None;
 
     protected override async Task OnInitializedAsync()
@@ -155,7 +152,6 @@
         if (entrantChip == null)
             return;
 
-        loadingEntrants = true;
         activeEntrant = (Entrant)entrantChip.Value;
 
         switch (activeEntrant)
@@ -182,8 +178,6 @@
         }
 
         RelevantTraits = AllTraits.Where(e => e.Type == activeEntrant).ToList();
-
-        loadingEntrants = false;
     }
 
     private string GetReadableTrait(long id) => AllTraits.Find(e => e.Id == id)?.Name ?? "Unknown";

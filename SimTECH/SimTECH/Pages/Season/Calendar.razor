@@ -94,11 +94,11 @@
                 <MudButtonGroup Size="@Size.Small">
                     @if (Season.State == State.Active && (context.Round == nextRound))
                     {
-                        <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRaceWeek(context.Round))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRace(context.Round))" />
                     }
                     else if (context.State == State.Closed)
                     {
-                        <MudIconButton Icon="@Icons.Material.Filled.Flag" OnClick="@(() => GoToRaceWeek(context.Round))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Flag" OnClick="@(() => GoToRace(context.Round))" />
                     }
                     else if (Season.State != State.Closed)
                     {
@@ -169,7 +169,7 @@
                 };
             }
 
-            var winner = Results.FirstOrDefault(e => e.RaceId == race.Id && e.Grid == 1);
+            var winner = Results.FirstOrDefault(e => e.RaceId == race.Id && e.Position == 1);
             if (winner != null)
             {
                 var winnerDriver = SeasonDrivers.First(e => e.Id == winner.SeasonDriverId);
@@ -205,7 +205,7 @@
 
     private async Task DeleteRace(long raceId) => await OnDelete.InvokeAsync(raceId);
 
-    private async Task GoToRaceWeek(int round) => await OnGoToRace.InvokeAsync(round);
+    private async Task GoToRace(int round) => await OnGoToRace.InvokeAsync(round);
 
     internal class CalendarListing
     {
@@ -218,9 +218,9 @@
         public string WeatherIcon { get; set; }
         public long TrackId { get; set; }
 
-        public CompactDriver PoleSitter { get; set; }
-        public CompactDriver DriverWinner { get; set; }
-        public CompactTeam TeamWinner { get; set; }
+        public CompactDriver? PoleSitter { get; set; }
+        public CompactDriver? DriverWinner { get; set; }
+        public CompactTeam? TeamWinner { get; set; }
 
         public Race Race { get; set; }
     }

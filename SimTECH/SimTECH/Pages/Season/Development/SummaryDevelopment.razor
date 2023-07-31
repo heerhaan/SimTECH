@@ -78,6 +78,8 @@
     [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
 
+    private static readonly string[] cycleWheel = new[] { "fallback-muted-background-primary", "fallback-muted-background-secondary", "fallback-muted-background-tertiary" };
+
     private List<DevelopSummary> Summaries { get; set; } = new();
 
     private TableGroupDefinition<EntrantDevelopLog> _entrantDefinition = new()
@@ -132,9 +134,6 @@
                 });
         }
     }
-
-    private static readonly string[] cycleWheel = new[] { "fallback-muted-background-primary", "fallback-muted-background-secondary", "fallback-muted-background-tertiary" };
-    private int colorCycler = 0;
 
     private string InspectTheWheel(int numCycle)
     {

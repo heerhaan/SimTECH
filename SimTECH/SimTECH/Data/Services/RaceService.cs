@@ -36,12 +36,14 @@ namespace SimTECH.Data.Services
                 .SingleAsync(e => e.Id == raceId);
         }
 
-        public async Task<Race> GetRaceByRound(long seasonId, int round)
+        public async Task<long?> GetRaceIdByRound(long seasonId, int round)
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Race
-                .FirstAsync(e => e.SeasonId == seasonId && e.Round == round);
+            var race = await context.Race
+                .FirstOrDefaultAsync(e => e.SeasonId == seasonId && e.Round == round);
+
+            return race?.Id;
         }
 
         public async Task<long?> GetNextRaceIdOfSeason(long seasonId)

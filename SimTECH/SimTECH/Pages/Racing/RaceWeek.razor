@@ -79,8 +79,8 @@
                               Config="@config"
                               OnFinish="PersistRace" />
                     </MudTabPanel>
-                    <MudTabPanel Text="Post race" Disabled="@postraceDisabled">
-                        <PostRace />
+                    <MudTabPanel Text="Post race" Disabled="@postraceDisabled" ID="@("postracemoment")">
+                        <PostRace UpcomingPenalties="@upcomingPenalties" OnNavigate="GoToCommon" />
                     </MudTabPanel>
                 </MudTabs>
             </CascadingValue>
@@ -102,15 +102,16 @@
     private List<QualifyingScore> qualyScores = new();
     private List<LapScore> lapScores = new();
     private List<RaceOccurrence> occurrences = new();
+    private List<GivenPenalty> upcomingPenalties = new();
 
     private SimConfig config;
 
     MudTabs _tabs;
-    MudTabs _qualyTabs;
+    MudTabs? _qualyTabs;
 
     bool loading = true;
     int practiceCompleted;
-    int nextPractice = 1;
+    int nextPractice => 1 + practiceCompleted;
     int qualySessions;
 
     bool raceDisabled => RaweCeek.Race.State != State.Advanced && RaweCeek.Race.State != State.Closed;
@@ -128,8 +129,6 @@
         lapScores = await _raceService.GetLapScores(RaceId);
         occurrences = await _raceService.GetRaceOccurrences(RaceId);
         config = _config.Value;
-
-        nextPractice = 1 + practiceCompleted;
 
         var race = await _raceService.GetRaceById(RaceId);
         if (race.State == State.Concept)
@@ -370,7 +369,8 @@
 
             var nextQ = 1 + qualyIndex;
 
-            if (qualySessions > 1)
+            // Navigate to the next qualifying session
+            if (qualySessions > 1 && _qualyTabs != null)
                 _qualyTabs.ActivatePanel($"q_{nextQ}");
         }
     }
@@ -379,7 +379,7 @@
     {
         if (!lapScores.Any() || !occurrences.Any())
         {
-            _snack.Add("good god, saving a race for which we see resulting data. How wrong!", Severity.Error);
+            _snack.Add("good god, saving a race for which we have NO data. How wrong!", Severity.Error);
             return;
         }
 
@@ -398,10 +398,22 @@
         await _raceService.FinishRace(RaceId, finalResults, scoredPoints);
 
         if (RaweCeek.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
+        {
             await _seasonService.CheckPenalties(finalResults);
+
+            var nextRaceId = await _raceService.GetRaceIdByRound(RaweCeek.Season.Id, (1 + RaweCeek.Race.Round));
+            if (nextRaceId.HasValue)
+            {
+                var nextRacePenalties = await _raceService.GetRacePenalties(nextRaceId.Value);
+                if (nextRacePenalties?.Any() ?? false)
+                    upcomingPenalties.AddRange(nextRacePenalties);
+            }
+        }
 
         RaweCeek.Race.State = State.Closed;
         loading = false;
+
+        _tabs.ActivatePanel("postracemoment");
     }
 
     private void GoToCommon(string path) => _nav.NavigateTo(path);
