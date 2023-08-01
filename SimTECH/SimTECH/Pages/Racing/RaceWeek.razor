@@ -79,8 +79,9 @@
                               Config="@config"
                               OnFinish="PersistRace" />
                     </MudTabPanel>
-                    <MudTabPanel Text="Post race" Disabled="@postraceDisabled" ID="@("postracemoment")">
-                        <PostRace UpcomingPenalties="@upcomingPenalties" OnNavigate="GoToCommon" />
+                    <MudTabPanel Text="Post race" Disabled="@postraceDisabled">
+                        <PostRace UpcomingPenalties="@upcomingPenalties"
+                                  OnNavigate="GoToCommon" />
                     </MudTabPanel>
                 </MudTabs>
             </CascadingValue>
@@ -93,7 +94,7 @@
 
     public RaweCeekModel RaweCeek { get; set; } = new();
 
-    private List<Climate> climates;
+    //private List<Climate> climates;
     private List<Incident> incidents;
     private List<Trait> trackTraits = new();
     private List<Tyre> tyres;
@@ -119,7 +120,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        climates = await _climateService.GetClimates(StateFilter.All);
+        //climates = await _climateService.GetClimates(StateFilter.All);
         incidents = await _incidentService.GetIncidents(StateFilter.All);
         tyres = await _tyreService.GetTyres(StateFilter.All);
         practiceCompleted = await _raceService.PracticeSessionsCompleted(RaceId);
@@ -140,10 +141,20 @@
             await _raceService.ActivateRace(race.Id);
             race.State = State.Active;
         }
+        else if (race.State == State.Closed)
+        {
+            var nextRaceId = await _raceService.GetRaceIdByRound(RaweCeek.Season.Id, (1 + RaweCeek.Race.Round));
+            if (nextRaceId.HasValue)
+            {
+                var nextRacePenalties = await _raceService.GetRacePenalties(nextRaceId.Value);
+                if (nextRacePenalties?.Any() ?? false)
+                    upcomingPenalties.AddRange(nextRacePenalties);
+            }
+        }
 
         RaweCeek.Race = race;
         RaweCeek.Season = await _seasonService.GetSeasonById(race.SeasonId);
-        RaweCeek.Climate = climates.First(e => e.Id == race.ClimateId);
+        RaweCeek.Climate = await _climateService.GetClimateById(race.ClimateId);
 
         qualySessions = RaweCeek.Season.QualifyingFormat.SessionCount();
 
@@ -383,8 +394,6 @@
             return;
         }
 
-        loading = true;
-
         var allotments = RaweCeek.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
         var finalResults = RaweCeek.RaweCeekDrivers
             .Select(e => e.MapToResult(RaceId))
@@ -411,9 +420,8 @@
         }
 
         RaweCeek.Race.State = State.Closed;
-        loading = false;
 
-        _tabs.ActivatePanel("postracemoment");
+        _tabs.ActivatePanel(5);
     }
 
     private void GoToCommon(string path) => _nav.NavigateTo(path);
