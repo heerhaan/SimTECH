@@ -1,7 +1,7 @@
 ﻿@if (!loading)
 {
     <MudPaper MinHeight="60px">
-        <MudStack Row="true" AlignItems="AlignItems.Center">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
             <CountryFlag Code="@raceCountry" />
             <MudText Typo="Typo.h5">@raceName</MudText>
 
@@ -23,11 +23,6 @@
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudStack Row="true">
-        <p>b</p>
-        <MudSpacer />
-        <p>e</p>
-    </MudStack>
     <MudPaper Elevation="25" id="qualy-table">
         <CommonSession Drivers="@qualyDrivers"
                        AmountRuns="@amountRuns"
@@ -91,7 +86,7 @@
             highestScore = currentSessionScores.Where(e => e.Scores != null).SelectMany(e => e.Scores).Max();
         }
 
-        isFinished = amountRuns == advancedRuns && RaweCeek.Race.State != State.Active;
+        isFinished = RaweCeek.Race.State == State.Advanced || RaweCeek.Race.State == State.Closed;
 
         foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.Position).Take(MaximumAllowed))
         {
