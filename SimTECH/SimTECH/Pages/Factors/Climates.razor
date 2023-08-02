@@ -43,15 +43,22 @@
     </MudDataGrid>
     <MudExpansionPanels>
         <MudExpansionPanel Text="Random climate">
-            <MudButton OnClick="GetRandomClimate">RandomClimate</MudButton>
-            <MudText>@(randomClimate ?? "None")</MudText>
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GetRandomClimate">RandomClimate</MudButton>
+                @if (randomClimate != null)
+                {
+                    <CustomIcon Icon="@randomClimate.Icon" Colour="@randomClimate.Colour">
+                        <MudText>@randomClimate.Terminology</MudText>
+                    </CustomIcon>
+                }
+            </MudStack>
         </MudExpansionPanel>
     </MudExpansionPanels>
 </MudContainer>
 
 @code {
     List<Climate> climateItems;
-    string? randomClimate = null;
+    Climate? randomClimate = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,8 +73,7 @@
 
     private void GetRandomClimate()
     {
-        var ranClimate = climateItems.TakeRandomClimate();
-        randomClimate = ranClimate.Terminology;
+        randomClimate = climateItems.TakeRandomClimate();
     }
 
     async Task AddItem() => await UpdateItem(null);

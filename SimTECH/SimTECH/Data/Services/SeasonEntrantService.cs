@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
+using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.Services
 {
@@ -169,6 +170,14 @@ namespace SimTECH.Data.Services
         #endregion
 
         #region methods exclusively for season drivers
+        public async Task<List<SeasonDriver>> GetAllSeasonDrivers()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonDriver
+                .ToListAsync();
+        }
+
         public async Task<List<SeasonDriver>> GetSeasonDrivers(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -177,17 +186,6 @@ namespace SimTECH.Data.Services
                 .Include(e => e.Driver)
                     .ThenInclude(e => e.DriverTraits)
                 .Where(e => e.SeasonId == seasonId)
-                .ToListAsync();
-        }
-
-        public async Task<List<SeasonDriver>> GetSeasonDriversWithResults(long seasonId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.SeasonDriver
-                .Where(e => e.SeasonId == seasonId)
-                .Include(e => e.Driver)
-                .Include(e => e.Results)
                 .ToListAsync();
         }
 

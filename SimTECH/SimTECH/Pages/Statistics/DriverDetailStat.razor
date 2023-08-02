@@ -1,6 +1,4 @@
-﻿@inject DriverService _driverService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText>Detailed statistics for a driver</MudText>
     </TitleContent>
@@ -12,7 +10,7 @@
                     <MudStack Row="true" Justify="Justify.SpaceBetween" Class="mud-width-full">
                         <MudPaper>
                             <MudSelect T="Driver"
-                            @bind-Value="@selectedDriver"
+                                       @bind-Value="@selectedDriver"
                                        Label="Driver"
                                        Class="field-lg">
                                 @foreach (var driver in Drivers)
@@ -44,17 +42,14 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
-
-    List<Driver> Drivers;
+    [Parameter] public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
 
     Driver? selectedDriver;
 
     bool loading = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Drivers = await _driverService.GetDrivers();
-
         loading = false;
     }
 }
