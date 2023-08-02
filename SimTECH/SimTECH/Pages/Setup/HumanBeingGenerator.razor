@@ -39,7 +39,7 @@
                         <!-- One option to add is to generate either on nationality or language type -->
                         @if (availableLanguages != null && genderFilter != Gender.Other)
                         {
-                            <MudSelectExtended ItemCollection="@(availableLanguages.OrderBy(e => e.Country.GetDescription()).ToArray())"
+                            <MudSelectExtended ItemCollection="@(availableLanguages.OrderBy(e => e.Country.GetDescription()).ToList())"
                                                @bind-SelectedValues="@SelectedLanguages"
                                                T="LanguageInfo"
                                                MultiSelection="true"

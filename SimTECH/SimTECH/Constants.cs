@@ -37,7 +37,7 @@ namespace SimTECH
             Chart = new()
             {
                 Animations = new() { Enabled = false },
-                Background = "#525252BF",
+                Background = "#1A1A1AD8",
                 Toolbar = new() { Show = false },
             },
             Theme = new()

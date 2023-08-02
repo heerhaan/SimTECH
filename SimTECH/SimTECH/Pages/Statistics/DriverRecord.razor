@@ -1,10 +1,6 @@
-﻿@inject DriverService _driverService
-@inject SeasonEntrantService _entrantService
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5" Class="px-4 py-2">Records among drivers</MudText>
-        <MudText Typo="Typo.body2" Color="Color.Warning">Does net yet filter based on which league</MudText>
     </TitleContent>
     <DialogContent>
         <MudContainer>
@@ -14,7 +10,7 @@
                         <MudSelect T="RecordStat"
                                    Label="Record"
                                    Placeholder="Select a record then, ya daft cunt"
-                                   ValueChanged="RetrieveRecords">
+                                   ValueChanged="DetermineRecords">
                             @foreach (var record in recordStats)
                             {
                                 <MudSelectItem Value="@record">
@@ -25,9 +21,9 @@
                     </MudStack>
 
                     <MudPaper MinHeight="500px" MinWidth="500px">
-                        @if (loaded && DriverRecords != null)
+                        @if (!loading)
                         {
-                            <MudText Typo="Typo.h5">@currentRecord</MudText>
+                            <MudText Typo="Typo.h5">@selectedRecord</MudText>
                             <MudDivider />
                             <MudSimpleTable Dense="true" Class="extra-dense">
                                 <thead>
@@ -38,7 +34,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var (driverData, index) in DriverRecords.WithIndex())
+                                    @foreach (var (driverData, index) in driverRecords.WithIndex())
                                     {
                                         <tr>
                                             <td>@(1 + index)</td>
@@ -67,32 +63,60 @@
 @code {
     [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
     [Parameter] public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
+    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
+    [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
 
-    private Dictionary<Driver, int>? DriverRecords { get; set; }
+    private Dictionary<Driver, List<Result>> groupedResults = new();
+
+    private Dictionary<Driver, int> driverRecords = new(amount);
 
     private RecordStat[] recordStats = EnumHelper.DriverRecordStats;
 
-    private bool loaded;
-    private string currentRecord = "Unknown";
-    private int amount = 10;
+    private bool loading = true;
+    private RecordStat selectedRecord = RecordStat.None;
+    private const int amount = 10;
 
-    private async Task RetrieveRecords(RecordStat selected)
+    protected override void OnInitialized()
     {
-        long? leagueFilter = null;
-
-        var allDrivers = await _driverService.GetDrivers(StateFilter.All);
-        var recordData = await _entrantService.RecordDrivers(selected, amount, leagueFilter);
-
-        var driverRecords = new Dictionary<Driver, int>(amount);
-        foreach (var record in recordData.OrderByDescending(e => e.Value))
+        foreach (var groupDriver in SeasonDrivers.GroupBy(e => e.DriverId))
         {
-            var matchingDriver = allDrivers.First(e => e.Id == record.Key);
-            driverRecords.Add(matchingDriver, record.Value);
+            // Skips the drivers which haven't been entered to a season yet
+            if (!groupDriver.Any())
+                continue;
+
+            var driver = Drivers.First(e => e.Id == groupDriver.Key);
+            var allSeasonDriverIds = groupDriver.Select(e => e.Id).ToList();
+            var driverResults = Results.Where(e => allSeasonDriverIds.Contains(e.SeasonDriverId)).ToList();
+
+            groupedResults.Add(driver, driverResults);
         }
-
-        DriverRecords = driverRecords;
-        currentRecord = selected.ToString();
-
-        loaded = true;
     }
+
+    private void DetermineRecords(RecordStat selected)
+    {
+        loading = true;
+
+        driverRecords = groupedResults
+            .Select(e => new { driver = e.Key, value = e.Value.Count(SearchFilter(selected)) })
+            .OrderByDescending(e => e.value)
+            .Take(amount)
+            .ToDictionary(e => e.driver, e => e.value);
+
+        selectedRecord = selected;
+
+        loading = false;
+    }
+
+    private Func<Result, bool> SearchFilter(RecordStat selected) => selected switch
+    {
+        RecordStat.Entry => (result => true),
+        RecordStat.Start => (result => result.Status != RaceStatus.Dnq),
+        RecordStat.Win => (result => result.Position == 1),
+        RecordStat.Pole => (result => result.Grid == 1),
+        RecordStat.Retired => (result => result.Status == RaceStatus.Dnf || result.Status == RaceStatus.Dsq || result.Status == RaceStatus.Fatal),
+        RecordStat.FastestLap => (result => result.FastestLap),
+        //RecordStat.Overtakes => (result => result.Status != RaceStatus.Dnq),
+        //RecordStat.Defended => (result => result.Status != RaceStatus.Dnq),
+        _ => throw new InvalidOperationException("Ayo, I do not recognize this enum")
+    };
 }

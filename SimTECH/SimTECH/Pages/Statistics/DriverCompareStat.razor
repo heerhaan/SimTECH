@@ -4,76 +4,55 @@
         <MudText Typo="Typo.body2" Color="Color.Warning">Does net yet filter based on which league</MudText>
     </TitleContent>
     <DialogContent>
-        <MudContainer Class="pa-2">
-            <MudPaper Width="1100px">
-                @if (!loading)
-                {
-                    <MudStack>
-                        <MudStack Row="true" Justify="Justify.SpaceBetween">
-                            <MudText>Add drivers to comparison</MudText>
-                            @if (rendered)
-                            {
-                                <MudButton Color="Color.Primary" OnClick="UpdateChart">Update</MudButton>
-                            }
-                        </MudStack>
-                        <MudStack Row="true" Justify="Justify.SpaceBetween">
-                            <MudSelectExtended ItemCollection="@driverSelection"
-                                               T="Driver"
-                                               SelectedValuesChanged="SelectionChanged"
-                                               MultiSelection="true"
-                                               MultiSelectionTextFunc="GetSelectedText"
-                                               Label="Driver One"
-                                               SearchBox="true"
-                                               SearchFunc="SearchDrivers"
-                                               Variant="Variant.Outlined"
-                                               Class="field-lg">
-                                <ItemTemplate>
-                                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-1">
-                                        <MudText>@context.Value.FullName</MudText>
-                                        <MudSpacer />
-                                        <CountryFlag Code="@context.Value.Country" Size="ElementSize.Tiny" />
-                                    </MudStack>
-                                </ItemTemplate>
-                            </MudSelectExtended>
-                            
-                            <div>
-                                @foreach (var compared in ComparableDrivers)
+        <MudPaper Elevation="30" Width="1100px" Class="pa-2">
+            @if (!loading)
+            {
+                <MudStack>
+                    <MudText>Add drivers to comparison</MudText>
+
+                    <MudSelectExtended ItemCollection="@driverSelection"
+                                       T="Driver"
+                                       SelectedValuesChanged="SelectionChanged"
+                                       MultiSelection="true"
+                                       MultiSelectionTextFunc="GetSelectedText"
+                                       Label="Drivers"
+                                       SearchBox="true"
+                                       SearchFunc="SearchDrivers"
+                                       Variant="Variant.Outlined"
+                                       Class="field-lg">
+                        <ItemTemplate>
+                            <MudCheckBox Checked="@context.IsSelected" Color="Color.Secondary" />
+                            <MudText>@context.Value.FullName</MudText>
+                            <CountryFlag Code="@context.Value.Country" Size="ElementSize.Small" />
+                        </ItemTemplate>
+                    </MudSelectExtended>
+
+                    <MudDivider />
+
+                    <MudPaper Elevation="15" MinHeight="600px" Class="pa-2">
+                        @if (rendered)
+                        {
+                            <ApexCharts.ApexChart @ref="chart"
+                                                  TItem="DataPoint"
+                                                  Title="Compare drivers"
+                                                  Options="@options"
+                                                  Height="500"
+                                                  Width="@("100%")">
+                                @foreach (var driverCompare in comparableDrivers)
                                 {
-                                    <MudText Typo="Typo.body1">
-                                        <CountryFlag Code="@compared.Key.Country" Size="ElementSize.Small" />
-                                        @compared.Key.FullName
-                                    </MudText>
+                                    <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                                Items="@driverCompare.Value.DataPoints"
+                                                                Name="@driverCompare.Value.Label"
+                                                                XValue="@(e => e.XData)"
+                                                                SeriesType="ApexCharts.SeriesType.Bar"
+                                                                YValue="@(e => e.YData)" />
                                 }
-                            </div>
-                        </MudStack>
-
-                        <MudDivider />
-
-                        <div class="pa-2" style="min-height: 600px">
-                            @if (rendered)
-                            {
-                                <ApexCharts.ApexChart @ref="chart"
-                                                      TItem="DataPoint"
-                                                      Title="Compare drivers"
-                                                      Options="@options"
-                                                      Height="500"
-                                                      Width="@("100%")">
-                                    @foreach (var driverCompare in ComparableDrivers)
-                                    {
-                                        <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                                    Items="@driverCompare.Value.DataPoints"
-                                                                    Name="@driverCompare.Value.Label"
-                                                                    XValue="@(e => e.XData)"
-                                                                    SeriesType="ApexCharts.SeriesType.Bar"
-                                                                    YValue="@(e => e.YData)" />
-                                    }
-                                </ApexCharts.ApexChart>
-                            }
-                        </div>
-                    </MudStack>
-                }
-            </MudPaper>
-        </MudContainer>
+                            </ApexCharts.ApexChart>
+                        }
+                    </MudPaper>
+                </MudStack>
+            }
+        </MudPaper>
     </DialogContent>
 </MudDialog>
 
@@ -84,8 +63,8 @@
     [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
 
     private List<Driver> driverSelection = new();
-    private IEnumerable<Driver> SelectedDrivers { get; set; } = new HashSet<Driver>();
-    private Dictionary<Driver, DataSet> ComparableDrivers { get; set; } = new();
+    private IEnumerable<Driver> selectedDrivers = new HashSet<Driver>();
+    private Dictionary<Driver, DataSet> comparableDrivers = new();
 
     ApexCharts.ApexChart<DataPoint>? chart;
     ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
@@ -103,8 +82,8 @@
             {
                 Bar = new ApexCharts.PlotOptionsBar
                 {
-                    Horizontal = true
-                }
+                    Horizontal = true,
+                },
             };
 
         loading = false;
@@ -129,40 +108,48 @@
         return string.Join(", ", selectedDrivers.Select(e => e.FullName));
     }
 
-    private void SelectionChanged(IEnumerable<Driver>? selectedDrivers)
+    private async Task SelectionChanged(IEnumerable<Driver>? selectedDrivers)
     {
         if (selectedDrivers == null || selectedDrivers.Count() == 0)
             return;
 
-        foreach (var removeable in ComparableDrivers.Keys.Where(e => !selectedDrivers.Contains(e)))
-            ComparableDrivers.Remove(removeable);
+        comparableDrivers.Clear();
 
-        foreach (var addable in selectedDrivers.Where(e => !ComparableDrivers.ContainsKey(e)))
+        foreach (var addable in selectedDrivers)
             AddDataSet(addable);
 
-        StateHasChanged();
-        rendered = true;
+        if (rendered)
+        {
+            await UpdateChart();
+        }
+        else
+        {
+            StateHasChanged();
+            rendered = true;
+        }
     }
 
-    void AddDataSet(Driver driver)
+    private void AddDataSet(Driver driver)
     {
         var dataSet = new DataSet() { Label = driver.FullName };
 
         var seasonDriverIds = SeasonDrivers.Where(e => e.DriverId == driver.Id).Select(e => e.Id).ToList();
         var driverResults = Results.Where(e => seasonDriverIds.Contains(e.SeasonDriverId)).ToList();
 
-        dataSet.DataPoints.Add(new DataPoint("Races", driverResults.Count()));
+        // Do not combine all these datasets in the same graph (since thats ugly as hell with differing numbers)
+        dataSet.DataPoints.Add(new DataPoint("Entries", driverResults.Count()));
         dataSet.DataPoints.Add(new DataPoint("Starts", driverResults.Count(e => e.Status != RaceStatus.Dnq)));
         dataSet.DataPoints.Add(new DataPoint("Wins", driverResults.Count(e => e.Position == 1)));
         dataSet.DataPoints.Add(new DataPoint("Poles", driverResults.Count(e => e.Grid == 1)));
-        dataSet.DataPoints.Add(new DataPoint("DNFs", driverResults.Count(e => e.Status == RaceStatus.Dnf || e.Status == RaceStatus.Dsq)));
+        dataSet.DataPoints.Add(new DataPoint("Fastest laps", driverResults.Count(e => e.FastestLap)));
+        dataSet.DataPoints.Add(new DataPoint("Retired", driverResults.Count(e => e.Status == RaceStatus.Dnf || e.Status == RaceStatus.Dsq || e.Status == RaceStatus.Fatal)));
 
-        ComparableDrivers.Add(driver, dataSet);
+        comparableDrivers.Add(driver, dataSet);
     }
 
-    async Task UpdateChart()
+    private async Task UpdateChart()
     {
-        if (!ComparableDrivers.Any() || chart == null)
+        if (!comparableDrivers.Any() || chart == null)
             return;
 
         await chart.ResetSeriesAsync(true, true);

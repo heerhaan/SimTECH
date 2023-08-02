@@ -9,52 +9,55 @@
 <PageTitle>Statistics</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    <MudGrid>
-        <MudItem xs=12>
-            <MudPaper Elevation="15" MinHeight="60px" Class="pa-2">
-                <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Class="pa-0">
-                    <MudText Typo="Typo.h3">Statistics</MudText>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="4">
-            <MudPaper>
-                <MudText>Bit temp but league filter</MudText>
-
-                <MudSelect T="long?" @bind-Value="@leagueFilter" Label="League" Class="field-sm">
-                    @foreach (var league in leagues)
-                    {
-                        <MudSelectItem Value="@league.Id">
-                            <MudText>@league.Name</MudText>
-                        </MudSelectItem>
-                    }
-                </MudSelect>
-            </MudPaper>
-        </MudItem>
-        @foreach (var topic in topics)
-        {
-            <MudItem xs="4">
-                <MudCard Class="mud-height-full">
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h5">@topic.Title</MudText>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                    <MudCardContent>
-                        <MudText Typo="Typo.body2">@topic.Description</MudText>
-                    </MudCardContent>
-                    <MudCardActions>
-                        <MudButton FullWidth="true"
-                                   Variant="Variant.Outlined"
-                                   Color="Color.Secondary"
-                                   OnClick="@(async () => await ShowStatistic(topic))">
-                            Show
-                        </MudButton>
-                    </MudCardActions>
-                </MudCard>
+    @if (!loading)
+    {
+        <MudGrid>
+            <MudItem xs=12>
+                <MudPaper Elevation="15" MinHeight="60px" Class="pa-2">
+                    <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Class="pa-0">
+                        <MudText Typo="Typo.h3">Statistics</MudText>
+                    </MudStack>
+                </MudPaper>
             </MudItem>
-        }
-    </MudGrid>
+            <MudItem xs="4">
+                <MudPaper>
+                    <MudText>Bit temp but league filter</MudText>
+
+                    <MudSelect T="long" @bind-Value="@leagueFilter" Label="League" Class="field-sm">
+                        @foreach (var league in leagues)
+                        {
+                            <MudSelectItem Value="@league.Id">
+                                <MudText>@league.Name</MudText>
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudPaper>
+            </MudItem>
+            @foreach (var topic in topics)
+            {
+                <MudItem xs="4">
+                    <MudCard Class="mud-height-full">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h5">@topic.Title</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText Typo="Typo.body2">@topic.Description</MudText>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton FullWidth="true"
+                                       Variant="Variant.Outlined"
+                                       Color="Color.Secondary"
+                                       OnClick="@(async () => await ShowStatistic(topic))">
+                                Show
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
 </MudContainer>
 
 @code {
@@ -62,7 +65,7 @@
     List<League> leagues;
 
     bool loading = true;
-    long? leagueFilter;
+    long leagueFilter;
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,14 +105,15 @@
                 GetDriverParameters));
     }
 
-    async Task<DialogParameters> GetDriverParameters()
+    private async Task<DialogParameters> GetDriverParameters()
     {
-        var drivers = await _driverService.GetDrivers();
+        // Im not necessarily a big fan of how this is done but it's honestly not an issue (for now) either
+        var drivers = await _driverService.GetDrivers(StateFilter.All);
         var seasonDrivers = await _entrantservice.GetAllSeasonDrivers();
 
         List<Result> results;
-        if (leagueFilter.HasValue)
-            results = await _resultService.GetResultsOfLeague(leagueFilter.Value);
+        if (leagueFilter != 0)
+            results = await _resultService.GetResultsOfLeague(leagueFilter);
         else
             results = await _resultService.GetAllResults();
 
@@ -121,7 +125,7 @@
         };
     }
 
-    async Task ShowStatistic(StatTopic topic)
+    private async Task ShowStatistic(StatTopic topic)
     {
         var parameters = await topic.ParameterQuery.Invoke();
         _ = await _dialog.ShowAsync(topic.StatisticType, topic.Title, parameters);

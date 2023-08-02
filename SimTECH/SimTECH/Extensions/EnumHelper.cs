@@ -103,7 +103,7 @@ namespace SimTECH.Extensions
             RecordStat.Start,
             RecordStat.Win,
             RecordStat.Pole,
-            RecordStat.DNF
+            RecordStat.Retired
         };
 
         public static string RacerEventIcon(this RacerEvent racerEvent) => racerEvent switch
