@@ -1,0 +1,124 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText>Ayayaya</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper>
+            @if (!loading)
+            {
+                <MudTable T="UsedComponentParts"
+                          Items="@usedComponentParts"
+                          Dense="true"
+                          Class="px-4"
+                          id="used-components-table">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h5">Penalizable incidents</MudText>
+                        <MudSpacer />
+                        <ScreenshotButton TargetId="used-components-table" />
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh Class="number-col">NO</MudTh>
+                        <MudTh>Team</MudTh>
+                        @foreach (var incident in penalizableIncidents)
+                        {
+                            <MudTh Class="number-col pt-5 pr-5">
+                                <MudBadge Content="@incident.Limit"
+                                          Color="Color.Error"
+                                          Origin="Origin.TopRight">
+                                    <span>@incident.Name</span>
+                                </MudBadge>
+                            </MudTh>
+                        }
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText>@context.Name</MudText>
+                        </MudTd>
+                        <MudTd Class="number-col">
+                            <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
+                        </MudTd>
+                        <MudTd>
+                            <MudText>@context.Team</MudText>
+                        </MudTd>
+                        @foreach (var usage in context.AmountPenalizableIncidents)
+                        {
+                            <MudTd Class="result-cell" Style="@(UsageStyle(usage.Value, usage.Key.Limit))">
+                                <MudText Typo="Typo.h4" Color="Color.Inherit">@usage.Value</MudText>
+                            </MudTd>
+                        }
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudPaper>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
+
+    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
+    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
+    [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
+    [Parameter] public IEnumerable<Incident> Incidents { get; set; } = Enumerable.Empty<Incident>();
+
+    private List<UsedComponentParts> usedComponentParts;
+    private List<Incident> penalizableIncidents;
+
+    bool loading = true;
+
+    protected override void OnInitialized()
+    {
+        usedComponentParts = new(SeasonDrivers.Count());
+        penalizableIncidents = Incidents.Where(e => e.Penalized).OrderBy(e => e.Id).ToList();
+
+        foreach (var driver in SeasonDrivers)
+        {
+            var driverTeam = SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
+            var driverResults = Results.Where(e => e.SeasonDriverId == driver.Id).ToList();
+
+            var partsUsedDriver = new UsedComponentParts
+                {
+                    Name = driver.Driver.FullName,
+                    Number = driver.Number,
+                    Country = driver.Driver.Country,
+                    Team = driverTeam?.Name ?? "[Dropped]",
+                    Colour = driverTeam?.Colour ?? Constants.DefaultColour,
+                    Accent = driverTeam?.Accent ?? Constants.DefaultAccent,
+                };
+
+            foreach (var penalizable in penalizableIncidents)
+            {
+                var amountUsed = driverResults.Count(e => e.IncidentId == penalizable.Id);
+                partsUsedDriver.AmountPenalizableIncidents.Add(penalizable, amountUsed);
+            }
+
+            usedComponentParts.Add(partsUsedDriver);
+        }
+
+        loading = false;
+    }
+
+    private static string UsageStyle(int value, int limit)
+    {
+        if (value > limit)
+            return "background-color: red";
+
+        if (value == limit)
+            return "background-color: var(--mud-palette-warning-darken)";
+
+        return "background-color: lightgreen;";
+    }
+
+    internal class UsedComponentParts
+    {
+        public string Name { get; set; }
+        public int Number { get; set; }
+        public Country Country { get; set; }
+        public string Team { get; set; }
+        public string Colour { get; set; }
+        public string Accent { get; set; }
+
+        public Dictionary<Incident, int> AmountPenalizableIncidents { get; set; } = new();
+    }
+}

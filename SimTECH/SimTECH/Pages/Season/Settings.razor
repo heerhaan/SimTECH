@@ -14,7 +14,7 @@
             <MudText Typo="Typo.h5">Settings 1</MudText>
             <MudTextField @bind-Value="Season.Year" Label="Year" ReadOnly="true"></MudTextField>
             <MudTextField @bind-Value="Season.MaximumDriversInRace" Label="MaximumDriversInRace" ReadOnly="true"></MudTextField>
-            <MudText Typo="Typo.body2">@Season.QualifyingFormat</MudText>
+            <MudTextField @bind-Value="Season.QualifyingFormat" Text="@($"{Season.QualifyingFormat}")" Label="Qualifying format" ReadOnly="true"></MudTextField>
             <MudTextField @bind-Value="Season.QualifyingAmountQ2" Label="QualifyingAmountQ2" ReadOnly="true"></MudTextField>
             <MudTextField @bind-Value="Season.QualifyingAmountQ3" Label="QualifyingAmountQ3" ReadOnly="true"></MudTextField>
             <MudTextField @bind-Value="Season.QualifyingRNG" Label="QualifyingRNG" ReadOnly="true"></MudTextField>
@@ -71,6 +71,13 @@
 @code {
     [CascadingParameter] public Season Season { get; set; }
     [Parameter] public EventCallback OnEditorOpen { get; set; }
+
+    private string qualyFormat = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        qualyFormat = Season.QualifyingFormat.ToString();
+    }
 
     async Task UpdateSeason() => await OnEditorOpen.InvokeAsync();
 }

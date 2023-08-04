@@ -27,11 +27,10 @@
                     </MudTabPanel>
                     <MudTabPanel Text="Practice">
                         <MudTabs Centered="true" Outlined="true">
-                            @for (int i = 1; i <= practiceCompleted; i++)
+                            @foreach (var prac in practiceSessions.Order())
                             {
-                                var j = i;
-                                <MudTabPanel Text="@($"FP{j}")" ID="@($"fp_{j}")">
-                                    <Practice PracticeIndex="@j"
+                                <MudTabPanel Text="@($"FP{prac}")" ID="@($"fp_{prac}")">
+                                    <Practice PracticeIndex="@prac"
                                               PracticeScores="@practiceScores"
                                               Config="@config" />
                                 </MudTabPanel>
@@ -113,6 +112,7 @@
     bool loading = true;
     int practiceCompleted;
     int nextPractice => 1 + practiceCompleted;
+    List<int> practiceSessions = new();
     int qualySessions;
 
     bool raceDisabled => RaweCeek.Race.State != State.Advanced && RaweCeek.Race.State != State.Closed;
@@ -124,6 +124,11 @@
         incidents = await _incidentService.GetIncidents(StateFilter.All);
         tyres = await _tyreService.GetTyres(StateFilter.All);
         practiceCompleted = await _raceService.PracticeSessionsCompleted(RaceId);
+
+        @for (int i = 1; i <= practiceCompleted; i++)
+        {
+            practiceSessions.Add(i);
+        }
 
         practiceScores = await _raceService.GetPracticeScores(RaceId);
         qualyScores = await _raceService.GetQualifyingScores(RaceId);
@@ -143,7 +148,7 @@
         }
         else if (race.State == State.Closed)
         {
-            var nextRaceId = await _raceService.GetRaceIdByRound(RaweCeek.Season.Id, (1 + RaweCeek.Race.Round));
+            var nextRaceId = await _raceService.GetRaceIdByRound(race.SeasonId, (1 + race.Round));
             if (nextRaceId.HasValue)
             {
                 var nextRacePenalties = await _raceService.GetRacePenalties(nextRaceId.Value);
@@ -332,8 +337,7 @@
         }
 
         practiceCompleted++;
-
-        _tabs.ActivatePanel(0);
+        practiceSessions.Add(practiceIndex);
     }
 
     private async Task PersistQualifying(int qualyIndex)
@@ -356,17 +360,16 @@
             if (RaweCeek.ConsumablePenalties.Any())
                 await _raceService.ConsumePenalties(RaweCeek.ConsumablePenalties, RaceId);
 
-            // Update the new grid and position
+            // Update the new grid, position and status
             foreach (var res in gridResults)
             {
                 var matchingDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == res.Key);
                 matchingDriver.Grid = res.Value;
                 matchingDriver.Position = res.Value;
+                matchingDriver.Status = res.Value > RaweCeek.Season.MaximumDriversInRace ? RaceStatus.Dnq : RaceStatus.Racing;
             }
 
             RaweCeek.Race.State = State.Advanced;
-
-            _tabs.ActivatePanel(0);
         }
         else
         {

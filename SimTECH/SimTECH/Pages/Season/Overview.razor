@@ -4,6 +4,7 @@
 @inject ClimateService _climateService
 @inject DriverService _driverService
 @inject EngineService _engineService
+@inject IncidentService _incidentService
 @inject LeagueService _leagueService
 @inject ManufacturerService _manufacturerService
 @inject RaceService _raceService
@@ -31,10 +32,10 @@
         <CascadingValue Value="@Season" IsFixed="true">
             <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="@activeTabIndex">
                 <MudTabPanel Text="Overview">
-                    <Landing
-                        NextRace="@NextRace"
+                    <Landing NextRace="@NextRace" 
                         OnStartSeason="StartSeason"
                         OnFinishSeason="FinishSeason"
+                        OnShowComponentUsage="ShowUsedComponents"
                         OnShowQualyBattles="ShowQualyBattles"
                         OnNextRace="GoToNextRace"
                         OnNavigate="GoToCommon" />
@@ -42,8 +43,7 @@
                 <MudTabPanel Text="Calendar" OnClick="OnOpenCalendar">
                     @if (calendarLoaded)
                     {
-                        <Calendar
-                            Races="@Races"
+                        <Calendar Races="@Races"
                             Results="@Results"
                             SeasonDrivers="@SeasonDrivers"
                             SeasonTeams="@SeasonTeams"
@@ -57,8 +57,7 @@
                 <MudTabPanel Text="Standings" OnClick="OnOpenStandings">
                     @if (standingsLoaded)
                     {
-                        <Standings
-                            SeasonDrivers="@SeasonDrivers"
+                        <Standings SeasonDrivers="@SeasonDrivers"
                             SeasonTeams="@SeasonTeams"
                             Races="@Races"
                             Results="@Results" />
@@ -69,8 +68,7 @@
                         <MudTabPanel Text="Drivers" OnClick="OnOpenDrivers">
                             @if (driversLoaded)
                             {
-                                <SeasonDrivers
-                                    DriverEntrants="@SeasonDrivers"
+                                <SeasonDrivers DriverEntrants="@SeasonDrivers"
                                     SeasonTeams="@SeasonTeams"
                                     OnEditorOpen="UpdateDriver" />
                             }
@@ -79,24 +77,22 @@
                             @if (teamsLoaded)
                             {
                                 <SeasonTeams TeamEntrants="@SeasonTeams"
-                                             SeasonEngines="@SeasonEngines"
-                                             Manufacturers="@Manufacturers"
-                                             OnEditorOpen="UpdateTeam" />
+                                    SeasonEngines="@SeasonEngines"
+                                    Manufacturers="@Manufacturers"
+                                    OnEditorOpen="UpdateTeam" />
                             }
                         </MudTabPanel>
                         <MudTabPanel Text="Engines" OnClick="OnOpenEngines">
                             @if (enginesLoaded)
                             {
-                                <SeasonEngines
-                                    EngineEntrants="@SeasonEngines"
+                                <SeasonEngines EngineEntrants="@SeasonEngines"
                                     OnEditorOpen="UpdateEngine" />
                             }
                         </MudTabPanel>
                         <MudTabPanel Text="Power rankings" OnClick="OnOpenPower">
                             @if (powerLoaded)
                             {
-                                <PowerRankings
-                                    SeasonDrivers="@SeasonDrivers"
+                                <PowerRankings SeasonDrivers="@SeasonDrivers"
                                     SeasonTeams="@SeasonTeams"
                                     SeasonEngines="@SeasonEngines"
                                     Manufacturers="@Manufacturers"
@@ -269,20 +265,6 @@
         }
     }
 
-    private async Task FinishSeason()
-    {
-        bool? confirm = await _dialogService.ShowMessageBox(
-            "Warning",
-            "Are you sure you want to finish this season, this action cannot be undone!",
-            yesText: "Yep", cancelText: "Nope");
-
-        if (confirm == true)
-        {
-            await _seasonService.FinishSeason(SeasonId);
-            _nav.NavigateTo("/seasons");
-        }
-    }
-
     private async Task UpdateSeason()
     {
         var editModel = new EditSeasonModel(Season);
@@ -299,6 +281,20 @@
         {
             await _seasonService.UpdateSeason(updatedItem);
             Season = updatedItem;
+        }
+    }
+
+    private async Task FinishSeason()
+    {
+        bool? confirm = await _dialogService.ShowMessageBox(
+            "Warning",
+            "Are you sure you want to finish this season, this action cannot be undone!",
+            yesText: "Yep", cancelText: "Nope");
+
+        if (confirm == true)
+        {
+            await _seasonService.FinishSeason(SeasonId);
+            _nav.NavigateTo("/seasons");
         }
     }
 
@@ -490,13 +486,35 @@
             Results = await _resultService.GetResultsOfSeason(SeasonId);
 
         var parameters = new DialogParameters
-        {
-            ["SeasonDrivers"] = SeasonDrivers,
-            ["SeasonTeams"] = SeasonTeams,
-            ["Results"] = Results
-        };
+            {
+                ["SeasonDrivers"] = SeasonDrivers,
+                ["SeasonTeams"] = SeasonTeams,
+                ["Results"] = Results
+            };
 
         _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters);
+    }
+
+    private async Task ShowUsedComponents()
+    {
+        if (!SeasonDrivers.Any())
+            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        if (!SeasonTeams.Any())
+            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        if (!Results.Any())
+            Results = await _resultService.GetResultsOfSeason(SeasonId);
+
+        var incidents = await _incidentService.GetIncidents(StateFilter.Default);
+
+        var parameters = new DialogParameters
+            {
+                ["SeasonDrivers"] = SeasonDrivers,
+                ["SeasonTeams"] = SeasonTeams,
+                ["Results"] = Results,
+                ["Incidents"] = incidents,
+            };
+
+        _ = await _dialogService.ShowAsync<UsedComponents>("UsedComponents", parameters);
     }
 
     private void GoToCommon(string path) => _nav.NavigateTo(path);

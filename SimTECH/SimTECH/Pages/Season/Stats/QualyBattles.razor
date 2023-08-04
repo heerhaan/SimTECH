@@ -1,19 +1,15 @@
 ﻿<MudDialog>
-    <TitleContent>
-        <MudText>Qualifying battles</MudText>
-    </TitleContent>
     <DialogContent>
         <MudContainer>
             <MudPaper>
                 <MudTable T="QualyBattleComparison"
-                          Items="@QualyBattleList"
-                          GroupBy="@_groupDefinition"
+                          Items="@qualyBattleList"
+                          GroupBy="@groupDefinition"
                           GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
                           FixedHeader="true"
                           Dense="true"
                           Class="extra=dense"
-                          id="qualy-battles-table"
-                          >
+                          id="qualy-battles-table">
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Qualifying battles</MudText>
                         <MudSpacer />
@@ -51,7 +47,7 @@
                         <MudTd Class="number-col">
                             <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                         </MudTd>
-                        <MudTd>
+                        <MudTd Class="number-col">
                             <MudText Typo="Typo.h5">@context.VictoryCount</MudText>
                         </MudTd>
                     </RowTemplate>
@@ -68,9 +64,9 @@
     [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
 
-    private List<QualyBattleComparison> QualyBattleList = new();
+    private List<QualyBattleComparison> qualyBattleList = new();
 
-    private TableGroupDefinition<QualyBattleComparison> _groupDefinition = new()
+    private TableGroupDefinition<QualyBattleComparison> groupDefinition = new()
     {
         GroupName = "Team",
         Selector = e => e.Team
@@ -103,7 +99,7 @@
             {
                 var driver = SeasonDrivers.First(e => e.Id == victory.Key);
 
-                QualyBattleList.Add(new QualyBattleComparison
+                qualyBattleList.Add(new QualyBattleComparison
                 {
                     Name = driver.Driver.FullName,
                     Number = driver.Number,
