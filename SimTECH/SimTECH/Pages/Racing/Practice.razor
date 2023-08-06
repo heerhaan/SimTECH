@@ -32,8 +32,7 @@
 @code {
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
 
-    [Parameter] public int PracticeIndex { get; set; }
-    [Parameter] public List<PracticeScore> PracticeScores { get; set; } = new();
+    [Parameter] public PracticeSession PracticeSession { get; set; } = new();
     [Parameter] public SimConfig Config { get; set; } = new();
     [Parameter] public EventCallback<int> OnFinish { get; set; }
 
@@ -53,7 +52,6 @@
     protected override void OnInitialized()
     {
         gapMarge = Config.GapMarge;
-        isFinished = !OnFinish.HasDelegate;
     }
 
     protected override void OnParametersSet()
@@ -62,7 +60,7 @@
 
         practiceDrivers.Clear();
 
-        raceName = $"{RaweCeek.Race.Name} - PRACTICE {PracticeIndex}";
+        raceName = $"{RaweCeek.Race.Name} - PRACTICE {PracticeSession.SessionIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
         practiceRng = RaweCeek.Season.QualifyingRNG;
@@ -81,7 +79,7 @@
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
 
             var driverScore = currentSessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId && e.Index == PracticeIndex);
-            if (driverScore != null && driverScore.Scores != null)
+            if (driverScore?.Scores?.Any() ?? false)
             {
                 mappedDriver.Scores = driverScore.Scores;
                 mappedDriver.Position = driverScore.Position;

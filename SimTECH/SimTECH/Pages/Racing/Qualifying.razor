@@ -34,8 +34,7 @@
 @code {
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
 
-    [Parameter] public int QualifyingIndex { get; set; }
-    [Parameter] public List<QualifyingScore> QualifyingScores { get; set; } = new();
+    [Parameter] public QualifyingSession QualySession { get; set; } = new();
     [Parameter] public int MaximumAllowed { get; set; } = int.MaxValue;
     [Parameter] public SimConfig Config { get; set; } = new();
     [Parameter] public EventCallback<int> OnFinish { get; set; }
@@ -66,35 +65,21 @@
 
         qualyDrivers.Clear();
 
-        raceName = $"{RaweCeek.Race.Name} - QUALIFYING {QualifyingIndex}";
+        raceName = $"{RaweCeek.Race.Name} - QUALIFYING {QualySession.SessionIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
         qualyRng = RaweCeek.Season.QualifyingRNG;
         entryCutoff = RaweCeek.Season.MaximumDriversInRace;
 
-        if (QualifyingIndex == 1)
-            progressCutoff = RaweCeek.Season.QualifyingAmountQ2;
-        else if (QualifyingIndex == 2)
-            progressCutoff = RaweCeek.Season.QualifyingAmountQ3;
+        if (QualySession.IsFinished)
+            highestScore = QualySession.SessionScores.Where(e => e.Scores != null).SelectMany(e => e.Scores).Max();
 
-        var currentSessionScores = QualifyingScores.Where(e => e.Index == QualifyingIndex).ToList();
-
-        // Should be refactored when saving results on click instead of on finish
-        if (currentSessionScores.Any())
-        {
-            isFinished = true;
-            highestScore = currentSessionScores.Where(e => e.Scores != null).SelectMany(e => e.Scores).Max();
-        }
-
-        isFinished = RaweCeek.Race.State == State.Advanced || RaweCeek.Race.State == State.Closed;
-
-        foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.Position).Take(MaximumAllowed))
+        foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.Position).Take(QualySession.AllowedEntries))
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
             mappedDriver.PenaltyPunish = driver.Penalty.GetValueOrDefault();
 
-            var driverScore = currentSessionScores.FirstOrDefault(e => 
-                e.ResultId == driver.ResultId && e.Index == QualifyingIndex);
+            var driverScore = QualySession.SessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId);
 
             if (driverScore != null && driverScore.Scores != null)
             {
@@ -140,7 +125,7 @@
     {
         var newScores = qualyDrivers.Select(e => new QualifyingScore
             {
-                Index = QualifyingIndex,
+                Index = QualySession.SessionIndex,
                 Scores = e.Scores,
                 Position = e.Position,
                 RaceId = RaweCeek.Race.Id,
@@ -150,9 +135,9 @@
             })
             .ToList();
 
-        QualifyingScores.AddRange(newScores);
+        QualySession.SessionScores.AddRange(newScores);
 
-        await OnFinish.InvokeAsync(QualifyingIndex);
+        await OnFinish.InvokeAsync(QualySession.SessionIndex);
         isFinished = true;
     }
 }
