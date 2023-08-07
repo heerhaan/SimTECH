@@ -157,6 +157,8 @@
 
         config = _config.Value;
 
+        await PreloadTab(TabIndex);
+
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
@@ -165,6 +167,22 @@
         });
 
         loading = false;
+    }
+
+    private async Task PreloadTab(int tabIndex)
+    {
+        switch (tabIndex)
+        {
+            case 1:
+                await OnOpenCalendar();
+                break;
+            case 2:
+                await OnOpenStandings();
+                break;
+            case 3:
+                await OnOpenDrivers();
+                break;
+        }
     }
 
     private async Task OnOpenCalendar()

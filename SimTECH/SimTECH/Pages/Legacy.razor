@@ -9,7 +9,7 @@
                     <MudText Typo="Typo.h3">Legacy leaderboard</MudText>
                 </MudPaper>
             </MudItem>
-            @foreach (var leaderboard in legacyLeaderboards)
+            @foreach (var leaderboard in legacyRecordsData)
             {
                 <MudItem xs="4">
                     <MudPaper Elevation="15">
@@ -44,7 +44,7 @@
 
 @code {
     // An overview of all the records of Formula Dream TL1
-    private static readonly Dictionary<string, LegacySimData[]> legacyLeaderboards = new()
+    private static readonly Dictionary<string, LegacySimData[]> legacyRecordsData = new()
         {
             {
                 "Wins",
@@ -53,13 +53,13 @@
                     new LegacySimData(1, "Filip van der Bergh", Country.NL, 38, "Sokje"),
                     new LegacySimData(2, "Buzz Hahn", Country.ZA, 36, "Haan"),
                     new LegacySimData(3, "Frankku Piirrellä", Country.FI, 31, "Frank"),
-                    new LegacySimData(4, "Barack Yobama", Country.FJ, 22, "AI"),
-                    new LegacySimData(5, "", Country.ZA, 22, "AI"),
-                    new LegacySimData(6, "", Country.ZA, 22, "Dezent"),
-                    new LegacySimData(7, "", Country.ZA, 20, "Yoshi"),
-                    new LegacySimData(8, "", Country.ZA, 18, "Rex"),
+                    new LegacySimData(4, "Barack Yobama", Country.FJ, 22),
+                    new LegacySimData(5, "Lorente Abacchio", Country.ZA, 22),
+                    new LegacySimData(6, "Niina Jalasjärvi", Country.ZA, 22, "Dezent"),
+                    new LegacySimData(7, "Joshua Thomas", Country.ZA, 20, "Yoshi"),
+                    new LegacySimData(8, "Christian Grün", Country.ZA, 18, "Rex"),
                     new LegacySimData(9, "Aalp Aca", Country.ZA, 18, "Aalp"),
-                    new LegacySimData(10, "", Country.ZA, 18, "Damian"),
+                    new LegacySimData(10, "Damian Sdzuj", Country.ZA, 18, "Damian"),
                 }
             },
             {
@@ -67,15 +67,15 @@
                 new[]
                 {
                     new LegacySimData(1, "Filip van der Bergh", Country.NL, 2, "Sokje"),
-                    new LegacySimData(2, "", Country.KP, 2, ""),
-                    new LegacySimData(3, "", Country.KP, 1, ""),
-                    new LegacySimData(4, "", Country.KP, 1, ""),
-                    new LegacySimData(5, "", Country.KP, 1, ""),
-                    new LegacySimData(6, "", Country.KP, 1, ""),
-                    new LegacySimData(7, "", Country.KP, 1, ""),
-                    new LegacySimData(8, "", Country.KP, 1, ""),
-                    new LegacySimData(9, "", Country.KP, 1, ""),
-                    new LegacySimData(10, "", Country.KP, 1, ""),
+                    new LegacySimData(2, "Niina Jalasjärvi", Country.KP, 2, "Dezent"),
+                    new LegacySimData(3, "Conc REEEEEE", Country.KP, 1, "Conc"),
+                    new LegacySimData(4, "[REDACTED]", Country.KP, 1, "?"),
+                    new LegacySimData(5, "Damian Sdzuj", Country.KP, 1, "Damian"),
+                    new LegacySimData(6, "Scott Andretti", Country.KP, 1),
+                    new LegacySimData(7, "Karel Trommel", Country.KP, 1),
+                    new LegacySimData(8, "Ameros Doosenvelt", Country.KP, 1, "Ameros"),
+                    new LegacySimData(9, "Joshua Thomas", Country.KP, 1, "Yoshi"),
+                    new LegacySimData(10, "Manuel Fangio", Country.KP, 1),
                 }
             },
             {
@@ -83,15 +83,15 @@
                 new[]
                 {
                     new LegacySimData(1, "Filip van der Bergh", Country.NL, 113, "Sokje"),
-                    new LegacySimData(2, "", Country.KP, 1, ""),
-                    new LegacySimData(3, "", Country.KP, 1, ""),
-                    new LegacySimData(4, "", Country.KP, 1, ""),
-                    new LegacySimData(5, "", Country.KP, 1, ""),
-                    new LegacySimData(6, "", Country.KP, 1, ""),
-                    new LegacySimData(7, "", Country.KP, 1, ""),
-                    new LegacySimData(8, "", Country.KP, 1, ""),
-                    new LegacySimData(9, "", Country.KP, 1, ""),
-                    new LegacySimData(10, "", Country.KP, 1, ""),
+                    new LegacySimData(2, "Buzz Hahn", Country.KP, 85, "Haan"),
+                    new LegacySimData(3, "Joshua Thomas", Country.KP, 84, "Yoshi"),
+                    new LegacySimData(4, "Frankku Piirrellä", Country.KP, 79, "Frank"),
+                    new LegacySimData(5, "Niina Jalasjärvi", Country.KP, 60, "Dezent"),
+                    new LegacySimData(6, "Barack Yobama", Country.KP, 59),
+                    new LegacySimData(7, "Christian Grün", Country.KP, 59, "Rex"),
+                    new LegacySimData(8, "Manuel Cesar", Country.KP, 58, "Cesar"),
+                    new LegacySimData(9, "Aalp Aca", Country.KP, 55, "Aalp"),
+                    new LegacySimData(10, "Cody Claven", Country.KP, 54, "Cody"),
                 }
             },
             {
@@ -99,31 +99,31 @@
                 new[]
                 {
                     new LegacySimData(1, "Filip van der Bergh", Country.NL, 549, "Sokje"),
-                    new LegacySimData(2, "", Country.KP, 1, ""),
-                    new LegacySimData(3, "", Country.KP, 1, ""),
-                    new LegacySimData(4, "", Country.KP, 1, ""),
-                    new LegacySimData(5, "", Country.KP, 1, ""),
-                    new LegacySimData(6, "", Country.KP, 1, ""),
-                    new LegacySimData(7, "", Country.KP, 1, ""),
-                    new LegacySimData(8, "", Country.KP, 1, ""),
-                    new LegacySimData(9, "", Country.KP, 1, ""),
-                    new LegacySimData(10, "", Country.KP, 1, ""),
+                    new LegacySimData(1, "Aalp Aca", Country.KP, 549, "Aalp"),
+                    new LegacySimData(3, "Buzz Hahn", Country.KP, 526, "Haan"),
+                    new LegacySimData(4, "Lorente Abacchio", Country.KP, 469),
+                    new LegacySimData(5, "Barack Yobama", Country.KP, 443),
+                    new LegacySimData(6, "Manuel Cesar", Country.KP, 375, "Cesar"),
+                    new LegacySimData(7, "Cody Claven", Country.KP, 360, "Cody"),
+                    new LegacySimData(8, "Joshua Thomas", Country.KP, 358, "Yoshi"),
+                    new LegacySimData(9, "Asahi Kawamura", Country.KP, 341),
+                    new LegacySimData(10, "Drake Walker", Country.KP, 339),
                 }
             },
             {
-                "DNFs",
+                "Retirements",
                 new[]
                 {
-                    new LegacySimData(1, "", Country.KP, 1, ""),
-                    new LegacySimData(2, "", Country.KP, 1, ""),
-                    new LegacySimData(3, "", Country.KP, 1, ""),
-                    new LegacySimData(4, "", Country.KP, 1, ""),
-                    new LegacySimData(5, "", Country.KP, 1, ""),
-                    new LegacySimData(6, "", Country.KP, 1, ""),
-                    new LegacySimData(7, "", Country.KP, 1, ""),
-                    new LegacySimData(8, "", Country.KP, 1, ""),
-                    new LegacySimData(9, "", Country.KP, 1, ""),
-                    new LegacySimData(10, "", Country.KP, 1, ""),
+                    new LegacySimData(1, "James Fisneck III", Country.KP, 45, "Pleet"),
+                    new LegacySimData(2, "Sebastian Trey", Country.KP, 43),
+                    new LegacySimData(3, "Patrick Lakeside", Country.KP, 38, "Merc"),
+                    new LegacySimData(4, "Ruslan Davydenko", Country.KP, 35, "Apple"),
+                    new LegacySimData(5, "Chris Beckham", Country.KP, 32),
+                    new LegacySimData(6, "Selma Munoz", Country.KP, 32),
+                    new LegacySimData(7, "Ananda Adyan", Country.KP, 30, "Conc"),
+                    new LegacySimData(8, "Frank Duhdel", Country.KP, 30, "Frank"),
+                    new LegacySimData(9, "Ignazio Venturi", Country.KP, 30),
+                    new LegacySimData(10, "Jeff Belgium", Country.BE, 29),
                 }
             },
             {
@@ -131,15 +131,15 @@
                 new[]
                 {
                     new LegacySimData(1, "Filip van der Bergh", Country.NL, 60, "Lolsokje"),
-                    new LegacySimData(2, "", Country.KP, 1, ""),
-                    new LegacySimData(3, "", Country.KP, 1, ""),
-                    new LegacySimData(4, "", Country.KP, 1, ""),
-                    new LegacySimData(5, "", Country.KP, 1, ""),
-                    new LegacySimData(6, "", Country.KP, 1, ""),
-                    new LegacySimData(7, "", Country.KP, 1, ""),
-                    new LegacySimData(8, "", Country.KP, 1, ""),
-                    new LegacySimData(9, "", Country.KP, 1, ""),
-                    new LegacySimData(10, "", Country.KP, 1, ""),
+                    new LegacySimData(2, "Buzz Hahn", Country.KP, 30, "Haan"),
+                    new LegacySimData(3, "Christian Grün", Country.KP, 30, "Rex"),
+                    new LegacySimData(4, "Aalp Aca", Country.KP, 25, "Aalp"),
+                    new LegacySimData(5, "Joshua Thomas", Country.KP, 24, "Yoshi"),
+                    new LegacySimData(6, "Frankku Piirrellä", Country.KP, 24, "Frank"),
+                    new LegacySimData(7, "Barack Yobama", Country.KP, 21),
+                    new LegacySimData(8, "Cody Claven", Country.KP, 21, "Cody"),
+                    new LegacySimData(9, "Johannes Holst", Country.KP, 21, "Vennez"),
+                    new LegacySimData(10, "Lorente Abacchio", Country.KP, 19),
                 }
             },
         };
@@ -161,7 +161,7 @@
             Name = name;
             Country = country;
             Value = value;
-            User = user ?? "A.I.";
+            User = user ?? "AI";
         }
 
         public int Rank { get; set; }

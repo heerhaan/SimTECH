@@ -9,7 +9,7 @@
 
             <ScreenshotButton TargetId="qualy-table" />
             <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
-                @if (!isFinished)
+                @if (!QualySession.IsFinished)
                 {
                     @if (advancedRuns == amountRuns)
                     {
@@ -42,7 +42,6 @@
     private List<SessionDriver> qualyDrivers = new();
 
     bool loading = true;
-    bool isFinished = false;
     string raceName = string.Empty;
     Country raceCountry = Constants.DefaultCountry;
     int amountRuns;
@@ -56,6 +55,16 @@
 
     protected override void OnInitialized()
     {
+        raceName = $"{RaweCeek.Race.Name} - QUALIFYING {QualySession.SessionIndex}";
+        raceCountry = RaweCeek.Race.Track.Country;
+        amountRuns = RaweCeek.Season.RunAmountSession;
+        qualyRng = RaweCeek.Season.QualifyingRNG;
+        entryCutoff = RaweCeek.Season.MaximumDriversInRace;
+        progressCutoff = QualySession.ProgressionCutoff;
+
+        if (QualySession.IsFinished)
+            highestScore = QualySession.SessionScores.SelectMany(e => e.Scores).Max();
+
         gapMarge = Config.GapMarge;
     }
 
@@ -65,23 +74,14 @@
 
         qualyDrivers.Clear();
 
-        raceName = $"{RaweCeek.Race.Name} - QUALIFYING {QualySession.SessionIndex}";
-        raceCountry = RaweCeek.Race.Track.Country;
-        amountRuns = RaweCeek.Season.RunAmountSession;
-        qualyRng = RaweCeek.Season.QualifyingRNG;
-        entryCutoff = RaweCeek.Season.MaximumDriversInRace;
-
-        if (QualySession.IsFinished)
-            highestScore = QualySession.SessionScores.Where(e => e.Scores != null).SelectMany(e => e.Scores).Max();
-
-        foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.Position).Take(QualySession.AllowedEntries))
+        foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.Grid).Take(QualySession.AllowedEntries))
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
             mappedDriver.PenaltyPunish = driver.Penalty.GetValueOrDefault();
 
             var driverScore = QualySession.SessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId);
 
-            if (driverScore != null && driverScore.Scores != null)
+            if (driverScore?.Scores?.Any() ?? false)
             {
                 mappedDriver.Scores = driverScore.Scores;
                 mappedDriver.Position = driverScore.Position;
@@ -138,6 +138,5 @@
         QualySession.SessionScores.AddRange(newScores);
 
         await OnFinish.InvokeAsync(QualySession.SessionIndex);
-        isFinished = true;
     }
 }

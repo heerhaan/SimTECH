@@ -10,13 +10,13 @@
         <MudSwitchM3 @bind-Checked="@onlyLeagueTeams"
                      ThumbIcon="@Icons.Material.Filled.Done"
                      ThumbOffIcon="@Icons.Material.Filled.Close"
-                     Label="Limit teams to active in League"
+                     Label="Teams active in league"
                      Color="Color.Secondary" />
 
         <MudSwitchM3 @bind-Checked="@onlyLeagueDrivers"
                      ThumbIcon="@Icons.Material.Filled.Done"
                      ThumbOffIcon="@Icons.Material.Filled.Close"
-                     Label="Limit drivers to active in League"
+                     Label="Drivers active in League"
                      Color="Color.Secondary" />
 
         <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="HandleSettingLoad">Load</MudButton>
@@ -27,9 +27,9 @@
     [Parameter] public List<League> Leagues { get; set; }
     [Parameter] public EventCallback<Tuple<long, bool, bool>> OnLoadSetting { get; set; }
 
-    private long selectedLeagueId;
-    private bool onlyLeagueTeams;
-    private bool onlyLeagueDrivers;
+    long selectedLeagueId;
+    bool onlyLeagueTeams;
+    bool onlyLeagueDrivers;
 
     private async Task HandleSettingLoad()
     {

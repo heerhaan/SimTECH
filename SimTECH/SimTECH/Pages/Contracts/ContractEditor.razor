@@ -1,13 +1,12 @@
-﻿@inject ContractService _contractService
-@inject IDialogService _dialogService
+﻿@inject IDialogService _dialogService
 
 <MudDialog>
     <TitleContent>
-        <MudText>Contract Editor</MudText>
+        <MudText>Single contract editor</MudText>
     </TitleContent>
     <DialogContent>
         <MudPaper MinHeight="300px" MinWidth="500px">
-            @if (Model.Id == 0)
+            @if (model.Id == 0)
             {
                 <MudText>League</MudText>
                 <MudSelect T="long" Label="League" Class="field-md" ValueChanged="OnLeagueSelected">
@@ -20,7 +19,7 @@
                 </MudSelect>
 
                 <MudText>Team</MudText>
-                <MudSelect T="long" @bind-Value="@Model.TeamId" Label="Team" Class="field-md">
+                <MudSelect T="long" @bind-Value="@model.TeamId" Label="Team" Class="field-md">
                     @foreach (var team in Teams.OrderBy(e => e.Name))
                     {
                         <MudSelectItem Value="@team.Id">
@@ -33,11 +32,11 @@
                     }
                 </MudSelect>
 
-                @if (FreeAgents != null)
+                @if (freeAgents != null)
                 {
                     <MudText>Driver</MudText>
-                    <MudSelect T="long" @bind-Value="@Model.DriverId" Label="Driver" Class="field-md">
-                        @foreach (var driver in FreeAgents.OrderBy(e => e.FirstName))
+                    <MudSelect T="long" @bind-Value="@model.DriverId" Label="Driver" Class="field-md">
+                        @foreach (var driver in freeAgents.OrderBy(e => e.FirstName))
                         {
                             <MudSelectItem Value="@driver.Id">
                                 <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
@@ -52,14 +51,14 @@
             }
             else
             {
-                <MudText>@Model.LeagueId</MudText>
-                <MudText>@Model.TeamId</MudText>
-                <MudText>@Model.DriverId</MudText>
+                <MudText>LeagueId @model.LeagueId</MudText>
+                <MudText>TeamId @model.TeamId</MudText>
+                <MudText>DriverId @model.DriverId</MudText>
             }
 
             <MudDivider />
 
-            <MudNumericField @bind-Value="@Model.Duration" Label="Duration" Class="field-md" />
+            <MudNumericField @bind-Value="@model.Duration" Label="Duration" Class="field-md" />
         </MudPaper>
     </DialogContent>
     <DialogActions>
@@ -71,54 +70,53 @@
 @code {
     [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
 
-    [Parameter, EditorRequired] public List<Contract> ActiveContracts { get; set; }
-    [Parameter, EditorRequired] public List<League> Leagues { get; set; }
-    [Parameter, EditorRequired] public List<Team> Teams { get; set; }
-    [Parameter, EditorRequired] public List<Driver> Drivers { get; set; }
-
     [Parameter] public Contract? Contract { get; set; }
+    [Parameter] public List<Contract> ActiveContracts { get; set; }
+    [Parameter] public List<League> Leagues { get; set; }
+    [Parameter] public List<Team> Teams { get; set; }
+    [Parameter] public List<Driver> Drivers { get; set; }
 
-    private EditContract Model;
-    private List<Driver>? FreeAgents;
+    private EditContract model;
+    private List<Driver>? freeAgents;
 
     protected override void OnInitialized()
     {
-        Model = new EditContract(Contract);
+        model = new EditContract(Contract);
     }
 
     private void OnLeagueSelected(long leagueId)
     {
-        Model.LeagueId = leagueId;
+        model.LeagueId = leagueId;
 
         var signedDrivers = ActiveContracts
             .Where(e => e.LeagueId == leagueId)
             .Select(e => e.DriverId)
             .ToArray();
 
-        FreeAgents = Drivers.Where(e => !signedDrivers.Contains(e.Id)).ToList();
+        freeAgents = Drivers.Where(e => !signedDrivers.Contains(e.Id)).ToList();
     }
 
     private async Task Submit()
     {
-        if (!Model.IsDirty)
+        if (!model.IsDirty)
             return;
 
-        if (Model.SetToZero)
+        if (model.SetToZero)
         {
             // Don't save a new contract without a duration
-            if (Model.Id == 0)
+            if (model.Id == 0)
                 return;
 
             bool? confirm = await _dialogService.ShowMessageBox(
                 "Warning",
                 "Are you sure you want to break the contract of this driver?",
-                yesText: "Jawöhl", cancelText: "Nein");
+                yesText: "Jawöhl", cancelText: "Nein mann");
 
             if (confirm != true)
                 return;
         }
 
-        EditDialog?.Close(DialogResult.Ok(Model.Record));
+        EditDialog?.Close(DialogResult.Ok(model.Record));
     }
 
     private void Cancel() => EditDialog?.Cancel();

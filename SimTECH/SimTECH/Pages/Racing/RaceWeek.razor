@@ -20,46 +20,55 @@
         @if (!loading)
         {
             <CascadingValue Value="@RaweCeek">
-                <MudTabs @ref="_tabs" Centered="true" Outlined="true">
+                <MudTabs Centered="true" Outlined="true">
                     <MudTabPanel Text="Raceweek">
                         <Landing TrackTraits="@trackTraits"
                                  OnOpenTyrePicker="PickRaceTyre" />
                     </MudTabPanel>
-                    <MudTabPanel Text="Practice">
-                        <MudTabs Centered="true" Outlined="true">
-                            @foreach (var session in practiceSessions.OrderBy(e => e.SessionIndex))
-                            {
-                                <MudTabPanel Text="@($"FP{session.SessionIndex}")" ID="@($"fp_{session.SessionIndex}")">
-                                    <Practice PracticeSession="@session"
-                                              Config="@config"
-                                              OnFinish="PersistPractice" />
-                                </MudTabPanel>
-                            }
-                        </MudTabs>
+                    <MudTabPanel Text="Practice" OnClick="OnOpenPractice">
+                        @if (practiceLoaded)
+                        {
+                            <MudTabs Centered="true" Outlined="true">
+                                @foreach (var session in practiceSessions.OrderBy(e => e.SessionIndex))
+                                {
+                                    <MudTabPanel Text="@($"FP{session.SessionIndex}")" ID="@($"fp_{session.SessionIndex}")">
+                                        <Practice PracticeSession="@session"
+                                                  Config="@config"
+                                                  OnFinish="PersistPractice" />
+                                    </MudTabPanel>
+                                }
+                            </MudTabs>
+                        }
                     </MudTabPanel>
-                    <MudTabPanel Text="Qualifying">
-                        <MudTabs @ref="_qualyTabs" Centered="true" Outlined="true" KeepPanelsAlive="true">
-                            @foreach (var session in qualySessions)
-                            {
-                                <MudTabPanel Text="@($"Q{session.SessionIndex}")" Icon="@Icons.Material.Filled.AccessTime">
-                                    <Qualifying QualySession="@session"
-                                                Config="@config"
-                                                OnFinish="PersistQualifying" />
-                                </MudTabPanel>
-                            }
-                        </MudTabs>
+                    <MudTabPanel Text="Qualifying" OnClick="OnOpenQualifying">
+                        @if (qualifyingLoaded)
+                        {
+                            <MudTabs @ref="_qualyTabs" Centered="true" Outlined="true">
+                                @foreach (var session in qualySessions)
+                                {
+                                    <MudTabPanel Text="@($"Q{session.SessionIndex}")" Icon="@Icons.Material.Filled.AccessTime">
+                                        <Qualifying QualySession="@session"
+                                                    Config="@config"
+                                                    OnFinish="PersistQualifying" />
+                                    </MudTabPanel>
+                                }
+                            </MudTabs>
+                        }
                     </MudTabPanel>
-                    <MudTabPanel Text="Race" Disabled="@raceDisabled">
-                        <Race LapScores="@lapScores"
-                              Occurrences="@occurrences"
-                              Incidents="@incidents"
-                              Tyres="@tyres"
-                              Config="@config"
-                              OnFinish="PersistRace" />
+                    <MudTabPanel Text="Race" Disabled="@raceDisabled" OnClick="OnOpenRace">
+                        @if (raceLoaded)
+                        {
+                            <Race LapScores="@lapScores"
+                                  Occurrences="@occurrences"
+                                  Incidents="@incidents"
+                                  Tyres="@tyres"
+                                  Config="@config"
+                                  OnFinish="PersistRace" />
+                        }
                     </MudTabPanel>
                     <MudTabPanel Text="Post race" Disabled="@postraceDisabled">
                         <PostRace UpcomingPenalties="@upcomingPenalties"
-                                  OnNavigate="GoToCommon" />
+                            OnNavigate="GoToCommon" />
                     </MudTabPanel>
                 </MudTabs>
             </CascadingValue>
@@ -72,40 +81,34 @@
 
     public RaweCeekModel RaweCeek { get; set; } = new();
 
-    //private List<Climate> climates;
     private List<Incident> incidents;
     private List<Trait> trackTraits = new();
     private List<Tyre> tyres;
 
-    private List<PracticeScore> practiceScores = new();//delet
-    private List<QualifyingScore> qualyScores = new();//delet
     private List<PracticeSession> practiceSessions = new();
     private List<QualifyingSession> qualySessions = new();
-
     private List<LapScore> lapScores = new();
     private List<RaceOccurrence> occurrences = new();
+
     private List<GivenPenalty> upcomingPenalties = new();
 
     private SimConfig config;
 
-    MudTabs _tabs;
     MudTabs? _qualyTabs;
 
     bool loading = true;
+    bool practiceLoaded;
+    bool qualifyingLoaded;
+    bool raceLoaded;
 
     bool raceDisabled => RaweCeek.Race.State != State.Advanced && RaweCeek.Race.State != State.Closed;
     bool postraceDisabled => RaweCeek.Race.State != State.Closed;
 
     protected override async Task OnInitializedAsync()
     {
-        //climates = await _climateService.GetClimates(StateFilter.All);
         incidents = await _incidentService.GetIncidents(StateFilter.All);
         tyres = await _tyreService.GetTyres(StateFilter.All);
 
-        practiceScores = await _raceService.GetPracticeScores(RaceId);
-        qualyScores = await _raceService.GetQualifyingScores(RaceId);
-        lapScores = await _raceService.GetLapScores(RaceId);
-        occurrences = await _raceService.GetRaceOccurrences(RaceId);
         config = _config.Value;
 
         var race = await _raceService.GetRaceById(RaceId);
@@ -132,50 +135,6 @@
         RaweCeek.Race = race;
         RaweCeek.Season = await _seasonService.GetSeasonById(race.SeasonId);
         RaweCeek.Climate = await _climateService.GetClimateById(race.ClimateId);
-
-        // Practice loading
-        foreach (var groupedPracticeScores in practiceScores.GroupBy(e => e.Index))
-        {
-            practiceSessions.Add(new PracticeSession
-            {
-                SessionIndex = groupedPracticeScores.Key,
-                IsFinished = true,
-                SessionScores = groupedPracticeScores.ToList(),
-            });
-        }
-
-        if (race.State != State.Advanced && race.State != State.Closed)
-            AddNewPracticeSession();
-
-        // Qualifying loading
-        var qSessionCount = RaweCeek.Season.QualifyingFormat.SessionCount();
-        for (int i = 1; i <= qSessionCount; i++)
-        {
-            var currentScores = qualyScores.Where(e => e.Index == i).ToList();
-            var qSession = new QualifyingSession
-                {
-                    SessionIndex = i,
-                    IsFinished = currentScores.Any(),
-                    SessionScores = currentScores,
-                };
-
-            // REFACTOR: Er is hier vast een betere oplossing voor
-            if (qSession.SessionIndex == 1)
-            {
-                qSession.ProgressionCutoff = RaweCeek.Season.QualifyingAmountQ2;
-            }
-            else if (qSession.SessionIndex == 2)
-            {
-                qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ2;
-                qSession.ProgressionCutoff = RaweCeek.Season.QualifyingAmountQ3;
-            }
-            else if (qSession.SessionIndex == 3)
-            {
-                qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ3;
-            }
-
-            qualySessions.Add(qSession);
-        }
 
         await LoadDrivers();
 
@@ -224,12 +183,8 @@
             if (team.Team.TeamTraits?.Any() == true)
                 driverTraits.AddRange(traits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
-            double teamModifiers = (team.Aero * race.Track?.AeroMod ?? 1)
-                    + (team.Chassis * race.Track?.ChassisMod ?? 1)
-                    + (team.Powertrain * race.Track?.PowerMod ?? 1);
-
-            var driverPower = driver.Skill + driver.RetrieveStatusBonus(5);
-            var carPower = team.BaseValue + teamModifiers.RoundDouble();
+            var driverPower = driver.Skill + driver.RetrieveStatusBonus(config.CarDriverStatusModifier);
+            var carPower = team.BaseValue + team.ModifierApplication(race.Track);
             var enginePower = (engine.Power * climate.EngineMultiplier).RoundDouble();
             var totalPower = driverPower + carPower + enginePower;
 
@@ -302,6 +257,7 @@
             if (matchingDriver != null)
             {
                 matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
+                // Reasons == yuck solution
                 matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
 
                 RaweCeek.ConsumablePenalties.AddRange(penalty.Select(e => e.Id));
@@ -309,6 +265,79 @@
         }
 
         RaweCeek.RaweCeekDrivers = raweceekDrivers;
+    }
+
+    private async Task OnOpenPractice()
+    {
+        if (practiceLoaded)
+            return;
+
+        var practiceScores = await _raceService.GetPracticeScores(RaceId);
+
+        foreach (var groupedPracticeScores in practiceScores.GroupBy(e => e.Index))
+        {
+            practiceSessions.Add(new PracticeSession
+                {
+                    SessionIndex = groupedPracticeScores.Key,
+                    IsFinished = true,
+                    SessionScores = groupedPracticeScores.ToList(),
+                });
+        }
+
+        if (RaweCeek.Race.State != State.Advanced && RaweCeek.Race.State != State.Closed)
+            AddNewPracticeSession();
+
+        practiceLoaded = true;
+    }
+
+    private async Task OnOpenQualifying()
+    {
+        if (qualifyingLoaded)
+            return;
+
+        var qualyScores = await _raceService.GetQualifyingScores(RaceId);
+        var qSessionCount = RaweCeek.Season.QualifyingFormat.SessionCount();
+
+        for (int i = 1; i <= qSessionCount; i++)
+        {
+            var currentScores = qualyScores.Where(e => e.Index == i).ToList();
+            var qSession = new QualifyingSession
+                {
+                    SessionIndex = i,
+                    IsFinished = currentScores.Any(),
+                    SessionScores = currentScores,
+                };
+
+            // REFACTOR: Er is hier vast een betere oplossing voor
+            if (qSession.SessionIndex == 1)
+            {
+                qSession.ProgressionCutoff = RaweCeek.Season.QualifyingAmountQ2;
+            }
+            else if (qSession.SessionIndex == 2)
+            {
+                qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ2;
+                qSession.ProgressionCutoff = RaweCeek.Season.QualifyingAmountQ3;
+            }
+            else if (qSession.SessionIndex == 3)
+            {
+                qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ3;
+            }
+
+            qualySessions.Add(qSession);
+        }
+
+        qualifyingLoaded = true;
+    }
+
+    private async Task OnOpenRace()
+    {
+        if (raceLoaded)
+            return;
+
+        lapScores = await _raceService.GetLapScores(RaceId);
+        occurrences = await _raceService.GetRaceOccurrences(RaceId);
+
+        raceLoaded = true;
     }
 
     private async Task PickRaceTyre(long resultId)
@@ -346,11 +375,13 @@
 
     private async Task PersistPractice(int practiceIndex)
     {
-        var practiceResult = practiceScores.Where(e => e.Index == practiceIndex).ToList();
-        var gridResults = practiceResult.ToDictionary(e => e.ResultId, e => e.Position);
+        var practiceSession = practiceSessions.First(e => e.SessionIndex == practiceIndex);
+        var gridResults = practiceSession.SessionScores.ToDictionary(e => e.ResultId, e => e.Position);
 
+        await _raceService.PersistPracticeScores(practiceSession.SessionScores);
         await _raceService.PersistPracticeResults(gridResults);
-        await _raceService.PersistPracticeScores(practiceResult);
+
+        practiceSession.IsFinished = true;
 
         // Update the new grid and position
         foreach (var res in gridResults)
@@ -365,14 +396,20 @@
 
     private async Task PersistQualifying(int qualyIndex)
     {
-        var persistedQualyScores = qualyScores.Where(e => e.Index == qualyIndex).ToList();
+        var qSessionCount = RaweCeek.Season.QualifyingFormat.SessionCount();
+        var qualySession = qualySessions.First(e => e.SessionIndex == qualyIndex);
 
-        await _raceService.PersistQualifyingScores(persistedQualyScores);
+        if (!qualySession.SessionScores.Any())
+            throw new InvalidOperationException("No score data to persist");
 
-        if (qualySessions == qualyIndex)
+        await _raceService.PersistQualifyingScores(qualySession.SessionScores);
+        qualySession.IsFinished = true;
+
+        if (qSessionCount == qualyIndex)
         {
             int positionIndexer = 0;
-            var gridResults = qualyScores
+            var gridResults = qualySessions
+                .SelectMany(e => e.SessionScores)
                 .GroupBy(e => e.ResultId)
                 .Select(e => e.MaxBy(r => r.Index))
                 .OrderBy(e => e!.PenaltyPosition())
@@ -393,20 +430,23 @@
             }
 
             RaweCeek.Race.State = State.Advanced;
+
+            // Removes the last added practice session
+            if (practiceLoaded)
+                practiceSessions.Remove(practiceSessions.MaxBy(e => e.SessionIndex));
         }
         else
         {
             // Update the new grid and position
-            foreach (var res in persistedQualyScores)
+            foreach (var res in qualySession.SessionScores)
             {
                 var matchingDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == res.ResultId);
                 matchingDriver.Grid = res.Position;
                 matchingDriver.Position = res.Position;
             }
 
-            var nextQ = 1 + qualyIndex;
-
             // Navigate to the next qualifying session
+            //var nextQ = 1 + qualyIndex;
             //if (qualySessions > 1 && _qualyTabs != null)
             //    _qualyTabs.ActivatePanel($"q_{nextQ}");
         }

@@ -1,9 +1,9 @@
 ﻿@page "/drivers"
 @inject BreadcrumbProvider _bread
-@inject DriverService DriverService
-@inject TraitService TraitService
+@inject DriverService _driverService
+@inject TraitService _traitService
 @inject NavigationManager _nav
-@inject IDialogService DialogService
+@inject IDialogService _dialogService
 
 <PageTitle>Drivers</PageTitle>
 
@@ -21,7 +21,7 @@
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Driver" Items="@DriverData" RowsPerPage="15" Dense="true">
+    <MudDataGrid T="Driver" Items="@drivers" RowsPerPage="15" Dense="true">
         <Columns>
             <HierarchyColumn T="Driver" />
             <PropertyColumn Property="e => e!.FullName" Title="Name" />
@@ -63,8 +63,8 @@
 </MudContainer>
 
 @code {
-    private List<Driver> DriverData;
-    private List<CurrentDriver> CurrentDrivers;
+    private List<Driver> drivers;
+    private List<CurrentDriver> currentDrivers;
 
     private bool showingArchived = false;
 
@@ -76,50 +76,49 @@
             new BreadcrumbItem("Drivers", href: "drivers", disabled: true),
         });
 
-        CurrentDrivers = await DriverService.GetCurrentDrivers();
-        DriverData = await DriverService.GetDrivers();
+        currentDrivers = await _driverService.GetCurrentDrivers();
+        drivers = await _driverService.GetDrivers();
     }
 
     // Displayable helpers
-    string ReadActiveLeague(long driverId) => CurrentDrivers.Find(e => e.DriverId == driverId)?.League ?? "None";
+    private string ReadActiveLeague(long driverId) =>
+        currentDrivers.Find(e => e.DriverId == driverId)?.League ?? "None";
 
-    // CRUD-actions
-    async Task AddDriver() => await UpdateDriver(null);
-    async Task UpdateDriver(Driver? item)
+    private async Task AddDriver() => await UpdateDriver(null);
+    private async Task UpdateDriver(Driver? item)
     {
-        var driverTraits = await TraitService.GetTraitsOfType(Entrant.Driver);
+        var driverTraits = await _traitService.GetTraitsOfType(Entrant.Driver);
 
         var parameters = new DialogParameters
         {
             ["Driver"] = item,
             ["Traits"] = driverTraits
         };
-        var dialog = await DialogService.ShowAsync<DriverEditor>("Modify driver", parameters);
+        var dialog = await _dialogService.ShowAsync<DriverEditor>("Modify driver", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Driver updatedItem)
         {
-            await DriverService.UpdateDriver(updatedItem);
-            DriverData = await DriverService.GetDrivers();
+            await _driverService.UpdateDriver(updatedItem);
+            drivers = await _driverService.GetDrivers();
         }
     }
 
-    async Task ArchiveDriver(Driver driver)
+    private async Task ArchiveDriver(Driver driver)
     {
-        await DriverService.ArchiveDriver(driver);
-        DriverData.Remove(driver);
+        await _driverService.ArchiveDriver(driver);
+        drivers.Remove(driver);
     }
 
-    async Task ToggleDisplayArchived()
+    private async Task ToggleDisplayArchived()
     {
         if (showingArchived)
-            DriverData = await DriverService.GetDrivers(StateFilter.Default);
+            drivers = await _driverService.GetDrivers(StateFilter.Default);
         else
-            DriverData = await DriverService.GetDrivers(StateFilter.Archived);
+            drivers = await _driverService.GetDrivers(StateFilter.Archived);
 
         showingArchived = !showingArchived;
     }
 
-    // Navigation links
-    void GoToHumanGenerator() => _nav.NavigateTo("humanbeinggenerator");
+    private void GoToHumanGenerator() => _nav.NavigateTo("humanbeinggenerator");
 }

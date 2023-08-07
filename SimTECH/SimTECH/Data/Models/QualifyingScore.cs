@@ -2,18 +2,10 @@
 
 namespace SimTECH.Data.Models
 {
-    public sealed class QualifyingScore : ModelBase
+    public sealed class QualifyingScore : ScoreBase
     {
-        public int Index { get; set; }
-        public int[]? Scores { get; set; }
-        public int Position { get; set; }
-
-        public long RaceId { get; set; }
-        public long ResultId { get; set; }
-        public Result Result { get; set; }
-
         [NotMapped]
-        public int PenaltyPunish { get; set; }
+        public int PenaltyPunish { get; set; }//Doesnt really belong here tbh
     }
 
     public static class ExtendQualifyingScore

@@ -5,7 +5,7 @@
                 <MudPaper Height="75px" Class="pa-2">
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                         <span style="width:10%"></span>
-                        <MudText Typo="Typo.h3">Season standings for @(Season.Year)</MudText>
+                        <MudText Typo="Typo.h3">Season standings for @Season.Year</MudText>
                         <ScreenshotButton TargetId="standings-numerical-overview" Styles="@("width:10%")" />
                     </MudStack>
                 </MudPaper>
@@ -41,12 +41,8 @@
 
     Dictionary<int, Country> countryRounds = new();
 
-    bool loading = true;
-
     protected override void OnInitialized()
     {
-        loading = true;
-
         countryRounds.Clear();
         driverResultsModel.Clear();
         teamResultsModel.Clear();
@@ -71,8 +67,6 @@
             .Select(e =>
                 ToTeamResultModel(e, Results.Where(r => r.SeasonTeamId == e.Id).ToList(), ++indexer))
             .ToList();
-
-        loading = false;
     }
 
     private StandingDriverModel ToDriverResultModel(SeasonDriver driver, List<Result> results, int position)

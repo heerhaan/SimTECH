@@ -21,12 +21,12 @@
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Contract" Items="@ContractData" Dense="true">
+    <MudDataGrid T="Contract" Items="@contracts" Dense="true">
         <Columns>
-            <PropertyColumn Property="e => e.League.Name" Title="League" />
-            <PropertyColumn Property="e => e.Team.Name" />
-            <PropertyColumn Property="e => e.Driver.FullName" />
-            <PropertyColumn Property="e => e.Duration" />
+            <PropertyColumn Property="e => e!.League.Name" Title="League" />
+            <PropertyColumn Property="e => e!.Team.Name" Title="Team" />
+            <PropertyColumn Property="e => e!.Driver.FullName" Title="Driver" />
+            <PropertyColumn Property="e => e!.Duration" />
             <TemplateColumn>
                 <CellTemplate>
                     <MudIconButton Icon="@Icons.Material.Filled.Edit"
@@ -42,11 +42,10 @@
 </MudContainer>
 
 @code {
-    private List<Contract> ContractData { get; set; } = new();
-
-    private List<League>? Leagues { get; set; }
-    private List<Team>? Teams { get; set; }
-    private List<Driver>? Drivers { get; set; }
+    private List<Contract> contracts = new();
+    private List<League>? leagues;
+    private List<Team>? teams;
+    private List<Driver>? drivers;
 
     private bool showingExpired = false;
 
@@ -58,29 +57,29 @@
             new BreadcrumbItem("Contracts", href: "contracts", disabled: true),
         });
 
-        ContractData = await _contractService.GetExtendedContracts();
+        contracts = await _contractService.GetExtendedContracts();
     }
 
     async Task ToggleExpired()
     {
         if (showingExpired)
-            ContractData = await _contractService.GetExtendedContracts(false);
+            contracts = await _contractService.GetExtendedContracts(false);
         else
-            ContractData = await _contractService.GetExtendedContracts(true);
+            contracts = await _contractService.GetExtendedContracts(true);
 
         showingExpired = !showingExpired;
     }
 
     async Task RetrieveParticipants()
     {
-        if (Leagues == null)
-            Leagues = (await _leagueService.GetLeagues()).Where(e => e.Options.HasFlag(LeagueOptions.AllowContracting)).ToList();
+        if (leagues == null)
+            leagues = (await _leagueService.GetLeagues()).Where(e => e.Options.HasFlag(LeagueOptions.AllowContracting)).ToList();
 
-        if (Teams == null)
-            Teams = await _teamService.GetTeams();
+        if (teams == null)
+            teams = await _teamService.GetTeams();
 
-        if (Drivers == null)
-            Drivers = await _driverService.GetDrivers();
+        if (drivers == null)
+            drivers = await _driverService.GetDrivers();
     }
 
     async Task AddItem() => await UpdateItem(null);
@@ -90,10 +89,11 @@
 
         var parameters = new DialogParameters
             {
-                ["ActiveContracts"] = ContractData,
-                ["Leagues"] = Leagues,
-                ["Teams"] = Teams,
-                ["Drivers"] = Drivers,
+                ["Contract"] = item,
+                ["ActiveContracts"] = contracts,
+                ["Leagues"] = leagues,
+                ["Teams"] = teams,
+                ["Drivers"] = drivers,
             };
 
         var dialog = await _dialogService.ShowAsync<ContractEditor>("Modify contract", parameters);
@@ -102,7 +102,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Contract updatedItem)
         {
             await _contractService.UpdateContract(updatedItem);
-            ContractData = await _contractService.GetExtendedContracts();
+            contracts = await _contractService.GetExtendedContracts();
         }
     }
 

@@ -9,7 +9,7 @@
 
             <ScreenshotButton TargetId="practice-table" />
             <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
-                @if (!isFinished)
+                @if (!PracticeSession.IsFinished)
                 {
                     @if (advancedRuns == amountRuns)
                     {
@@ -39,7 +39,6 @@
     private List<SessionDriver> practiceDrivers = new();
 
     bool loading = true;
-    bool isFinished = false;
     string raceName = string.Empty;
     Country raceCountry = Constants.DefaultCountry;
     int amountRuns;
@@ -65,25 +64,24 @@
         amountRuns = RaweCeek.Season.RunAmountSession;
         practiceRng = RaweCeek.Season.QualifyingRNG;
 
-        var currentSessionScores = PracticeScores.Where(e => e.Index == PracticeIndex).ToList();
-
-        // Should be refactored when saving results on click instead of on finish
-        if (currentSessionScores.Any())
-        {
-            isFinished = true;
-            highestScore = currentSessionScores.Where(e => e.Scores != null).SelectMany(e => e.Scores).Max();
-        }
+        if (PracticeSession.IsFinished)
+            highestScore = PracticeSession.SessionScores.SelectMany(e => e.Scores).Max();
 
         foreach (var driver in RaweCeek.RaweCeekDrivers)
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
 
-            var driverScore = currentSessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId && e.Index == PracticeIndex);
+            var driverScore = PracticeSession.SessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId );
+            
             if (driverScore?.Scores?.Any() ?? false)
             {
                 mappedDriver.Scores = driverScore.Scores;
                 mappedDriver.Position = driverScore.Position;
-                mappedDriver.GapAbove = "+" + (Math.Round((highestScore - mappedDriver.MaxScore()) * gapMarge, 2)).ToString("F2");
+
+                if (mappedDriver.Position == 1)
+                    mappedDriver.GapAbove = "LEADER";
+                else
+                    mappedDriver.GapAbove = "+" + (Math.Round((highestScore - mappedDriver.MaxScore()) * gapMarge, 2)).ToString("F2");
             }
 
             practiceDrivers.Add(mappedDriver);
@@ -118,7 +116,7 @@
     {
         var newScores = practiceDrivers.Select(e => new PracticeScore
             {
-                Index = PracticeIndex,
+                Index = PracticeSession.SessionIndex,
                 Scores = e.Scores,
                 Position = e.Position,
                 RaceId = RaweCeek.Race.Id,
@@ -126,9 +124,8 @@
             })
             .ToList();
 
-        PracticeScores.AddRange(newScores);
+        PracticeSession.SessionScores.AddRange(newScores);
 
-        await OnFinish.InvokeAsync(PracticeIndex);
-        isFinished = true;
+        await OnFinish.InvokeAsync(PracticeSession.SessionIndex);
     }
 }
