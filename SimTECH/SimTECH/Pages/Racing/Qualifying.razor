@@ -36,7 +36,6 @@
 
     [Parameter] public QualifyingSession QualySession { get; set; } = new();
     [Parameter] public int MaximumAllowed { get; set; } = int.MaxValue;
-    [Parameter] public SimConfig Config { get; set; } = new();
     [Parameter] public EventCallback<int> OnFinish { get; set; }
 
     private List<SessionDriver> qualyDrivers = new();
@@ -65,7 +64,7 @@
         if (QualySession.IsFinished)
             highestScore = QualySession.SessionScores.SelectMany(e => e.Scores).Max();
 
-        gapMarge = Config.GapMarge;
+        gapMarge = RaweCeek.GapMarge / 2;
     }
 
     protected override void OnParametersSet()

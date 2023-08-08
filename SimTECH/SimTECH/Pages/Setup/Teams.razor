@@ -1,8 +1,8 @@
 ﻿@page "/teams"
 @inject BreadcrumbProvider _bread
-@inject TeamService TeamService
-@inject TraitService TraitService
-@inject IDialogService DialogService
+@inject TeamService _teamService
+@inject TraitService _traitService
+@inject IDialogService _dialogService
 
 <PageTitle>Teams</PageTitle>
 
@@ -17,9 +17,8 @@
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Team" Items="@TeamData" RowsPerPage="15" Dense="true">
+    <MudDataGrid T="Team" Items="@teams" RowsPerPage="15" Dense="true">
         <Columns>
-            <HierarchyColumn T="Team" />
             <PropertyColumn Property="e => e!.Name" />
             <TemplateColumn T="Team" Title="Country" SortBy="e => e.Country">
                 <CellTemplate>
@@ -35,20 +34,6 @@
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
-        <ChildRowContent>
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">@context.Item.Name</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudText>
-                        Not exactly sure yet what we're going to put here
-                    </MudText>
-                </MudCardContent>
-            </MudCard>
-        </ChildRowContent>
         <PagerContent>
             <MudDataGridPager T="Team" />
         </PagerContent>
@@ -56,7 +41,7 @@
 </MudContainer>
 
 @code {
-    private List<Team> TeamData = new();
+    private List<Team> teams = new();
 
     private bool showingArchived = false;
 
@@ -68,40 +53,40 @@
             new BreadcrumbItem("Teams", href: "teams", disabled: true),
         });
 
-        TeamData = await TeamService.GetTeams();
+        teams = await _teamService.GetTeams();
     }
 
-    async Task AddTeam() => await UpdateTeam(null);
-    async Task UpdateTeam(Team? item)
+    private async Task AddTeam() => await UpdateTeam(null);
+    private async Task UpdateTeam(Team? item)
     {
         var parameters = new DialogParameters 
         { 
             ["Team"] = item,
-            ["Traits"] = await TraitService.GetTraitsOfType(Entrant.Team)
+            ["Traits"] = await _traitService.GetTraitsOfType(Entrant.Team)
         };
 
-        var dialog = await DialogService.ShowAsync<TeamEditor>("Modify team", parameters);
+        var dialog = await _dialogService.ShowAsync<TeamEditor>("Modify team", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Team updatedItem)
         {
-            await TeamService.UpdateTeam(updatedItem);
-            TeamData = await TeamService.GetTeams();
+            await _teamService.UpdateTeam(updatedItem);
+            teams = await _teamService.GetTeams();
         }
     }
 
-    async Task DeleteTeam(Team item)
+    private async Task DeleteTeam(Team item)
     {
-        await TeamService.ArchiveTeam(item);
-        TeamData.Remove(item);
+        await _teamService.ArchiveTeam(item);
+        teams.Remove(item);
     }
 
-    async Task ToggleDisplayArchived()
+    private async Task ToggleDisplayArchived()
     {
         if (showingArchived)
-            TeamData = await TeamService.GetTeams();
+            teams = await _teamService.GetTeams();
         else
-            TeamData = await TeamService.GetTeams(StateFilter.Archived);
+            teams = await _teamService.GetTeams(StateFilter.Archived);
 
         showingArchived = !showingArchived;
     }

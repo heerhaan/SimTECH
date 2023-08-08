@@ -33,7 +33,6 @@
                                 {
                                     <MudTabPanel Text="@($"FP{session.SessionIndex}")" ID="@($"fp_{session.SessionIndex}")">
                                         <Practice PracticeSession="@session"
-                                                  Config="@config"
                                                   OnFinish="PersistPractice" />
                                     </MudTabPanel>
                                 }
@@ -48,7 +47,6 @@
                                 {
                                     <MudTabPanel Text="@($"Q{session.SessionIndex}")" Icon="@Icons.Material.Filled.AccessTime">
                                         <Qualifying QualySession="@session"
-                                                    Config="@config"
                                                     OnFinish="PersistQualifying" />
                                     </MudTabPanel>
                                 }
@@ -92,7 +90,7 @@
 
     private List<GivenPenalty> upcomingPenalties = new();
 
-    private SimConfig config;
+    SimConfig config;
 
     MudTabs? _qualyTabs;
 
@@ -135,6 +133,7 @@
         RaweCeek.Race = race;
         RaweCeek.Season = await _seasonService.GetSeasonById(race.SeasonId);
         RaweCeek.Climate = await _climateService.GetClimateById(race.ClimateId);
+        RaweCeek.GapMarge = config.GapMarge;
 
         await LoadDrivers();
 

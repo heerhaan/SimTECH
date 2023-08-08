@@ -1,4 +1,4 @@
-﻿<MudTable Items="@Drivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense" id="session-table">
+﻿<MudTable Items="@Drivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense collapse" RowStyleFunc="@_sessionRowStyles" id="session-table">
     <HeaderContent>
         <MudTh></MudTh>
         <MudTh Class="accent-cell"></MudTh>
@@ -13,11 +13,12 @@
         }
         <MudTh Class="number-col-xl">Score</MudTh>
         <MudTh>Gap</MudTh>
+        <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTdCutoffStyled Position="@context.Position" ProgressLimit="@ProgressCutoff" EntryLimit="@EntryCutoff" Class="number-col">
+        <MudTd Class="number-col">
             <DriverPosition Number="@context.Position" />
-        </MudTdCutoffStyled>
+        </MudTd>
         <MudTd Class="accent-cell">
             <SmolAccent Colour="@context.Colour" />
         </MudTd>
@@ -53,6 +54,19 @@
         <MudTd>
             <MudText Typo="Typo.button">@context.GapAbove</MudText>
         </MudTd>
+        <MudTd>
+            @if (context.Position == ProgressCutoff)
+            {
+                <MudPopover OverflowBehavior="OverflowBehavior.FlipNever"
+                            Open="true"
+                            AnchorOrigin="Origin.BottomRight"
+                            TransformOrigin="Origin.TopRight"
+                            Class="px-1"
+                            Style="background-color:red">
+                    <MudText Typo="Typo.subtitle2">OUT</MudText>
+                </MudPopover>
+            }
+        </MudTd>
     </RowTemplate>
 </MudTable>
 
@@ -74,4 +88,16 @@
 
         amountRuns = AmountRuns == 0 ? 2 : AmountRuns;
     }
+
+    //public static Func<SeasonTeam, string> TeamFullStyleFunc => team => SetFullColourstyle(team.Colour, team.Accent);
+    private Func<SessionDriver, int, string> _sessionRowStyles => (driver, index) =>
+    {
+        if (driver.Position == ProgressCutoff)
+            return "border-bottom: 2px solid red";
+
+        if (driver.Position == EntryCutoff)
+            return "border-bottom: 2px solid mediumpurple";
+
+        return string.Empty;
+    };
 }

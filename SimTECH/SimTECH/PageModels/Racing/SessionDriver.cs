@@ -20,6 +20,9 @@
         public int Position { get; set; }
         public int PenaltyPunish { get; set; }
         public string GapAbove { get; set; } = string.Empty;
+
+        public string? CutoffText { get; set; }
+        public string? CutoffColour { get; set; }
     }
 
     public static class ExtendSessionDriver

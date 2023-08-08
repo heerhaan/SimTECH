@@ -33,7 +33,6 @@
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
 
     [Parameter] public PracticeSession PracticeSession { get; set; } = new();
-    [Parameter] public SimConfig Config { get; set; } = new();
     [Parameter] public EventCallback<int> OnFinish { get; set; }
 
     private List<SessionDriver> practiceDrivers = new();
@@ -50,7 +49,7 @@
 
     protected override void OnInitialized()
     {
-        gapMarge = Config.GapMarge;
+        gapMarge = RaweCeek.GapMarge / 2;
     }
 
     protected override void OnParametersSet()

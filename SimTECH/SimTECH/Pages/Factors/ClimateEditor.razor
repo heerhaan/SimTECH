@@ -5,7 +5,7 @@
     <DialogContent>
         <MudStack>
             <MudStack Row="true" Spacing="3">
-                <MudSelect T="string" @bind-Value="@Model.Icon" Label="Icon" Class="field-xs">
+                <MudSelect T="string" @bind-Value="@model.Icon" Label="Icon" Class="field-xs">
                     @foreach (var wIcon in weatherIcons)
                     {
                         <MudSelectItem Value="@wIcon">
@@ -14,30 +14,30 @@
                     }
                 </MudSelect>
 
-                <MudColorPicker @bind-Text="@Model.Colour" Label="Colour" Placeholder="Select colour" Class="field-sm" />
+                <MudColorPicker @bind-Text="@model.Colour" Label="Colour" Placeholder="Select colour" Class="field-sm" />
 
-                <MudTextField T="string" @bind-Text="@Model.Terminology" Label="Terminology" />
+                <MudTextField T="string" @bind-Text="@model.Terminology" Label="Terminology" />
             </MudStack>
 
-            <MudSwitchM3 @bind-Checked="@Model.IsWet"
+            <MudSwitchM3 @bind-Checked="@model.IsWet"
                          Label="Is wet"
                          Color="Color.Secondary"
                          ThumbIcon="@Icons.Material.Filled.Done"
                          ThumbOffIcon="@Icons.Material.Filled.Close" />
 
-            <MudNumericField T="int" @bind-Value="@Model.Odds"
+            <MudNumericField T="int" @bind-Value="@model.Odds"
                              Min="1"
                              Label="Odds" />
 
-            <MudNumericField T="double" @bind-Value="@Model.EngineMultiplier"
+            <MudNumericField T="double" @bind-Value="@model.EngineMultiplier"
                              Step="0.1"
                              Min="0"
                              Label="Engine multiplier" />
 
-            <MudNumericField T="int" @bind-Value="@Model.ReliablityModifier"
+            <MudNumericField T="int" @bind-Value="@model.ReliablityModifier"
                              Label="Reliability modifier" />
 
-            <MudNumericField T="int" @bind-Value="@Model.RngModifier"
+            <MudNumericField T="int" @bind-Value="@model.RngModifier"
                              Label="RNG modifier" />
         </MudStack>
     </DialogContent>
@@ -51,21 +51,20 @@
     [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
     [Parameter] public Climate? Climate { get; set; }
 
-    private string[] weatherIcons = Constants.AllWeatherIcons;
-
-    private EditClimate Model;
-    private string colour = string.Empty;
+    EditClimate model;
+    string[] weatherIcons = Constants.AllWeatherIcons;
+    string colour = string.Empty;
 
     protected override void OnInitialized()
     {
-        Model = new EditClimate(Climate);
+        model = new EditClimate(Climate);
     }
 
     private void Submit()
     {
-        if (Model.IsDirty)
+        if (model.IsDirty)
         {
-            EditDialog?.Close(DialogResult.Ok(Model.Record));
+            EditDialog?.Close(DialogResult.Ok(model.Record));
         }
     }
 

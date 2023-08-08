@@ -1,7 +1,7 @@
 ﻿@page "/engines"
 @inject BreadcrumbProvider _bread
-@inject EngineService EngineService
-@inject IDialogService DialogService
+@inject EngineService _engineService
+@inject IDialogService _dialogService
 
 <PageTitle>Engines</PageTitle>
 
@@ -18,9 +18,8 @@
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Engine" Items="@EngineData" RowsPerPage="15" Dense="true">
+    <MudDataGrid T="Engine" Items="@engines" RowsPerPage="15" Dense="true">
         <Columns>
-            <HierarchyColumn T="Engine" />
             <PropertyColumn Property="e => e!.Name" />
             <TemplateColumn T="Engine">
                 <CellTemplate>
@@ -31,11 +30,6 @@
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
-        <ChildRowContent>
-            <MudPaper>
-                <MudText>@context.Item.Name</MudText>
-            </MudPaper>
-        </ChildRowContent>
         <PagerContent>
             <MudDataGridPager T="Engine" />
         </PagerContent>
@@ -43,7 +37,7 @@
 </MudContainer>
 
 @code {
-    private List<Engine> EngineData { get; set; } = new();
+    private List<Engine> engines = new();
 
     private bool showingArchived = false;
 
@@ -55,36 +49,36 @@
             new BreadcrumbItem("Engines", href: "engines", disabled: true),
         });
 
-        EngineData = await EngineService.GetEngines();
+        engines = await _engineService.GetEngines();
     }
 
-    async Task AddEngine() => await UpdateEngine(null);
-    async Task UpdateEngine(Engine? item)
+    private async Task AddEngine() => await UpdateEngine(null);
+    private async Task UpdateEngine(Engine? item)
     {
         var parameters = new DialogParameters { ["Engine"] = (item) };
 
-        var dialog = await DialogService.ShowAsync<EngineEditor>("Modify engine", parameters);
+        var dialog = await _dialogService.ShowAsync<EngineEditor>("Modify engine", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Engine updatedItem)
         {
-            await EngineService.UpdateEngine(updatedItem);
-            EngineData = await EngineService.GetEngines();
+            await _engineService.UpdateEngine(updatedItem);
+            engines = await _engineService.GetEngines();
         }
     }
 
-    async Task DeleteEngine(Engine engine)
+    private async Task DeleteEngine(Engine engine)
     {
-        await EngineService.ArchiveEngine(engine);
-        EngineData.Remove(engine);
+        await _engineService.ArchiveEngine(engine);
+        engines.Remove(engine);
     }
 
-    async Task ToggleDisplayArchived()
+    private async Task ToggleDisplayArchived()
     {
         if (showingArchived)
-            EngineData = await EngineService.GetEngines();
+            engines = await _engineService.GetEngines();
         else
-            EngineData = await EngineService.GetEngines(StateFilter.Archived);
+            engines = await _engineService.GetEngines(StateFilter.Archived);
 
         showingArchived = !showingArchived;
     }

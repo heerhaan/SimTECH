@@ -13,5 +13,7 @@ namespace SimTECH.PageModels.Racing
         public List<RaweCeekDriver> RaweCeekDrivers { get; set; }
 
         public List<long> ConsumablePenalties { get; set; } = new();
+
+        public double GapMarge { get; set; }
     }
 }

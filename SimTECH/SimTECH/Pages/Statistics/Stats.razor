@@ -20,18 +20,29 @@
                 </MudPaper>
             </MudItem>
             <MudItem xs="4">
-                <MudPaper>
-                    <MudText>Bit temp but league filter</MudText>
-
-                    <MudSelect T="long" @bind-Value="@leagueFilter" Label="League" Class="field-sm">
-                        @foreach (var league in leagues)
-                        {
-                            <MudSelectItem Value="@league.Id">
-                                <MudText>@league.Name</MudText>
-                            </MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudPaper>
+                <MudCard Class="mud-height-full">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h5">League filter</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText Typo="Typo.body2">
+                            Filter the given data for the statistics shown here to a specific league,
+                            otherwise use data from all leagues.
+                        </MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudSelect T="long" @bind-Value="@leagueFilter" Variant="Variant.Outlined" Label="League" Placeholder="All leagues">
+                            @foreach (var league in leagues)
+                            {
+                                <MudSelectItem Value="@league.Id">
+                                    <MudText>@league.Name</MudText>
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudCardActions>
+                </MudCard>
             </MudItem>
             @foreach (var topic in topics)
             {
@@ -85,12 +96,6 @@
 
     private void LoadTopics()
     {
-        //topics.Add(
-        //    new StatTopic(
-        //        "Driver details",
-        //        "Get detailed statistics about the results of a driver",
-        //        typeof(DriverDetailStat),
-        //        GetDriverParameters));
         topics.Add(
             new StatTopic(
                 "Compare drivers",

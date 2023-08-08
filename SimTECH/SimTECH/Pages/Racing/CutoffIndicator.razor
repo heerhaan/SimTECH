@@ -1,0 +1,56 @@
+﻿<MudTd Class="@_classes" Style="@_styles">
+    <MudPopover OverflowBehavior="OverflowBehavior.FlipNever"
+                Open="true"
+                AnchorOrigin="Origin.BottomRight"
+                TransformOrigin="Origin.TopRight"
+                Class="px-1"
+                Style="background-color:red">
+        <MudText Typo="Typo.subtitle2">OUT</MudText>
+    </MudPopover>
+    @ChildContent
+</MudTd>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter, EditorRequired] public int Position { get; set; }
+    [Parameter] public int ProgressLimit { get; set; }
+    [Parameter] public int EntryLimit { get; set; }
+    [Parameter] public string Class { get; set; }
+
+    private string _styles
+    {
+        get
+        {
+            string styles = "color: white; ";
+
+            if (EntryLimit != 0 && Position > EntryLimit)
+                styles += "background-color: mediumpurple;";
+            else if (ProgressLimit != 0 && Position > ProgressLimit)
+                styles += "background-color: red;";
+
+            return styles;
+        }
+    }
+
+    private string _classes
+    {
+        get
+        {
+            return Class;
+        }
+    }
+
+    private string _indicatorText
+    {
+        get
+        {
+            if (ProgressLimit == Position)
+                return "OUT";
+
+            if (EntryLimit == Position)
+                return "DNQ";
+
+            return string.Empty;
+        }
+    }
+}
