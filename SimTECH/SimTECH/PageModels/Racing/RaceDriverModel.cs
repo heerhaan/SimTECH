@@ -10,7 +10,7 @@ namespace SimTECH.PageModels.Racing
 
         public int Position { get; set; }
         public int Grid { get; set; }
-        public int Setup { get; set; }
+        //public int Setup { get; set; }
         public int TyreLife { get; set; }
         public Tyre CurrentTyre { get; set; }
 
