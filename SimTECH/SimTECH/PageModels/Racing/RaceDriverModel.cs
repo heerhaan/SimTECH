@@ -1,4 +1,5 @@
 ﻿using SimTECH.Data.Models;
+using SimTECH.Extensions;
 
 namespace SimTECH.PageModels.Racing
 {
@@ -34,5 +35,11 @@ namespace SimTECH.PageModels.Racing
         public int OvertakeCount { get; set; }
         public int DefensiveCount { get; set; }
         public string? SingleOccurrence { get; set; }
+    }
+
+    public static class ExtendRaceDriver
+    {
+        public static List<(double, string)> ColoursOfUsedTyres(this RaceDriver driver, int calculationCount) =>
+            driver.LapScores.ConvertAll(e => (NumberHelper.Percentage(1, calculationCount), e.TyreColour ?? Constants.DefaultColour));
     }
 }

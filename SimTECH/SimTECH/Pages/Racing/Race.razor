@@ -24,9 +24,15 @@
             <MudStack Spacing="0" AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
                 <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
-                    <MudChip Value="1" Color="Color.Primary">@(NumberHelper.CalcLapCount(1 * calculationDistance, RaweCeek.Race.Track.Length))</MudChip>
-                    <MudChip Value="5" Default="true" Color="Color.Primary">@(NumberHelper.CalcLapCount(5 * calculationDistance, RaweCeek.Race.Track.Length))</MudChip>
-                    <MudChip Value="10" Color="Color.Primary">@(NumberHelper.CalcLapCount(10 * calculationDistance, RaweCeek.Race.Track.Length))</MudChip>
+                    <MudChip Value="1" Color="Color.Primary">
+                        @(NumberHelper.CalcLapCount(1 * calculationDistance, RaweCeek.Race.Track.Length))
+                    </MudChip>
+                    <MudChip Value="5" Default="true" Color="Color.Primary">
+                        @(NumberHelper.CalcLapCount(5 * calculationDistance, RaweCeek.Race.Track.Length))
+                    </MudChip>
+                    <MudChip Value="10" Color="Color.Primary">
+                        @(NumberHelper.CalcLapCount(10 * calculationDistance, RaweCeek.Race.Track.Length))
+                    </MudChip>
                     <MudChip Value="@calculationCount" Color="Color.Primary">@totalLaps</MudChip>
                 </MudChipSet>
             </MudStack>
@@ -170,7 +176,7 @@
                             }
                         }
                     </div>
-                    <SimProgressLinear Bars="@(context.LapScores.Select(e => ((NumberHelper.Percentage(1, calculationCount)), (e.TyreColour ?? Constants.DefaultColour))).ToList())" />
+                    <SimProgressLinear Bars="@(context.ColoursOfUsedTyres(calculationCount))" />
                 </MudTd>
             </RowTemplate>
         </MudTable>
@@ -221,6 +227,7 @@
     Dictionary<int, SituationOccurrence> occurrences = new();
     List<RaceDriver> raceDrivers = new();
     List<Incident> possibleIncidents = new();
+    List<Tyre> availableTyres = new();
 
     // Controls for the view
     bool loading = true;
@@ -270,6 +277,7 @@
     protected override void OnInitialized()
     {
         possibleIncidents.AddRange(Incidents.Where(e => e.State == State.Active));
+        availableTyres.AddRange(Tyres.Where(e => e.State == State.Active));
 
         minLapRng = RaweCeek.Season.RngMinimum;
         maxLapRng = RaweCeek.Season.RngMaximum;
@@ -569,7 +577,7 @@
         if (driver.CurrentTyre.PitWhenBelow > driver.TyreLife)
         {
             var distanceLeft = RaweCeek.Race.RaceLength - (calculated * calculationDistance);
-            var validTyres = Tyres.FindValidTyres(distanceLeft, RaweCeek.Climate.IsWet);
+            var validTyres = availableTyres.FindValidTyres(distanceLeft, RaweCeek.Climate.IsWet);
 
             if (validTyres.Count() > 0)
             {
@@ -593,7 +601,7 @@
     private bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
     {
         var distanceLeft = RaweCeek.Race.RaceLength - (calculated * calculationDistance);
-        var validTyres = Tyres.FindValidTyres(distanceLeft, RaweCeek.Climate.IsWet);
+        var validTyres = availableTyres.FindValidTyres(distanceLeft, RaweCeek.Climate.IsWet);
 
         int scoreAboveDriver = 0;
         foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
