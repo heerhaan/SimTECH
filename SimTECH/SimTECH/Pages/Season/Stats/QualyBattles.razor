@@ -1,7 +1,10 @@
 ﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">Qualifying battles</MudText>
+    </TitleContent>
     <DialogContent>
         <MudContainer>
-            <MudPaper>
+            <MudPaper Class="px-2">
                 <MudTable T="QualyBattleComparison"
                           Items="@qualyBattleList"
                           GroupBy="@groupDefinition"
@@ -11,9 +14,9 @@
                           Class="extra=dense"
                           id="qualy-battles-table">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h5">Qualifying battles</MudText>
+                        
                         <MudSpacer />
-                        <ScreenshotButton TargetId="qualy-battles-table" />
+                        <ScreenshotButton TargetId="qualy-battles-table" Class="btn-md" />
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh Class="accent-cell"></MudTh>
@@ -48,7 +51,7 @@
                             <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                         </MudTd>
                         <MudTd Class="number-col">
-                            <MudText Typo="Typo.h5">@context.VictoryCount</MudText>
+                            <MudText Typo="Typo.caption">@context.VictoryCount</MudText>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>

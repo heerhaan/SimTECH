@@ -6,9 +6,11 @@
         <HeaderContent>
             <MudTh Class="number-col"></MudTh>
             <MudTh Class="accent-cell"></MudTh>
-            <MudTh>Team</MudTh>
-            <MudTh>Principal</MudTh>
-            <MudTh>PTS</MudTh>
+            <MudTh Style="max-width: 220px">Team</MudTh>
+            <MudTh Style="max-width: 220px">Principal</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="@_pointsSorter">PTS</MudTableSortLabel>
+            </MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd Class="number-col">
@@ -17,14 +19,14 @@
             <MudTd Class="accent-cell">
                 <SmolAccent Colour="@context.Colour" />
             </MudTd>
-            <MudTd>
+            <MudTd Class="overflow-hider">
                 <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                    <MudText Style="@(context.Mark ? "text-decoration: underline" : "")">@context.Name</MudText>
+                    <MudText Class="overflow-hider" Style="@(context.Mark ? "text-decoration: underline" : "")">@context.Name</MudText>
                     <MudSpacer />
                     <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
                 </MudStack>
             </MudTd>
-            <MudTd>
+            <MudTd Class="overflow-hider">
                 <MudText>@context.Principal</MudText>
             </MudTd>
             <MudTd>
@@ -36,4 +38,6 @@
 
 @code {
     [Parameter] public List<StandingTeamModel> StandingConstructors { get; set; }
+
+    private Func<StandingTeamModel, object> _pointsSorter => e => e.Points;
 }

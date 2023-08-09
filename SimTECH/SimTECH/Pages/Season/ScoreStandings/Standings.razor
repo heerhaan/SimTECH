@@ -4,9 +4,9 @@
             <MudItem xs="12">
                 <MudPaper Height="75px" Class="pa-2">
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                        <span style="width:10%"></span>
+                        <span class="btn-md"></span>
                         <MudText Typo="Typo.h3">Season standings for @Season.Year</MudText>
-                        <ScreenshotButton TargetId="standings-numerical-overview" Styles="@("width:10%")" />
+                        <ScreenshotButton TargetId="standings-numerical-overview" Class="btn-md" />
                     </MudStack>
                 </MudPaper>
             </MudItem>
@@ -36,9 +36,8 @@
     [Parameter] public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
     [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
 
-    private List<StandingDriverModel> driverResultsModel = new();
-    private List<StandingTeamModel> teamResultsModel = new();
-
+    List<StandingDriverModel> driverResultsModel = new();
+    List<StandingTeamModel> teamResultsModel = new();
     Dictionary<int, Country> countryRounds = new();
 
     protected override void OnInitialized()
@@ -97,7 +96,7 @@
             {
                 Id = team.Id,
                 Position = position,
-                Name = team.Team.Name,
+                Name = team.Name,
                 Principal = team.Principal,
                 Nationality = team.Team.Country,
                 Colour = team.Colour,

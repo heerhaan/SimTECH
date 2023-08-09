@@ -1,21 +1,21 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h5">Summary season developments</MudText>
+        <MudText Typo="Typo.h5">Summary of season developments</MudText>
     </TitleContent>
     <DialogContent>
         <MudPaper>
             <MudStack Row="true" Justify="Justify.SpaceBetween">
                 <div>
-                    <MudText Typo="Typo.body2" Color="Color.Info">For every aspect, left: total change, right: current value</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Info">OLD - CHANGE - NEW</MudText>
                 </div>
-                <ScreenshotButton TargetId="developed-summary" />
+                <ScreenshotButton TargetId="developed-summary" Class="btn-md" />
             </MudStack>
         </MudPaper>
         <MudPaper id="developed-summary">
             <MudStack Row="true" Spacing="0" Class="flex-wrap">
-                @foreach (var entrantGroup in Summaries)
+                @foreach (var entrantGroup in summaries)
                 {
-                    <MudPaper Elevation="15" Class="px-4 py-2" id="@(entrantGroup.SummaryElementId)">
+                    <MudPaper Elevation="15" Class="px-4 py-2">
                         <MudTable T="EntrantDevelopLog"
                                   Items="@entrantGroup.EntrantLogs.OrderBy(e => e.Name)"
                                   GroupBy="@_entrantDefinition"
@@ -23,13 +23,14 @@
                                   FixedHeader="true"
                                   Bordered="true"
                                   Dense="true"
-                                  Class="extra-dense">
+                                  Class="extra-dense"
+                                  id="@(entrantGroup.SummaryElementId)">
                             <ToolBarContent>
                                 <MudText Typo="Typo.h5" Color="Color.Tertiary">@entrantGroup.EntrantGroup.ToString()</MudText>
                                 <MudDivider Vertical="true" Class="mx-2" />
                                 <MudText Typo="Typo.h5">Boing</MudText>
                                 <MudSpacer />
-                                <ScreenshotButton TargetId="@(entrantGroup.SummaryElementId)" />
+                                <ScreenshotButton TargetId="@(entrantGroup.SummaryElementId)" Class="btn-md" />
                             </ToolBarContent>
                             <HeaderContent>
                                 @foreach (var (aspect, i) in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()).WithIndex())
@@ -49,7 +50,7 @@
                                 {
                                     <MudTd Class="@(InspectTheWheel(i))">
                                         <MudStack Row="true" Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
-                                            <MudText Typo="Typo.caption" Style="color:white !important">@(@dev.Value.Item1 - dev.Value.Item2)</MudText>
+                                            <MudText Typo="Typo.caption" Style="color:white !important">@(dev.Value.Item1 - dev.Value.Item2)</MudText>
                                             <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
                                             <GradientColour Min="@entrantGroup.MinMaxValues[dev.Key].Item1"
                                                             Max="@entrantGroup.MinMaxValues[dev.Key].Item2"
@@ -80,7 +81,7 @@
 
     private static readonly string[] cycleWheel = new[] { "fallback-muted-background-primary", "fallback-muted-background-secondary", "fallback-muted-background-tertiary" };
 
-    private List<DevelopSummary> Summaries { get; set; } = new();
+    private List<DevelopSummary> summaries = new();
 
     private TableGroupDefinition<EntrantDevelopLog> _entrantDefinition = new()
     {
@@ -125,7 +126,7 @@
                 minMaxPerAspect.Add(allChanged.Key, (lowest, highest));
             }
 
-            Summaries.Add(new DevelopSummary
+            summaries.Add(new DevelopSummary
                 {
                     EntrantGroup = entrantSummary.Key,
                     Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),

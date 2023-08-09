@@ -8,22 +8,22 @@
 <PageTitle>Seasons</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    @if (SeasonList != null)
+    @if (seasonListItems != null)
     {
         <MudPaper MinHeight="60px">
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
                 <MudText Typo="Typo.h3">Seasons</MudText>
                 <MudSpacer />
-                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="NewSeason">New</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="NewSeason" Class="btn-md">New</MudButton>
             </MudStack>
         </MudPaper>
-        <MudDataGrid T="SeasonListModel" Items="@SeasonList.OrderByDescending(e => e.Year)" Dense="true">
+        <MudDataGrid T="SeasonListModel" Items="@seasonListItems.OrderByDescending(e => e.Year)" Dense="true">
             <Columns>
                 <PropertyColumn Property="e => e!.Year" />
                 <TemplateColumn T="SeasonListModel" Title="NO" SortBy="e => e!.DriverNumber" HeaderClass="number-col hide-sort-icons" CellClass="number-col">
                     <CellTemplate>
-                        <NumberDisplay Colour="@Constants.PrimaryColourDefault"
-                                       Accent="@Constants.DefaultAccent">
+                        <NumberDisplay Colour="@context.Item.DriverColour"
+                                       Accent="@context.Item.DriverAccent">
                             @context.Item.DriverNumber
                         </NumberDisplay>
                     </CellTemplate>
@@ -39,7 +39,7 @@
                 </TemplateColumn>
                 <TemplateColumn T="SeasonListModel" Sortable="false" Class="accent-cell">
                     <CellTemplate>
-                        <span class="smol-accent" style="@(ViewHelper.SetBackgroundColour(context.Item.TeamColour))"></span>
+                        <SmolAccent Colour="@context.Item.TeamColour" />
                     </CellTemplate>
                 </TemplateColumn>
                 <TemplateColumn T="SeasonListModel" Title="Leading team">
@@ -74,9 +74,9 @@
 </MudContainer>
 
 @code {
-    List<Season> SeasonData;
-    List<League> LeagueData;
-    List<SeasonListModel> SeasonList;
+    List<Season> seasons;
+    List<League> leagues;
+    List<SeasonListModel> seasonListItems;
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,16 +87,16 @@
             new BreadcrumbItem("Seasons", href: "seasons", disabled: true),
         });
 
-        SeasonData = await SeasonService.GetSeasons();
-        LeagueData = await LeagueService.GetLeagues();
-        SeasonList = await SeasonService.GetSeasonList();
+        seasons = await SeasonService.GetSeasons();
+        leagues = await LeagueService.GetLeagues();
+        seasonListItems = await SeasonService.GetSeasonList();
     }
 
     private async Task NewSeason()
     {
         EditSeasonModel model;
 
-        var previousSeason = SeasonData.OrderByDescending(e => e.Year).FirstOrDefault();
+        var previousSeason = seasons.OrderByDescending(e => e.Year).FirstOrDefault();
 
         if (previousSeason != null)
         {
@@ -114,7 +114,7 @@
 
     private async Task CopySeason(long seasonId)
     {
-        var copyingSeason = SeasonData.Single(e => e.Id == seasonId);
+        var copyingSeason = seasons.Single(e => e.Id == seasonId);
         var model = new EditSeasonModel(copyingSeason);
         model.ResetIdentifierFields();
         model.Year++;
@@ -124,7 +124,7 @@
 
     private async Task EditSeason(EditSeasonModel model)
     {
-        var parameters = new DialogParameters { ["Model"] = model, ["Leagues"] = LeagueData };
+        var parameters = new DialogParameters { ["Model"] = model, ["Leagues"] = leagues };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
@@ -141,7 +141,7 @@
         var result = await SeasonService.DeleteSeason(seasonId);
         if (result)
         {
-            SeasonData.Remove(SeasonData.Single(e => e.Id == seasonId));
+            seasons.Remove(seasons.Single(e => e.Id == seasonId));
         }
     }
 

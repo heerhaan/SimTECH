@@ -55,15 +55,15 @@
             <MudText Typo="Typo.button">@context.GapAbove</MudText>
         </MudTd>
         <MudTd>
-            @if (context.Position == ProgressCutoff)
+            @if (TryLocateCutoff(context.Position, out var tuple))
             {
                 <MudPopover OverflowBehavior="OverflowBehavior.FlipNever"
                             Open="true"
                             AnchorOrigin="Origin.BottomRight"
                             TransformOrigin="Origin.TopRight"
                             Class="px-1"
-                            Style="background-color:red">
-                    <MudText Typo="Typo.subtitle2">OUT</MudText>
+                            Style="@tuple.Item2">
+                    <MudText Typo="Typo.subtitle2">@tuple.Item1</MudText>
                 </MudPopover>
             }
         </MudTd>
@@ -100,4 +100,16 @@
 
         return string.Empty;
     };
+
+    private bool TryLocateCutoff(int position, out Tuple<string, string> cutoff)
+    {
+        if (position == ProgressCutoff)
+            cutoff = Tuple.Create("OUT", "background-color: red");
+        else if (position == EntryCutoff)
+            cutoff = Tuple.Create("DNQ", "background-color: mediumpurple");
+        else
+            cutoff = default;
+
+        return cutoff != default;
+    }
 }

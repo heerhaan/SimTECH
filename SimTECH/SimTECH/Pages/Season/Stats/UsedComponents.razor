@@ -1,6 +1,6 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText>Ayayaya</MudText>
+        <MudText Typo="Typo.h5">Penalizable incidents</MudText>
     </TitleContent>
     <DialogContent>
         <MudPaper>
@@ -12,9 +12,9 @@
                           Class="px-4"
                           id="used-components-table">
                     <ToolBarContent>
-                        <MudText Typo="Typo.h5">Penalizable incidents</MudText>
+                        
                         <MudSpacer />
-                        <ScreenshotButton TargetId="used-components-table" />
+                        <ScreenshotButton TargetId="used-components-table" Class="btn-md" />
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>Name</MudTh>
@@ -22,24 +22,26 @@
                         <MudTh>Team</MudTh>
                         @foreach (var incident in penalizableIncidents)
                         {
-                            <MudTh Class="number-col pt-5 pr-5">
+                            <MudTh Class="number-col pb-20 overflow-hider">
                                 <MudBadge Content="@incident.Limit"
                                           Color="Color.Error"
-                                          Origin="Origin.TopRight">
-                                    <span>@incident.Name</span>
+                                          Origin="Origin.TopCenter"
+                                          Overlap="true"
+                                          Style="width:inherit">
+                                    <MudText Class="number-col" Style="transform: rotate(90deg)">@incident.Name</MudText>
                                 </MudBadge>
                             </MudTh>
                         }
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd>
-                            <MudText>@context.Name</MudText>
+                        <MudTd Style="max-width:200px">
+                            <MudText Typo="Typo.body2" Class="overflow-hider">@context.Name</MudText>
                         </MudTd>
                         <MudTd Class="number-col">
                             <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                         </MudTd>
-                        <MudTd>
-                            <MudText>@context.Team</MudText>
+                        <MudTd Style="max-width:200px">
+                            <MudText Typo="Typo.body2" Class="overflow-hider">@context.Team</MudText>
                         </MudTd>
                         @foreach (var usage in context.AmountPenalizableIncidents)
                         {
@@ -82,7 +84,7 @@
                     Name = driver.Driver.FullName,
                     Number = driver.Number,
                     Country = driver.Driver.Country,
-                    Team = driverTeam?.Name ?? "[Dropped]",
+                    Team = driverTeam?.Team?.Name ?? "[Dropped]",
                     Colour = driverTeam?.Colour ?? Constants.DefaultColour,
                     Accent = driverTeam?.Accent ?? Constants.DefaultAccent,
                 };
@@ -105,7 +107,7 @@
             return "background-color: red";
 
         if (value == limit)
-            return "background-color: var(--mud-palette-warning-darken)";
+            return "background-color: var(--mud-palette-warning)";
 
         return "background-color: lightgreen;";
     }

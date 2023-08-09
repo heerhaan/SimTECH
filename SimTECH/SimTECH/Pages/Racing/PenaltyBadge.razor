@@ -1,0 +1,26 @@
+﻿@if (Penalty.HasValue)
+{
+    <MudBadge Content="@_badgeContent"
+              Color="Color.Error"
+              Origin="Origin.CenterRight"
+              BadgeClass="ml-1">
+        @ChildContent
+    </MudBadge>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public int? Penalty { get; set; } = null;
+
+    private string _badgeContent
+    {
+        get
+        {
+            return $"+{Penalty}";
+        }
+    }
+}

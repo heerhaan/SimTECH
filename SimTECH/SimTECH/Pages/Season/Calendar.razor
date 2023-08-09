@@ -10,23 +10,24 @@
                            Variant="Variant.Outlined"
                            Color="Color.Primary"
                            Size="Size.Large"
-                           OnClick="AddRaces">
+                           OnClick="AddRaces"
+                           Class="btn-md">
                     Add races
                 </MudButton>
             }
         </MudStack>
     </MudPaper>
-    <MudTable T="CalendarListing" Items="@SeasonCalendar" Dense="true" Loading="@loading">
+    <MudTable T="CalendarListing" Items="@seasonCalendar.OrderBy(e => e.Round)" Dense="true" Loading="@loading">
         <HeaderContent>
             <MudTh Class="number-col">Round</MudTh>
             <MudTh>Country</MudTh>
             <MudTh>Race</MudTh>
             <MudTh>Weather</MudTh>
-            <MudTh>Polesitter</MudTh>
+            <MudTh Style="max-width:250px">Polesitter</MudTh>
             <MudTh Class="number-col">NO</MudTh>
-            <MudTh>Winner driver</MudTh>
+            <MudTh Style="max-width:250px">Winner driver</MudTh>
             <MudTh Class="number-col">NO</MudTh>
-            <MudTh>Winner team</MudTh>
+            <MudTh Style="max-width:250px">Winner team</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -40,15 +41,14 @@
                 <MudText Class="overflow-hider">@context.Name</MudText>
             </MudTd>
             <MudTd>
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                    <MudIcon Icon="@context.WeatherIcon" />
+                <CustomIcon Icon="@context.WeatherIcon" Colour="@context.WeatherColour">
                     <MudText>@context.Weather</MudText>
-                </MudStack>
+                </CustomIcon>
             </MudTd>
 
             @if (context.PoleSitter != null)
             {
-                <MudTd Style="max-width:250px">
+                <MudTd Class="overflow-hider">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Style="max-width:250px">
                         <MudText Class="overflow-hider">@context.PoleSitter.Name</MudText>
                         <MudSpacer />
@@ -67,7 +67,7 @@
 
             @if (context.DriverWinner != null)
             {
-                <MudTd Style="max-width:250px">
+                <MudTd Class="overflow-hider">
                     <MudStack Row="true" AlignItems="AlignItems.Center">
                         <MudText Class="overflow-hider">@context.DriverWinner.Name</MudText>
                         <MudSpacer />
@@ -84,10 +84,10 @@
                 <MudTd></MudTd>
             }
 
-            <MudTd>
+            <MudTd Class="overflow-hider">
                 @if (context.TeamWinner != null)
                 {
-                    <MudText Typo="Typo.button" Class="overflow-hider">@context.TeamWinner.Name</MudText>
+                    <MudText Typo="Typo.button">@context.TeamWinner.Name</MudText>
                 }
             </MudTd>
             <MudTd>
@@ -124,7 +124,7 @@
     [Parameter] public EventCallback<long> OnDelete { get; set; }
     [Parameter] public EventCallback<int> OnGoToRace { get; set; }
 
-    List<CalendarListing> SeasonCalendar = new();
+    List<CalendarListing> seasonCalendar = new();
 
     bool loading = true;
     int nextRound;
@@ -133,7 +133,7 @@
     {
         loading = true;
         nextRound = Races.FindNext()?.Round ?? 0;
-        SeasonCalendar.Clear();
+        seasonCalendar.Clear();
 
         foreach (var race in Races)
         {
@@ -148,6 +148,7 @@
                 State = race.State,
                 Weather = climate.Terminology,
                 WeatherIcon = climate.Icon,
+                WeatherColour = climate.Colour ?? "#FFFFFF",
                 TrackId = race.TrackId,
 
                 Race = race
@@ -193,7 +194,7 @@
                 };
             }
 
-            SeasonCalendar.Add(listing);
+            seasonCalendar.Add(listing);
         }
 
         loading = false;
@@ -216,6 +217,7 @@
         public State State { get; set; }
         public string Weather { get; set; }
         public string WeatherIcon { get; set; }
+        public string WeatherColour { get; set; }
         public long TrackId { get; set; }
 
         public CompactDriver? PoleSitter { get; set; }

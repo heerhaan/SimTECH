@@ -272,13 +272,6 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task<List<GivenPenalty>> GetPenalties()
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.GivenPenalty.Include(e => e.Incident).ToListAsync();
-        }
-
         public async Task<List<RaceOccurrence>> GetRaceOccurrences(long raceId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -292,16 +285,6 @@ namespace SimTECH.Data.Services
 
             return await context.GivenPenalty
                 .Where(e => !e.Consumed || e.ConsumedAtRaceId == raceId)
-                .Include(e => e.Incident)
-                .ToListAsync();
-        }
-
-        public async Task<List<GivenPenalty>> GetUnconsumedPenalties()
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.GivenPenalty
-                .Where(e => !e.Consumed)
                 .Include(e => e.Incident)
                 .ToListAsync();
         }
@@ -387,14 +370,6 @@ namespace SimTECH.Data.Services
         }
 
         #region single-purpose calls
-        public async Task<int> PracticeSessionsCompleted(long raceId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var allPracticeScores = await context.PracticeScore.Where(e => e.RaceId == raceId).ToListAsync();
-            return allPracticeScores.MaxBy(e => e.Index)?.Index ?? 0;
-        }
-
         public async Task<List<FinishedRaceModel>> GetRecentlyFinishedCalendarRaces(int amount)
         {
             using var context = _dbFactory.CreateDbContext();
