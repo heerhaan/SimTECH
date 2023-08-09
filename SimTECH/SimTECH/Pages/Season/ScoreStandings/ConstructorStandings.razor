@@ -37,7 +37,7 @@
 </MudPaper>
 
 @code {
-    [Parameter] public List<StandingTeamModel> StandingConstructors { get; set; }
+    [Parameter] public IEnumerable<StandingTeamModel> StandingConstructors { get; set; } = Enumerable.Empty<StandingTeamModel>();
 
     private Func<StandingTeamModel, object> _pointsSorter => e => e.Points;
 }

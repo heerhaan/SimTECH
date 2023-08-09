@@ -37,7 +37,7 @@
 </MudPaper>
 
 @code {
-    [Parameter] public List<StandingDriverModel> StandingDrivers { get; set; }
+    [Parameter] public IEnumerable<StandingDriverModel> StandingDrivers { get; set; } = Enumerable.Empty<StandingDriverModel>();
 
     private Func<StandingDriverModel, object> _pointsSorter => e => e.Points;
 }
