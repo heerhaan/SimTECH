@@ -11,6 +11,8 @@
         public string DriverName { get; set; }
         public int DriverNumber { get; set; }
         public Country DriverNationality { get; set; }
+        public string DriverColour { get; set; }
+        public string DriverAccent { get; set; }
 
         public string TeamName { get; set; }
         public string TeamColour { get; set; }

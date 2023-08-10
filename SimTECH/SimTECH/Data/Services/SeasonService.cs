@@ -25,7 +25,6 @@ namespace SimTECH.Data.Services
 
             return await context.Season
                 .Where(e => filter.StatesForFilter().Contains(e.State))
-                .Include(e => e.PointAllotments)
                 .ToListAsync();
         }
 
@@ -168,79 +167,48 @@ namespace SimTECH.Data.Services
 
             var seasons = await context.Season
                 .Include(e => e.League)
-                .Include(
-                    s => s.SeasonDrivers!
-                        .OrderByDescending(d => d.Points)
-                        .Take(1))
-                    .ThenInclude(d => d.Driver)
-                .Include(
-                    s => s.SeasonTeams!
-                        .OrderByDescending(t => t.Points)
-                        .Take(1))
-                    .ThenInclude(t => t.Team)
                 .ToListAsync();
 
-            return seasons.ConvertAll(s => new SeasonListModel
-            {
-                Id = s.Id,
-                Year = s.Year,
-                State = s.State,
-
-                League = s.League.Name,
-
-                DriverName = s.SeasonDrivers?.FirstOrDefault()?.Driver.FullName ?? "Unknown",
-                DriverNumber = s.SeasonDrivers?.FirstOrDefault()?.Number ?? 0,
-                DriverNationality = s.SeasonDrivers?.FirstOrDefault()?.Driver.Country ?? Constants.DefaultCountry,
-
-                TeamName = s.SeasonTeams?.FirstOrDefault()?.Name ?? "Unknown",
-                TeamColour = s.SeasonTeams?.FirstOrDefault()?.Colour ?? "Unknown",
-                TeamNationality = s.SeasonTeams?.FirstOrDefault()?.Team.Country ?? Constants.DefaultCountry,
-            });
-        }
-
-        public async Task<List<PartsUsedByDriver>> GetPartsUsageModel(long seasonId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var drivers = await context.SeasonDriver
-                .Where(e => e.SeasonId == seasonId)
+            var winningDrivers = await context.SeasonDriver
                 .Include(e => e.Driver)
                 .Include(e => e.SeasonTeam)
-                .Include(e => e.GivenPenalties)
+                .GroupBy(e => e.SeasonId)
+                .Select(e => e.OrderByDescending(o => o.Points).FirstOrDefault())
                 .ToListAsync();
 
-            var results = await context.Result
-                .Where(e => e.Race.SeasonId == seasonId)
+            var winningTeams = await context.SeasonTeam
+                .Include(e => e.Team)
+                .GroupBy(e => e.SeasonId)
+                .Select(e => e.OrderByDescending(o => o.Points).FirstOrDefault())
                 .ToListAsync();
 
-            var partsUsedList = new List<PartsUsedByDriver>(drivers.Count);
+            var seasonListItems = new List<SeasonListModel>(seasons.Count);
 
-            foreach (var driver in drivers)
+            foreach (var season in seasons)
             {
-                var driverModel = new PartsUsedByDriver
+                var seasonDriver = winningDrivers.Find(e => e.SeasonId == season.Id);
+                var seasonTeam = winningTeams.Find(e => e.SeasonId == season.Id);
+
+                seasonListItems.Add(new SeasonListModel
                 {
-                    SeasonDriverId = driver.Id,
-                    Name = driver.Driver.FullName,
-                    Number = driver.Number,
-                    Team = driver.SeasonTeam?.Name ?? "None",
-                    Colour = driver.SeasonTeam?.Colour ?? Constants.DefaultColour,
-                    Accent = driver.SeasonTeam?.Accent ?? Constants.DefaultAccent,
-                    GivenPenalties = driver.GivenPenalties?.ToList() ?? new(),
-                };
+                    Id = season.Id,
+                    Year = season.Year,
+                    State = season.State,
+                    League = season.League.Name,
 
-                var driverResults = results.Where(e => e.SeasonDriverId == driver.Id).ToList();
-                driverModel.TotalDnf = driverResults.Count(e => e.Status == RaceStatus.Dnf);
-                driverModel.TotalDsq = driverResults.Count(e => e.Status == RaceStatus.Dsq);
+                    DriverName = seasonDriver?.Driver?.FullName ?? "[UNKNOWN]",
+                    DriverNumber = seasonDriver?.Number ?? 0,
+                    DriverNationality = seasonDriver?.Driver?.Country ?? Constants.DefaultCountry,
+                    DriverColour = seasonDriver?.SeasonTeam?.Colour ?? Constants.DefaultColour,
+                    DriverAccent = seasonDriver?.SeasonTeam?.Accent ?? Constants.DefaultAccent,
 
-                foreach (var driverResult in driverResults.Where(e => e.IncidentId.HasValue).GroupBy(e => e.IncidentId))
-                {
-                    driverModel.DriverIncidents.Add(driverResult.Key.GetValueOrDefault(), driverResult.Count());
-                }
-
-                partsUsedList.Add(driverModel);
+                    TeamName = seasonTeam?.Name ?? "[UNKNOWN]",
+                    TeamNationality = seasonTeam?.Team?.Country ?? Constants.DefaultCountry,
+                    TeamColour = seasonTeam?.Colour ?? Constants.DefaultColour,
+                });
             }
 
-            return partsUsedList;
+            return seasonListItems;
         }
         #endregion
     }

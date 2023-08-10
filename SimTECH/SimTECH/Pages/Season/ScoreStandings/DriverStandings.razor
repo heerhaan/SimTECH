@@ -6,10 +6,10 @@
         <HeaderContent>
             <MudTh Class="number-col"></MudTh>
             <MudTh Class="accent-cell"></MudTh>
-            <MudTh>Name</MudTh>
+            <MudTh Style="max-width: 220px">Name</MudTh>
             <MudTh Class="number-col">NO</MudTh>
             <MudTh>
-                <MudTableSortLabel SortBy="new Func<StandingDriverModel, object>(e => e.Points)">PTS</MudTableSortLabel>
+                <MudTableSortLabel SortBy="@_pointsSorter">PTS</MudTableSortLabel>
             </MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -19,9 +19,9 @@
             <MudTd Class="accent-cell">
                 <SmolAccent Colour="@context.Colour" />
             </MudTd>
-            <MudTd>
+            <MudTd Class="overflow-hider">
                 <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                    <MudText Style="@(context.Mark ? "text-decoration: underline" : "")">@context.Name</MudText>
+                    <MudText Class="overflow-hider" Style="@(context.Mark ? "text-decoration: underline" : "")">@context.Name</MudText>
                     <MudSpacer></MudSpacer>
                     <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
                 </MudStack>
@@ -38,4 +38,6 @@
 
 @code {
     [Parameter] public IEnumerable<StandingDriverModel> StandingDrivers { get; set; } = Enumerable.Empty<StandingDriverModel>();
+
+    private Func<StandingDriverModel, object> _pointsSorter => e => e.Points;
 }

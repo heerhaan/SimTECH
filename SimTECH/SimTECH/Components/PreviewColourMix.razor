@@ -1,0 +1,23 @@
+﻿<MudPaper Height="100px" Class="d-flex flex-column">
+    <MudText Typo="Typo.h6" Class="flex-initial">Preview</MudText>
+    <div class="flex-auto d-flex justify-center align-center" style="@_styles">
+        <MudText Class="ma-auto">@Text</MudText>
+    </div>
+</MudPaper>
+
+@code {
+    [Parameter] public string? Colour { get; set; }
+    [Parameter] public string? Accent { get; set; }
+    [Parameter] public string Text { get; set; } = string.Empty;
+
+    private string _styles
+    {
+        get
+        {
+            var background = Colour ?? Constants.DefaultBackground;
+            var accent = Accent ?? Constants.DefaultAccent;
+
+            return $"background-color: {background}; color: {accent}";
+        }
+    }
+}

@@ -5,46 +5,40 @@
         <MudText Typo="Typo.h5">Tyre editor</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model">
-            <MudTextField T="string" @bind-Value="@Model.Name" Label="Name" Class="field-md" />
-            <MudColorPicker @bind-Text="@Model.Colour" Label="Colour" Placeholder="Select colour" Class="field-md" />
-            
-            <MudNumericField T="int" @bind-Value="@Model.LifeBonus" Label="Life Bonus" Class="field-md" />
-            <MudNumericField T="int" @bind-Value="@Model.PitWhenBelow" Label="Pit when life is below" Class="field-md" />
+        <MudTextField T="string" @bind-Value="@model.Name" Label="Name" Class="field-md" />
+        <MudColorPicker @bind-Text="@model.Colour" Label="Colour" Placeholder="Select colour pls" Class="field-md" />
 
-            <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
-                <MudNumericField T="int" @bind-Value="Model.WearMin" Min="0" Label="WearMin" Class="field-sm" />
-                <MudNumericField T="int" @bind-Value="Model.WearMax" Min="@(Model.WearMin)" Label="WearMax" Class="field-sm" />
-            </MudStack>
+        <MudNumericField T="int" @bind-Value="@model.LifeBonus" Label="Life Bonus" Class="field-md" />
+        <MudNumericField T="int" @bind-Value="@model.PitWhenBelow" Label="Pit when life is below" Class="field-md" />
 
-            <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
-                <MudNumericField T="int" @bind-Value="Model.DistanceMin" Min="0" Label="DistanceMin" Class="field-sm" />
-                <MudNumericField T="int" @bind-Value="Model.DistanceMax" Min="@Model.DistanceMin" Label="DistanceMax" Class="field-sm" />
-            </MudStack>
+        <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
+            <MudNumericField T="int" @bind-Value="model.WearMin" Min="0" Label="Minimum wear" Class="field-sm" />
+            <MudNumericField T="int" @bind-Value="model.WearMax" Min="@model.WearMin" Label="Maximum wear" Class="field-sm" />
+        </MudStack>
 
-            <MudSwitch @bind-Checked="Model.ForWet" Label="For wet conditions" Color="Color.Tertiary" />
-        </MudForm>
-        <MudPaper Height="75px">
-            <MudStack Row="true">
-                <MudCard>
-                    <MudCardContent>
-                        <MudText>Preview tyre</MudText>
-                        @if (!string.IsNullOrEmpty(Model.Name))
-                        {
-                            <TyreElement Colour="@Model.Colour">
-                                @Model.Name.ElementAt(0)
-                            </TyreElement>
-                        }
-                    </MudCardContent>
-                </MudCard>
-                <MudCard>
-                    <MudCardContent>
-                        <MudText>Predicted length</MudText>
-                        <MudText Typo="Typo.body2">@(PredictedLength())km</MudText>
-                    </MudCardContent>
-                </MudCard>
-            </MudStack>
-        </MudPaper>
+        <MudStack Row="true" Justify="Justify.FlexStart" Spacing="4">
+            <MudNumericField T="int" @bind-Value="model.DistanceMin" Min="0" Label="DistanceMin" Class="field-sm" />
+            <MudNumericField T="int" @bind-Value="model.DistanceMax" Min="@model.DistanceMin" Label="DistanceMax" Class="field-sm" />
+        </MudStack>
+
+        <MudSwitch @bind-Checked="model.ForWet" Label="For wet conditions" Color="Color.Tertiary" />
+
+        <MudStack Row="true" Justify="Justify.SpaceBetween">
+            <MudPaper Elevation="5" Class="px-2 py-1">
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudText>Preview tyre</MudText>
+                    <TyreElement Colour="@model.Colour">
+                        @model.Name.ElementAt(0)
+                    </TyreElement>
+                </MudStack>
+            </MudPaper>
+            <MudPaper Elevation="5" Class="px-2 py-1">
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudText>Predicted length</MudText>
+                    <MudText Typo="Typo.body2">@(PredictedLength())km</MudText>
+                </MudStack>
+            </MudPaper>
+        </MudStack>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -56,31 +50,31 @@
     [CascadingParameter] protected MudDialogInstance? TyreDialog { get; set; }
     [Parameter] public Tyre? Tyre { get; set; }
 
-    EditTyreModel Model;
+    EditTyreModel model;
     int advanceLength;
 
     protected override void OnInitialized()
     {
-        Model = new EditTyreModel(Tyre);
+        model = new EditTyreModel(Tyre);
         advanceLength = _config.Value.CalculationDistance;
     }
 
     private int PredictedLength()
     {
-        if (Model.LifeBonus == 0 || (Model.WearMin == 0 && Model.WearMax == 0))
+        if (model.LifeBonus == 0 || (model.WearMin == 0 && model.WearMax == 0))
             return 0;
 
-        var wearAvg = (double)(Model.WearMax + Model.WearMin) / 2;
-        var averageLen = (Model.LifeBonus / wearAvg) * 10;
+        var wearAvg = (double)(model.WearMax + model.WearMin) / 2;
+        var averageLen = (model.LifeBonus / wearAvg) * 10;
 
         return averageLen.RoundDouble();
     }
 
     private void Submit()
     {
-        if (Model.IsDirty)
+        if (model.IsDirty)
         {
-            var modTyre = Model.Record;
+            var modTyre = model.Record;
             TyreDialog?.Close(DialogResult.Ok(modTyre));
         }
     }

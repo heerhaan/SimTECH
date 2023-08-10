@@ -12,7 +12,7 @@
     <MudPaper MaxHeight="150px" Class="text-center">
         <MudText Typo="Typo.h3" Class="mx-auto">Manage contracts</MudText>
 
-        @if (Leagues is not null)
+        @if (Leagues != null)
         {
             <ManagerSettings Leagues="Leagues" OnLoadSetting="HandleSettingLoad" />
         }
@@ -21,14 +21,14 @@
     @if (showDropper)
     {
         <MudPaper Elevation="10">
-            <ManagerDropper Teams="Teams" EditableContracts="EditableContracts" OnDriversDropped="HandleDriversDropped" />
+            <ManagerDropper Teams="Teams" EditableContracts="@EditableContracts" OnDriversDropped="HandleDriversDropped" />
         </MudPaper>
     }
 
     @if (showDurationAssigner)
     {
         <MudPaper Elevation="25">
-            <ManagerDuration EditableContracts="EditableContracts" OnSave="SaveContracts" />
+            <ManagerDuration EditableContracts="@EditableContracts" OnSave="SaveContracts" />
         </MudPaper>
     }
 </MudContainer>

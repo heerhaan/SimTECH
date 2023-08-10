@@ -18,6 +18,13 @@ namespace SimTECH.Extensions
             _ => new State[] { State.Concept, State.Active, State.Advanced, State.Closed }
         };
 
+        public static int SessionCount(this QualyFormat format) => format switch
+        {
+            QualyFormat.OneSession => 1,
+            QualyFormat.TripleEliminate => 3,
+            _ => 0
+        };
+
         public static string ReadableStatus(this RaceStatus status) => status switch
         {
             RaceStatus.Dnf => "DNF",
@@ -96,7 +103,9 @@ namespace SimTECH.Extensions
             RecordStat.Start,
             RecordStat.Win,
             RecordStat.Pole,
-            RecordStat.DNF
+            RecordStat.Retired,
+            RecordStat.Overtakes,
+            RecordStat.Defended,
         };
 
         public static string RacerEventIcon(this RacerEvent racerEvent) => racerEvent switch

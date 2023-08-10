@@ -169,6 +169,14 @@ namespace SimTECH.Data.Services
         #endregion
 
         #region methods exclusively for season drivers
+        public async Task<List<SeasonDriver>> GetAllSeasonDrivers()
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.SeasonDriver
+                .ToListAsync();
+        }
+
         public async Task<List<SeasonDriver>> GetSeasonDrivers(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -177,17 +185,6 @@ namespace SimTECH.Data.Services
                 .Include(e => e.Driver)
                     .ThenInclude(e => e.DriverTraits)
                 .Where(e => e.SeasonId == seasonId)
-                .ToListAsync();
-        }
-
-        public async Task<List<SeasonDriver>> GetSeasonDriversWithResults(long seasonId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.SeasonDriver
-                .Where(e => e.SeasonId == seasonId)
-                .Include(e => e.Driver)
-                .Include(e => e.Results)
                 .ToListAsync();
         }
 
@@ -234,35 +231,6 @@ namespace SimTECH.Data.Services
             context.UpdateRange(drivers);
 
             await context.SaveChangesAsync();
-        }
-
-        public async Task<Dictionary<long, int>> RecordDrivers(RecordStat record, int take, long? leagueId = null)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            IQueryable<Result> allResults = context.Result;
-
-            if (leagueId.HasValue)
-                allResults = allResults.Where(e => e.Race.Season.LeagueId == leagueId.Value);
-
-            allResults = record switch
-            {
-                RecordStat.Entry => allResults,
-                RecordStat.Start => allResults.Where(e => e.Status != RaceStatus.Dnq),
-                RecordStat.Win => allResults.Where(e => e.Position == 1),
-                RecordStat.Pole => allResults.Where(e => e.Grid == 1),
-                RecordStat.DNF => allResults.Where(e => e.Status == RaceStatus.Dnf),
-                _ => throw new InvalidOperationException("Ayo, I do not recognize this enum"),
-            };
-
-            var data = await allResults
-                .GroupBy(e => e.SeasonDriver.DriverId)
-                .Select(e => new { driverId = e.Key, amount = e.Count() })
-                .OrderByDescending(e => e.amount)
-                .Take(take)
-                .ToDictionaryAsync(e => e.driverId, e => e.amount);
-
-            return data;
         }
         #endregion
 

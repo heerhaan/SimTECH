@@ -2,12 +2,12 @@
 {
     public abstract class SessionBase
     {
-        public int[] SessionScores { get; set; }
-        public int Position { get; set; }
+        public int SessionIndex { get; set; }
+        public bool IsFinished { get; set; }
     }
 
     public static class ExtendSession
     {
-        public static int MaxScore(this SessionBase session) => session.SessionScores.Max();
+        //public static int MaxScore(this SessionBase session) => session.SessionScores.Max();
     }
 }

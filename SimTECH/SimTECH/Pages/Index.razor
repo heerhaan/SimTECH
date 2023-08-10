@@ -90,7 +90,7 @@
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Last races</MudText>
                         <MudSpacer />
-                        <ScreenshotButton TargetId="recent-race-table" />
+                        <ScreenshotButton TargetId="recent-race-table" Class="btn-md" />
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>
@@ -205,6 +205,6 @@
     private string DisplayLeagueName(long leagueId) => activeLeagues.Find(e => e.Id == leagueId)?.Name ?? "[Unknown]";
 
     private void GoToSeason(long seasonId) => _nav.NavigateTo($"/overview/{seasonId}");
-    private void GoToPostRace(long raceId) => _nav.NavigateTo($"/postrace/{raceId}");
+    private void GoToPostRace(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");
     private void GoToRaceWeek(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");
 }

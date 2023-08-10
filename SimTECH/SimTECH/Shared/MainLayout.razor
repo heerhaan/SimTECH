@@ -48,7 +48,7 @@
     Dictionary<string, MudTheme> simThemes = Constants.SimThemes;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
+    {   
         if (firstRender)
         {
             var storedTheme = await _storage.GetAsync<string>("activeTheme");
@@ -60,9 +60,9 @@
         }
     }
 
-    void ToggleSidebar() => drawerOpen = !drawerOpen;
+    private void ToggleSidebar() => drawerOpen = !drawerOpen;
 
-    async Task SetTheme(string themeName)
+    private async Task SetTheme(string themeName)
     {
         Theme = simThemes[themeName];
         await _storage.SetAsync("activeTheme", themeName);

@@ -29,7 +29,7 @@ namespace SimTECH.Data.Models
             return averageLength.RoundDouble();
         }
 
-        public static List<Tyre> FindValidTyres(this List<Tyre> tyres, int distanceLeft, bool isWet)
+        public static IEnumerable<Tyre> FindValidTyres(this IEnumerable<Tyre> tyres, int distanceLeft, bool isWet)
         {
             if (!tyres.Any())
                 return tyres;

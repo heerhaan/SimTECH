@@ -38,7 +38,7 @@
                 else
                 {
                     <MudText Typo="Typo.body2">
-                        Ya dimwit, of course there is no next race since this season isn't even active.
+                        Dimwit, of course there is no next race since this season isn't even active.
                         <br />
                         Doubt anything is going to happen here so fuck off or start this bich, willy schlobberer.
                     </MudText>
@@ -67,7 +67,7 @@
                 }
                 else if (Season.State == State.Active)
                 {
-                    <MudButtonGroup Variant="Variant.Text" Color="Color.Primary" VerticalAlign="true">
+                    <MudButtonGroup Variant="Variant.Text" Color="Color.Primary">
                         <MudButton FullWidth="true" OnClick="GoToDeveloper">Development</MudButton>
                         <MudButton FullWidth="true" OnClick="TriggerFinish">Finish season</MudButton>
                     </MudButtonGroup>
@@ -88,6 +88,7 @@
                 <MudSpacer />
 
                 <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small">
+                    <MudButton FullWidth="true" OnClick="ShowComponentUsage">Components</MudButton>
                     <MudButton FullWidth="true" OnClick="ShowQualyBattles">Q.Battles</MudButton>
                 </MudButtonGroup>
             </MudStack>
@@ -97,15 +98,8 @@
     <MudItem xs="6">
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
-                <MudText Typo="Typo.h5">Components</MudText>
+                <MudText Typo="Typo.h5">???</MudText>
                 <MudDivider />
-                <MudText Typo="Typo.body2">
-                    Redirect to page with overview of the used components and any upcoming penalty's for this season
-                </MudText>
-
-                <MudSpacer />
-
-                <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToComponentUsage">Components</MudButton>
             </MudStack>
         </MudPaper>
     </MudItem>
@@ -117,6 +111,7 @@
     [Parameter] public Race? NextRace { get; set; }
     [Parameter] public EventCallback OnStartSeason { get; set; }
     [Parameter] public EventCallback OnFinishSeason { get; set; }
+    [Parameter] public EventCallback OnShowComponentUsage { get; set; }
     [Parameter] public EventCallback OnShowQualyBattles { get; set; }
     [Parameter] public EventCallback OnNextRace { get; set; }
     [Parameter] public EventCallback<string> OnNavigate { get; set; }
@@ -124,11 +119,11 @@
     async Task TriggerStart() => await OnStartSeason.InvokeAsync();
     async Task TriggerFinish() => await OnFinishSeason.InvokeAsync();
 
+    async Task ShowComponentUsage() => await OnShowComponentUsage.InvokeAsync();
     async Task ShowQualyBattles() => await OnShowQualyBattles.InvokeAsync();
 
     async Task GoToNextRace() => await OnNextRace.InvokeAsync();
 
     async Task GoToAddEntrants() => await OnNavigate.InvokeAsync($"/entrantwizard/{Season.Id}");
-    async Task GoToComponentUsage() => await OnNavigate.InvokeAsync($"/components/{Season.Id}");
     async Task GoToDeveloper() => await OnNavigate.InvokeAsync($"/developer/{Season.Id}");
 }

@@ -1,0 +1,34 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">Detailed statistics for a driver</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper MinWidth="600px" MinHeight="400px">
+            @if (!loading)
+            {
+                <MudStack Row="true" Justify="Justify.SpaceBetween" Class="mud-width-full">
+                    <MudPaper>
+                        <MudText>Hababab</MudText>
+                    </MudPaper>
+                    <MudPaper>
+                        <MudText Color="Color.Secondary">This area can optionally be used to further specify the detail data</MudText>
+                    </MudPaper>
+                </MudStack>
+
+                <MudText>Chosen is @(Driver.FullName)</MudText>
+            }
+        </MudPaper>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
+    [Parameter] public Driver Driver { get; set; }
+
+    bool loading = true;
+
+    protected override void OnInitialized()
+    {
+        loading = false;
+    }
+}

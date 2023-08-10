@@ -12,8 +12,12 @@
         public int GridBonus { get; set; }
         public int PitMinimum { get; set; }
         public int PitMaximum { get; set; }
+        public int PitCostSubtractCaution { get; set; }
         public int RngMinimum { get; set; }
         public int RngMaximum { get; set; }
+        public int MistakeRolls { get; set; }
+        public int MistakeMinimum { get; set; }
+        public int MistakeMaximum { get; set; }
 
         public int PointsPole { get; set; }
         public int PointsFastestLap { get; set; }

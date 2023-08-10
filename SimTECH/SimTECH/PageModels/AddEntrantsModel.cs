@@ -34,7 +34,7 @@ namespace SimTECH.PageModels
                 }
             }
 
-            return model.SeasonEngines.Select(e => e.Record).ToList();
+            return model.SeasonEngines.ConvertAll(e => e.Record);
         }
 
         public static void RemoveUnsetEngines(this AddEntrantsModel model)

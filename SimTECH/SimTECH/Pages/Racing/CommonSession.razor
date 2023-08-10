@@ -1,0 +1,120 @@
+﻿<MudTable Items="@Drivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense collapse" RowStyleFunc="@_sessionRowStyles" id="session-table">
+    <HeaderContent>
+        <MudTh></MudTh>
+        <MudTh Class="accent-cell"></MudTh>
+        <MudTh>Driver</MudTh>
+        <MudTh Class="number-col">NO</MudTh>
+        <MudTh>Team</MudTh>
+        <MudTh Class="number-col-xl">PWR</MudTh>
+        @for (int i = 1; i <= amountRuns; i++)
+        {
+            var j = i;
+            <MudTh Class="number-col-lg">@j</MudTh>
+        }
+        <MudTh Class="number-col-xl">Score</MudTh>
+        <MudTh>Gap</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd Class="number-col">
+            <DriverPosition Number="@context.Position" />
+        </MudTd>
+        <MudTd Class="accent-cell">
+            <SmolAccent Colour="@context.Colour" />
+        </MudTd>
+        <MudTd Class="overflow-hider">
+            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.body1">@context.FirstName</MudText>
+                <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
+                <MudSpacer />
+                <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
+            </MudStack>
+        </MudTd>
+        <MudTd Class="number-col">
+            <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
+        </MudTd>
+        <MudTd Class="overflow-hider">
+            <MudText>@context.TeamName</MudText>
+        </MudTd>
+        <MudTd Class="number-col-xl">
+            <MudText Typo="Typo.caption">@context.Power</MudText>
+        </MudTd>
+        @for (int i = 0; i < context.Scores.Length; i++)
+        {
+            var j = i;
+            <MudTd Class="number-col-xl">
+                <GradientColour Min="@worstScore" Max="@bestScore" Value="@(context.Scores[j])">
+                    <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.Scores[j])</MudText>
+                </GradientColour>
+            </MudTd>
+        }
+        <MudTd Class="number-col-xl">
+            <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScore()</MudText>
+        </MudTd>
+        <MudTd>
+            <MudText Typo="Typo.button">@context.GapAbove</MudText>
+        </MudTd>
+        <MudTd>
+            @if (TryLocateCutoff(context.Position, out var tuple))
+            {
+                <MudPopover OverflowBehavior="OverflowBehavior.FlipNever"
+                            Open="true"
+                            AnchorOrigin="Origin.BottomRight"
+                            TransformOrigin="Origin.TopRight"
+                            Class="px-1"
+                            Style="@tuple.Item2">
+                    <MudText Typo="Typo.subtitle2">@tuple.Item1</MudText>
+                </MudPopover>
+            }
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [Parameter] public IEnumerable<SessionDriver> Drivers { get; set; } = Enumerable.Empty<SessionDriver>();
+    [Parameter] public int AmountRuns { get; set; }
+    [Parameter] public int EntryCutoff { get; set; }
+    [Parameter] public int ProgressCutoff { get; set; }
+
+    int amountRuns;
+    int worstScore;
+    int bestScore;
+
+    protected override void OnParametersSet()
+    {
+        var scoreNumbers = Drivers.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
+        if (scoreNumbers.Any())
+        {
+            worstScore = scoreNumbers.Min();
+            bestScore = scoreNumbers.Max();
+        }
+
+        amountRuns = AmountRuns == 0 ? 2 : AmountRuns;
+    }
+
+    //public static Func<SeasonTeam, string> TeamFullStyleFunc => team => SetFullColourstyle(team.Colour, team.Accent);
+    private Func<SessionDriver, int, string> _sessionRowStyles => (driver, index) =>
+    {
+        if (driver.Position == ProgressCutoff)
+            return "border-bottom: 2px solid red";
+
+        if (driver.Position == EntryCutoff)
+            return "border-bottom: 2px solid mediumpurple";
+
+        return string.Empty;
+    };
+
+    private bool TryLocateCutoff(int position, out Tuple<string, string> cutoff)
+    {
+        cutoff = default;
+
+        if (position == 0)
+            return false;
+        if (position == ProgressCutoff)
+            cutoff = Tuple.Create("OUT", "background-color: red");
+        else if (position == EntryCutoff)
+            cutoff = Tuple.Create("DNQ", "background-color: mediumpurple");
+
+        return cutoff != default;
+    }
+}

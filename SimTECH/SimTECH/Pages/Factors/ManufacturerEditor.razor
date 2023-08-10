@@ -1,29 +1,27 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText>Modify tyre supplier</MudText>
-        <MudText>
+        <MudText Typo="Typo.h5" Color="Color.Secondary">Tyre supplier editor</MudText>
+        <MudText Typo="Typo.body2">
             Hint 1: Wear is subtracted from the remaining life of the tyre, thus a positive number correlates to more wear.<br/>
             Hint 2: Life Bonus is added to the total pace of the currently fitted tyre.
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model">
-            <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
-            <MudColorPicker @bind-Text="Model.Colour" Label="Colour" Placeholder="Select colour" DisableAlpha="true" Class="field-sm" />
-            <MudColorPicker @bind-Text="Model.Accent" Label="Accent" Placeholder="Select accent" DisableAlpha="true" Class="field-sm" />
-            <MudNumericField T="int" @bind-Value="Model.Pace" Label="Life Bonus" Class="field-sm" />
-            
-            <MudStack Row="true" Spacing="4">
-                <MudNumericField T="int" @bind-Value="Model.WearMin" Label="Minimum wear" Class="field-sm" />
-                <MudNumericField T="int" @bind-Value="Model.WearMax" Label="Maximum wear" Class="field-sm" />
-            </MudStack>
-        </MudForm>
-        <MudPaper Height="100px" Class="d-flex flex-column">
-            <MudText Typo="Typo.h6" Class="flex-initial">Preview</MudText>
-            <div class="flex-auto d-flex justify-center align-center" style="background-color:@(Model.Colour); color:@(Model.Accent)">
-                <MudText Class="ma-auto">@Model.Name</MudText>
-            </div>
-        </MudPaper>
+        <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
+
+        <MudStack Row="true" Spacing="4">
+            <MudColorPicker @bind-Text="model.Colour" Label="Colour" Placeholder="Select colour" />
+            <MudColorPicker @bind-Text="model.Accent" Label="Accent" Placeholder="Select accent" />
+        </MudStack>
+
+        <MudNumericField T="int" @bind-Value="model.Pace" Label="Life Bonus" Class="field-sm" />
+
+        <MudStack Row="true" Spacing="4">
+            <MudNumericField T="int" @bind-Value="model.WearMin" Label="Minimum wear" />
+            <MudNumericField T="int" @bind-Value="model.WearMax" Label="Maximum wear" />
+        </MudStack>
+
+        <PreviewColourMix Colour="@model.Colour" Accent="@model.Accent" Text="@model.Name" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -35,18 +33,18 @@
     [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
     [Parameter] public Manufacturer? Manufacturer { get; set; }
 
-    private EditManufacturerModel Model;
+    EditManufacturerModel model;
 
     protected override void OnInitialized()
     {
-        Model = new EditManufacturerModel(Manufacturer);
+        model = new EditManufacturerModel(Manufacturer);
     }
 
     private void Submit()
     {
-        if (Model.IsDirty)
+        if (model.IsDirty)
         {
-            EditDialog?.Close(DialogResult.Ok(Model.Record));
+            EditDialog?.Close(DialogResult.Ok(model.Record));
         }
     }
 

@@ -1,9 +1,9 @@
 ﻿@page "/drivers"
 @inject BreadcrumbProvider _bread
-@inject DriverService DriverService
-@inject TraitService TraitService
+@inject DriverService _driverService
+@inject TraitService _traitService
 @inject NavigationManager _nav
-@inject IDialogService DialogService
+@inject IDialogService _dialogService
 
 <PageTitle>Drivers</PageTitle>
 
@@ -11,19 +11,22 @@
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Drivers</MudText>
-            <MudSpacer />
-            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                <MudButton OnClick="ToggleDisplayArchived">
-                    @(showingArchived ? "Active" : "Archive")
-                </MudButton>
-                <MudButton OnClick="GoToHumanGenerator">Generate</MudButton>
-                <MudButton OnClick="AddDriver">New</MudButton>
-            </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Driver" Items="@DriverData" RowsPerPage="15" Dense="true">
+    <MudDataGrid T="Driver" Items="@drivers" RowsPerPage="15" Dense="true" QuickFilter="@_driverFilter">
+        <ToolBarContent>
+            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 field-md" />
+            <MudSpacer />
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                <MudButton OnClick="ToggleDisplayArchived" Class="btn-md">
+                    @(showingArchived ? "Active" : "Archive")
+                </MudButton>
+                <MudButton OnClick="GoToHumanGenerator" Class="btn-md">Generate</MudButton>
+                <MudButton OnClick="AddDriver" Class="btn-md">New</MudButton>
+            </MudButtonGroup>
+        </ToolBarContent>
         <Columns>
-            <HierarchyColumn T="Driver" />
             <PropertyColumn Property="e => e!.FullName" Title="Name" />
             <PropertyColumn Property="e => e!.Abbreviation" Title="Tag" />
             <PropertyColumn Property="e => e!.DateOfBirth" Title="Born in" Format="yyyy" />
@@ -40,22 +43,13 @@
             <TemplateColumn T="Driver" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="@Size.Small" Class="ml-auto">
+                        <MudIconButton Icon="@Icons.Material.Outlined.QueryStats" OnClick="@(async () => await ShowDetailData(context.Item))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await ArchiveDriver(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
-        <ChildRowContent>
-            <MudText Typo="Typo.h6">@context.Item.FullName</MudText>
-            <MudStack Row="true">
-                <MudPaper>
-                    <MudStack AlignItems="AlignItems.Center">
-                        <MudText>State is currently @(context.Item.State)</MudText>
-                    </MudStack>
-                </MudPaper>
-            </MudStack>
-        </ChildRowContent>
         <PagerContent>
             <MudDataGridPager T="Driver" />
         </PagerContent>
@@ -63,10 +57,11 @@
 </MudContainer>
 
 @code {
-    private List<Driver> DriverData;
-    private List<CurrentDriver> CurrentDrivers;
+    private List<Driver> drivers;
+    private List<CurrentDriver> currentDrivers;
 
     private bool showingArchived = false;
+    private string _searchString;
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,50 +71,73 @@
             new BreadcrumbItem("Drivers", href: "drivers", disabled: true),
         });
 
-        CurrentDrivers = await DriverService.GetCurrentDrivers();
-        DriverData = await DriverService.GetDrivers();
+        currentDrivers = await _driverService.GetCurrentDrivers();
+        drivers = await _driverService.GetDrivers();
     }
 
-    // Displayable helpers
-    string ReadActiveLeague(long driverId) => CurrentDrivers.Find(e => e.DriverId == driverId)?.League ?? "None";
-
-    // CRUD-actions
-    async Task AddDriver() => await UpdateDriver(null);
-    async Task UpdateDriver(Driver? item)
+    private Func<Driver, bool> _driverFilter => x =>
     {
-        var driverTraits = await TraitService.GetTraitsOfType(Entrant.Driver);
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.FirstName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.LastName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    };
+
+    // Displayable helpers
+    private string ReadActiveLeague(long driverId) =>
+        currentDrivers.Find(e => e.DriverId == driverId)?.League ?? "None";
+
+    private async Task ShowDetailData(Driver driver)
+    {
+        var parameters = new DialogParameters
+        {
+            ["Driver"] = driver,
+        };
+        _ = await _dialogService.ShowAsync<DriverDetailStat>("Driver details", parameters);
+    }
+
+    private async Task AddDriver() => await UpdateDriver(null);
+    private async Task UpdateDriver(Driver? item)
+    {
+        var driverTraits = await _traitService.GetTraitsOfType(Entrant.Driver);
 
         var parameters = new DialogParameters
         {
             ["Driver"] = item,
             ["Traits"] = driverTraits
         };
-        var dialog = await DialogService.ShowAsync<DriverEditor>("Modify driver", parameters);
+        var dialog = await _dialogService.ShowAsync<DriverEditor>("Modify driver", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Driver updatedItem)
         {
-            await DriverService.UpdateDriver(updatedItem);
-            DriverData = await DriverService.GetDrivers();
+            await _driverService.UpdateDriver(updatedItem);
+            drivers = await _driverService.GetDrivers();
         }
     }
 
-    async Task ArchiveDriver(Driver driver)
+    private async Task ArchiveDriver(Driver driver)
     {
-        await DriverService.ArchiveDriver(driver);
-        DriverData.Remove(driver);
+        await _driverService.ArchiveDriver(driver);
+        drivers.Remove(driver);
     }
 
-    async Task ToggleDisplayArchived()
+    private async Task ToggleDisplayArchived()
     {
         if (showingArchived)
-            DriverData = await DriverService.GetDrivers(StateFilter.Default);
+            drivers = await _driverService.GetDrivers(StateFilter.Default);
         else
-            DriverData = await DriverService.GetDrivers(StateFilter.Archived);
+            drivers = await _driverService.GetDrivers(StateFilter.Archived);
 
+        _searchString = string.Empty;
         showingArchived = !showingArchived;
     }
 
-    // Navigation links
-    void GoToHumanGenerator() => _nav.NavigateTo("humanbeinggenerator");
+    private void GoToHumanGenerator() => _nav.NavigateTo("humanbeinggenerator");
 }

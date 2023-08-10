@@ -34,7 +34,7 @@ namespace SimTECH.Data
         private void SeedTraits()
         {
             builder.Entity<Trait>().HasData(
-                new Trait { Id = 1, Name = "Rainmeister", Description = "Speed in moist", Type = Entrant.Driver, ForWetConditions = true, QualifyingPace = 3, RacePace = 5, DriverReliability = 3, },
+                new Trait { Id = 1, Name = "Rainmeister", Description = "Faster when it's wet", Type = Entrant.Driver, ForWetConditions = true, QualifyingPace = 3, RacePace = 5, DriverReliability = 3, },
                 new Trait { Id = 2, Name = "Manufacturer", Description = "Owns the engine", Type = Entrant.Team, QualifyingPace = 1, RacePace = 1, EngineReliability = 2, },
                 new Trait { Id = 3, Name = "Street Circuit", Description = "Street is a circuit", Type = Entrant.Track, DriverReliability = -2, CarReliability = -1, WearMax = 2, RngMin = -5, Defense = 10 }
             );
@@ -43,18 +43,18 @@ namespace SimTECH.Data
         private void SeedTyres()
         {
             builder.Entity<Tyre>().HasData(
-                    new Tyre { Id = 1, Name = "Soft", Colour = "#fa0536  ", Pace = 200, WearMin = 15, WearMax = 25, DistanceMin = 50, DistanceMax = 125, State = State.Active, },
-                    new Tyre { Id = 2, Name = "Medium", Colour = "#f4ea26  ", Pace = 180, WearMin = 9, WearMax = 15, DistanceMin = 125, DistanceMax = 999, State = State.Active, },
-                    new Tyre { Id = 3, Name = "Hard", Colour = "#dfdde9  ", Pace = 160, WearMin = 6, WearMax = 10, DistanceMin = 175, DistanceMax = 999, State = State.Active, },
-                    new Tyre { Id = 4, Name = "Grooved", Colour = "#bded80  ", Pace = 100, WearMin = 1, WearMax = 3, DistanceMin = 100, DistanceMax = 999, State = State.Closed, },
-                    new Tyre { Id = 5, Name = "Wet", Colour = "#3399ff  ", Pace = 50, WearMin = 0, WearMax = 1, DistanceMin = 50, DistanceMax = 999, ForWet = true, State = State.Active, }
+                    new Tyre { Id = 1, Name = "Soft", Colour = "#fa0536ff", Pace = 200, PitWhenBelow = 20, WearMin = 15, WearMax = 25, DistanceMin = 50, DistanceMax = 125, State = State.Active, },
+                    new Tyre { Id = 2, Name = "Medium", Colour = "#f4ea26ff", Pace = 180, PitWhenBelow = 15, WearMin = 9, WearMax = 15, DistanceMin = 125, DistanceMax = 999, State = State.Active, },
+                    new Tyre { Id = 3, Name = "Hard", Colour = "#dfdde9ff", Pace = 160, PitWhenBelow = 10, WearMin = 6, WearMax = 10, DistanceMin = 175, DistanceMax = 999, State = State.Active, },
+                    new Tyre { Id = 4, Name = "Grooved", Colour = "#bded80ff", Pace = 100, WearMin = 1, WearMax = 3, DistanceMin = 100, DistanceMax = 999, State = State.Closed, },
+                    new Tyre { Id = 5, Name = "Wet", Colour = "#3399ffff", Pace = 50, WearMin = 0, WearMax = 1, DistanceMin = 50, DistanceMax = 999, ForWet = true, State = State.Active, }
             );
         }
 
         private void SeedManufacturers()
         {
             builder.Entity<Manufacturer>().HasData(
-                new Manufacturer { Id = 1, Name = "Hankook", Colour = "#0b0b0d", Accent = "#e56103", Pace = 1, WearMin = 0, WearMax = 0, State = State.Active }
+                new Manufacturer { Id = 1, Name = "Hankook", Colour = "#0b0b0d", Accent = "#e56103", Pace = 0, WearMin = 0, WearMax = 0, State = State.Active }
             );
         }
 

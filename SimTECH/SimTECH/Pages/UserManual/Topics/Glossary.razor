@@ -1,5 +1,5 @@
 ﻿<MudPaper>
-    <MudTable T="GlossaryItem" Items="@glossaryTerms">
+    <MudTable T="GlossaryItem" Items="@glossaryTerms.OrderBy(e => e.Term)" Dense="true">
         <HeaderContent>
             <MudTh>Term</MudTh>
             <MudTh>Explain</MudTh>
@@ -22,11 +22,13 @@
 @code {
     private static readonly GlossaryItem[] glossaryTerms = new GlossaryItem[]
         {
-            new GlossaryItem(
-                "Advance",
+            new GlossaryItem("Advance",
                 @"A single round of calculation for every driver during a race. Equivalent for a certain distance 
-                    traveled during a race (default is 10km).",
+                traveled during a race (default is 10km).",
                 "Calculation"),
+            new GlossaryItem("Session",
+                @"The sessions during a race week which occur before the race. 
+                Usually refers to practice and qualifying."),
         };
 
     internal class GlossaryItem

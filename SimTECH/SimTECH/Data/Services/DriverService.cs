@@ -27,17 +27,17 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
         // First test whether this impacts the performance significantly before (possibly) replacing the above
-        public async Task<List<Driver>> GetDrivers(Expression<Func<Driver, bool>>? selector = null, StateFilter filter = StateFilter.Default)
-        {
-            selector ??= _ => true;
+        //public async Task<List<Driver>> GetDrivers(Expression<Func<Driver, bool>>? selector = null, StateFilter filter = StateFilter.Default)
+        //{
+        //    selector ??= _ => true;
 
-            using var context = _dbFactory.CreateDbContext();
+        //    using var context = _dbFactory.CreateDbContext();
 
-            return await context.Driver
-                .Where(e => filter.StatesForFilter().Contains(e.State))
-                .Where(selector)
-                .ToListAsync();
-        }
+        //    return await context.Driver
+        //        .Where(e => filter.StatesForFilter().Contains(e.State))
+        //        .Where(selector)
+        //        .ToListAsync();
+        //}
 
         public async Task<List<Driver>> GetAvailableDrivers()
         {
@@ -72,17 +72,8 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Driver
-                .Where(e => filter.StatesForFilter().Contains(e.State) && e.SeasonDrivers.Any(e => e.Season.LeagueId == leagueId))
+                .Where(e => filter.StatesForFilter().Contains(e.State) && e.SeasonDrivers!.Any(e => e.Season.LeagueId == leagueId))
                 .ToListAsync();
-        }
-
-        public async Task<Driver> GetDriverById(long driverId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.Driver
-                .Include(e => e.DriverTraits)
-                .SingleAsync(e => e.Id == driverId);
         }
 
         public async Task UpdateDriver(Driver driver)
@@ -143,15 +134,6 @@ namespace SimTECH.Data.Services
             }
 
             await context.SaveChangesAsync();
-        }
-
-        public async Task<List<Result>> GetAllResults(long driverId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.Result
-                .Where(e => e.Race.State == State.Closed && e.SeasonDriver.Driver.Id == driverId)
-                .ToListAsync();
         }
     }
 }

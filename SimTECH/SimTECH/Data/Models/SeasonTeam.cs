@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using SimTECH.Extensions;
+
+namespace SimTECH.Data.Models
 {
     public sealed class SeasonTeam : ModelBase
     {
@@ -42,5 +44,14 @@
             Aspect.Powertrain => team.Powertrain,
             _ => throw new InvalidOperationException("Invalid aspect for this entrant")
         };
+
+        public static int ModifierApplication(this SeasonTeam team, Track? track)
+        {
+            var modifiers = (team.Aero * track?.AeroMod ?? 1)
+                + (team.Chassis * track?.ChassisMod ?? 1)
+                + (team.Powertrain * track?.PowerMod ?? 1);
+
+            return modifiers.RoundDouble();
+        }
     }
 }

@@ -3,44 +3,44 @@
         <MudText Typo="Typo.h5">Position change chart</MudText>
     </TitleContent>
     <DialogContent>
-        <MudContainer Class="pa-4" Style="min-width: 1000px; min-height: 600px">
+        <MudPaper MinWidth="1000px" MinHeight="800px" Class="pa-4">
             @if (!loading)
             {
                 <ApexCharts.ApexChart TItem="DataPoint" Title="Position progression" Options="@options" Height="500">
-                    @foreach (var driver in DataSets)
+                    @foreach (var driver in dataSets)
                     {
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                            Items="@driver.DataPoints"
-                                            Name="@driver.Label"
-                                            SeriesType="ApexCharts.SeriesType.Line"
-                                            XValue="@(e => e.XData)"
-                                            YValue="@(e => e.YData)"
-                                            OrderBy="(e => e.X)"
-                                            Stroke="@driver.Stroke" />
+                                                    Items="@driver.DataPoints"
+                                                    Name="@driver.Label"
+                                                    SeriesType="ApexCharts.SeriesType.Line"
+                                                    XValue="(e => e.XData)"
+                                                    YValue="(e => e.YData)"
+                                                    OrderBy="(e => e.X)"
+                                                    Stroke="@driver.Stroke" />
                     }
 
                     @*<ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                Items="@DnfSet.DataPoints"
-                                                Name="@DnfSet.Label"
-                                                SeriesType="ApexCharts.SeriesType.Area"
-                                                XValue="@(e => e.XData)"
-                                                YValue="@(e => e.YData)"
-                                                OrderBy="(e => e.X)"
-                                                Stroke="@DnfSet.Stroke" />*@
+                        Items="@DnfSet.DataPoints"
+                        Name="@DnfSet.Label"
+                        SeriesType="ApexCharts.SeriesType.Area"
+                        XValue="(e => e.XData)"
+                        YValue="(e => e.YData)"
+                        OrderBy="(e => e.X)"
+                        Stroke="@DnfSet.Stroke" />*@
                 </ApexCharts.ApexChart>
 
                 @*<ApexCharts.ApexChart TItem="DataPoint" Title="Other" Options="@moreOptions" Height="300">
                     <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                Items="@DnfSet.DataPoints"
-                                                Name="@DnfSet.Label"
-                                                SeriesType="ApexCharts.SeriesType.Area"
-                                                XValue="@(e => e.XData)"
-                                                YValue="@(e => e.YData)"
-                                                OrderBy="(e => e.X)"
-                                                Stroke="@DnfSet.Stroke" />
-                </ApexCharts.ApexChart>*@
+                        Items="@DnfSet.DataPoints"
+                        Name="@DnfSet.Label"
+                        SeriesType="ApexCharts.SeriesType.Area"
+                        XValue="(e => e.XData)"
+                        YValue="(e => e.YData)"
+                        OrderBy="(e => e.X)"
+                        Stroke="@DnfSet.Stroke" />
+                    </ApexCharts.ApexChart>*@
             }
-        </MudContainer>
+        </MudPaper>
     </DialogContent>
 </MudDialog>
 
@@ -51,8 +51,8 @@
     ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
     ApexCharts.ApexChartOptions<DataPoint> moreOptions = Constants.ChartOptionsDefault;
 
-    List<DataSet> DataSets = new();
-    DataSet DnfSet = new()
+    List<DataSet> dataSets = new();
+    DataSet retiredSet = new()
         {
             Label = "DidNotFinish",
             Stroke = new ApexCharts.SeriesStroke
@@ -67,7 +67,13 @@
 
     protected override void OnInitialized()
     {
-        SetOptions();
+        options.Yaxis = new()
+            {
+                new ApexCharts.YAxis
+                {
+                    Reversed = true,
+                },
+            };
 
         driverCount = Drivers.Count;
 
@@ -89,7 +95,7 @@
             dataSet.Stroke = new ApexCharts.SeriesStroke { Color = driver.Colour, DashSpace = (2 * sameSeenTeams), Width = 5 };
 
             seenTeamIdentifiers.Add(driver.SeasonTeamId);
-            DataSets.Add(dataSet);
+            dataSets.Add(dataSet);
         }
 
         loading = false;
@@ -98,17 +104,6 @@
     public void TestActionMutate(ApexCharts.DataPoint<DataPoint> dataPoint)
     {
         var originalValue = dataPoint.Y;
-    }
-
-    private void SetOptions()
-    {
-        options.Yaxis = new()
-            {
-                new ApexCharts.YAxis
-                {
-                    Reversed = true,
-                },
-            };
     }
 
     private List<DriverLapPosition> DetermineLapPositions()
@@ -131,7 +126,7 @@
             }
         }
 
-        int dnfSum = 0;
+        int retirementsSum = 0;
         foreach (var lapData in positionData.GroupBy(e => e.Order))
         {
             int indexer = 0;
@@ -140,8 +135,8 @@
                 driverLap.Position = ++indexer;
             }
 
-            dnfSum += lapData.Count(e => e.DidNotFinish);
-            DnfSet.DataPoints.Add(new DataPoint(lapData.Key, dnfSum));
+            retirementsSum += lapData.Count(e => e.DidNotFinish);
+            retiredSet.DataPoints.Add(new DataPoint(lapData.Key, retirementsSum));
         }
 
         return positionData;

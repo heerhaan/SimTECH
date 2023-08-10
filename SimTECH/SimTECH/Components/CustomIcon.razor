@@ -1,10 +1,13 @@
-﻿<MudElement HtmlTag="span" Style="@_elementStyles">
+﻿<MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0" Reverse="@Reverse" Style="@_elementStyles">
     <MudIcon Icon="@Icon" Color="Color.Inherit" />
-</MudElement>
+    @ChildContent
+</MudStack>
 
 @code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter, EditorRequired] public string Icon { get; set; } = string.Empty;
-    [Parameter] public string? CustomColour { get; set; }
+    [Parameter] public string? Colour { get; set; }
+    [Parameter] public bool Reverse { get; set; }
 
     private string _elementStyles
     {
@@ -12,8 +15,8 @@
         {
             var styles = string.Empty;
 
-            if (!string.IsNullOrWhiteSpace(CustomColour))
-                styles += "color: " + CustomColour;
+            if (!string.IsNullOrWhiteSpace(Colour))
+                styles += "color: " + Colour;
 
             return styles;
         }

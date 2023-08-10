@@ -1,213 +1,174 @@
-﻿@page "/postrace/{RaceId:long}"
-@inject RaceService _raceService
-@inject SeasonService _seasonService
-@inject BreadcrumbProvider _bread
-@inject NavigationManager _nav
+﻿@if (!loading)
+{
+    <MudGrid Spacing="1" id="postrace-container">
+        <MudItem xs=12>
+            <MudPaper Elevation="15" Height="75px" Class="pa-4">
+                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                    <div style="width: 30%">
+                        <MudText Typo="Typo.body2" Color="Color.Warning">This page is quite unfinished</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Error">Wtf so much free space?</MudText>
+                    </div>
 
-<PageTitle>Post race</PageTitle>
+                    <MudText Typo="Typo.h3">Post race</MudText>
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    @if (!loading)
-    {
-        <MudPaper Elevation="50" id="postrace-container">
-            <MudGrid Spacing="1">
-                <MudItem xs=12>
-                    <MudPaper Elevation="15" Height="75px" Class="pa-4">
-                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                            <div style="width: 30%">
-                                <MudText Typo="Typo.body2" Color="Color.Warning">This page is quite unfinished</MudText>
-                                <MudText Typo="Typo.body2" Color="Color.Error">Wtf so much free space?</MudText>
-                            </div>
-
-                            <MudText Typo="Typo.h3">Post race</MudText>
-
-                            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Style="width: 30%">
-                                <MudButton FullWidth="true" OnClick="GoToOverview">Standings</MudButton>
-                                <ScreenshotButton TargetId="postrace-container" FullWidth="true" />
-                            </MudButtonGroup>
-                        </MudStack>
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="8">
-                    <MudPaper Class="mud-height-full pa-4">
-                        <MudText Typo="Typo.h5">Final standings</MudText>
-                        <MudTable T="Result" Items="@Results.OrderBy(e => e.Position)" Dense="true" Class="extra-dense">
-                            <HeaderContent>
-                                <MudTh Class="number-col-lg"></MudTh>
-                                <MudTh Class="number-col">Grid</MudTh>
-                                <MudTh Class="accent-cell"></MudTh>
-                                <MudTh Style="width: 220px">Name</MudTh>
-                                <MudTh Class="number-col">NO</MudTh>
-                                <MudTh Style="width: 220px">Team</MudTh>
-                                <MudTh Class="number-col">Points</MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd Class="number-col-lg">
-                                    @if (context.Status == RaceStatus.Racing)
-                                    {
-                                        <DriverPosition Number="@context.Position" />
-                                    }
-                                    else
-                                    {
-                                        <div class="result-cell" style="@(context.Status.StatusStyles())">
-                                            <MudText Typo="Typo.caption" Color="Color.Inherit">@context.Status.ReadableStatus()</MudText>
+                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Style="width: 30%">
+                        <MudButton FullWidth="true" OnClick="GoToOverview">Standings</MudButton>
+                        <ScreenshotButton TargetId="postrace-container" FullWidth="true" />
+                    </MudButtonGroup>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="8">
+            <MudPaper Class="mud-height-full pa-4">
+                <MudText Typo="Typo.h5">Final standings</MudText>
+                <MudTable T="RaweCeekDriver" Items="@RaweCeek.RaweCeekDrivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense">
+                    <HeaderContent>
+                        <MudTh Class="number-col-lg"></MudTh>
+                        <MudTh Class="number-col">Grid</MudTh>
+                        <MudTh Class="accent-cell"></MudTh>
+                        <MudTh Style="width: 220px">Name</MudTh>
+                        <MudTh Class="number-col">NO</MudTh>
+                        <MudTh Style="width: 220px">Team</MudTh>
+                        <MudTh Class="number-col">Points</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd Class="number-col-lg">
+                            @if (context.Status == RaceStatus.Racing)
+                            {
+                                <DriverPosition Number="@context.Position" />
+                            }
+                            else
+                            {
+                                <div class="result-cell" style="@(context.Status.StatusStyles())">
+                                    <MudText Typo="Typo.caption" Color="Color.Inherit">@context.Status.ReadableStatus()</MudText>
+                                </div>
+                            }
+                        </MudTd>
+                        <MudTd Class="number-col">
+                            <MudText Typo="Typo.caption">@context.Grid</MudText>
+                        </MudTd>
+                        <MudTd Class="accent-cell">
+                            <SmolAccent Colour="@context.Colour" />
+                        </MudTd>
+                        <MudTd Class="overflow-hider">
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText>@context.FullName</MudText>
+                                @if (context.Grid == 1)
+                                {
+                                    <sup style="font-size: 0.7rem">P</sup>
+                                }
+                                @if (context.FastestLap)
+                                {
+                                    <sup style="font-size: 0.7rem">F</sup>
+                                }
+                            </MudStack>
+                        </MudTd>
+                        <MudTd Class="number-col">
+                            <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
+                        </MudTd>
+                        <MudTd Class="overflow-hider">
+                            <MudText Typo="Typo.button">@context.TeamName</MudText>
+                        </MudTd>
+                        <MudTd Class="number-col">
+                            <MudText Typo="Typo.caption">@ReadScoredResult(context)</MudText>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="4">
+            <MudStack Class="mud-height-full">
+                <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.h5">Race incidents</MudText>
+                    <MudSimpleTable Dense="true" Class="extra-dense">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th class="number-col">NO</th>
+                                <th>Incident</th>
+                                <th class="number-col-lg">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var result in RaweCeek.RaweCeekDrivers.Where(e => e.Incident != null))
+                            {
+                                <tr>
+                                    <td>@result.FullName</td>
+                                    <td class="number-col">
+                                        <NumberDisplay Colour="@result.Colour" Accent="@result.Accent">
+                                            @result.Number
+                                        </NumberDisplay>
+                                    </td>
+                                    <td>@result.Incident?.Name</td>
+                                    <td class="number-col-lg">
+                                        <div class="result-cell" style="@(result.Status.StatusStyles())">
+                                            <MudText Typo="Typo.caption" Color="Color.Inherit">@result.Status.ReadableStatus()</MudText>
                                         </div>
-                                    }
-                                </MudTd>
-                                <MudTd Class="number-col">
-                                    <MudText Typo="Typo.caption">@context.Grid</MudText>
-                                </MudTd>
-                                <MudTd Class="accent-cell">
-                                    <SmolAccent Colour="@(context.SeasonTeam?.Colour ?? Constants.DefaultColour)" />
-                                </MudTd>
-                                <MudTd Class="overflow-hider">
-                                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                        <MudText>@context.SeasonDriver.Driver.FullName</MudText>
-                                        @if (context.Grid == 1)
-                                        {
-                                            <sup style="font-size: 0.7rem">P</sup>
-                                        }
-                                        @if (context.FastestLap)
-                                        {
-                                            <sup style="font-size: 0.7rem">F</sup>
-                                        }
-                                    </MudStack>
-                                </MudTd>
-                                <MudTd Class="number-col">
-                                    <NumberDisplay Colour="@(context.SeasonTeam?.Colour ?? Constants.DefaultColour)" Accent="@(context.SeasonTeam?.Accent ?? Constants.DefaultAccent)">@context.SeasonDriver.Number</NumberDisplay>
-                                </MudTd>
-                                <MudTd Class="overflow-hider">
-                                    <MudText Typo="Typo.button">@(context.SeasonTeam?.Name ?? "[Unknown]")</MudText>
-                                    </MudTd>
-                                    <MudTd Class="number-col">
-                                        <MudText Typo="Typo.caption">@(ReadScoredResult(context))</MudText>
-                                    </MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        </MudPaper>
-                    </MudItem>
-                    <MudItem xs="4">
-                        <MudStack Class="mud-height-full">
-                            <MudPaper Class="pa-4 mud-height-full">
-                                <MudText Typo="Typo.h5">Race incidents</MudText>
-                                <MudSimpleTable Dense="true" Class="extra-dense">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th class="number-col">NO</th>
-                                            <th>Incident</th>
-                                            <th class="number-col-lg">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var result in Results.Where(e => e.Incident != null))
-                                    {
-                                        <tr>
-                                            <td>@result.SeasonDriver.Driver.FullName</td>
-                                            <td class="number-col">
-                                                <NumberDisplay Colour="@(result.SeasonTeam?.Colour ?? Constants.DefaultColour)" Accent="@(result.SeasonTeam?.Accent ?? Constants.DefaultAccent)">
-                                                    @result.SeasonDriver.Number
-                                                </NumberDisplay>
-                                            </td>
-                                            <td>
-                                                @(result.Incident?.Name)
-                                            </td>
-                                            <td class="number-col-lg">
-                                                <div class="result-cell" style="@(result.Status.StatusStyles())">
-                                                    <MudText Typo="Typo.caption" Color="Color.Inherit">@result.Status.ReadableStatus()</MudText>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </MudSimpleTable>
-                        </MudPaper>
-                        <MudPaper Class="pa-4 mud-height-full">
-                            <MudText Typo="Typo.h5">Upcoming penalties</MudText>
-                            <MudTable T="DriverPenalty" Items="@DriverPenalties" Dense="true" Class="extra-dense">
-                                <HeaderContent>
-                                    <MudTh>Name</MudTh>
-                                    <MudTh>Reason</MudTh>
-                                    <MudTh>Grid loss</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd>
-                                        <MudText>@context.Name</MudText>
-                                    </MudTd>
-                                    <MudTd>
-                                        <MudText>@context.Reason</MudText>
-                                    </MudTd>
-                                    <MudTd>
-                                        <MudText Typo="Typo.caption">@context.Punishment</MudText>
-                                    </MudTd>
-                                </RowTemplate>
-                            </MudTable>
-                        </MudPaper>
-                    </MudStack>
-                </MudItem>
-            </MudGrid>
-        </MudPaper>
-    }
-</MudContainer>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                </MudPaper>
+                <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.h5">Upcoming penalties</MudText>
+
+                    <MudTable T="DriverPenalty" Items="@driverPenalties" Dense="true" Class="extra-dense">
+                        <HeaderContent>
+                            <MudTh>Name</MudTh>
+                            <MudTh>Reason</MudTh>
+                            <MudTh>Grid loss</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudText>@context.Name</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText>@context.Reason</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudText Typo="Typo.caption">@context.Punishment</MudText>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+}
 
 @code {
-    [Parameter] public long RaceId { get; set; }
+    [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
+    [Parameter] public IEnumerable<GivenPenalty> UpcomingPenalties { get; set; } = Enumerable.Empty<GivenPenalty>();
+    [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
-    SimTECH.Data.Models.Race Race;
-    Season Season;
-    List<Result> Results;
-    List<GivenPenalty> Penalties = new();
-
+    List<DriverPenalty> driverPenalties = new();
     Dictionary<int, int> allotments;
+    bool loading;
     int lowestScoring;
 
-    List<DriverPenalty> DriverPenalties = new();
-
-    bool loading;
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
         loading = true;
 
-        Race = await _raceService.GetRaceById(RaceId);
-        Results = await _raceService.GetResultsOfRace(RaceId);
-        Season = await _seasonService.GetSeasonById(Race.SeasonId);
-
-        var followingRace = await _raceService.GetRaceByRound(Race.SeasonId, (1 + Race.Round));
-        if (followingRace != null)
-        {
-            var allPenalties = await _raceService.GetPenalties();
-            Penalties = allPenalties.Where(e => !e.Consumed || e.ConsumedAtRaceId == followingRace.Id).ToList();
-        }
-
-        allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
+        allotments = RaweCeek.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
         if (allotments.Any())
             lowestScoring = allotments.Keys.Max();
 
         BuildDriverPenalties();
 
-        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
-        {
-            new BreadcrumbItem("Home", href: ""),
-            new BreadcrumbItem("Seasons", href: "seasons"),
-            new BreadcrumbItem("Overview", href: $"overview/{Season.Id}"),
-            new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}"),
-            new BreadcrumbItem("Race", href: $"race/{RaceId}"),
-            new BreadcrumbItem("Postrace", href: $"postrace/{RaceId}", disabled: true),
-        });
-
         loading = false;
     }
 
-    private int ReadScoredResult(Result result)
+    private int ReadScoredResult(RaweCeekDriver result)
     {
         var points = 0;
 
         if (result.Grid == 1)
-            points += Season.PointsPole;
+            points += RaweCeek.Season.PointsPole;
 
         if (result.FastestLap)
-            points += Season.PointsFastestLap;
+            points += RaweCeek.Season.PointsFastestLap;
 
         if (result.Status != RaceStatus.Racing)
             return points;
@@ -221,14 +182,14 @@
     // NOTE: Not a definitive solution probably as it could be done much better
     private void BuildDriverPenalties()
     {
-        foreach (var penalty in Penalties)
+        foreach (var penalty in UpcomingPenalties)
         {
-            var driverResult = Results.Find(e => e.SeasonDriverId == penalty.SeasonDriverId);
-            if (driverResult != null)
+            var driver = RaweCeek.RaweCeekDrivers.Find(e => e.SeasonDriverId == penalty.SeasonDriverId);
+            if (driver != null)
             {
-                DriverPenalties.Add(new DriverPenalty
+                driverPenalties.Add(new DriverPenalty
                     {
-                        Name = driverResult.SeasonDriver.Driver.FullName,
+                        Name = driver.FullName,
                         Reason = penalty.Incident.Name,
                         Punishment = penalty.Incident.Punishment,
                         //Styles = driverResult.Status.StatusStyles(),
@@ -237,7 +198,7 @@
         }
     }
 
-    private void GoToOverview() => _nav.NavigateTo($"/overview/{Race.SeasonId}");
+    private async Task GoToOverview() => await OnNavigate.InvokeAsync($"overview/{RaweCeek.Season.Id}/2");
 
     internal class DriverPenalty
     {

@@ -1,44 +1,87 @@
 ﻿@page "/stats"
+@inject DriverService _driverService
+@inject LeagueService _leagueService
+@inject ResultService _resultService
+@inject SeasonEntrantService _entrantservice
 @inject BreadcrumbProvider _bread
-@inject IDialogService DialogService
+@inject IDialogService _dialog
 
 <PageTitle>Statistics</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    <MudGrid>
-        <MudItem xs=12>
-            <MudPaper Elevation="15" MinHeight="60px" Class="pa-2">
-                <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Class="pa-0">
-                    <MudText Typo="Typo.h3">Statistics</MudText>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-        @foreach (var topic in Topics)
-        {
+    @if (!loading)
+    {
+        <MudGrid>
+            <MudItem xs=12>
+                <MudPaper Elevation="15" MinHeight="60px" Class="pa-2">
+                    <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Class="pa-0">
+                        <MudText Typo="Typo.h3">Statistics</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
             <MudItem xs="4">
                 <MudCard Class="mud-height-full">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h5">@topic.Title</MudText>
+                            <MudText Typo="Typo.h5">League filter</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                        <MudText Typo="Typo.body2">@topic.Description</MudText>
+                        <MudText Typo="Typo.body2">
+                            Filter the given data for the statistics shown here to a specific league,
+                            otherwise use data from all leagues.
+                        </MudText>
                     </MudCardContent>
                     <MudCardActions>
-                        <MudButton FullWidth="true" Variant="Variant.Outlined" Color="Color.Secondary" OnClick="@topic.GraphCall">Show</MudButton>
+                        <MudSelect T="long" @bind-Value="@leagueFilter" Variant="Variant.Outlined" Label="League" Placeholder="All leagues">
+                            @foreach (var league in leagues)
+                            {
+                                <MudSelectItem Value="@league.Id">
+                                    <MudText>@league.Name</MudText>
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
                     </MudCardActions>
                 </MudCard>
             </MudItem>
-        }
-    </MudGrid>
+            @foreach (var topic in topics)
+            {
+                <MudItem xs="4">
+                    <MudCard Class="mud-height-full">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h5">@topic.Title</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText Typo="Typo.body2">@topic.Description</MudText>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton FullWidth="true"
+                                       Variant="Variant.Outlined"
+                                       Color="Color.Secondary"
+                                       OnClick="@(async () => await ShowStatistic(topic))">
+                                Show
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
 </MudContainer>
 
 @code {
-    private List<StatTopic> Topics = new();
+    List<StatTopic> topics = new();
+    List<League> leagues;
 
-    protected override void OnInitialized()
+    bool loading = true;
+    long leagueFilter;
+
+    protected override async Task OnInitializedAsync()
     {
+        leagues = await _leagueService.GetLeagues();
+
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -47,33 +90,65 @@
         });
 
         LoadTopics();
+
+        loading = false;
     }
 
     private void LoadTopics()
     {
-        AddTopic("Driver details", "Get detailed statistics about the results of a driver", ShowDriverDetail);
-        AddTopic("Compare drivers", "Compare statistics between multiple drivers", ShowDriverCompare);
-        AddTopic("Records drivers", "Leaderboards of drivers with the most of something", ShowDriverRecords);
+        topics.Add(
+            new StatTopic(
+                "Compare drivers",
+                "Compare statistics between multiple drivers",
+                typeof(DriverCompareStat),
+                GetDriverParameters));
+        topics.Add(
+            new StatTopic(
+                "Records drivers",
+                "Leaderboards of drivers with the most of something",
+                typeof(DriverRecord),
+                GetDriverParameters));
     }
 
-    private void AddTopic(string title, string descript, Func<Task> call)
+    private async Task<DialogParameters> GetDriverParameters()
     {
-        Topics.Add(new StatTopic
+        // Im not necessarily a big fan of how this is done but it's honestly not an issue (for now) either
+        var drivers = await _driverService.GetDrivers(StateFilter.All);
+        var seasonDrivers = await _entrantservice.GetAllSeasonDrivers();
+
+        List<Result> results;
+        if (leagueFilter != 0)
+            results = await _resultService.GetResultsOfLeague(leagueFilter);
+        else
+            results = await _resultService.GetAllResults();
+
+        return new DialogParameters
         {
-            Title = title,
-            Description = descript,
-            GraphCall = call
-        });
+            ["Drivers"] = drivers,
+            ["SeasonDrivers"] = seasonDrivers,
+            ["Results"] = results
+        };
     }
 
-    async Task ShowDriverDetail() => _ = await DialogService.ShowAsync<DriverDetailStat>("Driver detail data");
-    async Task ShowDriverCompare() => _ = await DialogService.ShowAsync<DriverCompareStat>("Compare drivers");
-    async Task ShowDriverRecords() => _ = await DialogService.ShowAsync<DriverRecord>("Records drivers");
+    private async Task ShowStatistic(StatTopic topic)
+    {
+        var parameters = await topic.ParameterQuery.Invoke();
+        _ = await _dialog.ShowAsync(topic.StatisticType, topic.Title, parameters);
+    }
 
     internal class StatTopic
     {
+        public StatTopic(string title, string description, Type statType, Func<Task<DialogParameters>> query)
+        {
+            Title = title;
+            Description = description;
+            StatisticType = statType;
+            ParameterQuery = query;
+        }
+
         public string Title { get; set; }
         public string Description { get; set; }
-        public Func<Task> GraphCall { get; set; }
+        public Type StatisticType { get; set; }
+        public Func<Task<DialogParameters>> ParameterQuery { get; set; }
     }
 }

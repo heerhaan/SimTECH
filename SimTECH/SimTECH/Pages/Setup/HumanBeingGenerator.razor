@@ -39,7 +39,7 @@
                         <!-- One option to add is to generate either on nationality or language type -->
                         @if (availableLanguages != null && genderFilter != Gender.Other)
                         {
-                            <MudSelectExtended ItemCollection="@(availableLanguages.OrderBy(e => e.Country.GetDescription()).ToArray())"
+                            <MudSelectExtended ItemCollection="@(availableLanguages.OrderBy(e => e.Country.GetDescription()).ToList())"
                                                @bind-SelectedValues="@SelectedLanguages"
                                                T="LanguageInfo"
                                                MultiSelection="true"
@@ -108,7 +108,7 @@
                         <ToolBarContent>
                             <MudText>Human beings</MudText>
                             <MudSpacer />
-                            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="SaveHumanBeings">Persist</MudButton>
+                            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="SaveHumanBeings" Class="btn-md">Persist</MudButton>
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>Name</MudTh>

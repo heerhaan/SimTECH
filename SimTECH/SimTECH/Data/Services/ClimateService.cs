@@ -16,6 +16,13 @@ namespace SimTECH.Data.Services
             return await context.Climate.Where(e => filter.StatesForFilter().Contains(e.State)).ToListAsync();
         }
 
+        public async Task<Climate> GetClimateById(long climateId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Climate.FirstAsync(e => e.Id == climateId);
+        }
+
         public async Task UpdateClimate(Climate climate)
         {
             using var context = _dbFactory.CreateDbContext();

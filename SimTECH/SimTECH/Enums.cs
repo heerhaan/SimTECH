@@ -52,7 +52,18 @@ namespace SimTECH
         PersonalNumbers = 8,
     }
 
-    public enum RecordStat { None = 0, Entry, Start, Win, Pole, DNF }
+    public enum RecordStat
+    {
+        None = 0,
+        Entry,
+        Start,
+        Win,
+        Pole,
+        Retired,
+        FastestLap,
+        Overtakes,
+        Defended,
+    }
 
     #region racing
     public enum TeamRole

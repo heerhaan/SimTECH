@@ -1,13 +1,18 @@
-﻿namespace SimTECH.Data.Models
-{
-    public sealed class QualifyingScore : ModelBase
-    {
-        public int Index { get; set; }
-        public int[]? Scores { get; set; }
-        public int Position { get; set; }
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-        public long RaceId { get; set; }
-        public long ResultId { get; set; }
-        public Result Result { get; set; }
+namespace SimTECH.Data.Models
+{
+    public sealed class QualifyingScore : ScoreBase
+    {
+        [NotMapped]
+        public int PenaltyPunish { get; set; }//Doesnt really belong here tbh
+    }
+
+    public static class ExtendQualifyingScore
+    {
+        public static int PenaltyPosition(this QualifyingScore score)
+        {
+            return score.Position + score.PenaltyPunish;
+        }
     }
 }

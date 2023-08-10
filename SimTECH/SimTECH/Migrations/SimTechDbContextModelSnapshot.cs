@@ -867,6 +867,18 @@ namespace SimTECH.Migrations
                     b.Property<int>("MaximumDriversInRace")
                         .HasColumnType("int");
 
+                    b.Property<int>("MistakeMaximum")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MistakeMinimum")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MistakeRolls")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PitCostSubtractCaution")
+                        .HasColumnType("int");
+
                     b.Property<int>("PitMaximum")
                         .HasColumnType("int");
 
