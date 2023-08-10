@@ -20,7 +20,7 @@
                         </MudSelect>
                     </MudStack>
 
-                    <MudPaper MinHeight="500px" MinWidth="500px">
+                    <MudPaper MinHeight="500px" MinWidth="600px">
                         @if (!loading)
                         {
                             <MudText Typo="Typo.h5">@selectedRecord</MudText>
@@ -37,8 +37,10 @@
                                     @foreach (var (driverData, index) in driverRecords.WithIndex())
                                     {
                                         <tr>
-                                            <td>@(1 + index)</td>
-                                            <td style="width: 220px">
+                                            <td>
+                                                @(1 + index)
+                                            </td>
+                                            <td style="width: 300px">
                                                 <MudStack Row="true" AlignItems="AlignItems.Center">
                                                     <MudText Class="overflow-hider">@driverData.Key.FullName</MudText>
                                                     <MudSpacer />
@@ -96,11 +98,30 @@
     {
         loading = true;
 
-        driverRecords = groupedResults
-            .Select(e => new { driver = e.Key, value = e.Value.Count(SearchFilter(selected)) })
-            .OrderByDescending(e => e.value)
-            .Take(amount)
-            .ToDictionary(e => e.driver, e => e.value);
+        if (selected == RecordStat.Overtakes)
+        {
+            driverRecords = groupedResults
+                .Select(e => new { driver = e.Key, value = e.Value.Sum(s => s.Overtaken) })
+                .OrderByDescending(e => e.value)
+                .Take(amount)
+                .ToDictionary(e => e.driver, e => e.value);
+        }
+        else if (selected == RecordStat.Defended)
+        {
+            driverRecords = groupedResults
+                .Select(e => new { driver = e.Key, value = e.Value.Sum(s => s.Defended) })
+                .OrderByDescending(e => e.value)
+                .Take(amount)
+                .ToDictionary(e => e.driver, e => e.value);
+        }
+        else
+        {
+            driverRecords = groupedResults
+                .Select(e => new { driver = e.Key, value = e.Value.Count(SearchFilter(selected)) })
+                .OrderByDescending(e => e.value)
+                .Take(amount)
+                .ToDictionary(e => e.driver, e => e.value);
+        }
 
         selectedRecord = selected;
 
@@ -117,6 +138,6 @@
         RecordStat.FastestLap => (result => result.FastestLap),
         //RecordStat.Overtakes => (result => result.Status != RaceStatus.Dnq),
         //RecordStat.Defended => (result => result.Status != RaceStatus.Dnq),
-        _ => throw new InvalidOperationException("Ayo, I do not recognize this enum")
+        _ => throw new InvalidOperationException("Ayo, I do not recognize this record option")
     };
 }

@@ -1,125 +1,129 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText>Modify a season</MudText>
+        <MudText Typo="Typo.h5">Modify season</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model">
-            <MudGrid Spacing="2">
-                <MudItem xs="8">
-                    <MudPaper Elevation="5" Class="pa-4 mud-height-full">
-                        <MudStack Spacing="6">
-                            <div>
-                                <MudText Typo="Typo.subtitle1">Information</MudText>
-                                <MudDivider />
-                                <MudNumericField T="int" @bind-Value="Model.Year" Label="Year" Class="field-sm" />
-                            </div>
-                            <div>
-                                <MudText Typo="Typo.subtitle1">Qualifying (and practice) setup</MudText>
-                                <MudDivider />
-
-                                <MudChipSet Mandatory="true" SelectedChipChanged="QualyFormatChanged">
-                                    <MudChip Value="QualyFormat.TripleEliminate" Color="Color.Primary" Default="@(Model.QualifyingFormat == QualyFormat.TripleEliminate)">Three session elimination</MudChip>
-                                    <MudChip Value="QualyFormat.OneSession" Color="Color.Primary" Default="@(Model.QualifyingFormat == QualyFormat.OneSession)">One session</MudChip>
-                                </MudChipSet>
-
-                                <MudNumericField T="int" @bind-Value="Model.RunAmountSession" Label="Amount of runs per session" Class="field-md" />
-                                <MudNumericField T="int" @bind-Value="Model.QualifyingRNG" Label="Maximum RNG for qualifying" Class="field-md" />
-                                
-                                @if (Model.QualifyingFormat == QualyFormat.TripleEliminate)
-                                {
-                                    <MudStack Row="true" Spacing="4">
-                                        <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ2" Label="Amount of drivers in Q2" Class="field-md" />
-                                        <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ3" Label="Amount of drivers in Q3" Class="field-md" />
-                                    </MudStack>
-                                }
-                            </div>
-                            <div>
-                                <MudText Typo="Typo.subtitle1">Race setup</MudText>
-                                <MudDivider />
-
-                                <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="Model.RngMinimum" Label="Race MIN RNG" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="Model.RngMaximum" Label="Race MAX RNG" Class="field-md" />
-                                </MudStack>
-
-                                <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="Model.MistakeMinimum" Min="0" Label="Mistake MIN RNG" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="Model.MistakeMaximum" Min="@Model.MistakeMinimum" Label="Mistake MAX RNG" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="Model.MistakeRolls" Min="0" Label="Mistake rolls (per advance)" Class="field-md" />
-                                </MudStack>
-
-                                <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="Model.PitMinimum" Min="0" Label="Pit MIN RNG" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="Model.PitMaximum" Min="@Model.PitMinimum" Label="Pit MAX RNG" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="Model.PitCostSubtractCaution" Min="0" Label="Subtracted during SC" Class="field-md" />
-                                </MudStack>
-
-                                <MudNumericField T="int" @bind-Value="Model.MaximumDriversInRace" Label="Maximum allowed drivers in race" Class="field-md" />
-                                <MudNumericField T="int" @bind-Value="Model.GridBonus" Label="Bonus per grid position" Class="field-md" />
-                            </div>
-                            <div>
-                                <MudText Typo="Typo.subtitle1">Additional points</MudText>
-                                <MudDivider />
-
-                                <MudStack Row="true" Spacing="4">
-                                    <MudNumericField T="int" @bind-Value="Model.PointsPole" Label="Awarded points Pole" Class="field-md" />
-                                    <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Awarded points Fastest Lap" Class="field-md" />
-                                </MudStack>
-                            </div>
-                            @if (Model.Id == 0)
-                            {
-                                <div>
-                                    <MudText Typo="Typo.subtitle1">Select a league for this season</MudText>
-                                    <MudDivider />
-
-                                    <MudSelect T="long" @bind-Value="Model.LeagueId" Label="League">
-                                        @foreach (var select in Leagues)
-                                        {
-                                            <MudSelectItem Value="select.Id">@select.Name</MudSelectItem>
-                                        }
-                                    </MudSelect>
-                                </div>
-                            }
-                        </MudStack>
-                    </MudPaper>
-                </MudItem>
-
-                <MudItem xs="4">
-                    <MudPaper Elevation="5" Class="pa-4 mud-height-full">
-                        <MudText Typo="Typo.subtitle1">Achieved points per position</MudText>
+        <MudPaper Elevation="50" MinWidth="800px" Class="d-flex flex-row flex-nowrap">
+            <MudPaper Elevation="25" Class="pa-4 mud-height-full">
+                <MudStack Spacing="6">
+                    <div>
+                        <MudText Typo="Typo.subtitle1">Information</MudText>
+                        <MudDivider />
+                        <MudNumericField T="int" @bind-Value="Model.Year" Label="Year" Class="field-sm" />
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">Session setup</MudText>
                         <MudDivider />
 
-                        <MudTable Items="@Model.PointAllotments" Dense="true" ReadOnly="false" Class="extra-dense"
-                                  RowEditPreview="BackupAllotment" RowEditCancel="ResetAllotment" ApplyButtonPosition="TableApplyButtonPosition.End"
-                                  EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
-                            <ToolBarContent>
-                                <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" OnClick="AppendAllotment" Size="Size.Small" />
-                            </ToolBarContent>
-                            <HeaderContent>
-                                <MudTh>
-                                    <MudTableSortLabel SortBy="new Func<EditPointAllotmentModel, object>(e => e.Position)">
-                                        POS
-                                    </MudTableSortLabel>
-                                </MudTh>
-                                <MudTh>PTS</MudTh>
-                                <MudTh></MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="Position">
-                                    <MudNumericField @bind-Value="@context.Position" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Points">
-                                    <MudNumericField @bind-Value="@context.Points" Required />
-                                </MudTd>
-                                <MudTd>
-                                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Class="pa-0" OnClick="@(() => RemoveAllotment(context))" />
-                                </MudTd>
-                            </RowTemplate>
-                        </MudTable>
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
-        </MudForm>
+                        <MudText Typo="Typo.body2">Qualifying format</MudText>
+                        <MudChipSet Mandatory="true" SelectedChipChanged="QualyFormatChanged" Class="py-1">
+                            <MudChip Value="QualyFormat.TripleEliminate" Color="Color.Secondary" Default="@(Model.QualifyingFormat == QualyFormat.TripleEliminate)">
+                                Three session elimination
+                            </MudChip>
+                            <MudChip Value="QualyFormat.OneSession" Color="Color.Secondary" Default="@(Model.QualifyingFormat == QualyFormat.OneSession)">
+                                One session
+                            </MudChip>
+                        </MudChipSet>
+
+                        <MudNumericField T="int" @bind-Value="Model.RunAmountSession" Label="Run count per session" Class="field-sm" />
+                        <MudNumericField T="int" @bind-Value="Model.QualifyingRNG" Label="Qualifying MAX RNG" Class="field-sm" />
+
+                        @if (Model.QualifyingFormat == QualyFormat.TripleEliminate)
+                        {
+
+                            <MudStack Row="true" Spacing="1">
+                                <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ2" Label="Allowed drivers in Q2" Class="field-sm" />
+                                <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ3" Label="Allowed drivers in Q3" Class="field-sm" />
+                            </MudStack>
+                        }
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">Race setup</MudText>
+                        <MudDivider />
+
+                        <MudStack Row="true" Spacing="1">
+                            <MudNumericField T="int" @bind-Value="Model.RngMinimum" Label="Race MIN RNG" Class="field-sm" />
+                            <MudNumericField T="int" @bind-Value="Model.RngMaximum" Label="Race MAX RNG" Class="field-sm" />
+                        </MudStack>
+
+                        <MudStack Row="true" Spacing="1">
+                            <MudNumericField T="int" @bind-Value="Model.MistakeMinimum" Min="0" Label="Mistake MIN RNG" Class="field-sm" />
+                            <MudNumericField T="int" @bind-Value="Model.MistakeMaximum" Min="@Model.MistakeMinimum" Label="Mistake MAX RNG" Class="field-sm" />
+                            <MudNumericField T="int" @bind-Value="Model.MistakeRolls" Min="0" Label="Mistake rolls" Class="field-sm" />
+                        </MudStack>
+
+                        <MudStack Row="true" Spacing="1">
+                            <MudNumericField T="int" @bind-Value="Model.PitMinimum" Min="0" Label="Pit MIN RNG" Class="field-sm" />
+                            <MudNumericField T="int" @bind-Value="Model.PitMaximum" Min="@Model.PitMinimum" Label="Pit MAX RNG" Class="field-sm" />
+                            <MudNumericField T="int" @bind-Value="Model.PitCostSubtractCaution" Min="0" Label="Subtracted during SC" Class="field-sm" />
+                        </MudStack>
+
+                        <MudNumericField T="int" @bind-Value="Model.MaximumDriversInRace" Label="MAX drivers in race" Class="field-sm" />
+                        <MudNumericField T="int" @bind-Value="Model.GridBonus" Label="Bonus per grid POS" Class="field-sm" />
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">Bonus points</MudText>
+                        <MudDivider />
+
+                        <MudStack Row="true" Spacing="1">
+                            <MudNumericField T="int" @bind-Value="Model.PointsPole" Label="Pole position" Class="field-sm" />
+                            <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Fastest lap" Class="field-sm" />
+                        </MudStack>
+                    </div>
+                    @if (Model.Id == 0)
+                    {
+                        <div>
+                            <MudText Typo="Typo.subtitle1">Select a league for this season</MudText>
+                            <MudDivider />
+
+                            <MudSelect T="long" @bind-Value="Model.LeagueId" Label="League">
+                                @foreach (var select in Leagues)
+                                {
+                                    <MudSelectItem Value="select.Id">@select.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </div>
+                    }
+                </MudStack>
+            </MudPaper>
+            <MudPaper Elevation="25" Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.subtitle1">Achieved points per position</MudText>
+                <MudDivider />
+
+                <MudTable Items="@Model.PointAllotments.OrderBy(e => e.Position)" Dense="true" ReadOnly="false" Class="extra-dense"
+                          RowEditPreview="BackupAllotment" RowEditCancel="ResetAllotment" ApplyButtonPosition="TableApplyButtonPosition.End"
+                          EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
+                    <ToolBarContent>
+                        <MudStack Row="true" Class="pa-0 mud-width-full">
+                            <MudSpacer />
+                            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AppendAllotment" Size="Size.Small">
+                                Append position
+                            </MudButton>
+                        </MudStack>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>POS</MudTh>
+                        <MudTh>PTS</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Position">
+                            <MudNumericField @bind-Value="@context.Position" Required />
+                        </MudTd>
+                        <MudTd DataLabel="Points">
+                            <MudNumericField @bind-Value="@context.Points" Required />
+                        </MudTd>
+                        <MudTd>
+                            <MudIconButton Size="@Size.Small"
+                                           Icon="@Icons.Material.Outlined.Delete"
+                                           Color="Color.Error"
+                                           Class="pa-0"
+                                           OnClick="@(() => RemoveAllotment(context))" />
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -134,12 +138,12 @@
 
     private EditPointAllotmentModel allotmentBackup;
 
-    private int _lowestPosition;
+    private int lowestPosition;
 
     protected override void OnInitialized()
     {
         if (Model.PointAllotments.Any())
-            _lowestPosition = Model.PointAllotments.Max(e => e.Position);
+            lowestPosition = Model.PointAllotments.Max(e => e.Position);
     }
 
     private void QualyFormatChanged(MudChip? qualyChip)
@@ -171,14 +175,14 @@
     {
         Model.PointAllotments.Add(new EditPointAllotmentModel
             {
-                Position = ++_lowestPosition,
+                Position = ++lowestPosition,
                 Points = 0
             });
     }
 
     private void RemoveAllotment(EditPointAllotmentModel allotment)
     {
-        --_lowestPosition;
+        --lowestPosition;
         Model.PointAllotments.Remove(allotment);
     }
 

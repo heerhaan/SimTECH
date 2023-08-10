@@ -75,7 +75,7 @@
     protected override void OnInitialized()
     {
         if (Drivers.Any())
-            driverSelection.AddRange(Drivers);
+            driverSelection.AddRange(Drivers.OrderBy(e => e.FirstName));
 
         options.PlotOptions = new ApexCharts.PlotOptions
             {

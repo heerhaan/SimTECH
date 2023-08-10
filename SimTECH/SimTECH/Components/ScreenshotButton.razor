@@ -1,7 +1,7 @@
 ﻿@inject IJSRuntime JS
 
 <MudButton Variant="Variant.Outlined"
-           Color="Color.Primary"
+           Color="@Colour"
            StartIcon="@Icons.Material.Filled.Image"
            FullWidth="@FullWidth"
            Disabled="@disabled"
@@ -13,6 +13,7 @@
 
 @code {
     [Parameter] public string TargetId { get; set; }
+    [Parameter] public Color Colour { get; set; } = Color.Primary;
     [Parameter] public bool FullWidth { get; set; } = false;
     [Parameter] public string Class { get; set; } = string.Empty;
     [Parameter] public string Styles { get; set; } = string.Empty;

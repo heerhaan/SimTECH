@@ -11,6 +11,15 @@ namespace SimTECH.Data.Services
         {
             _dbFactory = factory;
         }
+
+        public async Task<T> GetItemById(long id)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var entity = context.Set<T>();
+
+            return await entity.FirstAsync(x => x.Id == id);
+        }
     }
 
     public abstract class StateService<T> : BaseService<T> where T : ModelState

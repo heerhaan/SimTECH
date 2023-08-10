@@ -308,20 +308,23 @@
                 };
 
             // REFACTOR: Er is hier vast een betere oplossing voor
-            if (qSession.SessionIndex == 1)
+            if (RaweCeek.Season.QualifyingFormat == QualyFormat.TripleEliminate)
             {
-                qSession.ProgressionCutoff = RaweCeek.Season.QualifyingAmountQ2;
+                if (qSession.SessionIndex == 1)
+                {
+                    qSession.ProgressionCutoff = RaweCeek.Season.QualifyingAmountQ2;
+                }
+                else if (qSession.SessionIndex == 2)
+                {
+                    qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ2;
+                    qSession.ProgressionCutoff = RaweCeek.Season.QualifyingAmountQ3;
+                }
+                else if (qSession.SessionIndex == 3)
+                {
+                    qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ3;
+                }
             }
-            else if (qSession.SessionIndex == 2)
-            {
-                qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ2;
-                qSession.ProgressionCutoff = RaweCeek.Season.QualifyingAmountQ3;
-            }
-            else if (qSession.SessionIndex == 3)
-            {
-                qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ3;
-            }
-
+            
             qualySessions.Add(qSession);
         }
 

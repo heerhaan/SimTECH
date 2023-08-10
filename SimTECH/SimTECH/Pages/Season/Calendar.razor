@@ -23,16 +23,16 @@
             <MudTh>Country</MudTh>
             <MudTh>Race</MudTh>
             <MudTh>Weather</MudTh>
-            <MudTh Style="max-width:250px">Polesitter</MudTh>
+            <MudTh>Polesitter</MudTh>
             <MudTh Class="number-col">NO</MudTh>
-            <MudTh Style="max-width:250px">Winner driver</MudTh>
+            <MudTh>Winner driver</MudTh>
             <MudTh Class="number-col">NO</MudTh>
-            <MudTh Style="max-width:250px">Winner team</MudTh>
+            <MudTh>Winner team</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd Class="number-col">
-                <MudText Typo="Typo.caption">@context.Round</MudText>
+                <MudText Typo="Typo.h5">@context.Round</MudText>
             </MudTd>
             <MudTd>
                 <CountryNamedFlag Code="@context.Country" Size="ElementSize.Small" Reverse="true" Class="overflow-hider" />
@@ -68,7 +68,7 @@
             @if (context.DriverWinner != null)
             {
                 <MudTd Class="overflow-hider">
-                    <MudStack Row="true" AlignItems="AlignItems.Center">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Style="max-width:250px">
                         <MudText Class="overflow-hider">@context.DriverWinner.Name</MudText>
                         <MudSpacer />
                         <CountryFlag Code="@context.DriverWinner.Country" Size="ElementSize.Small" />
@@ -84,7 +84,7 @@
                 <MudTd></MudTd>
             }
 
-            <MudTd Class="overflow-hider">
+            <MudTd Class="overflow-hider" Style="max-width:250px">
                 @if (context.TeamWinner != null)
                 {
                     <MudText Typo="Typo.button">@context.TeamWinner.Name</MudText>

@@ -17,9 +17,21 @@
                         <ScreenshotButton TargetId="used-components-table" Class="btn-md" />
                     </ToolBarContent>
                     <HeaderContent>
-                        <MudTh>Name</MudTh>
-                        <MudTh Class="number-col">NO</MudTh>
-                        <MudTh>Team</MudTh>
+                        <MudTh>
+                            <MudTableSortLabel T="UsedComponentParts" SortBy="@(e => e.Name)">
+                                Name
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh Class="number-col">
+                            <MudTableSortLabel T="UsedComponentParts" SortBy="@(e => e.Number)">
+                                NO
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel T="UsedComponentParts" SortBy="@(e => e.Team)">
+                                Team
+                            </MudTableSortLabel>
+                        </MudTh>
                         @foreach (var incident in penalizableIncidents)
                         {
                             <MudTh Class="number-col pb-20 overflow-hider">
@@ -34,7 +46,7 @@
                         }
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd Style="max-width:200px">
+                        <MudTd Style="max-width:300px">
                             <MudText Typo="Typo.body2" Class="overflow-hider">@context.Name</MudText>
                         </MudTd>
                         <MudTd Class="number-col">

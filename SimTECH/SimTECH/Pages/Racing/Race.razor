@@ -5,20 +5,10 @@
     <MudPaper Elevation="25" MinHeight="60px" Width="100%">
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
             <div style="width:30%">
-                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" >
-                    <ScreenshotButton TargetId="race-display" Class="btn-md" />
-                    @if (RaweCeek.Race.State != State.Closed)
-                    {
-                        @if (calculated >= calculationCount)
-                        {
-                            <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
-                        }
-                        else
-                        {
-                            <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
-                        }
-                    }
-                </MudButtonGroup>
+                <MudMenu Label="Charts" Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Secondary" Variant="Variant.Text">
+                    <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
+                    <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
+                </MudMenu>
             </div>
                 
             <MudStack Spacing="0" AlignItems="AlignItems.Center">
@@ -37,11 +27,21 @@
                 </MudChipSet>
             </MudStack>
 
-            <div class="d-flex flex-row-reverse align-center pa-0" style="width:30%">
-                <MudMenu Label="Charts" Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Secondary" Variant="Variant.Text">
-                    <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
-                    <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
-                </MudMenu>
+            <div class="d-flex flex-row-reverse" style="width:30%">
+                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                    <ScreenshotButton TargetId="race-display" Class="btn-md" />
+                    @if (RaweCeek.Race.State != State.Closed)
+                    {
+                        @if (calculated >= calculationCount)
+                        {
+                            <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
+                        }
+                    }
+                </MudButtonGroup>
             </div>
         </MudStack>
     </MudPaper>
@@ -71,9 +71,9 @@
                 <MudTh Style="width: 15px"></MudTh>
                 <MudTh Style="width: 40px">Grid</MudTh>
                 <MudTh Class="pa-0" Style="width: 5px"></MudTh>
-                <MudTh Style="width: 220px">Name</MudTh>
+                <MudTh Style="max-width: 220px">Name</MudTh>
                 <MudTh Class="number-col">NO</MudTh>
-                <MudTh Style="width: 220px">Team</MudTh>
+                <MudTh Style="max-width: 220px">Team</MudTh>
                 <MudTh Class="number-col">PWR</MudTh>
                 <MudTh Class="text-center" Style="width: 175px">ATT / DEF</MudTh>
                 <MudTh Class="tyre-col">Tyre</MudTh>
@@ -84,7 +84,7 @@
                     <MudTh Class="number-col">L.Gap</MudTh>
                     <MudTh Class="number-col">Score</MudTh>
                 }
-                <MudTh Style="width: 500px">Progression</MudTh>
+                <MudTh Style="min-width: 500px">Progression</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
@@ -96,10 +96,10 @@
                 <MudTd Class="accent-cell">
                     <SmolAccent Colour="@context.Colour" />
                 </MudTd>
-                <MudTd Class="overflow-hider">
-                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0">
+                <MudTd>
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0" Style="max-width: 300px">
                         <MudText>@context.FirstName</MudText>
-                        <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
+                        <MudText Typo="Typo.button" Class="fontsize-button-text overflow-hider">@context.LastName</MudText>
                         @if (context.HasFastestLap)
                         {
                             <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
@@ -111,7 +111,7 @@
                 <MudTd Class="number-col">
                     <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                 </MudTd>
-                <MudTd Class="overflow-hider">
+                <MudTd Class="overflow-hider" Style="max-width:250px">
                     <MudText Typo="Typo.button">@context.TeamName</MudText>
                 </MudTd>
                 <MudTd Class="number-col">
@@ -129,7 +129,7 @@
                     </MudStack>
                 </MudTd>
                 <MudTd Class="tyre-col">
-                    <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
+                    <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full">
                         <TyreElement Colour="@context.CurrentTyre.Colour">@context.CurrentTyre.Name.ElementAt(0)</TyreElement>
                         <sup>@context.TyreLife</sup>
                     </MudStack>

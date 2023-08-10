@@ -1,13 +1,13 @@
 ﻿@page "/traits"
-@inject TraitService TraitService
+@inject TraitService _traitService
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
-@inject IDialogService DialogService
+@inject IDialogService _dialogService
 
 <PageTitle>Traits</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    <MudPaper MinHeight="60px" Width="100%">
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Traits</MudText>
 
@@ -19,7 +19,7 @@
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Trait" Items="@TraitData" RowsPerPage="15" Dense="true">
+    <MudDataGrid T="Trait" Items="@traits" RowsPerPage="15" Dense="true">
         <Columns>
             <HierarchyColumn T="Trait" />
             <PropertyColumn Property="e => e!.Name" />
@@ -75,7 +75,7 @@
                     <MudDivider />
 
                     <MudText Typo="Typo.subtitle1">Used by:</MudText>
-                    <MudText Color="Color.Warning">Todo</MudText>
+                    <MudText Color="Color.Warning">idk man i just work here</MudText>
                 </MudStack>
             </MudPaper>
         </ChildRowContent>
@@ -86,11 +86,11 @@
 </MudContainer>
 
 @code {
-    private List<Trait> TraitData;
+    private List<Trait> traits;
 
     protected override async Task OnInitializedAsync()
     {
-        TraitData = await TraitService.GetTraits();
+        traits = await _traitService.GetTraits();
 
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -105,21 +105,21 @@
     {
         var parameters = new DialogParameters { ["Trait"] = item };
 
-        var dialog = await DialogService.ShowAsync<TraitEditor>("Modify trait", parameters);
+        var dialog = await _dialogService.ShowAsync<TraitEditor>("Modify trait", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Trait updatedItem)
         {
-            await TraitService.UpdateTrait(updatedItem);
-            TraitData = await TraitService.GetTraits();
+            await _traitService.UpdateTrait(updatedItem);
+            traits = await _traitService.GetTraits();
         }
     }
 
     async Task OnToggleChange(Trait trait, bool toggled) => await ToggleState(trait, (toggled ? State.Active : State.Closed));
     async Task ToggleState(Trait trait, State target)
     {
-        await TraitService.ChangeState(trait, target);
-        TraitData = await TraitService.GetTraits();
+        await _traitService.ChangeState(trait, target);
+        traits = await _traitService.GetTraits();
     }
 
     void GoToTraitAssign() => _nav.NavigateTo("traitassign");

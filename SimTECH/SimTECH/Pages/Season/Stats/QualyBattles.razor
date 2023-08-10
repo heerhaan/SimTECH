@@ -6,7 +6,7 @@
         <MudContainer>
             <MudPaper Class="px-2">
                 <MudTable T="QualyBattleComparison"
-                          Items="@qualyBattleList"
+                          Items="@qualyBattleList.OrderBy(e => e.TeamName)"
                           GroupBy="@groupDefinition"
                           GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
                           FixedHeader="true"
@@ -14,7 +14,6 @@
                           Class="extra=dense"
                           id="qualy-battles-table">
                     <ToolBarContent>
-                        
                         <MudSpacer />
                         <ScreenshotButton TargetId="qualy-battles-table" Class="btn-md" />
                     </ToolBarContent>

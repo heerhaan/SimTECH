@@ -82,9 +82,12 @@
 
     protected override void OnParametersSet()
     {
-        var scoreNumbers = Drivers.SelectMany(e => e.Scores).ToArray();
-        worstScore = scoreNumbers.Min();
-        bestScore = scoreNumbers.Max();
+        var scoreNumbers = Drivers.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
+        if (scoreNumbers.Any())
+        {
+            worstScore = scoreNumbers.Min();
+            bestScore = scoreNumbers.Max();
+        }
 
         amountRuns = AmountRuns == 0 ? 2 : AmountRuns;
     }
@@ -103,12 +106,14 @@
 
     private bool TryLocateCutoff(int position, out Tuple<string, string> cutoff)
     {
+        cutoff = default;
+
+        if (position == 0)
+            return false;
         if (position == ProgressCutoff)
             cutoff = Tuple.Create("OUT", "background-color: red");
         else if (position == EntryCutoff)
             cutoff = Tuple.Create("DNQ", "background-color: mediumpurple");
-        else
-            cutoff = default;
 
         return cutoff != default;
     }

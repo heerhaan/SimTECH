@@ -1,35 +1,37 @@
-﻿@if (!loading)
-{
-    <MudPaper MinHeight="60px">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
-            <CountryFlag Code="@raceCountry" />
-            <MudText Typo="Typo.h5">@raceName</MudText>
+﻿<div id="qualy-table">
+    @if (!loading)
+    {
+        <MudPaper MinHeight="60px">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
+                <CountryFlag Code="@raceCountry" />
+                <MudText Typo="Typo.h5">@raceName</MudText>
 
-            <MudSpacer />
+                <MudSpacer />
 
-            <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
-                <ScreenshotButton TargetId="qualy-table" Class="btn-md" />
-                @if (!QualySession.IsFinished)
-                {
-                    @if (advancedRuns == amountRuns)
+                <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
+                    <ScreenshotButton TargetId="qualy-table" Class="btn-md" />
+                    @if (!QualySession.IsFinished)
                     {
-                        <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
+                        @if (advancedRuns == amountRuns)
+                        {
+                            <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
+                        }
                     }
-                    else
-                    {
-                        <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
-                    }
-                }
-            </MudButtonGroup>
-        </MudStack>
-    </MudPaper>
-    <MudPaper Elevation="25" id="qualy-table">
-        <CommonSession Drivers="@qualyDrivers"
-                       AmountRuns="@amountRuns"
-                       EntryCutoff="@entryCutoff"
-                       ProgressCutoff="@progressCutoff" />
-    </MudPaper>
-}
+                </MudButtonGroup>
+            </MudStack>
+        </MudPaper>
+        <MudPaper Elevation="25">
+            <CommonSession Drivers="@qualyDrivers"
+                           AmountRuns="@amountRuns"
+                           EntryCutoff="@entryCutoff"
+                           ProgressCutoff="@progressCutoff" />
+        </MudPaper>
+    }
+</div>
 
 @code {
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
