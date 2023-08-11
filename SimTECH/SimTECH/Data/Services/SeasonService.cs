@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using MudBlazor;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
@@ -10,12 +9,10 @@ namespace SimTECH.Data.Services
     public class SeasonService
     {
         private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-        private readonly SimConfig _config;
 
-        public SeasonService(IDbContextFactory<SimTechDbContext> factory, IOptions<SimConfig> config)
+        public SeasonService(IDbContextFactory<SimTechDbContext> factory)
         {
             _dbFactory = factory;
-            _config = config.Value;
         }
 
         public async Task<List<Season>> GetSeasons() => await GetSeasons(StateFilter.Default);
@@ -101,13 +98,13 @@ namespace SimTECH.Data.Services
                 throw new InvalidOperationException("Can only activate seasons which are currently in 'concept'.");
 
             if (season.SeasonEngines?.Any() != true)
-                return "this blitherin idiot right here forgot to add any entrants to this season, begin with adding the engines.";
+                return "this blitherin idiot right here forgot to add any entrants to this season.";
             if (season.SeasonTeams?.Any() != true)
                 return "absolute moron forgot to add the teams, how are you going to race a motorsport season without any teams. come on mate";
             if (season.SeasonDrivers?.Any() != true)
-                return "hey robocop this isn't the future, we still have people driving the cars. so add some fucking drivers will ya?";
+                return "hey robocop this isn't the future, we still have people driving the cars. So add some fucking drivers will ya?";
             if (season?.Races?.Any() != true)
-                return "hint of advice, a season without any races is hardly much of a season. add races, pisshead";
+                return "hint of advice, a season without any races is hardly much of a season. Add races, pisshead";
 
             season.State = State.Active;
 
@@ -160,7 +157,6 @@ namespace SimTECH.Data.Services
         }
 
         #region page models
-        // Retrieves a list of seasons specifically meant to be displayed in the... list of seasons!!!
         public async Task<List<SeasonListModel>> GetSeasonList()
         {
             using var context = _dbFactory.CreateDbContext();

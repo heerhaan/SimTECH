@@ -1,29 +1,29 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudIcon Icon="@Icons.Material.Filled.SsidChart" Class="mr-3 mb-n1"></MudIcon>
-        <MudText>WCC Chart</MudText>
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.Filled.SsidChart" />
+            <MudText>WCC Chart</MudText>
+        </MudStack>
     </TitleContent>
     <DialogContent>
-        <MudContainer Class="pa-2">
-            <MudPaper Width="1100px">
-                @if (!loading)
-                {
-                    <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="@("100%")">
-                        @foreach (var result in DataSets)
-                        {
-                            <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                        Items="@result.DataPoints"
-                                                        Name="@result.Label"
-                                                        SeriesType="ApexCharts.SeriesType.Line"
-                                                        XValue="@(e => e.XData)"
-                                                        YValue="@(e => e.YData)"
-                                                        OrderBy="e => e.X"
-                                                        Stroke="@result.Stroke" />
-                        }
-                    </ApexCharts.ApexChart>
-                }
-            </MudPaper>
-        </MudContainer>
+        <MudPaper Width="1100px" Class="pa-2">
+            @if (!loading)
+            {
+                <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="@("100%")">
+                    @foreach (var result in DataSets)
+                    {
+                        <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                    Items="@result.DataPoints"
+                                                    Name="@result.Label"
+                                                    SeriesType="ApexCharts.SeriesType.Line"
+                                                    XValue="@(e => e.XData)"
+                                                    YValue="@(e => e.YData)"
+                                                    OrderBy="e => e.X"
+                                                    Stroke="@result.Stroke" />
+                    }
+                </ApexCharts.ApexChart>
+            }
+        </MudPaper>
     </DialogContent>
 </MudDialog>
 

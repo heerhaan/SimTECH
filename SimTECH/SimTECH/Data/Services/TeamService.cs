@@ -45,6 +45,7 @@ namespace SimTECH.Data.Services
 
             return await context.Team
                 .Where(e => filter.StatesForFilter().Contains(e.State) && e.SeasonTeams!.Any(e => e.Season.LeagueId == leagueId))
+                .Include(e => e.TeamTraits)
                 .ToListAsync();
         }
 

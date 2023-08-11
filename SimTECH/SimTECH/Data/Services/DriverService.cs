@@ -73,6 +73,7 @@ namespace SimTECH.Data.Services
 
             return await context.Driver
                 .Where(e => filter.StatesForFilter().Contains(e.State) && e.SeasonDrivers!.Any(e => e.Season.LeagueId == leagueId))
+                .Include(e => e.DriverTraits)
                 .ToListAsync();
         }
 

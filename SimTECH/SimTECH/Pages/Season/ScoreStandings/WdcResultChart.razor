@@ -1,29 +1,29 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudIcon Icon="@Icons.Material.Filled.SsidChart" Class="mr-3 mb-n1"></MudIcon>
-        <MudText>WDC Chart</MudText>
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.Filled.SsidChart" />
+            <MudText>WDC Chart</MudText>
+        </MudStack>
     </TitleContent>
     <DialogContent>
-        <MudContainer Class="pa-2">
-            <MudPaper Width="1100px">
-                @if (!loading)
-                {
-                    <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="@("100%")">
-                        @foreach (var result in DataSets)
-                        {
-                            <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                        Items="@result.DataPoints"
-                                                        Name="@result.Label"
-                                                        SeriesType="ApexCharts.SeriesType.Line"
-                                                        XValue="@(e => e.XData)"
-                                                        YValue="@(e => e.YData)"
-                                                        OrderBy="e => e.X"
-                                                        Stroke="@result.Stroke" />
-                        }
-                    </ApexCharts.ApexChart>
-                }
-            </MudPaper>
-        </MudContainer>
+        <MudPaper MinHeight="900px" Width="1400px">
+            @if (!loading)
+            {
+                <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="@("100%")">
+                    @foreach (var result in dataSets)
+                    {
+                        <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                    Items="@result.DataPoints"
+                                                    Name="@result.Label"
+                                                    SeriesType="ApexCharts.SeriesType.Line"
+                                                    XValue="@(e => e.XData)"
+                                                    YValue="@(e => e.YData)"
+                                                    OrderBy="e => e.X"
+                                                    Stroke="@result.Stroke" />
+                    }
+                </ApexCharts.ApexChart>
+            }
+        </MudPaper>
     </DialogContent>
 </MudDialog>
 
@@ -33,15 +33,13 @@
     [Parameter] public List<StandingDriverModel>? Drivers { get; set; }
     [Parameter] public Season Season { get; set; }
 
-    ApexCharts.ApexChartOptions<DataPoint> options;
-    List<DataSet> DataSets = new();
+    ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
+    List<DataSet> dataSets = new();
 
     bool loading = true;
 
     protected override void OnInitialized()
     {
-        options = Constants.ChartOptionsDefault;
-
         var allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new Dictionary<int, int>();
 
         if (Drivers != null)
@@ -72,7 +70,7 @@
                 dataSet.Stroke = new ApexCharts.SeriesStroke { Color = driver.Colour, DashSpace = (2 * sameSeenTeams), Width = 3 };
 
                 seenTeamIdentifiers.Add(driver.SeasonTeamId.GetValueOrDefault());
-                DataSets.Add(dataSet);
+                dataSets.Add(dataSet);
             }
 
             loading = false;

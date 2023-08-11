@@ -53,6 +53,8 @@ public class RaweCeekDriver
     public Tyre Tyre { get; set; }
     public Incident? Incident { get; set; }
 
+    public int ExpectedPosition { get; set; }
+    public int RelativePower => (QualyPower / 2) + RacePower;
     public string FullName => FirstName + " " + LastName;
 }
 

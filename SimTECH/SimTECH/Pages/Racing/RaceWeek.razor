@@ -263,6 +263,10 @@
             }
         }
 
+        int indexer = 0;
+        foreach (var driver in raweceekDrivers.OrderByDescending(e => e.RelativePower))
+            driver.ExpectedPosition = ++indexer;
+
         RaweCeek.RaweCeekDrivers = raweceekDrivers;
     }
 
