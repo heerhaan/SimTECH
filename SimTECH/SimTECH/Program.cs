@@ -1,3 +1,4 @@
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MudBlazor;
@@ -16,15 +17,37 @@ namespace SimTECH
             var builder = WebApplication.CreateBuilder(args);
 
             // Configure database context services
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            //if (builder.Environment.IsDevelopment())
+            //{
+            //    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            //    builder.Services.AddDbContextFactory<SimTechDbContext>(options =>
+            //    {
+            //        options.UseSqlServer(connectionString);
+            //        options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            //        options.ConfigureWarnings(e => e.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
+            //    });
+            //    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+            //}
+            //else
+            //{
+            //    var connectionString = builder.Configuration.GetConnectionString("LocalConnection")!.Replace("~", builder.Environment.ContentRootPath);
+            //    var connection = new SqliteConnection(connectionString);
+            //    builder.Services.AddDbContext<SimTechDbContext, LocalDbContext>(options =>
+            //    {
+            //        options.UseSqlite(connection);
+            //        options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            //        options.ConfigureWarnings(e => e.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
+            //    });
+            //}
 
             builder.Services.AddDbContextFactory<SimTechDbContext>(options =>
             {
-                options.UseSqlServer(connectionString);
+                options.UseSqlite($"Data Source={nameof(SimTechDbContext.SimTechDb)}.db");
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 options.ConfigureWarnings(e => e.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
             });
-            builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Add services to the container.
             builder.Services.AddRazorPages();

@@ -6,9 +6,9 @@ namespace SimTECH.Data
 {
     public class SimTechDbContext : DbContext
     {
-        public SimTechDbContext(DbContextOptions<SimTechDbContext> options) : base(options)
-        {
-        }
+        public static readonly string SimTechDb = nameof(SimTechDbContext).ToLower();
+
+        public SimTechDbContext(DbContextOptions<SimTechDbContext> options) : base(options) { }
 
         public DbSet<Climate> Climate => Set<Climate>();
         public DbSet<Contract> Contract => Set<Contract>();

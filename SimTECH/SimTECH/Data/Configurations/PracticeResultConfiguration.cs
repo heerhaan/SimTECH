@@ -10,7 +10,6 @@ namespace SimTECH.Data.Configurations
         {
             builder.HasKey(t => t.Id);
             builder.Property(e => e.Scores)
-                .HasColumnType("varchar(max)")
                 .HasConversion(
                     e => string.Join(';', e ?? Array.Empty<int>()),
                     e => Array.ConvertAll(e.Split(';', StringSplitOptions.RemoveEmptyEntries), int.Parse));

@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimTECH.Data;
@@ -12,48 +11,46 @@ using SimTECH.Data;
 namespace SimTECH.Migrations
 {
     [DbContext(typeof(SimTechDbContext))]
-    [Migration("20230614164014_NonNullableTyre")]
-    partial class NonNullableTyre
+    [Migration("20230811100939_SqliteInit")]
+    partial class SqliteInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.10");
 
             modelBuilder.Entity("SimTECH.Data.Models.Climate", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<string>("Colour")
+                        .HasMaxLength(9)
+                        .HasColumnType("TEXT");
 
                     b.Property<double>("EngineMultiplier")
-                        .HasColumnType("float");
+                        .HasColumnType("REAL");
 
                     b.Property<string>("Icon")
                         .IsRequired()
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsWet")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Odds")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("ReliablityModifier")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("RngModifier")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Terminology")
                         .IsRequired()
@@ -106,21 +103,19 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("DriverId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Duration")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
-                    b.Property<long?>("LeagueId")
-                        .HasColumnType("bigint");
+                    b.Property<long>("LeagueId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("TeamId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -133,28 +128,54 @@ namespace SimTECH.Migrations
                     b.ToTable("Contract");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.DevelopmentLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Change")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DevelopedAspect")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("EntrantGroup")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("EntrantId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("SeasonId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SeasonId");
+
+                    b.ToTable("DevelopmentLog");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.DevelopmentRange", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Comparer")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("LeagueId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Maximum")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Minimum")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -167,25 +188,19 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Abbreviation")
                         .IsRequired()
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<bool>("Alive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Biography")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Country")
-                        .IsRequired()
+                    b.Property<int>("Country")
                         .HasMaxLength(2)
-                        .HasColumnType("varchar(2)");
+                        .HasColumnType("nvarchar(2)");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("date");
@@ -198,8 +213,11 @@ namespace SimTECH.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<bool>("Mark")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -209,10 +227,10 @@ namespace SimTECH.Migrations
             modelBuilder.Entity("SimTECH.Data.Models.DriverTrait", b =>
                 {
                     b.Property<long>("DriverId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("TraitId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("DriverId", "TraitId");
 
@@ -225,16 +243,17 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<bool>("Mark")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -245,21 +264,19 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("Consumed")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long?>("ConsumedAtRaceId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("IncidentId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("SeasonDriverId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -274,28 +291,33 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Category")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Colour")
+                        .HasMaxLength(9)
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Limit")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("Odds")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Penalized")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Punishment")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -309,6 +331,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Damage",
                             Odds = 2,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -319,6 +342,7 @@ namespace SimTECH.Migrations
                             Limit = 2,
                             Name = "Collision",
                             Odds = 1,
+                            Penalized = true,
                             Punishment = 3,
                             State = 1
                         },
@@ -329,6 +353,7 @@ namespace SimTECH.Migrations
                             Limit = 5,
                             Name = "Accident",
                             Odds = 2,
+                            Penalized = true,
                             Punishment = 3,
                             State = 1
                         },
@@ -339,6 +364,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Puncture",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -349,6 +375,7 @@ namespace SimTECH.Migrations
                             Limit = 5,
                             Name = "Engine",
                             Odds = 3,
+                            Penalized = true,
                             Punishment = 10,
                             State = 1
                         },
@@ -359,6 +386,7 @@ namespace SimTECH.Migrations
                             Limit = 3,
                             Name = "Electrics",
                             Odds = 1,
+                            Penalized = true,
                             Punishment = 5,
                             State = 1
                         },
@@ -369,6 +397,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Exhaust",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -379,6 +408,7 @@ namespace SimTECH.Migrations
                             Limit = 4,
                             Name = "Gearbox",
                             Odds = 2,
+                            Penalized = true,
                             Punishment = 5,
                             State = 1
                         },
@@ -389,6 +419,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Hydraulics",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -399,6 +430,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Wheel",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -409,6 +441,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Brakes",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -419,6 +452,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Illegal",
                             Odds = 1,
+                            Penalized = true,
                             Punishment = 10,
                             State = 1
                         },
@@ -429,6 +463,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Fuel",
                             Odds = 1,
+                            Penalized = true,
                             Punishment = 10,
                             State = 1
                         },
@@ -439,6 +474,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Dangerous",
                             Odds = 1,
+                            Penalized = true,
                             Punishment = 10,
                             State = 1
                         },
@@ -449,6 +485,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Hospital",
                             Odds = 5,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         },
@@ -459,6 +496,7 @@ namespace SimTECH.Migrations
                             Limit = 0,
                             Name = "Death",
                             Odds = 1,
+                            Penalized = false,
                             Punishment = 0,
                             State = 1
                         });
@@ -468,21 +506,24 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Order")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("RacerEvents")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("ResultId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Score")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("TyreColour")
+                        .HasMaxLength(9)
+                        .HasColumnType("TEXT")
+                        .IsFixedLength();
 
                     b.HasKey("Id");
 
@@ -495,22 +536,20 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Options")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("RaceLength")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -521,20 +560,18 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Accent")
                         .IsRequired()
                         .HasMaxLength(9)
-                        .HasColumnType("nchar(9)")
+                        .HasColumnType("TEXT")
                         .IsFixedLength();
 
                     b.Property<string>("Colour")
                         .IsRequired()
                         .HasMaxLength(9)
-                        .HasColumnType("nchar(9)")
+                        .HasColumnType("TEXT")
                         .IsFixedLength();
 
                     b.Property<string>("Name")
@@ -542,16 +579,16 @@ namespace SimTECH.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("Pace")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("WearMax")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("WearMin")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -564,7 +601,7 @@ namespace SimTECH.Migrations
                             Accent = "#e56103",
                             Colour = "#0b0b0d",
                             Name = "Hankook",
-                            Pace = 1,
+                            Pace = 0,
                             State = 1,
                             WearMax = 0,
                             WearMin = 0
@@ -575,18 +612,16 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Points")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Position")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long?>("SeasonId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -595,35 +630,92 @@ namespace SimTECH.Migrations
                     b.ToTable("PointAllotment");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.PracticeScore", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("RaceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("ResultId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Scores")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResultId");
+
+                    b.ToTable("PracticeScore");
+                });
+
+            modelBuilder.Entity("SimTECH.Data.Models.QualifyingScore", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("RaceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("ResultId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Scores")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResultId");
+
+                    b.ToTable("QualifyingScore");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.Race", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("ClimateId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("DateFinished")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("RaceLength")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Round")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("SeasonId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("TrackId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -636,46 +728,75 @@ namespace SimTECH.Migrations
                     b.ToTable("Race");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.RaceOccurrence", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Occurrences")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("RaceId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RaceId");
+
+                    b.ToTable("RaceOccurrence");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.Result", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<int>("Defended")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("FastestLap")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Grid")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long?>("IncidentId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Overtaken")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Position")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("RaceId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Score")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("SeasonDriverId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("SeasonTeamId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Setup")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("TyreId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("TyreLife")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -696,54 +817,69 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("GridBonus")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("LeagueId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("MaximumDriversInRace")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MistakeMaximum")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MistakeMinimum")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MistakeRolls")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PitCostSubtractCaution")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("PitMaximum")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("PitMinimum")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("PointsFastestLap")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("PointsPole")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("QualifyingAmountQ2")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("QualifyingAmountQ3")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("QualifyingFormat")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("QualifyingRNG")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("RngMaximum")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("RngMinimum")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("RunAmountSession")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Year")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -756,42 +892,40 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Attack")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Defense")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("DriverId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("HiddenPoints")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Number")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Points")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Reliability")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("SeasonId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long?>("SeasonTeamId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Skill")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("TeamRole")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -808,28 +942,26 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("EngineId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("Power")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("Rebadged")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Reliability")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("SeasonId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -844,62 +976,60 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Accent")
                         .IsRequired()
                         .HasMaxLength(9)
-                        .HasColumnType("nchar(9)")
+                        .HasColumnType("TEXT")
                         .IsFixedLength();
 
                     b.Property<int>("Aero")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("BaseValue")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Chassis")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Colour")
                         .IsRequired()
                         .HasMaxLength(9)
-                        .HasColumnType("nchar(9)")
+                        .HasColumnType("TEXT")
                         .IsFixedLength();
 
                     b.Property<int>("HiddenPoints")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("ManufacturerId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("Points")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Powertrain")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Principal")
                         .IsRequired()
                         .HasColumnType("nvarchar(150)");
 
                     b.Property<int>("Reliability")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("SeasonEngineId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("SeasonId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("TeamId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -918,16 +1048,13 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
+                    b.Property<int>("Name")
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -938,25 +1065,25 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Biography")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Country")
-                        .IsRequired()
+                    b.Property<int>("Country")
                         .HasMaxLength(2)
-                        .HasColumnType("varchar(2)");
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<bool>("Mark")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -966,10 +1093,10 @@ namespace SimTECH.Migrations
             modelBuilder.Entity("SimTECH.Data.Models.TeamTrait", b =>
                 {
                     b.Property<long>("TeamId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("TraitId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("TeamId", "TraitId");
 
@@ -982,37 +1109,35 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<double>("AeroMod")
-                        .HasColumnType("float");
+                        .HasColumnType("REAL");
 
                     b.Property<double>("ChassisMod")
-                        .HasColumnType("float");
+                        .HasColumnType("REAL");
 
                     b.Property<int>("Country")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<double>("DefenseMod")
-                        .HasColumnType("float");
+                        .HasColumnType("REAL");
 
                     b.Property<double>("Length")
-                        .HasColumnType("float");
+                        .HasColumnType("REAL");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<double>("PowerMod")
-                        .HasColumnType("float");
+                        .HasColumnType("REAL");
 
                     b.Property<double>("QualifyingMod")
-                        .HasColumnType("float");
+                        .HasColumnType("REAL");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -1050,10 +1175,10 @@ namespace SimTECH.Migrations
             modelBuilder.Entity("SimTECH.Data.Models.TrackTrait", b =>
                 {
                     b.Property<long>("TrackId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("TraitId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("TrackId", "TraitId");
 
@@ -1066,59 +1191,57 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Attack")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("CarReliability")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Defense")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("DriverReliability")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("EngineReliability")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("ForWetConditions")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(150)");
 
                     b.Property<int>("QualifyingPace")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("RacePace")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("RngMax")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("RngMin")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("WearMax")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("WearMin")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -1131,7 +1254,7 @@ namespace SimTECH.Migrations
                             Attack = 0,
                             CarReliability = 0,
                             Defense = 0,
-                            Description = "Speed in moist",
+                            Description = "Faster when it's wet",
                             DriverReliability = 3,
                             EngineReliability = 0,
                             ForWetConditions = true,
@@ -1191,40 +1314,41 @@ namespace SimTECH.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Colour")
                         .IsRequired()
                         .HasMaxLength(9)
-                        .HasColumnType("nchar(9)")
+                        .HasColumnType("TEXT")
                         .IsFixedLength();
 
                     b.Property<int>("DistanceMax")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("DistanceMin")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("ForWet")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Pace")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PitWhenBelow")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("WearMax")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("WearMin")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -1234,12 +1358,13 @@ namespace SimTECH.Migrations
                         new
                         {
                             Id = 1L,
-                            Colour = "#fa0536  ",
-                            DistanceMax = 0,
-                            DistanceMin = 0,
+                            Colour = "#fa0536ff",
+                            DistanceMax = 125,
+                            DistanceMin = 50,
                             ForWet = false,
                             Name = "Soft",
                             Pace = 200,
+                            PitWhenBelow = 20,
                             State = 1,
                             WearMax = 25,
                             WearMin = 15
@@ -1247,12 +1372,13 @@ namespace SimTECH.Migrations
                         new
                         {
                             Id = 2L,
-                            Colour = "#f4ea26  ",
-                            DistanceMax = 0,
-                            DistanceMin = 0,
+                            Colour = "#f4ea26ff",
+                            DistanceMax = 999,
+                            DistanceMin = 125,
                             ForWet = false,
                             Name = "Medium",
                             Pace = 180,
+                            PitWhenBelow = 15,
                             State = 1,
                             WearMax = 15,
                             WearMin = 9
@@ -1260,12 +1386,13 @@ namespace SimTECH.Migrations
                         new
                         {
                             Id = 3L,
-                            Colour = "#dfdde9  ",
-                            DistanceMax = 0,
-                            DistanceMin = 0,
+                            Colour = "#dfdde9ff",
+                            DistanceMax = 999,
+                            DistanceMin = 175,
                             ForWet = false,
                             Name = "Hard",
                             Pace = 160,
+                            PitWhenBelow = 10,
                             State = 1,
                             WearMax = 10,
                             WearMin = 6
@@ -1273,44 +1400,31 @@ namespace SimTECH.Migrations
                         new
                         {
                             Id = 4L,
-                            Colour = "#bded80  ",
-                            DistanceMax = 0,
-                            DistanceMin = 0,
+                            Colour = "#bded80ff",
+                            DistanceMax = 999,
+                            DistanceMin = 100,
                             ForWet = false,
                             Name = "Grooved",
                             Pace = 100,
+                            PitWhenBelow = 0,
                             State = 2,
                             WearMax = 3,
                             WearMin = 1
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            Colour = "#3399ffff",
+                            DistanceMax = 999,
+                            DistanceMin = 50,
+                            ForWet = true,
+                            Name = "Wet",
+                            Pace = 50,
+                            PitWhenBelow = 0,
+                            State = 1,
+                            WearMax = 1,
+                            WearMin = 0
                         });
-                });
-
-            modelBuilder.Entity("SimTECH.Data.Models.User", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("Country")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Contract", b =>
@@ -1321,9 +1435,11 @@ namespace SimTECH.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SimTECH.Data.Models.League", null)
+                    b.HasOne("SimTECH.Data.Models.League", "League")
                         .WithMany("Contracts")
-                        .HasForeignKey("LeagueId");
+                        .HasForeignKey("LeagueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SimTECH.Data.Models.Team", "Team")
                         .WithMany("Contracts")
@@ -1333,7 +1449,20 @@ namespace SimTECH.Migrations
 
                     b.Navigation("Driver");
 
+                    b.Navigation("League");
+
                     b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("SimTECH.Data.Models.DevelopmentLog", b =>
+                {
+                    b.HasOne("SimTECH.Data.Models.Season", "Season")
+                        .WithMany()
+                        .HasForeignKey("SeasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Season");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.DevelopmentRange", b =>
@@ -1403,6 +1532,28 @@ namespace SimTECH.Migrations
                         .HasForeignKey("SeasonId");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.PracticeScore", b =>
+                {
+                    b.HasOne("SimTECH.Data.Models.Result", "Result")
+                        .WithMany("PracticeScores")
+                        .HasForeignKey("ResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Result");
+                });
+
+            modelBuilder.Entity("SimTECH.Data.Models.QualifyingScore", b =>
+                {
+                    b.HasOne("SimTECH.Data.Models.Result", "Result")
+                        .WithMany("QualifyingScores")
+                        .HasForeignKey("ResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Result");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.Race", b =>
                 {
                     b.HasOne("SimTECH.Data.Models.Climate", "Climate")
@@ -1428,6 +1579,17 @@ namespace SimTECH.Migrations
                     b.Navigation("Season");
 
                     b.Navigation("Track");
+                });
+
+            modelBuilder.Entity("SimTECH.Data.Models.RaceOccurrence", b =>
+                {
+                    b.HasOne("SimTECH.Data.Models.Race", "Race")
+                        .WithMany("Occurrences")
+                        .HasForeignKey("RaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Race");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Result", b =>
@@ -1624,12 +1786,18 @@ namespace SimTECH.Migrations
 
             modelBuilder.Entity("SimTECH.Data.Models.Race", b =>
                 {
+                    b.Navigation("Occurrences");
+
                     b.Navigation("Results");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Result", b =>
                 {
                     b.Navigation("LapScores");
+
+                    b.Navigation("PracticeScores");
+
+                    b.Navigation("QualifyingScores");
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.Season", b =>

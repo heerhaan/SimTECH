@@ -15,12 +15,11 @@ namespace SimTECH.Data.Configurations
                 .IsRequired();
 
             builder.Property(e => e.Country)
-                .HasColumnType("varchar(2)")
+                .HasColumnType("nvarchar(2)")
                 .IsRequired()
                 .HasMaxLength(2);
 
-            builder.Property(e => e.Biography)
-                .HasColumnType("nvarchar(max)");
+            builder.Property(e => e.Biography);
         }
     }
 }

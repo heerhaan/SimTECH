@@ -14,8 +14,7 @@ namespace SimTECH.Data.Configurations
                 .HasColumnType("nvarchar(150)")
                 .IsRequired();
 
-            builder.Property(e => e.Description)
-                .HasColumnType("nvarchar(max)");
+            builder.Property(e => e.Description);
         }
     }
 }
