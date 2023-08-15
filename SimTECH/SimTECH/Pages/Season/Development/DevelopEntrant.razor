@@ -3,6 +3,8 @@
 <MudTable Items="@DevelopedEntrants" Dense="true" id="development-results">
     <ToolBarContent>
         <MudText Typo="Typo.h5">Development</MudText>
+        <MudDivider Vertical="true" Class="mx-2" />
+        <MudText Typo="Typo.h5">@SelectedAspect.ReadableAspect()</MudText>
         <MudSpacer />
         <MudButtonGroup Color="Color.Info" Variant="Variant.Outlined">
             @if (ranDevelop)
@@ -103,6 +105,7 @@
 
 @code {
     [Parameter] public IEnumerable<DevelopedEntrant> DevelopedEntrants { get; set; } = Enumerable.Empty<DevelopedEntrant>();
+    [Parameter] public Aspect SelectedAspect { get; set; }
     [Parameter] public Quantifier SelectedType { get; set; }
     [Parameter] public bool ShowOptionalColumn { get; set; }
     [Parameter] public EventCallback OnSaveDevelopment { get; set; }
