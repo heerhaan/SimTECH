@@ -1,37 +1,39 @@
-﻿<div id="practice-table">
-    @if (!loading)
-    {
-        <MudPaper MinHeight="60px">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
-                <CountryFlag Code="@raceCountry" />
-                <MudText Typo="Typo.h5">@raceName</MudText>
+﻿<MudContainer MaxWidth="MaxWidth.Large">
+    <div id="practice-table">
+        @if (!loading)
+        {
+            <MudPaper MinHeight="60px">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
+                    <CountryFlag Code="@raceCountry" />
+                    <MudText Typo="Typo.h5">@raceName</MudText>
 
-                <MudSpacer />
+                    <MudSpacer />
 
-                <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
-                    <ScreenshotButton TargetId="practice-table" Class="btn-md" />
-                    @if (!PracticeSession.IsFinished)
-                    {
-                        @if (advancedRuns == amountRuns)
+                    <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
+                        <ScreenshotButton TargetId="practice-table" Class="btn-md" />
+                        @if (!PracticeSession.IsFinished)
                         {
-                            <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
+                            @if (advancedRuns == amountRuns)
+                            {
+                                <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
+                            }
+                            else
+                            {
+                                <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
+                            }
                         }
-                        else
-                        {
-                            <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
-                        }
-                    }
-                </MudButtonGroup>
-            </MudStack>
-        </MudPaper>
-        <MudPaper>
-            <CommonSession Drivers="@practiceDrivers"
-                           AmountRuns="@amountRuns"
-                           HighestScore="@highestScore"
-                           LowestScore="@lowestScore" />
-        </MudPaper>
-    }
-</div>
+                    </MudButtonGroup>
+                </MudStack>
+            </MudPaper>
+            <MudPaper>
+                <CommonSession Drivers="@practiceDrivers"
+                               AmountRuns="@amountRuns"
+                               HighestScore="@highestScore"
+                               LowestScore="@lowestScore" />
+            </MudPaper>
+        }
+    </div>
+</MudContainer>
 
 @code {
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
