@@ -16,4 +16,8 @@ namespace SimTECH.PageModels.Racing
 
         public double GapMarge { get; set; }
     }
+
+    public static class ExtendRaweCeek
+    {
+    }
 }

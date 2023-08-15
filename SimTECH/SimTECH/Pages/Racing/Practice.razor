@@ -51,14 +51,9 @@
 
     protected override void OnInitialized()
     {
-        gapMarge = RaweCeek.GapMarge / 2;
-    }
-
-    protected override void OnParametersSet()
-    {
         loading = true;
 
-        practiceDrivers.Clear();
+        gapMarge = RaweCeek.GapMarge / 2;
 
         raceName = $"{RaweCeek.Race.Name} - PRACTICE {PracticeSession.SessionIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
@@ -72,8 +67,8 @@
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
 
-            var driverScore = PracticeSession.SessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId );
-            
+            var driverScore = PracticeSession.SessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId);
+
             if (driverScore?.Scores?.Any() ?? false)
             {
                 mappedDriver.Scores = driverScore.Scores;

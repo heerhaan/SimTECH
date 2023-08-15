@@ -1,4 +1,8 @@
-﻿<MudTable Items="@Drivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense collapse" RowStyleFunc="@_sessionRowStyles" id="session-table">
+﻿<MudTable Items="@Drivers.OrderBy(e => e.Position)"
+          Dense="true"
+          Class="extra-dense collapse"
+          RowStyleFunc="@_sessionRowStyles"
+          id="session-table">
     <HeaderContent>
         <MudTh></MudTh>
         <MudTh Class="accent-cell"></MudTh>
@@ -80,7 +84,7 @@
     int worstScore;
     int bestScore;
 
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
         var scoreNumbers = Drivers.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
         if (scoreNumbers.Any())
@@ -95,10 +99,10 @@
     //public static Func<SeasonTeam, string> TeamFullStyleFunc => team => SetFullColourstyle(team.Colour, team.Accent);
     private Func<SessionDriver, int, string> _sessionRowStyles => (driver, index) =>
     {
-        if (driver.Position == ProgressCutoff)
+        if (driver.Position == ProgressCutoff && driver.Position != 0)
             return "border-bottom: 2px solid red";
 
-        if (driver.Position == EntryCutoff)
+        if (driver.Position == EntryCutoff && driver.Position != 0)
             return "border-bottom: 2px solid mediumpurple";
 
         return string.Empty;
@@ -106,15 +110,12 @@
 
     private bool TryLocateCutoff(int position, out Tuple<string, string> cutoff)
     {
-        cutoff = default;
-
-        if (position == 0)
-            return false;
-        if (position == ProgressCutoff)
+        if (position == ProgressCutoff && position != 0)
             cutoff = Tuple.Create("OUT", "background-color: red");
-        else if (position == EntryCutoff)
+        else if (position == EntryCutoff && position != 0)
             cutoff = Tuple.Create("DNQ", "background-color: mediumpurple");
 
+        cutoff = default;
         return cutoff != default;
     }
 }

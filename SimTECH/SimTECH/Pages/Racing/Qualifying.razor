@@ -56,6 +56,8 @@
 
     protected override void OnInitialized()
     {
+        loading = true;
+
         raceName = $"{RaweCeek.Race.Name} - QUALIFYING {QualySession.SessionIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
@@ -67,13 +69,6 @@
             highestScore = QualySession.SessionScores.SelectMany(e => e.Scores).Max();
 
         gapMarge = RaweCeek.GapMarge / 2;
-    }
-
-    protected override void OnParametersSet()
-    {
-        loading = true;
-
-        qualyDrivers.Clear();
 
         foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.Grid).Take(QualySession.AllowedEntries))
         {
