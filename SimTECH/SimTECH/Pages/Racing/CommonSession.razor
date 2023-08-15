@@ -10,7 +10,7 @@
         <MudTh Class="number-col">NO</MudTh>
         <MudTh>Team</MudTh>
         <MudTh Class="number-col-xl">PWR</MudTh>
-        @for (int i = 1; i <= amountRuns; i++)
+        @for (int i = 1; i <= AmountRuns; i++)
         {
             var j = i;
             <MudTh Class="number-col-lg">@j</MudTh>
@@ -47,7 +47,7 @@
         {
             var j = i;
             <MudTd Class="number-col-xl">
-                <GradientColour Min="@worstScore" Max="@bestScore" Value="@(context.Scores[j])">
+                <GradientColour Min="@LowestScore" Max="@HighestScore" Value="@(context.Scores[j])">
                     <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.Scores[j])</MudText>
                 </GradientColour>
             </MudTd>
@@ -79,22 +79,8 @@
     [Parameter] public int AmountRuns { get; set; }
     [Parameter] public int EntryCutoff { get; set; }
     [Parameter] public int ProgressCutoff { get; set; }
-
-    int amountRuns;
-    int worstScore;
-    int bestScore;
-
-    protected override void OnInitialized()
-    {
-        var scoreNumbers = Drivers.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
-        if (scoreNumbers.Any())
-        {
-            worstScore = scoreNumbers.Min();
-            bestScore = scoreNumbers.Max();
-        }
-
-        amountRuns = AmountRuns == 0 ? 2 : AmountRuns;
-    }
+    [Parameter] public int HighestScore { get; set; }
+    [Parameter] public int LowestScore { get; set; }
 
     //public static Func<SeasonTeam, string> TeamFullStyleFunc => team => SetFullColourstyle(team.Colour, team.Accent);
     private Func<SessionDriver, int, string> _sessionRowStyles => (driver, index) =>

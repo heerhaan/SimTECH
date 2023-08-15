@@ -26,7 +26,9 @@
         </MudPaper>
         <MudPaper>
             <CommonSession Drivers="@practiceDrivers"
-                           AmountRuns="@amountRuns" />
+                           AmountRuns="@amountRuns"
+                           HighestScore="@highestScore"
+                           LowestScore="@lowestScore" />
         </MudPaper>
     }
 </div>
@@ -46,6 +48,7 @@
     int practiceRng;
     int advancedRuns;
     int highestScore;
+    int lowestScore = int.MaxValue;
 
     double gapMarge;
 
@@ -61,7 +64,11 @@
         practiceRng = RaweCeek.Season.QualifyingRNG;
 
         if (PracticeSession.IsFinished)
-            highestScore = PracticeSession.SessionScores.SelectMany(e => e.Scores).Max();
+        {
+            var scoreNumbers = PracticeSession.SessionScores.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
+            highestScore = scoreNumbers.Max();
+            lowestScore = scoreNumbers.Min();
+        }
 
         foreach (var driver in RaweCeek.RaweCeekDrivers)
         {
@@ -97,6 +104,8 @@
 
             if (result > highestScore)
                 highestScore = result;
+            else if (result < lowestScore)
+                lowestScore = result;
         }
 
         foreach (var driver in practiceDrivers.OrderByDescending(e => e.MaxScore()))

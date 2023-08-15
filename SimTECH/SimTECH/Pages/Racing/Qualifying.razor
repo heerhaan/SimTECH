@@ -28,7 +28,9 @@
             <CommonSession Drivers="@qualyDrivers"
                            AmountRuns="@amountRuns"
                            EntryCutoff="@entryCutoff"
-                           ProgressCutoff="@progressCutoff" />
+                           ProgressCutoff="@progressCutoff"
+                           HighestScore="@highestScore"
+                           LowestScore="@lowestScore" />
         </MudPaper>
     }
 </div>
@@ -51,6 +53,7 @@
     int entryCutoff;
     int progressCutoff;
     int highestScore;
+    int lowestScore;
 
     double gapMarge;
 
@@ -66,7 +69,11 @@
         progressCutoff = QualySession.ProgressionCutoff;
 
         if (QualySession.IsFinished)
-            highestScore = QualySession.SessionScores.SelectMany(e => e.Scores).Max();
+        {
+            var scoreNumbers = QualySession.SessionScores.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
+            highestScore = scoreNumbers.Max();
+            lowestScore = scoreNumbers.Min();
+        }
 
         gapMarge = RaweCeek.GapMarge / 2;
 
@@ -102,6 +109,11 @@
         {
             var result = driver.Power + NumberHelper.RandomInt(qualyRng);
             driver.Scores[advancedRuns] = result;
+
+            if (result > highestScore)
+                highestScore = result;
+            else if (result < lowestScore)
+                lowestScore = result;
         }
 
         foreach (var driver in qualyDrivers.OrderByDescending(e => e.MaxScore()))
