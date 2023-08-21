@@ -277,7 +277,7 @@
     protected override void OnInitialized()
     {
         possibleIncidents.AddRange(Incidents.Where(e => e.State == State.Active));
-        availableTyres.AddRange(Tyres.Where(e => e.State == State.Active));
+        availableTyres.AddRange(Tyres.Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == RaweCeek.Season.LeagueId) ?? false)));
 
         minLapRng = RaweCeek.Season.RngMinimum;
         maxLapRng = RaweCeek.Season.RngMaximum;

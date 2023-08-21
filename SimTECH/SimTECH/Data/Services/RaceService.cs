@@ -153,6 +153,9 @@ namespace SimTECH.Data.Services
             if (race.State != State.Concept)
                 throw new InvalidOperationException("Can only activate races in concept state");
 
+            var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
+            var leagueId = season.LeagueId;
+
             // Should we return any of this?
             var hasExistingResults = await context.Result.AnyAsync(e => e.RaceId == raceId);
             if (hasExistingResults)
@@ -162,8 +165,9 @@ namespace SimTECH.Data.Services
                 .Where(e => e.SeasonId == race.SeasonId && e.SeasonTeamId.HasValue)
                 .ToListAsync();
 
+            var validLeagueTyres = await context.LeagueTyre.Where(e => e.LeagueId == leagueId).Select(e => e.TyreId).ToListAsync();
             var availableTyres = await context.Tyre
-                .Where(e => e.State == State.Active && e.ForWet == race.Climate.IsWet)
+                .Where(e => e.State == State.Active && e.ForWet == race.Climate.IsWet && validLeagueTyres.Contains(e.Id))
                 .ToListAsync();
 
             if (availableTyres?.Any() != true)
