@@ -1,4 +1,6 @@
-﻿<MudDialog>
+﻿@inject IOptions<SimConfig> _config
+
+<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h3">Modify league</MudText>
         <MudText Typo="Typo.body2">
@@ -10,14 +12,15 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model">
+        @if (!loading)
+        {
             <MudGrid>
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">League settings</MudText>
                     <MudDivider />
                     <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
                     <MudNumericField T="int"
-                                     @bind-Value="Model.RaceLength"
+                    @bind-Value="Model.RaceLength"
                                      Min="0"
                                      Step="10"
                                      Label="Length (km)"
@@ -37,31 +40,66 @@
                             }
                         </MudChipSet>
                     }
-                </MudItem>
-                <MudItem xs="4">
+
                     <MudText Typo="Typo.subtitle1">Options</MudText>
                     <MudDivider />
                     <MudStack>
                         <MudSwitchM3 @bind-Checked="Model.UsePenalty"
                                      ThumbIcon="@Icons.Material.Filled.Done"
                                      ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Enable Penalties"
+                                     Label="Penalties"
                                      Color="Color.Secondary" />
 
                         <MudSwitchM3 @bind-Checked="Model.EnableFatality"
                                      ThumbIcon="@Icons.Material.Filled.Done"
                                      ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Enable Fatalities"
+                                     Label="Fatalities"
                                      Color="Color.Secondary" />
 
                         <MudSwitchM3 @bind-Checked="Model.AllowContracting"
                                      ThumbIcon="@Icons.Material.Filled.Done"
                                      ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Enable Contracts"
+                                     Label="Contracts"
                                      Color="Color.Secondary" />
                     </MudStack>
-                    @if (errorValidations.Any())
-                    {
+                </MudItem>
+                <MudItem xs="4">
+                    <MudText Typo="Typo.subtitle1">Valid tyres for league<span style="color:red">*</span></MudText>
+                    <MudDivider />
+
+                    <MudTable T="Tyre"
+                              @bind-SelectedItems="@selectedTyres"
+                              Items="@Tyres"
+                              MultiSelection="true"
+                              SelectOnRowClick="true"
+                              Hover="true">
+                        <HeaderContent>
+                            <MudTh>Tyre</MudTh>
+                            <MudTh>Life bonus</MudTh>
+                            <MudTh>Wear</MudTh>
+                            <MudTh>Len</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <TyreElement Colour="@context.Colour">
+                                    @context.Name.ElementAt(0)
+                                </TyreElement>
+                            </MudTd>
+                            <MudTd>@context.Pace</MudTd>
+                            <MudTd>
+                                <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                    <MudText Typo="Typo.caption">@context.WearMin</MudText>
+                                    <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                                    <MudText Typo="Typo.caption">@context.WearMax</MudText>
+                                </MudStack>
+                            </MudTd>
+                            <MudTd>@context.ExpectedLength(advanceDistance)km</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudItem>
+                @if (errorValidations.Any())
+                {
+                    <MudItem xs="12">
                         <MudList>
                             <MudListSubheader>Error messages</MudListSubheader>
                             @foreach (var error in errorValidations)
@@ -71,8 +109,8 @@
                                 </MudListItem>
                             }
                         </MudList>
-                    }
-                </MudItem>
+                    </MudItem>
+                }
             </MudGrid>
             <MudStack Row="true" Justify="Justify.SpaceEvenly" Class="flex-wrap ">
                 @if (selectedAspects != null)
@@ -85,7 +123,7 @@
                     }
                 }
             </MudStack>
-        </MudForm>
+        }
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -97,11 +135,14 @@
     [CascadingParameter] protected MudDialogInstance? LeagueDialog { get; set; }
 
     [Parameter] public League? League { get; set; }
+    [Parameter] public List<Tyre> Tyres { get; set; }
 
     private EditLeagueModel Model;
     private bool loading = true;
+    int advanceDistance;
 
     private Dictionary<Aspect, List<EditRangeModel>> weightedAspects = new();
+    private HashSet<Tyre> selectedTyres = new();
 
     private static readonly Aspect[] rangeables = EnumHelper.RangeableAspects;
     private ICollection<object>? selectedAspects { get; set; }
@@ -120,7 +161,16 @@
                 weightedAspects[developGroup.Key].AddRange(developGroup);
 
             selectedAspects = Model.DevelopmentRanges.Select(e => e.Type).Distinct().Cast<object>().ToList();
+
+            foreach (var leagueTyre in Model.LeagueTyres)
+            {
+                var matchTyre = Tyres.FirstOrDefault(e => e.Id == leagueTyre.TyreId);
+                if (matchTyre != null)
+                    selectedTyres.Add(matchTyre);
+            }
         }
+
+        advanceDistance = _config.Value.CalculationDistance;
 
         loading = false;
     }
@@ -135,11 +185,19 @@
 
     private bool RunValidations()
     {
+        errorValidations.Clear();
+
         var isValid = true;
 
         if ((Model.RaceLength % 10) != 0)
         {
             errorValidations.Add("Race length should be a factor of 10");
+            isValid = false;
+        }
+
+        if (selectedTyres.Count(e => e.ForWet) == 0 || selectedTyres.Count(e => !e.ForWet) == 0)
+        {
+            errorValidations.Add("At least one normal and one wet tyre is required");
             isValid = false;
         }
 
@@ -153,6 +211,8 @@
 
         var activeAspects = selectedAspects?.Cast<Aspect>().ToList() ?? new();
         Model.DevelopmentRanges = weightedAspects.Where(e => activeAspects.Contains(e.Key)).SelectMany(e => e.Value).ToList();
+
+        Model.LeagueTyres = selectedTyres.Select(e => new EditLeagueTyreModel { LeagueId = Model.Id, TyreId = e.Id }).ToList();
 
         if (Model.IsDirty)
         {

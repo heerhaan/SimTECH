@@ -14,6 +14,8 @@ namespace SimTECH.Data.Models
         public int DistanceMin { get; set; }
         public int DistanceMax { get; set; }
         public bool ForWet { get; set; }
+
+        public IList<LeagueTyre>? LeagueTyres { get; set; }
     }
 
     public static class ExtendTyre

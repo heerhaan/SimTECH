@@ -14,6 +14,7 @@
         public IList<DevelopmentRange>? DevelopmentRanges { get; set; }
         public IList<Season>? Seasons { get; set; }
         public IList<Contract>? Contracts { get; set; }
+        public IList<LeagueTyre>? LeagueTyres { get; set; }
 
         public override int GetHashCode() => Name?.GetHashCode() ?? 0;
         public override string ToString() => string.IsNullOrEmpty(Name) ? "[Unknown]" : Name;

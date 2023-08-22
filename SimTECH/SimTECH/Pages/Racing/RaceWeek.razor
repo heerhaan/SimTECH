@@ -351,7 +351,9 @@
         var parameters = new DialogParameters 
             {
                 ["ResultId"] = resultId,
-                ["Tyres"] = tyres.Where(e => e.State == State.Active).ToList(),
+                ["Tyres"] = tyres
+                    .Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == RaweCeek.Season.LeagueId) ?? false))
+                    .ToList(),
             };
 
         var dialog = await _dialog.ShowAsync<TyrePicker>("Set tyre", parameters);

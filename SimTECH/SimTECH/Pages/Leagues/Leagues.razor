@@ -1,6 +1,7 @@
 ﻿@page "/leagues"
 @inject BreadcrumbProvider _bread
 @inject LeagueService LeagueService
+@inject TyreService _tyreService
 @inject IDialogService DialogService
 
 <PageTitle>Leagues</PageTitle>
@@ -48,6 +49,15 @@
                     </MudText>
                 </MudPaper>
 
+                <MudPaper Class="px-4 py-2">
+                    <MudStack Row="true" Class="pa-0">
+                        @foreach (var tyreId in context.Item.LeagueTyres ?? new List<LeagueTyre>())
+                        {
+                            <MudText Typo="Typo.h5">ID: @tyreId.TyreId</MudText>
+                        }
+                    </MudStack>
+                </MudPaper>
+
                 @if (context.Item.DevelopmentRanges != null)
                 {
                     <MudText Typo="Typo.h6">Development ranges</MudText>
@@ -92,6 +102,8 @@
     DialogOptions dialogOptions = new() { MaxWidth = MaxWidth.ExtraLarge };
     List<League> LeagueData = new List<League>();
 
+    List<Tyre> tyres;
+
     protected override async Task OnInitializedAsync()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -101,12 +113,13 @@
         });
 
         LeagueData = await LeagueService.GetLeagues();
+        tyres = await _tyreService.GetTyres(StateFilter.Active);
     }
 
     async Task AddLeague() => await UpdateLeague(null);
     async Task UpdateLeague(League? item)
     {
-        var parameters = new DialogParameters { ["League"] = (item) };
+        var parameters = new DialogParameters { ["League"] = (item), ["Tyres"] = tyres };
 
         var dialog = await DialogService.ShowAsync<LeagueEditor>("Modify League", parameters, dialogOptions);
         var result = await dialog.Result;
