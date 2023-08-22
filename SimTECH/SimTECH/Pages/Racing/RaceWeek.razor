@@ -45,7 +45,7 @@
                             <MudTabs @ref="_qualyTabs" Centered="true" Outlined="true">
                                 @foreach (var session in qualySessions)
                                 {
-                                    <MudTabPanel Text="@($"Q{session.SessionIndex}")" Icon="@Icons.Material.Filled.AccessTime">
+                                    <MudTabPanel Text="@($"Q{session.SessionIndex}")" Icon="@Icons.Material.Filled.AccessTime" Disabled="@session.IsDisabled">
                                         <Qualifying QualySession="@session"
                                                     OnFinish="PersistQualifying" />
                                     </MudTabPanel>
@@ -300,16 +300,21 @@
 
         var qualyScores = await _raceService.GetQualifyingScores(RaceId);
         var qSessionCount = RaweCeek.Season.QualifyingFormat.SessionCount();
+        var previousSessionIsFinished = true;
 
         for (int i = 1; i <= qSessionCount; i++)
         {
             var currentScores = qualyScores.Where(e => e.Index == i).ToList();
+
             var qSession = new QualifyingSession
                 {
                     SessionIndex = i,
+                    IsDisabled = !previousSessionIsFinished,
                     IsFinished = currentScores.Any(),
                     SessionScores = currentScores,
                 };
+
+            previousSessionIsFinished = qSession.IsFinished;
 
             // REFACTOR: Er is hier vast een betere oplossing voor
             if (RaweCeek.Season.QualifyingFormat == QualyFormat.TripleEliminate)
@@ -328,7 +333,7 @@
                     qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ3;
                 }
             }
-            
+
             qualySessions.Add(qSession);
         }
 
@@ -440,7 +445,7 @@
             RaweCeek.Race.State = State.Advanced;
 
             // Removes the last added practice session
-            if (practiceLoaded)
+            if (practiceLoaded && practiceSessions.Any())
                 practiceSessions.Remove(practiceSessions.MaxBy(e => e.SessionIndex));
         }
         else
@@ -452,6 +457,9 @@
                 matchingDriver.Grid = res.Position;
                 matchingDriver.Position = res.Position;
             }
+
+            var nextSession = qualySessions.First(e => e.SessionIndex == (1 + qualyIndex));
+            nextSession.IsDisabled = false;
 
             // Navigate to the next qualifying session
             //var nextQ = 1 + qualyIndex;

@@ -4,10 +4,10 @@
     <TitleContent>
         <MudText Typo="Typo.h3">Modify league</MudText>
         <MudText Typo="Typo.body2">
-            For the development ranges: the range which will be used is the first comparer ('less than') which is equal or less than
+            For the development ranges: the range which will be used is the first comparer ('less than') which is equal or less than 
             the corresponding value. (For a skill of 31, it would take the first comparer which is equal or less than 31.)
             <br />
-            Keep in mind that race length is used to determine the amount of calcuations each race,
+            Keep in mind that race length is used to determine the amount of calcuations each race, 
             which is why we round to 10 since every ten decimals amounts to one additional calculation.
         </MudText>
     </TitleContent>
@@ -20,7 +20,7 @@
                     <MudDivider />
                     <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
                     <MudNumericField T="int"
-                    @bind-Value="Model.RaceLength"
+                                     @bind-Value="Model.RaceLength"
                                      Min="0"
                                      Step="10"
                                      Label="Length (km)"
@@ -64,7 +64,7 @@
                     </MudStack>
                 </MudItem>
                 <MudItem xs="4">
-                    <MudText Typo="Typo.subtitle1">Valid tyres for league<span style="color:red">*</span></MudText>
+                    <MudText Typo="Typo.subtitle1">Available tyres for league<span style="color:red">*</span></MudText>
                     <MudDivider />
 
                     <MudTable T="Tyre"
@@ -72,12 +72,17 @@
                               Items="@Tyres"
                               MultiSelection="true"
                               SelectOnRowClick="true"
+                              Dense="true"
                               Hover="true">
                         <HeaderContent>
                             <MudTh>Tyre</MudTh>
-                            <MudTh>Life bonus</MudTh>
+                            <MudTh>
+                                <MudTooltip Text="Life bonus; additional pace per newly fitted tyre">
+                                    LB
+                                </MudTooltip>
+                            </MudTh>
                             <MudTh>Wear</MudTh>
-                            <MudTh>Len</MudTh>
+                            <MudTh>Length</MudTh>
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd>

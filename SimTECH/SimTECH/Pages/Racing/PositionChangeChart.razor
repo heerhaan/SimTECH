@@ -3,7 +3,7 @@
         <MudText Typo="Typo.h5">Position change chart</MudText>
     </TitleContent>
     <DialogContent>
-        <MudPaper MinWidth="1000px" MinHeight="800px" Class="pa-4">
+        <MudPaper MinWidth="900px" MinHeight="600px" Class="pa-4">
             @if (!loading)
             {
                 <ApexCharts.ApexChart TItem="DataPoint" Title="Position progression" Options="@options" Height="500">
@@ -19,26 +19,15 @@
                                                     Stroke="@driver.Stroke" />
                     }
 
-                    @*<ApexCharts.ApexPointSeries TItem="DataPoint"
-                        Items="@DnfSet.DataPoints"
-                        Name="@DnfSet.Label"
-                        SeriesType="ApexCharts.SeriesType.Area"
-                        XValue="(e => e.XData)"
-                        YValue="(e => e.YData)"
-                        OrderBy="(e => e.X)"
-                        Stroke="@DnfSet.Stroke" />*@
-                </ApexCharts.ApexChart>
-
-                @*<ApexCharts.ApexChart TItem="DataPoint" Title="Other" Options="@moreOptions" Height="300">
                     <ApexCharts.ApexPointSeries TItem="DataPoint"
-                        Items="@DnfSet.DataPoints"
-                        Name="@DnfSet.Label"
-                        SeriesType="ApexCharts.SeriesType.Area"
-                        XValue="(e => e.XData)"
-                        YValue="(e => e.YData)"
-                        OrderBy="(e => e.X)"
-                        Stroke="@DnfSet.Stroke" />
-                    </ApexCharts.ApexChart>*@
+                                                Items="@retiredSet.DataPoints"
+                                                Name="@retiredSet.Label"
+                                                SeriesType="ApexCharts.SeriesType.Area"
+                                                XValue="(e => e.XData)"
+                                                YValue="(e => e.YData)"
+                                                OrderBy="(e => e.X)"
+                                                Stroke="@retiredSet.Stroke" />
+                </ApexCharts.ApexChart>
             }
         </MudPaper>
     </DialogContent>
@@ -54,10 +43,10 @@
     List<DataSet> dataSets = new();
     DataSet retiredSet = new()
         {
-            Label = "DidNotFinish",
+            Label = "Retirements",
             Stroke = new ApexCharts.SeriesStroke
             {
-                Color = "#ff4d4d",
+                Color = "#D11D3E44", // trans-red: #FF4D4D77
                 Width = 1,
             },
         };
@@ -67,15 +56,10 @@
 
     protected override void OnInitialized()
     {
-        options.Yaxis = new()
-            {
-                new ApexCharts.YAxis
-                {
-                    Reversed = true,
-                },
-            };
-
         driverCount = Drivers.Count;
+
+        options.Yaxis = new();
+        options.Yaxis.Add(new ApexCharts.YAxis { Reversed = true, Min = 1 });
 
         var positionData = DetermineLapPositions();
 
@@ -126,7 +110,7 @@
             }
         }
 
-        int retirementsSum = 0;
+        //int retirementsSum = 0;
         foreach (var lapData in positionData.GroupBy(e => e.Order))
         {
             int indexer = 0;
@@ -135,8 +119,8 @@
                 driverLap.Position = ++indexer;
             }
 
-            retirementsSum += lapData.Count(e => e.DidNotFinish);
-            retiredSet.DataPoints.Add(new DataPoint(lapData.Key, retirementsSum));
+            //retirementsSum += lapData.Count(e => e.DidNotFinish);
+            retiredSet.DataPoints.Add(new DataPoint(lapData.Key, lapData.Count(e => !e.DidNotFinish)));
         }
 
         return positionData;
