@@ -96,12 +96,13 @@
 
     private bool TryLocateCutoff(int position, out Tuple<string, string> cutoff)
     {
+        cutoff = default;
+
         if (position == ProgressCutoff && position != 0)
             cutoff = Tuple.Create("OUT", "background-color: red");
         else if (position == EntryCutoff && position != 0)
             cutoff = Tuple.Create("DNQ", "background-color: mediumpurple");
-
-        cutoff = default;
+        
         return cutoff != default;
     }
 }
