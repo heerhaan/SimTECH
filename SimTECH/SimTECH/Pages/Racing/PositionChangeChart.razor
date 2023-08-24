@@ -38,7 +38,6 @@
     [Parameter, EditorRequired] public List<RaceDriver> Drivers { get; set; }
 
     ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
-    ApexCharts.ApexChartOptions<DataPoint> moreOptions = Constants.ChartOptionsDefault;
 
     List<DataSet> dataSets = new();
     DataSet retiredSet = new()
@@ -46,7 +45,7 @@
             Label = "Retirements",
             Stroke = new ApexCharts.SeriesStroke
             {
-                Color = "#D11D3E44", // trans-red: #FF4D4D77
+                Color = "#FF4A6B66", // trans-red: #FF4D4D77 #D11D3E44  #FF4A6B66
                 Width = 1,
             },
         };
@@ -59,15 +58,16 @@
         driverCount = Drivers.Count;
 
         options.Yaxis = new();
-        options.Yaxis.Add(new ApexCharts.YAxis { Reversed = true, Min = 1 });
 
         var positionData = DetermineLapPositions();
 
         var seenTeamIdentifiers = new List<long>(Drivers.Count);
+        bool isFirst = true;
 
         foreach (var driver in Drivers)
         {
             var dataSet = new DataSet { Label = driver.FullName };
+            options.Yaxis.Add(new ApexCharts.YAxis { Reversed = true, Min = 1, Max = driverCount, SeriesName = driver.FullName, Show = isFirst });
 
             foreach (var driverPosition in positionData.Where(e => e.ResultId == driver.ResultId))
             {
@@ -80,7 +80,10 @@
 
             seenTeamIdentifiers.Add(driver.SeasonTeamId);
             dataSets.Add(dataSet);
+            isFirst = false;
         }
+
+        options.Yaxis.Add(new ApexCharts.YAxis { SeriesName = "Retirements", Min = 0, Max = driverCount, Show = false });
 
         loading = false;
     }
@@ -110,7 +113,7 @@
             }
         }
 
-        //int retirementsSum = 0;
+        int retirementsSum = 0;
         foreach (var lapData in positionData.GroupBy(e => e.Order))
         {
             int indexer = 0;
@@ -119,8 +122,9 @@
                 driverLap.Position = ++indexer;
             }
 
-            //retirementsSum += lapData.Count(e => e.DidNotFinish);
-            retiredSet.DataPoints.Add(new DataPoint(lapData.Key, lapData.Count(e => !e.DidNotFinish)));
+            retirementsSum += lapData.Count(e => e.DidNotFinish);
+            retiredSet.DataPoints.Add(new DataPoint(lapData.Key, retirementsSum));
+            //retiredSet.DataPoints.Add(new DataPoint(lapData.Key, lapData.Count(e => !e.DidNotFinish)));
         }
 
         return positionData;
