@@ -62,7 +62,7 @@
 
                     <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
                         <CustomIcon Icon="@RaweCeek.Climate.Icon" Colour="@RaweCeek.Climate.Colour">
-                            <MudText Typo="Typo.h5" Color="Color.Inherit">@RaweCeek.Climate.Terminology</MudText>
+                            <MudText Typo="Typo.h5">@RaweCeek.Climate.Terminology</MudText>
                         </CustomIcon>
                     </div>
                 </MudStack>
@@ -882,8 +882,16 @@
         await OnFinish.InvokeAsync();
     }
 
+    private static readonly DialogOptions dialogOptions = new()
+    {
+        MaxWidth = MaxWidth.ExtraLarge,
+        NoHeader = true,
+        CloseOnEscapeKey = true,
+        DisableBackdropClick = false,
+    };
+
     private async Task ShowGapperChart() => _ = 
-        await _dialog.ShowAsync<GapChartDialog>("Gapper chart", new DialogParameters { ["Drivers"] = raceDrivers });
+        await _dialog.ShowAsync<GapChartDialog>("Gapper chart", new DialogParameters { ["Drivers"] = raceDrivers }, dialogOptions);
     private async Task ShowPositionChart() => _ =
-        await _dialog.ShowAsync<PositionChangeChart>("Position chart", new DialogParameters { ["Drivers"] = raceDrivers });
+        await _dialog.ShowAsync<PositionChangeChart>("Position chart", new DialogParameters { ["Drivers"] = raceDrivers }, dialogOptions);
 }

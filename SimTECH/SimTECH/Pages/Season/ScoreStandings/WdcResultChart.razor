@@ -2,14 +2,16 @@
     <TitleContent>
         <MudStack Row="true" AlignItems="AlignItems.Center">
             <MudIcon Icon="@Icons.Material.Filled.SsidChart" />
-            <MudText>WDC Chart</MudText>
+            <MudText>Drivers championship points progression</MudText>
+            <MudSpacer />
+            <ScreenshotIconButton TargetId="wdc-chart-container" />
         </MudStack>
     </TitleContent>
     <DialogContent>
-        <MudPaper MinHeight="900px" Width="1400px">
+        <MudPaper MinHeight="900px" MinWidth="1400px" id="wdc-chart-container">
             @if (!loading)
             {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="@("100%")">
+                <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="1400" Height="900">
                     @foreach (var result in dataSets)
                     {
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
@@ -62,7 +64,7 @@
                         points += Season.PointsPole;
 
                     if (result.FL)
-                       points += Season.PointsFastestLap;
+                        points += Season.PointsFastestLap;
 
                     dataSet.DataPoints.Add(new DataPoint(result.Round, points));
                 }

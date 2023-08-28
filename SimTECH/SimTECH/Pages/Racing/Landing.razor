@@ -16,7 +16,7 @@
                 </MudListItemExtended>
                 <MudListItemExtended T="string" Text="@Model.Climate.Terminology" SecondaryText="Weather">
                     <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour">
-                        <MudText Color="Color.Inherit">@Model.Climate.Terminology</MudText>
+                        <MudText Typo="Typo.h5">@Model.Climate.Terminology</MudText>
                     </CustomIcon>
                 </MudListItemExtended>
                 <MudListItemExtended T="string"
@@ -42,9 +42,9 @@
                                      SecondaryText="Defense modifier" />
             </MudListExtended>
 
+            <MudText Typo="Typo.subtitle1">Circuit Traits</MudText>
             @if (TrackTraits.Any() == true)
             {
-                <MudText Typo="Typo.subtitle1">Circuit Traits</MudText>
                 <MudList>
                     @foreach (var trait in TrackTraits)
                     {
@@ -57,6 +57,10 @@
                         </MudListItem>
                     }
                 </MudList>
+            }
+            else
+            {
+                <MudText Typo="Typo.subtitle2">None</MudText>
             }
         </MudPaper>
     </MudItem>
@@ -72,6 +76,7 @@
                     <MudTh Style="max-width: 220px">Name</MudTh>
                     <MudTh Class="number-col">NO</MudTh>
                     <MudTh Style="max-width: 220px">Team</MudTh>
+                    <MudTh Class="number-col">Setup</MudTh>
                     <MudTh Class="number-col">SUPP</MudTh>
                     <MudTh>Tyre</MudTh>
                     <MudTh Class="number-col">TGT</MudTh>
@@ -112,6 +117,9 @@
                     </MudTd>
                     <MudTd Style="max-width: 220px">
                         <MudText Class="overflow-hider">@context.TeamName</MudText>
+                    </MudTd>
+                    <MudTd Class="number-col">
+
                     </MudTd>
                     <MudTd Class="number-col">
                         <SupplierDisplay Colour="@context.ManufacturerColour" Accent="@context.ManufacturerAccent">

@@ -224,6 +224,7 @@
                     Grid = result.Grid,
                     Position = result.Position,
                     Status = result.Status,
+                    Setup = result.Setup,
                     TyreLife = result.TyreLife,
                     FastestLap = result.FastestLap,
                     Overtaken = result.Overtaken,
@@ -256,7 +257,7 @@
             if (matchingDriver != null)
             {
                 matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
-                // Reasons == yuck solution
+                // Reasons is an ugly solution, rather see this re-implemented
                 matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
 
                 RaweCeek.ConsumablePenalties.AddRange(penalty.Select(e => e.Id));
