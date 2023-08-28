@@ -29,13 +29,15 @@
     [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
     [Parameter, EditorRequired] public List<RaceDriver> Drivers { get; set; }
 
-    ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
+    ApexCharts.ApexChartOptions<DataPoint> options;
     List<DataSet> dataSets = new();
 
     bool loading = true;
 
     protected override void OnInitialized()
     {
+        options = Constants.ChartOptionsDefault;
+
         var leaderScores = Drivers.First(e => e.Position == 1).LapScores;
         var amountCalculated = leaderScores.Count;
 

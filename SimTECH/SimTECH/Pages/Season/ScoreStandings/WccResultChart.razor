@@ -32,13 +32,15 @@
     [Parameter] public List<StandingTeamModel>? Teams { get; set; }
     [Parameter] public Season Season { get; set; }
 
-    ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
+    ApexCharts.ApexChartOptions<DataPoint> options;
     List<DataSet> DataSets = new();
 
     bool loading = true;
 
     protected override void OnInitialized()
     {
+        options = Constants.ChartOptionsDefault;
+
         var allotments = Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new Dictionary<int, int>();
 
         if (Teams != null)
@@ -58,8 +60,8 @@
                         if (teamDriverResult.Pole)
                             points += Season.PointsPole;
 
-                        //if (teamDriverResult.FL)
-                        //    points += Season.PointsFastestLap;
+                        if (teamDriverResult.FL)
+                           points += Season.PointsFastestLap;
                     }
 
                     dataSet.DataPoints.Add(new DataPoint(result.Key, points));
