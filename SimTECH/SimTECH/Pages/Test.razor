@@ -18,11 +18,12 @@
                 <MudItem xs="12" sm="6">
                     <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
                         <MudText>
-                            ΩΩΩΩΩΩλλλλλλλλλλλλλλ
-                            ΩΩΩΩΩΩλλλλλλλλλλλλλλ
+                            ΩΩΩ-OMEGA-ΩΩΩ
+                            λλλ-LAMBDA-λλλ
                         </MudText>
 
-                        <CustomIcon Icon="@IconCollection.Mist" Colour="@("#FF81219B")" />
+                        <MudRangeSlider @bind-Value="@rangeLow" @bind-UpperValue="@rangeHigh" Size="Size.Medium" Variant="Variant.Filled" Display="true"
+                            ValueLabel="true" Range="true" Min="1" Max="100" Step="1" Color="Color.Secondary" Class="mt-2">Range label</MudRangeSlider>
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="12" sm="6">
@@ -211,6 +212,8 @@
     private List<int> randomNew = new();
     private double deviateOld;
     private double deviateNew;
+
+    int? rangeLow, rangeHigh;
 
     protected override void OnInitialized()
     {
