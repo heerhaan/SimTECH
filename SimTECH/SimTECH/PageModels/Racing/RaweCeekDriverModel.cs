@@ -60,7 +60,7 @@ public class RaweCeekDriver
 
 public static class ExtendRaweCeekDriver
 {
-    private const double baseHiddenScoreValue = 1000000000000000;
+    private const double baseHiddenScoreValue = 10000000000000000000;
 
     public static SessionDriver MapToSessionDriver(this RaweCeekDriver driver, int amountRuns)
     {
@@ -150,7 +150,7 @@ public static class ExtendRaweCeekDriver
     public static ScoredPoints MapToScoredPoints(this RaweCeekDriver driver, Dictionary<int, int> allotments, int polePoints, int fastLapPoints)
     {
         var points = 0;
-        var hiddenPoints = 0;
+        var hiddenPoints = 0d;
 
         if (driver.Grid == 1)
             points += polePoints;
@@ -163,9 +163,8 @@ public static class ExtendRaweCeekDriver
             if (allotments.ContainsKey(driver.Position))
                 points += allotments[driver.Position];
 
-
             double divider = Math.Pow(10, driver.Position) / 10;
-            hiddenPoints = (baseHiddenScoreValue / divider).RoundDouble();
+            hiddenPoints = baseHiddenScoreValue / divider;
         }
 
         return new ScoredPoints

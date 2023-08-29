@@ -1,5 +1,4 @@
 ﻿using SimTECH.Data.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace SimTECH.Data.EditModels
 {
@@ -23,7 +22,7 @@ namespace SimTECH.Data.EditModels
         public long ManufacturerId { get; set; }
 
         public int Points { get; set; }
-        public int HiddenPoints { get; set; }
+        public double HiddenPoints { get; set; }
 
         public IList<EditSeasonDriverModel>? SeasonDrivers { get; set; }
 
