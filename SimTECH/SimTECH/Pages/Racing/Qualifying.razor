@@ -28,7 +28,9 @@
             <CommonSession Drivers="@qualyDrivers"
                            AmountRuns="@amountRuns"
                            EntryCutoff="@entryCutoff"
-                           ProgressCutoff="@progressCutoff" />
+                           ProgressCutoff="@progressCutoff"
+                           HighestScore="@highestScore"
+                           LowestScore="@lowestScore" />
         </MudPaper>
     }
 </div>
@@ -51,11 +53,14 @@
     int entryCutoff;
     int progressCutoff;
     int highestScore;
+    int lowestScore = int.MaxValue;
 
     double gapMarge;
 
     protected override void OnInitialized()
     {
+        loading = true;
+
         raceName = $"{RaweCeek.Race.Name} - QUALIFYING {QualySession.SessionIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
         amountRuns = RaweCeek.Season.RunAmountSession;
@@ -64,16 +69,13 @@
         progressCutoff = QualySession.ProgressionCutoff;
 
         if (QualySession.IsFinished)
-            highestScore = QualySession.SessionScores.SelectMany(e => e.Scores).Max();
+        {
+            var scoreNumbers = QualySession.SessionScores.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
+            highestScore = scoreNumbers.Max();
+            lowestScore = scoreNumbers.Min();
+        }
 
         gapMarge = RaweCeek.GapMarge / 2;
-    }
-
-    protected override void OnParametersSet()
-    {
-        loading = true;
-
-        qualyDrivers.Clear();
 
         foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.Grid).Take(QualySession.AllowedEntries))
         {
@@ -107,6 +109,11 @@
         {
             var result = driver.Power + NumberHelper.RandomInt(qualyRng);
             driver.Scores[advancedRuns] = result;
+
+            if (result > highestScore)
+                highestScore = result;
+            else if (result < lowestScore)
+                lowestScore = result;
         }
 
         foreach (var driver in qualyDrivers.OrderByDescending(e => e.MaxScore()))

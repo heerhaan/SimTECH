@@ -1,12 +1,18 @@
 ﻿<MudDialog>
-    <TitleContent>
-        <MudText Typo="Typo.h5">Position change chart</MudText>
-    </TitleContent>
     <DialogContent>
-        <MudPaper MinWidth="1000px" MinHeight="800px" Class="pa-4">
+        <MudPaper MinWidth="1500px" MinHeight="950px" Class="pa-4" id="position-chart-container">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-0 pb-2">
+                <MudIcon Icon="@Icons.Material.Filled.SsidChart" Class="mr-3 mb-n1" />
+                <MudText Typo="Typo.h5">Position evolution & retirements</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
+                    <ScreenshotIconButton TargetId="position-chart-container" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="Close" />
+                </MudButtonGroup>
+            </MudStack>
             @if (!loading)
             {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="Position progression" Options="@options" Height="500">
+                <ApexCharts.ApexChart TItem="DataPoint" Options="@options" Width="1400" Height="900">
                     @foreach (var driver in dataSets)
                     {
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
@@ -19,26 +25,15 @@
                                                     Stroke="@driver.Stroke" />
                     }
 
-                    @*<ApexCharts.ApexPointSeries TItem="DataPoint"
-                        Items="@DnfSet.DataPoints"
-                        Name="@DnfSet.Label"
-                        SeriesType="ApexCharts.SeriesType.Area"
-                        XValue="(e => e.XData)"
-                        YValue="(e => e.YData)"
-                        OrderBy="(e => e.X)"
-                        Stroke="@DnfSet.Stroke" />*@
-                </ApexCharts.ApexChart>
-
-                @*<ApexCharts.ApexChart TItem="DataPoint" Title="Other" Options="@moreOptions" Height="300">
                     <ApexCharts.ApexPointSeries TItem="DataPoint"
-                        Items="@DnfSet.DataPoints"
-                        Name="@DnfSet.Label"
-                        SeriesType="ApexCharts.SeriesType.Area"
-                        XValue="(e => e.XData)"
-                        YValue="(e => e.YData)"
-                        OrderBy="(e => e.X)"
-                        Stroke="@DnfSet.Stroke" />
-                    </ApexCharts.ApexChart>*@
+                                                Items="@retiredSet.DataPoints"
+                                                Name="@retiredSet.Label"
+                                                SeriesType="ApexCharts.SeriesType.Area"
+                                                XValue="(e => e.XData)"
+                                                YValue="(e => e.YData)"
+                                                OrderBy="(e => e.X)"
+                                                Stroke="@retiredSet.Stroke" />
+                </ApexCharts.ApexChart>
             }
         </MudPaper>
     </DialogContent>
@@ -48,17 +43,16 @@
     [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
     [Parameter, EditorRequired] public List<RaceDriver> Drivers { get; set; }
 
-    ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
-    ApexCharts.ApexChartOptions<DataPoint> moreOptions = Constants.ChartOptionsDefault;
+    ApexCharts.ApexChartOptions<DataPoint> options;
 
     List<DataSet> dataSets = new();
     DataSet retiredSet = new()
         {
-            Label = "DidNotFinish",
+            Label = "Retirements",
             Stroke = new ApexCharts.SeriesStroke
             {
-                Color = "#ff4d4d",
-                Width = 1,
+                Color = "#E0284A7F",
+                Width = 3,
             },
         };
 
@@ -67,23 +61,21 @@
 
     protected override void OnInitialized()
     {
-        options.Yaxis = new()
-            {
-                new ApexCharts.YAxis
-                {
-                    Reversed = true,
-                },
-            };
+        options = Constants.ChartOptionsDefault;
 
         driverCount = Drivers.Count;
+
+        options.Yaxis = new();
 
         var positionData = DetermineLapPositions();
 
         var seenTeamIdentifiers = new List<long>(Drivers.Count);
+        bool isFirst = true;
 
         foreach (var driver in Drivers)
         {
             var dataSet = new DataSet { Label = driver.FullName };
+            options.Yaxis.Add(new ApexCharts.YAxis { Reversed = true, Min = 1, Max = driverCount, SeriesName = driver.FullName, Show = isFirst });
 
             foreach (var driverPosition in positionData.Where(e => e.ResultId == driver.ResultId))
             {
@@ -92,18 +84,16 @@
 
             var sameSeenTeams = seenTeamIdentifiers.Count(e => e == driver.SeasonTeamId);
 
-            dataSet.Stroke = new ApexCharts.SeriesStroke { Color = driver.Colour, DashSpace = (2 * sameSeenTeams), Width = 5 };
+            dataSet.Stroke = new ApexCharts.SeriesStroke { Color = driver.Colour, DashSpace = (2 * sameSeenTeams), Width = 4 };
 
             seenTeamIdentifiers.Add(driver.SeasonTeamId);
             dataSets.Add(dataSet);
+            isFirst = false;
         }
 
-        loading = false;
-    }
+        options.Yaxis.Add(new ApexCharts.YAxis { SeriesName = "Retirements", Min = 1, Max = driverCount, Show = false });
 
-    public void TestActionMutate(ApexCharts.DataPoint<DataPoint> dataPoint)
-    {
-        var originalValue = dataPoint.Y;
+        loading = false;
     }
 
     private List<DriverLapPosition> DetermineLapPositions()
@@ -137,10 +127,13 @@
 
             retirementsSum += lapData.Count(e => e.DidNotFinish);
             retiredSet.DataPoints.Add(new DataPoint(lapData.Key, retirementsSum));
+            //retiredSet.DataPoints.Add(new DataPoint(lapData.Key, lapData.Count(e => !e.DidNotFinish)));
         }
 
         return positionData;
     }
+
+    private void Close() => ChartDialog?.Close();
 
     internal class DriverLapPosition
     {

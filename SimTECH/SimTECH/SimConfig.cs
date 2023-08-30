@@ -19,7 +19,7 @@
 
         public double GapMarge { get; set; } = 0.08;
 
-        public bool TooMuchInfo { get; set; }
         public bool AllowMultiLeagueEntry { get; set; }
+        public bool TooMuchInfo { get; set; }
     }
 }

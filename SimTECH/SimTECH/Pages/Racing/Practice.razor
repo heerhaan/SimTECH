@@ -1,35 +1,39 @@
-﻿<div id="practice-table">
-    @if (!loading)
-    {
-        <MudPaper MinHeight="60px">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
-                <CountryFlag Code="@raceCountry" />
-                <MudText Typo="Typo.h5">@raceName</MudText>
+﻿<MudContainer MaxWidth="MaxWidth.Large">
+    <div id="practice-table">
+        @if (!loading)
+        {
+            <MudPaper MinHeight="60px">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
+                    <CountryFlag Code="@raceCountry" />
+                    <MudText Typo="Typo.h5">@raceName</MudText>
 
-                <MudSpacer />
+                    <MudSpacer />
 
-                <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
-                    <ScreenshotButton TargetId="practice-table" Class="btn-md" />
-                    @if (!PracticeSession.IsFinished)
-                    {
-                        @if (advancedRuns == amountRuns)
+                    <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
+                        <ScreenshotButton TargetId="practice-table" Class="btn-md" />
+                        @if (!PracticeSession.IsFinished)
                         {
-                            <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
+                            @if (advancedRuns == amountRuns)
+                            {
+                                <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
+                            }
+                            else
+                            {
+                                <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
+                            }
                         }
-                        else
-                        {
-                            <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
-                        }
-                    }
-                </MudButtonGroup>
-            </MudStack>
-        </MudPaper>
-        <MudPaper>
-            <CommonSession Drivers="@practiceDrivers"
-                           AmountRuns="@amountRuns" />
-        </MudPaper>
-    }
-</div>
+                    </MudButtonGroup>
+                </MudStack>
+            </MudPaper>
+            <MudPaper>
+                <CommonSession Drivers="@practiceDrivers"
+                               AmountRuns="@amountRuns"
+                               HighestScore="@highestScore"
+                               LowestScore="@lowestScore" />
+            </MudPaper>
+        }
+    </div>
+</MudContainer>
 
 @code {
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
@@ -46,19 +50,15 @@
     int practiceRng;
     int advancedRuns;
     int highestScore;
+    int lowestScore = int.MaxValue;
 
     double gapMarge;
 
     protected override void OnInitialized()
     {
-        gapMarge = RaweCeek.GapMarge / 2;
-    }
-
-    protected override void OnParametersSet()
-    {
         loading = true;
 
-        practiceDrivers.Clear();
+        gapMarge = RaweCeek.GapMarge / 2;
 
         raceName = $"{RaweCeek.Race.Name} - PRACTICE {PracticeSession.SessionIndex}";
         raceCountry = RaweCeek.Race.Track.Country;
@@ -66,14 +66,18 @@
         practiceRng = RaweCeek.Season.QualifyingRNG;
 
         if (PracticeSession.IsFinished)
-            highestScore = PracticeSession.SessionScores.SelectMany(e => e.Scores).Max();
+        {
+            var scoreNumbers = PracticeSession.SessionScores.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
+            highestScore = scoreNumbers.Max();
+            lowestScore = scoreNumbers.Min();
+        }
 
         foreach (var driver in RaweCeek.RaweCeekDrivers)
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
 
-            var driverScore = PracticeSession.SessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId );
-            
+            var driverScore = PracticeSession.SessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId);
+
             if (driverScore?.Scores?.Any() ?? false)
             {
                 mappedDriver.Scores = driverScore.Scores;
@@ -102,6 +106,8 @@
 
             if (result > highestScore)
                 highestScore = result;
+            else if (result < lowestScore)
+                lowestScore = result;
         }
 
         foreach (var driver in practiceDrivers.OrderByDescending(e => e.MaxScore()))

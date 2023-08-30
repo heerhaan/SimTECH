@@ -1,8 +1,10 @@
 ﻿@inject ISnackbar _snack
 
-<MudTable Items="@DevelopedEntrants" Dense="true" id="development-results">
+<MudTable Items="@DevelopedEntrants" Dense="true" Class="extra-dense" id="development-results">
     <ToolBarContent>
         <MudText Typo="Typo.h5">Development</MudText>
+        <MudDivider Vertical="true" Class="mx-2" />
+        <MudText Typo="Typo.h5">@SelectedAspect.ReadableAspect()</MudText>
         <MudSpacer />
         <MudButtonGroup Color="Color.Info" Variant="Variant.Outlined">
             @if (ranDevelop)
@@ -91,11 +93,11 @@
                 <MudNumericField T="int"
                                  @bind-Value="@context.Min"
                                  ReadOnly="@notDirectQuantifier"
-                                 Class="field-xs" />
+                                 Class="field-xs dense-field" />
                 <MudNumericField T="int"
                                  @bind-Value="@context.Max"
                                  ReadOnly="@notDirectQuantifier"
-                                 Class="field-xs" />
+                                 Class="field-xs dense-field" />
             </MudStack>
         </MudTd>
     </RowTemplate>
@@ -103,6 +105,7 @@
 
 @code {
     [Parameter] public IEnumerable<DevelopedEntrant> DevelopedEntrants { get; set; } = Enumerable.Empty<DevelopedEntrant>();
+    [Parameter] public Aspect SelectedAspect { get; set; }
     [Parameter] public Quantifier SelectedType { get; set; }
     [Parameter] public bool ShowOptionalColumn { get; set; }
     [Parameter] public EventCallback OnSaveDevelopment { get; set; }

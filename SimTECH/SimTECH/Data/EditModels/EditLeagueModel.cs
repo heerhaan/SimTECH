@@ -14,6 +14,7 @@ namespace SimTECH.Data.EditModels
         public bool AllowContracting { get; set; }
         public State State { get; set; }
         public IList<EditRangeModel> DevelopmentRanges { get; set; } = new List<EditRangeModel>();
+        public IList<EditLeagueTyreModel> LeagueTyres { get; set; } = new List<EditLeagueTyreModel>();
 
         public EditLeagueModel(League? league)
         {
@@ -35,6 +36,9 @@ namespace SimTECH.Data.EditModels
                     .ToList()
                     ?? new List<EditRangeModel>();
 
+                if (league.LeagueTyres?.Any() == true)
+                    LeagueTyres = league.LeagueTyres.Select(e => new EditLeagueTyreModel(e)).ToList();
+
                 _league = league;
             }
         }
@@ -47,13 +51,11 @@ namespace SimTECH.Data.EditModels
                 RaceLength = RaceLength,
                 Options = DetermineOptions(),
                 State = State,
-                DevelopmentRanges = DevelopmentRanges
-                    .Select(range => range.Record)
-                    .ToList()
+                DevelopmentRanges = DevelopmentRanges.Select(e => e.Record).ToList(),
+                LeagueTyres = LeagueTyres.Select(e => e.Record).ToList()
             };
 
-        // Checks if the league record has any changes
-        public bool IsDirty => _league != Record || DevelopmentRanges.Any(e => e.IsDirty);
+        public bool IsDirty => _league != Record || DevelopmentRanges.Any(e => e.IsDirty) || LeagueTyres.Any(e => e.IsDirty);
 
         private LeagueOptions DetermineOptions()
         {
@@ -106,5 +108,31 @@ namespace SimTECH.Data.EditModels
             };
 
         public bool IsDirty => _range != Record;
+    }
+
+    public sealed class EditLeagueTyreModel
+    {
+        private readonly LeagueTyre _leagueTyre;
+
+        public long LeagueId { get; set; }
+        public long TyreId { get; set; }
+
+        public EditLeagueTyreModel() { _leagueTyre = new(); }
+        public EditLeagueTyreModel(LeagueTyre leagueTyre)
+        {
+            LeagueId = leagueTyre.LeagueId;
+            TyreId = leagueTyre.TyreId;
+
+            _leagueTyre = leagueTyre;
+        }
+
+        public LeagueTyre Record =>
+            new()
+            {
+                LeagueId = LeagueId,
+                TyreId = TyreId
+            };
+
+        public bool IsDirty => _leagueTyre != Record;
     }
 }

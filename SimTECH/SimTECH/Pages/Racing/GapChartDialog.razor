@@ -1,13 +1,18 @@
 ﻿<MudDialog>
-    <TitleContent>
-        <MudIcon Icon="@Icons.Material.Filled.SsidChart" Class="mr-3 mb-n1" />
-        <MudText Typo="Typo.h5">Gapper race chart</MudText>
-    </TitleContent>
     <DialogContent>
-        <MudPaper MinHeight="700px" MinWidth="800px" Class="pa-4">
+        <MudPaper MinWidth="1500px" MinHeight="950px" Class="pa-4" id="gapper-chart-container">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-0 pb-2">
+                <MudIcon Icon="@Icons.Material.Filled.SsidChart" Class="mr-3 mb-n1" />
+                <MudText Typo="Typo.h5">Gap to race leader</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
+                    <ScreenshotIconButton TargetId="gapper-chart-container" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => ChartDialog?.Close())" />
+                </MudButtonGroup>
+            </MudStack>
             @if (!loading)
             {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="Gaps to leader" Options="@options" Height="800" Width="@("100%")">
+                <ApexCharts.ApexChart TItem="DataPoint" Title="Gaps to leader" Options="@options" Width="1400" Height="900">
                     @foreach (var driver in dataSets)
                     {
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
@@ -29,15 +34,19 @@
     [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
     [Parameter, EditorRequired] public List<RaceDriver> Drivers { get; set; }
 
-    ApexCharts.ApexChartOptions<DataPoint> options = Constants.ChartOptionsDefault;
+    ApexCharts.ApexChartOptions<DataPoint> options;
     List<DataSet> dataSets = new();
 
     bool loading = true;
 
     protected override void OnInitialized()
     {
+        options = Constants.ChartOptionsDefault;
+
+        options.Yaxis = new();
+        options.Yaxis.Add(new ApexCharts.YAxis { Reversed = true });
+
         var leaderScores = Drivers.First(e => e.Position == 1).LapScores;
-        var amountCalculated = leaderScores.Count;
 
         var seenTeamIdentifiers = new List<long>(Drivers.Count);
 
@@ -46,19 +55,18 @@
             var dataSet = new DataSet { Label = driver.FullName };
 
             int gap = 0;
-            for (int i = 0; i < driver.LapScores.Count; i++)
+            foreach (var driverScore in driver.LapScores.OrderBy(e => e.Order))
             {
-                var compareSet = leaderScores[i];
-                var driverScore = driver.LapScores[i];
+                var compareLeader = leaderScores.First(e => e.Order == driverScore.Order);
 
-                gap += compareSet.Score - driverScore.Score;
+                gap += compareLeader.Score - driverScore.Score;
 
-                dataSet.DataPoints.Add(new DataPoint(compareSet.Order, gap));
+                dataSet.DataPoints.Add(new DataPoint(driverScore.Order, gap));
             }
 
             var sameSeenTeams = seenTeamIdentifiers.Count(e => e == driver.SeasonTeamId);
 
-            dataSet.Stroke = new ApexCharts.SeriesStroke { Color = driver.Colour, DashSpace = (2 * sameSeenTeams), Width = 3 };
+            dataSet.Stroke = new ApexCharts.SeriesStroke { Color = driver.Colour, DashSpace = (2 * sameSeenTeams), Width = 4 };
 
             seenTeamIdentifiers.Add(driver.SeasonTeamId);
             dataSets.Add(dataSet);

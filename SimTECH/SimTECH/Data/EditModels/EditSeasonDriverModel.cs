@@ -18,7 +18,7 @@ namespace SimTECH.Data.EditModels
         public long DriverId { get; set; }
 
         private int Points { get; set; }
-        private int HiddenPoints { get; set; }
+        private double HiddenPoints { get; set; }
 
         // Supportive properties
         public long BaseTeamId { get; set; }

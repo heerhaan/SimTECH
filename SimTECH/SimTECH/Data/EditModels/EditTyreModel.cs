@@ -1,4 +1,5 @@
 ﻿using SimTECH.Data.Models;
+using SimTECH.Extensions;
 
 namespace SimTECH.Data.EditModels
 {
@@ -60,5 +61,16 @@ namespace SimTECH.Data.EditModels
             };
 
         public bool IsDirty => _tyre != Record;
+
+        public int ExpectedLength(int distance)
+        {
+            if (LifeBonus == 0 || (WearMin == 0 && WearMax == 0))
+                return 0;
+
+            var wearAvg = (double)(WearMin + WearMax) / 2;
+            var averageLength = LifeBonus / wearAvg * distance;
+
+            return averageLength.RoundDouble();
+        }
     }
 }

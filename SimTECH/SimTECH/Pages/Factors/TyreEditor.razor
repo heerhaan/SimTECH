@@ -24,19 +24,20 @@
         <MudSwitch @bind-Checked="model.ForWet" Label="For wet conditions" Color="Color.Tertiary" />
 
         <MudStack Row="true" Justify="Justify.SpaceBetween">
-            <MudPaper Elevation="5" Class="px-2 py-1">
-                <MudStack AlignItems="AlignItems.Center">
-                    <MudText>Preview tyre</MudText>
+            <MudPaper Elevation="5" Class="text-center px-2 py-1">
+                <MudText Typo="Typo.subtitle2">Preview tyre</MudText>
+                <MudDivider />
+                @if (!string.IsNullOrEmpty(model.Name))
+                {
                     <TyreElement Colour="@model.Colour">
                         @model.Name.ElementAt(0)
                     </TyreElement>
-                </MudStack>
+                }
             </MudPaper>
-            <MudPaper Elevation="5" Class="px-2 py-1">
-                <MudStack AlignItems="AlignItems.Center">
-                    <MudText>Predicted length</MudText>
-                    <MudText Typo="Typo.body2">@(PredictedLength())km</MudText>
-                </MudStack>
+            <MudPaper Elevation="5" Class="text-center px-2 py-1">
+                <MudText Typo="Typo.subtitle2">AVG length to 0</MudText>
+                <MudDivider />
+                <MudText Typo="Typo.body2">@(model.ExpectedLength(advanceLength))km</MudText>
             </MudPaper>
         </MudStack>
     </DialogContent>
@@ -57,17 +58,6 @@
     {
         model = new EditTyreModel(Tyre);
         advanceLength = _config.Value.CalculationDistance;
-    }
-
-    private int PredictedLength()
-    {
-        if (model.LifeBonus == 0 || (model.WearMin == 0 && model.WearMax == 0))
-            return 0;
-
-        var wearAvg = (double)(model.WearMax + model.WearMin) / 2;
-        var averageLen = (model.LifeBonus / wearAvg) * 10;
-
-        return averageLen.RoundDouble();
     }
 
     private void Submit()

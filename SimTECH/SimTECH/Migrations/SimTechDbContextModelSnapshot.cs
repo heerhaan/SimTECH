@@ -579,6 +579,21 @@ namespace SimTECH.Migrations
                     b.ToTable("League");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.LeagueTyre", b =>
+                {
+                    b.Property<long>("LeagueId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TyreId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("LeagueId", "TyreId");
+
+                    b.HasIndex("TyreId");
+
+                    b.ToTable("LeagueTyre");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.Manufacturer", b =>
                 {
                     b.Property<long>("Id")
@@ -944,8 +959,8 @@ namespace SimTECH.Migrations
                     b.Property<long>("DriverId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("HiddenPoints")
-                        .HasColumnType("int");
+                    b.Property<double>("HiddenPoints")
+                        .HasColumnType("float");
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
@@ -1044,8 +1059,8 @@ namespace SimTECH.Migrations
                         .HasColumnType("nchar(9)")
                         .IsFixedLength();
 
-                    b.Property<int>("HiddenPoints")
-                        .HasColumnType("int");
+                    b.Property<double>("HiddenPoints")
+                        .HasColumnType("float");
 
                     b.Property<long>("ManufacturerId")
                         .HasColumnType("bigint");
@@ -1221,6 +1236,84 @@ namespace SimTECH.Migrations
                             Name = "Circuit de Monaco",
                             PowerMod = 0.5,
                             QualifyingMod = 2.0,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            AeroMod = 0.84999999999999998,
+                            ChassisMod = 1.05,
+                            Country = 32,
+                            DefenseMod = 0.80000000000000004,
+                            Length = 4.3099999999999996,
+                            Name = "Autodromo de Interlagos",
+                            PowerMod = 1.1000000000000001,
+                            QualifyingMod = 0.90000000000000002,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            AeroMod = 0.94999999999999996,
+                            ChassisMod = 1.1000000000000001,
+                            Country = 157,
+                            DefenseMod = 1.3,
+                            Length = 4.5499999999999998,
+                            Name = "TT Assen",
+                            PowerMod = 0.94999999999999996,
+                            QualifyingMod = 1.1000000000000001,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            AeroMod = 1.05,
+                            ChassisMod = 0.90000000000000002,
+                            Country = 112,
+                            DefenseMod = 0.66000000000000003,
+                            Length = 5.9900000000000002,
+                            Name = "Fuji Speedway",
+                            PowerMod = 1.05,
+                            QualifyingMod = 0.90000000000000002,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            AeroMod = 1.05,
+                            ChassisMod = 0.94999999999999996,
+                            Country = 15,
+                            DefenseMod = 1.0,
+                            Length = 4.3300000000000001,
+                            Name = "Österreichring",
+                            PowerMod = 1.1000000000000001,
+                            QualifyingMod = 0.80000000000000004,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            AeroMod = 0.80000000000000004,
+                            ChassisMod = 0.75,
+                            Country = 110,
+                            DefenseMod = 1.2,
+                            Length = 5.79,
+                            Name = "Autodromo Nazionale di Monza",
+                            PowerMod = 1.25,
+                            QualifyingMod = 1.2,
+                            State = 1
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            AeroMod = 1.1000000000000001,
+                            ChassisMod = 0.90000000000000002,
+                            Country = 145,
+                            DefenseMod = 0.90000000000000002,
+                            Length = 5.54,
+                            Name = "Sepang",
+                            PowerMod = 1.1000000000000001,
+                            QualifyingMod = 1.0,
                             State = 1
                         });
                 });
@@ -1582,6 +1675,25 @@ namespace SimTECH.Migrations
                     b.Navigation("Result");
                 });
 
+            modelBuilder.Entity("SimTECH.Data.Models.LeagueTyre", b =>
+                {
+                    b.HasOne("SimTECH.Data.Models.League", "League")
+                        .WithMany("LeagueTyres")
+                        .HasForeignKey("LeagueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SimTECH.Data.Models.Tyre", "Tyre")
+                        .WithMany("LeagueTyres")
+                        .HasForeignKey("TyreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("League");
+
+                    b.Navigation("Tyre");
+                });
+
             modelBuilder.Entity("SimTECH.Data.Models.PointAllotment", b =>
                 {
                     b.HasOne("SimTECH.Data.Models.Season", null)
@@ -1838,6 +1950,8 @@ namespace SimTECH.Migrations
 
                     b.Navigation("DevelopmentRanges");
 
+                    b.Navigation("LeagueTyres");
+
                     b.Navigation("Seasons");
                 });
 
@@ -1912,6 +2026,11 @@ namespace SimTECH.Migrations
                     b.Navigation("TeamTraits");
 
                     b.Navigation("TrackTraits");
+                });
+
+            modelBuilder.Entity("SimTECH.Data.Models.Tyre", b =>
+                {
+                    b.Navigation("LeagueTyres");
                 });
 #pragma warning restore 612, 618
         }

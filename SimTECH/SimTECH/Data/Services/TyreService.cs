@@ -14,7 +14,10 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
-            return await context.Tyre.Where(e => filter.StatesForFilter().Contains(e.State)).ToListAsync();
+            return await context.Tyre
+                .Where(e => filter.StatesForFilter().Contains(e.State))
+                .Include(e => e.LeagueTyres)
+                .ToListAsync();
         }
 
         public async Task UpdateTyre(Tyre tyre)

@@ -4,7 +4,7 @@
     {
         public int Number { get; set; }
         public int Points { get; set; }
-        public int HiddenPoints { get; set; }
+        public double HiddenPoints { get; set; }
         public int Skill { get; set; }
         public int Reliability { get; set; }
         public int Attack { get; set; }
