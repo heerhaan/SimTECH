@@ -22,7 +22,7 @@
             <PropertyColumn Property="e => e!.Terminology" />
             <PropertyColumn Property="e => e!.IsWet" Title="For wet" />
             <PropertyColumn Property="e => e!.EngineMultiplier" Title="Engine" HeaderClass="hide-sort-icons" />
-            <PropertyColumn Property="e => e!.ReliablityModifier" Title="Rel." HeaderClass="hide-sort-icons" />
+            <PropertyColumn Property="e => e!.ReliablityModifier" Title="REL" HeaderClass="hide-sort-icons" />
             <PropertyColumn Property="e => e!.RngModifier" Title="RNG" HeaderClass="hide-sort-icons" />
             <PropertyColumn Property="e => e!.Odds" HeaderClass="hide-sort-icons" />
             <TemplateColumn T="Climate" Sortable="false">
@@ -41,19 +41,17 @@
             <MudDataGridPager T="Climate" />
         </PagerContent>
     </MudDataGrid>
-    <MudExpansionPanels>
-        <MudExpansionPanel Text="Random climate">
-            <MudStack Row="true" AlignItems="AlignItems.Center">
-                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GetRandomClimate">RandomClimate</MudButton>
-                @if (randomClimate != null)
-                {
-                    <CustomIcon Icon="@randomClimate.Icon" Colour="@randomClimate.Colour">
-                        <MudText>@randomClimate.Terminology</MudText>
-                    </CustomIcon>
-                }
-            </MudStack>
-        </MudExpansionPanel>
-    </MudExpansionPanels>
+    <MudPaper Elevation="25" Class="mt-4 pa-2">
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GetRandomClimate">RandomClimate</MudButton>
+            @if (randomClimate != null)
+            {
+                <CustomIcon Icon="@randomClimate.Icon" Colour="@randomClimate.Colour">
+                    <MudText>@randomClimate.Terminology</MudText>
+                </CustomIcon>
+            }
+        </MudStack>
+    </MudPaper>
 </MudContainer>
 
 @code {

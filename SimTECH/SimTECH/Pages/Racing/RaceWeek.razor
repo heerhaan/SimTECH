@@ -45,7 +45,7 @@
                             <MudTabs @ref="_qualyTabs" Centered="true" Outlined="true">
                                 @foreach (var session in qualySessions)
                                 {
-                                    <MudTabPanel Text="@($"Q{session.SessionIndex}")" Icon="@Icons.Material.Filled.AccessTime">
+                                    <MudTabPanel Text="@($"Q{session.SessionIndex}")" Icon="@Icons.Material.Filled.AccessTime" Disabled="@session.IsDisabled">
                                         <Qualifying QualySession="@session"
                                                     OnFinish="PersistQualifying" />
                                     </MudTabPanel>
@@ -224,6 +224,7 @@
                     Grid = result.Grid,
                     Position = result.Position,
                     Status = result.Status,
+                    Setup = result.Setup,
                     TyreLife = result.TyreLife,
                     FastestLap = result.FastestLap,
                     Overtaken = result.Overtaken,
@@ -256,12 +257,16 @@
             if (matchingDriver != null)
             {
                 matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
-                // Reasons == yuck solution
+                // Reasons is an ugly solution, rather see this re-implemented
                 matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
 
                 RaweCeek.ConsumablePenalties.AddRange(penalty.Select(e => e.Id));
             }
         }
+
+        int indexer = 0;
+        foreach (var driver in raweceekDrivers.OrderByDescending(e => e.RelativePower))
+            driver.ExpectedPosition = ++indexer;
 
         RaweCeek.RaweCeekDrivers = raweceekDrivers;
     }
@@ -296,16 +301,21 @@
 
         var qualyScores = await _raceService.GetQualifyingScores(RaceId);
         var qSessionCount = RaweCeek.Season.QualifyingFormat.SessionCount();
+        var previousSessionIsFinished = true;
 
         for (int i = 1; i <= qSessionCount; i++)
         {
             var currentScores = qualyScores.Where(e => e.Index == i).ToList();
+
             var qSession = new QualifyingSession
                 {
                     SessionIndex = i,
+                    IsDisabled = !previousSessionIsFinished,
                     IsFinished = currentScores.Any(),
                     SessionScores = currentScores,
                 };
+
+            previousSessionIsFinished = qSession.IsFinished;
 
             // REFACTOR: Er is hier vast een betere oplossing voor
             if (RaweCeek.Season.QualifyingFormat == QualyFormat.TripleEliminate)
@@ -324,7 +334,7 @@
                     qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ3;
                 }
             }
-            
+
             qualySessions.Add(qSession);
         }
 
@@ -347,7 +357,9 @@
         var parameters = new DialogParameters 
             {
                 ["ResultId"] = resultId,
-                ["Tyres"] = tyres.Where(e => e.State == State.Active).ToList(),
+                ["Tyres"] = tyres
+                    .Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == RaweCeek.Season.LeagueId) ?? false))
+                    .ToList(),
             };
 
         var dialog = await _dialog.ShowAsync<TyrePicker>("Set tyre", parameters);
@@ -434,7 +446,7 @@
             RaweCeek.Race.State = State.Advanced;
 
             // Removes the last added practice session
-            if (practiceLoaded)
+            if (practiceLoaded && practiceSessions.Any())
                 practiceSessions.Remove(practiceSessions.MaxBy(e => e.SessionIndex));
         }
         else
@@ -446,6 +458,9 @@
                 matchingDriver.Grid = res.Position;
                 matchingDriver.Position = res.Position;
             }
+
+            var nextSession = qualySessions.First(e => e.SessionIndex == (1 + qualyIndex));
+            nextSession.IsDisabled = false;
 
             // Navigate to the next qualifying session
             //var nextQ = 1 + qualyIndex;

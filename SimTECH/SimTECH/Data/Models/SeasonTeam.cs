@@ -10,7 +10,7 @@ namespace SimTECH.Data.Models
         public string Accent { get; set; } = default!;
 
         public int Points { get; set; }
-        public int HiddenPoints { get; set; }
+        public double HiddenPoints { get; set; }
 
         public int BaseValue { get; set; } = 100;
         public int Aero { get; set; } = 10;

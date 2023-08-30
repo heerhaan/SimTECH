@@ -1,16 +1,19 @@
-﻿<MudDialog>
+﻿@inject IOptions<SimConfig> _config
+
+<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h3">Modify league</MudText>
         <MudText Typo="Typo.body2">
-            For the development ranges: the range which will be used is the first comparer ('less than') which is equal or less than
+            For the development ranges: the range which will be used is the first comparer ('less than') which is equal or less than 
             the corresponding value. (For a skill of 31, it would take the first comparer which is equal or less than 31.)
             <br />
-            Keep in mind that race length is used to determine the amount of calcuations each race,
+            Keep in mind that race length is used to determine the amount of calcuations each race, 
             which is why we round to 10 since every ten decimals amounts to one additional calculation.
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model">
+        @if (!loading)
+        {
             <MudGrid>
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">League settings</MudText>
@@ -37,31 +40,71 @@
                             }
                         </MudChipSet>
                     }
-                </MudItem>
-                <MudItem xs="4">
+
                     <MudText Typo="Typo.subtitle1">Options</MudText>
                     <MudDivider />
                     <MudStack>
                         <MudSwitchM3 @bind-Checked="Model.UsePenalty"
                                      ThumbIcon="@Icons.Material.Filled.Done"
                                      ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Enable Penalties"
+                                     Label="Penalties"
                                      Color="Color.Secondary" />
 
                         <MudSwitchM3 @bind-Checked="Model.EnableFatality"
                                      ThumbIcon="@Icons.Material.Filled.Done"
                                      ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Enable Fatalities"
+                                     Label="Fatalities"
                                      Color="Color.Secondary" />
 
                         <MudSwitchM3 @bind-Checked="Model.AllowContracting"
                                      ThumbIcon="@Icons.Material.Filled.Done"
                                      ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Enable Contracts"
+                                     Label="Contracts"
                                      Color="Color.Secondary" />
                     </MudStack>
-                    @if (errorValidations.Any())
-                    {
+                </MudItem>
+                <MudItem xs="4">
+                    <MudText Typo="Typo.subtitle1">Available tyres for league<span style="color:red">*</span></MudText>
+                    <MudDivider />
+
+                    <MudTable T="Tyre"
+                              @bind-SelectedItems="@selectedTyres"
+                              Items="@Tyres"
+                              MultiSelection="true"
+                              SelectOnRowClick="true"
+                              Dense="true"
+                              Hover="true">
+                        <HeaderContent>
+                            <MudTh>Tyre</MudTh>
+                            <MudTh>
+                                <MudTooltip Text="Life bonus; additional pace per newly fitted tyre">
+                                    LB
+                                </MudTooltip>
+                            </MudTh>
+                            <MudTh>Wear</MudTh>
+                            <MudTh>Length</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <TyreElement Colour="@context.Colour">
+                                    @context.Name.ElementAt(0)
+                                </TyreElement>
+                            </MudTd>
+                            <MudTd>@context.Pace</MudTd>
+                            <MudTd>
+                                <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                    <MudText Typo="Typo.caption">@context.WearMin</MudText>
+                                    <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                                    <MudText Typo="Typo.caption">@context.WearMax</MudText>
+                                </MudStack>
+                            </MudTd>
+                            <MudTd>@context.ExpectedLength(advanceDistance)km</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudItem>
+                @if (errorValidations.Any())
+                {
+                    <MudItem xs="12">
                         <MudList>
                             <MudListSubheader>Error messages</MudListSubheader>
                             @foreach (var error in errorValidations)
@@ -71,8 +114,8 @@
                                 </MudListItem>
                             }
                         </MudList>
-                    }
-                </MudItem>
+                    </MudItem>
+                }
             </MudGrid>
             <MudStack Row="true" Justify="Justify.SpaceEvenly" Class="flex-wrap ">
                 @if (selectedAspects != null)
@@ -85,7 +128,7 @@
                     }
                 }
             </MudStack>
-        </MudForm>
+        }
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -97,11 +140,14 @@
     [CascadingParameter] protected MudDialogInstance? LeagueDialog { get; set; }
 
     [Parameter] public League? League { get; set; }
+    [Parameter] public List<Tyre> Tyres { get; set; }
 
     private EditLeagueModel Model;
     private bool loading = true;
+    int advanceDistance;
 
     private Dictionary<Aspect, List<EditRangeModel>> weightedAspects = new();
+    private HashSet<Tyre> selectedTyres = new();
 
     private static readonly Aspect[] rangeables = EnumHelper.RangeableAspects;
     private ICollection<object>? selectedAspects { get; set; }
@@ -120,7 +166,16 @@
                 weightedAspects[developGroup.Key].AddRange(developGroup);
 
             selectedAspects = Model.DevelopmentRanges.Select(e => e.Type).Distinct().Cast<object>().ToList();
+
+            foreach (var leagueTyre in Model.LeagueTyres)
+            {
+                var matchTyre = Tyres.FirstOrDefault(e => e.Id == leagueTyre.TyreId);
+                if (matchTyre != null)
+                    selectedTyres.Add(matchTyre);
+            }
         }
+
+        advanceDistance = _config.Value.CalculationDistance;
 
         loading = false;
     }
@@ -135,11 +190,19 @@
 
     private bool RunValidations()
     {
+        errorValidations.Clear();
+
         var isValid = true;
 
         if ((Model.RaceLength % 10) != 0)
         {
             errorValidations.Add("Race length should be a factor of 10");
+            isValid = false;
+        }
+
+        if (selectedTyres.Count(e => e.ForWet) == 0 || selectedTyres.Count(e => !e.ForWet) == 0)
+        {
+            errorValidations.Add("At least one normal and one wet tyre is required");
             isValid = false;
         }
 
@@ -153,6 +216,8 @@
 
         var activeAspects = selectedAspects?.Cast<Aspect>().ToList() ?? new();
         Model.DevelopmentRanges = weightedAspects.Where(e => activeAspects.Contains(e.Key)).SelectMany(e => e.Value).ToList();
+
+        Model.LeagueTyres = selectedTyres.Select(e => new EditLeagueTyreModel { LeagueId = Model.Id, TyreId = e.Id }).ToList();
 
         if (Model.IsDirty)
         {

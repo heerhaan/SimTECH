@@ -22,6 +22,7 @@ namespace SimTECH.Data.Services
             return await context.League
                 .Where(e => filter.StatesForFilter().Contains(e.State))
                 .Include(e => e.DevelopmentRanges)
+                .Include(e => e.LeagueTyres)
                 .ToListAsync();
         }
 
@@ -31,6 +32,7 @@ namespace SimTECH.Data.Services
 
             return await context.League
                 .Include(e => e.DevelopmentRanges)
+                .Include(e => e.LeagueTyres)
                 .SingleAsync(e => e.Id == leagueId);
         }
 
@@ -53,6 +55,16 @@ namespace SimTECH.Data.Services
 
                     context.RemoveRange(removeableRanges);
                 }
+
+                var removeableTyres = await context.LeagueTyre
+                    .Where(e => e.LeagueId == league.Id)
+                    .ToListAsync();
+
+                if (removeableTyres.Any())
+                    context.RemoveRange(removeableTyres);
+
+                if (league.LeagueTyres?.Any() == true)
+                    context.AddRange(league.LeagueTyres);
 
                 context.Update(league);
             }

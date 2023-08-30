@@ -1,4 +1,8 @@
-﻿<MudTable Items="@Drivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense collapse" RowStyleFunc="@_sessionRowStyles" id="session-table">
+﻿<MudTable Items="@Drivers.OrderBy(e => e.Position)"
+          Dense="true"
+          Class="extra-dense collapse"
+          RowStyleFunc="@_sessionRowStyles"
+          id="session-table">
     <HeaderContent>
         <MudTh></MudTh>
         <MudTh Class="accent-cell"></MudTh>
@@ -6,7 +10,7 @@
         <MudTh Class="number-col">NO</MudTh>
         <MudTh>Team</MudTh>
         <MudTh Class="number-col-xl">PWR</MudTh>
-        @for (int i = 1; i <= amountRuns; i++)
+        @for (int i = 1; i <= AmountRuns; i++)
         {
             var j = i;
             <MudTh Class="number-col-lg">@j</MudTh>
@@ -43,7 +47,7 @@
         {
             var j = i;
             <MudTd Class="number-col-xl">
-                <GradientColour Min="@worstScore" Max="@bestScore" Value="@(context.Scores[j])">
+                <GradientColour Min="@LowestScore" Max="@HighestScore" Value="@(context.Scores[j])">
                     <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.Scores[j])</MudText>
                 </GradientColour>
             </MudTd>
@@ -75,30 +79,16 @@
     [Parameter] public int AmountRuns { get; set; }
     [Parameter] public int EntryCutoff { get; set; }
     [Parameter] public int ProgressCutoff { get; set; }
-
-    int amountRuns;
-    int worstScore;
-    int bestScore;
-
-    protected override void OnParametersSet()
-    {
-        var scoreNumbers = Drivers.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
-        if (scoreNumbers.Any())
-        {
-            worstScore = scoreNumbers.Min();
-            bestScore = scoreNumbers.Max();
-        }
-
-        amountRuns = AmountRuns == 0 ? 2 : AmountRuns;
-    }
+    [Parameter] public int HighestScore { get; set; }
+    [Parameter] public int LowestScore { get; set; }
 
     //public static Func<SeasonTeam, string> TeamFullStyleFunc => team => SetFullColourstyle(team.Colour, team.Accent);
     private Func<SessionDriver, int, string> _sessionRowStyles => (driver, index) =>
     {
-        if (driver.Position == ProgressCutoff)
+        if (driver.Position == ProgressCutoff && driver.Position != 0)
             return "border-bottom: 2px solid red";
 
-        if (driver.Position == EntryCutoff)
+        if (driver.Position == EntryCutoff && driver.Position != 0)
             return "border-bottom: 2px solid mediumpurple";
 
         return string.Empty;
@@ -108,13 +98,11 @@
     {
         cutoff = default;
 
-        if (position == 0)
-            return false;
-        if (position == ProgressCutoff)
+        if (position == ProgressCutoff && position != 0)
             cutoff = Tuple.Create("OUT", "background-color: red");
-        else if (position == EntryCutoff)
+        else if (position == EntryCutoff && position != 0)
             cutoff = Tuple.Create("DNQ", "background-color: mediumpurple");
-
+        
         return cutoff != default;
     }
 }

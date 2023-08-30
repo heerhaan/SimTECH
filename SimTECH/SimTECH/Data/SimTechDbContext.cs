@@ -21,6 +21,7 @@ namespace SimTECH.Data
         public DbSet<Incident> Incident => Set<Incident>();
         public DbSet<LapScore> LapScore => Set<LapScore>();
         public DbSet<League> League => Set<League>();
+        public DbSet<LeagueTyre> LeagueTyre => Set<LeagueTyre>();
         public DbSet<Manufacturer> Manufacturer => Set<Manufacturer>();
         public DbSet<PointAllotment> PointAllotment => Set<PointAllotment>();
         public DbSet<PracticeScore> PracticeScore => Set<PracticeScore>();

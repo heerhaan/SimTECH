@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
-using System.Linq.Expressions;
 
 namespace SimTECH.Data.Services
 {
@@ -73,6 +72,7 @@ namespace SimTECH.Data.Services
 
             return await context.Driver
                 .Where(e => filter.StatesForFilter().Contains(e.State) && e.SeasonDrivers!.Any(e => e.Season.LeagueId == leagueId))
+                .Include(e => e.DriverTraits)
                 .ToListAsync();
         }
 

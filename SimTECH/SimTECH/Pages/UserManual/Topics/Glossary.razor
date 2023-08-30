@@ -1,23 +1,50 @@
-﻿<MudPaper>
-    <MudTable T="GlossaryItem" Items="@glossaryTerms.OrderBy(e => e.Term)" Dense="true">
-        <HeaderContent>
-            <MudTh>Term</MudTh>
-            <MudTh>Explain</MudTh>
-            <MudTh>Synonyms</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>
-                <MudText>@context.Term</MudText>
-            </MudTd>
-            <MudTd>
-                <MudText Typo="Typo.body2">@context.Explain</MudText>
-            </MudTd>
-            <MudTd>
-                <MudText>@(string.Join(", ", context.Synonyms))</MudText>
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
-</MudPaper>
+﻿<MudText Typo="Typo.h6">Race</MudText>
+<MudDivider Class="my-1" />
+
+<MudTable T="GlossaryItem" Items="@glossaryTerms.OrderBy(e => e.Term)" Dense="true">
+    <HeaderContent>
+        <MudTh>Term</MudTh>
+        <MudTh>Explain</MudTh>
+        <MudTh>Synonyms</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            <MudText>@context.Term</MudText>
+        </MudTd>
+        <MudTd>
+            <MudText Typo="Typo.body2">@context.Explain</MudText>
+        </MudTd>
+        <MudTd>
+            <MudText>@(string.Join(", ", context.Synonyms))</MudText>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+<br/>
+<MudText Typo="Typo.subtitle1">Abbreviations</MudText>
+<MudDivider Class="my-1" />
+
+<MudSimpleTable>
+    <thead>
+        <tr>
+            <th>Abbreviation</th>
+            <th>Meaning</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>CHA</td>
+            <td>Chassis</td>
+        </tr>
+        <tr>
+            <td>LB</td>
+            <td>Life bonus</td>
+        </tr>
+        <tr>
+            <td>TGT</td>
+            <td>Target</td>
+        </tr>
+    </tbody>
+</MudSimpleTable>
 
 @code {
     private static readonly GlossaryItem[] glossaryTerms = new GlossaryItem[]

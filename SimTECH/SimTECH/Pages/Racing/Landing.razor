@@ -1,9 +1,7 @@
 ﻿<MudGrid Spacing="1">
     <MudItem xs="12">
-        <MudPaper MinHeight="60px" Class="pa-2">
-            <MudStack Row="true" Spacing="0" Justify="Justify.Center" AlignItems="AlignItems.Center">
-                <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
-            </MudStack>
+        <MudPaper MinHeight="60px" Class="pa-2 d-flex flex-row align-center justify-center">
+            <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
         </MudPaper>
     </MudItem>
     <MudItem xs="3">
@@ -18,7 +16,7 @@
                 </MudListItemExtended>
                 <MudListItemExtended T="string" Text="@Model.Climate.Terminology" SecondaryText="Weather">
                     <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour">
-                        <MudText Color="Color.Inherit">@Model.Climate.Terminology</MudText>
+                        <MudText Typo="Typo.h5">@Model.Climate.Terminology</MudText>
                     </CustomIcon>
                 </MudListItemExtended>
                 <MudListItemExtended T="string"
@@ -44,9 +42,9 @@
                                      SecondaryText="Defense modifier" />
             </MudListExtended>
 
+            <MudText Typo="Typo.subtitle1">Circuit Traits</MudText>
             @if (TrackTraits.Any() == true)
             {
-                <MudText Typo="Typo.subtitle1">Circuit Traits</MudText>
                 <MudList>
                     @foreach (var trait in TrackTraits)
                     {
@@ -60,9 +58,13 @@
                     }
                 </MudList>
             }
+            else
+            {
+                <MudText Typo="Typo.subtitle2">None</MudText>
+            }
         </MudPaper>
     </MudItem>
-    <MudItem xs="6">
+    <MudItem xs="7">
         <MudPaper Class="pa-4 mud-height-full">
             <MudTable Items="@Model.RaweCeekDrivers.OrderBy(e => e.Grid)" Dense="true" Class="extra-dense">
                 <ToolBarContent>
@@ -74,8 +76,10 @@
                     <MudTh Style="max-width: 220px">Name</MudTh>
                     <MudTh Class="number-col">NO</MudTh>
                     <MudTh Style="max-width: 220px">Team</MudTh>
+                    <MudTh Class="number-col">Setup</MudTh>
                     <MudTh Class="number-col">SUPP</MudTh>
                     <MudTh>Tyre</MudTh>
+                    <MudTh Class="number-col">TGT</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd Class="number-col-lg">
@@ -115,6 +119,9 @@
                         <MudText Class="overflow-hider">@context.TeamName</MudText>
                     </MudTd>
                     <MudTd Class="number-col">
+
+                    </MudTd>
+                    <MudTd Class="number-col">
                         <SupplierDisplay Colour="@context.ManufacturerColour" Accent="@context.ManufacturerAccent">
                             @context.ManufacturerName.ElementAt(0)
                         </SupplierDisplay>
@@ -126,18 +133,25 @@
                             </TyreElement>
                         </MudLink>
                     </MudTd>
+                    <MudTd>
+                        <MudText Typo="Typo.caption">@context.ExpectedPosition</MudText>
+                    </MudTd>
                 </RowTemplate>
             </MudTable>
         </MudPaper>
     </MudItem>
-    <MudItem xs="3">
+    <MudItem xs="2">
         <MudPaper Class="pa-4 mud-height-full">
-            <MudText Typo="Typo.h5">???</MudText>
+            <MudText Typo="Typo.h5">idk man</MudText>
             <MudDivider />
-            <MudText Typo="Typo.body2" Color="Color.Error" Class="mb-1">Wtf am I going to put here?</MudText>
 
             <MudText>
-                You're an absolute blithering idiot.
+                He who reads is not a giraffe
+            </MudText>
+
+            <MudText Typo="Typo.body2" Color="Color.Info">
+                <MudIcon Icon="@IconCollection.Target" Size="Size.Small" />
+                [TGT]: Target position
             </MudText>
         </MudPaper>
     </MudItem>

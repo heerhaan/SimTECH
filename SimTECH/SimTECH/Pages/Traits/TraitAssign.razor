@@ -27,7 +27,7 @@
                         <MudChip Color="Color.Primary" Value="Entrant.Track">Track</MudChip>
                     </MudChipSet>
 
-                    @if (activeEntrant == Entrant.Driver || activeEntrant == Entrant.Team)
+                    @if (ShowLeagueSelector)
                     {
                         <MudSelect T="long" @bind-Value="@leagueFilter" Variant="Variant.Outlined" Label="League" Placeholder="All leagues">
                             @foreach (var league in leagues)
@@ -39,7 +39,7 @@
                         </MudSelect>
                     }
 
-                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="LoadEntrants">Load</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="LoadEntrants" Disabled="@(entrantChip == null)">Load</MudButton>
 
                     <MudText Typo="Typo.h5" Class="mt-2">Assignment settings</MudText>
                     <MudDivider />
@@ -74,36 +74,39 @@
                     <br/>
                     Click on a driver to assign a random trait to them
                 </MudText>
-                <MudTable T="EntrantAssignee"
-                          Items="@entrants"
-                          Dense="true"
-                          Hover="true"
-                          OnRowClick="OnClickAssignRandomTrait">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h5">Entrants</MudText>
-                        <MudSpacer />
-                        <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="RandomEntrantAssignTrait" Class="btn-md">Random</MudButton>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>
-                            <MudTableSortLabel T="EntrantAssignee" SortBy="@(e => e.Name)">
-                                Name
-                            </MudTableSortLabel>
-                        </MudTh>
-                        <MudTh>Current trait(s)</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>
-                            <MudText>@context.Name</MudText>
-                        </MudTd>
-                        <MudTd>
-                            @foreach (var traitId in context.ExistingTraitIds)
-                            {
-                                <MudText Typo="Typo.body2">@(GetReadableTrait(traitId))</MudText>
-                            }
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
+                @if (entrants.Any())
+                {
+                    <MudTable T="EntrantAssignee"
+                              Items="@entrants"
+                              Dense="true"
+                              Hover="true"
+                              OnRowClick="OnClickAssignRandomTrait">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h5">Entrants</MudText>
+                            <MudSpacer />
+                            <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="AssignRandomTrait" Class="btn-md">Random</MudButton>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>
+                                <MudTableSortLabel T="EntrantAssignee" SortBy="@(e => e.Name)">
+                                    Name
+                                </MudTableSortLabel>
+                            </MudTh>
+                            <MudTh>Current trait(s)</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudText>@context.Name</MudText>
+                            </MudTd>
+                            <MudTd>
+                                @foreach (var traitId in context.ExistingTraitIds)
+                                {
+                                    <MudText Typo="Typo.body2">@(GetReadableTrait(traitId))</MudText>
+                                }
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
             </MudPaper>
         </MudItem>
         <MudItem xs="4">
@@ -171,6 +174,8 @@
         leagues = await _leagueService.GetLeagues();
     }
 
+    private bool ShowLeagueSelector => entrantChip != null && ((Entrant)entrantChip.Value == Entrant.Driver || (Entrant)entrantChip.Value == Entrant.Team);
+
     private async Task LoadEntrants()
     {
         if (entrantChip == null)
@@ -217,12 +222,8 @@
 
     private string GetReadableTrait(long id) => allTraits.Find(e => e.Id == id)?.Name ?? "Unknown";
 
-    private void RandomEntrantAssignTrait()
-    {
-        if (entrants != null)
-            AssignRandomTrait(entrants.TakeRandomItem());
-    }
     private void OnClickAssignRandomTrait(TableRowClickEventArgs<EntrantAssignee> rowItem) => AssignRandomTrait(rowItem.Item);
+    private void AssignRandomTrait() => AssignRandomTrait(entrants.TakeRandomItem());
     private void AssignRandomTrait(EntrantAssignee item)
     {
         if (relevantTraits == null)

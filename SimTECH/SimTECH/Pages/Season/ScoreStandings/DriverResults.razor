@@ -69,6 +69,14 @@
 
     int lowestScoringPosition = 10;
 
+    DialogOptions customOptions = new()
+    {
+        MaxWidth = MaxWidth.ExtraLarge,
+        CloseButton = true,
+        DisableBackdropClick = true,
+        Position = DialogPosition.Center,
+    };
+
     protected override void OnInitialized()
     {
         if (Season?.PointAllotments?.Any() == true)
@@ -78,6 +86,6 @@
     async Task ShowWdcResultGraph()
     {
         var parameters = new DialogParameters { ["Drivers"] = StandingDrivers, ["Season"] = Season };
-        _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters);
+        _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters, customOptions);
     }
 }

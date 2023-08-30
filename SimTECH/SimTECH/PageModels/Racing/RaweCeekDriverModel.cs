@@ -44,7 +44,7 @@ public class RaweCeekDriver
     public int Position { get; set; }
     public int Score { get; set; }
     public RaceStatus Status { get; set; }
-    //public int Setup { get; set; }
+    public int Setup { get; set; }
     public int TyreLife { get; set; }
     public bool FastestLap { get; set; }
     public int Overtaken { get; set; }
@@ -53,11 +53,15 @@ public class RaweCeekDriver
     public Tyre Tyre { get; set; }
     public Incident? Incident { get; set; }
 
+    public int ExpectedPosition { get; set; }
+    public int RelativePower => (QualyPower / 2) + RacePower;
     public string FullName => FirstName + " " + LastName;
 }
 
 public static class ExtendRaweCeekDriver
 {
+    private const double baseHiddenScoreValue = 10000000000000000000;
+
     public static SessionDriver MapToSessionDriver(this RaweCeekDriver driver, int amountRuns)
     {
         return new SessionDriver
@@ -101,7 +105,7 @@ public static class ExtendRaweCeekDriver
             Status = driver.Status,
             Position = driver.Position,
             Grid = driver.Grid,
-            //Setup = driver.Setup,
+            Setup = driver.Setup,
             TyreLife = driver.TyreLife,
             CurrentTyre = driver.Tyre,
             DriverReliability = driver.DriverReliability,
@@ -129,7 +133,7 @@ public static class ExtendRaweCeekDriver
             Position = driver.Position,
             Score = driver.Score,
             Status = driver.Status,
-            //Setup = Setup,
+            Setup = driver.Setup,
             TyreLife = driver.TyreLife,
             FastestLap = driver.FastestLap,
             Overtaken = driver.Overtaken,
@@ -146,7 +150,7 @@ public static class ExtendRaweCeekDriver
     public static ScoredPoints MapToScoredPoints(this RaweCeekDriver driver, Dictionary<int, int> allotments, int polePoints, int fastLapPoints)
     {
         var points = 0;
-        var hiddenPoints = 0;
+        var hiddenPoints = 0d;
 
         if (driver.Grid == 1)
             points += polePoints;
@@ -159,7 +163,8 @@ public static class ExtendRaweCeekDriver
             if (allotments.ContainsKey(driver.Position))
                 points += allotments[driver.Position];
 
-            hiddenPoints = ((double)200000 / driver.Position).RoundDouble();
+            double divider = Math.Pow(10, driver.Position) / 10;
+            hiddenPoints = baseHiddenScoreValue / divider;
         }
 
         return new ScoredPoints

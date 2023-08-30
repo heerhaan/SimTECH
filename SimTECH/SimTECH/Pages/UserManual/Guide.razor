@@ -1,8 +1,12 @@
 ﻿@page "/guide"
 @inject BreadcrumbProvider _bread
 @using SimTECH.Pages.UserManual.Topics
-@using SimTECH.Pages.UserManual.Topics.Race
-@using SimTECH.Pages.UserManual.Topics.Setup
+@using SimTECH.Pages.UserManual.Topics.FactorCat
+@using SimTECH.Pages.UserManual.Topics.LeagueCat
+@using SimTECH.Pages.UserManual.Topics.Misc
+@using SimTECH.Pages.UserManual.Topics.RaceCat
+@using SimTECH.Pages.UserManual.Topics.SeasonCat
+@using SimTECH.Pages.UserManual.Topics.SetupCat
 
 <PageTitle>Guide</PageTitle>
 
@@ -16,30 +20,25 @@
         <MudItem xs="3">
             <MudPaper Class="mud-height-full">
                 <MudTreeView T="Type" Color="Color.Secondary" Hover="true" SelectedValueChanged="ActiveTopicChanged">
-                    <MudTreeViewItem @bind-Expanded="@setupFolderExpanded"
-                                     Text="Setup"
-                                     Value="@(typeof(UnknownTopic))"
-                                     Icon="@(setupFolderExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
-                        <MudTreeViewItem Text="Drivers" Value="@(typeof(DriverTopic))" Icon="@Icons.Custom.FileFormats.FileImage" />
-                    </MudTreeViewItem>
-                    <MudTreeViewItem @bind-Expanded="@racingFolderExpanded"
-                                     Text="Racing"
-                                     Value="@(typeof(Racing))"
-                                     Icon="@(racingFolderExpanded ? Icons.Custom.Uncategorized.FolderOpen : Icons.Custom.Uncategorized.Folder)">
-                        <MudTreeViewItem Text="Distance" Value="@(typeof(Distance))" Icon="@Icons.Custom.FileFormats.FileExcel" />
-                        <MudTreeViewItem Text="Advance" Value="@(typeof(Advance))" Icon="@Icons.Custom.FileFormats.FileExcel" />
-                        <MudTreeViewItem Text="Reliability" Value="@(typeof(Reliability))" Icon="@Icons.Custom.FileFormats.FileExcel" />
-                        <MudTreeViewItem Text="Strategy" Value="@(typeof(Strategy))" Icon="@Icons.Custom.FileFormats.FileExcel" />
-                        <MudTreeViewItem Text="Overtaking" Value="@(typeof(Overtaking))" Icon="@Icons.Custom.FileFormats.FileExcel" />
-                        <MudTreeViewItem Text="Safety car" Value="@(typeof(SafetyMoment))" Icon="@IconCollection.AlertTriangle" />
-                        <MudTreeViewItem Text="Modifiers" Value="@(typeof(Modifiers))" Icon="@IconCollection.Polygon" />
-                    </MudTreeViewItem>
-                    <MudTreeViewItem Text="Glossary" Value="@(typeof(Glossary))" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                    @foreach (var cat in guideCategories.OrderBy(e => e.Order))
+                    {
+                        <MudTreeViewItem @bind-Expanded="cat.Expanded"
+                                         Text="@cat.Title"
+                                         Value="@cat.Type"
+                                         Icon="@(cat.Expanded ? cat.ExpandedIcon : cat.Icon)">
+                            @foreach (var child in cat.Children.OrderBy(e => e.Order))
+                            {
+                                <MudTreeViewItem Text="@child.Title"
+                                                 Value="@child.Type"
+                                                 Icon="@child.Icon" />
+                            }
+                        </MudTreeViewItem>
+                    }
                 </MudTreeView>
             </MudPaper>
         </MudItem>
         <MudItem xs="9">
-            <MudPaper Class="px-2 py-4 mud-height-full">
+            <MudPaper Elevation="25" Class="px-2 py-4 mud-height-full">
                 <DynamicComponent Type="@ActiveTopic" />
             </MudPaper>
         </MudItem>
@@ -47,10 +46,107 @@
 </MudContainer>
 
 @code {
-    public Type ActiveTopic { get; set; } = typeof(Hello);
+    public Type ActiveTopic { get; set; } = typeof(Intro);
 
-    private bool setupFolderExpanded;
-    private bool racingFolderExpanded;
+    private static List<GuideCategory> guideCategories = new()
+    {
+        new GuideCategory
+        {
+            Title = "Intro",
+            Icon = Icons.Custom.FileFormats.FileExcel,
+            ExpandedIcon = Icons.Custom.FileFormats.FileExcel,
+            Type = typeof(Intro),
+            Order = 0,
+        },
+        new GuideCategory
+        {
+            Title = "Setup",
+            Icon = Icons.Custom.Uncategorized.Folder,
+            ExpandedIcon = Icons.Custom.Uncategorized.FolderOpen,
+            Type = typeof(UnknownTopic),
+            Order = 10,
+            Children = new()
+            {
+                new GuidePage("Drivers", IconCollection.Helmet, typeof(DriverTopic), 0),
+                new GuidePage("Teams", Icons.Material.Filled.CarRepair, typeof(TeamTopic), 1),
+                new GuidePage("Engines", IconCollection.Engine, typeof(EngineTopic), 2),
+                new GuidePage("Tracks", Icons.Material.Filled.AddRoad, typeof(TrackTopic), 3),
+                new GuidePage("Traits", Icons.Material.Filled.FlashOn, typeof(TraitTopic), 4),
+            }
+        },
+        new GuideCategory
+        {
+            Title = "Factors",
+            Icon = IconCollection.SteeringWheel,
+            ExpandedIcon = IconCollection.SteeringWheel,
+            Type = typeof(UnknownTopic),
+            Order = 20,
+            Children = new()
+            {
+                new GuidePage("Tyre suppliers", Icons.Material.Filled.Cloud, typeof(ManufacturerTopic)),
+                new GuidePage("Tyres", Icons.Material.Filled.LocalGasStation, typeof(TyreTopic)),
+                new GuidePage("Incidents", IconCollection.TrafficCone, typeof(IncidentTopic)),
+                new GuidePage("Climates", Icons.Material.Filled.Cloud, typeof(ClimateTopic)),
+            }
+        },
+        new GuideCategory
+        {
+            Title = "Contracts",
+            Icon = Icons.Material.Filled.AssignmentInd,
+            ExpandedIcon = Icons.Material.Outlined.AssignmentInd,
+            Type = typeof(ContractTopic),
+            Order = 30,
+        },
+        new GuideCategory
+        {
+            Title = "Leagues",
+            Icon = IconCollection.Trophy,
+            ExpandedIcon = IconCollection.Trophy,
+            Type = typeof(LeagueTopic),
+            Order = 40,
+        },
+        new GuideCategory
+        {
+            Title = "Seasons",
+            Icon = Icons.Material.Filled.Flag,
+            ExpandedIcon = Icons.Material.Outlined.Flag,
+            Type = typeof(SeasonTopic),
+            Order = 50,
+            Children = new()
+            {
+                new GuidePage("Development", IconCollection.Polygon, typeof(DevelopTopic)),
+            }
+        },
+        new GuideCategory
+        {
+            Title = "Race week",
+            Icon = Icons.Custom.Uncategorized.Folder,
+            ExpandedIcon = Icons.Custom.Uncategorized.FolderOpen,
+            Type = typeof(RaceweekTopic),
+            Order = 60,
+            Children = new()
+            {
+                new GuidePage("Practice", IconCollection.Polygon, typeof(PracticeTopic)),
+                new GuidePage("Qualifying", IconCollection.Polygon, typeof(QualifyingTopic)),
+                new GuidePage("Race", IconCollection.Polygon, typeof(RaceTopic)),
+                new GuidePage("Distance", IconCollection.Polygon, typeof(Distance)),
+                new GuidePage("Advance", IconCollection.Polygon, typeof(Advance)),
+                new GuidePage("Reliability", IconCollection.Polygon, typeof(Reliability)),
+                new GuidePage("Strategy", IconCollection.Polygon, typeof(Strategy)),
+                new GuidePage("Overtaking", IconCollection.Polygon, typeof(Overtaking)),
+                new GuidePage("Safety car", IconCollection.AlertTriangle, typeof(SafetyMoment)),
+                new GuidePage("Modifiers", IconCollection.Polygon, typeof(Modifiers)),
+            }
+        },
+        new GuideCategory
+        {
+            Title = "Glossary",
+            Icon = Icons.Material.Filled.MenuBook,
+            ExpandedIcon = Icons.Material.Filled.MenuBook,
+            Type = typeof(Glossary),
+            Order = 999,
+        },
+    };
 
     protected override void OnInitialized()
     {
@@ -61,15 +157,33 @@
         });
     }
 
-    private void ActiveTopicChanged(Type activeTopic)
+    private void ActiveTopicChanged(Type? activeTopic)
     {
-        ActiveTopic = activeTopic;
+        if (activeTopic != null)
+            ActiveTopic = activeTopic;
     }
 
     internal class GuidePage
     {
-        public string Title { get; set; } = "[Unknown]";
+        public GuidePage() { }
+        public GuidePage(string title, string icon, Type type, int order = 5)
+        {
+            Title = title;
+            Icon = icon;
+            Type = type;
+            Order = order;
+        }
+
+        public string Title { get; set; } = "[UNKNOWN]";
         public string Icon { get; set; } = IconCollection.Pyramid;
+        public Type Type { get; set; } = typeof(UnknownTopic);
+        public int Order { get; set; } = 5;
+    }
+
+    internal class GuideCategory : GuidePage
+    {
+        public bool Expanded { get; set; } = false;
+        public string ExpandedIcon { get; set; } = Icons.Custom.Uncategorized.FolderOpen;
         public List<GuidePage> Children { get; set; } = new();
     }
 }
