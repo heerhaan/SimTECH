@@ -19,6 +19,8 @@ namespace SimTECH.Data.EditModels
         {
             if (team == null)
             {
+                Country = Constants.DefaultCountry;
+
                 _team = new();
             }
             else
