@@ -1,0 +1,34 @@
+﻿<div class="result-cell" style="@_cellStyles">
+    <MudStack Row="true"
+              Spacing="1"
+              Justify="Justify.Center"
+              AlignItems="AlignItems.Center"
+              Class="pa-0 mud-width-full"
+              Style="color:inherit">
+        <MudText Typo="@Typo" Color="Color.Inherit">@Text</MudText>
+        @if (HasPole)
+        {
+            <sup style="font-size: 0.65rem">P</sup>
+        }
+        @if (HasFastestLap)
+        {
+            <sup style="font-size: 0.65rem">F</sup>
+        }
+    </MudStack>
+</div>
+
+@code {
+    [Parameter] public Typo Typo { get; set; } = Typo.caption;
+    [Parameter] public bool HasPole { get; set; }
+    [Parameter] public bool HasFastestLap { get; set; }
+    [Parameter] public string? Text { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string _cellStyles
+    {
+        get
+        {
+            return Style ?? string.Empty;
+        }
+    }
+}

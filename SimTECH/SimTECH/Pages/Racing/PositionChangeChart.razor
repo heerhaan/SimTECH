@@ -1,6 +1,6 @@
 ﻿<MudDialog>
     <DialogContent>
-        <MudPaper MinWidth="1500px" MinHeight="950px" Class="pa-4" id="position-chart-container">
+        <MudPaper MinWidth="1500px" MinHeight="950px" Class="px-4 py-2" id="position-chart-container">
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-0 pb-2">
                 <MudIcon Icon="@Icons.Material.Filled.SsidChart" Class="mr-3 mb-n1" />
                 <MudText Typo="Typo.h5">Position evolution & retirements</MudText>
@@ -10,31 +10,33 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="Close" />
                 </MudButtonGroup>
             </MudStack>
-            @if (!loading)
-            {
-                <ApexCharts.ApexChart TItem="DataPoint" Options="@options" Width="1400" Height="900">
-                    @foreach (var driver in dataSets)
-                    {
+            <MudContainer MaxWidth="MaxWidth.False">
+                @if (!loading)
+                {
+                    <ApexCharts.ApexChart TItem="DataPoint" Options="@options" Width="1400" Height="900">
+                        @foreach (var driver in dataSets)
+                        {
+                            <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                        Items="@driver.DataPoints"
+                                                        Name="@driver.Label"
+                                                        SeriesType="ApexCharts.SeriesType.Line"
+                                                        XValue="(e => e.XData)"
+                                                        YValue="(e => e.YData)"
+                                                        OrderBy="(e => e.X)"
+                                                        Stroke="@driver.Stroke" />
+                        }
+
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                    Items="@driver.DataPoints"
-                                                    Name="@driver.Label"
-                                                    SeriesType="ApexCharts.SeriesType.Line"
+                                                    Items="@retiredSet.DataPoints"
+                                                    Name="@retiredSet.Label"
+                                                    SeriesType="ApexCharts.SeriesType.Area"
                                                     XValue="(e => e.XData)"
                                                     YValue="(e => e.YData)"
                                                     OrderBy="(e => e.X)"
-                                                    Stroke="@driver.Stroke" />
-                    }
-
-                    <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                Items="@retiredSet.DataPoints"
-                                                Name="@retiredSet.Label"
-                                                SeriesType="ApexCharts.SeriesType.Area"
-                                                XValue="(e => e.XData)"
-                                                YValue="(e => e.YData)"
-                                                OrderBy="(e => e.X)"
-                                                Stroke="@retiredSet.Stroke" />
-                </ApexCharts.ApexChart>
-            }
+                                                    Stroke="@retiredSet.Stroke" />
+                    </ApexCharts.ApexChart>
+                }
+            </MudContainer>
         </MudPaper>
     </DialogContent>
 </MudDialog>
@@ -127,7 +129,6 @@
 
             retirementsSum += lapData.Count(e => e.DidNotFinish);
             retiredSet.DataPoints.Add(new DataPoint(lapData.Key, retirementsSum));
-            //retiredSet.DataPoints.Add(new DataPoint(lapData.Key, lapData.Count(e => !e.DidNotFinish)));
         }
 
         return positionData;

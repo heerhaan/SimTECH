@@ -8,10 +8,12 @@
 
                     <MudText Typo="Typo.h3">Post race</MudText>
 
-                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Style="width: 30%">
-                        <MudButton FullWidth="true" OnClick="GoToOverview">Standings</MudButton>
-                        <ScreenshotButton TargetId="postrace-container" FullWidth="true" />
-                    </MudButtonGroup>
+                    <div class="d-flex flex-row-reverse" style="width:30%">
+                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                            <MudButton OnClick="GoToOverview" Class="btn-md">Standings</MudButton>
+                            <ScreenshotButton TargetId="postrace-container" Class="btn-md" />
+                        </MudButtonGroup>
+                    </div>
                 </MudStack>
             </MudPaper>
         </MudItem>
@@ -26,8 +28,8 @@
                         <MudTh Style="width: 220px">Name</MudTh>
                         <MudTh Class="number-col">NO</MudTh>
                         <MudTh Style="width: 220px">Team</MudTh>
-                        <MudTh Class="number-col">Points</MudTh>
-                        <MudTh Class="number-col">Target</MudTh>
+                        <MudTh Class="number-col">PTS</MudTh>
+                        <MudTh Class="number-col">TGT</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd Class="number-col-lg">
@@ -37,9 +39,7 @@
                             }
                             else
                             {
-                                <div class="result-cell" style="@(context.Status.StatusStyles())">
-                                    <MudText Typo="Typo.caption" Color="Color.Inherit">@context.Status.ReadableStatus()</MudText>
-                                </div>
+                                <ResultLabel Text="@context.Status.ReadableStatus()" Style="@context.Status.StatusStyles()" />
                             }
                         </MudTd>
                         <MudTd Class="number-col">

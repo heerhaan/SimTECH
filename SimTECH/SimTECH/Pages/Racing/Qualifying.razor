@@ -1,39 +1,34 @@
-﻿<div id="qualy-table">
-    @if (!loading)
-    {
-        <MudPaper MinHeight="60px">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
-                <CountryFlag Code="@raceCountry" />
-                <MudText Typo="Typo.h5">@raceName</MudText>
+﻿<MudContainer MaxWidth="MaxWidth.Large">
+    <div id="qualy-table">
+        @if (!loading)
+        {
+            <MudPaper MinHeight="60px">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
+                    <CountryFlag Code="@raceCountry" />
+                    <MudText Typo="Typo.h5">@raceName</MudText>
 
-                <MudSpacer />
+                    <MudSpacer />
 
-                <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
-                    <ScreenshotButton TargetId="qualy-table" Class="btn-md" />
-                    @if (!QualySession.IsFinished)
-                    {
-                        @if (advancedRuns == amountRuns)
-                        {
-                            <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
-                        }
-                        else
+                    <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
+                        <ScreenshotButton TargetId="qualy-table" Class="btn-md" />
+                        @if (!QualySession.IsFinished && advancedRuns != amountRuns)
                         {
                             <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
                         }
-                    }
-                </MudButtonGroup>
-            </MudStack>
-        </MudPaper>
-        <MudPaper Elevation="25">
-            <CommonSession Drivers="@qualyDrivers"
-                           AmountRuns="@amountRuns"
-                           EntryCutoff="@entryCutoff"
-                           ProgressCutoff="@progressCutoff"
-                           HighestScore="@highestScore"
-                           LowestScore="@lowestScore" />
-        </MudPaper>
-    }
-</div>
+                    </MudButtonGroup>
+                </MudStack>
+            </MudPaper>
+            <MudPaper Elevation="25">
+                <CommonSession Drivers="@qualyDrivers"
+                               AmountRuns="@amountRuns"
+                               EntryCutoff="@entryCutoff"
+                               ProgressCutoff="@progressCutoff"
+                               HighestScore="@highestScore"
+                               LowestScore="@lowestScore" />
+            </MudPaper>
+        }
+    </div>
+</MudContainer>
 
 @code {
     [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
@@ -70,7 +65,10 @@
 
         if (QualySession.IsFinished)
         {
-            var scoreNumbers = QualySession.SessionScores.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
+            var scoreNumbers = QualySession.SessionScores
+                .SelectMany(e => e.Scores ?? Array.Empty<int>())
+                .Where(e => e != 0)
+                .ToArray();
             highestScore = scoreNumbers.Max();
             lowestScore = scoreNumbers.Min();
         }
@@ -101,7 +99,7 @@
         loading = false;
     }
 
-    private void Advance()
+    private async void Advance()
     {
         var positionIndex = 0;
 
@@ -127,6 +125,9 @@
         }
 
         advancedRuns++;
+
+        if (advancedRuns == amountRuns)
+            await Finish();
     }
 
     private async Task Finish()
