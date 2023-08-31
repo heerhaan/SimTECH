@@ -1,5 +1,4 @@
 ﻿using SimTECH.Data.Models;
-using SimTECH.Extensions;
 
 namespace SimTECH.PageModels.Racing;
 

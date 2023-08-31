@@ -86,9 +86,7 @@
                         <PenaltyBadge Penalty="@context.Penalty">
                             @if (context.Status == RaceStatus.Dnq)
                             {
-                                <div class="result-cell" style="@(context.Status.StatusStyles())">
-                                    <MudText Typo="Typo.caption" Color="Color.Inherit">@context.Status.ReadableStatus()</MudText>
-                                </div>
+                                <ResultLabel Text="@context.Status.ReadableStatus()" Style="@context.Status.StatusStyles()" />
                             }
                             else
                             {
@@ -145,8 +143,8 @@
             <MudText Typo="Typo.h5">idk man</MudText>
             <MudDivider />
 
-            <MudText>
-                He who reads is not a giraffe
+            <MudText Class="my-2">
+                He who reads is not a giraffe (presumably)
             </MudText>
 
             <MudText Typo="Typo.body2" Color="Color.Info">
