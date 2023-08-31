@@ -444,10 +444,6 @@
             }
 
             RaweCeek.Race.State = State.Advanced;
-
-            // Removes the last added practice session
-            if (practiceLoaded && practiceSessions.Any())
-                practiceSessions.Remove(practiceSessions.MaxBy(e => e.SessionIndex));
         }
         else
         {
@@ -466,6 +462,14 @@
             //var nextQ = 1 + qualyIndex;
             //if (qualySessions > 1 && _qualyTabs != null)
             //    _qualyTabs.ActivatePanel($"q_{nextQ}");
+        }
+
+        if (qualyIndex == 1 && practiceLoaded && practiceSessions.Any())
+        {
+            // Removes the last added practice session
+            var latestPracticeSession = practiceSessions.MaxBy(e => e.SessionIndex);
+            if (latestPracticeSession != null)
+                practiceSessions.Remove(latestPracticeSession);
         }
     }
 

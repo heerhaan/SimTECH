@@ -1,6 +1,6 @@
 ﻿<MudDialog>
     <DialogContent>
-        <MudPaper MinWidth="1500px" MinHeight="950px" Class="pa-4" id="gapper-chart-container">
+        <MudPaper MinWidth="1500px" MinHeight="950px" Class="px-4 py-2" id="gapper-chart-container">
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-0 pb-2">
                 <MudIcon Icon="@Icons.Material.Filled.SsidChart" Class="mr-3 mb-n1" />
                 <MudText Typo="Typo.h5">Gap to race leader</MudText>
@@ -10,22 +10,24 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => ChartDialog?.Close())" />
                 </MudButtonGroup>
             </MudStack>
-            @if (!loading)
-            {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="Gaps to leader" Options="@options" Width="1400" Height="900">
-                    @foreach (var driver in dataSets)
-                    {
-                        <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                    Items="@driver.DataPoints"
-                                                    Name="@driver.Label"
-                                                    SeriesType="ApexCharts.SeriesType.Line"
-                                                    XValue="e => e.XData"
-                                                    YValue="e => e.YData"
-                                                    OrderBy="e => e.X"
-                                                    Stroke="@driver.Stroke" />
-                    }
-                </ApexCharts.ApexChart>
-            }
+            <MudContainer MaxWidth="MaxWidth.False">
+                @if (!loading)
+                {
+                    <ApexCharts.ApexChart TItem="DataPoint" Title="Gaps to leader" Options="@options" Width="1400" Height="900">
+                        @foreach (var driver in dataSets)
+                        {
+                            <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                        Items="@driver.DataPoints"
+                                                        Name="@driver.Label"
+                                                        SeriesType="ApexCharts.SeriesType.Line"
+                                                        XValue="e => e.XData"
+                                                        YValue="e => e.YData"
+                                                        OrderBy="e => e.X"
+                                                        Stroke="@driver.Stroke" />
+                        }
+                    </ApexCharts.ApexChart>
+                }
+            </MudContainer>
         </MudPaper>
     </DialogContent>
 </MudDialog>
