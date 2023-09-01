@@ -83,6 +83,21 @@ namespace SimTECH.Extensions
             _ => "Unknown"
         };
 
+        public static string ShortReadableAspect(this Aspect aspect) => aspect switch
+        {
+            Aspect.Skill => "SKL",
+            Aspect.Age => "AGE",
+            Aspect.BaseCar => "CAR",
+            Aspect.Engine => "ENG",
+            Aspect.Aero => "AER",
+            Aspect.Chassis => "CHA",
+            Aspect.Powertrain => "POW",
+            Aspect.Reliability => "REL",
+            Aspect.Attack => "ATT",
+            Aspect.Defense => "DEF",
+            _ => "IDK"
+        };
+
         public static readonly Aspect[] RangeableAspects = new Aspect[]
         {
             Aspect.Skill,
