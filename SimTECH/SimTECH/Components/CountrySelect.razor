@@ -4,6 +4,7 @@
                    @bind-Value="HandleSelection"
                    Label="Nation"
                    Variant="Variant.Outlined"
+                   ToStringFunc="@(e => $"{e.CountryCodeToEmoji()} {e.GetDescription()}")"
                    SearchBox="true"
                    SearchFunc="@(new Func<Country, string, bool>(SearchCountries))"
                    T="Country"

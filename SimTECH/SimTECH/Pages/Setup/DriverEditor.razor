@@ -12,12 +12,12 @@
                                 <MudStack Row="true" Spacing="4">
                                     <MudTextField @bind-Value="Model.FirstName"
                                                   Label="First Name"
-                                                  Class="field-md"
+                                                  Class="field-sm"
                                                   Required="true"
                                                   RequiredError="First name is required" />
                                     <MudTextField @bind-Value="Model.LastName"
                                                   Label="Last Name"
-                                                  Class="field-md"
+                                                  Class="field-sm"
                                                   TextChanged="AutoUpdateAbbreviation"
                                                   Required="true"
                                                   RequiredError="Last name is required" />
@@ -34,7 +34,7 @@
                                                PickerVariant="PickerVariant.Dialog"
                                                Editable="true"
                                                Label="Born in"
-                                               Class="field-md"
+                                               Class="field-sm"
                                                Required="true" />
 
                                 <CountrySelect @bind-Value="Model.Country"
@@ -46,7 +46,7 @@
                                               Lines="5"
                                               Validation="@(new Func<string, string?>(TestValidation))" />
 
-                                <MudText Typo="Typo.subtitle1">Toggles</MudText>
+                                <MudText Typo="Typo.subtitle1">Options</MudText>
                                 <MudDivider />
                                 <MudSwitchM3 @bind-Checked="Model.Mark"
                                              Label="Mark"
@@ -60,6 +60,7 @@
                     <MudItem xs="4">
                         <MudPaper Elevation="15" Class="pa-2 mud-height-full">
                             <MudText Typo="Typo.subtitle1">Traits</MudText>
+                            <MudDivider />
                             <MudChipSet @bind-SelectedValues="@selectedTraits" MultiSelection="true" Filter="true">
                                 @foreach (var trait in selectableTraits)
                                 {
