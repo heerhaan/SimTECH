@@ -43,7 +43,7 @@
                                                @bind-SelectedValues="@SelectedLanguages"
                                                T="LanguageInfo"
                                                MultiSelection="true"
-                                               MultiSelectionTextFunc="@GetSelectedText"
+                                               MultiSelectionTextFunc="GetSelectedText"
                                                Label="Select nationalities"
                                                Variant="Variant.Outlined"
                                                SearchBox="true"
@@ -239,6 +239,6 @@
         if (!selectedLangs.Any())
             return null;
 
-        return string.Join(" |", selectedLangs.Select(e => $"{e.Country.CountryCodeToEmoji()} {e.Country.GetDescription()}"));
+        return string.Join(" | ", selectedLangs.Select(e => $"{e.Country.CountryCodeToEmoji()} {e.Country.GetDescription()}"));
     }
 }

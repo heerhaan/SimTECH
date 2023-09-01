@@ -23,6 +23,8 @@ namespace SimTECH.Data.EditModels
         {
             if (track == null)
             {
+                Country = Constants.DefaultCountry;
+
                 Length = 4.0;
                 AeroMod = 1.0;
                 ChassisMod = 1.0;

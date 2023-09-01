@@ -11,16 +11,9 @@
 
                     <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
                         <ScreenshotButton TargetId="practice-table" Class="btn-md" />
-                        @if (!PracticeSession.IsFinished)
+                        @if (!PracticeSession.IsFinished && advancedRuns != amountRuns)
                         {
-                            @if (advancedRuns == amountRuns)
-                            {
-                                <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
-                            }
-                            else
-                            {
-                                <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
-                            }
+                            <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
                         }
                     </MudButtonGroup>
                 </MudStack>
@@ -67,7 +60,10 @@
 
         if (PracticeSession.IsFinished)
         {
-            var scoreNumbers = PracticeSession.SessionScores.SelectMany(e => e.Scores).Where(e => e != 0).ToArray();
+            var scoreNumbers = PracticeSession.SessionScores
+                .SelectMany(e => e.Scores ?? Array.Empty<int>())
+                .Where(e => e != 0)
+                .ToArray();
             highestScore = scoreNumbers.Max();
             lowestScore = scoreNumbers.Min();
         }
@@ -95,7 +91,7 @@
         loading = false;
     }
 
-    private void Advance()
+    private async void Advance()
     {
         var positionIndex = 0;
 
@@ -117,6 +113,9 @@
         }
 
         advancedRuns++;
+
+        if (advancedRuns == amountRuns)
+            await Finish();
     }
 
     private async Task Finish()
