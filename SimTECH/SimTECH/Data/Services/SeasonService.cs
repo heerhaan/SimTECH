@@ -31,6 +31,7 @@ namespace SimTECH.Data.Services
 
             return await context.Season
                 .Include(e => e.PointAllotments)
+                .Include(e => e.RaceClasses)
                 .SingleAsync(e => e.Id == seasonId);
         }
 
@@ -39,6 +40,7 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Season
+                .Include(e => e.RaceClasses)
                 .Where(e => e.LeagueId == leagueId && e.State == State.Closed)
                 .OrderByDescending(e => e.Id)
                 .FirstOrDefaultAsync();

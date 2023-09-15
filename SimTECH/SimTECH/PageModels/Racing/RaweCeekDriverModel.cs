@@ -1,5 +1,4 @@
 ﻿using SimTECH.Data.Models;
-using SimTECH.Extensions;
 
 namespace SimTECH.PageModels.Racing;
 
@@ -16,6 +15,13 @@ public class RaweCeekDriver
     public string TeamName { get; set; }
     public string Colour { get; set; }
     public string Accent { get; set; }
+
+    public long SeasonId { get; set; }
+    public string LeagueTag { get; set; }
+    public string LeagueColour { get; set; }
+
+    public long ClassId { get; set; }
+    public RaceClass? Class { get; set; }
 
     public long ManufacturerId { get; set; }
     public string ManufacturerName { get; set; }
@@ -42,9 +48,11 @@ public class RaweCeekDriver
     public long ResultId { get; set; }
     public int Grid { get; set; }
     public int Position { get; set; }
+    public int AbsoluteGrid { get; set; }
+    public int AbsolutePosition { get; set; }
     public int Score { get; set; }
     public RaceStatus Status { get; set; }
-    //public int Setup { get; set; }
+    public int Setup { get; set; }
     public int TyreLife { get; set; }
     public bool FastestLap { get; set; }
     public int Overtaken { get; set; }
@@ -60,6 +68,8 @@ public class RaweCeekDriver
 
 public static class ExtendRaweCeekDriver
 {
+    private const double baseHiddenScoreValue = 10000000000000000000;
+
     public static SessionDriver MapToSessionDriver(this RaweCeekDriver driver, int amountRuns)
     {
         return new SessionDriver
@@ -74,6 +84,7 @@ public static class ExtendRaweCeekDriver
             Colour = driver.Colour,
             Accent = driver.Accent,
             Power = driver.QualyPower,
+            Class = driver.Class,
             Scores = new int[amountRuns]
         };
     }
@@ -96,6 +107,9 @@ public static class ExtendRaweCeekDriver
             Colour = driver.Colour,
             Accent = driver.Accent,
 
+            ClassId = driver.ClassId,
+            Class = driver.Class,
+
             Power = driver.RacePower,
             Attack = driver.Attack,
             Defense = driver.Defense,
@@ -103,7 +117,9 @@ public static class ExtendRaweCeekDriver
             Status = driver.Status,
             Position = driver.Position,
             Grid = driver.Grid,
-            //Setup = driver.Setup,
+            AbsolutePosition = driver.AbsolutePosition,
+            AbsoluteGrid = driver.AbsoluteGrid,
+            Setup = driver.Setup,
             TyreLife = driver.TyreLife,
             CurrentTyre = driver.Tyre,
             DriverReliability = driver.DriverReliability,
@@ -129,9 +145,11 @@ public static class ExtendRaweCeekDriver
             Id = driver.ResultId,
             Grid = driver.Grid,
             Position = driver.Position,
+            AbsoluteGrid = driver.AbsoluteGrid,
+            AbsolutePosition = driver.AbsolutePosition,
             Score = driver.Score,
             Status = driver.Status,
-            //Setup = Setup,
+            Setup = driver.Setup,
             TyreLife = driver.TyreLife,
             FastestLap = driver.FastestLap,
             Overtaken = driver.Overtaken,
@@ -148,7 +166,7 @@ public static class ExtendRaweCeekDriver
     public static ScoredPoints MapToScoredPoints(this RaweCeekDriver driver, Dictionary<int, int> allotments, int polePoints, int fastLapPoints)
     {
         var points = 0;
-        var hiddenPoints = 0;
+        var hiddenPoints = 0d;
 
         if (driver.Grid == 1)
             points += polePoints;
@@ -161,7 +179,8 @@ public static class ExtendRaweCeekDriver
             if (allotments.ContainsKey(driver.Position))
                 points += allotments[driver.Position];
 
-            hiddenPoints = ((double)200000 / driver.Position).RoundDouble();
+            double divider = Math.Pow(10, driver.Position) / 10;
+            hiddenPoints = baseHiddenScoreValue / divider;
         }
 
         return new ScoredPoints

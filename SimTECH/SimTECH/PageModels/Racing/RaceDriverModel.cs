@@ -8,17 +8,22 @@ namespace SimTECH.PageModels.Racing
         public RaceStatus Status { get; set; }
         public Incident? Incident { get; set; }
 
+        public long ClassId { get; set; }
+        public RaceClass? Class { get; set; }
+
         public int Position { get; set; }
         public int Grid { get; set; }
-        //public int Setup { get; set; }
+        public int AbsolutePosition { get; set; }
+        public int AbsoluteGrid { get; set; }
+        public int Setup { get; set; }
         public int TyreLife { get; set; }
         public Tyre CurrentTyre { get; set; }
 
         public int DriverReliability { get; set; }
         public int CarReliability { get; set; }
         public int EngineReliability { get; set; }
-        public int WearMaxMod { get; set; }
         public int WearMinMod { get; set; }
+        public int WearMaxMod { get; set; }
         public int RngMinMod { get; set; }
         public int RngMaxMod { get; set; }
         public int LifeBonus { get; set; }

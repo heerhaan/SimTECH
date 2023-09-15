@@ -29,6 +29,7 @@ namespace SimTECH.Data.EditModels
         public QualyFormat QualifyingFormat { get; set; }
         public long LeagueId { get; set; }
         public IList<EditPointAllotmentModel> PointAllotments { get; set; } = new List<EditPointAllotmentModel>();
+        public IList<EditRaceClassModel> RaceClasses { get; set; } = new List<EditRaceClassModel>();
 
         public EditSeasonModel(Season? season)
         {
@@ -62,6 +63,8 @@ namespace SimTECH.Data.EditModels
 
                 if (season.PointAllotments != null)
                     PointAllotments = season.PointAllotments.Select(e => new EditPointAllotmentModel(e)).ToList();
+                if (season.RaceClasses?.Any() == true)
+                    RaceClasses = season.RaceClasses.Select(e => new EditRaceClassModel(e)).ToList();
 
                 _season = season;
             }
@@ -93,6 +96,7 @@ namespace SimTECH.Data.EditModels
                 LeagueId = LeagueId,
 
                 PointAllotments = PointAllotments.Select(e => e.Record).ToList(),
+                RaceClasses = RaceClasses.Select(e => e.Record).ToList()
             };
 
         public bool IsDirty => _season != Record || PointAllotments.Any(e => e.IsDirty);
@@ -104,6 +108,8 @@ namespace SimTECH.Data.EditModels
 
             foreach (var point in PointAllotments)
                 point.ResetIdentifierFields();
+            foreach (var raceClasss in RaceClasses)
+                raceClasss.ResetIdentifierFields();
         }
     }
 
@@ -134,6 +140,47 @@ namespace SimTECH.Data.EditModels
             };
 
         public bool IsDirty => _pointAllotment != Record;
+
+        public void ResetIdentifierFields()
+        {
+            Id = default;
+        }
+    }
+
+    public class EditRaceClassModel
+    {
+        private readonly RaceClass _raceClass;
+
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public string Colour { get; set; }
+        public string Tag { get; set; }
+
+        public EditRaceClassModel()
+        {
+            _raceClass = new();
+        }
+
+        public EditRaceClassModel(RaceClass raceClass)
+        {
+            Id = raceClass.Id;
+            Name = raceClass.Name;
+            Colour = raceClass.Colour;
+            Tag = raceClass.Tag;
+
+            _raceClass = raceClass;
+        }
+
+        public RaceClass Record =>
+            new()
+            {
+                Id = Id,
+                Name = Name,
+                Colour = Colour,
+                Tag = Tag
+            };
+
+        public bool IsDirty => _raceClass != Record;
 
         public void ResetIdentifierFields()
         {

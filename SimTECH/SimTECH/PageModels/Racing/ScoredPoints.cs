@@ -6,6 +6,6 @@
         public long SeasonTeamId { get; set; }
 
         public int Points { get; set; }
-        public int HiddenPoints { get; set; }
+        public double HiddenPoints { get; set; }
     }
 }

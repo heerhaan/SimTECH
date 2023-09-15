@@ -7,7 +7,7 @@
         public string Name { get; set; }
         public Country Nationality { get; set; }
         public int Points { get; set; }
-        public int HiddenPoints { get; set; }
+        public double HiddenPoints { get; set; }
         public bool Mark { get; set; }
 
         public string Colour { get; set; }

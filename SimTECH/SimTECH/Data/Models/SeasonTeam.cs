@@ -10,7 +10,7 @@ namespace SimTECH.Data.Models
         public string Accent { get; set; } = default!;
 
         public int Points { get; set; }
-        public int HiddenPoints { get; set; }
+        public double HiddenPoints { get; set; }
 
         public int BaseValue { get; set; } = 100;
         public int Aero { get; set; } = 10;
@@ -28,6 +28,8 @@ namespace SimTECH.Data.Models
         public SeasonEngine SeasonEngine { get; set; } = default!;
         public long ManufacturerId { get; set; }
         public Manufacturer Manufacturer { get; set; } = default!;
+        public long? ClassId { get; set; }
+        public RaceClass? Class { get; set; }
 
         public IList<SeasonDriver>? SeasonDrivers { get; set; }
         public IList<Result>? Results { get; set; }
