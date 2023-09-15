@@ -123,6 +123,74 @@
                     </RowTemplate>
                 </MudTable>
             </MudPaper>
+             <MudPaper Elevation="25" Class="pa-4">
+                 <MudText Typo="Typo.subtitle1">Race classes</MudText>
+                 <MudDivider />
+
+                 @if (Model.Id == 0)
+                {
+                    <MudSwitchM3 @bind-Checked="hasMultipleClasses"
+                                 ThumbIcon="@Icons.Material.Filled.Done"
+                                 ThumbOffIcon="@Icons.Material.Filled.Close"
+                                 Label="Contracts"
+                                 Color="Color.Secondary"
+                                 Class="my-2" />
+                }
+
+
+                @if (hasMultipleClasses)
+                {
+                    <MudTable Items="@Model.RaceClasses" ReadOnly="false" Dense="true" EditTrigger="TableEditTrigger.RowClick" Class="extra-dense">
+                        <ToolBarContent>
+                            <MudStack Row="true" Class="pa-0 mud-width-full">
+                                @if (Model.Id == 0)
+                                {
+                                    <MudSpacer />
+                                    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined"
+                                               Color="Color.Tertiary" OnClick="AddClass" Size="Size.Small">
+                                        Add class
+                                    </MudButton>
+                                }
+                            </MudStack>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>Name</MudTh>
+                            <MudTh>Colour</MudTh>
+                            <MudTh></MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.Name</MudTd>
+                            <MudTd Style="@ViewHelper.SetBackgroundColour(context.Colour)">@context.Colour</MudTd>
+                            <MudTd>
+                                <SupplierDisplay Colour="@context.Colour">
+                                    <MudText>@context.Tag</MudText>
+                                </SupplierDisplay>
+                            </MudTd>
+                            <MudTd>
+                                @if (Model.Id == 0)
+                                {
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                                   Color="Color.Error"
+                                                   Size="Size.Small"
+                                                   OnClick="@(() => RemoveClass(context))" />
+                                }
+                            </MudTd>
+                        </RowTemplate>
+                        <RowEditingTemplate>
+                            <MudTd DataLabel="Name">
+                                <MudTextField T="string" @bind-Value="@context.Name" Class="field-md" />
+                            </MudTd>
+                            <MudTd DataLabel="Colour">
+                                <MudColorPicker @bind-Text="context.Colour" Placeholder="Colour" Class="field-md" />
+                            </MudTd>
+                            <MudTd DataLabel="Tag">
+                                <MudTextField T="string" @bind-Value="@context.Name" Class="field-md" />
+                            </MudTd>
+                            <MudTd></MudTd>
+                        </RowEditingTemplate>
+                    </MudTable>
+                }
+            </MudPaper>
         </MudPaper>
     </DialogContent>
     <DialogActions>
@@ -139,11 +207,14 @@
     private EditPointAllotmentModel allotmentBackup;
 
     private int lowestPosition;
+    private bool hasMultipleClasses;
 
     protected override void OnInitialized()
     {
         if (Model.PointAllotments.Any())
             lowestPosition = Model.PointAllotments.Max(e => e.Position);
+
+        hasMultipleClasses = Model.RaceClasses.Any();
     }
 
     private void QualyFormatChanged(MudChip? qualyChip)
@@ -186,8 +257,18 @@
         Model.PointAllotments.Remove(allotment);
     }
 
+    private void AddClass() => Model.RaceClasses.Add(new EditRaceClassModel());
+
+    private void RemoveClass(EditRaceClassModel model) => Model.RaceClasses.Remove(model);
+
     private void Submit()
     {
+        if (Model.Id == 0)
+        {
+            if (!hasMultipleClasses)
+                Model.RaceClasses = new List<EditRaceClassModel>();
+        }
+
         if (Model.IsDirty)
         {
             var modSeason = Model.Record;

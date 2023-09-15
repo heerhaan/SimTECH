@@ -19,5 +19,11 @@ namespace SimTECH.PageModels.Racing
 
     public static class ExtendRaweCeek
     {
+        public static Dictionary<long, long[]> SeasonGroupedResultIds(this RaweCeekModel raweCeek)
+        {
+            return raweCeek.RaweCeekDrivers
+                .GroupBy(e => e.ClassId)
+                .ToDictionary(e => e.Key, e => e.Select(rd => rd.ResultId).ToArray());
+        }
     }
 }

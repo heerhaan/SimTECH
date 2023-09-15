@@ -1,4 +1,6 @@
-﻿namespace SimTECH.PageModels.Racing
+﻿using SimTECH.Data.Models;
+
+namespace SimTECH.PageModels.Racing
 {
     public class SessionDriver
     {
@@ -18,11 +20,14 @@
 
         public int[] Scores { get; set; }
         public int Position { get; set; }
+        public int AbsolutePosition { get; set; }
         public int PenaltyPunish { get; set; }
         public string GapAbove { get; set; } = string.Empty;
 
         public string? CutoffText { get; set; }
         public string? CutoffColour { get; set; }
+
+        public RaceClass? Class { get; set; }
     }
 
     public static class ExtendSessionDriver

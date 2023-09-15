@@ -1,15 +1,14 @@
 ﻿@inherits InputBase<Country>
 
 <MudSelectExtended ItemCollection="@Countries"
-                   @bind-Value="HandleSelection"
+@bind-Value="HandleSelection"
                    Label="Nation"
                    Variant="Variant.Outlined"
                    ToStringFunc="@(e => $"{e.CountryCodeToEmoji()} {e.GetDescription()}")"
                    SearchBox="true"
                    SearchFunc="@(new Func<Country, string, bool>(SearchCountries))"
                    T="Country"
-                   Class="@Class"
-                   >
+                   Class="@Class">
     <ItemTemplate>
         <CountryNamedFlag Code="@(context.Value)" />
     </ItemTemplate>

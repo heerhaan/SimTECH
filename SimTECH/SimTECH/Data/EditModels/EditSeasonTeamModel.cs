@@ -19,6 +19,7 @@ namespace SimTECH.Data.EditModels
         public long SeasonEngineId { get; set; }
         public long TeamId { get; set; }
         public long SeasonId { get; set; }
+        public long? ClassId { get; set; }
         public long ManufacturerId { get; set; }
 
         public int Points { get; set; }
@@ -60,6 +61,7 @@ namespace SimTECH.Data.EditModels
                 TeamId = seasonTeam.TeamId;
                 SeasonId = seasonTeam.SeasonId;
                 SeasonEngineId = seasonTeam.SeasonEngineId;
+                ClassId = seasonTeam.ClassId;
                 ManufacturerId = seasonTeam.ManufacturerId;
                 Team = seasonTeam.Team;
 
@@ -78,6 +80,7 @@ namespace SimTECH.Data.EditModels
             Id = default;
             SeasonId = default;
             SeasonEngineId = default;
+            ClassId = default;
             Points = default;
             HiddenPoints = default;
 
@@ -94,8 +97,10 @@ namespace SimTECH.Data.EditModels
 
             if (string.IsNullOrEmpty(Name))
                 errors.Add($"{teamName} lacks a name.");
+
             if (ManufacturerId == 0)
                 errors.Add($"{teamName} is not a boat, thus it needs a tyre manufacturer. Add it or else...");
+
             if (string.IsNullOrEmpty(Colour) || string.IsNullOrEmpty(Accent))
                 errors.Add($"Put some colours on {teamName} please.");
 
@@ -118,8 +123,9 @@ namespace SimTECH.Data.EditModels
                 TeamId = TeamId,
                 SeasonId = SeasonId,
                 SeasonEngineId = SeasonEngineId,
+                ClassId = ClassId,
                 ManufacturerId = ManufacturerId == 0 ? 1 : ManufacturerId,
-                SeasonDrivers = SeasonDrivers?.Select(e => e.Record).ToList(),
+                SeasonDrivers = SeasonDrivers?.Select(e => e.Record).ToList() ?? new(),
 
                 Points = Points,
                 HiddenPoints = HiddenPoints,

@@ -1,0 +1,71 @@
+﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudPaper Elevation="15" Class="mud-height-full pa-8">
+        @if (Model.Classes.Any())
+        {
+            <MudDropContainer @ref="dropperTeams"
+                              T="EditSeasonTeamModel"
+                              Items="@Model.SeasonTeams"
+                              ItemsSelector="@((item,dropzone) => item.ClassId.ToString() == dropzone)"
+                              ItemDropped="TeamClassDropped"
+                              ApplyDropClassesOnDragStarted="true"
+                              CanDropClass="mud-border-success">
+                <ChildContent>
+                    <MudGrid>
+                        <MudItem xs="3">
+                            <MudPaper Width="225px" Class="ma-2 mud-height-full">
+                                <MudDropZone T="EditSeasonTeamModel"
+                                             Identifier="0"
+                                             Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4">
+                                    <MudText Typo="Typo.subtitle1">Unassigned</MudText>
+                                </MudDropZone>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem xs="9">
+                            <MudStack Row="true" Class="flex-wrap">
+                                @foreach (var raceClass in Model.Classes)
+                                {
+                                    <MudPaper Width="225px" Class="ma-2" Style="min-height:200px">
+                                        <MudDropZone T="EditSeasonTeamModel"
+                                                     Identifier="@raceClass.Id.ToString()"
+                                                     Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4">
+                                            <SupplierDisplay Colour="@raceClass.Colour">
+                                                <MudText Typo="Typo.caption">@raceClass.Name [@raceClass.Tag]</MudText>
+                                            </SupplierDisplay>
+                                        </MudDropZone>
+                                    </MudPaper>
+                                }
+                            </MudStack>
+                        </MudItem>
+                    </MudGrid>
+                </ChildContent>
+                <ItemRenderer>
+                    <MudPaper Class="mud-width-full border-2 border-dashed mud-border-secondary pa-1 my-2">
+                        <MudText Class="overflow-hider">@context.Name</MudText>
+                    </MudPaper>
+                </ItemRenderer>
+            </MudDropContainer>
+        }
+        else
+        {
+            <MudAlert Severity="Severity.Info">Sorry, there is nothing at this step. Go on, then.</MudAlert>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [CascadingParameter] public AddEntrantsModel Model { get; set; }
+
+    MudDropContainer<EditSeasonTeamModel> dropperTeams;
+
+    protected override void OnInitialized()
+    {
+        //update the binding to the container
+        StateHasChanged();
+    }
+
+    private void TeamClassDropped(MudItemDropInfo<EditSeasonTeamModel> dropItem)
+    {
+        if (dropItem.Item != null && long.TryParse(dropItem.DropzoneIdentifier, out var classId))
+            dropItem.Item.ClassId = classId;
+    }
+}

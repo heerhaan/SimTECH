@@ -98,8 +98,17 @@
     <MudItem xs="6">
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
-                <MudText Typo="Typo.h5">???</MudText>
+                <MudText Typo="Typo.h5">Classes</MudText>
                 <MudDivider />
+
+                @if (Season.RaceClasses?.Any() == true)
+                {
+                    <MudText>setter for the active class is missing hhh</MudText>
+                    @foreach (var raceClass in Season.RaceClasses)
+                    {
+                        <MudText>@raceClass.Name</MudText>
+                    }
+                }
             </MudStack>
         </MudPaper>
     </MudItem>

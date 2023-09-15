@@ -1,10 +1,14 @@
-﻿namespace SimTECH.PageModels.Racing
+﻿using SimTECH.Data.Models;
+
+namespace SimTECH.PageModels.Racing
 {
     public abstract class DriverBase
     {
         public long ResultId { get; set; }
         public long SeasonDriverId { get; set; }
         public long SeasonTeamId { get; set; }
+        public long ClassId { get; set; }
+        public RaceClass? Class { get; set; }
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
