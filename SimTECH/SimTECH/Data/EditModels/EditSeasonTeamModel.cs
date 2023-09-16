@@ -19,7 +19,7 @@ namespace SimTECH.Data.EditModels
         public long SeasonEngineId { get; set; }
         public long TeamId { get; set; }
         public long SeasonId { get; set; }
-        public long? ClassId { get; set; }
+        public long ClassId { get; set; }
         public long ManufacturerId { get; set; }
 
         public int Points { get; set; }
@@ -61,7 +61,7 @@ namespace SimTECH.Data.EditModels
                 TeamId = seasonTeam.TeamId;
                 SeasonId = seasonTeam.SeasonId;
                 SeasonEngineId = seasonTeam.SeasonEngineId;
-                ClassId = seasonTeam.ClassId;
+                ClassId = seasonTeam.ClassId.GetValueOrDefault();
                 ManufacturerId = seasonTeam.ManufacturerId;
                 Team = seasonTeam.Team;
 
@@ -123,7 +123,7 @@ namespace SimTECH.Data.EditModels
                 TeamId = TeamId,
                 SeasonId = SeasonId,
                 SeasonEngineId = SeasonEngineId,
-                ClassId = ClassId,
+                ClassId = ClassId == 0 ? null : ClassId,
                 ManufacturerId = ManufacturerId == 0 ? 1 : ManufacturerId,
                 SeasonDrivers = SeasonDrivers?.Select(e => e.Record).ToList() ?? new(),
 

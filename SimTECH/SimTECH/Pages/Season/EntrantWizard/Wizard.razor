@@ -90,7 +90,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 5)
                             {
-
+                                <AssignRaceClasses />
                             }
                         </ChildContent>
                     </MudStep>
@@ -247,10 +247,14 @@
                 {
                     errors.Add("Oi oi mate, how is a team going to drive without an engine? Try again.");
                 }
+                else
+                {
+                    StateHasChanged();
+                }
                 break;
             //Step: raceclass assignment
             case 5:
-                if (Model.Classes.Any() && Model.SeasonTeams.Any(e => e.ClassId == null))
+                if (Model.Classes.Any() && Model.SeasonTeams.Any(e => e.ClassId == 0))
                 {
                     errors.Add("See these race classes? Yeah? Well, you better give every team one.");
                 }
@@ -414,7 +418,7 @@
                 var previousTag = PreviousSeason.RaceClasses.FirstOrDefault(e => e.Id == previousTeam.ClassId.Value)?.Tag ?? string.Empty;
                 var similairTag = Model.Classes.Find(e => e.Tag.Equals(previousTag));
 
-                model.ClassId = similairTag?.Id;
+                model.ClassId = similairTag?.Id ?? 0;
             }
 
             Model.SeasonTeams.Add(model);

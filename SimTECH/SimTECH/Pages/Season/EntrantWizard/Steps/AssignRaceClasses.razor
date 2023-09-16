@@ -2,7 +2,7 @@
     <MudPaper Elevation="15" Class="mud-height-full pa-8">
         @if (Model.Classes.Any())
         {
-            <MudDropContainer @ref="dropperTeams"
+            <MudDropContainer @ref="dropperClasses"
                               T="EditSeasonTeamModel"
                               Items="@Model.SeasonTeams"
                               ItemsSelector="@((item,dropzone) => item.ClassId.ToString() == dropzone)"
@@ -28,9 +28,7 @@
                                         <MudDropZone T="EditSeasonTeamModel"
                                                      Identifier="@raceClass.Id.ToString()"
                                                      Class="mud-width-full mud-height-full rounded-lg border-2 border-solid mud-border-lines-default pa-4">
-                                            <SupplierDisplay Colour="@raceClass.Colour">
-                                                <MudText Typo="Typo.caption">@raceClass.Name [@raceClass.Tag]</MudText>
-                                            </SupplierDisplay>
+                                            <MudText Typo="Typo.caption">@raceClass.Name [@raceClass.Tag]</MudText>
                                         </MudDropZone>
                                     </MudPaper>
                                 }
@@ -55,7 +53,7 @@
 @code {
     [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    MudDropContainer<EditSeasonTeamModel> dropperTeams;
+    MudDropContainer<EditSeasonTeamModel> dropperClasses;
 
     protected override void OnInitialized()
     {
