@@ -150,6 +150,9 @@
 
         OverviewModel.Season = await _seasonService.GetSeasonById(SeasonId);
         OverviewModel.Races = await _raceService.GetRacesBySeason(SeasonId);
+        OverviewModel.SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
+        OverviewModel.SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        OverviewModel.SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
 
         if (Season.State == State.Active)
         {
