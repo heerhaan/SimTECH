@@ -16,14 +16,22 @@
                         <MudDivider />
 
                         <MudText Typo="Typo.body2">Qualifying format</MudText>
-                        <MudChipSet Mandatory="true" SelectedChipChanged="QualyFormatChanged" Class="py-1">
-                            <MudChip Value="QualyFormat.TripleEliminate" Color="Color.Secondary" Default="@(Model.QualifyingFormat == QualyFormat.TripleEliminate)">
-                                Three session elimination
-                            </MudChip>
-                            <MudChip Value="QualyFormat.OneSession" Color="Color.Secondary" Default="@(Model.QualifyingFormat == QualyFormat.OneSession)">
-                                One session
-                            </MudChip>
-                        </MudChipSet>
+
+                        @if (hasMultipleClasses)
+                        {
+                            <MudAlert Severity="Severity.Info" Class="py-1">Format is limited to one session due to multiple classes existing.</MudAlert>
+                        }
+                        else
+                        {
+                            <MudChipSet Mandatory="true" SelectedChipChanged="QualyFormatChanged" Class="py-1">
+                                <MudChip Value="QualyFormat.TripleEliminate" Color="Color.Secondary" Default="@(Model.QualifyingFormat == QualyFormat.TripleEliminate)">
+                                    Three session elimination
+                                </MudChip>
+                                <MudChip Value="QualyFormat.OneSession" Color="Color.Secondary" Default="@(Model.QualifyingFormat == QualyFormat.OneSession)">
+                                    One session
+                                </MudChip>
+                            </MudChipSet>
+                        }
 
                         <MudNumericField T="int" @bind-Value="Model.RunAmountSession" Label="Run count per session" Class="field-sm" />
                         <MudNumericField T="int" @bind-Value="Model.QualifyingRNG" Label="Qualifying MAX RNG" Class="field-sm" />
@@ -70,6 +78,7 @@
                             <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Fastest lap" Class="field-sm" />
                         </MudStack>
                     </div>
+
                     @if (Model.Id == 0)
                     {
                         <div>
@@ -87,109 +96,111 @@
                 </MudStack>
             </MudPaper>
             <MudPaper Elevation="25" Class="pa-4 mud-height-full">
-                <MudText Typo="Typo.subtitle1">Achieved points per position</MudText>
-                <MudDivider />
+                <MudStack>
+                    <MudPaper>
+                        <MudText Typo="Typo.subtitle1">Achieved points per position</MudText>
+                        <MudDivider />
 
-                <MudTable Items="@Model.PointAllotments.OrderBy(e => e.Position)" Dense="true" ReadOnly="false" Class="extra-dense"
-                          RowEditPreview="BackupAllotment" RowEditCancel="ResetAllotment" ApplyButtonPosition="TableApplyButtonPosition.End"
-                          EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
-                    <ToolBarContent>
-                        <MudStack Row="true" Class="pa-0 mud-width-full">
-                            <MudSpacer />
-                            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AppendAllotment" Size="Size.Small">
-                                Append position
-                            </MudButton>
-                        </MudStack>
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>POS</MudTh>
-                        <MudTh>PTS</MudTh>
-                        <MudTh></MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Position">
-                            <MudNumericField @bind-Value="@context.Position" Required />
-                        </MudTd>
-                        <MudTd DataLabel="Points">
-                            <MudNumericField @bind-Value="@context.Points" Required />
-                        </MudTd>
-                        <MudTd>
-                            <MudIconButton Size="@Size.Small"
-                                           Icon="@Icons.Material.Outlined.Delete"
-                                           Color="Color.Error"
-                                           Class="pa-0"
-                                           OnClick="@(() => RemoveAllotment(context))" />
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
-             <MudPaper Elevation="25" Class="pa-4">
-                 <MudText Typo="Typo.subtitle1">Race classes</MudText>
-                 <MudDivider />
-
-                 @if (Model.Id == 0)
-                {
-                    <MudSwitchM3 @bind-Checked="hasMultipleClasses"
-                                 ThumbIcon="@Icons.Material.Filled.Done"
-                                 ThumbOffIcon="@Icons.Material.Filled.Close"
-                                 Label="Contracts"
-                                 Color="Color.Secondary"
-                                 Class="my-2" />
-                }
-
-
-                @if (hasMultipleClasses)
-                {
-                    <MudTable Items="@Model.RaceClasses" ReadOnly="false" Dense="true" EditTrigger="TableEditTrigger.RowClick" Class="extra-dense">
-                        <ToolBarContent>
-                            <MudStack Row="true" Class="pa-0 mud-width-full">
-                                @if (Model.Id == 0)
-                                {
+                        <MudTable Items="@Model.PointAllotments.OrderBy(e => e.Position)" Dense="true" ReadOnly="false" Class="extra-dense"
+                                  RowEditPreview="BackupAllotment" RowEditCancel="ResetAllotment" ApplyButtonPosition="TableApplyButtonPosition.End"
+                                  EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
+                            <ToolBarContent>
+                                <MudStack Row="true" Class="pa-0 mud-width-full">
                                     <MudSpacer />
-                                    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined"
-                                               Color="Color.Tertiary" OnClick="AddClass" Size="Size.Small">
-                                        Add class
+                                    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AppendAllotment" Size="Size.Small">
+                                        Append position
                                     </MudButton>
-                                }
-                            </MudStack>
-                        </ToolBarContent>
-                        <HeaderContent>
-                            <MudTh>Name</MudTh>
-                            <MudTh>Colour</MudTh>
-                            <MudTh></MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd>@context.Name</MudTd>
-                            <MudTd Style="@ViewHelper.SetBackgroundColour(context.Colour)">@context.Colour</MudTd>
-                            <MudTd>
-                                <SupplierDisplay Colour="@context.Colour">
-                                    <MudText>@context.Tag</MudText>
-                                </SupplierDisplay>
-                            </MudTd>
-                            <MudTd>
-                                @if (Model.Id == 0)
-                                {
-                                    <MudIconButton Icon="@Icons.Material.Outlined.Delete"
-                                                   Color="Color.Error"
-                                                   Size="Size.Small"
-                                                   OnClick="@(() => RemoveClass(context))" />
-                                }
-                            </MudTd>
-                        </RowTemplate>
-                        <RowEditingTemplate>
-                            <MudTd DataLabel="Name">
-                                <MudTextField T="string" @bind-Value="@context.Name" Class="field-md" />
-                            </MudTd>
-                            <MudTd DataLabel="Colour">
-                                <MudColorPicker @bind-Text="context.Colour" Placeholder="Colour" Class="field-md" />
-                            </MudTd>
-                            <MudTd DataLabel="Tag">
-                                <MudTextField T="string" @bind-Value="@context.Tag" Class="field-md" />
-                            </MudTd>
-                            <MudTd></MudTd>
-                        </RowEditingTemplate>
-                    </MudTable>
-                }
+                                </MudStack>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh>POS</MudTh>
+                                <MudTh>PTS</MudTh>
+                                <MudTh></MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Position">
+                                    <MudNumericField @bind-Value="@context.Position" Required />
+                                 </MudTd>
+                                 <MudTd DataLabel="Points">
+                                     <MudNumericField @bind-Value="@context.Points" Required />
+                                 </MudTd>
+                                 <MudTd>
+                                     <MudIconButton Size="@Size.Small"
+                                                    Icon="@Icons.Material.Outlined.Delete"
+                                                    Color="Color.Error"
+                                                    Class="pa-0"
+                                                    OnClick="@(() => RemoveAllotment(context))" />
+                                 </MudTd>
+                             </RowTemplate>
+                         </MudTable>
+                    </MudPaper>
+                    <MudPaper>
+                        <MudText Typo="Typo.subtitle1">Race classes</MudText>
+                        <MudDivider />
+
+                        @if (Model.Id == 0)
+                        {
+                            <MudSwitchM3 @bind-Checked="hasMultipleClasses"
+                                         ThumbIcon="@Icons.Material.Filled.Done"
+                                         ThumbOffIcon="@Icons.Material.Filled.Close"
+                                         Label="Contracts"
+                                         Color="Color.Secondary"
+                                         Class="my-2" />
+                        }
+
+                        @if (hasMultipleClasses)
+                        {
+                            <MudAlert Class="my-1">Be wary with changing the tag of a class, this is used to auto-assign teams from previous seasons.</MudAlert>
+
+                            <MudTable Items="@Model.RaceClasses" Dense="true">
+                                <ToolBarContent>
+                                    <MudStack Row="true" Class="pa-0 mud-width-full">
+                                        @if (Model.Id == 0)
+                                        {
+                                            <MudSpacer />
+                                            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined"
+                                                       Color="Color.Tertiary" OnClick="AddClass" Size="Size.Small">
+                                                Add race class
+                                            </MudButton>
+                                        }
+                                    </MudStack>
+                                </ToolBarContent>
+                                <HeaderContent>
+                                    <MudTh>Name</MudTh>
+                                    <MudTh>Colour</MudTh>
+                                    <MudTh>Tag</MudTh>
+                                    <MudTh>Preview</MudTh>
+                                    <MudTh></MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd>
+                                        <MudTextField T="string" @bind-Value="@context.Name" Class="field-md" />
+                                    </MudTd>
+                                    <MudTd>
+                                        <MudColorPicker @bind-Text="context.Colour" Placeholder="Colour" Class="field-md" />
+                                    </MudTd>
+                                    <MudTd>
+                                        <MudTextField T="string" @bind-Value="@context.Tag" Class="field-md" />
+                                    </MudTd>
+                                    <MudTd>
+                                        <SupplierDisplay Colour="@context.Colour">
+                                            <MudText>@context.Tag</MudText>
+                                        </SupplierDisplay>
+                                    </MudTd>
+                                    <MudTd>
+                                        @if (Model.Id == 0)
+                                        {
+                                            <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                                           Color="Color.Error"
+                                                           Size="Size.Small"
+                                                           OnClick="@(() => RemoveClass(context))" />
+                                        }
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        }
+                    </MudPaper>
+                </MudStack>
             </MudPaper>
         </MudPaper>
     </DialogContent>
@@ -225,8 +236,10 @@
         Model.QualifyingFormat = (QualyFormat)qualyChip.Value;
     }
 
-    private void BackupAllotment(object allotment) //alternatively use EditPointAllotmentModel if this doesnt work
+    private void BackupAllotment(object allotmentObj)
     {
+        var allotment = ((EditPointAllotmentModel)allotmentObj);
+
         allotmentBackup = new()
             {
                 Id = ((EditPointAllotmentModel)allotment).Id,
@@ -235,8 +248,10 @@
             };
     }
 
-    private void ResetAllotment(object allotment) //alternatively use EditPointAllotmentModel if this doesnt work
+    private void ResetAllotment(object allotmentObj)
     {
+        var allotment = ((EditPointAllotmentModel)allotmentObj);
+
         ((EditPointAllotmentModel)allotment).Id = allotmentBackup.Id;
         ((EditPointAllotmentModel)allotment).Position = allotmentBackup.Position;
         ((EditPointAllotmentModel)allotment).Points = allotmentBackup.Points;
@@ -263,9 +278,13 @@
 
     private void Submit()
     {
-        if (Model.Id == 0)
+        if (hasMultipleClasses)
         {
-            if (!hasMultipleClasses)
+            Model.QualifyingFormat = QualyFormat.OneSession;
+        }
+        else
+        {
+            if (Model.Id == 0)
                 Model.RaceClasses = new List<EditRaceClassModel>();
         }
 
