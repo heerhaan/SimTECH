@@ -106,7 +106,13 @@
                     <MudText>setter for the active class is missing hhh</MudText>
                     @foreach (var raceClass in Season.RaceClasses)
                     {
-                        <MudText>@raceClass.Name</MudText>
+                        <MudPaper>
+                            <MudText>@raceClass.Name</MudText>
+                            @if (raceClass.Id == 3)
+                            {
+                                <MudText>ACTIVE</MudText>
+                            }
+                        </MudPaper>
                     }
                 }
             </MudStack>

@@ -114,18 +114,17 @@
     [Parameter] public long SeasonId { get; set; }
     [Parameter] public int TabIndex { get; set; }
 
-    public Season Season { get; set; }
+    public OverviewModel OverviewModel { get; set; } = new();
+
+    [Obsolete] public Season Season { get; set; }
     public Race? NextRace { get; set; }
     public List<League> Leagues { get; set; } = new();
-    public List<Race> Races { get; set; } = new();
+    [Obsolete] public List<Race> Races { get; set; } = new();
     public List<Result> Results { get; set; } = new();
     public List<Climate> Climates { get; set; } = new();
-    public List<SeasonEngine> SeasonEngines { get; set; } = new();
-    public List<SeasonTeam> SeasonTeams { get; set; } = new();
-    public List<SeasonDriver> SeasonDrivers { get; set; } = new();
-    public List<Engine> Engines { get; set; } = new();
-    public List<Team> Teams { get; set; } = new();
-    public List<Driver> Drivers { get; set; } = new();
+    [Obsolete] public List<SeasonEngine> SeasonEngines { get; set; } = new();
+    [Obsolete] public List<SeasonTeam> SeasonTeams { get; set; } = new();
+    [Obsolete] public List<SeasonDriver> SeasonDrivers { get; set; } = new();
     public List<Trait> Traits { get; set; } = new();
     public List<Manufacturer> Manufacturers { get; set; } = new();
 
@@ -149,10 +148,18 @@
         Season = await _seasonService.GetSeasonById(SeasonId);
         Races = await _raceService.GetRacesBySeason(SeasonId);
 
+        OverviewModel.Season = await _seasonService.GetSeasonById(SeasonId);
+        OverviewModel.Races = await _raceService.GetRacesBySeason(SeasonId);
+
         if (Season.State == State.Active)
         {
             NextRace = Races.FindNext();
             nextRound = NextRace?.Round ?? 0;
+        }
+
+        if (Season.HasRaceClasses)
+        {
+            OverviewModel.ActiveClassId = Season.RaceClasses.First().Id;
         }
 
         config = _config.Value;
@@ -274,7 +281,9 @@
 
                 Season.State = State.Active; // NOTE: It always changes to active if started
                 NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
+
                 _snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
+                StateHasChanged();
             }
             else
             {
@@ -368,8 +377,6 @@
             {
                 ["Race"] = item,
                 ["SeasonId"] = SeasonId,
-                ["IncomingRound"] = 1 + Races.Count(),
-                ["DefaultRaceLength"] = currentLeague.RaceLength,
                 ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
             };
 
@@ -419,16 +426,16 @@
 
     private async Task UpdateDriver(SeasonDriver? item)
     {
-        if (!Drivers.Any())
-            Drivers = await _driverService.GetAvailableDrivers();
         if (!SeasonTeams.Any())
             SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+
+        var drivers = await _driverService.GetAvailableDrivers();
 
         var parameters = new DialogParameters
             {
                 ["SeasonId"] = Season.Id,
                 ["SeasonTeams"] = SeasonTeams,
-                ["Drivers"] = Drivers,
+                ["Drivers"] = drivers,
                 ["SeasonDriver"] = item,
             };
 
@@ -444,17 +451,17 @@
 
     private async Task UpdateTeam(SeasonTeam? item)
     {
-        if (!Teams.Any())
-            Teams = await _teamService.GetAvailableTeams();
         if (!Manufacturers.Any())
             Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
         if (!SeasonEngines.Any())
             SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
 
+        var teams = await _teamService.GetAvailableTeams();
+
         var parameters = new DialogParameters
             {
                 ["SeasonId"] = SeasonId,
-                ["Teams"] = Teams,
+                ["Teams"] = teams,
                 ["Manufacturers"] = Manufacturers.Where(e => e.State == State.Active).ToList(),
                 ["SeasonEngines"] = SeasonEngines,
                 ["SeasonTeam"] = item,
@@ -472,13 +479,11 @@
 
     private async Task UpdateEngine(SeasonEngine? item)
     {
-        if (!Engines.Any())
-            Engines = await _engineService.GetEngines();
-
+        var engines = await _engineService.GetEngines();
         var parameters = new DialogParameters
             {
                 ["SeasonId"] = SeasonId,
-                ["Engines"] = Engines,
+                ["Engines"] = engines,
                 ["SeasonEngine"] = item,
             };
 
