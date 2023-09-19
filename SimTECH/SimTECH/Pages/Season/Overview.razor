@@ -1,5 +1,6 @@
 ﻿@page "/overview/{SeasonId:long}"
 @page "/overview/{SeasonId:long}/{TabIndex:int}"
+
 @inject ContractService _contractService
 @inject ClimateService _climateService
 @inject DriverService _driverService
@@ -19,6 +20,7 @@
 @inject IDialogService _dialogService
 @inject IOptions<SimConfig> _config
 @inject ISnackbar _snackbar
+
 @using SimTECH.Pages.Season.Development;
 @using SimTECH.Pages.Season.Entrants;
 @using SimTECH.Pages.Season.Stats;
@@ -29,11 +31,10 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     @if (!loading)
     {
-        <CascadingValue Value="@Season" IsFixed="true">
+        <CascadingValue Value="@OverviewModel">
             <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="@activeTabIndex">
                 <MudTabPanel Text="Overview">
-                    <Landing
-                        NextRace="@NextRace" 
+                    <Landing NextRace="@NextRace" 
                         OnStartSeason="StartSeason"
                         OnFinishSeason="FinishSeason"
                         OnShowComponentUsage="ShowUsedComponents"
@@ -45,9 +46,8 @@
                 <MudTabPanel Text="Calendar" OnClick="OnOpenCalendar">
                     @if (calendarLoaded)
                     {
-                        <Calendar
-                            Races="@Races"
-                            Results="@Results"
+                        <Calendar Races="@OverviewModel.Races"
+                                  Results="@OverviewModel.Results"
                             SeasonDrivers="@OverviewModel.ClassDrivers()"
                             SeasonTeams="@OverviewModel.ClassTeams()"
                             Climates="@Climates"
@@ -57,53 +57,50 @@
                             OnGoToRace="GoToRace" />
                     }
                 </MudTabPanel>
-                <MudTabPanel Text="Standings" OnClick="OnOpenStandings">
+                <MudTabPanel Text="Standings">
                     @if (standingsLoaded)
                     {
                         <Standings SeasonDrivers="@OverviewModel.ClassDrivers()"
                                    SeasonTeams="@OverviewModel.ClassTeams()"
-                                   Races="@Races"
-                                   Results="@Results" />
+                                   Races="@OverviewModel.Races"
+                                   Results="@OverviewModel.Results" />
                     }
                 </MudTabPanel>
-                <MudTabPanel Text="Entrants" OnClick="OnOpenDrivers">
+                <MudTabPanel Text="Entrants">
                     <MudTabs Outlined="true" Centered="true">
-                        <MudTabPanel Text="Drivers" OnClick="OnOpenDrivers">
+                        <MudTabPanel Text="Drivers">
                             @if (driversLoaded)
                             {
-                                <SeasonDrivers
-                                    DriverEntrants="@SeasonDrivers"
-                                    SeasonTeams="@SeasonTeams"
-                                    OnEditorOpen="UpdateDriver" />
+                                <SeasonDrivers DriverEntrants="@OverviewModel.ClassDrivers()"
+                                               SeasonTeams="@OverviewModel.ClassTeams()"
+                                               OnEditorOpen="UpdateDriver" />
                             }
                         </MudTabPanel>
-                        <MudTabPanel Text="Teams" OnClick="OnOpenTeams">
+                        <MudTabPanel Text="Teams">
                             @if (teamsLoaded)
                             {
-                                <SeasonTeams
-                                    TeamEntrants="@SeasonTeams"
-                                    SeasonEngines="@SeasonEngines"
-                                    Manufacturers="@Manufacturers"
-                                    OnEditorOpen="UpdateTeam" />
+                                <SeasonTeams TeamEntrants="@OverviewModel.ClassTeams()"
+                                             SeasonEngines="@OverviewModel.SeasonEngines"
+                                             Manufacturers="@OverviewModel.Manufacturers"
+                                             OnEditorOpen="UpdateTeam" />
                             }
                         </MudTabPanel>
-                        <MudTabPanel Text="Engines" OnClick="OnOpenEngines">
+                        <MudTabPanel Text="Engines">
                             @if (enginesLoaded)
                             {
-                                <SeasonEngines
-                                    EngineEntrants="@SeasonEngines"
-                                    OnEditorOpen="UpdateEngine" />
+                                <SeasonEngines EngineEntrants="@OverviewModel.SeasonEngines"
+                                               OnEditorOpen="UpdateEngine" />
                             }
                         </MudTabPanel>
                         <MudTabPanel Text="Power rankings" OnClick="OnOpenPower">
                             @if (powerLoaded)
                             {
-                                <PowerRankings SeasonDrivers="@SeasonDrivers"
-                                    SeasonTeams="@SeasonTeams"
-                                    SeasonEngines="@SeasonEngines"
-                                    Manufacturers="@Manufacturers"
-                                    Traits="@Traits"
-                                    TeamRoleCarModifier="@config.CarDriverStatusModifier" />
+                                <PowerRankings SeasonDrivers="@OverviewModel.ClassDrivers()"
+                                               SeasonTeams="@OverviewModel.ClassTeams()"
+                                               SeasonEngines="@OverviewModel.SeasonEngines"
+                                               Manufacturers="@OverviewModel.Manufacturers"
+                                               Traits="@Traits"
+                                               TeamRoleCarModifier="@config.CarDriverStatusModifier" />
                             }
                         </MudTabPanel>
                     </MudTabs>
@@ -122,17 +119,10 @@
 
     public OverviewModel OverviewModel { get; set; } = new();
 
-    [Obsolete] public Season Season { get; set; }
-    public Race? NextRace { get; set; }
-    public List<League> Leagues { get; set; } = new();
-    [Obsolete] public List<Race> Races { get; set; } = new();
-    public List<Result> Results { get; set; } = new();
-    public List<Climate> Climates { get; set; } = new();
-    [Obsolete] public List<SeasonEngine> SeasonEngines { get; set; } = new();
-    [Obsolete] public List<SeasonTeam> SeasonTeams { get; set; } = new();
-    [Obsolete] public List<SeasonDriver> SeasonDrivers { get; set; } = new();
-    public List<Trait> Traits { get; set; } = new();
-    public List<Manufacturer> Manufacturers { get; set; } = new();
+    Race? NextRace { get; set; }
+    List<League> Leagues { get; set; } = new();
+    List<Climate> Climates { get; set; } = new();
+    List<Trait> Traits { get; set; } = new();
 
     SimConfig config;
 
@@ -151,25 +141,23 @@
     {
         activeTabIndex = TabIndex;
 
-        Season = await _seasonService.GetSeasonById(SeasonId);
-        Races = await _raceService.GetRacesBySeason(SeasonId);
-
         OverviewModel.Season = await _seasonService.GetSeasonById(SeasonId);
         OverviewModel.Races = await _raceService.GetRacesBySeason(SeasonId);
         OverviewModel.SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
         OverviewModel.SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
         OverviewModel.SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        OverviewModel.Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
 
-        if (Season.State == State.Active)
+        if (OverviewModel.Season.State == State.Active)
         {
-            NextRace = Races.FindNext();
+            NextRace = OverviewModel.Races.FindNext();
             nextRound = NextRace?.Round ?? 0;
+
+            OverviewModel.Results = await _resultService.GetResultsOfSeason(SeasonId);
         }
 
-        if (Season.HasRaceClasses)
-        {
-            OverviewModel.ActiveClassId = Season.RaceClasses.First().Id;
-        }
+        if (OverviewModel.Season.HasRaceClasses)
+            OverviewModel.ActiveClassId = OverviewModel.Season.RaceClasses.First().Id;
 
         config = _config.Value;
 
@@ -192,85 +180,19 @@
             case 1:
                 await OnOpenCalendar();
                 break;
-            case 2:
-                await OnOpenStandings();
-                break;
-            case 3:
-                await OnOpenDrivers();
-                break;
         }
     }
 
     private async Task OnOpenCalendar()
     {
-        if (!Races.Any())
-            Races = await _raceService.GetRacesBySeason(SeasonId);
-        if (!Results.Any())
-            Results = await _resultService.GetResultsOfSeason(SeasonId);
-        if (!SeasonDrivers.Any())
-            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-        if (!SeasonTeams.Any())
-            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
         if (!Climates.Any())
             Climates = await _climateService.GetClimates(StateFilter.All);
 
         calendarLoaded = true;
     }
 
-    private async Task OnOpenStandings()
-    {
-        if (!SeasonDrivers.Any())
-            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-        if (!SeasonTeams.Any())
-            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-        if (!Races.Any())
-            Races = await _raceService.GetRacesBySeason(SeasonId);
-        if (!Results.Any())
-            Results = await _resultService.GetResultsOfSeason(SeasonId);
-
-        standingsLoaded = true;
-    }
-
-    private async Task OnOpenDrivers()
-    {
-        if (!SeasonDrivers.Any())
-            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-        if (!SeasonTeams.Any())
-            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-
-        driversLoaded = true;
-    }
-
-    private async Task OnOpenTeams()
-    {
-        if (!SeasonTeams.Any())
-            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-        if (!SeasonEngines.Any())
-            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
-        if (!Manufacturers.Any())
-            Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
-
-        teamsLoaded = true;
-    }
-
-    private async Task OnOpenEngines()
-    {
-        if (!SeasonEngines.Any())
-            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
-
-        enginesLoaded = true;
-    }
-
     private async Task OnOpenPower()
     {
-        if (!SeasonDrivers.Any())
-            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-        if (!SeasonTeams.Any())
-            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-        if (!SeasonEngines.Any())
-            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
-        if (!Manufacturers.Any())
-            Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
         if (!Traits.Any())
             Traits = await _traitService.GetTraits(StateFilter.All);
 
@@ -279,19 +201,19 @@
 
     private async Task StartSeason()
     {
-        if (Season != null)
+        if (OverviewModel.Season != null)
         {
             var error = await _seasonService.ActivateSeason(SeasonId);
 
             if (error == null)
             {
                 // Subtract active and added contract durations with 1 (if it is valid)
-                await _contractService.SubtractDurations(Season.LeagueId, SeasonId);
+                await _contractService.SubtractDurations(OverviewModel.Season.LeagueId, SeasonId);
 
-                Season.State = State.Active; // NOTE: It always changes to active if started
+                OverviewModel.Season.State = State.Active; // NOTE: It always changes to active if started
                 NextRace = await _raceService.GetNextRaceOfSeason(SeasonId);
 
-                _snackbar.Add($"Season {Season.Year} has been activated!", Severity.Success);
+                _snackbar.Add($"Season {OverviewModel.Season.Year} has been activated!", Severity.Success);
                 StateHasChanged();
             }
             else
@@ -303,7 +225,7 @@
 
     private async Task UpdateSeason()
     {
-        var editModel = new EditSeasonModel(Season);
+        var editModel = new EditSeasonModel(OverviewModel.Season);
 
         if (Leagues == null)
             Leagues = await _leagueService.GetLeagues();
@@ -316,7 +238,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
         {
             await _seasonService.UpdateSeason(updatedItem);
-            Season = updatedItem;
+            OverviewModel.Season = updatedItem;
         }
     }
 
@@ -334,7 +256,7 @@
         }
     }
 
-    private async Task SetActiveRaceClass(long raceClassId)
+    private void SetActiveRaceClass(long raceClassId)
     {
         // If this is it, then we could use a bind
         OverviewModel.ActiveClassId = raceClassId;
@@ -344,14 +266,12 @@
     {
         if (!Leagues.Any())
             Leagues = await _leagueService.GetLeagues();
-        if (!Races.Any())
-            Races = await _raceService.GetRacesBySeason(SeasonId);
         if (!Climates.Any())
             Climates = await _climateService.GetClimates(StateFilter.All);
 
-        var league = Leagues.First(e => e.Id == Season.LeagueId);
+        var league = Leagues.First(e => e.Id == OverviewModel.Season.LeagueId);
 
-        var usedTrackIds = Races.Select(e => e.TrackId).ToArray();
+        var usedTrackIds = OverviewModel.Races.Select(e => e.TrackId).ToArray();
         var availableTracks = (await _trackService.GetTracks())
             .Where(e => !usedTrackIds.Contains(e.Id))
             .ToList();
@@ -366,7 +286,7 @@
             {
                 ["Tracks"] = availableTracks,
                 ["SeasonId"] = SeasonId,
-                ["OffsetRound"] = 1 + Races.Count(),
+                ["OffsetRound"] = 1 + OverviewModel.Races.Count(),
                 ["DefaultRaceLength"] = league.RaceLength,
                 ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
             };
@@ -377,7 +297,7 @@
         if (!result.Canceled && result.Data != null && result.Data is List<Race> addedRaces)
         {
             await _raceService.InsertRaces(addedRaces);
-            Races = await _raceService.GetRacesBySeason(SeasonId);
+            OverviewModel.Races = await _raceService.GetRacesBySeason(SeasonId);
         }
     }
 
@@ -386,7 +306,7 @@
         if (!Leagues.Any())
             Leagues = await _leagueService.GetLeagues();
 
-        var currentLeague = Leagues.First(e => e.Id == Season.LeagueId);
+        var currentLeague = Leagues.First(e => e.Id == OverviewModel.Season.LeagueId);
 
         var parameters = new DialogParameters
             {
@@ -401,25 +321,22 @@
         if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
         {
             await _raceService.UpdateRace(updatedRace);
-            Races = await _raceService.GetRacesBySeason(SeasonId);
+            OverviewModel.Races = await _raceService.GetRacesBySeason(SeasonId);
         }
     }
 
     private async Task DeleteRace(long raceId)
     {
         await _raceService.DeleteRace(raceId);
-        Races = await _raceService.GetRacesBySeason(SeasonId);
+        OverviewModel.Races = await _raceService.GetRacesBySeason(SeasonId);
     }
 
     private async Task GoToNextRace() => await GoToRace(nextRound);
 
     private async Task GoToRace(int round)
     {
-        if (!Races.Any())
-            Races = await _raceService.GetRacesBySeason(SeasonId);
-
-        var race = Races.FirstOrDefault(e => e.Round == round);
-        if (race is null)
+        var race = OverviewModel.Races.FirstOrDefault(e => e.Round == round);
+        if (race == null)
         {
             _snackbar.Add("can't find the next race, you sure it exists lad?");
             return;
@@ -441,15 +358,12 @@
 
     private async Task UpdateDriver(SeasonDriver? item)
     {
-        if (!SeasonTeams.Any())
-            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-
         var drivers = await _driverService.GetAvailableDrivers();
 
         var parameters = new DialogParameters
             {
-                ["SeasonId"] = Season.Id,
-                ["SeasonTeams"] = SeasonTeams,
+                ["SeasonId"] = OverviewModel.Season.Id,
+                ["SeasonTeams"] = OverviewModel.SeasonTeams,
                 ["Drivers"] = drivers,
                 ["SeasonDriver"] = item,
             };
@@ -460,25 +374,20 @@
         if (!result.Canceled && result.Data != null && result.Data is SeasonDriver updatedDriver)
         {
             await _entrantService.UpdateSeasonDriver(updatedDriver);
-            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+            OverviewModel.SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
         }
     }
 
     private async Task UpdateTeam(SeasonTeam? item)
     {
-        if (!Manufacturers.Any())
-            Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
-        if (!SeasonEngines.Any())
-            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
-
         var teams = await _teamService.GetAvailableTeams();
 
         var parameters = new DialogParameters
             {
                 ["SeasonId"] = SeasonId,
                 ["Teams"] = teams,
-                ["Manufacturers"] = Manufacturers.Where(e => e.State == State.Active).ToList(),
-                ["SeasonEngines"] = SeasonEngines,
+                ["Manufacturers"] = OverviewModel.Manufacturers.Where(e => e.State == State.Active).ToList(),
+                ["SeasonEngines"] = OverviewModel.SeasonEngines,
                 ["SeasonTeam"] = item,
             };
 
@@ -488,13 +397,14 @@
         if (!result.Canceled && result.Data != null && result.Data is SeasonTeam updatedTeam)
         {
             await _entrantService.UpdateSeasonTeam(updatedTeam);
-            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+            OverviewModel.SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
         }
     }
 
     private async Task UpdateEngine(SeasonEngine? item)
     {
         var engines = await _engineService.GetEngines();
+
         var parameters = new DialogParameters
             {
                 ["SeasonId"] = SeasonId,
@@ -508,26 +418,17 @@
         if (!result.Canceled && result.Data != null && result.Data is SeasonEngine updatedEngine)
         {
             await _entrantService.UpdateSeasonEngine(updatedEngine);
-
-            var seasonEngine = SeasonEngines.FirstOrDefault(e => e.Id == updatedEngine.Id);
-            SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
+            OverviewModel.SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
         }
     }
 
     private async Task ShowQualyBattles()
     {
-        if (!SeasonDrivers.Any())
-            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-        if (!SeasonTeams.Any())
-            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-        if (!Results.Any())
-            Results = await _resultService.GetResultsOfSeason(SeasonId);
-
         var parameters = new DialogParameters
             {
-                ["SeasonDrivers"] = SeasonDrivers,
-                ["SeasonTeams"] = SeasonTeams,
-                ["Results"] = Results
+                ["SeasonDrivers"] = OverviewModel.SeasonDrivers,
+                ["SeasonTeams"] = OverviewModel.SeasonTeams,
+                ["Results"] = OverviewModel.Results
             };
 
         _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters);
@@ -535,20 +436,13 @@
 
     private async Task ShowUsedComponents()
     {
-        if (!SeasonDrivers.Any())
-            SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-        if (!SeasonTeams.Any())
-            SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-        if (!Results.Any())
-            Results = await _resultService.GetResultsOfSeason(SeasonId);
-
         var incidents = await _incidentService.GetIncidents(StateFilter.Default);
 
         var parameters = new DialogParameters
             {
-                ["SeasonDrivers"] = SeasonDrivers,
-                ["SeasonTeams"] = SeasonTeams,
-                ["Results"] = Results,
+                ["SeasonDrivers"] = OverviewModel.SeasonDrivers,
+                ["SeasonTeams"] = OverviewModel.SeasonTeams,
+                ["Results"] = OverviewModel.Results,
                 ["Incidents"] = incidents,
             };
 

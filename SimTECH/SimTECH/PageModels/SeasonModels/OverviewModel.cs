@@ -10,6 +10,8 @@ public class OverviewModel
     public List<SeasonDriver> SeasonDrivers { get; set; }
     public List<SeasonTeam> SeasonTeams { get; set; }
     public List<SeasonEngine> SeasonEngines { get; set; }
+    public List<Result> Results { get; set; }
+    public List<Manufacturer> Manufacturers { get; set; }
 
     public long ActiveClassId { get; set; }
 
