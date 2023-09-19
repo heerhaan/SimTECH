@@ -1,12 +1,12 @@
 ﻿@inherits InputBase<Country>
 
 <MudSelectExtended ItemCollection="@Countries"
-@bind-Value="HandleSelection"
+                   @bind-Value="HandleSelection"
                    Label="Nation"
                    Variant="Variant.Outlined"
                    ToStringFunc="@(e => $"{e.CountryCodeToEmoji()} {e.GetDescription()}")"
                    SearchBox="true"
-                   SearchFunc="@(new Func<Country, string, bool>(SearchCountries))"
+                   SearchFunc="@SearchCountryFunc"
                    T="Country"
                    Class="@Class">
     <ItemTemplate>
@@ -40,16 +40,16 @@
         return false;
     }
 
-    private bool SearchCountries(Country code, string searchText)
+    private Func<Country, string, bool> SearchCountryFunc = (code, text) =>
     {
-        if (string.IsNullOrWhiteSpace(searchText))
+        if (string.IsNullOrWhiteSpace(text))
             return true;
 
         var countryText = code.GetDescription().ToLowerInvariant();
 
-        if (countryText.Contains(searchText.ToLowerInvariant()))
+        if (countryText.Contains(text.ToLowerInvariant()))
             return true;
 
         return false;
-    }
+    };
 }

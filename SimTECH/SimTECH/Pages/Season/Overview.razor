@@ -32,21 +32,24 @@
         <CascadingValue Value="@Season" IsFixed="true">
             <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="@activeTabIndex">
                 <MudTabPanel Text="Overview">
-                    <Landing NextRace="@NextRace" 
+                    <Landing
+                        NextRace="@NextRace" 
                         OnStartSeason="StartSeason"
                         OnFinishSeason="FinishSeason"
                         OnShowComponentUsage="ShowUsedComponents"
                         OnShowQualyBattles="ShowQualyBattles"
                         OnNextRace="GoToNextRace"
+                        OnClassSelected="SetActiveRaceClass"
                         OnNavigate="GoToCommon" />
                 </MudTabPanel>
                 <MudTabPanel Text="Calendar" OnClick="OnOpenCalendar">
                     @if (calendarLoaded)
                     {
-                        <Calendar Races="@Races"
+                        <Calendar
+                            Races="@Races"
                             Results="@Results"
-                            SeasonDrivers="@SeasonDrivers"
-                            SeasonTeams="@SeasonTeams"
+                            SeasonDrivers="@OverviewModel.ClassDrivers()"
+                            SeasonTeams="@OverviewModel.ClassTeams()"
                             Climates="@Climates"
                             OnAddRaces="AddRaces"
                             OnEditorOpen="UpdateRace"
@@ -57,10 +60,10 @@
                 <MudTabPanel Text="Standings" OnClick="OnOpenStandings">
                     @if (standingsLoaded)
                     {
-                        <Standings SeasonDrivers="@SeasonDrivers"
-                            SeasonTeams="@SeasonTeams"
-                            Races="@Races"
-                            Results="@Results" />
+                        <Standings SeasonDrivers="@OverviewModel.ClassDrivers()"
+                                   SeasonTeams="@OverviewModel.ClassTeams()"
+                                   Races="@Races"
+                                   Results="@Results" />
                     }
                 </MudTabPanel>
                 <MudTabPanel Text="Entrants" OnClick="OnOpenDrivers">
@@ -68,7 +71,8 @@
                         <MudTabPanel Text="Drivers" OnClick="OnOpenDrivers">
                             @if (driversLoaded)
                             {
-                                <SeasonDrivers DriverEntrants="@SeasonDrivers"
+                                <SeasonDrivers
+                                    DriverEntrants="@SeasonDrivers"
                                     SeasonTeams="@SeasonTeams"
                                     OnEditorOpen="UpdateDriver" />
                             }
@@ -76,7 +80,8 @@
                         <MudTabPanel Text="Teams" OnClick="OnOpenTeams">
                             @if (teamsLoaded)
                             {
-                                <SeasonTeams TeamEntrants="@SeasonTeams"
+                                <SeasonTeams
+                                    TeamEntrants="@SeasonTeams"
                                     SeasonEngines="@SeasonEngines"
                                     Manufacturers="@Manufacturers"
                                     OnEditorOpen="UpdateTeam" />
@@ -85,7 +90,8 @@
                         <MudTabPanel Text="Engines" OnClick="OnOpenEngines">
                             @if (enginesLoaded)
                             {
-                                <SeasonEngines EngineEntrants="@SeasonEngines"
+                                <SeasonEngines
+                                    EngineEntrants="@SeasonEngines"
                                     OnEditorOpen="UpdateEngine" />
                             }
                         </MudTabPanel>
@@ -326,6 +332,11 @@
             await _seasonService.FinishSeason(SeasonId);
             _nav.NavigateTo("/seasons");
         }
+    }
+
+    private async Task SetActiveRaceClass(long raceClassId)
+    {
+        
     }
 
     private async Task AddRaces()

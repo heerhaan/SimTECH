@@ -12,4 +12,29 @@ public class OverviewModel
     public List<SeasonEngine> SeasonEngines { get; set; }
 
     public long ActiveClassId { get; set; }
+
+    public List<SeasonDriver> ClassDrivers()
+    {
+        if (ActiveClassId == default)
+            return SeasonDrivers;
+
+        var teamsWithClass = SeasonTeams
+            .Where(e => e.ClassId == ActiveClassId)
+            .Select(e => e.Id)
+            .ToList();
+
+        return SeasonDrivers
+            .Where(e => e.SeasonTeamId.HasValue && teamsWithClass.Contains(e.SeasonTeamId.Value))
+            .ToList();
+    }
+
+    public List<SeasonTeam> ClassTeams()
+    {
+        if (ActiveClassId == default)
+            return SeasonTeams;
+
+        return SeasonTeams
+            .Where(e => e.ClassId == ActiveClassId)
+            .ToList();
+    }
 }

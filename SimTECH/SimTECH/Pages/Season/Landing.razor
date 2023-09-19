@@ -99,11 +99,20 @@
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
                 <MudText Typo="Typo.h5">Classes</MudText>
+                <MudText Color="Color.Warning">oi oi, selectior is not fully there yet</MudText>
                 <MudDivider />
 
                 @if (Season.RaceClasses?.Any() == true)
                 {
-                    <MudText>setter for the active class is missing hhh</MudText>
+                    <MudRadioGroup SelectedOptionChanged="OnClassSelected">
+                        @foreach (var raceClass in Season.RaceClasses)
+                        {
+                            <MudRadio Option="@raceClass.Id">@raceClass.Name</MudRadio>
+                        }
+                    </MudRadioGroup>
+
+                    <MudDivider />
+
                     @foreach (var raceClass in Season.RaceClasses)
                     {
                         <MudPaper>
@@ -129,6 +138,7 @@
     [Parameter] public EventCallback OnShowComponentUsage { get; set; }
     [Parameter] public EventCallback OnShowQualyBattles { get; set; }
     [Parameter] public EventCallback OnNextRace { get; set; }
+    [Parameter] public EventCallback<long> OnClassSelected { get; set; }
     [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
     async Task TriggerStart() => await OnStartSeason.InvokeAsync();
