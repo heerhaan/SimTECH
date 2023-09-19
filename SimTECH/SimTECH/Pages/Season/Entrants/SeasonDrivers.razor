@@ -44,7 +44,8 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+
     [Parameter] public IEnumerable<SeasonDriver> DriverEntrants { get; set; } = Enumerable.Empty<SeasonDriver>();
     [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     [Parameter] public EventCallback<SeasonDriver?> OnEditorOpen { get; set; }
@@ -67,7 +68,7 @@
             var listing = new SeasonDriverListing
             {
                 Name = driver.Driver.FullName,
-                Age = driver.GimmeAge(Season.Year),
+                Age = driver.GimmeAge(OverviewModel.Season.Year),
                 Number = driver.Number,
                 Country = driver.Driver.Country,
                 Role = driver.TeamRole,

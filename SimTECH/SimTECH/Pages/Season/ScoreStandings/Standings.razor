@@ -5,7 +5,7 @@
                 <MudPaper Height="75px" Class="pa-2">
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                         <span class="btn-md"></span>
-                        <MudText Typo="Typo.h3">Season standings for @Season.Year</MudText>
+                        <MudText Typo="Typo.h3">Season standings for @OverviewModel.Season.Year</MudText>
                         <ScreenshotButton TargetId="standings-numerical-overview" Class="btn-md" />
                     </MudStack>
                 </MudPaper>
@@ -29,7 +29,7 @@
 </MudTabs>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
     [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
     [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();

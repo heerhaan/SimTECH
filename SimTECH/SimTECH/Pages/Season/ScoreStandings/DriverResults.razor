@@ -4,7 +4,7 @@
     <MudTable Items="@StandingDrivers" Dense="true" Class="extra-dense" id="wdc-season-results">
         <ToolBarContent>
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4 mud-width-full">
-                <MudText Typo="Typo.h4">World Drivers Championship @Season.Year</MudText>
+                <MudText Typo="Typo.h4">World Drivers Championship @OverviewModel.Season.Year</MudText>
                 <MudSpacer />
                 <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined">
                     <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" Class="btn-md" />
@@ -63,7 +63,8 @@
 </MudPaper>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+
     [Parameter] public Dictionary<int, Country> CountryRounds { get; set; }
     [Parameter] public List<StandingDriverModel> StandingDrivers { get; set; }
 
@@ -79,13 +80,13 @@
 
     protected override void OnInitialized()
     {
-        if (Season?.PointAllotments?.Any() == true)
-            lowestScoringPosition = Season.PointAllotments.Max(e => e.Position);
+        if (OverviewModel.Season?.PointAllotments?.Any() == true)
+            lowestScoringPosition = OverviewModel.Season.PointAllotments.Max(e => e.Position);
     }
 
     async Task ShowWdcResultGraph()
     {
-        var parameters = new DialogParameters { ["Drivers"] = StandingDrivers, ["Season"] = Season };
+        var parameters = new DialogParameters { ["Drivers"] = StandingDrivers, ["Season"] = OverviewModel.Season };
         _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters, customOptions);
     }
 }

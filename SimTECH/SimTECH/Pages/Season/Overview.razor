@@ -131,13 +131,12 @@
         OverviewModel.SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
         OverviewModel.SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
         OverviewModel.Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
+        OverviewModel.Results = await _resultService.GetResultsOfSeason(SeasonId);
 
         if (OverviewModel.Season.State == State.Active)
         {
             NextRace = OverviewModel.Races.FindNext();
             nextRound = NextRace?.Round ?? 0;
-
-            OverviewModel.Results = await _resultService.GetResultsOfSeason(SeasonId);
         }
 
         if (OverviewModel.Season.HasRaceClasses)
