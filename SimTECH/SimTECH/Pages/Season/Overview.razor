@@ -34,63 +34,51 @@
         <CascadingValue Value="@OverviewModel">
             <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="@activeTabIndex">
                 <MudTabPanel Text="Overview">
-                    <Landing NextRace="@NextRace" 
-                        OnStartSeason="StartSeason"
-                        OnFinishSeason="FinishSeason"
-                        OnShowComponentUsage="ShowUsedComponents"
-                        OnShowQualyBattles="ShowQualyBattles"
-                        OnNextRace="GoToNextRace"
-                        OnClassSelected="SetActiveRaceClass"
-                        OnNavigate="GoToCommon" />
+                    <Landing NextRace="@NextRace"
+                             OnStartSeason="StartSeason"
+                             OnFinishSeason="FinishSeason"
+                             OnShowComponentUsage="ShowUsedComponents"
+                             OnShowQualyBattles="ShowQualyBattles"
+                             OnNextRace="GoToNextRace"
+                             OnClassSelected="SetActiveRaceClass"
+                             OnNavigate="GoToCommon" />
                 </MudTabPanel>
                 <MudTabPanel Text="Calendar" OnClick="OnOpenCalendar">
                     @if (calendarLoaded)
                     {
                         <Calendar Races="@OverviewModel.Races"
                                   Results="@OverviewModel.Results"
-                            SeasonDrivers="@OverviewModel.ClassDrivers()"
-                            SeasonTeams="@OverviewModel.ClassTeams()"
-                            Climates="@Climates"
-                            OnAddRaces="AddRaces"
-                            OnEditorOpen="UpdateRace"
-                            OnDelete="DeleteRace"
-                            OnGoToRace="GoToRace" />
+                                  SeasonDrivers="@OverviewModel.ClassDrivers()"
+                                  SeasonTeams="@OverviewModel.ClassTeams()"
+                                  Climates="@Climates"
+                                  OnAddRaces="AddRaces"
+                                  OnEditorOpen="UpdateRace"
+                                  OnDelete="DeleteRace"
+                                  OnGoToRace="GoToRace" />
                     }
                 </MudTabPanel>
                 <MudTabPanel Text="Standings">
-                    @if (standingsLoaded)
-                    {
-                        <Standings SeasonDrivers="@OverviewModel.ClassDrivers()"
-                                   SeasonTeams="@OverviewModel.ClassTeams()"
-                                   Races="@OverviewModel.Races"
-                                   Results="@OverviewModel.Results" />
-                    }
+                    <Standings SeasonDrivers="@OverviewModel.ClassDrivers()"
+                               SeasonTeams="@OverviewModel.ClassTeams()"
+                               Races="@OverviewModel.Races"
+                               Results="@OverviewModel.Results" />
                 </MudTabPanel>
                 <MudTabPanel Text="Entrants">
                     <MudTabs Outlined="true" Centered="true">
                         <MudTabPanel Text="Drivers">
-                            @if (driversLoaded)
-                            {
-                                <SeasonDrivers DriverEntrants="@OverviewModel.ClassDrivers()"
-                                               SeasonTeams="@OverviewModel.ClassTeams()"
-                                               OnEditorOpen="UpdateDriver" />
-                            }
+                            <SeasonDrivers DriverEntrants="@OverviewModel.ClassDrivers()"
+                                           SeasonTeams="@OverviewModel.ClassTeams()"
+                                           OnEditorOpen="UpdateDriver" />
                         </MudTabPanel>
                         <MudTabPanel Text="Teams">
-                            @if (teamsLoaded)
-                            {
-                                <SeasonTeams TeamEntrants="@OverviewModel.ClassTeams()"
-                                             SeasonEngines="@OverviewModel.SeasonEngines"
-                                             Manufacturers="@OverviewModel.Manufacturers"
-                                             OnEditorOpen="UpdateTeam" />
-                            }
+                            <SeasonTeams TeamEntrants="@OverviewModel.ClassTeams()"
+                                         SeasonEngines="@OverviewModel.SeasonEngines"
+                                         Manufacturers="@OverviewModel.Manufacturers"
+                                         OnEditorOpen="UpdateTeam" />
                         </MudTabPanel>
                         <MudTabPanel Text="Engines">
-                            @if (enginesLoaded)
-                            {
-                                <SeasonEngines EngineEntrants="@OverviewModel.SeasonEngines"
-                                               OnEditorOpen="UpdateEngine" />
-                            }
+                            <SeasonEngines EngineEntrants="@OverviewModel.SeasonEngines"
+                                           OnEditorOpen="UpdateEngine" />
                         </MudTabPanel>
                         <MudTabPanel Text="Power rankings" OnClick="OnOpenPower">
                             @if (powerLoaded)
@@ -131,10 +119,6 @@
     int nextRound;
 
     bool calendarLoaded = false;
-    bool standingsLoaded = false;
-    bool driversLoaded = false;
-    bool teamsLoaded = false;
-    bool enginesLoaded = false;
     bool powerLoaded = false;
 
     protected override async Task OnInitializedAsync()
@@ -161,7 +145,7 @@
 
         config = _config.Value;
 
-        await PreloadTab(TabIndex);
+        await PreloadTab();
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -173,9 +157,10 @@
         loading = false;
     }
 
-    private async Task PreloadTab(int tabIndex)
+    private async Task PreloadTab()
     {
-        switch (tabIndex)
+        // Used to have more options, but alas
+        switch (activeTabIndex)
         {
             case 1:
                 await OnOpenCalendar();
@@ -381,12 +366,13 @@
     private async Task UpdateTeam(SeasonTeam? item)
     {
         var teams = await _teamService.GetAvailableTeams();
+        var activeManufacturers = OverviewModel.Manufacturers.Where(e => e.State == State.Active).ToList();
 
         var parameters = new DialogParameters
             {
                 ["SeasonId"] = SeasonId,
                 ["Teams"] = teams,
-                ["Manufacturers"] = OverviewModel.Manufacturers.Where(e => e.State == State.Active).ToList(),
+                ["Manufacturers"] = activeManufacturers,
                 ["SeasonEngines"] = OverviewModel.SeasonEngines,
                 ["SeasonTeam"] = item,
             };
