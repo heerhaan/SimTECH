@@ -16,6 +16,18 @@
                 </MudStack>
 
                 <MudText>Chosen is @(Driver.FullName)</MudText>
+
+                <ApexCharts.ApexChart @ref="positionChart"
+                                      TItem="DataPoint"
+                                      Title="Position results"
+                                      Options="@positionOptions"
+                                      Height="500">
+                    <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                Items="@positionResult.DataPoints"
+                                                XValue="@(e => e.XData)"
+                                                YValue="@(e => e.YData)"
+                                                SeriesType="ApexCharts.SeriesType.Bar" />
+                </ApexCharts.ApexChart>
             }
         </MudPaper>
     </DialogContent>
@@ -23,12 +35,35 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
+
     [Parameter] public Driver Driver { get; set; }
+    [Parameter] public List<Result> DriverResults { get; set; }
+
+    private DataSet positionResult = new DataSet { Label = "Scored positions" };
+
+    ApexCharts.ApexChart<DataPoint>? positionChart;
+    ApexCharts.ApexChartOptions<DataPoint> positionOptions = Constants.ChartOptionsDefault;
 
     bool loading = true;
 
     protected override void OnInitialized()
     {
+        CreatePositionChart();
+
         loading = false;
+    }
+
+    private void CreatePositionChart()
+    {
+        if (DriverResults?.Any() == true)
+        {
+            var highestPositionScored = DriverResults.Select(e => e.Position).Max();
+
+            for (int i = 1; i <= highestPositionScored; i++)
+            {
+                positionResult.DataPoints.Add(
+                    new DataPoint($"P{i}", DriverResults.Count(e => e.Position == i)));
+            }
+        }
     }
 }

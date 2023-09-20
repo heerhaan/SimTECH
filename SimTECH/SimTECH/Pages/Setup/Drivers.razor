@@ -1,7 +1,9 @@
 ﻿@page "/drivers"
-@inject BreadcrumbProvider _bread
+
 @inject DriverService _driverService
+@inject ResultService _resultService
 @inject TraitService _traitService
+@inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject IDialogService _dialogService
 
@@ -90,15 +92,18 @@
     };
 
     // Displayable helpers
-    private string ReadActiveLeague(long driverId) =>
-        currentDrivers.Find(e => e.DriverId == driverId)?.League ?? "None";
+    private string ReadActiveLeague(long driverId) => currentDrivers.Find(e => e.DriverId == driverId)?.League ?? "None";
 
     private async Task ShowDetailData(Driver driver)
     {
+        var driverResults = await _resultService.GetAllResultsOfDriver(driver.Id);
+
         var parameters = new DialogParameters
-        {
-            ["Driver"] = driver,
-        };
+            {
+                ["Driver"] = driver,
+                ["DriverResults"] = driverResults
+            };
+
         _ = await _dialogService.ShowAsync<DriverDetailStat>("Driver details", parameters);
     }
 

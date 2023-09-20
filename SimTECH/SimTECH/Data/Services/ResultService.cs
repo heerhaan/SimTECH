@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Data.Models;
-using SimTECH.Pages.Season;
 
 namespace SimTECH.Data.Services;
 
@@ -31,6 +30,15 @@ public class ResultService : BaseService<Result>
 
         return await context.Result
             .Where(e => e.Race.SeasonId == seasonId)
+            .ToListAsync();
+    }
+
+    public async Task<List<Result>> GetAllResultsOfDriver(long driverId)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.Result
+            .Where(e => e.SeasonDriver.DriverId == driverId)
             .ToListAsync();
     }
 }
