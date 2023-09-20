@@ -157,24 +157,39 @@
             var polesitter = Results.FirstOrDefault(e => e.RaceId == race.Id && e.Grid == 1);
             if (polesitter != null)
             {
-                var poleDriver = SeasonDrivers.First(e => e.Id == polesitter.SeasonDriverId);
-                var poleTeam = SeasonTeams.First(e => e.Id == polesitter.SeasonTeamId);
+                var poleDriver = SeasonDrivers.FirstOrDefault(e => e.Id == polesitter.SeasonDriverId);
+                var poleTeam = SeasonTeams.FirstOrDefault(e => e.Id == polesitter.SeasonTeamId);
 
-                listing.PoleSitter = new CompactDriver
+                if (poleDriver != null && poleTeam != null)
                 {
-                    Name = poleDriver.Driver.FullName,
-                    Country = poleDriver.Driver.Country,
-                    Number = poleDriver.Number,
-                    Colour = poleTeam.Colour,
-                    Accent = poleTeam.Accent
-                };
+                    listing.PoleSitter = new CompactDriver
+                        {
+                            Name = poleDriver.Driver.FullName,
+                            Country = poleDriver.Driver.Country,
+                            Number = poleDriver.Number,
+                            Colour = poleTeam.Colour,
+                            Accent = poleTeam.Accent
+                        };
+                }
             }
 
             var winner = Results.FirstOrDefault(e => e.RaceId == race.Id && e.Position == 1);
             if (winner != null)
             {
-                var winnerDriver = SeasonDrivers.First(e => e.Id == winner.SeasonDriverId);
-                var winnerTeam = SeasonTeams.First(e => e.Id == winner.SeasonTeamId);
+                var winnerDriver = SeasonDrivers.FirstOrDefault(e => e.Id == winner.SeasonDriverId);
+                var winnerTeam = SeasonTeams.FirstOrDefault(e => e.Id == winner.SeasonTeamId);
+
+                if (winnerDriver != null && winnerTeam != null)
+                {
+                    listing.PoleSitter = new CompactDriver
+                        {
+                            Name = winnerDriver.Driver.FullName,
+                            Country = winnerDriver.Driver.Country,
+                            Number = winnerDriver.Number,
+                            Colour = winnerTeam.Colour,
+                            Accent = winnerTeam.Accent
+                        };
+                }
 
                 listing.DriverWinner = new CompactDriver
                 {

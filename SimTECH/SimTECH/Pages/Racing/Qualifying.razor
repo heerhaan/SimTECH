@@ -75,7 +75,7 @@
 
         gapMarge = RaweCeek.GapMarge / 2;
 
-        foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.AbsoluteGrid).Take(QualySession.AllowedEntries))
+        foreach (var driver in RaweCeek.RaweCeekDrivers.Where(e => QualySession.AllowedEntries >= e.Grid))
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
             mappedDriver.PenaltyPunish = driver.Penalty.GetValueOrDefault();

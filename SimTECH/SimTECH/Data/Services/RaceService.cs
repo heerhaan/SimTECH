@@ -239,43 +239,11 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task PersistQualifyingScores(List<QualifyingScore> qualyScores, long? raceToAdvance = null, int? maximumRace = null)
+        public async Task PersistQualifyingScores(List<QualifyingScore> qualyScores)
         {
-            if (raceToAdvance.HasValue != maximumRace.HasValue)
-                throw new InvalidOperationException("oi fucker, either include both additional parameters or neither");
-
             using var context = _dbFactory.CreateDbContext();
 
             context.QualifyingScore.AddRange(qualyScores);
-
-            if (raceToAdvance.HasValue && maximumRace.HasValue)
-            {
-                var resultIds = qualyScores.Select(e => e.ResultId).ToList();
-                var driverResults = await context.Result.Where(e => resultIds.Contains(e.Id)).ToListAsync();
-
-                foreach (var result in driverResults)
-                {
-                    var sessionScore = qualyScores.First(e => e.ResultId == result.Id);
-
-                    result.Grid = sessionScore.Position;
-                    result.Position = sessionScore.Position;
-                    result.AbsoluteGrid = sessionScore.AbsolutePosition;
-                    result.AbsolutePosition = sessionScore.AbsolutePosition;
-                    result.Status = sessionScore.Position > maximumRace ? RaceStatus.Dnq : RaceStatus.Racing;
-                }
-
-                context.UpdateRange(driverResults);
-
-                if (raceToAdvance != null)
-                {
-                    var race = await context.Race.SingleAsync(e => e.Id == raceToAdvance);
-
-                    var editModel = new EditRaceModel(race) { State = State.Advanced };
-                    var editedRecord = editModel.Record;
-
-                    context.Update(editedRecord);
-                }
-            }
 
             await context.SaveChangesAsync();
         }

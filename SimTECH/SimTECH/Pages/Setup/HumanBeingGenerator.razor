@@ -205,13 +205,13 @@
         }
 
         var drivers = humanBeans.Select(e => e.ToDriver).ToArray();
-        await _driverService.AddNewDrivers(drivers);
+        await _driverService.BulkAddDrivers(drivers);
         _nav.NavigateTo("/drivers");
     }
 
     async Task SaveSingleHuman(HumanBeing realHero)
     {
-        await _driverService.AddNewDrivers(new Driver[] { realHero.ToDriver });
+        await _driverService.BulkAddDrivers(new Driver[] { realHero.ToDriver });
         _nav.NavigateTo("/drivers");
     }
 

@@ -15,19 +15,14 @@ public class OverviewModel
 
     public long ActiveClassId { get; set; }
 
+    private List<long> TeamIdsOfClass => SeasonTeams.Where(e => e.ClassId == ActiveClassId).Select(e => e.Id).ToList();
+
     public List<SeasonDriver> ClassDrivers()
     {
         if (ActiveClassId == default)
             return SeasonDrivers;
 
-        var teamsWithClass = SeasonTeams
-            .Where(e => e.ClassId == ActiveClassId)
-            .Select(e => e.Id)
-            .ToList();
-
-        return SeasonDrivers
-            .Where(e => e.SeasonTeamId.HasValue && teamsWithClass.Contains(e.SeasonTeamId.Value))
-            .ToList();
+        return SeasonDrivers.Where(e => e.SeasonTeamId.HasValue && TeamIdsOfClass.Contains(e.SeasonTeamId.Value)).ToList();
     }
 
     public List<SeasonTeam> ClassTeams()
@@ -35,8 +30,14 @@ public class OverviewModel
         if (ActiveClassId == default)
             return SeasonTeams;
 
-        return SeasonTeams
-            .Where(e => e.ClassId == ActiveClassId)
-            .ToList();
+        return SeasonTeams.Where(e => e.ClassId == ActiveClassId).ToList();
+    }
+
+    public List<Result> ClassResults()
+    {
+        if (ActiveClassId == default)
+            return Results;
+
+        return Results.Where(e => TeamIdsOfClass.Contains(e.SeasonTeamId)).ToList();
     }
 }

@@ -442,11 +442,11 @@
                     .GroupBy(e => e.ResultId)
                     .Select(e => e.MaxBy(r => r.Index));
 
-                foreach (var penaltyResult in gridResults.OrderBy(e => e!.PenaltyPosition()))
+                foreach (var penaltyResult in gridResults.OrderBy(e => e.PenaltyPosition()))
                     finalQualyPosition.Add(penaltyResult.ResultId, (++positionIndexer, penaltyResult.AbsolutePosition));
             }
 
-            await _raceService.FinishQualifying(qualySessionScores, finalQualyPosition, RaceId, RaweCeek.Season.MaximumDriversInRace);
+            await _raceService.FinishQualifying(qualySession.SessionScores, finalQualyPosition, RaceId, RaweCeek.Season.MaximumDriversInRace);
 
             if (RaweCeek.ConsumablePenalties.Any())
                 await _raceService.ConsumePenalties(RaweCeek.ConsumablePenalties, RaceId);

@@ -8,10 +8,10 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public int Number { get; set; }
-        public int Skill { get; set; }
-        public int Reliability { get; set; }
-        public int Attack { get; set; }
-        public int Defense { get; set; }
+        public int Skill { get; set; } = 50;
+        public int Reliability { get; set; } = 990;
+        public int Attack { get; set; } = 10;
+        public int Defense { get; set; } = 20;
         public TeamRole TeamRole { get; set; }
         public long? SeasonTeamId { get; set; }
         public long SeasonId { get; set; }
