@@ -46,11 +46,7 @@
                 <MudTabPanel Text="Calendar" OnClick="OnOpenCalendar">
                     @if (calendarLoaded)
                     {
-                        <Calendar Races="@OverviewModel.Races"
-                                  Results="@OverviewModel.ClassResults()"
-                                  SeasonDrivers="@OverviewModel.ClassDrivers()"
-                                  SeasonTeams="@OverviewModel.ClassTeams()"
-                                  Climates="@Climates"
+                        <Calendar Climates="@Climates"
                                   OnAddRaces="AddRaces"
                                   OnEditorOpen="UpdateRace"
                                   OnDelete="DeleteRace"
@@ -58,36 +54,23 @@
                     }
                 </MudTabPanel>
                 <MudTabPanel Text="Standings">
-                    <Standings SeasonDrivers="@OverviewModel.ClassDrivers()"
-                               SeasonTeams="@OverviewModel.ClassTeams()"
-                               Races="@OverviewModel.Races"
-                               Results="@OverviewModel.Results" />
+                    <Standings />
                 </MudTabPanel>
                 <MudTabPanel Text="Entrants">
                     <MudTabs Outlined="true" Centered="true">
                         <MudTabPanel Text="Drivers">
-                            <SeasonDrivers DriverEntrants="@OverviewModel.ClassDrivers()"
-                                           SeasonTeams="@OverviewModel.ClassTeams()"
-                                           OnEditorOpen="UpdateDriver" />
+                            <SeasonDrivers OnEditorOpen="UpdateDriver" />
                         </MudTabPanel>
                         <MudTabPanel Text="Teams">
-                            <SeasonTeams TeamEntrants="@OverviewModel.ClassTeams()"
-                                         SeasonEngines="@OverviewModel.SeasonEngines"
-                                         Manufacturers="@OverviewModel.Manufacturers"
-                                         OnEditorOpen="UpdateTeam" />
+                            <SeasonTeams OnEditorOpen="UpdateTeam" />
                         </MudTabPanel>
                         <MudTabPanel Text="Engines">
-                            <SeasonEngines EngineEntrants="@OverviewModel.SeasonEngines"
-                                           OnEditorOpen="UpdateEngine" />
+                            <SeasonEngines OnEditorOpen="UpdateEngine" />
                         </MudTabPanel>
                         <MudTabPanel Text="Power rankings" OnClick="OnOpenPower">
                             @if (powerLoaded)
                             {
-                                <PowerRankings SeasonDrivers="@OverviewModel.ClassDrivers()"
-                                               SeasonTeams="@OverviewModel.ClassTeams()"
-                                               SeasonEngines="@OverviewModel.SeasonEngines"
-                                               Manufacturers="@OverviewModel.Manufacturers"
-                                               Traits="@Traits"
+                                <PowerRankings Traits="@Traits"
                                                TeamRoleCarModifier="@config.CarDriverStatusModifier" />
                             }
                         </MudTabPanel>
@@ -130,8 +113,8 @@
         OverviewModel.SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
         OverviewModel.SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
         OverviewModel.SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-        OverviewModel.Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
         OverviewModel.Results = await _resultService.GetResultsOfSeason(SeasonId);
+        OverviewModel.Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
 
         if (OverviewModel.Season.State == State.Active)
         {
@@ -242,8 +225,8 @@
 
     private void SetActiveRaceClass(long raceClassId)
     {
-        // If this is it, then we could use a bind
         OverviewModel.ActiveClassId = raceClassId;
+        StateHasChanged();
     }
 
     private async Task AddRaces()
@@ -411,9 +394,9 @@
     {
         var parameters = new DialogParameters
             {
-                ["SeasonDrivers"] = OverviewModel.SeasonDrivers,
-                ["SeasonTeams"] = OverviewModel.SeasonTeams,
-                ["Results"] = OverviewModel.Results
+                ["SeasonDrivers"] = OverviewModel.ClassDrivers(),
+                ["SeasonTeams"] = OverviewModel.ClassTeams(),
+                ["Results"] = OverviewModel.ClassResults()
             };
 
         _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters);
@@ -425,9 +408,9 @@
 
         var parameters = new DialogParameters
             {
-                ["SeasonDrivers"] = OverviewModel.SeasonDrivers,
-                ["SeasonTeams"] = OverviewModel.SeasonTeams,
-                ["Results"] = OverviewModel.Results,
+                ["SeasonDrivers"] = OverviewModel.ClassDrivers(),
+                ["SeasonTeams"] = OverviewModel.ClassTeams(),
+                ["Results"] = OverviewModel.ClassResults(),
                 ["Incidents"] = incidents,
             };
 

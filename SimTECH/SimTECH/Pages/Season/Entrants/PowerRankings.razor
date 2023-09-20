@@ -98,10 +98,6 @@
 @code {
     [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
-    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
-    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
-    [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
-    [Parameter] public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
     [Parameter] public IEnumerable<Trait> Traits { get; set; } = Enumerable.Empty<Trait>();
     [Parameter] public int TeamRoleCarModifier { get; set; }
 
@@ -113,15 +109,15 @@
     {
         loading = true;
 
-        foreach (var driver in SeasonDrivers)
+        foreach (var driver in OverviewModel.ClassDrivers())
         {
-            var team = SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
+            var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
             // Skip any driver who isn't currently part of a team
             if (team == null)
                 continue;
 
-            var engine = SeasonEngines.First(e => e.Id == team.SeasonEngineId);
-            var manufacturer = Manufacturers.First(e => e.Id == team.ManufacturerId);
+            var engine = OverviewModel.SeasonEngines.First(e => e.Id == team.SeasonEngineId);
+            var manufacturer = OverviewModel.Manufacturers.First(e => e.Id == team.ManufacturerId);
 
             var driverTraitIds = driver.Driver.DriverTraits?.Select(e => e.TraitId).ToList() ?? new();
             var teamTraitIds = team.Team.TeamTraits?.Select(e => e.TraitId).ToList() ?? new();

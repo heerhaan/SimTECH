@@ -6,7 +6,7 @@
             <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterItem" Class="btn-md">New</MudButton>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="SeasonTeamListing" Items="@seasonTeams" Dense="true" Loading="@loading" Class="overflow-hider">
+    <MudDataGrid T="SeasonTeamList" Items="@seasonTeams" Dense="true" Loading="@loading" Class="overflow-hider">
         <Columns>
             <TemplateColumn Sortable="false" Class="accent-cell">
                 <CellTemplate>
@@ -14,28 +14,28 @@
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="e => e!.Name" />
-            <TemplateColumn T="SeasonTeamListing" SortBy="e => e.Country" Title="Country">
+            <TemplateColumn T="SeasonTeamList" SortBy="e => e.Country" Title="Country">
                 <CellTemplate>
                     <CountryNamedFlag Code="@context.Item.Country" Size="ElementSize.Small" Reverse="true" Typo="Typo.body2" />
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="e => e!.Principal" />
             <PropertyColumn Property="e => e!.BaseValue" Title="Base" CellClass="font-caption" />
-            <TemplateColumn T="SeasonTeamListing" Title="A/C/P" Sortable="false">
+            <TemplateColumn T="SeasonTeamList" Title="A/C/P" Sortable="false">
                 <CellTemplate>
                     <MudText Typo="Typo.caption">@context.Item.Aero / @context.Item.Chassis / @context.Item.Powertrain</MudText>
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="e => e!.Reliability" CellClass="font-caption" Title="REL" />
             <PropertyColumn Property="e => e!.Engine" />
-            <TemplateColumn T="SeasonTeamListing" SortBy="e => e.Manufacturer" Title="Manufacturer">
+            <TemplateColumn T="SeasonTeamList" SortBy="e => e.Manufacturer" Title="Manufacturer">
                 <CellTemplate>
                     <SupplierDisplay Colour="@context.Item.ManColour" Accent="@context.Item.ManAccent">
                         @context.Item.Manufacturer
                     </SupplierDisplay>
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="SeasonTeamListing" Sortable="false">
+            <TemplateColumn T="SeasonTeamList" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
                         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item.SeasonTeam))" />
@@ -49,12 +49,9 @@
 @code {
     [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
-    [Parameter] public IEnumerable<SeasonTeam> TeamEntrants { get; set; } = Enumerable.Empty<SeasonTeam>();
-    [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
-    [Parameter] public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
     [Parameter] public EventCallback<SeasonTeam?> OnEditorOpen { get; set; }
 
-    private List<SeasonTeamListing> seasonTeams = new();
+    private List<SeasonTeamList> seasonTeams = new();
 
     private bool loading = true;
 
@@ -65,12 +62,12 @@
 
         seasonTeams.Clear();
 
-        foreach (var team in TeamEntrants)
+        foreach (var team in OverviewModel.ClassTeams())
         {
-            var engine = SeasonEngines.FirstOrDefault(e => e.Id == team.SeasonEngineId);
-            var manufacturer = Manufacturers.FirstOrDefault(e => e.Id == team.ManufacturerId);
+            var engine = OverviewModel.SeasonEngines.FirstOrDefault(e => e.Id == team.SeasonEngineId);
+            var manufacturer = OverviewModel.Manufacturers.FirstOrDefault(e => e.Id == team.ManufacturerId);
 
-            var listing = new SeasonTeamListing
+            var listing = new SeasonTeamList
             {
                 Name = team.Name,
                 Country = team.Team.Country,
@@ -99,24 +96,5 @@
     async Task UpdateItem(SeasonTeam? item)
     {
         await OnEditorOpen.InvokeAsync(item);
-    }
-
-    internal class SeasonTeamListing
-    {
-        public string Name { get; set; } = string.Empty;
-        public Country Country { get; set; }
-        public string Principal { get; set; } = string.Empty;
-        public string Colour { get; set; } = string.Empty;
-        public int BaseValue { get; set; }
-        public int Aero { get; set; }
-        public int Chassis { get; set; }
-        public int Powertrain { get; set; }
-        public int Reliability { get; set; }
-        public string Engine { get; set; } = string.Empty;
-        public string Manufacturer { get; set; } = string.Empty;
-        public string ManColour { get; set; } = string.Empty;
-        public string ManAccent { get; set; } = string.Empty;
-
-        public SeasonTeam SeasonTeam { get; set; }
     }
 }

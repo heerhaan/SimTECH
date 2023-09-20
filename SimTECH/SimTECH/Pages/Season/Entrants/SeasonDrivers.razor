@@ -6,14 +6,14 @@
             <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="AddItem" Class="btn-md">New</MudButton>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="SeasonDriverListing" Items="@DriverList" Dense="true" Loading="@loading">
+    <MudDataGrid T="SeasonDriverList" Items="@DriverList" Dense="true" Loading="@loading">
         <Columns>
-            <TemplateColumn T="SeasonDriverListing" Sortable="false" Class="accent-cell">
+            <TemplateColumn T="SeasonDriverList" Sortable="false" Class="accent-cell">
                 <CellTemplate>
                     <SmolAccent Colour="@context.Item.Colour" />
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="SeasonDriverListing" Title="Name" SortBy="e => e.Name">
+            <TemplateColumn T="SeasonDriverList" Title="Name" SortBy="e => e.Name">
                 <CellTemplate>
                     <MudStack Row="true" AlignItems="AlignItems.Center">
                         <MudText Class="overflow-hider">@context.Item.Name</MudText>
@@ -23,7 +23,7 @@
                 </CellTemplate>
             </TemplateColumn>
             <PropertyColumn Property="e => e!.Age" CellClass="font-caption" />
-            <TemplateColumn T="SeasonDriverListing" SortBy="e => e.Number" Title="NO" HeaderClass="number-col hide-sort-icons" CellClass="number-col">
+            <TemplateColumn T="SeasonDriverList" SortBy="e => e.Number" Title="NO" HeaderClass="number-col hide-sort-icons" CellClass="number-col">
                 <CellTemplate>
                     <NumberDisplay Colour="@context.Item.Colour" Accent="@context.Item.Accent">@context.Item.Number</NumberDisplay>
                 </CellTemplate>
@@ -34,7 +34,7 @@
             <PropertyColumn Property="e => e!.Defense" Title="DEF" CellClass="font-caption" />
             <PropertyColumn Property="e => e!.Role" Title="Role" />
             <PropertyColumn Property="e => e!.Team" />
-            <TemplateColumn T="SeasonDriverListing" Sortable="false">
+            <TemplateColumn T="SeasonDriverList" Sortable="false">
                 <CellTemplate>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item.SeasonDriver))" />
                 </CellTemplate>
@@ -46,26 +46,24 @@
 @code {
     [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
-    [Parameter] public IEnumerable<SeasonDriver> DriverEntrants { get; set; } = Enumerable.Empty<SeasonDriver>();
-    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     [Parameter] public EventCallback<SeasonDriver?> OnEditorOpen { get; set; }
 
-    private List<SeasonDriverListing> DriverList { get; set; } = new();
+    private List<SeasonDriverList> DriverList { get; set; } = new();
 
     bool loading = true;
 
-    // Warning: this is also triggered when just pressing the button to start editing
+    // Warning: this is also triggered when just pressing the button to start editing (duhh, OnEditorOpen is a parameter)
     protected override void OnParametersSet()
     {
         loading = true;
 
         DriverList.Clear();
 
-        foreach (var driver in DriverEntrants)
+        foreach (var driver in OverviewModel.ClassDrivers())
         {
-            var team = SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
+            var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
 
-            var listing = new SeasonDriverListing
+            var listing = new SeasonDriverList
             {
                 Name = driver.Driver.FullName,
                 Age = driver.GimmeAge(OverviewModel.Season.Year),
@@ -93,23 +91,5 @@
     async Task UpdateItem(SeasonDriver? item)
     {
         await OnEditorOpen.InvokeAsync(item);
-    }
-
-    internal class SeasonDriverListing
-    {
-        public string Name { get; set; } = string.Empty;
-        public int Age { get; set; }
-        public int Number { get; set; }
-        public Country Country { get; set; }
-        public TeamRole Role { get; set; }
-        public int Skill { get; set; }
-        public int Reliability { get; set; }
-        public int Attack { get; set; }
-        public int Defense { get; set; }
-        public string Team { get; set; } = string.Empty;
-        public string Colour { get; set; } = string.Empty;
-        public string Accent { get; set; } = string.Empty;
-
-        public SeasonDriver SeasonDriver { get; set; }
     }
 }
