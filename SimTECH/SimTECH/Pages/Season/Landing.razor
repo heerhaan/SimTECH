@@ -99,30 +99,17 @@
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
                 <MudText Typo="Typo.h5">Classes</MudText>
-                <MudText Color="Color.Warning">oi oi, selectior is not fully there yet</MudText>
+                <MudText Color="Color.Warning">selector works, but pls more pretti</MudText>
                 <MudDivider />
 
                 @if (OverviewModel.Season.RaceClasses?.Any() == true)
                 {
-                    <MudRadioGroup SelectedOptionChanged="OnClassSelected">
+                    <MudRadioGroup SelectedOption="@OverviewModel.ActiveClassId" SelectedOptionChanged="OnClassSelected">
                         @foreach (var raceClass in OverviewModel.Season.RaceClasses)
                         {
                             <MudRadio Option="@raceClass.Id">@raceClass.Name</MudRadio>
                         }
                     </MudRadioGroup>
-
-                    <MudDivider />
-
-                    @foreach (var raceClass in OverviewModel.Season.RaceClasses)
-                    {
-                        <MudPaper>
-                            <MudText>@raceClass.Name</MudText>
-                            @if (raceClass.Id == 3)
-                            {
-                                <MudText>ACTIVE</MudText>
-                            }
-                        </MudPaper>
-                    }
                 }
             </MudStack>
         </MudPaper>

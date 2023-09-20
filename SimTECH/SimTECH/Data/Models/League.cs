@@ -6,9 +6,6 @@
         public int RaceLength { get; set; }
         public LeagueOptions Options { get; set; }
 
-        // TODO: Tiers could be helpful in adding them to the same races but it's a bigger thing, requires total design
-        //public int Tier { get; set; }
-
         // TODO: Consider adding minimum and maximum values for skill, reliability, team, etc...
 
         public IList<DevelopmentRange>? DevelopmentRanges { get; set; }

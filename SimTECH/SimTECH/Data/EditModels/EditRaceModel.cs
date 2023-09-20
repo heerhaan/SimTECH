@@ -9,7 +9,7 @@ namespace SimTECH.Data.EditModels
         public long Id { get; set; }
         public int Round { get; set; }
         public string Name { get; set; } = string.Empty;
-        public int RaceLength { get; set; }
+        public int RaceLength { get; set; } = 300;
         public State State { get; set; }
 
         public long SeasonId { get; set; }

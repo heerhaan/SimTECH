@@ -12,12 +12,12 @@ namespace SimTECH.Data.EditModels
         public string Colour { get; set; } = string.Empty;
         public State State { get; set; }
 
-        public int LifeBonus { get; set; }
-        public int PitWhenBelow { get; set; }
-        public int WearMin { get; set; }
-        public int WearMax { get; set; }
-        public int DistanceMin { get; set; }
-        public int DistanceMax { get; set; }
+        public int LifeBonus { get; set; } = 100;
+        public int PitWhenBelow { get; set; } = 10;
+        public int WearMin { get; set; } = 2;
+        public int WearMax { get; set; } = 5;
+        public int DistanceMin { get; set; } = 50;
+        public int DistanceMax { get; set; } = 200;
         public bool ForWet { get; set; }
 
         public EditTyreModel(Tyre? tyre)

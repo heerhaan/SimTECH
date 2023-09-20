@@ -10,9 +10,9 @@ namespace SimTECH.Data.EditModels
         public State State { get; set; }
         public int Year { get; set; }
 
-        public int MaximumDriversInRace { get; set; }
-        public int QualifyingAmountQ2 { get; set; }
-        public int QualifyingAmountQ3 { get; set; }
+        public int MaximumDriversInRace { get; set; } = 99;
+        public int QualifyingAmountQ2 { get; set; } = 15;
+        public int QualifyingAmountQ3 { get; set; } = 10;
         public int QualifyingRNG { get; set; } = 50;
         public int RunAmountSession { get; set; } = 2;
         public int GridBonus { get; set; } = 25;

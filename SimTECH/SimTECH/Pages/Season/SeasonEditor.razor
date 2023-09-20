@@ -108,7 +108,7 @@
                                 <MudStack Row="true" Class="pa-0 mud-width-full">
                                     <MudSpacer />
                                     <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AppendAllotment" Size="Size.Small">
-                                        Append position
+                                        Add scoring position
                                     </MudButton>
                                 </MudStack>
                             </ToolBarContent>
@@ -119,10 +119,10 @@
                             </HeaderContent>
                             <RowTemplate>
                                 <MudTd DataLabel="Position">
-                                    <MudNumericField @bind-Value="@context.Position" Required />
+                                    <MudNumericField @bind-Value="@context.Position" Class="field-xs dense-field" Required />
                                  </MudTd>
                                  <MudTd DataLabel="Points">
-                                     <MudNumericField @bind-Value="@context.Points" Required />
+                                     <MudNumericField @bind-Value="@context.Points" Class="field-xs dense-field" Required />
                                  </MudTd>
                                  <MudTd>
                                      <MudIconButton Size="@Size.Small"
@@ -143,16 +143,16 @@
                             <MudSwitchM3 @bind-Checked="hasMultipleClasses"
                                          ThumbIcon="@Icons.Material.Filled.Done"
                                          ThumbOffIcon="@Icons.Material.Filled.Close"
-                                         Label="Contracts"
+                                         Label="Use race classes"
                                          Color="Color.Secondary"
                                          Class="my-2" />
                         }
 
                         @if (hasMultipleClasses)
                         {
-                            <MudAlert Class="my-1">Be wary with changing the tag of a class, this is used to auto-assign teams from previous seasons.</MudAlert>
+                            <MudAlert Dense="true" Class="my-1">Be wary with changing the tag of a class, this is used to auto-assign teams from previous seasons.</MudAlert>
 
-                            <MudTable Items="@Model.RaceClasses" Dense="true">
+                            <MudTable Items="@Model.RaceClasses" Dense="true" Class="extra-dense">
                                 <ToolBarContent>
                                     <MudStack Row="true" Class="pa-0 mud-width-full">
                                         @if (Model.Id == 0)
@@ -169,23 +169,17 @@
                                     <MudTh>Name</MudTh>
                                     <MudTh>Colour</MudTh>
                                     <MudTh>Tag</MudTh>
-                                    <MudTh>Preview</MudTh>
                                     <MudTh></MudTh>
                                 </HeaderContent>
                                 <RowTemplate>
                                     <MudTd>
-                                        <MudTextField T="string" @bind-Value="@context.Name" Class="field-md" />
+                                        <MudTextField T="string" @bind-Value="@context.Name" Class="field-sm dense-field" />
                                     </MudTd>
                                     <MudTd>
-                                        <MudColorPicker @bind-Text="context.Colour" Placeholder="Colour" Class="field-md" />
+                                        <MudColorPicker @bind-Text="context.Colour" Placeholder="Colour" Class="field-xs dense-field" />
                                     </MudTd>
                                     <MudTd>
-                                        <MudTextField T="string" @bind-Value="@context.Tag" Class="field-md" />
-                                    </MudTd>
-                                    <MudTd>
-                                        <SupplierDisplay Colour="@context.Colour">
-                                            <MudText>@context.Tag</MudText>
-                                        </SupplierDisplay>
+                                        <MudTextField T="string" @bind-Value="@context.Tag" Class="field-sm dense-field" />
                                     </MudTd>
                                     <MudTd>
                                         @if (Model.Id == 0)
@@ -198,6 +192,15 @@
                                     </MudTd>
                                 </RowTemplate>
                             </MudTable>
+
+                            <MudStack>
+                                @foreach (var raceClass in Model.RaceClasses)
+                                {
+                                    <SupplierDisplay Colour="@raceClass.Colour">
+                                        <MudText>@raceClass.Tag</MudText>
+                                    </SupplierDisplay>
+                                }
+                            </MudStack>
                         }
                     </MudPaper>
                 </MudStack>

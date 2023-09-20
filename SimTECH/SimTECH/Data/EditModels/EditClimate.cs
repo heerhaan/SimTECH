@@ -14,7 +14,7 @@ namespace SimTECH.Data.EditModels
         public bool IsWet { get; set; }
         public State State { get; set; }
 
-        public double EngineMultiplier { get; set; }
+        public double EngineMultiplier { get; set; } = 1d;
         public int ReliablityModifier { get; set; }
         public int RngModifier { get; set; }
 

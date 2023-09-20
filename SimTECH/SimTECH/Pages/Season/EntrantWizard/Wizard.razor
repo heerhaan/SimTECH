@@ -1,4 +1,5 @@
 ﻿@page "/entrantwizard/{SeasonId:long}"
+
 @inject ContractService _contractService
 @inject DriverService _driverService
 @inject EngineService _engineService
@@ -10,6 +11,7 @@
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject IOptions<SimConfig> _config
+
 @using MudBlazor.Extensions
 @using MudExtensions.Enums;
 @using MudExtensions.Utilities
@@ -43,7 +45,7 @@
                         <div style="width:25%">
                             @if (stepper?.IsAllStepsCompleted() == true)
                             {
-                                <MudButton FullWidth="true" Variant="Variant.Outlined" Color="Color.Success" OnClick="AddAllEntrants">Confirm & save</MudButton>
+                                <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="AddAllEntrants" Class="btn-md">Confirm & save</MudButton>
                             }
                         </div>
                     </MudStack>
@@ -157,6 +159,7 @@
         Season = await _seasonService.GetSeasonById(SeasonId);
         PreviousSeason = await _seasonService.FindRecentClosedSeason(Season.LeagueId);
         // TODO: Wizard deserves a refactor in that we might want to retrieve these values on a per-step basis instead of all at once
+        // Or do we? Why would we? It's not like it's slow
         Engines = await _engineService.GetEngines();
         Teams = await _teamService.GetAvailableTeams();
         Drivers = await _driverService.GetAvailableDrivers();
@@ -246,10 +249,6 @@
                 if (Model.SeasonTeams.Any(e => e.BaseEngineId == 0))
                 {
                     errors.Add("Oi oi mate, how is a team going to drive without an engine? Try again.");
-                }
-                else
-                {
-                    StateHasChanged();
                 }
                 break;
             //Step: raceclass assignment
