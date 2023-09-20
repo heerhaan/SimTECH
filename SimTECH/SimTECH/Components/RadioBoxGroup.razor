@@ -1,0 +1,14 @@
+﻿@typeparam T
+
+<div>
+    @foreach (var radio in Options)
+    {
+        <div></div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<T> Options { get; set; }
+
+    [Parameter] public EventCallback<T> SelectionChanged { get; set; }
+}

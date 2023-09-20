@@ -16,6 +16,13 @@ public class RaweCeekDriver
     public string Colour { get; set; }
     public string Accent { get; set; }
 
+    public long SeasonId { get; set; }
+    public string LeagueTag { get; set; }
+    public string LeagueColour { get; set; }
+
+    public long ClassId { get; set; }
+    public RaceClass? Class { get; set; }
+
     public long ManufacturerId { get; set; }
     public string ManufacturerName { get; set; }
     public string ManufacturerColour { get; set; }
@@ -41,6 +48,8 @@ public class RaweCeekDriver
     public long ResultId { get; set; }
     public int Grid { get; set; }
     public int Position { get; set; }
+    public int AbsoluteGrid { get; set; }
+    public int AbsolutePosition { get; set; }
     public int Score { get; set; }
     public RaceStatus Status { get; set; }
     public int Setup { get; set; }
@@ -75,6 +84,7 @@ public static class ExtendRaweCeekDriver
             Colour = driver.Colour,
             Accent = driver.Accent,
             Power = driver.QualyPower,
+            Class = driver.Class,
             Scores = new int[amountRuns]
         };
     }
@@ -97,6 +107,9 @@ public static class ExtendRaweCeekDriver
             Colour = driver.Colour,
             Accent = driver.Accent,
 
+            ClassId = driver.ClassId,
+            Class = driver.Class,
+
             Power = driver.RacePower,
             Attack = driver.Attack,
             Defense = driver.Defense,
@@ -104,6 +117,8 @@ public static class ExtendRaweCeekDriver
             Status = driver.Status,
             Position = driver.Position,
             Grid = driver.Grid,
+            AbsolutePosition = driver.AbsolutePosition,
+            AbsoluteGrid = driver.AbsoluteGrid,
             Setup = driver.Setup,
             TyreLife = driver.TyreLife,
             CurrentTyre = driver.Tyre,
@@ -130,6 +145,8 @@ public static class ExtendRaweCeekDriver
             Id = driver.ResultId,
             Grid = driver.Grid,
             Position = driver.Position,
+            AbsoluteGrid = driver.AbsoluteGrid,
+            AbsolutePosition = driver.AbsolutePosition,
             Score = driver.Score,
             Status = driver.Status,
             Setup = driver.Setup,

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimTECH.Data;
 
@@ -11,9 +12,11 @@ using SimTECH.Data;
 namespace SimTECH.Migrations
 {
     [DbContext(typeof(SimTechDbContext))]
-    partial class SimTechDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230920075723_RemoveTracksDataInit")]
+    partial class RemoveTracksDataInit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1259,112 +1262,6 @@ namespace SimTECH.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Track");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            AeroMod = 0.55000000000000004,
-                            ChassisMod = 1.1000000000000001,
-                            Country = 22,
-                            DefenseMod = 0.90000000000000002,
-                            Length = 7.0099999999999998,
-                            Name = "Spa-Francorchamps",
-                            PowerMod = 1.3500000000000001,
-                            QualifyingMod = 0.69999999999999996,
-                            State = 1
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            AeroMod = 1.5,
-                            ChassisMod = 1.25,
-                            Country = 131,
-                            DefenseMod = 2.0,
-                            Length = 3.0499999999999998,
-                            Name = "Circuit de Monaco",
-                            PowerMod = 0.5,
-                            QualifyingMod = 2.0,
-                            State = 1
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            AeroMod = 0.84999999999999998,
-                            ChassisMod = 1.05,
-                            Country = 32,
-                            DefenseMod = 0.80000000000000004,
-                            Length = 4.3099999999999996,
-                            Name = "Autodromo de Interlagos",
-                            PowerMod = 1.1000000000000001,
-                            QualifyingMod = 0.90000000000000002,
-                            State = 1
-                        },
-                        new
-                        {
-                            Id = 4L,
-                            AeroMod = 0.94999999999999996,
-                            ChassisMod = 1.1000000000000001,
-                            Country = 157,
-                            DefenseMod = 1.3,
-                            Length = 4.5499999999999998,
-                            Name = "TT Assen",
-                            PowerMod = 0.94999999999999996,
-                            QualifyingMod = 1.1000000000000001,
-                            State = 1
-                        },
-                        new
-                        {
-                            Id = 5L,
-                            AeroMod = 1.05,
-                            ChassisMod = 0.90000000000000002,
-                            Country = 112,
-                            DefenseMod = 0.66000000000000003,
-                            Length = 5.9900000000000002,
-                            Name = "Fuji Speedway",
-                            PowerMod = 1.05,
-                            QualifyingMod = 0.90000000000000002,
-                            State = 1
-                        },
-                        new
-                        {
-                            Id = 6L,
-                            AeroMod = 1.05,
-                            ChassisMod = 0.94999999999999996,
-                            Country = 15,
-                            DefenseMod = 1.0,
-                            Length = 4.3300000000000001,
-                            Name = "Österreichring",
-                            PowerMod = 1.1000000000000001,
-                            QualifyingMod = 0.80000000000000004,
-                            State = 1
-                        },
-                        new
-                        {
-                            Id = 7L,
-                            AeroMod = 0.80000000000000004,
-                            ChassisMod = 0.75,
-                            Country = 110,
-                            DefenseMod = 1.2,
-                            Length = 5.79,
-                            Name = "Autodromo Nazionale di Monza",
-                            PowerMod = 1.25,
-                            QualifyingMod = 1.2,
-                            State = 1
-                        },
-                        new
-                        {
-                            Id = 8L,
-                            AeroMod = 1.1000000000000001,
-                            ChassisMod = 0.90000000000000002,
-                            Country = 145,
-                            DefenseMod = 0.90000000000000002,
-                            Length = 5.54,
-                            Name = "Sepang",
-                            PowerMod = 1.1000000000000001,
-                            QualifyingMod = 1.0,
-                            State = 1
-                        });
                 });
 
             modelBuilder.Entity("SimTECH.Data.Models.TrackTrait", b =>

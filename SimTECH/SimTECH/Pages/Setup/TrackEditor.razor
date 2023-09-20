@@ -6,7 +6,7 @@
         <MudText>Expected length per race: @(raceLength)KM</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model">
+        <MudPaper MinWidth="500px">
             <MudGrid>
                 <MudItem xs="8">
                     <MudPaper Elevation="10" Class="pa-4">
@@ -17,7 +17,7 @@
                             <CountrySelect @bind-Value="Model.Country" Class="field-md my-2" />
                             <MudStack Row="true" Spacing="6">
                                 <MudNumericField T="double"
-                                                 @bind-Value="Model.Length"
+                                @bind-Value="Model.Length"
                                                  Label="Length"
                                                  Format="N2"
                                                  Adornment="Adornment.End"
@@ -51,7 +51,7 @@
                     </MudPaper>
                 </MudItem>
             </MudGrid>
-        </MudForm>
+        </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>

@@ -2,11 +2,11 @@
     <MudItem xs="12">
         <MudPaper Class="pa-4">
             <MudStack>
-                <MudText Typo="Typo.h3">Season @Season.Year</MudText>
+                <MudText Typo="Typo.h3">Season @OverviewModel.Season.Year</MudText>
                 <MudDivider />
                 <MudSpacer />
                 <MudStack Row="true" Class="pa-0">
-                    <MudText Typo="Typo.body2">Currenly in status: @Season.State.ToString()</MudText>
+                    <MudText Typo="Typo.body2">Currenly in status: @OverviewModel.Season.State.ToString()</MudText>
                     <MudSpacer />
                     <MudText Typo="Typo.body2" Color="Color.Dark">Hello from the other side</MudText>
                 </MudStack>
@@ -19,11 +19,11 @@
             <MudStack Class="mud-height-full">
                 <MudText Typo="Typo.h5">Upcoming race</MudText>
                 <MudDivider />
-                @if (Season.State == State.Active)
+                @if (OverviewModel.Season.State == State.Active)
                 {
                     @if (NextRace is null)
                     {
-                        <MudText Typo="Typo.body2">no upcoming race for this season detected</MudText>
+                        <MudText Typo="Typo.body2">No upcoming race for this season detected</MudText>
                     }
                     else
                     {
@@ -58,17 +58,21 @@
 
                 <MudSpacer />
 
-                @if (Season.State == State.Concept)
+                @if (OverviewModel.Season.State == State.Concept)
                 {
                     <MudButtonGroup Variant="Variant.Text" Color="Color.Primary">
                         <MudButton FullWidth="true" OnClick="TriggerStart">Start season</MudButton>
                         <MudButton FullWidth="true" OnClick="GoToAddEntrants">Add participants</MudButton>
                     </MudButtonGroup>
                 }
-                else if (Season.State == State.Active)
+                else if (OverviewModel.Season.State == State.Active)
                 {
                     <MudButtonGroup Variant="Variant.Text" Color="Color.Primary">
                         <MudButton FullWidth="true" OnClick="GoToDeveloper">Development</MudButton>
+                        @if (!string.IsNullOrEmpty(ActiveClassName))
+                        {
+                            <MudButton FullWidth="true" OnClick="GoToClassDeveloper">Development for @ActiveClassName</MudButton>
+                        }
                         <MudButton FullWidth="true" OnClick="TriggerFinish">Finish season</MudButton>
                     </MudButtonGroup>
                 }
@@ -88,7 +92,7 @@
                 <MudSpacer />
 
                 <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small">
-                    <MudButton FullWidth="true" OnClick="ShowComponentUsage">Components</MudButton>
+                    <MudButton FullWidth="true" OnClick="OnShowComponentUsage">Components</MudButton>
                     <MudButton FullWidth="true" OnClick="ShowQualyBattles">Q.Battles</MudButton>
                 </MudButtonGroup>
             </MudStack>
@@ -98,15 +102,28 @@
     <MudItem xs="6">
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
-                <MudText Typo="Typo.h5">???</MudText>
+                <MudText Typo="Typo.h5">Classes</MudText>
                 <MudDivider />
+
+                @if (OverviewModel.Season.HasRaceClasses)
+                {
+                    <MudText Color="Color.Warning">selector works, but pls more pretti</MudText>
+
+                    <MudRadioGroup SelectedOption="@OverviewModel.ActiveClassId"
+                                   SelectedOptionChanged="OnClassSelected">
+                        @foreach (var raceClass in OverviewModel.Season.RaceClasses)
+                        {
+                            <MudRadio Option="@raceClass.Id" Color="Color.Primary" UnCheckedColor="Color.Default">@raceClass.Name</MudRadio>
+                        }
+                    </MudRadioGroup>
+                }
             </MudStack>
         </MudPaper>
     </MudItem>
 </MudGrid>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
     [Parameter] public Race? NextRace { get; set; }
     [Parameter] public EventCallback OnStartSeason { get; set; }
@@ -114,7 +131,16 @@
     [Parameter] public EventCallback OnShowComponentUsage { get; set; }
     [Parameter] public EventCallback OnShowQualyBattles { get; set; }
     [Parameter] public EventCallback OnNextRace { get; set; }
+    [Parameter] public EventCallback<long> OnClassSelected { get; set; }
     [Parameter] public EventCallback<string> OnNavigate { get; set; }
+
+    private string? ActiveClassName { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (OverviewModel.ActiveClassId != default)
+            ActiveClassName = OverviewModel.Season.RaceClasses.FirstOrDefault(e => e.Id == OverviewModel.ActiveClassId)?.Tag;
+    }
 
     async Task TriggerStart() => await OnStartSeason.InvokeAsync();
     async Task TriggerFinish() => await OnFinishSeason.InvokeAsync();
@@ -124,6 +150,7 @@
 
     async Task GoToNextRace() => await OnNextRace.InvokeAsync();
 
-    async Task GoToAddEntrants() => await OnNavigate.InvokeAsync($"/entrantwizard/{Season.Id}");
-    async Task GoToDeveloper() => await OnNavigate.InvokeAsync($"/developer/{Season.Id}");
+    async Task GoToAddEntrants() => await OnNavigate.InvokeAsync($"/entrantwizard/{OverviewModel.Season.Id}");
+    async Task GoToDeveloper() => await OnNavigate.InvokeAsync($"/developer/{OverviewModel.Season.Id}");
+    async Task GoToClassDeveloper() => await OnNavigate.InvokeAsync($"/developer/{OverviewModel.Season.Id}/{OverviewModel.ActiveClassId}");
 }

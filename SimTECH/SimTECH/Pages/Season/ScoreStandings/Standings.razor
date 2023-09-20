@@ -5,7 +5,7 @@
                 <MudPaper Height="75px" Class="pa-2">
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                         <span class="btn-md"></span>
-                        <MudText Typo="Typo.h3">Season standings for @Season.Year</MudText>
+                        <MudText Typo="Typo.h3">Season standings for @OverviewModel.Season.Year</MudText>
                         <ScreenshotButton TargetId="standings-numerical-overview" Class="btn-md" />
                     </MudStack>
                 </MudPaper>
@@ -29,12 +29,7 @@
 </MudTabs>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
-
-    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
-    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
-    [Parameter] public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
-    [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
+    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
     List<StandingDriverModel> driverResultsModel = new();
     List<StandingTeamModel> teamResultsModel = new();
@@ -46,31 +41,33 @@
         driverResultsModel.Clear();
         teamResultsModel.Clear();
 
-        foreach (var round in Races.OrderBy(e => e.Round))
+        var classResults = OverviewModel.ClassResults();
+
+        foreach (var round in OverviewModel.Races.OrderBy(e => e.Round))
             countryRounds.Add(round.Round, round.Track?.Country ?? Constants.DefaultCountry);
 
         int indexer = 0;
 
-        driverResultsModel = SeasonDrivers
+        driverResultsModel = OverviewModel.ClassDrivers()
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
             .Select(e =>
-                ToDriverResultModel(e, Results.Where(r => r.SeasonDriverId == e.Id).ToList(), ++indexer))
+                ToDriverResultModel(e, classResults.Where(r => r.SeasonDriverId == e.Id).ToList(), ++indexer))
             .ToList();
 
         indexer = 0;
 
-        teamResultsModel = SeasonTeams
+        teamResultsModel = OverviewModel.ClassTeams()
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
             .Select(e =>
-                ToTeamResultModel(e, Results.Where(r => r.SeasonTeamId == e.Id).ToList(), ++indexer))
+                ToTeamResultModel(e, classResults.Where(r => r.SeasonTeamId == e.Id).ToList(), ++indexer))
             .ToList();
     }
 
     private StandingDriverModel ToDriverResultModel(SeasonDriver driver, List<Result> results, int position)
     {
-        var team = SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
+        var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
         return new StandingDriverModel
             {
                 Id = driver.Id,
@@ -115,7 +112,7 @@
             {
                 Position = result.Position,
                 Status = result.Status,
-                Round = Races.Single(e => e.Id == result.RaceId).Round,
+                Round = OverviewModel.Races.Single(e => e.Id == result.RaceId).Round,
                 Pole = result.Grid == 1,
                 FL = result.FastestLap,
             };

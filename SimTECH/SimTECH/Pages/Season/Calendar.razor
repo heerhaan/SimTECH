@@ -3,7 +3,7 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Races</MudText>
             <MudSpacer />
-            @if (Season.State == State.Concept)
+            @if (OverviewModel.Season.State == State.Concept)
             {
                 <MudButton StartIcon="@Icons.Material.Outlined.CarRepair"
                            IconColor="Color.Primary"
@@ -17,7 +17,7 @@
             }
         </MudStack>
     </MudPaper>
-    <MudTable T="CalendarListing" Items="@seasonCalendar.OrderBy(e => e.Round)" Dense="true" Loading="@loading">
+    <MudTable T="CalendarList" Items="@seasonCalendar.OrderBy(e => e.Round)" Dense="true" Loading="@loading">
         <HeaderContent>
             <MudTh Class="number-col">Round</MudTh>
             <MudTh>Country</MudTh>
@@ -92,7 +92,7 @@
             </MudTd>
             <MudTd>
                 <MudButtonGroup Size="@Size.Small">
-                    @if (Season.State == State.Active && (context.Round == nextRound))
+                    @if (OverviewModel.Season.State == State.Active && (context.Round == nextRound))
                     {
                         <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRace(context.Round))" />
                     }
@@ -100,7 +100,7 @@
                     {
                         <MudIconButton Icon="@Icons.Material.Filled.Flag" OnClick="@(() => GoToRace(context.Round))" />
                     }
-                    else if (Season.State != State.Closed)
+                    else if (OverviewModel.Season.State != State.Closed)
                     {
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.Race))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.RaceId))" />
@@ -112,19 +112,15 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
-    [Parameter] public IEnumerable<Race> Races { get; set; } = Enumerable.Empty<Race>();
-    [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
-    [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
-    [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     [Parameter] public IEnumerable<Climate> Climates { get; set; } = Enumerable.Empty<Climate>();
     [Parameter] public EventCallback OnAddRaces { get; set; }
     [Parameter] public EventCallback<Race?> OnEditorOpen { get; set; }
     [Parameter] public EventCallback<long> OnDelete { get; set; }
     [Parameter] public EventCallback<int> OnGoToRace { get; set; }
 
-    List<CalendarListing> seasonCalendar = new();
+    List<CalendarList> seasonCalendar = new();
 
     bool loading = true;
     int nextRound;
@@ -132,14 +128,18 @@
     protected override void OnParametersSet()
     {
         loading = true;
-        nextRound = Races.FindNext()?.Round ?? 0;
+        nextRound = OverviewModel.Races.FindNext()?.Round ?? 0;
         seasonCalendar.Clear();
 
-        foreach (var race in Races)
+        var classResults = OverviewModel.ClassResults();
+        var classDrivers = OverviewModel.ClassDrivers();
+        var classTeams = OverviewModel.ClassTeams();
+
+        foreach (var race in OverviewModel.Races)
         {
             var climate = Climates.First(e => e.Id == race.ClimateId);
 
-            var listing = new CalendarListing
+            var listing = new CalendarList
             {
                 RaceId = race.Id,
                 Round = race.Round,
@@ -154,44 +154,59 @@
                 Race = race
             };
 
-            var polesitter = Results.FirstOrDefault(e => e.RaceId == race.Id && e.Grid == 1);
+            var polesitter = classResults.FirstOrDefault(e => e.RaceId == race.Id && e.Grid == 1);
             if (polesitter != null)
             {
-                var poleDriver = SeasonDrivers.First(e => e.Id == polesitter.SeasonDriverId);
-                var poleTeam = SeasonTeams.First(e => e.Id == polesitter.SeasonTeamId);
+                var poleDriver = classDrivers.FirstOrDefault(e => e.Id == polesitter.SeasonDriverId);
+                var poleTeam = classTeams.FirstOrDefault(e => e.Id == polesitter.SeasonTeamId);
 
-                listing.PoleSitter = new CompactDriver
+                if (poleDriver != null && poleTeam != null)
                 {
-                    Name = poleDriver.Driver.FullName,
-                    Country = poleDriver.Driver.Country,
-                    Number = poleDriver.Number,
-                    Colour = poleTeam.Colour,
-                    Accent = poleTeam.Accent
-                };
+                    listing.PoleSitter = new CompactDriver
+                        {
+                            Name = poleDriver.Driver.FullName,
+                            Country = poleDriver.Driver.Country,
+                            Number = poleDriver.Number,
+                            Colour = poleTeam.Colour,
+                            Accent = poleTeam.Accent
+                        };
+                }
             }
 
-            var winner = Results.FirstOrDefault(e => e.RaceId == race.Id && e.Position == 1);
+            var winner = classResults.FirstOrDefault(e => e.RaceId == race.Id && e.Position == 1);
             if (winner != null)
             {
-                var winnerDriver = SeasonDrivers.First(e => e.Id == winner.SeasonDriverId);
-                var winnerTeam = SeasonTeams.First(e => e.Id == winner.SeasonTeamId);
+                var winnerDriver = classDrivers.FirstOrDefault(e => e.Id == winner.SeasonDriverId);
+                var winnerTeam = classTeams.FirstOrDefault(e => e.Id == winner.SeasonTeamId);
 
-                listing.DriverWinner = new CompactDriver
+                if (winnerDriver != null && winnerTeam != null)
                 {
-                    Name = winnerDriver.Driver.FullName,
-                    Country = winnerDriver.Driver.Country,
-                    Number = winnerDriver.Number,
-                    Colour = winnerTeam.Colour,
-                    Accent = winnerTeam.Accent
-                };
+                    listing.PoleSitter = new CompactDriver
+                        {
+                            Name = winnerDriver.Driver.FullName,
+                            Country = winnerDriver.Driver.Country,
+                            Number = winnerDriver.Number,
+                            Colour = winnerTeam.Colour,
+                            Accent = winnerTeam.Accent
+                        };
 
-                listing.TeamWinner = new CompactTeam
-                {
-                    Name = winnerTeam.Name,
-                    Country = winnerTeam.Team.Country,
-                    Colour = winnerTeam.Colour,
-                    Accent = winnerTeam.Accent
-                };
+                    listing.DriverWinner = new CompactDriver
+                        {
+                            Name = winnerDriver.Driver.FullName,
+                            Country = winnerDriver.Driver.Country,
+                            Number = winnerDriver.Number,
+                            Colour = winnerTeam.Colour,
+                            Accent = winnerTeam.Accent
+                        };
+
+                    listing.TeamWinner = new CompactTeam
+                        {
+                            Name = winnerTeam.Name,
+                            Country = winnerTeam.Team.Country,
+                            Colour = winnerTeam.Colour,
+                            Accent = winnerTeam.Accent
+                        };
+                }
             }
 
             seasonCalendar.Add(listing);
@@ -207,23 +222,4 @@
     private async Task DeleteRace(long raceId) => await OnDelete.InvokeAsync(raceId);
 
     private async Task GoToRace(int round) => await OnGoToRace.InvokeAsync(round);
-
-    internal class CalendarListing
-    {
-        public long RaceId { get; set; }
-        public int Round { get; set; }
-        public string Name { get; set; }
-        public Country Country { get; set; }
-        public State State { get; set; }
-        public string Weather { get; set; }
-        public string WeatherIcon { get; set; }
-        public string WeatherColour { get; set; }
-        public long TrackId { get; set; }
-
-        public CompactDriver? PoleSitter { get; set; }
-        public CompactDriver? DriverWinner { get; set; }
-        public CompactTeam? TeamWinner { get; set; }
-
-        public Race Race { get; set; }
-    }
 }

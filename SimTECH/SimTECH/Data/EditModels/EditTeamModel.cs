@@ -8,7 +8,7 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string? Name { get; set; }
-        public Country Country { get; set; }
+        public Country Country { get; set; } = Constants.DefaultCountry;
         public string? Biography { get; set; }
         public bool Mark { get; set; }
         public State State { get; set; }
@@ -19,8 +19,6 @@ namespace SimTECH.Data.EditModels
         {
             if (team == null)
             {
-                Country = Constants.DefaultCountry;
-
                 _team = new();
             }
             else

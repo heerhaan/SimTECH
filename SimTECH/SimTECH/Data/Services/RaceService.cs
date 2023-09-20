@@ -215,54 +215,26 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task PersistPracticeResults(Dictionary<long, int> driverPositions)
-        {
-            await PersistGridPositions(driverPositions, null, null);
-        }
-        public async Task PersistQualifyingResults(Dictionary<long, int> driverPositions, long raceToAdvance, int maximumRace)
-        {
-            await PersistGridPositions(driverPositions, raceToAdvance, maximumRace);
-        }
-        private async Task PersistGridPositions(Dictionary<long, int> driverPositions, long? raceToAdvance, int? maximumRace)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            if (raceToAdvance != null && maximumRace == null)
-                throw new InvalidOperationException("oi fucker, include the maximum allowed too!");
-
-            var positionCount = driverPositions.Count;
-            var driverResults = await context.Result.Where(e => driverPositions.Keys.Contains(e.Id)).ToListAsync();
-
-            foreach (var result in driverResults)
-            {
-                var achievedPosition = driverPositions[result.Id];
-                result.Grid = achievedPosition;
-                result.Position = achievedPosition;
-
-                if (maximumRace != null)
-                    result.Status = achievedPosition > maximumRace.Value ? RaceStatus.Dnq : RaceStatus.Racing;
-            }
-
-            context.UpdateRange(driverResults);
-
-            if (raceToAdvance != null)
-            {
-                var race = await context.Race.SingleAsync(e => e.Id == raceToAdvance);
-
-                var editModel = new EditRaceModel(race) { State = State.Advanced };
-                var editedRecord = editModel.Record;
-
-                context.Update(editedRecord);
-            }
-
-            await context.SaveChangesAsync();
-        }
-
         public async Task PersistPracticeScores(List<PracticeScore> practiceScores)
         {
             using var context = _dbFactory.CreateDbContext();
 
             context.PracticeScore.AddRange(practiceScores);
+
+            var resultIds = practiceScores.Select(e => e.ResultId).ToList();
+            var driverResults = await context.Result.Where(e => resultIds.Contains(e.Id)).ToListAsync();
+
+            foreach (var result in driverResults)
+            {
+                var sessionScore = practiceScores.First(e => e.ResultId == result.Id);
+
+                result.Grid = sessionScore.Position;
+                result.Position = sessionScore.Position;
+                result.AbsoluteGrid = sessionScore.AbsolutePosition;
+                result.AbsolutePosition = sessionScore.AbsolutePosition;
+            }
+
+            context.UpdateRange(driverResults);
 
             await context.SaveChangesAsync();
         }
@@ -272,6 +244,41 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             context.QualifyingScore.AddRange(qualyScores);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task FinishQualifying(List<QualifyingScore> qualyScores, Dictionary<long, (int, int)> driverPositions, long raceToAdvance, int maximumRace)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.QualifyingScore.AddRange(qualyScores);
+
+            var driverResults = await context.Result.Where(e => driverPositions.Keys.Contains(e.Id)).ToListAsync();
+
+            foreach (var result in driverResults)
+            {
+                var sessionScore = driverPositions.First(e => e.Key == result.Id);
+                var achievedPosition = sessionScore.Value;
+
+                result.Grid = achievedPosition.Item1;
+                result.Position = achievedPosition.Item1;
+
+                // TODO: Solution underneath is shit and ugly
+                result.AbsoluteGrid = achievedPosition.Item2;
+                result.AbsolutePosition = achievedPosition.Item2;
+
+                result.Status = achievedPosition.Item1 > maximumRace ? RaceStatus.Dnq : RaceStatus.Racing;
+            }
+
+            context.UpdateRange(driverResults);
+
+            var race = await context.Race.SingleAsync(e => e.Id == raceToAdvance);
+
+            var editModel = new EditRaceModel(race) { State = State.Advanced };
+            var editedRecord = editModel.Record;
+
+            context.Update(editedRecord);
 
             await context.SaveChangesAsync();
         }

@@ -8,14 +8,14 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public Country Country { get; set; }
-        public double Length { get; set; }
+        public Country Country { get; set; } = Constants.DefaultCountry;
+        public double Length { get; set; } = 4d;
         public State State { get; set; }
-        public double AeroMod { get; set; }
-        public double ChassisMod { get; set; }
-        public double PowerMod { get; set; }
-        public double QualifyingMod { get; set; }
-        public double DefenseMod { get; set; }
+        public double AeroMod { get; set; } = 1d;
+        public double ChassisMod { get; set; } = 1d;
+        public double PowerMod { get; set; } = 1d;
+        public double QualifyingMod { get; set; } = 1d;
+        public double DefenseMod { get; set; } = 1d;
 
         public IList<EditTrackTraitModel> TrackTraits { get; set; } = new List<EditTrackTraitModel>();
 
@@ -23,15 +23,6 @@ namespace SimTECH.Data.EditModels
         {
             if (track == null)
             {
-                Country = Constants.DefaultCountry;
-
-                Length = 4.0;
-                AeroMod = 1.0;
-                ChassisMod = 1.0;
-                PowerMod = 1.0;
-                QualifyingMod = 1.0;
-                DefenseMod = 1.0;
-
                 _track = new();
             }
             else

@@ -6,7 +6,7 @@
             <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterEngine" Class="btn-md">New</MudButton>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="SeasonEngine" Items="@EngineEntrants" Dense="true">
+    <MudDataGrid T="SeasonEngine" Items="@OverviewModel.SeasonEngines" Dense="true">
         <Columns>
             <PropertyColumn Property="e => e!.Name" />
             <PropertyColumn Property="e => e!.Power" CellClass="font-caption" />
@@ -24,8 +24,8 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
-    [Parameter] public IEnumerable<SeasonEngine> EngineEntrants { get; set; } = Enumerable.Empty<SeasonEngine>();
+    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+
     [Parameter] public EventCallback<SeasonEngine?> OnEditorOpen { get; set; }
 
     async Task EnterEngine() => await UpdateEngine(null);

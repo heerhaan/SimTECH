@@ -4,6 +4,8 @@
     {
         public int Grid { get; set; }
         public int Position { get; set; }
+        public int AbsoluteGrid { get; set; }
+        public int AbsolutePosition { get; set; }
         public int Score { get; set; }
         public RaceStatus Status { get; set; }
         public int Setup { get; set; }

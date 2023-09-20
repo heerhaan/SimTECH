@@ -1,4 +1,4 @@
-﻿<MudTable Items="@Drivers.OrderBy(e => e.Position)"
+﻿<MudTable Items="@Drivers.OrderBy(e => e.AbsolutePosition)"
           Dense="true"
           Class="extra-dense collapse"
           RowStyleFunc="@_sessionRowStyles"
@@ -9,6 +9,7 @@
         <MudTh>Driver</MudTh>
         <MudTh Class="number-col">NO</MudTh>
         <MudTh>Team</MudTh>
+        <MudTh Class="number-col">CLA</MudTh>
         <MudTh Class="number-col-xl">PWR</MudTh>
         @for (int i = 1; i <= AmountRuns; i++)
         {
@@ -21,7 +22,10 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd Class="number-col">
-            <DriverPosition Number="@context.Position" />
+            <div class="d-flex flex-row align-items-center gap-1">
+                <DriverPosition Number="@context.Position" />
+                <sup>@context.AbsolutePosition</sup>
+            </div>
         </MudTd>
         <MudTd Class="accent-cell">
             <SmolAccent Colour="@context.Colour" />
@@ -40,6 +44,11 @@
         <MudTd Class="overflow-hider">
             <MudText>@context.TeamName</MudText>
         </MudTd>
+        <MudTd Class="number-col">
+            <SupplierDisplay Colour="@context.Class?.Colour">
+                @context.Class?.Tag
+            </SupplierDisplay>
+        </MudTd>
         <MudTd Class="number-col-xl">
             <MudText Typo="Typo.caption">@context.Power</MudText>
         </MudTd>
@@ -49,8 +58,8 @@
             <MudTd Class="number-col-xl">
                 <GradientColour Min="@LowestScore" Max="@HighestScore" Value="@(context.Scores[j])">
                     <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.Scores[j])</MudText>
-                </GradientColour>
-            </MudTd>
+                    </GradientColour>
+                </MudTd>
         }
         <MudTd Class="number-col-xl">
             <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScore()</MudText>
@@ -102,7 +111,7 @@
             cutoff = Tuple.Create("OUT", "background-color: red");
         else if (position == EntryCutoff && position != 0)
             cutoff = Tuple.Create("DNQ", "background-color: mediumpurple");
-        
+
         return cutoff != default;
     }
 }

@@ -223,6 +223,8 @@
                     ResultId = result.Id,
                     Grid = result.Grid,
                     Position = result.Position,
+                    AbsoluteGrid = result.AbsoluteGrid,
+                    AbsolutePosition = result.AbsolutePosition,
                     Status = result.Status,
                     Setup = result.Setup,
                     TyreLife = result.TyreLife,
@@ -235,6 +237,12 @@
                         : null,
                     Tyre = tyres.First(e => e.Id == result.TyreId)
                 };
+
+            if (RaweCeek.Season.HasRaceClasses)
+            {
+                raweDriver.ClassId = team.ClassId.GetValueOrDefault();
+                raweDriver.Class = RaweCeek.Season.RaceClasses.FirstOrDefault(e => e.Id == team.ClassId.GetValueOrDefault());
+            }
 
             if (!climate.IsWet)
             {
@@ -264,9 +272,12 @@
             }
         }
 
-        int indexer = 0;
-        foreach (var driver in raweceekDrivers.OrderByDescending(e => e.RelativePower))
-            driver.ExpectedPosition = ++indexer;
+        foreach (var driverGroup in raweceekDrivers.GroupBy(e => e.ClassId))
+        {
+            int indexer = 0;
+            foreach (var driver in driverGroup.OrderByDescending(e => e.RelativePower))
+                driver.ExpectedPosition = ++indexer;
+        }
 
         RaweCeek.RaweCeekDrivers = raweceekDrivers;
     }
@@ -393,7 +404,6 @@
         var gridResults = practiceSession.SessionScores.ToDictionary(e => e.ResultId, e => e.Position);
 
         await _raceService.PersistPracticeScores(practiceSession.SessionScores);
-        await _raceService.PersistPracticeResults(gridResults);
 
         practiceSession.IsFinished = true;
 
@@ -416,43 +426,58 @@
         if (!qualySession.SessionScores.Any())
             throw new InvalidOperationException("No score data to persist");
 
-        await _raceService.PersistQualifyingScores(qualySession.SessionScores);
         qualySession.IsFinished = true;
 
         if (qSessionCount == qualyIndex)
         {
-            int positionIndexer = 0;
-            var gridResults = qualySessions
-                .SelectMany(e => e.SessionScores)
-                .GroupBy(e => e.ResultId)
-                .Select(e => e.MaxBy(r => r.Index))
-                .OrderBy(e => e!.PenaltyPosition())
-                .ToDictionary(e => e!.ResultId, e => ++positionIndexer);
+            var finalQualyPosition = new Dictionary<long, (int, int)>();
+            var qualySessionScores = qualySessions.SelectMany(e => e.SessionScores).ToList();
 
-            await _raceService.PersistQualifyingResults(gridResults, RaceId, RaweCeek.Season.MaximumDriversInRace);
+            foreach (var seasonGroup in RaweCeek.SeasonGroupedResultIds())
+            {
+                int positionIndexer = 0;
+                var gridResults = qualySessions
+                    .SelectMany(e => e.SessionScores)
+                    .Where(e => seasonGroup.Value.Contains(e.ResultId))
+                    .GroupBy(e => e.ResultId)
+                    .Select(e => e.MaxBy(r => r.Index));
+
+                foreach (var penaltyResult in gridResults.OrderBy(e => e.PenaltyPosition()))
+                    finalQualyPosition.Add(penaltyResult.ResultId, (++positionIndexer, penaltyResult.AbsolutePosition));
+            }
+
+            await _raceService.FinishQualifying(qualySession.SessionScores, finalQualyPosition, RaceId, RaweCeek.Season.MaximumDriversInRace);
 
             if (RaweCeek.ConsumablePenalties.Any())
                 await _raceService.ConsumePenalties(RaweCeek.ConsumablePenalties, RaceId);
 
             // Update the new grid, position and status
-            foreach (var res in gridResults)
+            foreach (var res in finalQualyPosition)
             {
                 var matchingDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == res.Key);
-                matchingDriver.Grid = res.Value;
-                matchingDriver.Position = res.Value;
-                matchingDriver.Status = res.Value > RaweCeek.Season.MaximumDriversInRace ? RaceStatus.Dnq : RaceStatus.Racing;
+                var sessionScore = qualySessionScores.First(e => e.ResultId == res.Key);
+
+                matchingDriver.Grid = res.Value.Item1;
+                matchingDriver.Position = res.Value.Item1;
+                matchingDriver.AbsoluteGrid = sessionScore.AbsolutePosition;
+                matchingDriver.AbsolutePosition = sessionScore.AbsolutePosition;
+                matchingDriver.Status = res.Value.Item1 > RaweCeek.Season.MaximumDriversInRace ? RaceStatus.Dnq : RaceStatus.Racing;
             }
 
             RaweCeek.Race.State = State.Advanced;
         }
         else
         {
+            await _raceService.PersistQualifyingScores(qualySession.SessionScores);
+
             // Update the new grid and position
             foreach (var res in qualySession.SessionScores)
             {
                 var matchingDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == res.ResultId);
                 matchingDriver.Grid = res.Position;
                 matchingDriver.Position = res.Position;
+                matchingDriver.AbsoluteGrid = res.AbsolutePosition;
+                matchingDriver.AbsolutePosition = res.AbsolutePosition;
             }
 
             var nextSession = qualySessions.First(e => e.SessionIndex == (1 + qualyIndex));

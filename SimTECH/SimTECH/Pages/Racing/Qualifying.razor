@@ -75,7 +75,7 @@
 
         gapMarge = RaweCeek.GapMarge / 2;
 
-        foreach (var driver in RaweCeek.RaweCeekDrivers.OrderBy(e => e.Grid).Take(QualySession.AllowedEntries))
+        foreach (var driver in RaweCeek.RaweCeekDrivers.Where(e => QualySession.AllowedEntries >= e.Grid))
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
             mappedDriver.PenaltyPunish = driver.Penalty.GetValueOrDefault();
@@ -86,6 +86,7 @@
             {
                 mappedDriver.Scores = driverScore.Scores;
                 mappedDriver.Position = driverScore.Position;
+                mappedDriver.AbsolutePosition = driverScore.AbsolutePosition;
 
                 if (mappedDriver.Position == 1)
                     mappedDriver.GapAbove = "LEADER";
@@ -101,8 +102,6 @@
 
     private async void Advance()
     {
-        var positionIndex = 0;
-
         foreach (var driver in qualyDrivers)
         {
             var result = driver.Power + NumberHelper.RandomInt(qualyRng);
@@ -114,14 +113,17 @@
                 lowestScore = result;
         }
 
+        var positionIndexDict = qualyDrivers.Select(e => (e.Class?.Id ?? 0)).Distinct().ToDictionary(e => e, e => 0);
+        int absoluteIndex = 0;
+
         foreach (var driver in qualyDrivers.OrderByDescending(e => e.MaxScore()))
         {
-            driver.Position = ++positionIndex;
+            driver.Position = ++positionIndexDict[driver.Class?.Id ?? 0];
+            driver.AbsolutePosition = ++absoluteIndex;
 
-            if (driver.Position == 1)
-                driver.GapAbove = "LEADER";
-            else
-                driver.GapAbove = "+" + (Math.Round((highestScore - driver.MaxScore()) * gapMarge, 2)).ToString("F2");
+            driver.GapAbove = driver.Position == 1
+                ? "LEADER"
+                : "+" + (Math.Round((highestScore - driver.MaxScore()) * gapMarge, 2)).ToString("F2");
         }
 
         advancedRuns++;
@@ -137,6 +139,7 @@
                 Index = QualySession.SessionIndex,
                 Scores = e.Scores,
                 Position = e.Position,
+                AbsolutePosition = e.AbsolutePosition,
                 RaceId = RaweCeek.Race.Id,
                 ResultId = e.ResultId,
 

@@ -47,7 +47,8 @@ namespace SimTECH.Data
 
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-            new DataInitializer(builder).Seed();
+            var dbInit = new DataInitializer(builder);
+            dbInit.Seed();
         }
     }
 }

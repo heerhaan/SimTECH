@@ -3,39 +3,34 @@
         <MudText>Modify team</MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model">
-            <MudGrid>
-                <MudItem xs="8">
-                    <MudPaper Elevation="15" Class="pa-4">
-                        <MudStack>
-                            <MudTextField T="string" @bind-Value="@Model.Name" Label="Name" Class="field-md" />
-                            <CountrySelect @bind-Value="Model.Country" Class="field-md" />
-                            <MudTextField T="string" @bind-Value="@Model.Biography" Label="Biography" Lines="5" />
+        <MudPaper MinWidth="500px">
+            <MudStack Row="true">
+                <MudPaper Elevation="15" Class="pa-2 mud-height-full">
+                    <MudStack>
+                        <MudTextField T="string" @bind-Value="@Model.Name" Label="Name" Class="field-md" />
+                        <CountrySelect @bind-Value="Model.Country" Class="field-md" />
+                        <MudTextField T="string" @bind-Value="@Model.Biography" Label="Biography" Lines="5" />
 
-                            <MudText Typo="Typo.subtitle1">Toggles</MudText>
-                            <MudDivider />
-                            <MudSwitchM3 @bind-Checked="Model.Mark"
-                                         Label="Mark"
-                                         Color="Color.Secondary"
-                                         ThumbIcon="@Icons.Material.Filled.Done"
-                                         ThumbOffIcon="@Icons.Material.Filled.Close" />
-                        </MudStack>
-                    </MudPaper>
-                </MudItem>
-
-                <MudItem xs="4">
-                    <MudPaper Elevation="10" Class="pa-4">
-                        <MudText Typo="Typo.subtitle1">Traits</MudText>
-                        <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
-                            @foreach (var trait in selectableTraits)
-                            {
-                                <MudChip Text="@trait.Name" Value="@trait.Id" Color="Color.Primary"></MudChip>
-                            }
-                        </MudChipSet>
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
-        </MudForm>
+                        <MudText Typo="Typo.subtitle1">Toggles</MudText>
+                        <MudDivider />
+                        <MudSwitchM3 @bind-Checked="Model.Mark"
+                                     Label="Mark"
+                                     Color="Color.Secondary"
+                                     ThumbIcon="@Icons.Material.Filled.Done"
+                                     ThumbOffIcon="@Icons.Material.Filled.Close" />
+                    </MudStack>
+                </MudPaper>
+                <MudPaper Elevation="10" Class="pa-2 mud-height-full">
+                    <MudText Typo="Typo.subtitle1">Traits</MudText>
+                    <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
+                        @foreach (var trait in selectableTraits)
+                        {
+                            <MudChip Text="@trait.Name" Value="@trait.Id" Color="Color.Primary"></MudChip>
+                        }
+                    </MudChipSet>
+                </MudPaper>
+            </MudStack>
+        </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>

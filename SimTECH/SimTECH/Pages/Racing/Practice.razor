@@ -64,6 +64,7 @@
                 .SelectMany(e => e.Scores ?? Array.Empty<int>())
                 .Where(e => e != 0)
                 .ToArray();
+
             highestScore = scoreNumbers.Max();
             lowestScore = scoreNumbers.Min();
         }
@@ -78,6 +79,7 @@
             {
                 mappedDriver.Scores = driverScore.Scores;
                 mappedDriver.Position = driverScore.Position;
+                mappedDriver.AbsolutePosition = driverScore.AbsolutePosition;
 
                 if (mappedDriver.Position == 1)
                     mappedDriver.GapAbove = "LEADER";
@@ -93,8 +95,6 @@
 
     private async void Advance()
     {
-        var positionIndex = 0;
-
         foreach (var driver in practiceDrivers)
         {
             var result = driver.Power + NumberHelper.RandomInt((practiceRng * -1), practiceRng);
@@ -106,10 +106,17 @@
                 lowestScore = result;
         }
 
+        var positionIndexDict = practiceDrivers.Select(e => (e.Class?.Id ?? 0)).Distinct().ToDictionary(e => e, e => 0);
+        int absoluteIndex = 0;
+
         foreach (var driver in practiceDrivers.OrderByDescending(e => e.MaxScore()))
         {
-            driver.Position = ++positionIndex;
-            driver.GapAbove = "+" + (Math.Round((highestScore - driver.MaxScore()) * gapMarge, 2)).ToString("F2");
+            driver.Position = ++positionIndexDict[driver.Class?.Id ?? 0];
+            driver.AbsolutePosition = ++absoluteIndex;
+
+            driver.GapAbove = driver.AbsolutePosition == 1
+                ? "LEADER"
+                : "+" + (Math.Round((highestScore - driver.MaxScore()) * gapMarge, 2)).ToString("F2");
         }
 
         advancedRuns++;
@@ -125,6 +132,7 @@
                 Index = PracticeSession.SessionIndex,
                 Scores = e.Scores,
                 Position = e.Position,
+                AbsolutePosition = e.AbsolutePosition,
                 RaceId = RaweCeek.Race.Id,
                 ResultId = e.ResultId
             })

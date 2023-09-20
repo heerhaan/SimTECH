@@ -1,4 +1,5 @@
 ﻿@page "/entrantwizard/{SeasonId:long}"
+
 @inject ContractService _contractService
 @inject DriverService _driverService
 @inject EngineService _engineService
@@ -10,6 +11,7 @@
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject IOptions<SimConfig> _config
+
 @using MudBlazor.Extensions
 @using MudExtensions.Enums;
 @using MudExtensions.Utilities
@@ -43,7 +45,7 @@
                         <div style="width:25%">
                             @if (stepper?.IsAllStepsCompleted() == true)
                             {
-                                <MudButton FullWidth="true" Variant="Variant.Outlined" Color="Color.Success" OnClick="AddAllEntrants">Confirm & save</MudButton>
+                                <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="AddAllEntrants" Class="btn-md">Confirm & save</MudButton>
                             }
                         </div>
                     </MudStack>
@@ -86,9 +88,17 @@
                             }
                         </ChildContent>
                     </MudStep>
-                    <MudStep Title="Add drivers" Icon="@IconCollection.Helmet">
+                    <MudStep Title="Assign classes" Icon="@IconCollection.Skull">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 5)
+                            {
+                                <AssignRaceClasses />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Add drivers" Icon="@IconCollection.Helmet">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 6)
                             {
                                 <AddDrivers Drivers="@Drivers" Year="@Season.Year" Contracts="Contracts" />
                             }
@@ -96,7 +106,7 @@
                     </MudStep>
                     <MudStep Title="Edit drivers" Icon="@IconCollection.Helmet">
                         <ChildContent>
-                            @if (stepper.GetActiveIndex() == 6)
+                            @if (stepper.GetActiveIndex() == 7)
                             {
                                 <EditDrivers />
                             }
@@ -104,7 +114,7 @@
                     </MudStep>
                     <MudStep Title="Assign drivers" Icon="@IconCollection.Helmet">
                         <ChildContent>
-                            @if (stepper.GetActiveIndex() == 7)
+                            @if (stepper.GetActiveIndex() == 8)
                             {
                                 <AssignDriverTeams />
                             }
@@ -112,7 +122,7 @@
                     </MudStep>
                     <MudStep Title="Result" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
                         <ChildContent>
-                            @if (stepper.GetActiveIndex() == 8)
+                            @if (stepper.GetActiveIndex() == 9)
                             {
                                 <FinalCheck SeasonId="@SeasonId" />
                             }
@@ -149,6 +159,7 @@
         Season = await _seasonService.GetSeasonById(SeasonId);
         PreviousSeason = await _seasonService.FindRecentClosedSeason(Season.LeagueId);
         // TODO: Wizard deserves a refactor in that we might want to retrieve these values on a per-step basis instead of all at once
+        // Or do we? Why would we? It's not like it's slow
         Engines = await _engineService.GetEngines();
         Teams = await _teamService.GetAvailableTeams();
         Drivers = await _driverService.GetAvailableDrivers();
@@ -156,9 +167,13 @@
         Manufacturers = await _manufacturerService.GetManufacturers();
 
         var league = await _leagueService.GetLeagueById(Season.LeagueId);
+
         Model.LeagueId = league.Id;
         Model.HasContracting = league.Options.HasFlag(LeagueOptions.AllowContracting);
         allowPersonalNumbers = league.Options.HasFlag(LeagueOptions.PersonalNumbers);
+
+        if (Season.RaceClasses?.Any() == true)
+            Model.Classes.AddRange(Season.RaceClasses);
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -236,15 +251,22 @@
                     errors.Add("Oi oi mate, how is a team going to drive without an engine? Try again.");
                 }
                 break;
-            //Step: adding drivers
+            //Step: raceclass assignment
             case 5:
+                if (Model.Classes.Any() && Model.SeasonTeams.Any(e => e.ClassId == 0))
+                {
+                    errors.Add("See these race classes? Yeah? Well, you better give every team one.");
+                }
+                break;
+            //Step: adding drivers
+            case 6:
                 if (!(Model.BaseDrivers?.Any() == true))
                 {
                     errors.Add("Suggestion: add some goddamn drivers to the season");
                 }
                 break;
             //Step: editing drivers
-            case 6:
+            case 7:
                 {
                     if (Model.SeasonDrivers.Any())
                     {
@@ -257,7 +279,7 @@
                     }
                 }
                 break;
-            case 7:
+            case 8:
                 {
                     if (!allowPersonalNumbers)
                     {
@@ -310,18 +332,21 @@
                 stepTitle = "Assign teams";
                 break;
             case 5:
-                stepTitle = "Add drivers";
+                stepTitle = "Assign race classes";
                 break;
             case 6:
+                stepTitle = "Add drivers";
+                break;
+            case 7:
                 {
                     await SetDriverEditors();
                     stepTitle = "Edit drivers";
                 }
                 break;
-            case 7:
+            case 8:
                 stepTitle = "Assign drivers";
                 break;
-            case 8:
+            case 9:
                 stepTitle = "Participants";
                 break;
         }
@@ -352,12 +377,23 @@
         Model.SeasonTeams.Clear();
 
         List<SeasonEngine>? previousEngines = null;
+        Dictionary<string, long> alikeClasses = new();
 
         if (PreviousSeason != null)
         {
             var existingEngineIds = Model.SeasonEngines.Select(e => e.EngineId).ToArray();
             var allPrevious = await _entrantService.GetSeasonEngines(PreviousSeason.Id);
             previousEngines = allPrevious.Where(e => existingEngineIds.Contains(e.EngineId)).ToList();
+
+            if (PreviousSeason?.RaceClasses?.Any() == true)
+            {
+                foreach (var oldClass in PreviousSeason.RaceClasses)
+                {
+                    var similairClass = Model.Classes.Find(e => e.Tag.Equals(oldClass.Tag, StringComparison.OrdinalIgnoreCase));
+                    if (similairClass != null)
+                        alikeClasses.Add(oldClass.Tag, similairClass.Id);
+                }
+            }
         }
 
         foreach (var team in Model.BaseTeams.Where(e => !(Model.SeasonTeams.Select(st => st.TeamId).Contains(e.Id))))
@@ -375,6 +411,14 @@
 
             if (previousTeam != null && previousEngines != null)
                 model.BaseEngineId = previousEngines.Find(e => e.Id == previousTeam.SeasonEngineId)?.EngineId ?? 0;
+
+            if (previousTeam != null && previousTeam.ClassId.HasValue && PreviousSeason?.RaceClasses?.Any() == true)
+            {
+                var previousTag = PreviousSeason.RaceClasses.FirstOrDefault(e => e.Id == previousTeam.ClassId.Value)?.Tag ?? string.Empty;
+                var similairTag = Model.Classes.Find(e => e.Tag.Equals(previousTag));
+
+                model.ClassId = similairTag?.Id ?? 0;
+            }
 
             Model.SeasonTeams.Add(model);
         }

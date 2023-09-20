@@ -3,7 +3,7 @@
 <MudTable Items="@StandingConstructors" Dense="true" id="wcc-season-results">
     <ToolBarContent>
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4 mud-width-full">
-            <MudText Typo="Typo.h4">World Constructors Championship @(Season.Year)</MudText>
+            <MudText Typo="Typo.h4">World Constructors Championship @(OverviewModel.Season.Year)</MudText>
             <MudSpacer />
             <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined">
                 <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWccResultGraph" Class="btn-md" />
@@ -70,7 +70,8 @@
 </MudTable>
 
 @code {
-    [CascadingParameter] public Season Season { get; set; }
+    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+
     [Parameter] public Dictionary<int, Country> CountryRounds { get; set; }
     [Parameter] public List<StandingTeamModel> StandingConstructors { get; set; }
 
@@ -78,13 +79,13 @@
 
     protected override void OnInitialized()
     {
-        if (Season?.PointAllotments?.Any() == true)
-            lowestScoringPosition = Season.PointAllotments.Max(e => e.Position);
+        if (OverviewModel.Season?.PointAllotments?.Any() == true)
+            lowestScoringPosition = OverviewModel.Season.PointAllotments.Max(e => e.Position);
     }
 
     async Task ShowWccResultGraph()
     {
-        var parameters = new DialogParameters { ["Teams"] = StandingConstructors, ["Season"] = Season };
+        var parameters = new DialogParameters { ["Teams"] = StandingConstructors, ["Season"] = OverviewModel.Season };
         _ = await _dialog.ShowAsync<WccResultChart>("WCC results chart", parameters);
     }
 }

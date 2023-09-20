@@ -7,7 +7,7 @@ namespace SimTECH.Data.EditModels
         private readonly Contract _contract;
 
         public long Id { get; set; }
-        public int Duration { get; set; }
+        public int Duration { get; set; } = 1;
         public long TeamId { get; set; }
         public long DriverId { get; set; }
         public long LeagueId { get; set; }

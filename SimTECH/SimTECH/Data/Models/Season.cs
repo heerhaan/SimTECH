@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SimTECH.Data.Models
 {
     public sealed class Season : ModelState
     {
@@ -29,8 +31,12 @@
         public IList<SeasonDriver>? SeasonDrivers { get; set; }
         public IList<SeasonTeam>? SeasonTeams { get; set; }
         public IList<SeasonEngine>? SeasonEngines { get; set; }
+        public IList<RaceClass> RaceClasses { get; set; }
 
         public long LeagueId { get; set; }
         public League League { get; set; } = default!;
+
+        [NotMapped]
+        public bool HasRaceClasses => RaceClasses?.Any() == true;
     }
 }

@@ -76,7 +76,7 @@
                     <MudTh Style="max-width: 220px">Name</MudTh>
                     <MudTh Class="number-col">NO</MudTh>
                     <MudTh Style="max-width: 220px">Team</MudTh>
-                    <MudTh Class="number-col">Setup</MudTh>
+                    <MudTh Class="number-col">CLA</MudTh>
                     <MudTh Class="number-col">SUPP</MudTh>
                     <MudTh>Tyre</MudTh>
                     <MudTh Class="number-col">TGT</MudTh>
@@ -117,7 +117,12 @@
                         <MudText Class="overflow-hider">@context.TeamName</MudText>
                     </MudTd>
                     <MudTd Class="number-col">
-
+                        @if (context.Class != null)
+                        {
+                            <SupplierDisplay Colour="@context.Class.Colour">
+                                <MudText>@context.Class.Tag</MudText>
+                            </SupplierDisplay>
+                        }
                     </MudTd>
                     <MudTd Class="number-col">
                         <SupplierDisplay Colour="@context.ManufacturerColour" Accent="@context.ManufacturerAccent">

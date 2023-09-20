@@ -10,7 +10,7 @@
                     <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
                 </MudMenu>
             </div>
-                
+
             <MudStack Spacing="0" AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
                 <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
@@ -46,9 +46,9 @@
         </MudStack>
     </MudPaper>
     <div id="race-display">
-        <MudTable Items="@raceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.Position)"
-                    Dense="true"
-                    Class="extra-dense overflow-x-hide">
+        <MudTable Items="@raceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.AbsolutePosition)"
+                  Dense="true"
+                  Class="extra-dense overflow-x-hide">
             <ToolBarContent>
                 <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2 mud-width-full">
                     <div class="d-flex flex-row gap-3 align-center pa-0" style="width:30%">
@@ -58,36 +58,38 @@
 
                     <MudChip Color="@lapIndicatorBackground" Label="true" DisableRipple="true">
                         <MudText Typo="Typo.h5" Color="@lapIndicatorColour">LAP @(racedLaps) / @(totalLaps)</MudText>
-                    </MudChip>
+                        </MudChip>
 
-                    <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
-                        <MudText Typo="Typo.h5">@RaweCeek.Climate.Terminology</MudText>
-                        <CustomIcon Icon="@RaweCeek.Climate.Icon" Colour="@RaweCeek.Climate.Colour" />
-                    </div>
-                </MudStack>
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh Style="width: 15px"></MudTh>
-                <MudTh Style="width: 40px">Grid</MudTh>
-                <MudTh Class="pa-0" Style="width: 5px"></MudTh>
-                <MudTh Style="max-width: 220px">Name</MudTh>
-                <MudTh Class="number-col">NO</MudTh>
-                <MudTh Style="max-width: 220px">Team</MudTh>
+                        <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
+                            <MudText Typo="Typo.h5">@RaweCeek.Climate.Terminology</MudText>
+                            <CustomIcon Icon="@RaweCeek.Climate.Icon" Colour="@RaweCeek.Climate.Colour" />
+                        </div>
+                    </MudStack>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh Style="width: 20px"></MudTh>
+                    <MudTh Style="width: 40px">Grid</MudTh>
+                    <MudTh Class="pa-0" Style="width: 5px"></MudTh>
+                    <MudTh Style="max-width: 220px">Name</MudTh>
+                    <MudTh Class="number-col">NO</MudTh>
+                    <MudTh Style="max-width: 220px">Team</MudTh>
+                    @if (RaweCeek.Season.HasRaceClasses)
+                {
+                    <MudTh Class="number-col">CLA</MudTh>
+                }
                 <MudTh Class="number-col">PWR</MudTh>
                 <MudTh Class="text-center" Style="width: 175px">ATT / DEF</MudTh>
                 <MudTh Class="tyre-col">Tyre</MudTh>
                 <MudTh Class="number-col">Pace</MudTh>
                 <MudTh Class="number-col-lg">Status</MudTh>
-                @if (tooMuchInfo)
-                {
-                    <MudTh Class="number-col">L.Gap</MudTh>
-                    <MudTh Class="number-col">Score</MudTh>
-                }
                 <MudTh Style="min-width: 500px">Progression</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
-                    <DriverPosition Number="@context.Position" />
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0">
+                        <DriverPosition Number="@context.Position" />
+                        <sup>@context.AbsolutePosition</sup>
+                    </MudStack>
                 </MudTd>
                 <MudTd>
                     <GridChange Change="@context.GridChange" />
@@ -113,6 +115,14 @@
                 <MudTd Class="overflow-hider" Style="max-width:250px">
                     <MudText Typo="Typo.button">@context.TeamName</MudText>
                 </MudTd>
+                @if (RaweCeek.Season.HasRaceClasses)
+                {
+                    <MudTd Class="number-col">
+                        <SupplierDisplay Colour="@context.Class?.Colour">
+                            @context.Class?.Tag
+                        </SupplierDisplay>
+                    </MudTd>
+                }
                 <MudTd Class="number-col">
                     <MudText Typo="Typo.caption">@context.Power</MudText>
                 </MudTd>
@@ -155,15 +165,6 @@
                         <MudText Typo="Typo.button" Color="Color.Error">@context.Incident.Name</MudText>
                     }
                 </MudTd>
-                @if (tooMuchInfo)
-                {
-                    <MudTd Class="number-col">
-                        <MudText Typo="Typo.caption">+@((Math.Round((highestScore - context.LapSum) * gapMarge, 2)).ToString("F2"))</MudText>
-                    </MudTd>
-                    <MudTd Class="number-col">
-                        <MudText Typo="Typo.caption">@context.LapSum</MudText>
-                    </MudTd>
-                }
                 <MudTd>
                     <div class="relative" style="height:8px;width:100%">
                         @foreach (var lapEvent in context.LapScores)
@@ -181,7 +182,7 @@
         </MudTable>
         <MudPaper Class="pt-2 px-1">
             <SimProgressLinear Bars="@(occurrences.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
-                                AddIndicator="true" LineSize="ElementSize.Normal" CalculationDistance="@calculationDistance" TrackLength="@RaweCeek.Race.Track.Length" />
+                               AddIndicator="true" LineSize="ElementSize.Normal" CalculationDistance="@calculationDistance" TrackLength="@RaweCeek.Race.Track.Length" />
 
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 pt-5 pb-2">
                 <MudText Typo="Typo.button">Legend</MudText>
@@ -275,8 +276,10 @@
 
     protected override void OnInitialized()
     {
-        possibleIncidents.AddRange(Incidents.Where(e => e.State == State.Active));
-        availableTyres.AddRange(Tyres.Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == RaweCeek.Season.LeagueId) ?? false)));
+        possibleIncidents.AddRange(
+            Incidents.Where(e => e.State == State.Active));
+        availableTyres.AddRange(
+            Tyres.Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == RaweCeek.Season.LeagueId) ?? false)));
 
         minLapRng = RaweCeek.Season.RngMinimum;
         maxLapRng = RaweCeek.Season.RngMaximum;
@@ -307,10 +310,7 @@
         {
             var occurrMatch = Occurrences.FirstOrDefault(e => e.Order == i);
 
-            if (occurrMatch != null)
-                occurrences.Add(i, occurrMatch.Occurrences);
-            else
-                occurrences.Add(i, SituationOccurrence.Unknown);
+            occurrences.Add(i, occurrMatch?.Occurrences ?? SituationOccurrence.Unknown);
         }
 
         racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, RaweCeek.Race.Track.Length);
@@ -322,7 +322,7 @@
     private void BuildRaceDrivers()
     {
         raceDrivers = RaweCeek.RaweCeekDrivers
-            .OrderBy(e => e.Position)
+            .OrderBy(e => e.AbsolutePosition)
             .Take(RaweCeek.Season.MaximumDriversInRace)
             .Select(e => e.MapToRaceDriver())
             .ToList();
@@ -331,7 +331,7 @@
         if (RaweCeek.Race.State == State.Closed)
         {
             var scoreAbove = 0;
-            foreach (var driver in raceDrivers.OrderBy(e => e.Position))
+            foreach (var driver in raceDrivers.OrderBy(e => e.AbsolutePosition))
             {
                 driver.LapScores = LapScores.Where(e => e.ResultId == driver.ResultId).ToList();
 
@@ -603,7 +603,7 @@
         var validTyres = availableTyres.FindValidTyres(distanceLeft, RaweCeek.Climate.IsWet);
 
         int scoreAboveDriver = 0;
-        foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
+        foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
         {
             driver.SingleOccurrence = null;
             driver.InstantOvertaken = false;
@@ -648,15 +648,17 @@
             scoreAboveDriver = driver.LapSum;
         }
 
-        int positionIndexer = 0;
+        var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
+        int absoluteIndex = 0;
+
         foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
         {
-            driver.Position = ++positionIndexer;
+            driver.Position = ++positionIndexDict[driver.ClassId];
+            driver.AbsolutePosition = ++absoluteIndex;
 
-            if (positionIndexer == 1)
-                driver.GapAbove = "LEADER";
-            else
-                driver.GapAbove = "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
+            driver.GapAbove = driver.Position == 1
+                ? "LEADER"
+                : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
 
             scoreAboveDriver = driver.LapSum;
         }
@@ -719,11 +721,11 @@
         // This likely can be optimized further
         while (!allPositionsAligned)
         {
-            foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
+            foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
             {
                 var lastScore = driver.LapScores.Last();
 
-                int positionChange = driver.Position - actualPositions[driver.SeasonDriverId];
+                int positionChange = driver.AbsolutePosition - actualPositions[driver.SeasonDriverId];
 
                 // Assign the new positions based on whether their overtakes have been succesful
                 if (positionChange > 0)
@@ -735,20 +737,23 @@
             allPositionsAligned = true;
             actualPositions = GetCurrentActualPositions();
 
-            foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
+            foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
             {
-                if (driver.Position != actualPositions[driver.SeasonDriverId])
+                if (driver.AbsolutePosition != actualPositions[driver.SeasonDriverId])
                     allPositionsAligned = false;
             }
         }
 
         int scoreAboveDriver = 0;
-        foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.Position))
+        var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
+
+        foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.AbsolutePosition))
         {
-            if (driver.Position == 1)
-                driver.GapAbove = "LEADER";
-            else
-                driver.GapAbove = "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
+            driver.Position = ++positionIndexDict[driver.ClassId];
+
+            driver.GapAbove = driver.Position == 1
+                ? "LEADER"
+                : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
 
             scoreAboveDriver = driver.LapSum;
         }
@@ -757,27 +762,49 @@
     private Dictionary<long, int> GetCurrentActualPositions()
     {
         var actualPositions = new Dictionary<long, int>();
-        int positionIndex = 0;
+        int absoluteIndex = 0;
 
         foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
-            actualPositions.Add(driver.SeasonDriverId, ++positionIndex);
+            actualPositions.Add(driver.SeasonDriverId, ++absoluteIndex);
 
         return actualPositions;
+    }
+
+    // Honestly, below is more of an example to the first one
+    private Dictionary<long, int> AggregateActualPositions()
+    {
+        //source: racedrivers
+        //seed: dict
+        //func: (dict, driver) =>
+
+        var absoluteIndex = 0;
+        return raceDrivers
+            .OrderBy(e => (int)e.Status)
+                .ThenByDescending(e => e.LapSum)
+            .Aggregate
+            (
+                new Dictionary<long, int>(),
+                (dict, driver) =>
+                    {
+                        dict.Add(driver.SeasonDriverId, ++absoluteIndex);
+                        return dict;
+                    }
+            );
     }
 
     private void HandlePositionGain(RaceDriver driver, LapScore lastScore, int gainedPositions)
     {
         while (gainedPositions > 0)
         {
-            var abovePosition = driver.Position - 1;
+            var abovePosition = driver.AbsolutePosition - 1;
             if (abovePosition == 0)
                 break;
 
-            var defendingDriver = raceDrivers.First(e => e.Position == abovePosition);
+            var defendingDriver = raceDrivers.First(e => e.AbsolutePosition == abovePosition);
 
             // Driver above is teammate AND support driver AND attacker is main driver, swap time!
-            //if (defendingDriver.SeasonTeamId == driver.SeasonTeamId 
-            //    && driver.Role == TeamRole.Main 
+            //if (defendingDriver.SeasonTeamId == driver.SeasonTeamId
+            //    && driver.Role == TeamRole.Main
             //    && defendingDriver.Role == TeamRole.Support)
             //{
             //    lastScore.RacerEvents |= RacerEvent.Swap;
@@ -785,7 +812,7 @@
             //}
             //else
 
-            if (!defendingDriver.InstantOvertaken)
+            if (!defendingDriver.InstantOvertaken && driver.ClassId == defendingDriver.ClassId)
             {
                 // Subtract attack value from defense, what's left is how much the attacker is hindered
                 var attackingResult = driver.Attack + NumberHelper.RandomInt((battleRng * -1), battleRng);
@@ -812,7 +839,7 @@
             }
 
             // Overtake succeeded, driver gains a position!
-            (driver.Position, defendingDriver.Position) = (defendingDriver.Position, driver.Position);
+            (driver.AbsolutePosition, defendingDriver.AbsolutePosition) = (defendingDriver.AbsolutePosition, driver.AbsolutePosition);
 
             gainedPositions--;
         }
@@ -835,9 +862,14 @@
 
         if (anyoneDisqualified)
         {
-            int positionIndex = 0;
+            var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
+            int absoluteIndex = 0;
+
             foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
-                driver.Position = ++positionIndex;
+            {
+                driver.Position = ++positionIndexDict[driver.ClassId];
+                driver.AbsolutePosition = ++absoluteIndex;
+            }
         }
     }
 
@@ -850,6 +882,7 @@
         {
             var matchDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == raceDriver.ResultId);
             matchDriver.Position = raceDriver.Position;
+            matchDriver.AbsolutePosition = raceDriver.AbsolutePosition;
             matchDriver.Score = raceDriver.LapSum;
             matchDriver.Status = raceDriver.Status;
             matchDriver.TyreLife = raceDriver.TyreLife;
@@ -871,25 +904,25 @@
         foreach (var occurr in occurrences.Where(e => e.Key > initialHighestOccurr))
         {
             Occurrences.Add(new RaceOccurrence
-            {
-                Order = occurr.Key,
-                Occurrences = occurr.Value,
-                RaceId = RaweCeek.Race.Id,
-            });
+                {
+                    Order = occurr.Key,
+                    Occurrences = occurr.Value,
+                    RaceId = RaweCeek.Race.Id,
+                });
         }
 
         await OnFinish.InvokeAsync();
     }
 
     private static readonly DialogOptions dialogOptions = new()
-    {
-        MaxWidth = MaxWidth.ExtraLarge,
-        NoHeader = true,
-        CloseOnEscapeKey = true,
-        DisableBackdropClick = false,
-    };
+        {
+            MaxWidth = MaxWidth.ExtraLarge,
+            NoHeader = true,
+            CloseOnEscapeKey = true,
+            DisableBackdropClick = false,
+        };
 
-    private async Task ShowGapperChart() => _ = 
+    private async Task ShowGapperChart() => _ =
         await _dialog.ShowAsync<GapChartDialog>("Gapper chart", new DialogParameters { ["Drivers"] = raceDrivers }, dialogOptions);
     private async Task ShowPositionChart() => _ =
         await _dialog.ShowAsync<PositionChangeChart>("Position chart", new DialogParameters { ["Drivers"] = raceDrivers }, dialogOptions);

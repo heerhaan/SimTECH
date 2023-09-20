@@ -43,13 +43,14 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             var query = context.Driver.Where(e => e.State == State.Active);
+
             if (!_config.AllowMultiLeagueEntry)
                 query = query.Where(e => !e.SeasonDrivers!.Any(e => e.Season.State == State.Active));
 
             return await query.ToListAsync();
         }
 
-        public async Task<List<CurrentDriver>> GetCurrentDrivers()
+        public async Task<List<CurrentDriver>> GetDriversInActiveSeason()
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -65,8 +66,8 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
-        public async Task<List<Driver>> GetLeagueDrivers(long leagueId) => await GetLeagueDrivers(leagueId, StateFilter.Default);
-        public async Task<List<Driver>> GetLeagueDrivers(long leagueId, StateFilter filter)
+        public async Task<List<Driver>> GetDriversFromLeague(long leagueId) => await GetDriversFromLeague(leagueId, StateFilter.Default);
+        public async Task<List<Driver>> GetDriversFromLeague(long leagueId, StateFilter filter)
         {
             using var context = _dbFactory.CreateDbContext();
 
@@ -103,7 +104,7 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task AddNewDrivers(Driver[] drivers)
+        public async Task BulkAddDrivers(Driver[] drivers)
         {
             using var context = _dbFactory.CreateDbContext();
 

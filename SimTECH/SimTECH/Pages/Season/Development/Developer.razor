@@ -1,4 +1,6 @@
 ﻿@page "/developer/{SeasonId:long}"
+@page "/developer/{SeasonId:long}/{ClassId:long}"
+
 @inject LeagueService _leagueService
 @inject SeasonEntrantService _entrantService
 @inject SeasonService _seasonService
@@ -135,6 +137,7 @@
 
 @code {
     [Parameter] public long SeasonId { get; set; }
+    [Parameter] public long ClassId { get; set; }
 
     private List<SeasonEngine> SeasonEngines { get; set; }
     private List<SeasonTeam> SeasonTeams { get; set; }
@@ -162,6 +165,17 @@
         SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
 
         var season = await _seasonService.GetSeasonById(SeasonId);
+        if (season.HasRaceClasses && ClassId != default)
+        {
+            SeasonTeams = SeasonTeams.Where(e => e.ClassId == ClassId).ToList();
+
+            var teamClassIds = SeasonTeams.Select(e => e.Id).ToList();
+            var usedEngineIds = SeasonTeams.Select(st => st.SeasonEngineId).ToList();
+
+            SeasonDrivers = SeasonDrivers.Where(e => e.SeasonTeamId.HasValue && teamClassIds.Contains(e.SeasonTeamId.Value)).ToList();
+            SeasonEngines = SeasonEngines.Where(e => usedEngineIds.Contains(e.Id)).ToList();
+        }
+
         currentYear = season.Year;
         LeagueDevelopmentRanges = await _leagueService.GetLeagueDevelopmentRanges(season.LeagueId);
         AgeRanges = LeagueDevelopmentRanges.Where(e => e.Type == Aspect.Age).ToList();

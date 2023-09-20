@@ -28,6 +28,8 @@ namespace SimTECH.Data.Models
         public SeasonEngine SeasonEngine { get; set; } = default!;
         public long ManufacturerId { get; set; }
         public Manufacturer Manufacturer { get; set; } = default!;
+        public long? ClassId { get; set; }
+        public RaceClass? Class { get; set; }
 
         public IList<SeasonDriver>? SeasonDrivers { get; set; }
         public IList<Result>? Results { get; set; }

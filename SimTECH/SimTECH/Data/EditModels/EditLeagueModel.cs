@@ -8,7 +8,7 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public int RaceLength { get; set; }
+        public int RaceLength { get; set; } = 300;
         public bool UsePenalty { get; set; }
         public bool EnableFatality { get; set; }
         public bool AllowContracting { get; set; }

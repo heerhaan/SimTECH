@@ -8,7 +8,7 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string Name { get; set; }
-        public int Odds { get; set; }
+        public int Odds { get; set; } = 1;
         public string? Colour { get; set; }
         public State State { get; set; }
 
