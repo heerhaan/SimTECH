@@ -45,6 +45,7 @@ namespace SimTECH
             builder.Services.AddScoped<HumanBeingProvider>();
 
             // Data services
+            builder.Services.AddScoped<CommonService>();
             builder.Services.AddScoped<ContractService>();
             builder.Services.AddScoped<ClimateService>();
             builder.Services.AddScoped<DriverService>();

@@ -1,10 +1,13 @@
 ﻿@page "/"
-@inject BreadcrumbProvider _bread
+
+@inject CommonService _commonService
 @inject RaceService _raceService
 @inject SeasonService _seasonService
 @inject LeagueService _leagueService
+@inject BreadcrumbProvider _bread
 @inject ProtectedLocalStorage _localStorage
 @inject NavigationManager _nav
+@inject IDialogService _dialogService
 @inject IOptions<SimConfig> _config
 
 <PageTitle>Home</PageTitle>
@@ -143,14 +146,20 @@
         </MudItem>
         <MudItem xs="12" md="3">
             <MudPaper Elevation="5" Class="pa-4 mud-height-full">
-                <MudText Typo="Typo.h5">Nothing yet</MudText>
-                <MudDivider />
+                <MudStack Class="mud-height-full">
+                    <MudText Typo="Typo.h5">Data</MudText>
+                    <MudDivider />
+
+                    <MudSpacer />
+
+                    <MudButton FullWidth="true" Color="Color.Secondary" Variant="Variant.Outlined" OnClick="InsertDefault">Load default data</MudButton>
+                </MudStack>
             </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
-@code {
+    @code {
     private SimConfig config;
     private List<League> activeLeagues;
     private List<Data.Models.Season> activeSeasons = new();
@@ -200,6 +209,17 @@
                 upcomingRaces.Add(upcoming);
             }
         }
+    }
+
+    private async Task InsertDefault()
+    {
+        bool? confirm = await _dialogService.ShowMessageBox(
+            "Warning",
+            "Are you sure you want to add the default data, best to do this when you haven't added anything yourself.",
+            yesText: "Ya", cancelText: "Nah");
+
+        if (confirm == true)
+            await _commonService.InsertDefaultData();
     }
 
     private string DisplayLeagueName(long leagueId) => activeLeagues.Find(e => e.Id == leagueId)?.Name ?? "[Unknown]";

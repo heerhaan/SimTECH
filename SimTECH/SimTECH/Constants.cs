@@ -142,6 +142,7 @@ namespace SimTECH
         public static Dictionary<string, MudTheme> SimThemes => new()
         {
             { "Galaxy", GalacticTheme },
+            { "Galaxy2", GalacticTheme2 },
             { "Galaxy Alt", GalacticAltTheme },
             { "Oceanic", OceanicTheme },
             { "Fiery", FieryTheme },
@@ -188,6 +189,31 @@ namespace SimTECH
 
                 Background = DarkFadedPurple,
                 BackgroundGrey = DeepDarkFadedPurple,
+                Surface = DarkFadedPurple,
+                DrawerBackground = DeepDarkFadedPurple,
+                AppbarBackground = DeepDarkFadedPurple,
+            },
+            Typography = CommonTypo,
+        };
+
+        public static readonly MudTheme GalacticTheme2 = new()
+        {
+            Palette = new PaletteLight()
+            {
+                Primary = Colors.DeepPurple.Default,
+                Secondary = Colors.Pink.Default,
+                Tertiary = Colors.Orange.Accent3,
+
+                AppbarBackground = Colors.DeepPurple.Default,
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Primary = Colors.DeepPurple.Lighten1,
+                Secondary = Colors.Pink.Lighten1,
+                Tertiary = Colors.Amber.Darken3,
+
+                Background = DeepDarkFadedPurple,
+                BackgroundGrey = UltraDarkContrastPurple,
                 Surface = DarkFadedPurple,
                 DrawerBackground = DeepDarkFadedPurple,
                 AppbarBackground = DeepDarkFadedPurple,
@@ -297,7 +323,6 @@ namespace SimTECH
             Typography = CommonTypo,
         };
 
-        
         #endregion
     }
 }
