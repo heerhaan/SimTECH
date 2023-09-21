@@ -20,7 +20,7 @@
         <MudItem xs="8">
             <MudPaper Class="mud-height-full pa-4">
                 <MudText Typo="Typo.h5">Final standings</MudText>
-                <MudTable T="RaweCeekDriver" Items="@RaweCeek.RaweCeekDrivers.OrderBy(e => e.Position)" Dense="true" Class="extra-dense">
+                <MudTable T="RaweCeekDriver" Items="@Model.RaweCeekDrivers.OrderBy(e => e.AbsolutePosition)" Dense="true" Class="extra-dense">
                     <HeaderContent>
                         <MudTh Class="number-col-lg"></MudTh>
                         <MudTh Class="number-col">Grid</MudTh>
@@ -28,6 +28,10 @@
                         <MudTh Style="width: 220px">Name</MudTh>
                         <MudTh Class="number-col">NO</MudTh>
                         <MudTh Style="width: 220px">Team</MudTh>
+                        @if (Model.Season.HasRaceClasses)
+                        {
+                            <MudTh Class="number-col">CLA</MudTh>
+                        }
                         <MudTh Class="number-col">PTS</MudTh>
                         <MudTh Class="number-col">TGT</MudTh>
                     </HeaderContent>
@@ -67,6 +71,14 @@
                         <MudTd Class="overflow-hider">
                             <MudText Typo="Typo.button">@context.TeamName</MudText>
                         </MudTd>
+                        @if (Model.Season.HasRaceClasses)
+                        {
+                            <MudTd Class="number-col">
+                                <SupplierDisplay Colour="@context.Class?.Colour">
+                                    <MudText>@context.Class?.Tag</MudText>
+                                </SupplierDisplay>
+                            </MudTd>
+                        }
                         <MudTd Class="number-col">
                             <MudText Typo="Typo.caption">@ReadScoredResult(context)</MudText>
                         </MudTd>
@@ -91,7 +103,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var result in RaweCeek.RaweCeekDrivers.Where(e => e.Incident != null))
+                            @foreach (var result in Model.RaweCeekDrivers.Where(e => e.Incident != null))
                             {
                                 <tr>
                                     <td>@result.FullName</td>
@@ -139,7 +151,7 @@
 }
 
 @code {
-    [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
+    [CascadingParameter] public RaweCeekModel Model { get; set; }
     [Parameter] public IEnumerable<GivenPenalty> UpcomingPenalties { get; set; } = Enumerable.Empty<GivenPenalty>();
     [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
@@ -152,7 +164,7 @@
     {
         loading = true;
 
-        allotments = RaweCeek.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
+        allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
         if (allotments.Any())
             lowestScoring = allotments.Keys.Max();
 
@@ -166,10 +178,10 @@
         var points = 0;
 
         if (result.Grid == 1)
-            points += RaweCeek.Season.PointsPole;
+            points += Model.Season.PointsPole;
 
         if (result.FastestLap)
-            points += RaweCeek.Season.PointsFastestLap;
+            points += Model.Season.PointsFastestLap;
 
         if (result.Status != RaceStatus.Racing)
             return points;
@@ -185,7 +197,7 @@
     {
         foreach (var penalty in UpcomingPenalties)
         {
-            var driver = RaweCeek.RaweCeekDrivers.Find(e => e.SeasonDriverId == penalty.SeasonDriverId);
+            var driver = Model.RaweCeekDrivers.Find(e => e.SeasonDriverId == penalty.SeasonDriverId);
             if (driver != null)
             {
                 driverPenalties.Add(new DriverPenalty
@@ -199,7 +211,7 @@
         }
     }
 
-    private async Task GoToOverview() => await OnNavigate.InvokeAsync($"overview/{RaweCeek.Season.Id}/2");
+    private async Task GoToOverview() => await OnNavigate.InvokeAsync($"overview/{Model.Season.Id}/2");
 
     internal class DriverPenalty
     {

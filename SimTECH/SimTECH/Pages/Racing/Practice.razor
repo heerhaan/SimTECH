@@ -22,14 +22,15 @@
                 <CommonSession Drivers="@practiceDrivers"
                                AmountRuns="@amountRuns"
                                HighestScore="@highestScore"
-                               LowestScore="@lowestScore" />
+                               LowestScore="@lowestScore"
+                               HasRaceClasses="@hasRaceClasses" />
             </MudPaper>
         }
     </div>
 </MudContainer>
 
 @code {
-    [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
+    [CascadingParameter] public RaweCeekModel Model { get; set; }
 
     [Parameter] public PracticeSession PracticeSession { get; set; } = new();
     [Parameter] public EventCallback<int> OnFinish { get; set; }
@@ -44,6 +45,7 @@
     int advancedRuns;
     int highestScore;
     int lowestScore = int.MaxValue;
+    bool hasRaceClasses;
 
     double gapMarge;
 
@@ -51,12 +53,13 @@
     {
         loading = true;
 
-        gapMarge = RaweCeek.GapMarge / 2;
+        gapMarge = Model.GapMarge / 2;
 
-        raceName = $"{RaweCeek.Race.Name} - PRACTICE {PracticeSession.SessionIndex}";
-        raceCountry = RaweCeek.Race.Track.Country;
-        amountRuns = RaweCeek.Season.RunAmountSession;
-        practiceRng = RaweCeek.Season.QualifyingRNG;
+        raceName = $"{Model.Race.Name} - PRACTICE {PracticeSession.SessionIndex}";
+        raceCountry = Model.Race.Track.Country;
+        amountRuns = Model.Season.RunAmountSession;
+        practiceRng = Model.Season.QualifyingRNG;
+        hasRaceClasses = Model.Season.HasRaceClasses;
 
         if (PracticeSession.IsFinished)
         {
@@ -69,7 +72,7 @@
             lowestScore = scoreNumbers.Min();
         }
 
-        foreach (var driver in RaweCeek.RaweCeekDrivers)
+        foreach (var driver in Model.RaweCeekDrivers)
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
 
@@ -106,12 +109,12 @@
                 lowestScore = result;
         }
 
-        var positionIndexDict = practiceDrivers.Select(e => (e.Class?.Id ?? 0)).Distinct().ToDictionary(e => e, e => 0);
+        var positionIndexDict = practiceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
         int absoluteIndex = 0;
 
         foreach (var driver in practiceDrivers.OrderByDescending(e => e.MaxScore()))
         {
-            driver.Position = ++positionIndexDict[driver.Class?.Id ?? 0];
+            driver.Position = ++positionIndexDict[driver.ClassId];
             driver.AbsolutePosition = ++absoluteIndex;
 
             driver.GapAbove = driver.AbsolutePosition == 1
@@ -133,7 +136,7 @@
                 Scores = e.Scores,
                 Position = e.Position,
                 AbsolutePosition = e.AbsolutePosition,
-                RaceId = RaweCeek.Race.Id,
+                RaceId = Model.Race.Id,
                 ResultId = e.ResultId
             })
             .ToList();

@@ -6,22 +6,22 @@
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
             <div style="width:30%">
                 <MudMenu Label="Charts" Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Secondary" Variant="Variant.Text">
-                    <MudMenuItem OnClick="ShowGapperChart">Gapper chart</MudMenuItem>
-                    <MudMenuItem OnClick="ShowPositionChart">Position chart</MudMenuItem>
+                    <MudMenuItem OnClick="ShowGapperChart">Gap-to-leader</MudMenuItem>
+                    <MudMenuItem OnClick="ShowPositionChart">Position-progression</MudMenuItem>
                 </MudMenu>
             </div>
 
             <MudStack Spacing="0" AlignItems="AlignItems.Center">
-                <MudText Typo="Typo.subtitle2">Advance laps:</MudText>
+                <MudText Typo="Typo.subtitle2">Laps to advance</MudText>
                 <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
                     <MudChip Value="1" Color="Color.Primary">
-                        @(NumberHelper.CalcLapCount(1 * calculationDistance, RaweCeek.Race.Track.Length))
+                        @(NumberHelper.CalculateLapCount(1 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
                     <MudChip Value="5" Default="true" Color="Color.Primary">
-                        @(NumberHelper.CalcLapCount(5 * calculationDistance, RaweCeek.Race.Track.Length))
+                        @(NumberHelper.CalculateLapCount(5 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
                     <MudChip Value="10" Color="Color.Primary">
-                        @(NumberHelper.CalcLapCount(10 * calculationDistance, RaweCeek.Race.Track.Length))
+                        @(NumberHelper.CalculateLapCount(10 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
                     <MudChip Value="@calculationCount" Color="Color.Primary">@totalLaps</MudChip>
                 </MudChipSet>
@@ -30,7 +30,7 @@
             <div class="d-flex flex-row-reverse" style="width:30%">
                 <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                     <ScreenshotButton TargetId="race-display" Class="btn-md" />
-                    @if (RaweCeek.Race.State != State.Closed)
+                    @if (Model.Race.State != State.Closed)
                     {
                         @if (calculated >= calculationCount)
                         {
@@ -52,28 +52,28 @@
             <ToolBarContent>
                 <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2 mud-width-full">
                     <div class="d-flex flex-row gap-3 align-center pa-0" style="width:30%">
-                        <CountryFlag Code="@RaweCeek.Race.Track.Country" />
-                        <MudText Typo="Typo.h5" Class="overflow-hider">@RaweCeek.Race.Name - ROUND @RaweCeek.Race.Round</MudText>
+                        <CountryFlag Code="@Model.Race.Track.Country" />
+                        <MudText Typo="Typo.h5" Class="overflow-hider">@Model.Race.Name - ROUND @Model.Race.Round</MudText>
                     </div>
 
                     <MudChip Color="@lapIndicatorBackground" Label="true" DisableRipple="true">
                         <MudText Typo="Typo.h5" Color="@lapIndicatorColour">LAP @(racedLaps) / @(totalLaps)</MudText>
-                        </MudChip>
+                    </MudChip>
 
-                        <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
-                            <MudText Typo="Typo.h5">@RaweCeek.Climate.Terminology</MudText>
-                            <CustomIcon Icon="@RaweCeek.Climate.Icon" Colour="@RaweCeek.Climate.Colour" />
-                        </div>
-                    </MudStack>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh Style="width: 20px"></MudTh>
-                    <MudTh Style="width: 40px">Grid</MudTh>
-                    <MudTh Class="pa-0" Style="width: 5px"></MudTh>
-                    <MudTh Style="max-width: 220px">Name</MudTh>
-                    <MudTh Class="number-col">NO</MudTh>
-                    <MudTh Style="max-width: 220px">Team</MudTh>
-                    @if (RaweCeek.Season.HasRaceClasses)
+                    <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
+                        <MudText Typo="Typo.h5">@Model.Climate.Terminology</MudText>
+                        <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour" />
+                    </div>
+                </MudStack>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh Style="width: 20px"></MudTh>
+                <MudTh Style="width: 40px">Grid</MudTh>
+                <MudTh Class="pa-0" Style="width: 5px"></MudTh>
+                <MudTh Style="max-width: 220px">Name</MudTh>
+                <MudTh Class="number-col">NO</MudTh>
+                <MudTh Style="max-width: 220px">Team</MudTh>
+                @if (Model.Season.HasRaceClasses)
                 {
                     <MudTh Class="number-col">CLA</MudTh>
                 }
@@ -88,7 +88,10 @@
                 <MudTd>
                     <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0">
                         <DriverPosition Number="@context.Position" />
-                        <sup>@context.AbsolutePosition</sup>
+                        @if (Model.Season.HasRaceClasses)
+                        {
+                            <sup>@context.AbsolutePosition</sup>
+                        }
                     </MudStack>
                 </MudTd>
                 <MudTd>
@@ -115,7 +118,7 @@
                 <MudTd Class="overflow-hider" Style="max-width:250px">
                     <MudText Typo="Typo.button">@context.TeamName</MudText>
                 </MudTd>
-                @if (RaweCeek.Season.HasRaceClasses)
+                @if (Model.Season.HasRaceClasses)
                 {
                     <MudTd Class="number-col">
                         <SupplierDisplay Colour="@context.Class?.Colour">
@@ -166,23 +169,13 @@
                     }
                 </MudTd>
                 <MudTd>
-                    <div class="relative" style="height:8px;width:100%">
-                        @foreach (var lapEvent in context.LapScores)
-                        {
-                            @foreach (var raceEvent in lapEvent.ListOfDubiousEvents())
-                            {
-                                <SignalNote LapPercentage="@(NumberHelper.Percentage((lapEvent.Order - 1), calculationCount))"
-                                            Signal="@raceEvent.ToString()" />
-                            }
-                        }
-                    </div>
-                    <SimProgressLinear Bars="@(context.ColoursOfUsedTyres(calculationCount))" />
+                    <SimRacerProgressionLinear RaceDriver="@context" CalculationCount="@calculationCount" />
                 </MudTd>
             </RowTemplate>
         </MudTable>
         <MudPaper Class="pt-2 px-1">
             <SimProgressLinear Bars="@(occurrences.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
-                               AddIndicator="true" LineSize="ElementSize.Normal" CalculationDistance="@calculationDistance" TrackLength="@RaweCeek.Race.Track.Length" />
+                               AddIndicator="true" LineSize="ElementSize.Normal" CalculationDistance="@calculationDistance" TrackLength="@Model.Race.Track.Length" />
 
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 pt-5 pb-2">
                 <MudText Typo="Typo.button">Legend</MudText>
@@ -213,7 +206,7 @@
 }
 
 @code {
-    [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
+    [CascadingParameter] public RaweCeekModel Model { get; set; }
 
     [Parameter] public List<LapScore> LapScores { get; set; } = new();
     [Parameter] public List<RaceOccurrence> Occurrences { get; set; } = new();
@@ -249,7 +242,6 @@
     int mistakeMax;
     int battleRng;
     double gapMarge;
-    bool tooMuchInfo;
 
     int fastestLap;
     int highestScore;
@@ -259,6 +251,7 @@
     int maxLapRng;
     int pitMin;
     int pitMax;
+    int racerCount;
 
     int calculated;
     int calculationCount;
@@ -279,16 +272,16 @@
         possibleIncidents.AddRange(
             Incidents.Where(e => e.State == State.Active));
         availableTyres.AddRange(
-            Tyres.Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == RaweCeek.Season.LeagueId) ?? false)));
+            Tyres.Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false)));
 
-        minLapRng = RaweCeek.Season.RngMinimum;
-        maxLapRng = RaweCeek.Season.RngMaximum;
-        pitMin = RaweCeek.Season.PitMinimum;
-        pitMax = RaweCeek.Season.PitMaximum;
-        mistakeRolls = RaweCeek.Season.MistakeRolls;
-        mistakeMin = RaweCeek.Season.MistakeMinimum;
-        mistakeMax = RaweCeek.Season.MistakeMaximum;
-        safetyPitstopSubtract = RaweCeek.Season.PitCostSubtractCaution;
+        minLapRng = Model.Season.RngMinimum;
+        maxLapRng = Model.Season.RngMaximum;
+        pitMin = Model.Season.PitMinimum;
+        pitMax = Model.Season.PitMaximum;
+        mistakeRolls = Model.Season.MistakeRolls;
+        mistakeMin = Model.Season.MistakeMinimum;
+        mistakeMax = Model.Season.MistakeMaximum;
+        safetyPitstopSubtract = Model.Season.PitCostSubtractCaution;
 
         fatalityOdds = Config.FatalityChance;
         disqualifyChance = Config.DisqualifyChance;
@@ -297,11 +290,10 @@
         safetyCarGap = Config.SafetyCarGap;
         battleRng = Config.BattleRng;
         gapMarge = Config.GapMarge;
-        tooMuchInfo = Config.TooMuchInfo;
         minimumTyreLife = Config.MinimumTyreLife;
 
         calculationDistance = Config.CalculationDistance;
-        calculationCount = RaweCeek.Race.RaceLength / calculationDistance;
+        calculationCount = Model.Race.RaceLength / calculationDistance;
 
         if (LapScores.Any())
             calculated = LapScores.Select(e => e.Order).Max();
@@ -313,34 +305,28 @@
             occurrences.Add(i, occurrMatch?.Occurrences ?? SituationOccurrence.Unknown);
         }
 
-        racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, RaweCeek.Race.Track.Length);
-        totalLaps = NumberHelper.CalcLapCount(RaweCeek.Race.RaceLength, RaweCeek.Race.Track.Length);
+        racedLaps = NumberHelper.CalculateLapCount(calculated * calculationDistance, Model.Race.Track.Length);
+        totalLaps = NumberHelper.CalculateLapCount(Model.Race.RaceLength, Model.Race.Track.Length);
 
         BuildRaceDrivers();
     }
 
     private void BuildRaceDrivers()
     {
-        raceDrivers = RaweCeek.RaweCeekDrivers
+        raceDrivers = Model.RaweCeekDrivers
             .OrderBy(e => e.AbsolutePosition)
-            .Take(RaweCeek.Season.MaximumDriversInRace)
+            .Take(Model.Season.MaximumDriversInRace)
             .Select(e => e.MapToRaceDriver())
             .ToList();
 
+        racerCount = raceDrivers.Count;
+
         // Refactor this if persisting happens per advance
-        if (RaweCeek.Race.State == State.Closed)
+        if (Model.Race.State == State.Closed)
         {
-            var scoreAbove = 0;
-            foreach (var driver in raceDrivers.OrderBy(e => e.AbsolutePosition))
+            foreach (var driver in raceDrivers)
             {
                 driver.LapScores = LapScores.Where(e => e.ResultId == driver.ResultId).ToList();
-
-                if (driver.Position == 1)
-                    driver.GapAbove = "LEADER";
-                else
-                    driver.GapAbove = "+" + (Math.Round((scoreAbove - driver.LapSum) * gapMarge, 2)).ToString("F2");
-
-                scoreAbove = driver.LapSum;
 
                 var lastScore = driver.LapScores.MaxBy(e => e.Order)?.Score ?? 0;
                 driver.LastScore = lastScore;
@@ -350,6 +336,8 @@
                 else if (lastScore < lastLowestScore)
                     lastLowestScore = lastScore;
             }
+
+            raceDrivers.SetPositions(gapMarge);
 
             highestScore = raceDrivers.Max(e => e.LapSum);
         }
@@ -363,12 +351,7 @@
             calculationsPerAdvance = (int)calcChip.Value;
     }
 
-    private void AddCalculationSituation()
-    {
-        occurrences[calculated] = safetyCarOut ? SituationOccurrence.Caution : SituationOccurrence.Raced;
-    }
-
-    private int QualifyingBonus(int grid) => (raceDrivers.Count * RaweCeek.Season.GridBonus) - ((grid - 1) * RaweCeek.Season.GridBonus);
+    private void AddCalculationSituation() => occurrences[calculated] = safetyCarOut ? SituationOccurrence.Caution : SituationOccurrence.Raced;
 
     private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
@@ -406,73 +389,8 @@
 
             foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing))
             {
-                driver.SingleOccurrence = null;
-                driver.InstantOvertaken = false;
-                driver.RecentMistake = false;
+                var lapScore = HandleDriverAdvancement(driver);
 
-                var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
-
-                // Determine if either driver, car or engine has failed
-                var safetyCarOccurrence = CheckReliability(driver, lapScore);
-
-                // Calculate the score for drivers which are still racing
-                if (driver.Status == RaceStatus.Racing)
-                {
-                    var minRng = (minLapRng + driver.RngMinMod);
-                    var maxRng = (maxLapRng + driver.RngMaxMod);
-
-                    int lapValue = NumberHelper.RandomInt(minRng, maxRng);
-
-                    // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
-                    if (isFirstLap)
-                        lapValue += QualifyingBonus(driver.Grid);
-
-                    // Check if driver made a mistake, if so then it's going to cost him
-                    for (int j = 0; j < mistakeRolls; j++)
-                    {
-                        if (DidReliabilityFail(driver.DriverReliability))
-                        {
-                            lapValue -= NumberHelper.RandomInt(mistakeMin, mistakeMax);
-                            lapScore.RacerEvents |= RacerEvent.Mistake;
-                            driver.RecentMistake = true;
-                            break;
-                        }
-                    }
-
-                    // Strategy
-                    lapValue += HandleStrategy(driver, lapScore);
-
-                    // Adds the overall power of the driver
-                    lapValue += driver.Power;
-
-                    if (lapValue > fastestLap)
-                    {
-                        if (calculated == 1)
-                        {
-                            int actualLap = lapValue - QualifyingBonus(driver.Grid);
-                            if (actualLap > fastestLap)
-                            {
-                                fastestLap = actualLap;
-                                newFastestLapScorer = driver.ResultId;
-                            }
-                        }
-                        else
-                        {
-                            fastestLap = lapValue;
-                            newFastestLapScorer = driver.ResultId;
-                        }
-                    }
-
-                    // Finally add the score to the lap results
-                    lapScore.Score = lapValue;
-                }
-                // If this get's triggered then the current driver caused a safety car, racing goes on as normal until the next advance
-                else if (safetyCarOccurrence)
-                {
-                    safetyCarOut = safetyCarOccurrence;
-                }
-
-                lapScore.TyreColour = driver.CurrentTyre.Colour;
                 driver.LapScores.Add(lapScore);
                 lapScoresToPersist.Add(lapScore);
             }
@@ -489,7 +407,7 @@
             }
         }
 
-        racedLaps = NumberHelper.CalcLapCount(calculated * calculationDistance, RaweCeek.Race.Track.Length);
+        racedLaps = NumberHelper.CalculateLapCount(calculated * calculationDistance, Model.Race.Track.Length);
 
         var lastScores = raceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
         if (lastScores.Any())
@@ -500,6 +418,72 @@
 
         // Persist the new stint results, yes after doing all whats needed to show them
         //PersistLapScores(lapScoresToPersist);
+    }
+
+    private LapScore HandleDriverAdvancement(RaceDriver driver)
+    {
+        driver.SingleOccurrence = null;
+        driver.InstantOvertaken = false;
+        driver.RecentMistake = false;
+
+        var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
+
+        // Determine if either driver, car or engine has failed
+        var safetyCarOccurrence = CheckReliability(driver, lapScore);
+
+        // Calculate the score for drivers which are still racing
+        if (driver.Status == RaceStatus.Racing)
+        {
+            var minRng = (minLapRng + driver.RngMinMod);
+            var maxRng = (maxLapRng + driver.RngMaxMod);
+
+            int lapValue = NumberHelper.RandomInt(minRng, maxRng);
+
+            // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
+            if (isFirstLap)
+                lapValue += driver.QualifyingBonus(racerCount, Model.Season.GridBonus);
+
+            // Check if driver made a mistake, if so then it's going to cost him
+            for (int j = 0; j < mistakeRolls; j++)
+            {
+                if (DidReliabilityFail(driver.DriverReliability))
+                {
+                    lapValue -= NumberHelper.RandomInt(mistakeMin, mistakeMax);
+                    lapScore.RacerEvents |= RacerEvent.Mistake;
+                    driver.RecentMistake = true;
+                    break;
+                }
+            }
+
+            // Strategy
+            lapValue += HandleStrategy(driver, lapScore);
+
+            // Adds the overall power of the driver
+            lapValue += driver.Power;
+
+            int actualLap = calculated == 1 ? lapValue - driver.QualifyingBonus(racerCount, Model.Season.GridBonus) : lapValue;
+            if (actualLap > fastestLap)
+            {
+                fastestLap = actualLap;
+
+                foreach (var raceDriver in raceDrivers)
+                    raceDriver.HasFastestLap = false;
+
+                driver.HasFastestLap = true;
+            }
+
+            // Finally add the score to the lap results
+            lapScore.Score = lapValue;
+        }
+        // If this get's triggered then the current driver caused a safety car, racing goes on as normal until the next advance
+        else if (safetyCarOccurrence)
+        {
+            safetyCarOut = safetyCarOccurrence;
+        }
+
+        lapScore.TyreColour = driver.CurrentTyre.Colour;
+
+        return lapScore;
     }
 
     private bool CheckReliability(RaceDriver driver, LapScore lapScore)
@@ -536,7 +520,7 @@
         driver.InstantOvertaken = true;
 
         // If enabled, then we're also going to check if anyone experienced a fatal crash
-        if (RaweCeek.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
+        if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
         {
             safetyCar = true;
 
@@ -575,8 +559,8 @@
         // We might want to make this an option to something
         if (driver.CurrentTyre.PitWhenBelow > driver.TyreLife)
         {
-            var distanceLeft = RaweCeek.Race.RaceLength - (calculated * calculationDistance);
-            var validTyres = availableTyres.FindValidTyres(distanceLeft, RaweCeek.Climate.IsWet);
+            var distanceLeft = Model.Race.RaceLength - (calculated * calculationDistance);
+            var validTyres = availableTyres.FindValidTyres(distanceLeft, Model.Climate.IsWet);
 
             if (validTyres.Count() > 0)
             {
@@ -599,8 +583,8 @@
     // returns bool which indicates whether a safety car has been caused by a DNF-result
     private bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
     {
-        var distanceLeft = RaweCeek.Race.RaceLength - (calculated * calculationDistance);
-        var validTyres = availableTyres.FindValidTyres(distanceLeft, RaweCeek.Climate.IsWet);
+        var distanceLeft = Model.Race.RaceLength - (calculated * calculationDistance);
+        var validTyres = availableTyres.FindValidTyres(distanceLeft, Model.Climate.IsWet);
 
         int scoreAboveDriver = 0;
         foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
@@ -648,20 +632,7 @@
             scoreAboveDriver = driver.LapSum;
         }
 
-        var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
-        int absoluteIndex = 0;
-
-        foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
-        {
-            driver.Position = ++positionIndexDict[driver.ClassId];
-            driver.AbsolutePosition = ++absoluteIndex;
-
-            driver.GapAbove = driver.Position == 1
-                ? "LEADER"
-                : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
-
-            scoreAboveDriver = driver.LapSum;
-        }
+        raceDrivers.SetPositions(gapMarge);
 
         return NumberHelper.RandomInt(safetyReturnOdds) == 0;
     }
@@ -744,19 +715,7 @@
             }
         }
 
-        int scoreAboveDriver = 0;
-        var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
-
-        foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.AbsolutePosition))
-        {
-            driver.Position = ++positionIndexDict[driver.ClassId];
-
-            driver.GapAbove = driver.Position == 1
-                ? "LEADER"
-                : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
-
-            scoreAboveDriver = driver.LapSum;
-        }
+        raceDrivers.SetPositions(gapMarge);
     }
 
     private Dictionary<long, int> GetCurrentActualPositions()
@@ -861,16 +820,7 @@
         }
 
         if (anyoneDisqualified)
-        {
-            var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
-            int absoluteIndex = 0;
-
-            foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
-            {
-                driver.Position = ++positionIndexDict[driver.ClassId];
-                driver.AbsolutePosition = ++absoluteIndex;
-            }
-        }
+            raceDrivers.SetPositions(gapMarge);
     }
 
     private async Task Finish()
@@ -880,7 +830,7 @@
         // Update object references
         foreach (var raceDriver in raceDrivers)
         {
-            var matchDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == raceDriver.ResultId);
+            var matchDriver = Model.RaweCeekDrivers.First(e => e.ResultId == raceDriver.ResultId);
             matchDriver.Position = raceDriver.Position;
             matchDriver.AbsolutePosition = raceDriver.AbsolutePosition;
             matchDriver.Score = raceDriver.LapSum;
@@ -907,7 +857,7 @@
                 {
                     Order = occurr.Key,
                     Occurrences = occurr.Value,
-                    RaceId = RaweCeek.Race.Id,
+                    RaceId = Model.Race.Id,
                 });
         }
 

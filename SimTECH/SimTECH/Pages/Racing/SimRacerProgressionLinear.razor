@@ -1,0 +1,16 @@
+﻿<div>
+    @foreach (var lapEvent in RaceDriver.LapScores)
+    {
+        @foreach (var raceEvent in lapEvent.ListOfDubiousEvents())
+        {
+            <SignalNote LapPercentage="@(NumberHelper.Percentage((lapEvent.Order - 1), CalculationCount))"
+                        Signal="@raceEvent.ToString()" />
+        }
+    }
+</div>
+<SimProgressLinear Bars="@RaceDriver.ColoursOfUsedTyres(CalculationCount)" />
+
+@code {
+    [Parameter, EditorRequired] public RaceDriver RaceDriver { get; set; }
+    [Parameter, EditorRequired] public int CalculationCount { get; set; }
+}

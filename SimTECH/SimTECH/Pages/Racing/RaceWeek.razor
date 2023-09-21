@@ -19,7 +19,7 @@
     <MudPaper Elevation="100">
         @if (!loading)
         {
-            <CascadingValue Value="@RaweCeek">
+            <CascadingValue Value="@Model">
                 <MudTabs Centered="true" Outlined="true">
                     <MudTabPanel Text="Raceweek">
                         <Landing TrackTraits="@trackTraits"
@@ -77,7 +77,7 @@
 @code {
     [Parameter] public long RaceId { get; set; }
 
-    public RaweCeekModel RaweCeek { get; set; } = new();
+    public RaweCeekModel Model { get; set; } = new();
 
     private List<Incident> incidents;
     private List<Trait> trackTraits = new();
@@ -99,8 +99,8 @@
     bool qualifyingLoaded;
     bool raceLoaded;
 
-    bool raceDisabled => RaweCeek.Race.State != State.Advanced && RaweCeek.Race.State != State.Closed;
-    bool postraceDisabled => RaweCeek.Race.State != State.Closed;
+    bool raceDisabled => Model.Race.State != State.Advanced && Model.Race.State != State.Closed;
+    bool postraceDisabled => Model.Race.State != State.Closed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -130,10 +130,10 @@
             }
         }
 
-        RaweCeek.Race = race;
-        RaweCeek.Season = await _seasonService.GetSeasonById(race.SeasonId);
-        RaweCeek.Climate = await _climateService.GetClimateById(race.ClimateId);
-        RaweCeek.GapMarge = config.GapMarge;
+        Model.Race = race;
+        Model.Season = await _seasonService.GetSeasonById(race.SeasonId);
+        Model.Climate = await _climateService.GetClimateById(race.ClimateId);
+        Model.GapMarge = config.GapMarge;
 
         await LoadDrivers();
 
@@ -142,7 +142,7 @@
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Seasons", href: "seasons"),
-            new BreadcrumbItem("Overview", href: $"overview/{RaweCeek.Season.Id}"),
+            new BreadcrumbItem("Overview", href: $"overview/{Model.Season.Id}"),
             new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}", disabled: true),
         });
 
@@ -151,8 +151,8 @@
 
     private async Task LoadDrivers()
     {
-        var race = RaweCeek.Race;
-        var climate = RaweCeek.Climate;
+        var race = Model.Race;
+        var climate = Model.Climate;
 
         var seasonDrivers = await _entrantService.GetSeasonDrivers(race.SeasonId);
         var seasonTeams = await _entrantService.GetSeasonTeams(race.SeasonId);
@@ -232,16 +232,14 @@
                     Overtaken = result.Overtaken,
                     Defended = result.Defended,
 
-                    Incident = result.IncidentId.HasValue 
-                        ? incidents.FirstOrDefault(e => e.Id == result.IncidentId) 
-                        : null,
-                    Tyre = tyres.First(e => e.Id == result.TyreId)
+                    Incident = incidents.FirstOrDefault(e => e.Id == result.IncidentId.GetValueOrDefault()),
+                    Tyre = tyres.First(e => e.Id == result.TyreId),
                 };
 
-            if (RaweCeek.Season.HasRaceClasses)
+            if (Model.Season.HasRaceClasses)
             {
                 raweDriver.ClassId = team.ClassId.GetValueOrDefault();
-                raweDriver.Class = RaweCeek.Season.RaceClasses.FirstOrDefault(e => e.Id == team.ClassId.GetValueOrDefault());
+                raweDriver.Class = Model.Season.RaceClasses.FirstOrDefault(e => e.Id == team.ClassId.GetValueOrDefault());
             }
 
             if (!climate.IsWet)
@@ -268,7 +266,7 @@
                 // Reasons is an ugly solution, rather see this re-implemented
                 matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
 
-                RaweCeek.ConsumablePenalties.AddRange(penalty.Select(e => e.Id));
+                Model.ConsumablePenalties.AddRange(penalty.Select(e => e.Id));
             }
         }
 
@@ -279,7 +277,7 @@
                 driver.ExpectedPosition = ++indexer;
         }
 
-        RaweCeek.RaweCeekDrivers = raweceekDrivers;
+        Model.RaweCeekDrivers = raweceekDrivers;
     }
 
     private async Task OnOpenPractice()
@@ -299,7 +297,7 @@
                 });
         }
 
-        if (RaweCeek.Race.State != State.Advanced && RaweCeek.Race.State != State.Closed)
+        if (Model.Race.State != State.Advanced && Model.Race.State != State.Closed)
             AddNewPracticeSession();
 
         practiceLoaded = true;
@@ -311,7 +309,7 @@
             return;
 
         var qualyScores = await _raceService.GetQualifyingScores(RaceId);
-        var qSessionCount = RaweCeek.Season.QualifyingFormat.SessionCount();
+        var qSessionCount = Model.Season.QualifyingFormat.SessionCount();
         var previousSessionIsFinished = true;
 
         for (int i = 1; i <= qSessionCount; i++)
@@ -329,20 +327,20 @@
             previousSessionIsFinished = qSession.IsFinished;
 
             // REFACTOR: Er is hier vast een betere oplossing voor
-            if (RaweCeek.Season.QualifyingFormat == QualyFormat.TripleEliminate)
+            if (Model.Season.QualifyingFormat == QualyFormat.TripleEliminate)
             {
                 if (qSession.SessionIndex == 1)
                 {
-                    qSession.ProgressionCutoff = RaweCeek.Season.QualifyingAmountQ2;
+                    qSession.ProgressionCutoff = Model.Season.QualifyingAmountQ2;
                 }
                 else if (qSession.SessionIndex == 2)
                 {
-                    qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ2;
-                    qSession.ProgressionCutoff = RaweCeek.Season.QualifyingAmountQ3;
+                    qSession.AllowedEntries = Model.Season.QualifyingAmountQ2;
+                    qSession.ProgressionCutoff = Model.Season.QualifyingAmountQ3;
                 }
                 else if (qSession.SessionIndex == 3)
                 {
-                    qSession.AllowedEntries = RaweCeek.Season.QualifyingAmountQ3;
+                    qSession.AllowedEntries = Model.Season.QualifyingAmountQ3;
                 }
             }
 
@@ -369,7 +367,7 @@
             {
                 ["ResultId"] = resultId,
                 ["Tyres"] = tyres
-                    .Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == RaweCeek.Season.LeagueId) ?? false))
+                    .Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false))
                     .ToList(),
             };
 
@@ -381,7 +379,7 @@
             await _raceService.PickTyre(resultId, pickedTyre);
 
             // Assign the picked tyre and ofc dont forget the life bonus
-            var driver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == resultId);
+            var driver = Model.RaweCeekDrivers.First(e => e.ResultId == resultId);
             driver.Tyre = pickedTyre;
             driver.TyreLife = pickedTyre.Pace + driver.LifeBonus;
         }
@@ -410,7 +408,7 @@
         // Update the new grid and position
         foreach (var res in gridResults)
         {
-            var matchingDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == res.Key);
+            var matchingDriver = Model.RaweCeekDrivers.First(e => e.ResultId == res.Key);
             matchingDriver.Grid = res.Value;
             matchingDriver.Position = res.Value;
         }
@@ -420,7 +418,7 @@
 
     private async Task PersistQualifying(int qualyIndex)
     {
-        var qSessionCount = RaweCeek.Season.QualifyingFormat.SessionCount();
+        var qSessionCount = Model.Season.QualifyingFormat.SessionCount();
         var qualySession = qualySessions.First(e => e.SessionIndex == qualyIndex);
 
         if (!qualySession.SessionScores.Any())
@@ -433,7 +431,7 @@
             var finalQualyPosition = new Dictionary<long, (int, int)>();
             var qualySessionScores = qualySessions.SelectMany(e => e.SessionScores).ToList();
 
-            foreach (var seasonGroup in RaweCeek.SeasonGroupedResultIds())
+            foreach (var seasonGroup in Model.ResultsGroupedByRaceClass())
             {
                 int positionIndexer = 0;
                 var gridResults = qualySessions
@@ -446,25 +444,25 @@
                     finalQualyPosition.Add(penaltyResult.ResultId, (++positionIndexer, penaltyResult.AbsolutePosition));
             }
 
-            await _raceService.FinishQualifying(qualySession.SessionScores, finalQualyPosition, RaceId, RaweCeek.Season.MaximumDriversInRace);
+            await _raceService.FinishQualifying(qualySession.SessionScores, finalQualyPosition, RaceId, Model.Season.MaximumDriversInRace);
 
-            if (RaweCeek.ConsumablePenalties.Any())
-                await _raceService.ConsumePenalties(RaweCeek.ConsumablePenalties, RaceId);
+            if (Model.ConsumablePenalties.Any())
+                await _raceService.ConsumePenalties(Model.ConsumablePenalties, RaceId);
 
             // Update the new grid, position and status
             foreach (var res in finalQualyPosition)
             {
-                var matchingDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == res.Key);
+                var matchingDriver = Model.RaweCeekDrivers.First(e => e.ResultId == res.Key);
                 var sessionScore = qualySessionScores.First(e => e.ResultId == res.Key);
 
                 matchingDriver.Grid = res.Value.Item1;
                 matchingDriver.Position = res.Value.Item1;
                 matchingDriver.AbsoluteGrid = sessionScore.AbsolutePosition;
                 matchingDriver.AbsolutePosition = sessionScore.AbsolutePosition;
-                matchingDriver.Status = res.Value.Item1 > RaweCeek.Season.MaximumDriversInRace ? RaceStatus.Dnq : RaceStatus.Racing;
+                matchingDriver.Status = res.Value.Item1 > Model.Season.MaximumDriversInRace ? RaceStatus.Dnq : RaceStatus.Racing;
             }
 
-            RaweCeek.Race.State = State.Advanced;
+            Model.Race.State = State.Advanced;
         }
         else
         {
@@ -473,7 +471,7 @@
             // Update the new grid and position
             foreach (var res in qualySession.SessionScores)
             {
-                var matchingDriver = RaweCeek.RaweCeekDrivers.First(e => e.ResultId == res.ResultId);
+                var matchingDriver = Model.RaweCeekDrivers.First(e => e.ResultId == res.ResultId);
                 matchingDriver.Grid = res.Position;
                 matchingDriver.Position = res.Position;
                 matchingDriver.AbsoluteGrid = res.AbsolutePosition;
@@ -506,23 +504,23 @@
             return;
         }
 
-        var allotments = RaweCeek.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
-        var finalResults = RaweCeek.RaweCeekDrivers
+        var allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
+        var finalResults = Model.RaweCeekDrivers
             .Select(e => e.MapToResult(RaceId))
             .ToList();
-        var scoredPoints = RaweCeek.RaweCeekDrivers
-            .Select(e => e.MapToScoredPoints(allotments, RaweCeek.Season.PointsPole, RaweCeek.Season.PointsFastestLap))
+        var scoredPoints = Model.RaweCeekDrivers
+            .Select(e => e.MapToScoredPoints(allotments, Model.Season.PointsPole, Model.Season.PointsFastestLap))
             .ToList();
 
         await _raceService.PersistLapScores(lapScores);
         await _raceService.PersistOccurrences(occurrences);
         await _raceService.FinishRace(RaceId, finalResults, scoredPoints);
 
-        if (RaweCeek.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
+        if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
         {
             await _seasonService.CheckPenalties(finalResults);
 
-            var nextRaceId = await _raceService.GetRaceIdByRound(RaweCeek.Season.Id, (1 + RaweCeek.Race.Round));
+            var nextRaceId = await _raceService.GetRaceIdByRound(Model.Season.Id, (1 + Model.Race.Round));
             if (nextRaceId.HasValue)
             {
                 var nextRacePenalties = await _raceService.GetRacePenalties(nextRaceId.Value);
@@ -531,7 +529,7 @@
             }
         }
 
-        RaweCeek.Race.State = State.Closed;
+        Model.Race.State = State.Closed;
     }
 
     private void GoToCommon(string path) => _nav.NavigateTo(path);

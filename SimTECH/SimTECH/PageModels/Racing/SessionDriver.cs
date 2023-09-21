@@ -24,9 +24,7 @@ namespace SimTECH.PageModels.Racing
         public int PenaltyPunish { get; set; }
         public string GapAbove { get; set; } = string.Empty;
 
-        public string? CutoffText { get; set; }
-        public string? CutoffColour { get; set; }
-
+        public long ClassId { get; set; }
         public RaceClass? Class { get; set; }
     }
 

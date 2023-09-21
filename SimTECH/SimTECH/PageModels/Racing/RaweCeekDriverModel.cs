@@ -16,10 +16,6 @@ public class RaweCeekDriver
     public string Colour { get; set; }
     public string Accent { get; set; }
 
-    public long SeasonId { get; set; }
-    public string LeagueTag { get; set; }
-    public string LeagueColour { get; set; }
-
     public long ClassId { get; set; }
     public RaceClass? Class { get; set; }
 
@@ -84,6 +80,7 @@ public static class ExtendRaweCeekDriver
             Colour = driver.Colour,
             Accent = driver.Accent,
             Power = driver.QualyPower,
+            ClassId = driver.ClassId,
             Class = driver.Class,
             Scores = new int[amountRuns]
         };

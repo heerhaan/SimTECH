@@ -8,9 +8,6 @@ namespace SimTECH.PageModels.Racing
         public RaceStatus Status { get; set; }
         public Incident? Incident { get; set; }
 
-        public long ClassId { get; set; }
-        public RaceClass? Class { get; set; }
-
         public int Position { get; set; }
         public int Grid { get; set; }
         public int AbsolutePosition { get; set; }
@@ -46,5 +43,28 @@ namespace SimTECH.PageModels.Racing
     {
         public static List<(double, string)> ColoursOfUsedTyres(this RaceDriver driver, int calculationCount) =>
             driver.LapScores.ConvertAll(e => (NumberHelper.Percentage(1, calculationCount), e.TyreColour ?? Constants.DefaultColour));
+
+        public static int QualifyingBonus(this RaceDriver driver, int racerCount, int gridBonus) =>
+            (racerCount * gridBonus) - ((driver.AbsoluteGrid - 1) * gridBonus);
+
+        public static void SetPositions(this List<RaceDriver> raceDrivers, double gapMarge)
+        {
+            int absoluteIndex = 0;
+            int scoreAboveDriver = 0;
+
+            var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
+
+            foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
+            {
+                driver.Position = ++positionIndexDict[driver.ClassId];
+                driver.AbsolutePosition = ++absoluteIndex;
+
+                driver.GapAbove = driver.AbsolutePosition == 1
+                    ? "LEADER"
+                    : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
+
+                scoreAboveDriver = driver.LapSum;
+            }
+        }
     }
 }

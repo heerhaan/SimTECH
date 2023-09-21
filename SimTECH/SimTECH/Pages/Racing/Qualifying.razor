@@ -24,14 +24,15 @@
                                EntryCutoff="@entryCutoff"
                                ProgressCutoff="@progressCutoff"
                                HighestScore="@highestScore"
-                               LowestScore="@lowestScore" />
+                               LowestScore="@lowestScore"
+                               HasRaceClasses="@hasRaceClasses" />
             </MudPaper>
         }
     </div>
 </MudContainer>
 
 @code {
-    [CascadingParameter] public RaweCeekModel RaweCeek { get; set; }
+    [CascadingParameter] public RaweCeekModel Model { get; set; }
 
     [Parameter] public QualifyingSession QualySession { get; set; } = new();
     [Parameter] public int MaximumAllowed { get; set; } = int.MaxValue;
@@ -49,6 +50,7 @@
     int progressCutoff;
     int highestScore;
     int lowestScore = int.MaxValue;
+    bool hasRaceClasses;
 
     double gapMarge;
 
@@ -56,12 +58,13 @@
     {
         loading = true;
 
-        raceName = $"{RaweCeek.Race.Name} - QUALIFYING {QualySession.SessionIndex}";
-        raceCountry = RaweCeek.Race.Track.Country;
-        amountRuns = RaweCeek.Season.RunAmountSession;
-        qualyRng = RaweCeek.Season.QualifyingRNG;
-        entryCutoff = RaweCeek.Season.MaximumDriversInRace;
+        raceName = $"{Model.Race.Name} - QUALIFYING {QualySession.SessionIndex}";
+        raceCountry = Model.Race.Track.Country;
+        amountRuns = Model.Season.RunAmountSession;
+        qualyRng = Model.Season.QualifyingRNG;
+        entryCutoff = Model.Season.MaximumDriversInRace;
         progressCutoff = QualySession.ProgressionCutoff;
+        hasRaceClasses = Model.Season.HasRaceClasses;
 
         if (QualySession.IsFinished)
         {
@@ -73,9 +76,9 @@
             lowestScore = scoreNumbers.Min();
         }
 
-        gapMarge = RaweCeek.GapMarge / 2;
+        gapMarge = Model.GapMarge / 2;
 
-        foreach (var driver in RaweCeek.RaweCeekDrivers.Where(e => QualySession.AllowedEntries >= e.Grid))
+        foreach (var driver in Model.RaweCeekDrivers.Where(e => QualySession.AllowedEntries >= e.Grid))
         {
             var mappedDriver = driver.MapToSessionDriver(amountRuns);
             mappedDriver.PenaltyPunish = driver.Penalty.GetValueOrDefault();
@@ -113,15 +116,15 @@
                 lowestScore = result;
         }
 
-        var positionIndexDict = qualyDrivers.Select(e => (e.Class?.Id ?? 0)).Distinct().ToDictionary(e => e, e => 0);
+        var positionIndexDict = qualyDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
         int absoluteIndex = 0;
 
         foreach (var driver in qualyDrivers.OrderByDescending(e => e.MaxScore()))
         {
-            driver.Position = ++positionIndexDict[driver.Class?.Id ?? 0];
+            driver.Position = ++positionIndexDict[driver.ClassId];
             driver.AbsolutePosition = ++absoluteIndex;
 
-            driver.GapAbove = driver.Position == 1
+            driver.GapAbove = driver.AbsolutePosition == 1
                 ? "LEADER"
                 : "+" + (Math.Round((highestScore - driver.MaxScore()) * gapMarge, 2)).ToString("F2");
         }
@@ -140,7 +143,7 @@
                 Scores = e.Scores,
                 Position = e.Position,
                 AbsolutePosition = e.AbsolutePosition,
-                RaceId = RaweCeek.Race.Id,
+                RaceId = Model.Race.Id,
                 ResultId = e.ResultId,
 
                 PenaltyPunish = e.PenaltyPunish

@@ -9,7 +9,10 @@
         <MudTh>Driver</MudTh>
         <MudTh Class="number-col">NO</MudTh>
         <MudTh>Team</MudTh>
-        <MudTh Class="number-col">CLA</MudTh>
+        @if (HasRaceClasses)
+        {
+            <MudTh Class="number-col">CLA</MudTh>
+        }
         <MudTh Class="number-col-xl">PWR</MudTh>
         @for (int i = 1; i <= AmountRuns; i++)
         {
@@ -24,7 +27,10 @@
         <MudTd Class="number-col">
             <div class="d-flex flex-row align-items-center gap-1">
                 <DriverPosition Number="@context.Position" />
-                <sup>@context.AbsolutePosition</sup>
+                @if (HasRaceClasses)
+                {
+                    <sup>@context.AbsolutePosition</sup>
+                }
             </div>
         </MudTd>
         <MudTd Class="accent-cell">
@@ -44,11 +50,14 @@
         <MudTd Class="overflow-hider">
             <MudText>@context.TeamName</MudText>
         </MudTd>
-        <MudTd Class="number-col">
-            <SupplierDisplay Colour="@context.Class?.Colour">
-                @context.Class?.Tag
-            </SupplierDisplay>
-        </MudTd>
+        @if (HasRaceClasses)
+        {
+            <MudTd Class="number-col">
+                <SupplierDisplay Colour="@context.Class?.Colour">
+                    @context.Class?.Tag
+                </SupplierDisplay>
+            </MudTd>
+        }
         <MudTd Class="number-col-xl">
             <MudText Typo="Typo.caption">@context.Power</MudText>
         </MudTd>
@@ -75,8 +84,8 @@
                             AnchorOrigin="Origin.BottomRight"
                             TransformOrigin="Origin.TopRight"
                             Class="px-1"
-                            Style="@tuple.Item2">
-                    <MudText Typo="Typo.subtitle2">@tuple.Item1</MudText>
+                            Style="@tuple.Style">
+                    <MudText Typo="Typo.subtitle2">@tuple.Tag</MudText>
                 </MudPopover>
             }
         </MudTd>
@@ -90,27 +99,33 @@
     [Parameter] public int ProgressCutoff { get; set; }
     [Parameter] public int HighestScore { get; set; }
     [Parameter] public int LowestScore { get; set; }
+    [Parameter] public bool HasRaceClasses { get; set; }
 
-    //public static Func<SeasonTeam, string> TeamFullStyleFunc => team => SetFullColourstyle(team.Colour, team.Accent);
     private Func<SessionDriver, int, string> _sessionRowStyles => (driver, index) =>
     {
-        if (driver.Position == ProgressCutoff && driver.Position != 0)
-            return "border-bottom: 2px solid red";
+        if (driver.Position != Drivers.Count() && driver.Position != 0)
+        {
+            if (driver.Position == ProgressCutoff)
+                return "border-bottom: 2px solid red";
 
-        if (driver.Position == EntryCutoff && driver.Position != 0)
-            return "border-bottom: 2px solid mediumpurple";
+            if (driver.Position == EntryCutoff)
+                return "border-bottom: 2px solid mediumpurple";
+        }
 
         return string.Empty;
     };
 
-    private bool TryLocateCutoff(int position, out Tuple<string, string> cutoff)
+    private bool TryLocateCutoff(int position, out (string Tag, string Style) cutoff)
     {
         cutoff = default;
 
-        if (position == ProgressCutoff && position != 0)
-            cutoff = Tuple.Create("OUT", "background-color: red");
-        else if (position == EntryCutoff && position != 0)
-            cutoff = Tuple.Create("DNQ", "background-color: mediumpurple");
+        if (position != Drivers.Count() && position != 0)
+        {
+            if (position == ProgressCutoff)
+                cutoff = ("OUT", "background-color: red");
+            else if (position == EntryCutoff)
+                cutoff = ("DNQ", "background-color: mediumpurple");
+        }
 
         return cutoff != default;
     }

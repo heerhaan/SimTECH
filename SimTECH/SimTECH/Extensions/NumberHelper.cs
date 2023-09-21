@@ -55,7 +55,6 @@
             return Math.Round(average, 1);
         }
 
-        public static int CalcLapCount(int raceLength, double trackLength) =>
-            (int)Math.Round(raceLength / trackLength);
+        public static int CalculateLapCount(int raceLength, double trackLength) => (int)Math.Round(raceLength / trackLength);
     }
 }

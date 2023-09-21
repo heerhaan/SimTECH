@@ -8,7 +8,6 @@
         <MudPaper Class="pa-4 mud-height-full">
             <MudText Typo="Typo.h5">Track information</MudText>
             <MudDivider />
-            <MudText Typo="Typo.body2" Color="Color.Error">This section is pretty ugly, mate</MudText>
 
             <MudListExtended T="string" Dense="true">
                 <MudListItemExtended T="string" SecondaryText="Country">
@@ -16,14 +15,14 @@
                 </MudListItemExtended>
                 <MudListItemExtended T="string" Text="@Model.Climate.Terminology" SecondaryText="Weather">
                     <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour">
-                        <MudText Typo="Typo.h5">@Model.Climate.Terminology</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Default">@Model.Climate.Terminology</MudText>
                     </CustomIcon>
                 </MudListItemExtended>
                 <MudListItemExtended T="string"
                                      Text="@($"{Model.Race.Track.Length}km")"
                                      SecondaryText="Length" />
                 <MudListItemExtended T="string"
-                                     Text="@($"{NumberHelper.CalcLapCount(Model.Race.RaceLength, Model.Race.Track.Length)}")"
+                                     Text="@($"{NumberHelper.CalculateLapCount(Model.Race.RaceLength, Model.Race.Track.Length)}")"
                                      SecondaryText="Laps" />
                 <MudListItemExtended T="double"
                                      Text="@Model.Race.Track.AeroMod.ToString("F2")"
@@ -76,7 +75,10 @@
                     <MudTh Style="max-width: 220px">Name</MudTh>
                     <MudTh Class="number-col">NO</MudTh>
                     <MudTh Style="max-width: 220px">Team</MudTh>
-                    <MudTh Class="number-col">CLA</MudTh>
+                    @if (Model.Season.HasRaceClasses)
+                    {
+                        <MudTh Class="number-col">CLA</MudTh>
+                    }
                     <MudTh Class="number-col">SUPP</MudTh>
                     <MudTh>Tyre</MudTh>
                     <MudTh Class="number-col">TGT</MudTh>
@@ -116,14 +118,14 @@
                     <MudTd Style="max-width: 220px">
                         <MudText Class="overflow-hider">@context.TeamName</MudText>
                     </MudTd>
-                    <MudTd Class="number-col">
-                        @if (context.Class != null)
-                        {
-                            <SupplierDisplay Colour="@context.Class.Colour">
-                                <MudText>@context.Class.Tag</MudText>
+                    @if (Model.Season.HasRaceClasses)
+                    {
+                        <MudTd Class="number-col">
+                            <SupplierDisplay Colour="@context.Class?.Colour">
+                                <MudText>@context.Class?.Tag</MudText>
                             </SupplierDisplay>
-                        }
-                    </MudTd>
+                        </MudTd>
+                    }
                     <MudTd Class="number-col">
                         <SupplierDisplay Colour="@context.ManufacturerColour" Accent="@context.ManufacturerAccent">
                             @context.ManufacturerName.ElementAt(0)
