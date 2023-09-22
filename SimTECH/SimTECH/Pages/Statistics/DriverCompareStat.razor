@@ -1,9 +1,15 @@
 ﻿<MudDialog>
-    <TitleContent>
-        <MudText Typo="Typo.h5">Driver comparison</MudText>
-    </TitleContent>
     <DialogContent>
-        <MudPaper Elevation="30" Width="1100px" Class="pa-2">
+        <MudPaper Elevation="30" Width="1100px" Class="pa-2" id="driver-comparison-stat-view">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-0 pb-2">
+                <MudIcon Icon="@IconCollection.Helmet" Class="mr-3 mb-n1" />
+                <MudText Typo="Typo.h5">Driver comparison</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
+                    <ScreenshotIconButton TargetId="driver-comparison-stat-view" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => StatDialog?.Close())" />
+                </MudButtonGroup>
+            </MudStack>
             @if (!loading)
             {
                 <MudStack>

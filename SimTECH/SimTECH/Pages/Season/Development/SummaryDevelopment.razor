@@ -1,13 +1,16 @@
 ﻿<MudDialog>
-    <TitleContent>
-        <MudText Typo="Typo.h5">Summary of season developments</MudText>
-    </TitleContent>
     <DialogContent>
         <MudPaper>
-            <MudStack Row="true" Justify="Justify.SpaceBetween">
-                <MudText Typo="Typo.body2" Color="Color.Info">OLD - CHANGE - NEW</MudText>
-                <ScreenshotIconButton TargetId="developed-summary" />
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.SsidChart" />
+                <MudText Typo="Typo.h5">Summary of season developments</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
+                    <ScreenshotIconButton TargetId="developed-summary" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => SummaryDialog?.Close())" />
+                </MudButtonGroup>
             </MudStack>
+            <MudText Typo="Typo.body2" Color="Color.Info">OLD - CHANGE - NEW</MudText>
         </MudPaper>
         <MudPaper id="developed-summary">
             <MudStack Row="true" Spacing="0" Class="flex-wrap">

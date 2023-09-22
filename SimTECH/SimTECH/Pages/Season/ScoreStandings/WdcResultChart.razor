@@ -1,14 +1,15 @@
 ﻿<MudDialog>
-    <TitleContent>
-        <MudStack Row="true" AlignItems="AlignItems.Center">
-            <MudIcon Icon="@Icons.Material.Filled.SsidChart" />
-            <MudText>Drivers championship points progression</MudText>
-            <MudSpacer />
-            <ScreenshotIconButton TargetId="wdc-chart-container" />
-        </MudStack>
-    </TitleContent>
     <DialogContent>
         <MudPaper MinHeight="900px" MinWidth="1400px" id="wdc-chart-container">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.SsidChart" />
+                <MudText>Drivers championship points progression</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
+                    <ScreenshotIconButton TargetId="wdc-chart-container" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => ChartDialog?.Close())" />
+                </MudButtonGroup>
+            </MudStack>
             @if (!loading)
             {
                 <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="1400" Height="900">

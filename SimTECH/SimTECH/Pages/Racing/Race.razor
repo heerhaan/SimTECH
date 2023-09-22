@@ -864,16 +864,8 @@
         await OnFinish.InvokeAsync();
     }
 
-    private static readonly DialogOptions dialogOptions = new()
-        {
-            MaxWidth = MaxWidth.ExtraLarge,
-            NoHeader = true,
-            CloseOnEscapeKey = true,
-            DisableBackdropClick = false,
-        };
-
     private async Task ShowGapperChart() => _ =
-        await _dialog.ShowAsync<GapChartDialog>("Gapper chart", new DialogParameters { ["Drivers"] = raceDrivers }, dialogOptions);
+        await _dialog.ShowAsync<GapChartDialog>("Gapper chart", new DialogParameters { ["Drivers"] = raceDrivers }, Constants.StatisticDialogDefaultOptionsXl);
     private async Task ShowPositionChart() => _ =
-        await _dialog.ShowAsync<PositionChangeChart>("Position chart", new DialogParameters { ["Drivers"] = raceDrivers }, dialogOptions);
+        await _dialog.ShowAsync<PositionChangeChart>("Position chart", new DialogParameters { ["Drivers"] = raceDrivers }, Constants.StatisticDialogDefaultOptionsXl);
 }

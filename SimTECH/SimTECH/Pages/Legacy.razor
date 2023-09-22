@@ -1,4 +1,5 @@
 ﻿@page "/legacy"
+
 @inject BreadcrumbProvider _bread
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
@@ -13,25 +14,25 @@
             {
                 <MudItem xs="4">
                     <MudPaper Elevation="15">
-                        <MudTable T="LegacySimData" Items="@leaderboard.Value.OrderBy(e => e.Rank)">
+                        <MudTable T="LegacySimData" Items="@leaderboard.Value.OrderBy(e => e.Rank)" Dense="true" Class="extra-dense">
                             <ToolBarContent>
                                 <MudText Typo="Typo.h5">@leaderboard.Key</MudText>
                             </ToolBarContent>
                             <HeaderContent>
-                                <MudTh>Rank</MudTh>
+                                <MudTh Class="number-col"></MudTh>
                                 <MudTh>Driver</MudTh>
-                                <MudTh>Value</MudTh>
+                                <MudTh Class="number-col">VAL</MudTh>
                                 <MudTh>User</MudTh>
                             </HeaderContent>
                             <RowTemplate>
-                                <MudTd>@context.Rank</MudTd>
+                                <MudTd Class="number-col">@context.Rank</MudTd>
                                 <MudTd>
                                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
-                                        <MudText Class="overflow-hider">@context.Name</MudText>
+                                        <MudText Typo="Typo.body2" Class="overflow-hider">@context.Name</MudText>
                                         <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
                                     </MudStack>
                                 </MudTd>
-                                <MudTd>@context.Value</MudTd>
+                                <MudTd Class="number-col">@context.Value</MudTd>
                                 <MudTd>@context.User</MudTd>
                             </RowTemplate>
                         </MudTable>

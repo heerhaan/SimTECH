@@ -399,7 +399,7 @@
                 ["Results"] = OverviewModel.ClassResults()
             };
 
-        _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters);
+        _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters, Constants.StatisticDialogDefaultOptions);
     }
 
     private async Task ShowUsedComponents()
@@ -414,7 +414,7 @@
                 ["Incidents"] = incidents,
             };
 
-        _ = await _dialogService.ShowAsync<UsedComponents>("UsedComponents", parameters);
+        _ = await _dialogService.ShowAsync<UsedComponents>("UsedComponents", parameters, Constants.StatisticDialogDefaultOptions);
     }
 
     private void GoToCommon(string path) => _nav.NavigateTo(path);

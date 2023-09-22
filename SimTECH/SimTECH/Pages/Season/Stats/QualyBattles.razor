@@ -1,9 +1,14 @@
 ﻿<MudDialog>
-    <TitleContent>
-        <MudText Typo="Typo.h5">Qualifying battles</MudText>
-    </TitleContent>
     <DialogContent>
         <MudContainer>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-0 pb-2">
+                <MudText Typo="Typo.h5">Qualifying battles</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
+                    <ScreenshotIconButton TargetId="qualy-battles-table" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => StatDialog?.Close())" />
+                </MudButtonGroup>
+            </MudStack>
             <MudPaper Class="px-2">
                 <MudTable T="QualyBattleComparison"
                           Items="@qualyBattleList.OrderBy(e => e.TeamName)"
@@ -13,10 +18,6 @@
                           Dense="true"
                           Class="extra=dense"
                           id="qualy-battles-table">
-                    <ToolBarContent>
-                        <MudSpacer />
-                        <ScreenshotButton TargetId="qualy-battles-table" Class="btn-md" />
-                    </ToolBarContent>
                     <HeaderContent>
                         <MudTh Class="accent-cell"></MudTh>
                         <MudTh>Name</MudTh>

@@ -24,6 +24,22 @@ namespace SimTECH
             Icons.Material.Filled.NightsStay,
         };
 
+        public static readonly DialogOptions StatisticDialogDefaultOptions = new()
+        {
+            MaxWidth = MaxWidth.Large,
+            NoHeader = true,
+            CloseOnEscapeKey = true,
+            DisableBackdropClick = false,
+        };
+
+        public static readonly DialogOptions StatisticDialogDefaultOptionsXl = new()
+        {
+            MaxWidth = MaxWidth.ExtraLarge,
+            NoHeader = true,
+            CloseOnEscapeKey = true,
+            DisableBackdropClick = false,
+        };
+
         #region default values
         public const string DefaultBackground = "var(--mud-palette-background)";
         public const string DefaultColour = "var(--mud-palette-primary)";

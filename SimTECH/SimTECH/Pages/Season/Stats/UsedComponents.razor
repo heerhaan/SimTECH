@@ -1,9 +1,14 @@
 ﻿<MudDialog>
-    <TitleContent>
-        <MudText Typo="Typo.h5">Penalizable incidents</MudText>
-    </TitleContent>
     <DialogContent>
-        <MudPaper>
+        <MudPaper Class="px-4 py-1">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-0 pb-2">
+                <MudText Typo="Typo.h5">Penalizable incidents</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
+                    <ScreenshotIconButton TargetId="used-components-table" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => StatDialog?.Close())" />
+                </MudButtonGroup>
+            </MudStack>
             @if (!loading)
             {
                 <MudTable T="UsedComponentParts"
@@ -11,11 +16,6 @@
                           Dense="true"
                           Class="px-4"
                           id="used-components-table">
-                    <ToolBarContent>
-                        
-                        <MudSpacer />
-                        <ScreenshotButton TargetId="used-components-table" Class="btn-md" />
-                    </ToolBarContent>
                     <HeaderContent>
                         <MudTh>
                             <MudTableSortLabel T="UsedComponentParts" SortBy="@(e => e.Name)">

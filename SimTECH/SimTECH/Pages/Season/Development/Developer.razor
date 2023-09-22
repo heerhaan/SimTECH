@@ -153,6 +153,7 @@
     Quantifier selectedType = Quantifier.Range;
 
     bool loading = true;
+    bool hasRaceClasses;
     bool showOptionalColumn;
     int currentYear;
     int currentMin = 0;
@@ -160,21 +161,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
-        SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-        SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-
         var season = await _seasonService.GetSeasonById(SeasonId);
-        if (season.HasRaceClasses && ClassId != default)
-        {
-            SeasonTeams = SeasonTeams.Where(e => e.ClassId == ClassId).ToList();
+        hasRaceClasses = season.HasRaceClasses && ClassId != default;
 
-            var teamClassIds = SeasonTeams.Select(e => e.Id).ToList();
-            var usedEngineIds = SeasonTeams.Select(st => st.SeasonEngineId).ToList();
-
-            SeasonDrivers = SeasonDrivers.Where(e => e.SeasonTeamId.HasValue && teamClassIds.Contains(e.SeasonTeamId.Value)).ToList();
-            SeasonEngines = SeasonEngines.Where(e => usedEngineIds.Contains(e.Id)).ToList();
-        }
+        await RetrieveEntrants();
 
         currentYear = season.Year;
         LeagueDevelopmentRanges = await _leagueService.GetLeagueDevelopmentRanges(season.LeagueId);
@@ -193,16 +183,37 @@
         loading = false;
     }
 
+    private async Task RetrieveEntrants()
+    {
+        SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
+        SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+        SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+
+        if (hasRaceClasses)
+        {
+            SeasonTeams = SeasonTeams.Where(e => e.ClassId == ClassId).ToList();
+
+            var teamClassIds = SeasonTeams.Select(e => e.Id).ToList();
+            var usedEngineIds = SeasonTeams.Select(st => st.SeasonEngineId).ToList();
+
+            SeasonDrivers = SeasonDrivers.Where(e => e.SeasonTeamId.HasValue && teamClassIds.Contains(e.SeasonTeamId.Value)).ToList();
+            SeasonEngines = SeasonEngines.Where(e => usedEngineIds.Contains(e.Id)).ToList();
+        }
+    }
+
     private void LoadEntrants()
     {
         switch (selectedEntrant)
         {
             case Entrant.Driver:
-                DevelopDrivers(); break;
+                DevelopDrivers();
+                break;
             case Entrant.Team:
-                DevelopTeams(); break;
+                DevelopTeams();
+                break;
             case Entrant.Engine:
-                DevelopEngines(); break;
+                DevelopEngines();
+                break;
             default:
                 throw new InvalidOperationException("wtf unexpected entrant added to develop? (how)");
         }
@@ -378,18 +389,16 @@
         {
             case Entrant.Driver:
                 await _entrantService.SaveDriverDevelopment(developedValues, selectedAspect);
-                SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
                 break;
             case Entrant.Team:
                 await _entrantService.SaveTeamDevelopment(developedValues, selectedAspect);
-                SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
                 break;
             case Entrant.Engine:
                 await _entrantService.SaveEngineDevelopment(developedValues, selectedAspect);
-                SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
                 break;
         }
 
+        await RetrieveEntrants();
         await _entrantService.SaveDevelopmentLog(CreateLog);
         LoadEntrants();
     }
@@ -417,12 +426,6 @@
                 ["SeasonEngines"] = SeasonEngines
             };
 
-        await _dialogService.ShowAsync<SummaryDevelopment>("Summary development", parameters, _summaryDialogOptions);
+        await _dialogService.ShowAsync<SummaryDevelopment>("Summary development", parameters, Constants.StatisticDialogDefaultOptionsXl);
     }
-
-    private static readonly DialogOptions _summaryDialogOptions = new()
-        {
-            MaxWidth = MaxWidth.ExtraLarge,
-            CloseButton = true,
-        };
 }

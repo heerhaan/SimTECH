@@ -1,9 +1,15 @@
 ﻿<MudDialog>
-    <TitleContent>
-        <MudText Typo="Typo.h5" Class="px-4 py-2">Records among drivers</MudText>
-    </TitleContent>
     <DialogContent>
         <MudContainer>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-0 pb-2">
+                <MudIcon Icon="@IconCollection.Helmet" Class="mr-3 mb-n1" />
+                <MudText Typo="Typo.h5" Class="px-4 py-2">Records among drivers</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
+                    <ScreenshotIconButton TargetId="driver-records-stat" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => StatDialog?.Close())" />
+                </MudButtonGroup>
+            </MudStack>
             <MudPaper>
                 <MudStack>
                     <MudStack Row="true">
@@ -20,7 +26,7 @@
                         </MudSelect>
                     </MudStack>
 
-                    <MudPaper MinHeight="500px" MinWidth="600px">
+                    <MudPaper MinHeight="500px" MinWidth="600px" id="driver-records-stat">
                         @if (!loading)
                         {
                             <MudText Typo="Typo.h5">@selectedRecord</MudText>
