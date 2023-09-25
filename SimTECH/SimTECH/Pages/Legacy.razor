@@ -3,44 +3,42 @@
 @inject BreadcrumbProvider _bread
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudPaper>
-        <MudGrid Spacing="1">
-            <MudItem xs="12">
-                <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
-                    <MudText Typo="Typo.h3">Legacy leaderboard</MudText>
+    <MudGrid Spacing="1">
+        <MudItem xs="12">
+            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
+                <MudText Typo="Typo.h3">Legacy leaderboard</MudText>
+            </MudPaper>
+        </MudItem>
+        @foreach (var leaderboard in legacyRecordsData)
+        {
+            <MudItem xs="4">
+                <MudPaper Elevation="15">
+                    <MudTable T="LegacySimData" Items="@leaderboard.Value.OrderBy(e => e.Rank)" Dense="true" Class="extra-dense">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h5">@leaderboard.Key</MudText>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh Class="number-col"></MudTh>
+                            <MudTh>Driver</MudTh>
+                            <MudTh Class="number-col">VAL</MudTh>
+                            <MudTh>User</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd Class="number-col">@context.Rank</MudTd>
+                            <MudTd>
+                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText Typo="Typo.body2" Class="overflow-hider">@context.Name</MudText>
+                                    <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
+                                </MudStack>
+                            </MudTd>
+                            <MudTd Class="number-col">@context.Value</MudTd>
+                            <MudTd>@context.User</MudTd>
+                        </RowTemplate>
+                    </MudTable>
                 </MudPaper>
             </MudItem>
-            @foreach (var leaderboard in legacyRecordsData)
-            {
-                <MudItem xs="4">
-                    <MudPaper Elevation="15">
-                        <MudTable T="LegacySimData" Items="@leaderboard.Value.OrderBy(e => e.Rank)" Dense="true" Class="extra-dense">
-                            <ToolBarContent>
-                                <MudText Typo="Typo.h5">@leaderboard.Key</MudText>
-                            </ToolBarContent>
-                            <HeaderContent>
-                                <MudTh Class="number-col"></MudTh>
-                                <MudTh>Driver</MudTh>
-                                <MudTh Class="number-col">VAL</MudTh>
-                                <MudTh>User</MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd Class="number-col">@context.Rank</MudTd>
-                                <MudTd>
-                                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
-                                        <MudText Typo="Typo.body2" Class="overflow-hider">@context.Name</MudText>
-                                        <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
-                                    </MudStack>
-                                </MudTd>
-                                <MudTd Class="number-col">@context.Value</MudTd>
-                                <MudTd>@context.User</MudTd>
-                            </RowTemplate>
-                        </MudTable>
-                    </MudPaper>
-                </MudItem>
-            }
-        </MudGrid>
-    </MudPaper>
+        }
+    </MudGrid>
 </MudContainer>
 
 @code {

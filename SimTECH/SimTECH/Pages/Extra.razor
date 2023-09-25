@@ -1,0 +1,121 @@
+﻿@page "/extra"
+
+@inject CommonService _commonService
+@inject BreadcrumbProvider _bread
+@inject IDialogService _dialogService
+
+<PageTitle>Extra</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16 px-8">
+    <MudGrid Spacing="1">
+        <MudItem xs="12">
+            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
+                <MudText Typo="Typo.h3">Extra</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="9">
+            <MudStack Spacing="1" AlignItems="AlignItems.Stretch" Class="mud-height-full pa-0">
+                <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.h5">Data</MudText>
+                    <MudDivider />
+
+                    <MudSpacer />
+
+                    <MudButton FullWidth="true" Color="Color.Secondary" Variant="Variant.Text" OnClick="InsertDefault">Load default data</MudButton>
+                </MudPaper>
+                <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.h5">
+                        <MudText Typo="Typo.h5">F1 graphics generator</MudText>
+                        <MudDivider />
+
+                        <MudText Class="py-2">If only there were some inputs here to play with...</MudText>
+
+                        <DriverGraphic FirstName="Lol" LastName="Sokje" Abbreviation="SOK" Number="19"
+                                       Team="Racing Team" Colour="@Color.Secondary.ToString()" Position="1" />
+                    </MudText>
+                    <MudDivider />
+                </MudPaper>
+                <MudPaper Class="pa-4 mud-height-full">
+                    <MudText Typo="Typo.h5">???</MudText>
+                    <MudDivider />
+                </MudPaper>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="3">
+            <MudPaper Elevation="15" Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.h5">Credits</MudText>
+                <MudDivider />
+
+                <MudText Typo="Typo.body2">
+                    A big thanks to the following people (and etc.) for their magnificent advice, tremendous support and outstanding ideas.
+                </MudText>
+
+                <MudStack>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">Lolsokje</MudText>
+                        <MudText Typo="Typo.body2">
+                            Fellow programmer and racing nerd, a source for the data behind the human being generator and sharing his very 
+                            nice F1 graphics generator.
+                        </MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">FrankyDoodle</MudText>
+                        <MudText Typo="Typo.body2">
+                            Also a racing nerd. One of the source inspirations for motorsport simming.
+                        </MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">Yoshi</MudText>
+                        <MudText Typo="Typo.body2">
+                            Also a racing nerd. Regulary committed tax fraud.
+                        </MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">Stoelpoot</MudText>
+                        <MudText Typo="Typo.body2">
+                            Also a racing nerd and programmer. Had some good discussions with him.
+                        </MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">Comrade Skeltal</MudText>
+                        <MudText Typo="Typo.body2">
+                            Also a racing nerd. He didn't do anything actually except for being the inspiration for the hilarious name of this 
+                            program. (SimTECH! Get it? SimTek! Hahaaaaa)
+                        </MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.subtitle1">A few organisations</MudText>
+                        <MudText Typo="Typo.body2">
+                            MudBlazor for the Blazor component framework and everything that came along with it.
+                            <br />
+                            Tabler Icons for some of the icons
+                        </MudText>
+                    </div>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    protected override void OnInitialized()
+    {
+        _bread.Reset();
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Extra", href: "extra", disabled: true),
+        });
+    }
+
+    private async Task InsertDefault()
+    {
+        bool? confirm = await _dialogService.ShowMessageBox(
+            "Warning",
+            "Are you sure you want to add the default data, will add tyres, suppliers, tracks, traits, incidents and climates",
+            yesText: "Yar", cancelText: "Nah");
+
+        if (confirm == true)
+            await _commonService.InsertDefaultData();
+    }
+}
