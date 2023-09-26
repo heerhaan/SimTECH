@@ -1,4 +1,5 @@
-﻿using SimTECH.Data.Models;
+﻿using SimTECH.Constants;
+using SimTECH.Data.Models;
 using SimTECH.Extensions;
 
 namespace SimTECH.Data.EditModels
@@ -24,7 +25,7 @@ namespace SimTECH.Data.EditModels
             if (driver == null)
             {
                 DateOfBirth = DateTime.Today;
-                Country = Constants.DefaultCountry;
+                Country = Generals.DefaultCountry;
                 State = State.Active;
 
                 _driver = new Driver();

@@ -1,4 +1,6 @@
-﻿namespace SimTECH.PageModels.SeasonModels
+﻿using SimTECH.Constants;
+
+namespace SimTECH.PageModels.SeasonModels
 {
     public class PowerRankingItem
     {
@@ -7,8 +9,8 @@
         public Country Nationality { get; set; }
 
         public string TeamName { get; set; }
-        public string Colour { get; set; } = Constants.DefaultColour;
-        public string Accent { get; set; } = Constants.DefaultAccent;
+        public string Colour { get; set; } = Generals.DefaultColour;
+        public string Accent { get; set; } = Generals.DefaultAccent;
 
         public string Engine { get; set; }
 

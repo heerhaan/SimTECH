@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimTECH.Constants;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
@@ -404,8 +405,8 @@ namespace SimTECH.Data.Services
                             Name = d.SeasonDriver.Driver.FullName,
                             Country = d.SeasonDriver.Driver.Country,
                             Number = d.SeasonDriver.Number,
-                            Colour = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultColour : d.SeasonDriver.SeasonTeam.Colour,
-                            Accent = d.SeasonDriver.SeasonTeam == null ? Constants.DefaultAccent : d.SeasonDriver.SeasonTeam.Accent
+                            Colour = d.SeasonDriver.SeasonTeam == null ? Generals.DefaultColour : d.SeasonDriver.SeasonTeam.Colour,
+                            Accent = d.SeasonDriver.SeasonTeam == null ? Generals.DefaultAccent : d.SeasonDriver.SeasonTeam.Accent
                         })
                         .First(),
 

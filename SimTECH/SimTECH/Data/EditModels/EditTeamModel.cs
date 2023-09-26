@@ -1,4 +1,5 @@
-﻿using SimTECH.Data.Models;
+﻿using SimTECH.Constants;
+using SimTECH.Data.Models;
 
 namespace SimTECH.Data.EditModels
 {
@@ -8,7 +9,7 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string? Name { get; set; }
-        public Country Country { get; set; } = Constants.DefaultCountry;
+        public Country Country { get; set; } = Generals.DefaultCountry;
         public string? Biography { get; set; }
         public bool Mark { get; set; }
         public State State { get; set; }

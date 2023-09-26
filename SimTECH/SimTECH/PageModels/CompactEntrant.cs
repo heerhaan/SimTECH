@@ -1,9 +1,11 @@
-﻿namespace SimTECH.PageModels
+﻿using SimTECH.Constants;
+
+namespace SimTECH.PageModels
 {
     public abstract class CompactEntrant
     {
         public string Name { get; set; }
-        public Country Country { get; set; } = Constants.DefaultCountry;
+        public Country Country { get; set; } = Generals.DefaultCountry;
         public string Colour { get; set; } = "var(--mud-palette-background)";
         public string Accent { get; set; } = "var(--mud-palette-text-primary)";
     }

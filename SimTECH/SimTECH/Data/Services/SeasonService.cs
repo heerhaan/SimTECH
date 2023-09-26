@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MudBlazor;
+using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
@@ -196,13 +197,13 @@ namespace SimTECH.Data.Services
 
                     DriverName = seasonDriver?.Driver?.FullName ?? "[UNKNOWN]",
                     DriverNumber = seasonDriver?.Number ?? 0,
-                    DriverNationality = seasonDriver?.Driver?.Country ?? Constants.DefaultCountry,
-                    DriverColour = seasonDriver?.SeasonTeam?.Colour ?? Constants.DefaultColour,
-                    DriverAccent = seasonDriver?.SeasonTeam?.Accent ?? Constants.DefaultAccent,
+                    DriverNationality = seasonDriver?.Driver?.Country ?? Generals.DefaultCountry,
+                    DriverColour = seasonDriver?.SeasonTeam?.Colour ?? Generals.DefaultColour,
+                    DriverAccent = seasonDriver?.SeasonTeam?.Accent ?? Generals.DefaultAccent,
 
                     TeamName = seasonTeam?.Name ?? "[UNKNOWN]",
-                    TeamNationality = seasonTeam?.Team?.Country ?? Constants.DefaultCountry,
-                    TeamColour = seasonTeam?.Colour ?? Constants.DefaultColour,
+                    TeamNationality = seasonTeam?.Team?.Country ?? Generals.DefaultCountry,
+                    TeamColour = seasonTeam?.Colour ?? Generals.DefaultColour,
                 });
             }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
@@ -61,7 +62,7 @@ namespace SimTECH.Data.Services
                     SeasonDriverId = sd.Id,
                     DriverId = sd.DriverId,
                     League = sd.Season.League.Name,
-                    Colour = sd.SeasonTeam == null ? Constants.DefaultColour : sd.SeasonTeam.Colour
+                    Colour = sd.SeasonTeam == null ? Generals.DefaultColour : sd.SeasonTeam.Colour
                 })
                 .ToListAsync();
         }

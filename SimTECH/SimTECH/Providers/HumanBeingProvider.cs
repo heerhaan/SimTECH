@@ -1,4 +1,5 @@
 ﻿using MudBlazor;
+using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using System.Text.Json;
@@ -26,7 +27,7 @@ namespace SimTECH.Providers
                 {
                     Country = Enum.TryParse<Country>(e.Substring(startIndex: pathNameLength - 7, 2), out var cuntLang)
                         ? cuntLang
-                        : Constants.DefaultCountry,
+                        : Generals.DefaultCountry,
                     LanguageType = e.Substring(startIndex: pathNameLength - 10, 2),
                     Path = e,
                 })

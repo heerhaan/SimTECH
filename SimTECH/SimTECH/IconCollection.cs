@@ -124,7 +124,6 @@
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
            <path d=""M10 2l-.117 .007a1 1 0 0 0 -.883 .993v4h-4a1 1 0 0 0 -1 1v4l.007 .117a1 1 0 0 0 .993 .883h4v8a1 1 0 0 0 1 1h4l.117 -.007a1 1 0 0 0 .883 -.993v-8h4a1 1 0 0 0 1 -1v-4l-.007 -.117a1 1 0 0 0 -.993 -.883h-4v-4a1 1 0 0 0 -1 -1h-4z"" stroke-width=""0"" fill=""currentColor""></path>
         </svg>";
-        // D
         // E
         public const string Engine = @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-engine"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
@@ -148,8 +147,6 @@
            <path d=""M5 10h14""></path>
            <path d=""M5 14h14""></path>
         </svg>";
-        // F
-        // G
         // H
         public const string Helmet = @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-helmet"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
@@ -162,10 +159,6 @@
            <path d=""M20 9h-7m-2.768 1.246c.507 2 1.596 3.418 3.268 4.254c.524 .262 1.07 .49 1.64 .683""></path>
            <path d=""M3 3l18 18""></path>
         </svg>";
-        // I
-        // J
-        // K
-        // L
         // M
         public const string Mist = @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-mist"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
@@ -174,8 +167,6 @@
            <path d=""M5 15h5m4 0h7""></path>
            <path d=""M3 20h9m4 0h3""></path>
         </svg>";
-        // N
-        // O
         // P
         public const string Planet = @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-planet"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
@@ -198,7 +189,6 @@
            <path d=""M3 17l9 4l9 -4l-9 -14z""></path>
            <path d=""M12 3v18""></path>
         </svg>";
-        // Q
         // R
         public const string Rainbow = @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-rainbow"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
@@ -320,6 +310,14 @@
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
            <path d=""M17 3a1 1 0 0 1 .993 .883l.007 .117v2.17a3 3 0 1 1 0 5.659v.171a6.002 6.002 0 0 1 -5 5.917v2.083h3a1 1 0 0 1 .117 1.993l-.117 .007h-8a1 1 0 0 1 -.117 -1.993l.117 -.007h3v-2.083a6.002 6.002 0 0 1 -4.996 -5.692l-.004 -.225v-.171a3 3 0 0 1 -3.996 -2.653l-.003 -.176l.005 -.176a3 3 0 0 1 3.995 -2.654l-.001 -2.17a1 1 0 0 1 1 -1h10zm-12 5a1 1 0 1 0 0 2a1 1 0 0 0 0 -2zm14 0a1 1 0 1 0 0 2a1 1 0 0 0 0 -2z"" stroke-width=""0"" fill=""currentColor""></path>
         </svg>";
+        public const string Truck = @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-tir"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
+           <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
+           <path d=""M5 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0""></path>
+           <path d=""M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0""></path>
+           <path d=""M7 18h8m4 0h2v-6a5 7 0 0 0 -5 -7h-1l1.5 7h4.5""></path>
+           <path d=""M12 18v-13h3""></path>
+           <path d=""M3 17l0 -5l9 0""></path>
+        </svg>";
         public const string Turbine = @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-car-turbine"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""none"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
            <path d=""M11 13m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0""></path>
@@ -332,9 +330,6 @@
            <path d=""M11 13l3.5 -1.5""></path>
            <path d=""M11 9v4""></path>
         </svg>";
-        // U
-        // V
-        // W
         // X
         public const string XCircle = @"<svg xmlns=""http://www.w3.org/2000/svg"" class=""icon icon-tabler icon-tabler-playstation-x"" width=""24"" height=""24"" viewBox=""0 0 24 24"" stroke-width=""2"" stroke=""currentColor"" fill=""inherit"" stroke-linecap=""round"" stroke-linejoin=""round"">
            <path stroke=""none"" d=""M0 0h24v24H0z"" fill=""none""></path>
@@ -342,8 +337,6 @@
            <path d=""M8.5 8.5l7 7""></path>
            <path d=""M8.5 15.5l7 -7""></path>
         </svg>";
-        // Y
-        // Z
 
         // Specials
         public const string CubePurpleLayer = @"<svg xmlns=""http://www.w3.org/2000/svg"" version=""1.1"" xmlns:xlink=""http://www.w3.org/1999/xlink"" xmlns:svgjs=""http://svgjs.dev/svgjs"" viewBox=""0 0 800 800"" width=""800"" height=""800""><defs><pattern id=""mmmotif-pattern"" width=""40"" height=""40"" patternUnits=""userSpaceOnUse"" patternTransform=""translate(-44 -32) scale(1) rotate(134) skewX(0) skewY(0)"">
