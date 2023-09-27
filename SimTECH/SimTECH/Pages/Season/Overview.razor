@@ -39,6 +39,7 @@
                              OnFinishSeason="FinishSeason"
                              OnShowComponentUsage="ShowUsedComponents"
                              OnShowQualyBattles="ShowQualyBattles"
+                             OnShowContractDurations="ShowRemainingContractDurations"
                              OnNextRace="GoToNextRace"
                              OnClassSelected="SetActiveRaceClass"
                              OnNavigate="GoToCommon" />
@@ -415,6 +416,20 @@
             };
 
         _ = await _dialogService.ShowAsync<UsedComponents>("UsedComponents", parameters, Globals.StatisticDialogDefaultOptions);
+    }
+
+    private async Task ShowRemainingContractDurations()
+    {
+        var activeContracts = await _contractService.GetLeagueContracts(OverviewModel.Season.LeagueId);
+
+        var parameters = new DialogParameters
+            {
+                ["SeasonDrivers"] = OverviewModel.ClassDrivers(),
+                ["SeasonTeams"] = OverviewModel.ClassTeams(),
+                ["Contracts"] = activeContracts
+            };
+
+        _ = await _dialogService.ShowAsync<ContractLengthRemaining>("Remaining durations", parameters, Globals.StatisticDialogDefaultOptions);
     }
 
     private void GoToCommon(string path) => _nav.NavigateTo(path);

@@ -85,6 +85,7 @@ namespace SimTECH.Data.Services
             return true;
         }
 
+        // Don't forget to subtract contract durations if you call this method again elsewhere
         public async Task<string?> ActivateSeason(long seasonId)
         {
             using var context = _dbFactory.CreateDbContext();
@@ -116,7 +117,6 @@ namespace SimTECH.Data.Services
             await context.SaveChangesAsync();
 
             return null;
-            // Don't forget to subtract contract durations if you call this method again elsewhere
         }
 
         public async Task FinishSeason(long seasonId)

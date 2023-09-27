@@ -1,4 +1,4 @@
-﻿namespace SimTECH
+﻿namespace SimTECH.Constants
 {
     // Small = 24px
     public static class IconCollection

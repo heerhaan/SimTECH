@@ -10,7 +10,7 @@
                 </MudButtonGroup>
             </MudStack>
             <MudPaper Class="px-2">
-                <MudTable T="QualyBattleComparison"
+                <MudTable T="QualyBattle"
                           Items="@qualyBattleList.OrderBy(e => e.TeamName)"
                           GroupBy="@groupDefinition"
                           GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
@@ -22,7 +22,7 @@
                         <MudTh Class="accent-cell"></MudTh>
                         <MudTh>Name</MudTh>
                         <MudTh Class="number-col">NO</MudTh>
-                        <MudTh>Victorious</MudTh>
+                        <MudTh>Dub</MudTh>
                     </HeaderContent>
                     <GroupHeaderTemplate>
                         <MudTh Class="mud-table-cell-custom-group" colspan="10">
@@ -67,9 +67,9 @@
     [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
 
-    private List<QualyBattleComparison> qualyBattleList = new();
+    private List<QualyBattle> qualyBattleList = new();
 
-    private TableGroupDefinition<QualyBattleComparison> groupDefinition = new()
+    private TableGroupDefinition<QualyBattle> groupDefinition = new()
     {
         GroupName = "Team",
         Selector = e => e.Team
@@ -102,7 +102,7 @@
             {
                 var driver = SeasonDrivers.First(e => e.Id == victory.Key);
 
-                qualyBattleList.Add(new QualyBattleComparison
+                qualyBattleList.Add(new QualyBattle
                 {
                     Name = driver.Driver.FullName,
                     Number = driver.Number,
@@ -118,20 +118,5 @@
                 });
             }
         }
-    }
-
-    internal class QualyBattleComparison
-    {
-        public string Name { get; set; }
-        public int Number { get; set; }
-        public Country Country { get; set; }
-        public int VictoryCount { get; set; }
-
-        public long TeamId { get; set; }
-        public string TeamName { get; set; }
-        public string Colour { get; set; }
-        public string Accent { get; set; }
-
-        public SeasonTeam Team { get; set; }
     }
 }

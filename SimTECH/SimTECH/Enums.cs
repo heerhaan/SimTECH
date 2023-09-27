@@ -8,8 +8,7 @@ namespace SimTECH
         Active,
         Closed,
         Archived,
-        // NOTE: additional states are found underneath, used for some entities to control specific behaviour
-        Advanced,
+        Advanced, // Advanced is a specific state, logically fits between active and closed
     }
 
     public enum StateFilter { All, Default, Active, Closed, Archived }
@@ -113,7 +112,6 @@ namespace SimTECH
     #endregion racing
 
     #region countries
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1154:Sort enum members.", Justification = "I don't care")]
     public enum Country
     {
         [Description("Afghanistan")] AF = 1,
@@ -330,7 +328,7 @@ namespace SimTECH
         [Description("European Union")] EU = 250,
         [Description("Kosovo")] XK = 251,
 
-        // Last index is 252 (European Union)
+        // Last index is 252 (European Union)(ayo why is EU 250 then)
     }
 
     /* Following countries have been removed from the list as they are uhhh irrelevant

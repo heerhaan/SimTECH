@@ -94,6 +94,10 @@
                 <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small">
                     <MudButton FullWidth="true" OnClick="OnShowComponentUsage">Components</MudButton>
                     <MudButton FullWidth="true" OnClick="ShowQualyBattles">Q.Battles</MudButton>
+                    @if (OverviewModel.Season.State == State.Active)
+                    {
+                        <MudButton FullWidth="true" OnClick="ShowContractDurations">Contract durations</MudButton>
+                    }
                 </MudButtonGroup>
             </MudStack>
         </MudPaper>
@@ -130,6 +134,7 @@
     [Parameter] public EventCallback OnFinishSeason { get; set; }
     [Parameter] public EventCallback OnShowComponentUsage { get; set; }
     [Parameter] public EventCallback OnShowQualyBattles { get; set; }
+    [Parameter] public EventCallback OnShowContractDurations { get; set; }
     [Parameter] public EventCallback OnNextRace { get; set; }
     [Parameter] public EventCallback<long> OnClassSelected { get; set; }
     [Parameter] public EventCallback<string> OnNavigate { get; set; }
@@ -147,6 +152,7 @@
 
     async Task ShowComponentUsage() => await OnShowComponentUsage.InvokeAsync();
     async Task ShowQualyBattles() => await OnShowQualyBattles.InvokeAsync();
+    async Task ShowContractDurations() => await OnShowContractDurations.InvokeAsync();
 
     async Task GoToNextRace() => await OnNextRace.InvokeAsync();
 
