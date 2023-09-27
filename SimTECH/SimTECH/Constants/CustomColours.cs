@@ -7,7 +7,6 @@ public static class CustomColours
     public static readonly MudColor UltraDarkFadedRed = new("#100a0a");
     public static readonly MudColor DeepDarkFadedRed = new("#110808");
     public static readonly MudColor DarkFadedRed = new("#250e0e");
-
     public static readonly MudColor BrightRed = new("#ff0015");
 
     public static readonly MudColor LightBeige = new("#ffac79");

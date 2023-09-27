@@ -9,8 +9,8 @@ namespace SimTECH.PageModels.SeasonModels
         public Country Nationality { get; set; }
 
         public string TeamName { get; set; }
-        public string Colour { get; set; } = Generals.DefaultColour;
-        public string Accent { get; set; } = Generals.DefaultAccent;
+        public string Colour { get; set; } = Globals.DefaultColour;
+        public string Accent { get; set; } = Globals.DefaultAccent;
 
         public string Engine { get; set; }
 

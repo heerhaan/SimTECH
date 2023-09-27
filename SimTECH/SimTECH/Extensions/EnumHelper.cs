@@ -41,7 +41,7 @@ namespace SimTECH.Extensions
             RaceStatus.Dsq => "black",
             RaceStatus.Dnq => "rebeccapurple",
             RaceStatus.Fatal => "white",
-            _ => Generals.DefaultColour
+            _ => Globals.DefaultColour
         };
 
         public static string StatusStyles(this RaceStatus status) => status switch
@@ -50,7 +50,7 @@ namespace SimTECH.Extensions
             RaceStatus.Dsq => "background-color: black;color:white !important",
             RaceStatus.Dnq => "background-color: rebeccapurple",
             RaceStatus.Fatal => "background-color: white",
-            _ => Generals.DefaultColour
+            _ => Globals.DefaultColour
         };
 
         public static string SituationColour(this SituationOccurrence situation) => situation switch

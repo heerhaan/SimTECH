@@ -27,7 +27,7 @@ namespace SimTECH.Providers
                 {
                     Country = Enum.TryParse<Country>(e.Substring(startIndex: pathNameLength - 7, 2), out var cuntLang)
                         ? cuntLang
-                        : Generals.DefaultCountry,
+                        : Globals.DefaultCountry,
                     LanguageType = e.Substring(startIndex: pathNameLength - 10, 2),
                     Path = e,
                 })

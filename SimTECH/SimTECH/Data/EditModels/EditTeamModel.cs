@@ -9,7 +9,7 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string? Name { get; set; }
-        public Country Country { get; set; } = Generals.DefaultCountry;
+        public Country Country { get; set; } = Globals.DefaultCountry;
         public string? Biography { get; set; }
         public bool Mark { get; set; }
         public State State { get; set; }

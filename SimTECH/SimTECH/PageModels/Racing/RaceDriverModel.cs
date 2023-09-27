@@ -43,7 +43,7 @@ namespace SimTECH.PageModels.Racing
     public static class ExtendRaceDriver
     {
         public static List<(double, string)> ColoursOfUsedTyres(this RaceDriver driver, int calculationCount) =>
-            driver.LapScores.ConvertAll(e => (NumberHelper.Percentage(1, calculationCount), e.TyreColour ?? Generals.DefaultColour));
+            driver.LapScores.ConvertAll(e => (NumberHelper.Percentage(1, calculationCount), e.TyreColour ?? Globals.DefaultColour));
 
         public static int QualifyingBonus(this RaceDriver driver, int racerCount, int gridBonus) =>
             (racerCount * gridBonus) - ((driver.AbsoluteGrid - 1) * gridBonus);

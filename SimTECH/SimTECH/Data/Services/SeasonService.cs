@@ -197,13 +197,13 @@ namespace SimTECH.Data.Services
 
                     DriverName = seasonDriver?.Driver?.FullName ?? "[UNKNOWN]",
                     DriverNumber = seasonDriver?.Number ?? 0,
-                    DriverNationality = seasonDriver?.Driver?.Country ?? Generals.DefaultCountry,
-                    DriverColour = seasonDriver?.SeasonTeam?.Colour ?? Generals.DefaultColour,
-                    DriverAccent = seasonDriver?.SeasonTeam?.Accent ?? Generals.DefaultAccent,
+                    DriverNationality = seasonDriver?.Driver?.Country ?? Globals.DefaultCountry,
+                    DriverColour = seasonDriver?.SeasonTeam?.Colour ?? Globals.DefaultColour,
+                    DriverAccent = seasonDriver?.SeasonTeam?.Accent ?? Globals.DefaultAccent,
 
                     TeamName = seasonTeam?.Name ?? "[UNKNOWN]",
-                    TeamNationality = seasonTeam?.Team?.Country ?? Generals.DefaultCountry,
-                    TeamColour = seasonTeam?.Colour ?? Generals.DefaultColour,
+                    TeamNationality = seasonTeam?.Team?.Country ?? Globals.DefaultCountry,
+                    TeamColour = seasonTeam?.Colour ?? Globals.DefaultColour,
                 });
             }
 

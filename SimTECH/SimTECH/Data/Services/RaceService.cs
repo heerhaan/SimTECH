@@ -405,8 +405,8 @@ namespace SimTECH.Data.Services
                             Name = d.SeasonDriver.Driver.FullName,
                             Country = d.SeasonDriver.Driver.Country,
                             Number = d.SeasonDriver.Number,
-                            Colour = d.SeasonDriver.SeasonTeam == null ? Generals.DefaultColour : d.SeasonDriver.SeasonTeam.Colour,
-                            Accent = d.SeasonDriver.SeasonTeam == null ? Generals.DefaultAccent : d.SeasonDriver.SeasonTeam.Accent
+                            Colour = d.SeasonDriver.SeasonTeam == null ? Globals.DefaultColour : d.SeasonDriver.SeasonTeam.Colour,
+                            Accent = d.SeasonDriver.SeasonTeam == null ? Globals.DefaultAccent : d.SeasonDriver.SeasonTeam.Accent
                         })
                         .First(),
 

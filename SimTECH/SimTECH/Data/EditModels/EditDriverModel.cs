@@ -25,7 +25,7 @@ namespace SimTECH.Data.EditModels
             if (driver == null)
             {
                 DateOfBirth = DateTime.Today;
-                Country = Generals.DefaultCountry;
+                Country = Globals.DefaultCountry;
                 State = State.Active;
 
                 _driver = new Driver();

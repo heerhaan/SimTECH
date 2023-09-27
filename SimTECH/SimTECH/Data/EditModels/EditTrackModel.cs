@@ -9,7 +9,7 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public Country Country { get; set; } = Generals.DefaultCountry;
+        public Country Country { get; set; } = Globals.DefaultCountry;
         public double Length { get; set; } = 4d;
         public State State { get; set; }
         public double AeroMod { get; set; } = 1d;
