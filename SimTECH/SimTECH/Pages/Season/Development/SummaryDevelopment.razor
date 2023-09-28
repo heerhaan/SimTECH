@@ -13,60 +13,26 @@
             <MudText Typo="Typo.body2" Color="Color.Info">OLD - CHANGE - NEW</MudText>
         </MudPaper>
         <MudPaper id="developed-summary">
-            <MudStack Row="true" Spacing="0" Class="flex-wrap">
-                @foreach (var entrantGroup in summaries)
-                {
-                    <MudPaper Elevation="15" Class="px-4 py-2">
-                        <MudTable T="EntrantDevelopLog"
-                                  Items="@entrantGroup.EntrantLogs.OrderBy(e => e.Name)"
-                                  GroupBy="@_entrantDefinition"
-                                  GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
-                                  FixedHeader="true"
-                                  Bordered="true"
-                                  Dense="true"
-                                  Class="extra-dense"
-                                  id="@(entrantGroup.SummaryElementId)">
-                            <ToolBarContent>
-                                <MudText Typo="Typo.h5" Color="Color.Tertiary">@entrantGroup.EntrantGroup.ToString()</MudText>
-                                <MudDivider Vertical="true" Class="mx-2" />
-                                <MudText Typo="Typo.h5">Boing</MudText>
-                                <MudSpacer />
-                                <ScreenshotIconButton TargetId="@(entrantGroup.SummaryElementId)" />
-                            </ToolBarContent>
-                            <HeaderContent>
-                                @foreach (var (aspect, i) in entrantGroup.Aspects.OrderBy(e => e.ReadableAspect()).WithIndex())
-                                {
-                                    <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")">
-                                        @aspect.ReadableAspect()
-                                    </MudTh>
-                                }
-                            </HeaderContent>
-                            <GroupHeaderTemplate>
-                                <MudTh Class="mud-table-cell-custom-group" colspan="10">
-                                    <MudText>@context.Key</MudText>
-                                </MudTh>
-                            </GroupHeaderTemplate>
-                            <RowTemplate>
-                                @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()).WithIndex())
-                                {
-                                    <MudTd Class="@(InspectTheWheel(i))">
-                                        <MudStack Row="true" Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
-                                            <MudText Typo="Typo.caption" Style="color:white !important">@(dev.Value.Item2 - dev.Value.Item1)</MudText>
-                                            <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
-                                            <GradientColour Min="@entrantGroup.MinMaxValues[dev.Key].Item1"
-                                                            Max="@entrantGroup.MinMaxValues[dev.Key].Item2"
-                                                            Value="@dev.Value.Item1">
-                                                <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
-                                            </GradientColour>
-                                            <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
-                                            <MudText Typo="Typo.caption" Style="color:white !important">@dev.Value.Item2</MudText>
-                                        </MudStack>
-                                    </MudTd>
-                                }
-                            </RowTemplate>
-                        </MudTable>
-                    </MudPaper>
-                }
+            <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween">
+                <MudPaper Elevation="15" Class="px-4 py-2">
+                    @if (DriverSummary != null)
+                    {
+                        <SummaryEntrantDisplay EntrantSummary="@DriverSummary" />
+                    }
+                </MudPaper>
+                <MudPaper Elevation="15" Class="px-4 py-2">
+                    <MudStack Justify="Justify.SpaceBetween" Class="pa-0">
+                        @if (TeamSummary != null)
+                        {
+                            <SummaryEntrantDisplay EntrantSummary="@TeamSummary" />
+                        }
+
+                        @if (EngineSummary != null)
+                        {
+                            <SummaryEntrantDisplay EntrantSummary="@EngineSummary" />
+                        }
+                    </MudStack>
+                </MudPaper>
             </MudStack>
         </MudPaper>
     </DialogContent>
@@ -80,15 +46,9 @@
     [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
 
-    private static readonly string[] cycleWheel = new[] { "fallback-muted-background-primary", "fallback-muted-background-secondary", "fallback-muted-background-tertiary" };
-
-    private List<DevelopSummary> summaries = new();
-
-    private TableGroupDefinition<EntrantDevelopLog> _entrantDefinition = new()
-    {
-        GroupName = "Entrant",
-        Selector = (e) => e.Name
-    };
+    private DevelopSummary? DriverSummary;
+    private DevelopSummary? TeamSummary;
+    private DevelopSummary? EngineSummary;
 
     protected override void OnInitialized()
     {
@@ -106,13 +66,17 @@
                 switch (entrantSummary.Key)
                 {
                     case Entrant.Driver:
-                        currentLog = CreateDriverLog(developed.Key, developedLogs); break;
+                        currentLog = CreateDriverLog(developed.Key, developedLogs);
+                        break;
                     case Entrant.Team:
-                        currentLog = CreateTeamLog(developed.Key, developedLogs); break;
+                        currentLog = CreateTeamLog(developed.Key, developedLogs);
+                        break;
                     case Entrant.Engine:
-                        currentLog = CreateEngineLog(developed.Key, developedLogs); break;
+                        currentLog = CreateEngineLog(developed.Key, developedLogs);
+                        break;
                     default:
-                        currentLog = null; break;
+                        currentLog = null;
+                        break;
                 }
 
                 if (currentLog != null)
@@ -127,20 +91,27 @@
                 minMaxPerAspect.Add(allChanged.Key, (lowest, highest));
             }
 
-            summaries.Add(new DevelopSummary
+            var developedSummary = new DevelopSummary
                 {
                     EntrantGroup = entrantSummary.Key,
                     Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),
                     EntrantLogs = entrantLog,
                     MinMaxValues = minMaxPerAspect,
-                });
-        }
-    }
+                };
 
-    private string InspectTheWheel(int numCycle)
-    {
-        numCycle %= cycleWheel.Length;
-        return cycleWheel[numCycle];
+            switch (entrantSummary.Key)
+            {
+                case Entrant.Driver:
+                    DriverSummary = developedSummary;
+                    break;
+                case Entrant.Team:
+                    TeamSummary = developedSummary;
+                    break;
+                case Entrant.Engine:
+                    EngineSummary = developedSummary;
+                    break;
+            }
+        }
     }
 
     private EntrantDevelopLog? CreateDriverLog(long driverId, DevelopmentLog[] logs)
