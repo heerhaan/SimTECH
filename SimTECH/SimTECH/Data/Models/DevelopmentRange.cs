@@ -8,6 +8,6 @@
         public int Maximum { get; set; }
 
         public long LeagueId { get; set; }
-        public League League { get; set; } = default!;
+        public League League { get; set; }
     }
 }

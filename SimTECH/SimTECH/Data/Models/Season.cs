@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace SimTECH.Data.Models
+﻿namespace SimTECH.Data.Models
 {
     public sealed class Season : ModelState
     {
@@ -26,17 +24,16 @@ namespace SimTECH.Data.Models
 
         public QualyFormat QualifyingFormat { get; set; }
 
-        public IList<PointAllotment>? PointAllotments { get; set; }
-        public IList<Race>? Races { get; set; }
-        public IList<SeasonDriver>? SeasonDrivers { get; set; }
-        public IList<SeasonTeam>? SeasonTeams { get; set; }
-        public IList<SeasonEngine>? SeasonEngines { get; set; }
+        public IList<PointAllotment> PointAllotments { get; set; }
+        public IList<Race> Races { get; set; }
+        public IList<SeasonDriver> SeasonDrivers { get; set; }
+        public IList<SeasonTeam> SeasonTeams { get; set; }
+        public IList<SeasonEngine> SeasonEngines { get; set; }
         public IList<RaceClass> RaceClasses { get; set; }
 
         public long LeagueId { get; set; }
-        public League League { get; set; } = default!;
+        public League League { get; set; }
 
-        [NotMapped]
         public bool HasRaceClasses => RaceClasses?.Any() == true;
     }
 }

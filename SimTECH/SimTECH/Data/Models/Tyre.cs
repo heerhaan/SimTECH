@@ -4,8 +4,8 @@ namespace SimTECH.Data.Models
 {
     public sealed class Tyre : ModelState
     {
-        public string Name { get; set; } = default!;
-        public string Colour { get; set; } = default!;
+        public string Name { get; set; }
+        public string Colour { get; set; }
 
         public int Pace { get; set; }
         public int PitWhenBelow { get; set; }
@@ -15,7 +15,7 @@ namespace SimTECH.Data.Models
         public int DistanceMax { get; set; }
         public bool ForWet { get; set; }
 
-        public IList<LeagueTyre>? LeagueTyres { get; set; }
+        public IList<LeagueTyre> LeagueTyres { get; set; }
     }
 
     public static class ExtendTyre

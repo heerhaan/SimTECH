@@ -2,7 +2,7 @@
 {
     public sealed class Track : ModelState
     {
-        public string Name { get; set; } = default!;
+        public string Name { get; set; }
         public Country Country { get; set; }
         public double Length { get; set; }
 

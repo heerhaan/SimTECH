@@ -12,10 +12,13 @@
         public Team Team { get; set; }
         public long LeagueId { get; set; }
         public League League { get; set; }
-    }
 
-    public static class ExtendContract
-    {
-        public static bool IsExpired(this Contract contract) => contract.Duration == 0;
+        public bool IsExpired
+        {
+            get
+            {
+                return Duration == 0;
+            }
+        }
     }
 }

@@ -3,8 +3,8 @@
     public class TrackTrait
     {
         public long TraitId { get; set; }
-        public Trait Trait { get; set; } = default!;
+        public Trait Trait { get; set; }
         public long TrackId { get; set; }
-        public Track Track { get; set; } = default!;
+        public Track Track { get; set; }
     }
 }

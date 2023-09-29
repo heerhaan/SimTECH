@@ -4,10 +4,10 @@ namespace SimTECH.Data.Models
 {
     public sealed class SeasonTeam : ModelBase
     {
-        public string Name { get; set; } = default!;
-        public string Principal { get; set; } = default!;
-        public string Colour { get; set; } = default!;
-        public string Accent { get; set; } = default!;
+        public string Name { get; set; }
+        public string Principal { get; set; }
+        public string Colour { get; set; }
+        public string Accent { get; set; }
 
         public int Points { get; set; }
         public double HiddenPoints { get; set; }
@@ -21,13 +21,13 @@ namespace SimTECH.Data.Models
         //public int StandingsGoal { get; set; }
 
         public long TeamId { get; set; }
-        public Team Team { get; set; } = default!;
+        public Team Team { get; set; }
         public long SeasonId { get; set; }
-        public Season Season { get; set; } = default!;
+        public Season Season { get; set; }
         public long SeasonEngineId { get; set; }
-        public SeasonEngine SeasonEngine { get; set; } = default!;
+        public SeasonEngine SeasonEngine { get; set; }
         public long ManufacturerId { get; set; }
-        public Manufacturer Manufacturer { get; set; } = default!;
+        public Manufacturer Manufacturer { get; set; }
         public long? ClassId { get; set; }
         public RaceClass? Class { get; set; }
 
