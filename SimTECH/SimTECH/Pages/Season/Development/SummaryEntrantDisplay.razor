@@ -6,13 +6,13 @@
           Bordered="true"
           Dense="true"
           Class="extra-dense"
-          id="@(EntrantSummary.SummaryElementId)">
+          id="@EntrantSummary.SummaryElementId">
     <ToolBarContent>
         <MudText Typo="Typo.h5" Color="Color.Tertiary">@EntrantSummary.EntrantGroup.ToString()</MudText>
         <MudDivider Vertical="true" Class="mx-2" />
         <MudText Typo="Typo.h5">Boing</MudText>
         <MudSpacer />
-        <ScreenshotIconButton TargetId="@(EntrantSummary.SummaryElementId)" />
+        <ScreenshotIconButton TargetId="@EntrantSummary.SummaryElementId" />
     </ToolBarContent>
     <HeaderContent>
         @foreach (var (aspect, i) in EntrantSummary.Aspects.OrderBy(e => e.ReadableAspect()).WithIndex())

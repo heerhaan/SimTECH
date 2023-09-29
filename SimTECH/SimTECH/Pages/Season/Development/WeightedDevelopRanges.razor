@@ -1,0 +1,59 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudPaper>
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h5">Weighted development ranges for</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
+                    <ScreenshotIconButton TargetId="weighted-defined-ranges" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => DevelopDialog?.Close())" />
+                </MudButtonGroup>
+            </MudStack>
+        </MudPaper>
+        <MudPaper id="weighted-defined-ranges">
+            @if (AspectRanges?.Any() == true)
+            {
+                @foreach (var aspectRange in AspectRanges)
+                {
+                    <MudPaper>
+                        <MudText Typo="Typo.subtitle1">@aspectRange.Key.ReadableAspect()</MudText>
+                        <MudSimpleTable>
+                            <thead>
+                                <tr>
+                                    <th>&lt; LESS</th>
+                                    <th>Lower</th>
+                                    <th>Upper</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var range in aspectRange.Value.OrderBy(e => e.Comparer))
+                                {
+                                    <tr>
+                                        <td>@range.Comparer</td>
+                                        <td>@range.Minimum</td>
+                                        <td>@range.Maximum</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudPaper>
+                }
+            }
+        </MudPaper>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? DevelopDialog { get; set; }
+
+    [Parameter] public Entrant ForEntrant { get; set; }
+    [Parameter] public Dictionary<Aspect, List<DevelopmentRange>> AspectRanges { get; set; }
+
+    private string _readableEntrant
+    {
+        get
+        {
+            return ForEntrant.ToString();
+        }
+    }
+}

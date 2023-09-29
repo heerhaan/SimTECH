@@ -7,7 +7,7 @@
                 <MudSpacer />
                 <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
                     <ScreenshotIconButton TargetId="developed-summary" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => SummaryDialog?.Close())" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => DevelopDialog?.Close())" />
                 </MudButtonGroup>
             </MudStack>
             <MudText Typo="Typo.body2" Color="Color.Info">OLD - CHANGE - NEW</MudText>
@@ -39,7 +39,7 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? SummaryDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? DevelopDialog { get; set; }
 
     [Parameter] public IEnumerable<DevelopmentLog> DevelopmentLog { get; set; } = Enumerable.Empty<DevelopmentLog>();
     [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();

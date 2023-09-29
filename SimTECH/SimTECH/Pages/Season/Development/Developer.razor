@@ -97,38 +97,25 @@
 
                     <MudDivider />
 
-                    <MudButton Variant="Variant.Outlined"
-                               Color="Color.Secondary"
-                               FullWidth="true"
-                               OnClick="ShowDevelopmentSummary"
-                               Class="mt-4">
-                        Summary
-                    </MudButton>
+                    <MudButtonGroup VerticalAlign="true" Variant="Variant.Outlined" Color="Color.Secondary" Class="mt-4">
+                        <MudButton FullWidth="true"
+                                   OnClick="ShowWeightedDevelopmentRanges">
+                            <span>SET ranges for @selectedEntrant.ToString() and ASP</span>
+                        </MudButton>
+                        <MudButton FullWidth="true"
+                                   OnClick="ShowDevelopmentSummary">
+                            <span>Season summary</span>
+                        </MudButton>
+                    </MudButtonGroup>
                 </MudPaper>
             </MudItem>
-            <MudItem xs="6">
+            <MudItem xs="9">
                 <MudPaper>
                     <DevelopEntrant DevelopedEntrants="@DevelopedEntrants"
                                     SelectedAspect="@selectedAspect"
                                     SelectedType="@selectedType"
                                     ShowOptionalColumn="@showOptionalColumn"
                                     OnSaveDevelopment="SaveDevelopment" />
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="3">
-                <MudPaper Class="pa-2">
-                    <MudText Typo="Typo.h5">Defined SET ranges for @selectedEntrant.ToString()</MudText>
-                    <MudDivider />
-
-                    @if (ActiveRanges?.Any() == true)
-                    {
-                        <DefinedSetRanges SelectedAspect="@selectedAspect" SetRanges="@ActiveRanges" />
-                    }
-
-                    @if (selectedEntrant == Entrant.Driver && selectedAspect == Aspect.Skill && AgeRanges?.Any() == true)
-                    {
-                        <DefinedSetRanges SelectedAspect="@Aspect.Age" SetRanges="@AgeRanges" />
-                    }
                 </MudPaper>
             </MudItem>
         }
@@ -143,10 +130,8 @@
     private List<SeasonTeam> SeasonTeams { get; set; }
     private List<SeasonDriver> SeasonDrivers { get; set; }
     private List<DevelopmentRange> LeagueDevelopmentRanges { get; set; }
-    private List<DevelopmentRange> AgeRanges { get; set; }
 
     private List<DevelopedEntrant> DevelopedEntrants { get; set; } = new();
-    private List<DevelopmentRange> ActiveRanges { get; set; } = new();
 
     Entrant selectedEntrant = Entrant.Driver;
     Aspect selectedAspect = Aspect.Reliability;
@@ -168,7 +153,6 @@
 
         currentYear = season.Year;
         LeagueDevelopmentRanges = await _leagueService.GetLeagueDevelopmentRanges(season.LeagueId);
-        AgeRanges = LeagueDevelopmentRanges.Where(e => e.Type == Aspect.Age).ToList();
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -303,8 +287,6 @@
 
     private void ApplyCommon()
     {
-        ActiveRanges = LeagueDevelopmentRanges.GetAspectRanges(selectedAspect);
-
         if (selectedType == Quantifier.Set)
         {
             ApplyDefaultRanges();
@@ -318,11 +300,12 @@
 
     private void ApplyDefaultRanges()
     {
-        List<DevelopmentRange> setCompareRange = ActiveRanges;
-        List<DevelopmentRange>? additionalCompareRange = null;
+        List<DevelopmentRange> setCompareRange = LeagueDevelopmentRanges.GetAspectRanges(selectedAspect);
+        List<DevelopmentRange>? additionalCompareRange = LeagueDevelopmentRanges.GetAspectRanges(Aspect.Age);
 
-        if (selectedEntrant == Entrant.Driver && selectedAspect == Aspect.Skill)
-            additionalCompareRange = AgeRanges;
+        // I know, I know this is awful
+        if (selectedEntrant != Entrant.Driver || selectedAspect != Aspect.Skill)
+            additionalCompareRange = null;
 
         if (!setCompareRange.Any() && !(additionalCompareRange?.Any() == true))
         {
@@ -400,6 +383,7 @@
 
         await RetrieveEntrants();
         await _entrantService.SaveDevelopmentLog(CreateLog);
+
         LoadEntrants();
     }
 
@@ -413,6 +397,29 @@
                 SeasonId = SeasonId,
             })
         .ToList();
+
+    private async Task ShowWeightedDevelopmentRanges()
+    {
+        var aspectRanges = new Dictionary<Aspect, List<DevelopmentRange>>();
+        var activeRanges = LeagueDevelopmentRanges.GetAspectRanges(selectedAspect);
+        var ageRanges = LeagueDevelopmentRanges.GetAspectRanges(Aspect.Age);
+
+        // TODO: As of now there is no easy way to get all the development ranges meant for a certain entrant
+
+        if (activeRanges?.Any() == true)
+            aspectRanges.Add(selectedAspect, activeRanges);
+
+        if (selectedEntrant == Entrant.Driver && ageRanges?.Any() == true)
+            aspectRanges.Add(Aspect.Age, ageRanges);
+
+        var parameters = new DialogParameters
+        {
+            ["ForEntrant"] = selectedEntrant,
+            ["AspectRanges"] = aspectRanges
+        };
+
+        await _dialogService.ShowAsync<WeightedDevelopRanges>("Weighted development ranges", parameters, Globals.StatisticDialogDefaultOptionsXl);
+    }
 
     private async Task ShowDevelopmentSummary()
     {
