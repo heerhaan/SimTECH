@@ -305,7 +305,7 @@
             occurrences.Add(i, occurrMatch?.Occurrences ?? SituationOccurrence.Unknown);
         }
 
-        racedLaps = NumberHelper.CalculateLapCount(calculated * calculationDistance, Model.Race.Track.Length);
+        racedLaps = GetCurrentLapCount;
         totalLaps = NumberHelper.CalculateLapCount(Model.Race.RaceLength, Model.Race.Track.Length);
 
         BuildRaceDrivers();
@@ -355,6 +355,8 @@
 
     private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
+    private int GetCurrentLapCount => NumberHelper.CalculateLapCount(calculated * calculationDistance, Model.Race.Track.Length);
+
     private void Advance()
     {
         // Use this variable to persist the lap scores which were generated in this advance
@@ -396,6 +398,8 @@
             }
 
             // Determine new positions (keep team role in mind here!)
+            DeterminePositions();
+            // do post-processing stuff
             PostProcessAdvance(newFastestLapScorer);
 
             if (safetyCarOut)
@@ -407,7 +411,7 @@
             }
         }
 
-        racedLaps = NumberHelper.CalculateLapCount(calculated * calculationDistance, Model.Race.Track.Length);
+        racedLaps = GetCurrentLapCount;
 
         var lastScores = raceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
         if (lastScores.Any())
@@ -663,8 +667,6 @@
 
     private void PostProcessAdvance(long? newFastestLapHolder)
     {
-        DeterminePositions();
-
         highestScore = raceDrivers.Max(e => e.LapSum);
 
         if (newFastestLapHolder != null)
@@ -744,10 +746,10 @@
             (
                 new Dictionary<long, int>(),
                 (dict, driver) =>
-                    {
-                        dict.Add(driver.SeasonDriverId, ++absoluteIndex);
-                        return dict;
-                    }
+                {
+                    dict.Add(driver.SeasonDriverId, ++absoluteIndex);
+                    return dict;
+                }
             );
     }
 
@@ -828,20 +830,7 @@
         PreProcessFinish();
 
         // Update object references
-        foreach (var raceDriver in raceDrivers)
-        {
-            var matchDriver = Model.RaweCeekDrivers.First(e => e.ResultId == raceDriver.ResultId);
-            matchDriver.Position = raceDriver.Position;
-            matchDriver.AbsolutePosition = raceDriver.AbsolutePosition;
-            matchDriver.Score = raceDriver.LapSum;
-            matchDriver.Status = raceDriver.Status;
-            matchDriver.TyreLife = raceDriver.TyreLife;
-            matchDriver.Tyre = raceDriver.CurrentTyre;
-            matchDriver.FastestLap = raceDriver.HasFastestLap;
-            matchDriver.Overtaken = raceDriver.OvertakeCount;
-            matchDriver.Defended = raceDriver.DefensiveCount;
-            matchDriver.Incident = raceDriver.Incident;
-        }
+        Model.SetRacerData(raceDrivers);
 
         // Should be removed when it is done per advance
         var allLapScores = raceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();
@@ -854,11 +843,11 @@
         foreach (var occurr in occurrences.Where(e => e.Key > initialHighestOccurr))
         {
             Occurrences.Add(new RaceOccurrence
-                {
-                    Order = occurr.Key,
-                    Occurrences = occurr.Value,
-                    RaceId = Model.Race.Id,
-                });
+            {
+                Order = occurr.Key,
+                Occurrences = occurr.Value,
+                RaceId = Model.Race.Id,
+            });
         }
 
         await OnFinish.InvokeAsync();
