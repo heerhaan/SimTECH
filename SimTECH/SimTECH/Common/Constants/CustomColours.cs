@@ -32,7 +32,8 @@ public static class CustomColours
     public static readonly MudColor DarkFadedBlue = new("#0c1e27");
     public static readonly MudColor LiteDarkFadedBlue = new("#122d3b");
 
-    public static readonly MudColor BrightCyan = new("#4CF4FF");
+    public static readonly MudColor MildCyan = new("#569d9a");
+    public static readonly MudColor BrightCyan = new("#40CDD6");
 
     public static readonly MudColor StreetGreen = new("#18B256");
 

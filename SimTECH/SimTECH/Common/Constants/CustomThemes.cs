@@ -230,8 +230,8 @@ public static class CustomThemes
     {
         Palette = new PaletteLight()
         {
-            Primary = CustomColours.FadedRed,
-            Secondary = CustomColours.BrightCyan,
+            Primary = CustomColours.ActiveDarkRed,
+            Secondary = CustomColours.MildCyan,
             Tertiary = CustomColours.StreetGreen,
 
             DrawerBackground = CustomColours.MaroonRed,
