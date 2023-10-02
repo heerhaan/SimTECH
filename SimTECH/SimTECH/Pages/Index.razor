@@ -19,6 +19,71 @@
                 <MudText Typo="Typo.h3">SimTECH</MudText>
             </MudPaper>
         </MudItem>
+        <MudItem xs="12" md="3">
+            <MudPaper Elevation="5" Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.h5">Welcome</MudText>
+                <MudDivider />
+
+                <MudText Typo="Typo.body2">First time here? Wow, how cool. Go to <MudLink Href="extra">extra</MudLink> to load some default data!</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="9">
+            <MudPaper Elevation="5" Class="pa-4 mud-height-full">
+                <MudTable id="recent-race-table" Items="@recentRaces" Dense="true" Class="overflow-hider">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h5">Last races</MudText>
+                        <MudSpacer />
+                        <ScreenshotButton TargetId="recent-race-table" Class="btn-md" />
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<FinishedRaceModel, object>(e => e.LeagueName)">
+                                League
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>Race</MudTh>
+                        <MudTh Class="pa-0"></MudTh>
+                        <MudTh>Team</MudTh>
+                        <MudTh Class="number-col">NO</MudTh>
+                        <MudTh>Driver</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText Typo="Typo.body2">@context.LeagueName</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.body2">[R@(context.Round)] @(context.Name)</MudText>
+                                <MudSpacer />
+                                <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
+                            </MudStack>
+                        </MudTd>
+                        <MudTd Class="accent-cell">
+                            <SmolAccent Colour="@context.WinningDriver.Colour" />
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.body2">@context.WinningTeam.Name</MudText>
+                            </MudStack>
+                        </MudTd>
+                        <MudTd Class="number-col">
+                            <NumberDisplay Colour="@context.WinningDriver.Colour" Accent="@context.WinningDriver.Accent">@context.WinningDriver.Number</NumberDisplay>
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.body2">@context.WinningDriver.Name</MudText>
+                            </MudStack>
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Secondary"
+                                       OnClick="@(() => GoToPostRace(context.RaceId))">Go</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
                 <MudTable Items="@activeSeasons" Dense="true">
@@ -85,73 +150,6 @@
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" md="9">
-            <MudPaper Elevation="5" Class="pa-4 mud-height-full">
-                <MudTable id="recent-race-table" Items="@recentRaces" Dense="true" Class="overflow-hider">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h5">Last races</MudText>
-                        <MudSpacer />
-                        <ScreenshotButton TargetId="recent-race-table" Class="btn-md" />
-                    </ToolBarContent>
-                    <HeaderContent>
-                        <MudTh>
-                            <MudTableSortLabel SortBy="new Func<FinishedRaceModel, object>(e => e.LeagueName)">
-                                League
-                            </MudTableSortLabel>
-                        </MudTh>
-                        <MudTh>Race</MudTh>
-                        <MudTh Class="pa-0"></MudTh>
-                        <MudTh>Team</MudTh>
-                        <MudTh Class="number-col">NO</MudTh>
-                        <MudTh>Driver</MudTh>
-                        <MudTh></MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>
-                            <MudText Typo="Typo.body2">@context.LeagueName</MudText>
-                        </MudTd>
-                        <MudTd>
-                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.body2">[R@(context.Round)] @(context.Name)</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@context.Country" Size="ElementSize.Small" />
-                            </MudStack>
-                        </MudTd>
-                        <MudTd Class="accent-cell">
-                            <SmolAccent Colour="@context.WinningDriver.Colour" />
-                        </MudTd>
-                        <MudTd>
-                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.body2">@context.WinningTeam.Name</MudText>
-                            </MudStack>
-                        </MudTd>
-                        <MudTd Class="number-col">
-                            <NumberDisplay Colour="@context.WinningDriver.Colour" Accent="@context.WinningDriver.Accent">@context.WinningDriver.Number</NumberDisplay>
-                        </MudTd>
-                        <MudTd>
-                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudText Typo="Typo.body2">@context.WinningDriver.Name</MudText>
-                            </MudStack>
-                        </MudTd>
-                        <MudTd>
-                            <MudButton Variant="Variant.Text"
-                                       Color="Color.Secondary"
-                                       OnClick="@(() => GoToPostRace(context.RaceId))">Go</MudButton>
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" md="3">
-            <MudPaper Elevation="5" Class="pa-4 mud-height-full">
-                <MudStack Class="mud-height-full">
-                    <MudText Typo="Typo.h5">Hello</MudText>
-                    <MudDivider />
-
-                    <MudText Typo="Typo.body2">First time here? Wow, how cool. Go to <MudLink Href="extra">extra</MudLink> to load some default data!</MudText>
-                </MudStack>
             </MudPaper>
         </MudItem>
     </MudGrid>

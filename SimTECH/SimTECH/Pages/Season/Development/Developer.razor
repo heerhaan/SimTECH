@@ -1,6 +1,8 @@
 ﻿@page "/developer/{SeasonId:long}"
 @page "/developer/{SeasonId:long}/{ClassId:long}"
 
+@using SimTECH.Pages.Season.Development.Components
+
 @inject LeagueService _leagueService
 @inject SeasonEntrantService _entrantService
 @inject SeasonService _seasonService
@@ -49,7 +51,7 @@
                             <MudTooltip Text="Which aspect is going to be developed">
                                 <MudText Typo="Typo.subtitle1">Target</MudText>
                             </MudTooltip>
-                            <MudChipSet SelectedChipChanged="TargetChipChanged" Mandatory="true">
+                            <MudChipSet @ref="chipSet" SelectedChipChanged="TargetChipChanged" Mandatory="true">
                                 <MudChip Color="Color.Secondary" Value="Aspect.Reliability" Default="true">@Aspect.Reliability.ShortReadableAspect()</MudChip>
 
                                 @if (selectedEntrant == Entrant.Driver)
@@ -106,7 +108,7 @@
                     <MudButtonGroup VerticalAlign="true" Variant="Variant.Outlined" Color="Color.Secondary" Class="mt-4">
                         <MudButton FullWidth="true"
                                    OnClick="ShowWeightedDevelopmentRanges">
-                            <span>SET ranges for @selectedEntrant.ToString() and ASP</span>
+                            <span>SET ranges for @selectedEntrant.ToString() and @selectedAspect.ToString()</span>
                         </MudButton>
                         <MudButton FullWidth="true"
                                    OnClick="ShowDevelopmentSummary">
@@ -142,6 +144,8 @@
     Entrant selectedEntrant = Entrant.Driver;
     Aspect selectedAspect = Aspect.Reliability;
     Quantifier selectedType = Quantifier.Range;
+
+    private MudChipSet? chipSet;
 
     bool loading = true;
     bool hasRaceClasses;
