@@ -17,8 +17,6 @@
             <MudPaper Elevation="15" MinHeight="60px" Class="pa-2 text-center">
                 <MudText Typo="Typo.h3">
                     Entrant Development
-                    <sub>bot</sub>
-                    <sup>top</sup>
                 </MudText>
                 <sub>I am a bottom</sub>
                 <sup>I am a top</sup>
@@ -211,6 +209,12 @@
             default:
                 throw new InvalidOperationException("wtf unexpected entrant added to develop? (how)");
         }
+
+        if (selectedAspect == Aspect.Reliability)
+        {
+            foreach (var entrant in DevelopedEntrants)
+                entrant.ValueMaximumLimit = 1000;
+        }
     }
 
     private void DevelopDrivers()
@@ -275,15 +279,6 @@
         ApplyCommon();
     }
 
-    private void TypeChipChanged(MudChip? typeChip)
-    {
-        if (typeChip == null)
-            return;
-
-        selectedType = (Quantifier)typeChip.Value;
-        ApplyCommon();
-    }
-
     private void TargetChipChanged(MudChip? devChip)
     {
         if (devChip == null)
@@ -292,6 +287,15 @@
         selectedAspect = (Aspect)devChip.Value;
 
         LoadEntrants();
+        ApplyCommon();
+    }
+
+    private void TypeChipChanged(MudChip? typeChip)
+    {
+        if (typeChip == null)
+            return;
+
+        selectedType = (Quantifier)typeChip.Value;
         ApplyCommon();
     }
 

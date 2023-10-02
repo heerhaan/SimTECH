@@ -115,7 +115,7 @@
     int minChange = 0;
     int maxChange = 0;
 
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
         notDirectQuantifier = SelectedType != Quantifier.Direct;
 
@@ -140,6 +140,9 @@
                 entrant.New = entrant.ValueMinimumLimit;
             else if (entrant.New > entrant.ValueMaximumLimit)
                 entrant.New = entrant.ValueMaximumLimit;
+
+            // Reapply the change one more time in the case a min/max-limit was set
+            entrant.Change = entrant.New - entrant.Old;
         }
 
         var allChanges = DevelopedEntrants.Select(e => e.Change).Where(e => e != 0).ToArray();
