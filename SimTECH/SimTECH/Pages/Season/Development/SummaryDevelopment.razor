@@ -92,12 +92,12 @@
             }
 
             var developedSummary = new DevelopSummary
-                {
-                    EntrantGroup = entrantSummary.Key,
-                    Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),
-                    EntrantLogs = entrantLog,
-                    MinMaxValues = minMaxPerAspect,
-                };
+            {
+                EntrantGroup = entrantSummary.Key,
+                Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),
+                EntrantLogs = entrantLog,
+                MinMaxValues = minMaxPerAspect,
+            };
 
             switch (entrantSummary.Key)
             {
@@ -126,13 +126,13 @@
             .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingDriver.RetrieveAspectValue(e.Key)));
 
         return new EntrantDevelopLog
-            {
-                EntrantId = driverId,
-                Entrant = Entrant.Driver,
-                Name = matchingDriver.Driver.FullName,
-                Nationality = matchingDriver.Driver.Country,
-                DevelopedAspects = developedAspects,
-            };
+        {
+            EntrantId = driverId,
+            Entrant = Entrant.Driver,
+            Name = matchingDriver.Driver.FullName,
+            Nationality = matchingDriver.Driver.Country,
+            DevelopedAspects = developedAspects,
+        };
     }
 
     private EntrantDevelopLog? CreateTeamLog(long teamId, DevelopmentLog[] logs)
@@ -147,13 +147,13 @@
             .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingTeam.RetrieveAspectValue(e.Key)));
 
         return new EntrantDevelopLog
-            {
-                EntrantId = teamId,
-                Entrant = Entrant.Team,
-                Name = matchingTeam.Name,
-                Nationality = matchingTeam.Team.Country,
-                DevelopedAspects = developedAspects,
-            };
+        {
+            EntrantId = teamId,
+            Entrant = Entrant.Team,
+            Name = matchingTeam.Name,
+            Nationality = matchingTeam.Team.Country,
+            DevelopedAspects = developedAspects,
+        };
     }
 
     private EntrantDevelopLog? CreateEngineLog(long engineId, DevelopmentLog[] logs)
@@ -168,11 +168,11 @@
             .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingEngine.RetrieveAspectValue(e.Key)));
 
         return new EntrantDevelopLog
-            {
-                EntrantId = engineId,
-                Entrant = Entrant.Engine,
-                Name = matchingEngine.Name,
-                DevelopedAspects = developedAspects,
-            };
+        {
+            EntrantId = engineId,
+            Entrant = Entrant.Engine,
+            Name = matchingEngine.Name,
+            DevelopedAspects = developedAspects,
+        };
     }
 }

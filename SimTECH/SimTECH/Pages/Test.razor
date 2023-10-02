@@ -106,11 +106,6 @@
     private string newExampleString = "Stored and retrieved from the local storage";
     private SimConfig config;
 
-    private List<int> randomOld = new();
-    private List<int> randomNew = new();
-    private double deviateOld;
-    private double deviateNew;
-
     int? rangeLow, rangeHigh;
 
     protected override void OnInitialized()
@@ -119,17 +114,6 @@
         {
             new BreadcrumbItem("Home", href: "/"),
         });
-
-        for (int i = 0; i < 30; i++)
-        {
-            randomOld.Add(NumberHelper.OldRandom(100));
-            randomNew.Add(NumberHelper.RandomInt(100));
-        }
-
-        double oldAvg = randomOld.Average();
-        double newAvg = randomNew.Average();
-        deviateOld = Math.Sqrt(randomOld.Average(e => Math.Pow(e - oldAvg, 2)));
-        deviateNew = Math.Sqrt(randomNew.Average(e => Math.Pow(e - newAvg, 2)));
 
         config = _config.Value;
     }
