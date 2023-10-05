@@ -439,7 +439,8 @@
                     .SelectMany(e => e.SessionScores)
                     .Where(e => seasonGroup.Value.Contains(e.ResultId))
                     .GroupBy(e => e.ResultId)
-                    .Select(e => e.MaxBy(r => r.Index));
+                    .Select(e => e.MaxBy(r => r.Index))
+                    .ToList();
 
                 foreach (var penaltyResult in gridResults.OrderBy(e => e.PenaltyPosition()))
                     finalQualyPosition.Add(penaltyResult.ResultId, (++positionIndexer, penaltyResult.AbsolutePosition));

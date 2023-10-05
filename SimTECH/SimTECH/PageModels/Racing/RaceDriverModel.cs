@@ -53,7 +53,7 @@ namespace SimTECH.PageModels.Racing
             int absoluteIndex = 0;
             int scoreAboveDriver = 0;
 
-            var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
+            var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, _ => 0);
 
             foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
             {

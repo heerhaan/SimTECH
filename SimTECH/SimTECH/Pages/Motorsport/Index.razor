@@ -1,0 +1,39 @@
+﻿@page "/motorsport"
+
+@using SimTECH.Pages.Motorsport.Contracts;
+@using SimTECH.Pages.Motorsport.Leagues;
+
+@inject BreadcrumbProvider _bread
+
+<PageTitle>Motorsport</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
+                <MudText Typo="Typo.h3">Motorsport</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper>
+                <LeagueView />
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper>
+                <ContractView />
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    protected override void OnInitialized()
+    {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Motorsport", href: "motorsport", disabled: true),
+        });
+    }
+}
