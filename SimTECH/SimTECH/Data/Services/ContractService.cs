@@ -12,23 +12,12 @@ namespace SimTECH.Data.Services
             _dbFactory = factory;
         }
 
-        public async Task<List<Contract>> GetContracts() => await GetContracts(false);
-        public async Task<List<Contract>> GetContracts(bool expired)
+        public async Task<List<Contract>> GetExtendedLeagueContracts(long leagueId)
         {
             using var context = _dbFactory.CreateDbContext();
 
             return await context.Contract
-                .Where(e => (e.Duration == 0) == expired)
-                .ToListAsync();
-        }
-
-        public async Task<List<Contract>> GetExtendedContracts() => await GetExtendedContracts(false);
-        public async Task<List<Contract>> GetExtendedContracts(bool expired)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.Contract
-                .Where(e => (e.Duration == 0) == expired)
+                .Where(e => e.LeagueId == leagueId)
                 .Include(e => e.Driver)
                 .Include(e => e.Team)
                 .Include(e => e.League)

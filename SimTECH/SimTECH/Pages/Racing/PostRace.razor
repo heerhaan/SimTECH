@@ -155,18 +155,21 @@
     [Parameter] public IEnumerable<GivenPenalty> UpcomingPenalties { get; set; } = Enumerable.Empty<GivenPenalty>();
     [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
-    List<DriverPenalty> driverPenalties = new();
-    Dictionary<int, int> allotments;
-    bool loading;
-    int lowestScoring;
+    private List<DriverPenalty> driverPenalties = new();
+    private Dictionary<int, int> allotments;
+    private bool loading;
+    private int lowestScoring;
+
+    protected override void OnInitialized()
+    {
+        allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
+        if (allotments.Any())
+            lowestScoring = allotments.Keys.Max();
+    }
 
     protected override void OnParametersSet()
     {
         loading = true;
-
-        allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
-        if (allotments.Any())
-            lowestScoring = allotments.Keys.Max();
 
         BuildDriverPenalties();
 

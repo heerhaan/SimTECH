@@ -7,9 +7,9 @@ public static class CustomThemes
     public static Dictionary<string, MudTheme> SimThemes => new()
     {
         { "Galaxy", GalacticTheme },
-        { "Galaxy Alt", GalacticAltTheme },
+        { "Cosmic", GalacticAltTheme },
         { "Oceanic", OceanicTheme },
-        { "Cyberpunk", CyberTheme },
+        { "Cyber", CyberTheme },
         { "Fiery", FieryTheme },
         { "Neon", NeonTheme },
         { "Basic", DefaultTheme },
@@ -243,11 +243,11 @@ public static class CustomThemes
             Secondary = CustomColours.BrightCyan,
             Tertiary = CustomColours.StreetGreen,
 
-            Background = CustomColours.DeepDarkFadedRed,
-            BackgroundGrey = CustomColours.UltraDarkFadedBlue,
-            Surface = CustomColours.DarkFadedRedAlt,
-            DrawerBackground = CustomColours.UltraDeepDarkFadedBlue,
-            AppbarBackground = CustomColours.UltraDeepDarkFadedBlue,
+            Background = CustomColours.UltraDeepDarkFadedRed,
+            BackgroundGrey = CustomColours.UltraDeepDarkFadedHarshBlue,
+            Surface = CustomColours.DeepDarkFadedHarshBlue,
+            DrawerBackground = CustomColours.UltraDeepDarkFadedHarshBlue,
+            AppbarBackground = CustomColours.UltraDeepDarkFadedHarshBlue,
         },
         Typography = CommonTypo,
     };

@@ -3,32 +3,35 @@
 @using SimTECH.Pages.Motorsport.Contracts;
 @using SimTECH.Pages.Motorsport.Leagues;
 
+@inject LeagueService _leagueService
+@inject TyreService _tyreService
 @inject BreadcrumbProvider _bread
+@inject IDialogService _dialogService
 
 <PageTitle>Motorsport</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    <MudGrid>
-        <MudItem xs="12">
-            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
-                <MudText Typo="Typo.h3">Motorsport</MudText>
+    <MudStack Class="pa-0">
+        <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
+            <MudText Typo="Typo.h3">Motorsport</MudText>
+        </MudPaper>
+        <MudStack Row="true" Class="pa-0">
+            <MudPaper Class="pa-2">
+                <LeagueView ShowLeagueContracts="ShowContracts" />
             </MudPaper>
-        </MudItem>
-        <MudItem xs="6">
-            <MudPaper>
-                <LeagueView />
-            </MudPaper>
-        </MudItem>
-        @* Doe de grid weg, maak van onderstaand een uitklap ding wanneer je contracten voor X league wil zien *@
-        <MudItem xs="6">
-            <MudPaper>
-                <ContractView />
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
+            @if (contractsOfLeagueId != default)
+            {
+                <MudPaper Class="pa-2">
+                    <ContractView LeagueId="@contractsOfLeagueId" />
+                </MudPaper>
+            }
+        </MudStack>
+    </MudStack>
 </MudContainer>
 
 @code {
+    private long contractsOfLeagueId = default;
+
     protected override void OnInitialized()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -37,4 +40,6 @@
             new BreadcrumbItem("Motorsport", href: "motorsport", disabled: true),
         });
     }
+
+    private void ShowContracts(long leagueId) => contractsOfLeagueId = leagueId;
 }

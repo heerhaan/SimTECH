@@ -38,21 +38,29 @@
 </MudDataGrid>
 
 @code {
+    [Parameter, EditorRequired] public long LeagueId { get; set; }
+
+    private List<Contract> activeContracts = new();
+    private List<Contract> expiredContracts = new();
     private List<Contract> contracts = new();
 
     private bool showingExpired = false;
 
     protected override async Task OnInitializedAsync()
     {
-        contracts = await _contractService.GetExtendedContracts();
+        var allContracts = await _contractService.GetExtendedLeagueContracts(LeagueId);
+        activeContracts = allContracts.Where(e => e.Duration != 0).ToList();
+        expiredContracts = allContracts.Where(e => e.Duration == 0).ToList();
+
+        contracts = activeContracts;
     }
 
-    private async Task ToggleExpired()
+    private void ToggleExpired()
     {
         if (showingExpired)
-            contracts = await _contractService.GetExtendedContracts(false);
+            contracts = activeContracts;
         else
-            contracts = await _contractService.GetExtendedContracts(true);
+            contracts = expiredContracts;
 
         showingExpired = !showingExpired;
     }
@@ -79,7 +87,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Contract updatedItem)
         {
             await _contractService.UpdateContract(updatedItem);
-            contracts = await _contractService.GetExtendedContracts();
+            contracts = await _contractService.GetExtendedLeagueContracts(LeagueId);
         }
     }
 

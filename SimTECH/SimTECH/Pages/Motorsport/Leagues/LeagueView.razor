@@ -22,6 +22,12 @@
                     <MudIconButton Icon="@Icons.Material.Outlined.Delete"
                                    Color="Color.Error"
                                    OnClick="@(async () => await DeleteLeague(context.Item))" />
+                    @if (context.Item.Options.HasFlag(LeagueOptions.AllowContracting))
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.AssignmentInd"
+                                       Color="Color.Secondary"
+                                       OnClick="@(async () => await OnShowLeagueContracts(context.Item.Id))" />
+                    }
                 </MudButtonGroup>
             </CellTemplate>
         </TemplateColumn>
@@ -93,6 +99,10 @@
 </MudDataGrid>
 
 @code {
+    [Parameter] public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
+    [Parameter] public IEnumerable<Tyre> Tyres { get; set; } = Enumerable.Empty<Tyre>();
+    [Parameter] public EventCallback<long> ShowLeagueContracts { get; set; }
+
     private List<League> leagues = new();
     private List<Tyre> tyres = new();
 
@@ -101,11 +111,11 @@
         leagues = await _leagueService.GetLeagues();
         tyres = await _tyreService.GetTyres(StateFilter.Active);
     }
-    
+
     private async Task AddLeague() => await UpdateLeague(null);
     private async Task UpdateLeague(League? item)
     {
-        var parameters = new DialogParameters { ["League"] = (item), ["Tyres"] = tyres };
+        var parameters = new DialogParameters { ["League"] = item, ["Tyres"] = tyres };
 
         var dialog = await _dialogService.ShowAsync<LeagueEditor>(
             "Modify League",
@@ -124,5 +134,11 @@
     {
         await _leagueService.DeleteLeague(league);
         leagues.Remove(league);
+    }
+
+    private async Task OnShowLeagueContracts(long leagueId)
+    {
+        if (ShowLeagueContracts.HasDelegate)
+            await ShowLeagueContracts.InvokeAsync(leagueId);
     }
 }
