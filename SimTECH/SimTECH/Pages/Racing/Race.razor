@@ -370,7 +370,6 @@
                 break;
 
             ++calculated;
-            long? newFastestLapScorer = null;
 
             AddCalculationSituation();
 
@@ -397,10 +396,8 @@
                 lapScoresToPersist.Add(lapScore);
             }
 
-            // Determine new positions (keep team role in mind here!)
             DeterminePositions();
-            // do post-processing stuff
-            PostProcessAdvance(newFastestLapScorer);
+            PostProcessAdvance();
 
             if (safetyCarOut)
             {
@@ -665,19 +662,9 @@
         return pitCost;
     }
 
-    private void PostProcessAdvance(long? newFastestLapHolder)
+    private void PostProcessAdvance()
     {
         highestScore = raceDrivers.Max(e => e.LapSum);
-
-        if (newFastestLapHolder != null)
-        {
-            foreach (var driver in raceDrivers)
-            {
-                driver.HasFastestLap = false;
-                if (driver.ResultId == newFastestLapHolder)
-                    driver.HasFastestLap = true;
-            }
-        }
 
         // Cycle through the reliability, to check something else (otherwise we have way too many DNFs)
         reliablityCycler++;
