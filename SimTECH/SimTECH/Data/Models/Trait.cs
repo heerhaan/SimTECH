@@ -2,8 +2,8 @@
 {
     public sealed class Trait : ModelState
     {
-        public string Name { get; set; } = default!;
-        public string Description { get; set; } = default!;
+        public string Name { get; set; }
+        public string Description { get; set; }
         public Entrant Type { get; set; }
 
         public int QualifyingPace { get; set; }

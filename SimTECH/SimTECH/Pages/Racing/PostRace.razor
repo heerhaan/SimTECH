@@ -24,6 +24,7 @@
                     <HeaderContent>
                         <MudTh Class="number-col-lg"></MudTh>
                         <MudTh Class="number-col">Grid</MudTh>
+                        <MudTh Class="number-col">TGT</MudTh>
                         <MudTh Class="accent-cell"></MudTh>
                         <MudTh Style="width: 220px">Name</MudTh>
                         <MudTh Class="number-col">NO</MudTh>
@@ -33,7 +34,6 @@
                             <MudTh Class="number-col">CLA</MudTh>
                         }
                         <MudTh Class="number-col">PTS</MudTh>
-                        <MudTh Class="number-col">TGT</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd Class="number-col-lg">
@@ -48,6 +48,9 @@
                         </MudTd>
                         <MudTd Class="number-col">
                             <MudText Typo="Typo.caption">@context.Grid</MudText>
+                        </MudTd>
+                        <MudTd Class="number-col">
+                            <MudText Typo="Typo.caption">@context.ExpectedPosition</MudText>
                         </MudTd>
                         <MudTd Class="accent-cell">
                             <SmolAccent Colour="@context.Colour" />
@@ -81,9 +84,6 @@
                         }
                         <MudTd Class="number-col">
                             <MudText Typo="Typo.caption">@ReadScoredResult(context)</MudText>
-                        </MudTd>
-                        <MudTd Class="number-col">
-                            <MudText Typo="Typo.caption">@context.ExpectedPosition</MudText>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -155,18 +155,21 @@
     [Parameter] public IEnumerable<GivenPenalty> UpcomingPenalties { get; set; } = Enumerable.Empty<GivenPenalty>();
     [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
-    List<DriverPenalty> driverPenalties = new();
-    Dictionary<int, int> allotments;
-    bool loading;
-    int lowestScoring;
+    private List<DriverPenalty> driverPenalties = new();
+    private Dictionary<int, int> allotments;
+    private bool loading;
+    private int lowestScoring;
+
+    protected override void OnInitialized()
+    {
+        allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
+        if (allotments.Any())
+            lowestScoring = allotments.Keys.Max();
+    }
 
     protected override void OnParametersSet()
     {
         loading = true;
-
-        allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
-        if (allotments.Any())
-            lowestScoring = allotments.Keys.Max();
 
         BuildDriverPenalties();
 

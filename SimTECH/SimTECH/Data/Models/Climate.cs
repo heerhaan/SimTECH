@@ -2,7 +2,6 @@
 
 namespace SimTECH.Data.Models
 {
-    // Defaults: Sunny, Overcast, Rain, Storm
     public class Climate : ModelState
     {
         public string Terminology { get; set; }

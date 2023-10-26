@@ -1,0 +1,144 @@
+﻿@inject LeagueService _leagueService
+@inject TyreService _tyreService
+@inject IDialogService _dialogService
+
+<MudPaper MinHeight="60px">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+        <MudText Typo="Typo.h3">Leagues</MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddLeague" Class="btn-md">New</MudButton>
+    </MudStack>
+</MudPaper>
+<MudDataGrid T="League" Items="@leagues" Bordered="true">
+    <Columns>
+        <HierarchyColumn T="League" />
+        <PropertyColumn Property="e => e!.Name" />
+        <PropertyColumn Property="e => e!.RaceLength" Title="Length" Style="font-family: var(--mud-typography-caption-family)" />
+        <TemplateColumn T="League" Sortable="false">
+            <CellTemplate>
+                <MudButtonGroup Size="Size.Small">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                                   OnClick="@(async () => await UpdateLeague(context.Item))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                   Color="Color.Error"
+                                   OnClick="@(async () => await DeleteLeague(context.Item))" />
+                    @if (context.Item.Options.HasFlag(LeagueOptions.AllowContracting))
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.AssignmentInd"
+                                       Color="Color.Secondary"
+                                       OnClick="@(async () => await OnShowLeagueContracts(context.Item.Id))" />
+                    }
+                </MudButtonGroup>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <ChildRowContent>
+        <MudPaper Elevation="15" Class="pa-2">
+            <MudText Typo="Typo.h5">League info</MudText>
+            <MudDivider />
+
+            <MudPaper Class="pa-2">
+                <MudText Typo="Typo.subtitle1">Options</MudText>
+                <MudText Typo="Typo.body2">
+                    Penalties are @(context.Item.Options.HasFlag(LeagueOptions.EnablePenalty) ? "enabled" : "disabled")
+                </MudText>
+                <MudText Typo="Typo.body2">
+                    Fatalities are @(context.Item.Options.HasFlag(LeagueOptions.EnableFatality) ? "enabled" : "disabled")
+                </MudText>
+                <MudText Typo="Typo.body2">
+                    Contracts are @(context.Item.Options.HasFlag(LeagueOptions.AllowContracting) ? "enabled" : "disabled")
+                </MudText>
+            </MudPaper>
+
+            <MudPaper Class="px-4 py-2">
+                <MudStack Row="true" Class="pa-0">
+                    @foreach (var tyreId in context.Item.LeagueTyres ?? new List<LeagueTyre>())
+                    {
+                        <MudText Typo="Typo.h5">ID: @tyreId.TyreId</MudText>
+                    }
+                </MudStack>
+            </MudPaper>
+
+            @if (context.Item.DevelopmentRanges != null)
+            {
+                <MudText Typo="Typo.h6">Development ranges</MudText>
+                <MudStack Spacing="2" Row="true" Justify="Justify.SpaceBetween" Class="flex-wrap ">
+                    @foreach (var rangeGroup in context.Item.DevelopmentRanges.GroupBy(e => e.Type))
+                    {
+                        <MudStack>
+                            <MudText Typo="Typo.subtitle1">@rangeGroup.Key</MudText>
+                            <MudSimpleTable>
+                                <thead>
+                                    <tr>
+                                        <th>&lt; LESS</th>
+                                        <th>Lower</th>
+                                        <th>Upper</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var range in rangeGroup.OrderBy(e => e.Comparer))
+                                    {
+                                        <tr>
+                                            <td>@range.Comparer</td>
+                                            <td>@range.Minimum</td>
+                                            <td>@range.Maximum</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </MudSimpleTable>
+                        </MudStack>
+                    }
+                </MudStack>
+            }
+            else
+            {
+                <MudText>There aren't any development ranges set at all!</MudText>
+            }
+        </MudPaper>
+    </ChildRowContent>
+</MudDataGrid>
+
+@code {
+    [Parameter] public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
+    [Parameter] public IEnumerable<Tyre> Tyres { get; set; } = Enumerable.Empty<Tyre>();
+    [Parameter] public EventCallback<long> ShowLeagueContracts { get; set; }
+
+    private List<League> leagues = new();
+    private List<Tyre> tyres = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        leagues = await _leagueService.GetLeagues();
+        tyres = await _tyreService.GetTyres(StateFilter.Active);
+    }
+
+    private async Task AddLeague() => await UpdateLeague(null);
+    private async Task UpdateLeague(League? item)
+    {
+        var parameters = new DialogParameters { ["League"] = item, ["Tyres"] = tyres };
+
+        var dialog = await _dialogService.ShowAsync<LeagueEditor>(
+            "Modify League",
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.ExtraLarge });
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is League updatedLeague)
+        {
+            await _leagueService.UpdateLeague(updatedLeague);
+            leagues = await _leagueService.GetLeagues();
+        }
+    }
+
+    private async Task DeleteLeague(League league)
+    {
+        await _leagueService.DeleteLeague(league);
+        leagues.Remove(league);
+    }
+
+    private async Task OnShowLeagueContracts(long leagueId)
+    {
+        if (ShowLeagueContracts.HasDelegate)
+            await ShowLeagueContracts.InvokeAsync(leagueId);
+    }
+}

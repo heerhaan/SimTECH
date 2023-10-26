@@ -439,10 +439,11 @@
                     .SelectMany(e => e.SessionScores)
                     .Where(e => seasonGroup.Value.Contains(e.ResultId))
                     .GroupBy(e => e.ResultId)
-                    .Select(e => e.MaxBy(r => r.Index));
+                    .Select(e => e.MaxBy(r => r.Index))
+                    .ToList();
 
-                foreach (var penaltyResult in gridResults.OrderBy(e => e.PenaltyPosition()))
-                    finalQualyPosition.Add(penaltyResult.ResultId, (++positionIndexer, penaltyResult.AbsolutePosition));
+                foreach (var penaltyResult in gridResults.OrderBy(e => e!.PenaltyPosition()))
+                    finalQualyPosition.Add(penaltyResult!.ResultId, (++positionIndexer, penaltyResult.AbsolutePosition));
             }
 
             await _raceService.FinishQualifying(qualySession.SessionScores, finalQualyPosition, RaceId, Model.Season.MaximumDriversInRace);
@@ -454,12 +455,12 @@
             foreach (var res in finalQualyPosition)
             {
                 var matchingDriver = Model.RaweCeekDrivers.First(e => e.ResultId == res.Key);
-                var sessionScore = qualySessionScores.First(e => e.ResultId == res.Key);
+                //var sessionScore = qualySessionScores.First(e => e.ResultId == res.Key);
 
                 matchingDriver.Grid = res.Value.Item1;
                 matchingDriver.Position = res.Value.Item1;
-                matchingDriver.AbsoluteGrid = sessionScore.AbsolutePosition;
-                matchingDriver.AbsolutePosition = sessionScore.AbsolutePosition;
+                matchingDriver.AbsoluteGrid = res.Value.Item2;
+                matchingDriver.AbsolutePosition = res.Value.Item2;
                 matchingDriver.Status = res.Value.Item1 > Model.Season.MaximumDriversInRace ? RaceStatus.Dnq : RaceStatus.Racing;
             }
 

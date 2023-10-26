@@ -1,0 +1,79 @@
+﻿@page "/incidents"
+
+@using SimTECH.Pages.Incidents.Dialogs
+
+@inject BreadcrumbProvider _bread
+@inject IncidentService _incidentService
+@inject IDialogService _dialogService
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Incidents</MudText>
+            <MudSpacer />
+
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddItem" Class="btn-md">New</MudButton>
+        </MudStack>
+    </MudPaper>
+    <MudDataGrid T="Incident" Items="@IncidentData" RowsPerPage="15" Dense="true">
+        <Columns>
+            <PropertyColumn Property="e => e!.Name" />
+            <PropertyColumn Property="e => e!.Category" Filterable="true" />
+            <PropertyColumn Property="e => e!.Limit" />
+            <PropertyColumn Property="e => e!.Punishment" />
+            <PropertyColumn Property="e => e!.Odds" />
+            <TemplateColumn T="Incident" Sortable="false">
+                <CellTemplate>
+                    <MudButtonGroup>
+                        <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
+                                            Default="@(context.Item.State == State.Active)" />
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
+                    </MudButtonGroup>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Incident" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    List<Incident> IncidentData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Incidents", href: "incidents", disabled: true),
+        });
+
+        IncidentData = await _incidentService.GetIncidents(StateFilter.All);
+    }
+
+    async Task AddItem() => await UpdateItem(null);
+    async Task UpdateItem(Incident? incident)
+    {
+        var parameters = new DialogParameters
+            {
+                ["Incident"] = incident,
+            };
+
+        var dialog = await _dialogService.ShowAsync<IncidentEditor>("Modify incident", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Incident updatedItem)
+        {
+            await _incidentService.UpdateIncident(updatedItem);
+            IncidentData = await _incidentService.GetIncidents(StateFilter.All);
+        }
+    }
+
+    async Task OnToggleChange(Incident incident, bool toggled) => await ToggleState(incident, (toggled ? State.Active : State.Closed));
+    async Task ToggleState(Incident incident, State targetState)
+    {
+        await _incidentService.ChangeState(incident, targetState);
+        incident.State = targetState;
+    }
+}

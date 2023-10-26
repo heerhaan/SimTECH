@@ -32,14 +32,7 @@
                     <ScreenshotButton TargetId="race-display" Class="btn-md" />
                     @if (Model.Race.State != State.Closed)
                     {
-                        @if (calculated >= calculationCount)
-                        {
-                            <MudButton OnClick="Finish" Class="btn-md">Finish</MudButton>
-                        }
-                        else
-                        {
-                            <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
-                        }
+                        <MudButton OnClick="Advance" Class="btn-md">Advance</MudButton>
                     }
                 </MudButtonGroup>
             </div>
@@ -305,7 +298,7 @@
             occurrences.Add(i, occurrMatch?.Occurrences ?? SituationOccurrence.Unknown);
         }
 
-        racedLaps = NumberHelper.CalculateLapCount(calculated * calculationDistance, Model.Race.Track.Length);
+        racedLaps = GetCurrentLapCount;
         totalLaps = NumberHelper.CalculateLapCount(Model.Race.RaceLength, Model.Race.Track.Length);
 
         BuildRaceDrivers();
@@ -345,17 +338,7 @@
         loading = false;
     }
 
-    private void ChangeCalculationPerAdvance(MudChip? calcChip)
-    {
-        if (calcChip != null)
-            calculationsPerAdvance = (int)calcChip.Value;
-    }
-
-    private void AddCalculationSituation() => occurrences[calculated] = safetyCarOut ? SituationOccurrence.Caution : SituationOccurrence.Raced;
-
-    private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
-
-    private void Advance()
+    private async void Advance()
     {
         // Use this variable to persist the lap scores which were generated in this advance
         var lapScoresToPersist = new List<LapScore>();
@@ -368,7 +351,6 @@
                 break;
 
             ++calculated;
-            long? newFastestLapScorer = null;
 
             AddCalculationSituation();
 
@@ -395,8 +377,8 @@
                 lapScoresToPersist.Add(lapScore);
             }
 
-            // Determine new positions (keep team role in mind here!)
-            PostProcessAdvance(newFastestLapScorer);
+            DeterminePositions();
+            PostProcessAdvance();
 
             if (safetyCarOut)
             {
@@ -407,13 +389,18 @@
             }
         }
 
-        racedLaps = NumberHelper.CalculateLapCount(calculated * calculationDistance, Model.Race.Track.Length);
+        racedLaps = GetCurrentLapCount;
 
         var lastScores = raceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
         if (lastScores.Any())
         {
             lastLowestScore = lastScores.Min();
             lastHighestScore = lastScores.Max();
+        }
+
+        if (calculated >= calculationCount)
+        {
+            await Finish();
         }
 
         // Persist the new stint results, yes after doing all whats needed to show them
@@ -661,21 +648,9 @@
         return pitCost;
     }
 
-    private void PostProcessAdvance(long? newFastestLapHolder)
+    private void PostProcessAdvance()
     {
-        DeterminePositions();
-
         highestScore = raceDrivers.Max(e => e.LapSum);
-
-        if (newFastestLapHolder != null)
-        {
-            foreach (var driver in raceDrivers)
-            {
-                driver.HasFastestLap = false;
-                if (driver.ResultId == newFastestLapHolder)
-                    driver.HasFastestLap = true;
-            }
-        }
 
         // Cycle through the reliability, to check something else (otherwise we have way too many DNFs)
         reliablityCycler++;
@@ -716,39 +691,6 @@
         }
 
         raceDrivers.SetPositions(gapMarge);
-    }
-
-    private Dictionary<long, int> GetCurrentActualPositions()
-    {
-        var actualPositions = new Dictionary<long, int>();
-        int absoluteIndex = 0;
-
-        foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
-            actualPositions.Add(driver.SeasonDriverId, ++absoluteIndex);
-
-        return actualPositions;
-    }
-
-    // Honestly, below is more of an example to the first one
-    private Dictionary<long, int> AggregateActualPositions()
-    {
-        //source: racedrivers
-        //seed: dict
-        //func: (dict, driver) =>
-
-        var absoluteIndex = 0;
-        return raceDrivers
-            .OrderBy(e => (int)e.Status)
-                .ThenByDescending(e => e.LapSum)
-            .Aggregate
-            (
-                new Dictionary<long, int>(),
-                (dict, driver) =>
-                    {
-                        dict.Add(driver.SeasonDriverId, ++absoluteIndex);
-                        return dict;
-                    }
-            );
     }
 
     private void HandlePositionGain(RaceDriver driver, LapScore lastScore, int gainedPositions)
@@ -828,20 +770,7 @@
         PreProcessFinish();
 
         // Update object references
-        foreach (var raceDriver in raceDrivers)
-        {
-            var matchDriver = Model.RaweCeekDrivers.First(e => e.ResultId == raceDriver.ResultId);
-            matchDriver.Position = raceDriver.Position;
-            matchDriver.AbsolutePosition = raceDriver.AbsolutePosition;
-            matchDriver.Score = raceDriver.LapSum;
-            matchDriver.Status = raceDriver.Status;
-            matchDriver.TyreLife = raceDriver.TyreLife;
-            matchDriver.Tyre = raceDriver.CurrentTyre;
-            matchDriver.FastestLap = raceDriver.HasFastestLap;
-            matchDriver.Overtaken = raceDriver.OvertakeCount;
-            matchDriver.Defended = raceDriver.DefensiveCount;
-            matchDriver.Incident = raceDriver.Incident;
-        }
+        Model.SetRacerData(raceDrivers);
 
         // Should be removed when it is done per advance
         var allLapScores = raceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();
@@ -854,18 +783,64 @@
         foreach (var occurr in occurrences.Where(e => e.Key > initialHighestOccurr))
         {
             Occurrences.Add(new RaceOccurrence
-                {
-                    Order = occurr.Key,
-                    Occurrences = occurr.Value,
-                    RaceId = Model.Race.Id,
-                });
+            {
+                Order = occurr.Key,
+                Occurrences = occurr.Value,
+                RaceId = Model.Race.Id,
+            });
         }
 
         await OnFinish.InvokeAsync();
     }
 
+    private void ChangeCalculationPerAdvance(MudChip? calcChip)
+    {
+        if (calcChip != null)
+            calculationsPerAdvance = (int)calcChip.Value;
+    }
+
+    private void AddCalculationSituation() => occurrences[calculated] = safetyCarOut ? SituationOccurrence.Caution : SituationOccurrence.Raced;
+
+    private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
+
+    private int GetCurrentLapCount => NumberHelper.CalculateLapCount(calculated * calculationDistance, Model.Race.Track.Length);
+
+    private Dictionary<long, int> GetCurrentActualPositions()
+    {
+        var actualPositions = new Dictionary<long, int>();
+        int absoluteIndex = 0;
+
+        foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
+            actualPositions.Add(driver.SeasonDriverId, ++absoluteIndex);
+
+        return actualPositions;
+    }
+
+    // Honestly, below is more of an example to the first one
+    private Dictionary<long, int> AggregateActualPositions()
+    {
+        //source: racedrivers
+        //seed: dict
+        //func: (dict, driver) =>
+
+        var absoluteIndex = 0;
+        return raceDrivers
+            .OrderBy(e => (int)e.Status)
+                .ThenByDescending(e => e.LapSum)
+            .Aggregate
+            (
+                new Dictionary<long, int>(),
+                (dict, driver) =>
+                {
+                    dict.Add(driver.SeasonDriverId, ++absoluteIndex);
+                    return dict;
+                }
+            );
+    }
+
     private async Task ShowGapperChart() => _ =
         await _dialog.ShowAsync<GapChartDialog>("Gapper chart", new DialogParameters { ["Drivers"] = raceDrivers }, Globals.StatisticDialogDefaultOptionsXl);
+    
     private async Task ShowPositionChart() => _ =
         await _dialog.ShowAsync<PositionChangeChart>("Position chart", new DialogParameters { ["Drivers"] = raceDrivers }, Globals.StatisticDialogDefaultOptionsXl);
 }

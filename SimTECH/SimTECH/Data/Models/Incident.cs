@@ -12,6 +12,14 @@ namespace SimTECH.Data.Models
         public int Odds { get; set; }
         public bool Penalized { get; set; }
         public string? Colour { get; set; }
+
+        public double DoublePunishment
+        {
+            get
+            {
+                return Convert.ToDouble(Punishment) + 0.2;
+            }
+        }
     }
 
     public static class ExtendIncident
@@ -31,7 +39,5 @@ namespace SimTECH.Data.Models
             var randomId = weightedList.TakeRandomItem();
             return incidents.First(e => e.Id == randomId);
         }
-
-        public static double DoubledPunishment(this Incident incident) => Convert.ToDouble(incident.Punishment) + 0.2;
     }
 }

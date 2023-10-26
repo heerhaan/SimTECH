@@ -16,8 +16,7 @@ namespace SimTECH.Data.Models
     public static class ExtendLapScore
     {
         public static IEnumerable<Enum> ListOfDubiousEvents(this LapScore lapScore) =>
-            lapScore.RacerEvents.GetFlagged()
-                .Where(e => e.ToString() != "Unknown" && e.ToString() != "Racing");
+            lapScore.RacerEvents.GetFlagged().Where(e => e.ToString() != "Unknown" && e.ToString() != "Racing");
 
         public static bool HasDnfed(this LapScore lapScore) =>
                    lapScore.RacerEvents.HasFlag(RacerEvent.DriverDnf)

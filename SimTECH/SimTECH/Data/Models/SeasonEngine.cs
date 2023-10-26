@@ -2,15 +2,15 @@
 {
     public sealed class SeasonEngine : ModelBase
     {
-        public string Name { get; set; } = default!;
+        public string Name { get; set; }
         public int Power { get; set; } = 50;
         public int Reliability { get; set; } = 1000;
         public bool Rebadged { get; set; }
 
         public long EngineId { get; set; }
-        public Engine Engine { get; set; } = default!;
+        public Engine Engine { get; set; }
         public long SeasonId { get; set; }
-        public Season Season { get; set; } = default!;
+        public Season Season { get; set; }
 
         public IList<SeasonTeam>? SeasonTeams { get; set; }
     }

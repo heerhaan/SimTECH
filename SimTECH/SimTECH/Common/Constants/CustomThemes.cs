@@ -5,14 +5,15 @@ namespace SimTECH.Constants;
 public static class CustomThemes
 {
     public static Dictionary<string, MudTheme> SimThemes => new()
-        {
-            { "Galaxy", GalacticTheme },
-            { "Galaxy Alt", GalacticAltTheme },
-            { "Oceanic", OceanicTheme },
-            { "Fiery", FieryTheme },
-            { "Neon", NeonTheme },
-            { "Basic", DefaultTheme },
-        };
+    {
+        { "Galaxy", GalacticTheme },
+        { "Cosmic", GalacticAltTheme },
+        { "Oceanic", OceanicTheme },
+        { "Cyber", CyberTheme },
+        { "Fiery", FieryTheme },
+        { "Neon", NeonTheme },
+        { "Basic", DefaultTheme },
+    };
 
     public static readonly Typography CommonTypo = new()
     {
@@ -192,7 +193,7 @@ public static class CustomThemes
             TertiaryContrastText = Colors.Shades.Black,
 
             Background = CustomColours.DeepDarkFadedRed,
-            BackgroundGrey = CustomColours.DeepDarkFadedRed,
+            BackgroundGrey = CustomColours.UltraDarkFadedRed,
             Surface = CustomColours.DarkFadedRed,
             DrawerBackground = CustomColours.UltraDarkFadedRed,
             AppbarBackground = CustomColours.UltraDarkFadedRed,
@@ -221,6 +222,32 @@ public static class CustomThemes
             Surface = CustomColours.DarkFadedPink,
             DrawerBackground = CustomColours.UltraDarkFadedPink,
             AppbarBackground = CustomColours.UltraDarkFadedPink,
+        },
+        Typography = CommonTypo,
+    };
+
+    public static readonly MudTheme CyberTheme = new()
+    {
+        Palette = new PaletteLight()
+        {
+            Primary = CustomColours.ActiveDarkRed,
+            Secondary = CustomColours.MildCyan,
+            Tertiary = CustomColours.StreetGreen,
+
+            DrawerBackground = CustomColours.MaroonRed,
+            AppbarBackground = CustomColours.MaroonRed,
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = CustomColours.FadedRed,
+            Secondary = CustomColours.BrightCyan,
+            Tertiary = CustomColours.StreetGreen,
+
+            Background = CustomColours.UltraDeepDarkFadedRed,
+            BackgroundGrey = CustomColours.UltraDeepDarkFadedHarshBlue,
+            Surface = CustomColours.DeepDarkFadedHarshBlue,
+            DrawerBackground = CustomColours.UltraDeepDarkFadedHarshBlue,
+            AppbarBackground = CustomColours.UltraDeepDarkFadedHarshBlue,
         },
         Typography = CommonTypo,
     };

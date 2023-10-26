@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace SimTECH.Data.Models
+﻿namespace SimTECH.Data.Models
 {
-    public sealed class Driver : ModelState
+    public class Driver : ModelState
     {
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;
@@ -16,11 +14,12 @@ namespace SimTECH.Data.Models
         public IList<DriverTrait>? DriverTraits { get; set; }
         public IList<Contract>? Contracts { get; set; }
 
-        [NotMapped]
-        public string FullName => $"{FirstName} {LastName}";
-    }
-
-    public static class ExtendDriver
-    {
+        public string FullName
+        {
+            get
+            {
+                return $"{FirstName} {LastName}";
+            }
+        }
     }
 }

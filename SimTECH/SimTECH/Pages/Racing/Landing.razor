@@ -1,4 +1,4 @@
-﻿<MudGrid Spacing="1">
+﻿<MudGrid id="raceweek-landing" Spacing="1">
     <MudItem xs="12">
         <MudPaper MinHeight="60px" Class="pa-2 d-flex flex-row align-center justify-center">
             <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
@@ -71,6 +71,7 @@
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh Class="number-col-lg">Grid</MudTh>
+                    <MudTh Class="number-col">TGT</MudTh>
                     <MudTh Class="accent-cell"></MudTh>
                     <MudTh Style="max-width: 220px">Name</MudTh>
                     <MudTh Class="number-col">NO</MudTh>
@@ -81,7 +82,6 @@
                     }
                     <MudTh Class="number-col">SUPP</MudTh>
                     <MudTh>Tyre</MudTh>
-                    <MudTh Class="number-col">TGT</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd Class="number-col-lg">
@@ -95,6 +95,9 @@
                                 <DriverPosition Number="@context.Grid" />
                             }
                         </PenaltyBadge>
+                    </MudTd>
+                    <MudTd>
+                        <MudText Typo="Typo.caption">@context.ExpectedPosition</MudText>
                     </MudTd>
                     <MudTd Class="accent-cell">
                         <SmolAccent Colour="@context.Colour" />
@@ -138,9 +141,6 @@
                             </TyreElement>
                         </MudLink>
                     </MudTd>
-                    <MudTd>
-                        <MudText Typo="Typo.caption">@context.ExpectedPosition</MudText>
-                    </MudTd>
                 </RowTemplate>
             </MudTable>
         </MudPaper>
@@ -154,10 +154,12 @@
                 He who reads is not a giraffe (presumably)
             </MudText>
 
-            <MudText Typo="Typo.body2" Color="Color.Info">
+            <MudText Class="my-2" Typo="Typo.body2" Color="Color.Info">
                 <MudIcon Icon="@IconCollection.Target" Size="Size.Small" />
                 [TGT]: Target position
             </MudText>
+
+            <ScreenshotButton TargetId="raceweek-landing" Colour="Color.Tertiary" FullWidth="true" />
         </MudPaper>
     </MudItem>
 </MudGrid>

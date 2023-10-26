@@ -1,0 +1,519 @@
+﻿@page "/entrantwizard/{SeasonId:long}"
+
+@inject ContractService _contractService
+@inject DriverService _driverService
+@inject EngineService _engineService
+@inject ManufacturerService _manufacturerService
+@inject TeamService _teamService
+@inject LeagueService _leagueService
+@inject SeasonService _seasonService
+@inject SeasonEntrantService _entrantService
+@inject BreadcrumbProvider _bread
+@inject NavigationManager _nav
+@inject IOptions<SimConfig> _config
+
+@using MudBlazor.Extensions
+@using MudExtensions.Enums;
+@using MudExtensions.Utilities
+@using SimTECH.Pages.Seasons.EntrantWizard.Steps
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudPaper Elevation="5">
+        <CascadingValue Value="@Model">
+            <MudStepper @ref="stepper"
+                        Loading="@loading"
+                        Color="Color.Tertiary"
+                        Variant="Variant.Outlined"
+                        Linear="true"
+                        DisableSkipButton="true"
+                        HeaderTextView="HeaderTextView.All"
+                        HeaderBadgeView="HeaderBadgeView.GreyOutIncomplete"
+                        PreventStepChangeAsync="InvalidStepPrevention">
+                <StaticContent>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                        <div style="width:25%">
+                            <MudStack Class="pa-0 mx-2">
+                                @foreach (var error in errors)
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Error">@error</MudText>
+                                }
+                            </MudStack>
+                        </div>
+
+                        <MudText Typo="Typo.h3">@stepTitle</MudText>
+
+                        <div style="width:25%">
+                            @if (stepper?.IsAllStepsCompleted() == true)
+                            {
+                                <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="AddAllEntrants" Class="btn-md">Confirm & save</MudButton>
+                            }
+                        </div>
+                    </MudStack>
+                </StaticContent>
+                <ChildContent>
+                    <MudStep Title="Add engines" Icon="@IconCollection.Engine">
+                        <ChildContent>
+                            <AddEngines Engines="Engines" />
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Edit engines" Icon="@IconCollection.Engine">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 1)
+                            {
+                                <EditEngines />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Add teams" Icon="@IconCollection.Car">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 2)
+                            {
+                                <AddTeams Teams="@Teams" Contracts="@Contracts" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Edit teams" Icon="@IconCollection.Car">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 3)
+                            {
+                                <EditTeams Manufacturers="@Manufacturers" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Assign engines" Icon="@IconCollection.Car">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 4)
+                            {
+                                <AssignTeamEngines />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Assign classes" Icon="@IconCollection.Skull">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 5)
+                            {
+                                <AssignRaceClasses />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Add drivers" Icon="@IconCollection.Helmet">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 6)
+                            {
+                                <AddDrivers Drivers="@Drivers" Year="@Season.Year" Contracts="Contracts" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Edit drivers" Icon="@IconCollection.Helmet">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 7)
+                            {
+                                <EditDrivers />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Assign drivers" Icon="@IconCollection.Helmet">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 8)
+                            {
+                                <AssignDriverTeams />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                    <MudStep Title="Result" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
+                        <ChildContent>
+                            @if (stepper.GetActiveIndex() == 9)
+                            {
+                                <FinalCheck SeasonId="@SeasonId" />
+                            }
+                        </ChildContent>
+                    </MudStep>
+                </ChildContent>
+            </MudStepper>
+        </CascadingValue>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter] public long SeasonId { get; set; }
+
+    public AddEntrantsModel Model { get; set; } = new();
+    public Season Season { get; set; }
+    public Season? PreviousSeason { get; set; }
+    public List<Engine> Engines { get; set; } = new();
+    public List<Team> Teams { get; set; } = new();
+    public List<Driver> Drivers { get; set; } = new();
+    public List<Contract> Contracts { get; set; } = new();
+    public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
+
+    private bool allowPersonalNumbers;
+
+    private MudStepper stepper;
+
+    private bool loading = true;
+    private string stepTitle = "Add engines";
+    private List<string> errors = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Season = await _seasonService.GetSeasonById(SeasonId);
+        PreviousSeason = await _seasonService.FindRecentClosedSeason(Season.LeagueId);
+        // TODO: Wizard deserves a refactor in that we might want to retrieve these values on a per-step basis instead of all at once
+        // Or do we? Why would we? It's not like it's slow
+        Engines = await _engineService.GetEngines();
+        Teams = await _teamService.GetAvailableTeams();
+        Drivers = await _driverService.GetAvailableDrivers();
+        Contracts = await _contractService.GetLeagueContracts(Season.LeagueId);
+        Manufacturers = await _manufacturerService.GetManufacturers();
+
+        var league = await _leagueService.GetLeagueById(Season.LeagueId);
+
+        Model.LeagueId = league.Id;
+        Model.HasContracting = league.Options.HasFlag(LeagueOptions.AllowContracting);
+        allowPersonalNumbers = league.Options.HasFlag(LeagueOptions.PersonalNumbers);
+
+        if (Season.RaceClasses?.Any() == true)
+            Model.Classes.AddRange(Season.RaceClasses);
+
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: $"overview/{Season.Id}"),
+            new BreadcrumbItem("Wizard", href: $"entrantwizard/{Season.Id}"),
+        });
+
+        loading = false;
+    }
+
+    private async Task<bool> InvalidStepPrevention(StepChangeDirection direction)
+    {
+        errors.Clear();
+
+        var activeIndex = stepper.GetActiveIndex();
+
+        if (direction == StepChangeDirection.Backward)
+        {
+            SetTitle(--activeIndex);
+            return false;
+        }
+
+        loading = true;
+
+        switch (activeIndex)
+        {
+            //Step: adding engines to season
+            case 0:
+                if (!(Model.BaseEngines?.Any() == true))
+                {
+                    errors.Add("Suggestion: add some goddamn engines to the season");
+                }
+                break;
+            //Step: editing entered engines
+            case 1:
+                {
+                    if (Model.SeasonEngines.Any())
+                    {
+                        foreach (var engine in Model.SeasonEngines)
+                            engine.Validate(errors);
+                    }
+                    else
+                    {
+                        errors.Add("You fucked up");
+                    }
+                }
+                break;
+            //Step: adding teams to season
+            case 2:
+                if (!(Model.BaseTeams?.Any() == true))
+                {
+                    errors.Add("Suggestion: add some goddamn teams to the season");
+                }
+                break;
+            //Step: editing teams
+            case 3:
+                {
+                    if (Model.SeasonTeams.Any())
+                    {
+                        foreach (var team in Model.SeasonTeams)
+                            team.Validate(errors);
+                    }
+                    else
+                    {
+                        errors.Add("You fucked up");
+                    }
+                }
+                break;
+            //Step: team assignment
+            case 4:
+                if (Model.SeasonTeams.Any(e => e.BaseEngineId == 0))
+                {
+                    errors.Add("Oi oi mate, how is a team going to drive without an engine? Try again.");
+                }
+                break;
+            //Step: raceclass assignment
+            case 5:
+                if (Model.Classes.Any() && Model.SeasonTeams.Any(e => e.ClassId == 0))
+                {
+                    errors.Add("See these race classes? Yeah? Well, you better give every team one.");
+                }
+                break;
+            //Step: adding drivers
+            case 6:
+                if (!(Model.BaseDrivers?.Any() == true))
+                {
+                    errors.Add("Suggestion: add some goddamn drivers to the season");
+                }
+                break;
+            //Step: editing drivers
+            case 7:
+                {
+                    if (Model.SeasonDrivers.Any())
+                    {
+                        foreach (var driver in Model.SeasonDrivers)
+                            driver.Validate(errors);
+                    }
+                    else
+                    {
+                        errors.Add("You fucked up");
+                    }
+                }
+                break;
+            case 8:
+                {
+                    if (!allowPersonalNumbers)
+                    {
+                        int numberIndexer = 0;
+                        foreach (var driver in Model.SeasonDrivers.OrderBy(e => e.BaseTeamId))
+                            driver.Number = ++numberIndexer;
+                    }
+                }
+                break;
+        }
+
+        if (errors.Any())
+        {
+            loading = false;
+            return true;
+        }
+
+        await PreProcessUpcomingStep(++activeIndex);
+
+        loading = false;
+
+        return false;
+    }
+
+    private async Task PreProcessUpcomingStep(int stepIndex)
+    {
+        switch (stepIndex)
+        {
+            case 0:
+                stepTitle = "Add engines";
+                break;
+            case 1:
+                {
+                    await SetEngineEditors();
+                    stepTitle = "Edit engines";
+                }
+                break;
+            case 2:
+                {
+                    stepTitle = "Add teams";
+                }
+                break;
+            case 3:
+                {
+                    await SetTeamEditors();
+                    stepTitle = "Edit teams";
+                }
+                break;
+            case 4:
+                stepTitle = "Assign teams";
+                break;
+            case 5:
+                stepTitle = "Assign race classes";
+                break;
+            case 6:
+                stepTitle = "Add drivers";
+                break;
+            case 7:
+                {
+                    await SetDriverEditors();
+                    stepTitle = "Edit drivers";
+                }
+                break;
+            case 8:
+                stepTitle = "Assign drivers";
+                break;
+            case 9:
+                stepTitle = "Participants";
+                break;
+        }
+    }
+
+    private async Task SetEngineEditors()
+    {
+        Model.SeasonEngines.Clear();
+
+        foreach (var engine in Model.BaseEngines.Where(e => !(Model.SeasonEngines.Select(se => se.EngineId).Contains(e.Id))))
+        {
+            var previousEngine = await _entrantService.FindRecentSeasonEngine(engine.Id, Model.LeagueId);
+
+            var model = new EditSeasonEngineModel(previousEngine);
+            model.ResetIdentifierFields();
+            model.SeasonId = SeasonId;
+            model.EngineId = engine.Id;
+            model.Name = string.IsNullOrEmpty(model.Name) ? engine.Name : model.Name;
+
+            Model.SeasonEngines.Add(model);
+        }
+
+        Model.RemoveUnsetEngines();
+    }
+
+    private async Task SetTeamEditors()
+    {
+        Model.SeasonTeams.Clear();
+
+        List<SeasonEngine>? previousEngines = null;
+        Dictionary<string, long> alikeClasses = new();
+
+        if (PreviousSeason != null)
+        {
+            var existingEngineIds = Model.SeasonEngines.Select(e => e.EngineId).ToArray();
+            var allPrevious = await _entrantService.GetSeasonEngines(PreviousSeason.Id);
+            previousEngines = allPrevious.Where(e => existingEngineIds.Contains(e.EngineId)).ToList();
+
+            if (PreviousSeason?.RaceClasses?.Any() == true)
+            {
+                foreach (var oldClass in PreviousSeason.RaceClasses)
+                {
+                    var similairClass = Model.Classes.Find(e => e.Tag.Equals(oldClass.Tag, StringComparison.OrdinalIgnoreCase));
+                    if (similairClass != null)
+                        alikeClasses.Add(oldClass.Tag, similairClass.Id);
+                }
+            }
+        }
+
+        foreach (var team in Model.BaseTeams.Where(e => !(Model.SeasonTeams.Select(st => st.TeamId).Contains(e.Id))))
+        {
+            var previousTeam = await _entrantService.FindRecentSeasonTeam(team.Id, Season.LeagueId);
+
+            var model = new EditSeasonTeamModel(previousTeam);
+            model.ResetIdentifierFields();
+            model.SeasonId = SeasonId;
+            model.TeamId = team.Id;
+            model.Team = team;
+            model.Name = string.IsNullOrEmpty(model.Name) ? team.Name : model.Name;
+            model.Principal = string.IsNullOrEmpty(model.Principal) ? "Principal" : model.Principal;
+            model.ManufacturerId = model.ManufacturerId == 0 ? Manufacturers.First().Id : model.ManufacturerId;
+
+            if (previousTeam != null && previousEngines != null)
+                model.BaseEngineId = previousEngines.Find(e => e.Id == previousTeam.SeasonEngineId)?.EngineId ?? 0;
+
+            if (previousTeam != null && previousTeam.ClassId.HasValue && PreviousSeason?.RaceClasses?.Any() == true)
+            {
+                var previousTag = PreviousSeason.RaceClasses.FirstOrDefault(e => e.Id == previousTeam.ClassId.Value)?.Tag ?? string.Empty;
+                var similairTag = Model.Classes.Find(e => e.Tag.Equals(previousTag));
+
+                model.ClassId = similairTag?.Id ?? 0;
+            }
+
+            Model.SeasonTeams.Add(model);
+        }
+
+        Model.RemoveUnsetTeams();
+    }
+
+    private async Task SetDriverEditors()
+    {
+        Model.SeasonDrivers.Clear();
+
+        List<SeasonTeam>? previousTeams = null;
+
+        if (PreviousSeason != null)
+        {
+            var existingTeamIds = Model.SeasonTeams.Select(e => e.TeamId).ToArray();
+            var allPrevious = await _entrantService.GetSeasonTeams(PreviousSeason.Id);
+
+            previousTeams = allPrevious.Where(e => existingTeamIds.Contains(e.TeamId)).ToList();
+        }
+
+        int indexer = 0;
+        foreach (var driver in Model.BaseDrivers.Where(e => !(Model.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))))
+        {
+            var previousDriver = await _entrantService.FindRecentSeasonDriver(driver.Id);
+
+            // Create a new edit model from the nullable entity, reset the identifying fields and assign the new ones
+            var model = new EditSeasonDriverModel(previousDriver);
+            model.ResetIdentifierFields();
+            model.SeasonId = SeasonId;
+            model.DriverId = driver.Id;
+            model.Driver = driver;
+
+            if (!allowPersonalNumbers)
+                model.Number = ++indexer;
+
+            if (Contracts.Any())
+            {
+                var possibleContract = Contracts.FirstOrDefault(e => e.DriverId == driver.Id);
+                if (possibleContract != null)
+                {
+                    model.BaseTeamId = possibleContract.TeamId;
+                    model.Contracted = true;
+                }
+            }
+
+            if (model.BaseTeamId == 0 && previousDriver != null && previousTeams != null)
+                model.BaseTeamId = previousTeams.Find(e => e.Id == previousDriver.SeasonTeamId)?.TeamId ?? 0;
+
+            Model.SeasonDrivers.Add(model);
+        }
+
+        Model.RemoveUnsetDrivers();
+    }
+
+    private void SetTitle(int forIndex)
+    {
+        switch (forIndex)
+        {
+            case 0:
+                stepTitle = "Add engines";
+                break;
+            case 1:
+                stepTitle = "Edit engines";
+                break;
+            case 2:
+                stepTitle = "Add teams";
+                break;
+            case 3:
+                stepTitle = "Edit teams";
+                break;
+            case 4:
+                stepTitle = "Assign teams";
+                break;
+            case 5:
+                stepTitle = "Add drivers";
+                break;
+            case 6:
+                stepTitle = "Edit drivers";
+                break;
+            case 7:
+                stepTitle = "Assign drivers";
+                break;
+            case 8:
+                stepTitle = "Participants";
+                break;
+        }
+    }
+
+    private async Task AddAllEntrants()
+    {
+        var rootEntrants = Model.CombineEntrantsToRoot();
+
+        await _entrantService.PersistSeasonEntrants(rootEntrants);
+
+        _nav.NavigateTo($"/overview/{SeasonId}");
+    }
+}

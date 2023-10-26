@@ -1,0 +1,45 @@
+﻿@page "/motorsport"
+
+@using SimTECH.Pages.Motorsport.Contracts;
+@using SimTECH.Pages.Motorsport.Leagues;
+
+@inject LeagueService _leagueService
+@inject TyreService _tyreService
+@inject BreadcrumbProvider _bread
+@inject IDialogService _dialogService
+
+<PageTitle>Motorsport</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudStack Class="pa-0">
+        <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
+            <MudText Typo="Typo.h3">Motorsport</MudText>
+        </MudPaper>
+        <MudStack Row="true" Class="pa-0">
+            <MudPaper Class="pa-2">
+                <LeagueView ShowLeagueContracts="ShowContracts" />
+            </MudPaper>
+            @if (contractsOfLeagueId != default)
+            {
+                <MudPaper Class="pa-2">
+                    <ContractView LeagueId="@contractsOfLeagueId" />
+                </MudPaper>
+            }
+        </MudStack>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private long contractsOfLeagueId = default;
+
+    protected override void OnInitialized()
+    {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Motorsport", href: "motorsport", disabled: true),
+        });
+    }
+
+    private void ShowContracts(long leagueId) => contractsOfLeagueId = leagueId;
+}
