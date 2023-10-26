@@ -18,8 +18,6 @@
                 <MudText Typo="Typo.h3">
                     Entrant Development
                 </MudText>
-                <sub>I am a bottom</sub>
-                <sup>I am a top</sup>
             </MudPaper>
         </MudItem>
         @if (!loading)
@@ -30,6 +28,20 @@
                     <MudDivider />
 
                     <MudStack>
+                        @if (hasRaceClasses)
+                        {
+                            <MudStack Spacing="1">
+                                <MudText Typo="Typo.subtitle1">Class</MudText>
+                                <MudChipSet Mandatory="true">
+                                    <MudChip Color="Color.Dark" Default="true">All</MudChip>
+                                    @foreach (var raceClass in RaceClasses)
+                                    {
+                                        <MudChip Color="Color.Dark" Value="@raceClass.Id">@raceClass.Name</MudChip>
+                                    }
+                                </MudChipSet>
+                            </MudStack>
+                        }
+
                         <MudStack Spacing="1">
                             <MudTooltip Text="For whom the development is run">
                                 <MudText Typo="Typo.subtitle1">Entrant</MudText>
@@ -40,10 +52,6 @@
                                 <MudChip Color="Color.Primary" Value="Entrant.Engine">Engine</MudChip>
                             </MudChipSet>
                         </MudStack>
-
-                        <div>
-                            <MudDivider />
-                        </div>
 
                         <MudStack Spacing="1">
                             <MudTooltip Text="Which aspect is going to be developed">
@@ -71,10 +79,6 @@
                                 }
                             </MudChipSet>
                         </MudStack>
-
-                        <div>
-                            <MudDivider />
-                        </div>
 
                         <MudStack Spacing="1">
                             <MudTooltip Text="How the development ranges are determined">
@@ -136,6 +140,7 @@
     private List<SeasonTeam> SeasonTeams { get; set; }
     private List<SeasonDriver> SeasonDrivers { get; set; }
     private List<DevelopmentRange> LeagueDevelopmentRanges { get; set; }
+    private List<RaceClass> RaceClasses { get; set; }
 
     private List<DevelopedEntrant> DevelopedEntrants { get; set; } = new();
 
@@ -265,6 +270,16 @@
             .ToList();
 
         showOptionalColumn = false;
+    }
+
+    private void RaceClassChipChanged(MudChip? classChip)
+    {
+        if (classChip == null)
+            return;
+
+        var selectedClassId = (long)classChip.Value;
+
+        throw new NotImplementedException("Race class chips are not fully implemented yet, rie");
     }
 
     private void EntrantChipChanged(MudChip? entrantChip)
