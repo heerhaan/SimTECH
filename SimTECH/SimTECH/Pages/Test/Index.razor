@@ -1,0 +1,162 @@
+﻿@page "/test"
+
+@using SimTECH.Pages.Test.Components
+
+@inject BreadcrumbProvider _bread
+@inject ProtectedLocalStorage _storage
+@inject NavigationManager _nav
+@inject IOptions<SimConfig> _config
+
+<PageTitle>Test</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16 px-8 cubic-repeat-bg">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
+                <div class="header-special">Testing Zone</div>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="9">
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+                        <MudText>
+                            ΩΩΩ-OMEGA-ΩΩΩ
+                            λλλ-LAMBDA-λλλ
+                        </MudText>
+
+                        <MudRangeSlider @bind-Value="@rangeLow" @bind-UpperValue="@rangeHigh" Size="Size.Medium" Variant="Variant.Filled" Display="true"
+                            ValueLabel="true" Range="true" Min="1" Max="100" Step="1" Color="Color.Secondary" Class="mt-2">Range label</MudRangeSlider>
+
+                        <MudText Class="my-2">State test</MudText>
+
+                        <TestStateInit Text="@initText" />
+
+                        <TestStateSet Text="@setText" />
+
+                        <MudButton Color="Color.Tertiary" OnClick="UpdateStateText" Class="mt-2">Update state texts</MudButton>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+                        <MudText Typo="Typo.h1">Head1</MudText>
+                        <MudText Typo="Typo.h2">Head2</MudText>
+                        <MudText Typo="Typo.h3">Head3</MudText>
+                        <MudText Typo="Typo.h4">Head4</MudText>
+                        <MudText Typo="Typo.h5">Head5</MudText>
+                        <MudText Typo="Typo.h6">Head6</MudText>
+                        <MudText Typo="Typo.subtitle1">Subtitle 1</MudText>
+                        <MudText Typo="Typo.subtitle2">Subtitle 2</MudText>
+                        <MudText Typo="Typo.body1">Body 1</MudText>
+                        <MudText Typo="Typo.body2">Body 2</MudText>
+                        <MudText Typo="Typo.button">Button</MudText>
+                        <MudText Typo="Typo.caption">Caption</MudText>
+                        <MudText Typo="Typo.overline">Overline</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
+                        <MudStack>
+                            <MudText Typo="Typo.h5">Examples</MudText>
+                            <div>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="SetExample">
+                                    Set local stored info
+                                </MudButton>
+                                <MudText>@exampleStore</MudText>
+                            </div>
+
+                            <MudDivider />
+
+                            <MudText Typo="Typo.overline">Custom emblems</MudText>
+                            <Emblem Icon="@IconCollection.Polygon" Colour="#49f2e7" Accent="#bf34fa" />
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudPaper Elevation="2" MinHeight="200px" Class="pa-4">
+                        <MudText Typo="Typo.overline">Muted backgrounds</MudText>
+                        <MudDivider />
+
+                        <MudStack Row="true">
+                            <MudPaper Class="pa-3 muted-background-primary"></MudPaper>
+                            <MudPaper Class="pa-3 muted-background-secondary"></MudPaper>
+                            <MudPaper Class="pa-3 muted-background-tertiary"></MudPaper>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+        <MudItem xs="3">
+            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
+                <MudText Typo="Typo.h5">Config settings</MudText>
+                <MudDivider />
+
+                <MudListExtended T="string" Dense="true">
+                    <MudListItemExtended T="string" Text="@config.CalculationDistance.ToString()" SecondaryText="Calculation distance" />
+                    <MudListItemExtended T="string" Text="@config.DisqualifyChance.ToString()" SecondaryText="Disqualification odds" />
+                    <MudListItemExtended T="string" Text="@config.FatalityChance.ToString()" SecondaryText="Fatality odds" />
+                    <MudListItemExtended T="string" Text="@config.SafetyCarChance.ToString()" SecondaryText="Safety car odds" />
+                    <MudListItemExtended T="string" Text="@config.SafetyCarGap.ToString()" SecondaryText="Safety car gap" />
+                    <MudListItemExtended T="string" Text="@config.SafetyCarReturnChance.ToString()" SecondaryText="Safety car return odds" />
+                    <MudListItemExtended T="string" Text="@config.BattleRng.ToString()" SecondaryText="Battle RNG" />
+                    <MudListItemExtended T="string" Text="@config.CarDriverStatusModifier.ToString()" SecondaryText="Team status modifier" />
+                    <MudListItemExtended T="string" Text="@config.MinimumTyreLife.ToString()" SecondaryText="Minimum tyre life" />
+                    <MudListItemExtended T="string" Text="@config.GapMarge.ToString()" SecondaryText="Time score equivalent" />
+                </MudListExtended>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private string activeCustomIcon = IconCollection.BrandToyota;
+    private string[] customIcons = IconCollection.ArrayOfIcons;
+    private int iconCycler = 0;
+    private string? exampleStore;
+    private string newExampleString = "Stored and retrieved from the local storage";
+    private SimConfig config;
+
+    int? rangeLow, rangeHigh;
+
+    private string initText = "unchanged init";
+    private string setText = "unchanged set";
+
+    protected override void OnInitialized()
+    {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+        });
+
+        config = _config.Value;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var storedExample = await _storage.GetAsync<string>("example");
+            if (storedExample.Success)
+                exampleStore = storedExample.Value;
+        }
+    }
+
+    private void UpdateStateText()
+    {
+        initText = "changed init";
+        setText = "changed set";
+    }
+
+    private void CycleCustomIcon()
+    {
+        iconCycler++;
+        iconCycler %= customIcons.Length;
+
+        activeCustomIcon = customIcons[iconCycler];
+    }
+
+    private async Task SetExample()
+    {
+        await _storage.SetAsync("example", newExampleString);
+    }
+}

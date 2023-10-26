@@ -1,0 +1,89 @@
+﻿@page "/manufacturers"
+
+@using SimTECH.Pages.Manufacturers.Dialogs
+
+@inject ManufacturerService _manufacturerService
+@inject BreadcrumbProvider _bread
+@inject IDialogService _dialogService
+
+<PageTitle>Tyre suppliers</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
+            <MudText Typo="Typo.h3">Tyre suppliers</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddItem" Class="btn-md">New</MudButton>
+        </MudStack>
+        <MudText Typo="Typo.body2" Color="Color.Info" Class="px-4">These values do not apply when using wet tyres.</MudText>
+    </MudPaper>
+    <MudTable Items="@ManufacturerData" Bordered="true" Dense="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Life Bonus</MudTh>
+            <MudTh>Wear</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <SupplierDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Name</SupplierDisplay>
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.caption">@context.Pace</MudText>
+            </MudTd>
+            <MudTd>
+                <MudStack Row="true" Spacing="1" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.caption">@context.WearMin</MudText>
+                    <MudIcon Size="Size.Small" Icon="@IconCollection.ArrowMoveHorizontal" />
+                    <MudText Typo="Typo.caption">@context.WearMax</MudText>
+                </MudStack>
+            </MudTd>
+            <MudTd>
+                <MudButtonGroup Size="@Size.Small">
+                    <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context, toggled))"
+                                        Default="@(context.State == State.Active)" />
+                    <MudIconButton Size="@Size.Small"
+                                   Icon="@Icons.Material.Outlined.Edit"
+                                   OnClick="@(async () => await UpdateItem(context))" />
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private List<Manufacturer> ManufacturerData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Manufacturers", href: "manufacturers", disabled: true),
+        });
+
+        ManufacturerData = await _manufacturerService.GetManufacturers(StateFilter.All);
+    }
+
+    async Task AddItem() => await UpdateItem(null);
+    async Task UpdateItem(Manufacturer? item)
+    {
+        var parameters = new DialogParameters { ["Manufacturer"] = item };
+
+        var dialog = await _dialogService.ShowAsync<ManufacturerEditor>("Modify manufacturer", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is Manufacturer updatedItem)
+        {
+            await _manufacturerService.UpdateManufacturer(updatedItem);
+            ManufacturerData = await _manufacturerService.GetManufacturers();
+        }
+    }
+
+    async Task OnToggleChange(Manufacturer manufacturer, bool toggled) => await ToggleState(manufacturer, (toggled ? State.Active : State.Closed));
+    async Task ToggleState(Manufacturer manufacturer, State targetState)
+    {
+        await _manufacturerService.ChangeState(manufacturer, targetState);
+        manufacturer.State = targetState;
+    }
+}
