@@ -1,0 +1,95 @@
+﻿@using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Dialogs
+@using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Components
+
+@inject IDialogService _dialog
+
+<MudPaper Elevation="15">
+    <MudTable Items="@StandingDrivers" Dense="true" Class="extra-dense" id="wdc-season-results">
+        <ToolBarContent>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4 mud-width-full">
+                <MudText Typo="Typo.h4">World Drivers Championship @OverviewModel.Season.Year</MudText>
+                <MudSpacer />
+                <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined">
+                    <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" Class="btn-md" />
+                    <ScreenshotButton TargetId="wdc-season-results" Class="btn-md" />
+                </MudButtonGroup>
+            </MudStack>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh Class="number-col"></MudTh>
+            <MudTh Class="accent-cell"></MudTh>
+            <MudTh Style="width: 220px">Driver</MudTh>
+            <MudTh Class="number-col">NO</MudTh>
+            <MudTh>PTS</MudTh>
+            @foreach (var round in CountryRounds.OrderBy(e => e.Key))
+            {
+                <MudTh>
+                    <CountryFlag Code="@round.Value" Size="ElementSize.Small" />
+                </MudTh>
+            }
+            <MudTh Class="number-col">AVG</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd Class="number-col">
+                <DriverPosition Number="@context.Position" Colour="@context.Colour" Accent="@context.Accent" />
+            </MudTd>
+            <MudTd Class="accent-cell">
+                <SmolAccent Colour="@context.Colour" />
+            </MudTd>
+            <MudTd Class="overflow-hider">
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <MudText Class="overflow-hider" Style="@(context.Mark ? "text-decoration: underline" : "")">@context.Name</MudText>
+                    <MudSpacer />
+                    <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
+                </MudStack>
+            </MudTd>
+            <MudTd Class="number-col-lg">
+                <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.caption">@context.Points</MudText>
+            </MudTd>
+            @foreach (var round in CountryRounds.OrderBy(e => e.Key))
+            {
+                @*<MudTd Class="result-cell">
+                    <ResultCell Result="@(context.ResultCells.Find(e => e.Round == round.Key))"
+                                LowestScoringPosition="@lowestScoringPosition" />
+                </MudTd>*@
+                <MudTdResult Result="@(context.ResultCells.Find(e => e.Round == round.Key))"
+                             LowestScoringPosition="@lowestScoringPosition" />
+            }
+            <MudTd>
+                <MudText Typo="Typo.caption">@context.Average.ToString("F1")</MudText>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+
+    [Parameter] public Dictionary<int, Country> CountryRounds { get; set; }
+    [Parameter] public List<StandingDriverModel> StandingDrivers { get; set; }
+
+    int lowestScoringPosition = 10;
+
+    DialogOptions customOptions = new()
+    {
+        MaxWidth = MaxWidth.ExtraLarge,
+        CloseButton = true,
+        DisableBackdropClick = true,
+        Position = DialogPosition.Center,
+    };
+
+    protected override void OnInitialized()
+    {
+        if (OverviewModel.Season?.PointAllotments?.Any() == true)
+            lowestScoringPosition = OverviewModel.Season.PointAllotments.Max(e => e.Position);
+    }
+
+    async Task ShowWdcResultGraph()
+    {
+        var parameters = new DialogParameters { ["Drivers"] = StandingDrivers, ["Season"] = OverviewModel.Season };
+        _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters, customOptions);
+    }
+}

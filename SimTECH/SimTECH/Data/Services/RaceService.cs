@@ -4,7 +4,7 @@ using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
-using SimTECH.PageModels.Racing;
+using SimTECH.PageModels.RaceWeek;
 
 namespace SimTECH.Data.Services
 {
