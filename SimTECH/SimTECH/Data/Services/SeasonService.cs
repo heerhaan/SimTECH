@@ -3,7 +3,7 @@ using MudBlazor;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
-using SimTECH.PageModels;
+using SimTECH.PageModels.Seasons;
 
 namespace SimTECH.Data.Services
 {
@@ -185,8 +185,8 @@ namespace SimTECH.Data.Services
 
             foreach (var season in seasons)
             {
-                var seasonDriver = winningDrivers.Find(e => e.SeasonId == season.Id);
-                var seasonTeam = winningTeams.Find(e => e.SeasonId == season.Id);
+                var seasonDriver = winningDrivers.Find(e => e!.SeasonId == season.Id);
+                var seasonTeam = winningTeams.Find(e => e!.SeasonId == season.Id);
 
                 seasonListItems.Add(new SeasonListModel
                 {

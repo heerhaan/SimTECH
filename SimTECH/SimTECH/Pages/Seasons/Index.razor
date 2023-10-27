@@ -1,10 +1,13 @@
 ﻿@page "/seasons"
 
+@using SimTECH.Pages.Seasons.Dialogs;
+@using SimTECH.PageModels.Seasons;
+
 @inject BreadcrumbProvider _bread
-@inject NavigationManager Nav
-@inject LeagueService LeagueService
-@inject SeasonService SeasonService
-@inject IDialogService DialogService
+@inject NavigationManager _nav
+@inject LeagueService _leagueService
+@inject SeasonService _seasonService
+@inject IDialogService _dialogService
 
 <PageTitle>Seasons</PageTitle>
 
@@ -88,9 +91,9 @@
             new BreadcrumbItem("Seasons", href: "seasons", disabled: true),
         });
 
-        Seasons = await SeasonService.GetSeasons();
-        Leagues = await LeagueService.GetLeagues();
-        SeasonListItems = await SeasonService.GetSeasonList();
+        Seasons = await _seasonService.GetSeasons();
+        Leagues = await _leagueService.GetLeagues();
+        SeasonListItems = await _seasonService.GetSeasonList();
     }
 
     private async Task NewSeason()
@@ -127,24 +130,24 @@
     {
         var parameters = new DialogParameters { ["Model"] = model, ["Leagues"] = Leagues };
 
-        var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
+        var dialog = await _dialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
         {
-            await SeasonService.UpdateSeason(updatedItem);
-            Nav.NavigateTo($"/overview/{updatedItem.Id}");
+            await _seasonService.UpdateSeason(updatedItem);
+            _nav.NavigateTo($"/overview/{updatedItem.Id}");
         }
     }
 
     private async Task DeleteSeason(long seasonId)
     {
-        var result = await SeasonService.DeleteSeason(seasonId);
+        var result = await _seasonService.DeleteSeason(seasonId);
         if (result)
         {
             Seasons.Remove(Seasons.Single(e => e.Id == seasonId));
         }
     }
 
-    private void GoToOverview(long seasonId) => Nav.NavigateTo($"/overview/{seasonId}");
+    private void GoToOverview(long seasonId) => _nav.NavigateTo($"/overview/{seasonId}");
 }
