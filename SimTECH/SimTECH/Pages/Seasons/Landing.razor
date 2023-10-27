@@ -69,10 +69,6 @@
                 {
                     <MudButtonGroup Variant="Variant.Text" Color="Color.Primary">
                         <MudButton FullWidth="true" OnClick="GoToDeveloper">Development</MudButton>
-                        @if (!string.IsNullOrEmpty(ActiveClassName))
-                        {
-                            <MudButton FullWidth="true" OnClick="GoToClassDeveloper">Development for @ActiveClassName</MudButton>
-                        }
                         <MudButton FullWidth="true" OnClick="TriggerFinish">Finish season</MudButton>
                     </MudButtonGroup>
                 }
@@ -139,24 +135,16 @@
     [Parameter] public EventCallback<long> OnClassSelected { get; set; }
     [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
-    private string? ActiveClassName { get; set; }
+    private async Task TriggerStart() => await OnStartSeason.InvokeAsync();
+    private async Task TriggerFinish() => await OnFinishSeason.InvokeAsync();
 
-    protected override void OnParametersSet()
-    {
-        if (OverviewModel.ActiveClassId != default)
-            ActiveClassName = OverviewModel.Season.RaceClasses.FirstOrDefault(e => e.Id == OverviewModel.ActiveClassId)?.Tag;
-    }
+    private async Task ShowComponentUsage() => await OnShowComponentUsage.InvokeAsync();
+    private async Task ShowQualyBattles() => await OnShowQualyBattles.InvokeAsync();
+    private async Task ShowContractDurations() => await OnShowContractDurations.InvokeAsync();
 
-    async Task TriggerStart() => await OnStartSeason.InvokeAsync();
-    async Task TriggerFinish() => await OnFinishSeason.InvokeAsync();
+    private async Task GoToNextRace() => await OnNextRace.InvokeAsync();
 
-    async Task ShowComponentUsage() => await OnShowComponentUsage.InvokeAsync();
-    async Task ShowQualyBattles() => await OnShowQualyBattles.InvokeAsync();
-    async Task ShowContractDurations() => await OnShowContractDurations.InvokeAsync();
-
-    async Task GoToNextRace() => await OnNextRace.InvokeAsync();
-
-    async Task GoToAddEntrants() => await OnNavigate.InvokeAsync($"/entrantwizard/{OverviewModel.Season.Id}");
-    async Task GoToDeveloper() => await OnNavigate.InvokeAsync($"/developer/{OverviewModel.Season.Id}");
-    async Task GoToClassDeveloper() => await OnNavigate.InvokeAsync($"/developer/{OverviewModel.Season.Id}/{OverviewModel.ActiveClassId}");
+    private async Task GoToAddEntrants() => await OnNavigate.InvokeAsync($"/entrantwizard/{OverviewModel.Season.Id}");
+    private async Task GoToDeveloper() => await OnNavigate.InvokeAsync($"/developer/{OverviewModel.Season.Id}");
+    private async Task GoToClassDeveloper() => await OnNavigate.InvokeAsync($"/developer/{OverviewModel.Season.Id}/{OverviewModel.ActiveClassId}");
 }

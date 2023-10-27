@@ -1,5 +1,4 @@
 ﻿@page "/developer/{SeasonId:long}"
-@page "/developer/{SeasonId:long}/{ClassId:long}"
 
 @using SimTECH.Pages.Seasons.Development.Components
 
@@ -28,12 +27,12 @@
                     <MudDivider />
 
                     <MudStack>
-                        @if (hasRaceClasses)
+                        @if (RaceClasses?.Any() == true)
                         {
                             <MudStack Spacing="1">
                                 <MudText Typo="Typo.subtitle1">Class</MudText>
-                                <MudChipSet Mandatory="true">
-                                    <MudChip Color="Color.Dark" Default="true">All</MudChip>
+                                <MudChipSet SelectedChipChanged="RaceClassChipChanged" Mandatory="true">
+                                    <MudChip Color="Color.Dark" Value="0L" Default="true">All</MudChip>
                                     @foreach (var raceClass in RaceClasses)
                                     {
                                         <MudChip Color="Color.Dark" Value="@raceClass.Id">@raceClass.Name</MudChip>
@@ -134,16 +133,16 @@
 
 @code {
     [Parameter] public long SeasonId { get; set; }
-    [Parameter] public long ClassId { get; set; }
 
     private List<SeasonEngine> SeasonEngines { get; set; }
     private List<SeasonTeam> SeasonTeams { get; set; }
     private List<SeasonDriver> SeasonDrivers { get; set; }
     private List<DevelopmentRange> LeagueDevelopmentRanges { get; set; }
-    private List<RaceClass> RaceClasses { get; set; }
+    private List<RaceClass>? RaceClasses { get; set; }
 
     private List<DevelopedEntrant> DevelopedEntrants { get; set; } = new();
 
+    long selectedRaceClassId = default;
     Entrant selectedEntrant = Entrant.Driver;
     Aspect selectedAspect = Aspect.Reliability;
     Quantifier selectedType = Quantifier.Range;
@@ -151,7 +150,6 @@
     private MudChipSet? chipSet;
 
     bool loading = true;
-    bool hasRaceClasses;
     bool showOptionalColumn;
     int currentYear;
     int currentMin = 0;
@@ -159,10 +157,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var season = await _seasonService.GetSeasonById(SeasonId);
-        hasRaceClasses = season.HasRaceClasses && ClassId != default;
-
         await RetrieveEntrants();
+
+        var season = await _seasonService.GetSeasonById(SeasonId);
+
+        if (season.HasRaceClasses)
+            RaceClasses = season.RaceClasses.ToList();
 
         currentYear = season.Year;
         LeagueDevelopmentRanges = await _leagueService.GetLeagueDevelopmentRanges(season.LeagueId);
@@ -185,17 +185,6 @@
         SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
         SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
         SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
-
-        if (hasRaceClasses)
-        {
-            SeasonTeams = SeasonTeams.Where(e => e.ClassId == ClassId).ToList();
-
-            var teamClassIds = SeasonTeams.Select(e => e.Id).ToList();
-            var usedEngineIds = SeasonTeams.Select(st => st.SeasonEngineId).ToList();
-
-            SeasonDrivers = SeasonDrivers.Where(e => e.SeasonTeamId.HasValue && teamClassIds.Contains(e.SeasonTeamId.Value)).ToList();
-            SeasonEngines = SeasonEngines.Where(e => usedEngineIds.Contains(e.Id)).ToList();
-        }
     }
 
     private void LoadEntrants()
@@ -224,8 +213,11 @@
 
     private void DevelopDrivers()
     {
-        DevelopedEntrants = SeasonDrivers.Select(e =>
-            new DevelopedEntrant
+        var allowedTeamIds = SeasonTeams.Where(e => selectedRaceClassId == default || e.ClassId == selectedRaceClassId).Select(e => e.Id).ToList();
+
+        DevelopedEntrants = SeasonDrivers
+            .Where(e => e.SeasonTeamId.HasValue && allowedTeamIds.Contains(e.SeasonTeamId.Value))
+            .Select(e => new DevelopedEntrant
                 {
                     Id = e.Id,
                     Name = e.Driver.FullName,
@@ -241,8 +233,9 @@
 
     private void DevelopTeams()
     {
-        DevelopedEntrants = SeasonTeams.Select(e =>
-            new DevelopedEntrant
+        DevelopedEntrants = SeasonTeams
+            .Where(e => selectedRaceClassId == default || e.ClassId == selectedRaceClassId)
+            .Select(e => new DevelopedEntrant
                 {
                     Id = e.Id,
                     Name = e.Name,
@@ -258,8 +251,15 @@
 
     private void DevelopEngines()
     {
-        DevelopedEntrants = SeasonEngines.Select(e =>
-            new DevelopedEntrant
+        var allowedEngineIds = SeasonTeams
+            .Where(e => selectedRaceClassId == default || e.ClassId == selectedRaceClassId)
+            .Select(e => e.SeasonEngineId)
+            .Distinct()
+            .ToList();
+
+        DevelopedEntrants = SeasonEngines
+            .Where(e => allowedEngineIds.Contains(e.Id))
+            .Select(e => new DevelopedEntrant
                 {
                     Id = e.Id,
                     Name = e.Name,
@@ -277,9 +277,10 @@
         if (classChip == null)
             return;
 
-        var selectedClassId = (long)classChip.Value;
+        selectedRaceClassId = (long)classChip.Value;
 
-        throw new NotImplementedException("Race class chips are not fully implemented yet, rie");
+        LoadEntrants();
+        ApplyCommon();
     }
 
     private void EntrantChipChanged(MudChip? entrantChip)

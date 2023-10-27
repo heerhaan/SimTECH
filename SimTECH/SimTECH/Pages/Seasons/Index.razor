@@ -9,7 +9,7 @@
 <PageTitle>Seasons</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    @if (seasonListItems != null)
+    @if (SeasonListItems != null)
     {
         <MudPaper MinHeight="60px">
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
@@ -18,7 +18,7 @@
                 <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="NewSeason" Class="btn-md">New</MudButton>
             </MudStack>
         </MudPaper>
-        <MudDataGrid T="SeasonListModel" Items="@seasonListItems.OrderByDescending(e => e.Year)" Dense="true">
+        <MudDataGrid T="SeasonListModel" Items="@SeasonListItems.OrderByDescending(e => e.Year)" Dense="true">
             <Columns>
                 <PropertyColumn Property="e => e!.Year" />
                 <TemplateColumn T="SeasonListModel" Title="NO" SortBy="e => e!.DriverNumber" HeaderClass="number-col hide-sort-icons" CellClass="number-col">
@@ -75,9 +75,9 @@
 </MudContainer>
 
 @code {
-    List<Season> seasons;
-    List<League> leagues;
-    List<SeasonListModel> seasonListItems;
+    private List<Season> Seasons { get; set; }
+    private List<League> Leagues { get; set; }
+    private List<SeasonListModel> SeasonListItems { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,16 +88,16 @@
             new BreadcrumbItem("Seasons", href: "seasons", disabled: true),
         });
 
-        seasons = await SeasonService.GetSeasons();
-        leagues = await LeagueService.GetLeagues();
-        seasonListItems = await SeasonService.GetSeasonList();
+        Seasons = await SeasonService.GetSeasons();
+        Leagues = await LeagueService.GetLeagues();
+        SeasonListItems = await SeasonService.GetSeasonList();
     }
 
     private async Task NewSeason()
     {
         EditSeasonModel model;
 
-        var previousSeason = seasons.OrderByDescending(e => e.Year).FirstOrDefault();
+        var previousSeason = Seasons.OrderByDescending(e => e.Year).FirstOrDefault();
 
         if (previousSeason != null)
         {
@@ -115,7 +115,7 @@
 
     private async Task CopySeason(long seasonId)
     {
-        var copyingSeason = seasons.Single(e => e.Id == seasonId);
+        var copyingSeason = Seasons.Single(e => e.Id == seasonId);
         var model = new EditSeasonModel(copyingSeason);
         model.ResetIdentifierFields();
         model.Year++;
@@ -125,7 +125,7 @@
 
     private async Task EditSeason(EditSeasonModel model)
     {
-        var parameters = new DialogParameters { ["Model"] = model, ["Leagues"] = leagues };
+        var parameters = new DialogParameters { ["Model"] = model, ["Leagues"] = Leagues };
 
         var dialog = await DialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
@@ -142,7 +142,7 @@
         var result = await SeasonService.DeleteSeason(seasonId);
         if (result)
         {
-            seasons.Remove(seasons.Single(e => e.Id == seasonId));
+            Seasons.Remove(Seasons.Single(e => e.Id == seasonId));
         }
     }
 
