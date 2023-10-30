@@ -91,7 +91,9 @@
                         <PenaltyBadge Penalty="@context.Penalty">
                             @if (context.Status == RaceStatus.Dnq)
                             {
-                                <ResultLabel Text="@context.Status.ReadableStatus()" Style="@context.Status.StatusStyles()" />
+                                <div class="result-cell" style="@context.Status.StatusStyles()">
+                                    <ResultLabel Text="@context.Status.ReadableStatus()" />
+                                </div>
                             }
                             else
                             {

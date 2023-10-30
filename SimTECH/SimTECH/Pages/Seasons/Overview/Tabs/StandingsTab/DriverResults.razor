@@ -51,12 +51,13 @@
             </MudTd>
             @foreach (var round in CountryRounds.OrderBy(e => e.Key))
             {
-                @*<MudTd Class="result-cell">
-                    <ResultCell Result="@(context.ResultCells.Find(e => e.Round == round.Key))"
-                                LowestScoringPosition="@lowestScoringPosition" />
-                </MudTd>*@
-                <MudTdResult Result="@(context.ResultCells.Find(e => e.Round == round.Key))"
-                             LowestScoringPosition="@lowestScoringPosition" />
+                var resultCell = context.ResultCells.Find(e => e.Round == round.Key);
+
+                <MudTd Class="result-cell" Style="@(resultCell?.GetResultStyle(lowestScoringPosition) ?? string.Empty)">
+                    <ResultLabel Text="@(resultCell?.GetResultText() ?? "-")"
+                                 HasFastestLap="@(resultCell?.FL ?? false)"
+                                 HasPole="@(resultCell?.Pole ?? false)" />
+                </MudTd>
             }
             <MudTd>
                 <MudText Typo="Typo.caption">@context.Average.ToString("F1")</MudText>
