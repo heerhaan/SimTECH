@@ -7,9 +7,9 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4 mud-width-full">
             <MudText Typo="Typo.h4">World Constructors Championship @(OverviewModel.Season.Year)</MudText>
             <MudSpacer />
-            <MudButtonGroup Color="Color.Secondary" Variant="Variant.Outlined">
-                <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWccResultGraph" Class="btn-md" />
-                <ScreenshotButton TargetId="wcc-season-results" Class="btn-md" />
+            <MudButtonGroup Color="Color.Secondary" Variant="Variant.Text">
+                <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWccResultGraph" />
+                <ScreenshotIconButton TargetId="wcc-season-results" />
             </MudButtonGroup>
         </MudStack>
     </ToolBarContent>
@@ -56,7 +56,8 @@
                 {
                     @foreach (var result in teamResults)
                     {
-                        <ResultCell Result="@result" LowestScoringPosition="@lowestScoringPosition" OverrideTypo="Typo.caption" WithBonus="false" />
+                        <ResultLabel Text="@result.GetResultText()"
+                                     Style="@result.GetResultStyle(lowestScoringPosition)" />
                     }
                 }
                 else
@@ -88,6 +89,6 @@
     async Task ShowWccResultGraph()
     {
         var parameters = new DialogParameters { ["Teams"] = StandingConstructors, ["Season"] = OverviewModel.Season };
-        _ = await _dialog.ShowAsync<WccResultChart>("WCC results chart", parameters);
+        _ = await _dialog.ShowAsync<WccResultChart>("WCC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
     }
 }
