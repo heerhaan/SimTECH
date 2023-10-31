@@ -15,7 +15,6 @@ namespace SimTECH.Data.Configurations
                 .IsRequired();
 
             builder.Property(e => e.Icon)
-                .HasColumnType("varchar(max)")
                 .IsRequired();
 
             builder.Property(e => e.Colour)

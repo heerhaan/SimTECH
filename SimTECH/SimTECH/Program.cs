@@ -1,3 +1,4 @@
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MudBlazor;
@@ -16,11 +17,11 @@ namespace SimTECH
             var builder = WebApplication.CreateBuilder(args);
 
             // Configure database context services
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
             builder.Services.AddDbContextFactory<SimTechDbContext>(options =>
             {
-                options.UseSqlServer(connectionString);
+                options.UseSqlite("Data Source=SimTechDbV2.db");
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 options.ConfigureWarnings(e => e.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
             });
