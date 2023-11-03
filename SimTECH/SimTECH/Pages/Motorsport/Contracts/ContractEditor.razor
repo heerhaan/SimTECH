@@ -19,7 +19,7 @@
                 </MudSelect>
 
                 <MudText>Team</MudText>
-                <MudSelect T="long" @bind-Value="@model.TeamId" Label="Team" Class="field-md">
+                <MudSelect T="long" @bind-Value="model.TeamId" Label="Team" Class="field-md">
                     @foreach (var team in Teams.OrderBy(e => e.Name))
                     {
                         <MudSelectItem Value="@team.Id">
@@ -35,7 +35,7 @@
                 @if (freeAgents != null)
                 {
                     <MudText>Driver</MudText>
-                    <MudSelect T="long" @bind-Value="@model.DriverId" Label="Driver" Class="field-md">
+                    <MudSelect T="long" @bind-Value="model.DriverId" Label="Driver" Class="field-md">
                         @foreach (var driver in freeAgents.OrderBy(e => e.FirstName))
                         {
                             <MudSelectItem Value="@driver.Id">
