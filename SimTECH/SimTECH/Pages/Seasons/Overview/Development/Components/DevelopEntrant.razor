@@ -1,31 +1,6 @@
-﻿@inject ISnackbar _snack
-
-<MudTable Items="@DevelopedEntrants" Dense="true" Class="extra-dense" id="development-results">
+﻿<MudTable Items="@DevelopedEntrants" Dense="true" Class="extra-dense" id="development-results">
     <ToolBarContent>
-        <MudText Typo="Typo.h5">Development</MudText>
-        <MudDivider Vertical="true" Class="mx-2" />
-        <MudText Typo="Typo.h5">@SelectedAspect.ReadableAspect()</MudText>
-        <MudSpacer />
-        <MudButtonGroup Color="Color.Info" Variant="Variant.Outlined">
-            @if (ranDevelop)
-            {
-                <MudButton StartIcon="@Icons.Material.Filled.Save"
-                           Color="Color.Success"
-                           Variant="Variant.Outlined"
-                           OnClick="SaveDevelopment"
-                           Class="btn-md">
-                    Save
-                </MudButton>
-            }
-            <MudButton StartIcon="@Icons.Material.Filled.Recycling"
-                       Color="Color.Info"
-                       Variant="Variant.Outlined"
-                       OnClick="RunDevelop"
-                       Class="btn-md">
-                Run
-            </MudButton>
-            <ScreenshotButton TargetId="development-results" Class="btn-md" />
-        </MudButtonGroup>
+        @ChildContent
     </ToolBarContent>
     <HeaderContent>
         <MudTh>
@@ -33,7 +8,7 @@
                 Name
             </MudTableSortLabel>
         </MudTh>
-        @if (ShowOptionalColumn)
+        @if (DevelopModel.IsOptionalColumnVisible)
         {
             <MudTh>
                 <MudTableSortLabel T="DevelopedEntrant" SortBy="@(e => e.Optional)">
@@ -64,24 +39,24 @@
                 <MudText Class="overflow-hider" Style="@(context.Mark ? "text-decoration: underline" : "")">
                     @context.Name
                 </MudText>
-                <MudSpacer />
                 @if (context.Nationality.HasValue)
                 {
+                    <MudSpacer />
                     <CountryFlag Code="@context.Nationality.Value" Size="ElementSize.Small" />
                 }
             </MudStack>
         </MudTd>
-        @if (ShowOptionalColumn)
+        @if (DevelopModel.IsOptionalColumnVisible)
         {
             <MudTd>
-                <MudText Typo="Typo.caption">@(context.Optional.HasValue ? context.Optional.Value : "?")</MudText>
+                <MudText Typo="Typo.caption">@context.Optional</MudText>
             </MudTd>
         }
         <MudTd Class="number-col-lg">
             <MudText Typo="Typo.caption">@context.Old</MudText>
         </MudTd>
         <MudTd Class="number-col-lg">
-            <GradientColour Min="@minChange" Max="@maxChange" Value="@context.Change">
+            <GradientColour Min="@DevelopModel.MinChange" Max="@DevelopModel.MaxChange" Value="@context.Change">
                 <MudText Typo="Typo.caption">@context.Change</MudText>
             </GradientColour>
         </MudTd>
@@ -92,11 +67,11 @@
             <MudStack Row="true" Class="pa-0 flex-nowrap">
                 <MudNumericField T="int"
                                  @bind-Value="@context.Min"
-                                 ReadOnly="@notDirectQuantifier"
+                                 ReadOnly="@DevelopModel.IsDirectRangeReadOnly"
                                  Class="field-xs dense-field" />
                 <MudNumericField T="int"
                                  @bind-Value="@context.Max"
-                                 ReadOnly="@notDirectQuantifier"
+                                 ReadOnly="@DevelopModel.IsDirectRangeReadOnly"
                                  Class="field-xs dense-field" />
             </MudStack>
         </MudTd>
@@ -104,57 +79,7 @@
 </MudTable>
 
 @code {
-    [Parameter] public IEnumerable<DevelopedEntrant> DevelopedEntrants { get; set; } = Enumerable.Empty<DevelopedEntrant>();
-    [Parameter] public Aspect SelectedAspect { get; set; }
-    [Parameter] public Quantifier SelectedType { get; set; }
-    [Parameter] public bool ShowOptionalColumn { get; set; }
-    [Parameter] public EventCallback OnSaveDevelopment { get; set; }
-
-    bool ranDevelop = false;
-    bool notDirectQuantifier = false;
-    int minChange = 0;
-    int maxChange = 0;
-
-    protected override void OnInitialized()
-    {
-        notDirectQuantifier = SelectedType != Quantifier.Direct;
-
-        RunDevelop();
-    }
-
-    private void RunDevelop()
-    {
-        foreach (var entrant in DevelopedEntrants)
-        {
-            if (entrant.Min > entrant.Max)
-            {
-                _snack.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
-                return;
-            }
-
-            entrant.Change = NumberHelper.RandomInt(entrant.Min, entrant.Max);
-            entrant.New = entrant.Old + entrant.Change;
-
-            // Sets the minimum and maximum value limit if those are set
-            if (entrant.New < entrant.ValueMinimumLimit)
-                entrant.New = entrant.ValueMinimumLimit;
-            else if (entrant.New > entrant.ValueMaximumLimit)
-                entrant.New = entrant.ValueMaximumLimit;
-
-            // Reapply the change one more time in the case a min/max-limit was set
-            entrant.Change = entrant.New - entrant.Old;
-        }
-
-        var allChanges = DevelopedEntrants.Select(e => e.Change).Where(e => e != 0).ToArray();
-
-        if (allChanges.Any())
-        {
-            minChange = allChanges.Min();
-            maxChange = allChanges.Max();
-
-            ranDevelop = true;
-        }
-    }
-
-    private async Task SaveDevelopment() => await OnSaveDevelopment.InvokeAsync();
+    [CascadingParameter] public DevelopModel DevelopModel { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public List<DevelopedEntrant> DevelopedEntrants { get; set; }
 }

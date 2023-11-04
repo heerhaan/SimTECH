@@ -8,128 +8,87 @@
 @inject SeasonService _seasonService
 @inject BreadcrumbProvider _bread
 @inject IDialogService _dialogService
+@inject ISnackbar _snack
 
 <PageTitle>Development</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge">
-    <MudGrid>
-        <MudItem xs="12">
-            <MudPaper Elevation="15" MinHeight="60px" Class="pa-2 text-center">
-                <MudText Typo="Typo.h3">
-                    Entrant Development
-                </MudText>
-            </MudPaper>
-        </MudItem>
-        @if (!loading)
-        {
-            <MudItem xs="3">
-                <MudPaper Class="pa-2">
-                    <MudText Typo="Typo.h5">Settings</MudText>
-                    <MudDivider />
-
-                    <MudStack>
-                        @if (RaceClasses?.Any() == true)
-                        {
-                            <MudStack Spacing="1">
-                                <MudText Typo="Typo.subtitle1">Class</MudText>
-                                <MudChipSet SelectedChipChanged="RaceClassChipChanged" Mandatory="true">
-                                    <MudChip Color="Color.Dark" Value="0L" Default="true">All</MudChip>
-                                    @foreach (var raceClass in RaceClasses)
-                                    {
-                                        <MudChip Color="Color.Dark" Value="@raceClass.Id">@raceClass.Name</MudChip>
-                                    }
-                                </MudChipSet>
-                            </MudStack>
-                        }
-
-                        <MudStack Spacing="1">
-                            <MudTooltip Text="For whom the development is run">
-                                <MudText Typo="Typo.subtitle1">Entrant</MudText>
-                            </MudTooltip>
-                            <MudChipSet SelectedChipChanged="EntrantChipChanged" Mandatory="true">
-                                <MudChip Color="Color.Primary" Value="Entrant.Driver" Default="true">Driver</MudChip>
-                                <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
-                                <MudChip Color="Color.Primary" Value="Entrant.Engine">Engine</MudChip>
-                            </MudChipSet>
-                        </MudStack>
-
-                        <MudStack Spacing="1">
-                            <MudTooltip Text="Which aspect is going to be developed">
-                                <MudText Typo="Typo.subtitle1">Target</MudText>
-                            </MudTooltip>
-                            <MudChipSet @ref="chipSet" SelectedChipChanged="TargetChipChanged" Mandatory="true">
-                                <MudChip Color="Color.Secondary" Value="Aspect.Reliability" Default="true">@Aspect.Reliability.ShortReadableAspect()</MudChip>
-
-                                @if (selectedEntrant == Entrant.Driver)
-                                {
-                                    <MudChip Color="Color.Secondary" Value="Aspect.Skill">@Aspect.Skill.ShortReadableAspect()</MudChip>
-                                    <MudChip Color="Color.Secondary" Value="Aspect.Attack">@Aspect.Attack.ShortReadableAspect()</MudChip>
-                                    <MudChip Color="Color.Secondary" Value="Aspect.Defense">@Aspect.Defense.ShortReadableAspect()</MudChip>
-                                }
-                                else if (selectedEntrant == Entrant.Team)
-                                {
-                                    <MudChip Color="Color.Secondary" Value="Aspect.BaseCar">@Aspect.BaseCar.ShortReadableAspect()</MudChip>
-                                    <MudChip Color="Color.Secondary" Value="Aspect.Aero">@Aspect.Aero.ShortReadableAspect()</MudChip>
-                                    <MudChip Color="Color.Secondary" Value="Aspect.Chassis">@Aspect.Chassis.ShortReadableAspect()</MudChip>
-                                    <MudChip Color="Color.Secondary" Value="Aspect.Powertrain">@Aspect.Powertrain.ShortReadableAspect()</MudChip>
-                                }
-                                else if (selectedEntrant == Entrant.Engine)
-                                {
-                                    <MudChip Color="Color.Secondary" Value="Aspect.Engine">@Aspect.Engine.ShortReadableAspect()</MudChip>
-                                }
-                            </MudChipSet>
-                        </MudStack>
-
-                        <MudStack Spacing="1">
-                            <MudTooltip Text="How the development ranges are determined">
-                                <MudText Typo="Typo.subtitle1">Type</MudText>
-                            </MudTooltip>
-                            <MudChipSet SelectedChipChanged="TypeChipChanged" Mandatory="true">
-                                <MudChip Color="Color.Tertiary" Value="Quantifier.Range" Default="true">Range</MudChip>
-                                <MudChip Color="Color.Tertiary" Value="Quantifier.Set">Set</MudChip>
-                                <MudChip Color="Color.Tertiary" Value="Quantifier.Direct">Direct</MudChip>
-                            </MudChipSet>
-                        </MudStack>
-
-                        @if (selectedType == Quantifier.Range)
-                        {
-                            <div>
-                                <MudDivider />
-                            </div>
-
-                            <MudStack Spacing="1">
-                                <MudText Typo="Typo.subtitle1">Development range</MudText>
-                                <MudNumericField T="int" Label="MIN" ValueChanged="ApplyMinRange" Class="field-sm" />
-                                <MudNumericField T="int" Label="MAX" ValueChanged="ApplyMaxRange" Class="field-sm" />
-                            </MudStack>
-                        }
-                    </MudStack>
-
-                    <MudDivider />
-
-                    <MudButtonGroup VerticalAlign="true" Variant="Variant.Outlined" Color="Color.Secondary" Class="mt-4">
-                        <MudButton FullWidth="true"
-                                   OnClick="ShowWeightedDevelopmentRanges">
-                            <span>SET ranges for @selectedEntrant.ToString() and @selectedAspect.ToString()</span>
-                        </MudButton>
-                        <MudButton FullWidth="true"
-                                   OnClick="ShowDevelopmentSummary">
-                            <span>Season summary</span>
-                        </MudButton>
-                    </MudButtonGroup>
+<MudContainer MaxWidth="MaxWidth.Large">
+    <CascadingValue Value="@DevelopModel">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudPaper Elevation="15" MinHeight="60px" Class="pa-2 text-center">
+                    <MudText Typo="Typo.h3">Entrant development</MudText>
                 </MudPaper>
             </MudItem>
-            <MudItem xs="9">
-                <MudPaper>
-                    <DevelopEntrant DevelopedEntrants="@DevelopedEntrants"
-                                    SelectedAspect="@selectedAspect"
-                                    SelectedType="@selectedType"
-                                    ShowOptionalColumn="@showOptionalColumn"
-                                    OnSaveDevelopment="SaveDevelopment" />
-                </MudPaper>
-            </MudItem>
-        }
-    </MudGrid>
+            @if (!loading)
+            {
+                <MudItem xs="3">
+                    <MudPaper Class="pa-2">
+                        <MudText Typo="Typo.h5">Settings</MudText>
+                        <MudDivider />
+
+                        <MudStack>
+                            <DevelopSettings RaceClasses="@RaceClasses" OnChipChanged="ChipChanged" />
+
+                            @if (DevelopModel.ActiveQuantifier == Quantifier.Range)
+                            {
+                                <div>
+                                    <MudDivider />
+                                </div>
+
+                                <MudStack Spacing="1">
+                                    <MudText Typo="Typo.subtitle1">Development range</MudText>
+                                    <MudNumericField T="int" Label="MIN" ValueChanged="ApplyMinRange" Class="field-sm" />
+                                    <MudNumericField T="int" Label="MAX" ValueChanged="ApplyMaxRange" Class="field-sm" />
+                                </MudStack>
+                            }
+                        </MudStack>
+
+                        <MudDivider />
+
+                        <MudButtonGroup VerticalAlign="true" Variant="Variant.Outlined" Color="Color.Secondary" Class="mt-4">
+                            <MudButton FullWidth="true"
+                                       OnClick="ShowWeightedDevelopmentRanges">
+                                <span>SET ranges for @DevelopModel.ActiveEntrant & @DevelopModel.ActiveAspect</span>
+                            </MudButton>
+                            <MudButton FullWidth="true"
+                                       OnClick="ShowDevelopmentSummary">
+                                <span>Season summary</span>
+                            </MudButton>
+                        </MudButtonGroup>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="9">
+                    <MudPaper>
+                        <DevelopEntrant DevelopedEntrants="@DevelopedEntrants">
+                            <MudText Typo="Typo.h5">Development</MudText>
+                            <MudDivider Vertical="true" Class="mx-2" />
+                            <MudText Typo="Typo.h5">@DevelopModel.ActiveAspect.ReadableAspect()</MudText>
+                            <MudSpacer />
+                            <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Text">
+                                @if (ranDevelop)
+                                {
+                                    <MudTooltip Text="Save development" Placement="Placement.Top">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Save"
+                                                       OnClick="SaveDevelopment"
+                                                       Class="btn-sm" />
+                                    </MudTooltip>
+                                }
+                                <MudTooltip Text="Run development" Placement="Placement.Top">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Recycling"
+                                                   OnClick="RunDevelop"
+                                                   Class="btn-sm" />
+                                </MudTooltip>
+                                <MudTooltip Text="Take a screenshot" Placement="Placement.Top">
+                                    <ScreenshotIconButton TargetId="development-results" Class="btn-sm" />
+                                </MudTooltip>
+                            </MudButtonGroup>
+                        </DevelopEntrant>
+                    </MudPaper>
+                </MudItem>
+            }
+        </MudGrid>
+    </CascadingValue>
 </MudContainer>
 
 @code {
@@ -139,22 +98,16 @@
     private List<SeasonTeam> SeasonTeams { get; set; }
     private List<SeasonDriver> SeasonDrivers { get; set; }
     private List<DevelopmentRange> LeagueDevelopmentRanges { get; set; }
-    private List<RaceClass>? RaceClasses { get; set; }
+    public List<RaceClass>? RaceClasses { get; set; }
 
-    private List<DevelopedEntrant> DevelopedEntrants { get; set; } = new();
-
-    long selectedRaceClassId = default;
-    Entrant selectedEntrant = Entrant.Driver;
-    Aspect selectedAspect = Aspect.Reliability;
-    Quantifier selectedType = Quantifier.Range;
-
-    private MudChipSet? chipSet;
+    public DevelopModel DevelopModel { get; set; } = new();
+    public List<DevelopedEntrant> DevelopedEntrants { get; set; } = new();
 
     bool loading = true;
-    bool showOptionalColumn;
+    bool ranDevelop;
     int currentYear;
-    int currentMin = 0;
-    int currentMax = 0;
+    int currentMinRange = 0;
+    int currentMaxRange = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -190,7 +143,9 @@
 
     private void LoadEntrants()
     {
-        switch (selectedEntrant)
+        ranDevelop = false;
+
+        switch (DevelopModel.ActiveEntrant)
         {
             case Entrant.Driver:
                 DevelopDrivers();
@@ -205,7 +160,7 @@
                 throw new InvalidOperationException("wtf unexpected entrant added to develop? (how)");
         }
 
-        if (selectedAspect == Aspect.Reliability)
+        if (DevelopModel.ActiveAspect == Aspect.Reliability)
         {
             foreach (var entrant in DevelopedEntrants)
                 entrant.ValueMaximumLimit = 1000;
@@ -214,7 +169,10 @@
 
     private void DevelopDrivers()
     {
-        var allowedTeamIds = SeasonTeams.Where(e => selectedRaceClassId == default || e.ClassId == selectedRaceClassId).Select(e => e.Id).ToList();
+        var allowedTeamIds = SeasonTeams
+            .Where(e => DevelopModel.ActiveRaceClassId == default || e.ClassId == DevelopModel.ActiveRaceClassId)
+            .Select(e => e.Id)
+            .ToList();
 
         DevelopedEntrants = SeasonDrivers
             .Where(e => e.SeasonTeamId.HasValue && allowedTeamIds.Contains(e.SeasonTeamId.Value))
@@ -224,36 +182,36 @@
                     Name = e.Driver.FullName,
                     Nationality = e.Driver.Country,
                     Optional = currentYear - e.Driver.DateOfBirth.Year,
-                    Old = e.RetrieveAspectValue(selectedAspect),
+                    Old = e.RetrieveAspectValue(DevelopModel.ActiveAspect),
                     Mark = e.Driver.Mark
                 })
             .ToList();
 
-        showOptionalColumn = true;
+        DevelopModel.IsOptionalColumnVisible = true;
     }
 
     private void DevelopTeams()
     {
         DevelopedEntrants = SeasonTeams
-            .Where(e => selectedRaceClassId == default || e.ClassId == selectedRaceClassId)
+            .Where(e => DevelopModel.ActiveRaceClassId == default || e.ClassId == DevelopModel.ActiveRaceClassId)
             .Select(e => new DevelopedEntrant
                 {
                     Id = e.Id,
                     Name = e.Name,
                     Nationality = e.Team.Country,
                     Optional = null,
-                    Old = e.RetrieveAspectValue(selectedAspect),
+                    Old = e.RetrieveAspectValue(DevelopModel.ActiveAspect),
                     Mark = e.Team.Mark
                 })
             .ToList();
 
-        showOptionalColumn = false;
+        DevelopModel.IsOptionalColumnVisible = false;
     }
 
     private void DevelopEngines()
     {
         var allowedEngineIds = SeasonTeams
-            .Where(e => selectedRaceClassId == default || e.ClassId == selectedRaceClassId)
+            .Where(e => DevelopModel.ActiveRaceClassId == default || e.ClassId == DevelopModel.ActiveRaceClassId)
             .Select(e => e.SeasonEngineId)
             .Distinct()
             .ToList();
@@ -266,76 +224,41 @@
                     Name = e.Name,
                     Nationality = null,
                     Optional = null,
-                    Old = e.RetrieveAspectValue(selectedAspect),
+                    Old = e.RetrieveAspectValue(DevelopModel.ActiveAspect),
                 })
             .ToList();
 
-        showOptionalColumn = false;
+        DevelopModel.IsOptionalColumnVisible = false;
     }
 
-    private void RaceClassChipChanged(MudChip? classChip)
+    private void ChipChanged(bool reloadEntrants)
     {
-        if (classChip == null)
-            return;
+        if (reloadEntrants)
+            LoadEntrants();
 
-        selectedRaceClassId = (long)classChip.Value;
-
-        LoadEntrants();
-        ApplyCommon();
-    }
-
-    private void EntrantChipChanged(MudChip? entrantChip)
-    {
-        if (entrantChip == null)
-            return;
-
-        selectedAspect = Aspect.Reliability;
-        selectedEntrant = (Entrant)entrantChip.Value;
-
-        LoadEntrants();
-        ApplyCommon();
-    }
-
-    private void TargetChipChanged(MudChip? devChip)
-    {
-        if (devChip == null)
-            return;
-
-        selectedAspect = (Aspect)devChip.Value;
-
-        LoadEntrants();
-        ApplyCommon();
-    }
-
-    private void TypeChipChanged(MudChip? typeChip)
-    {
-        if (typeChip == null)
-            return;
-
-        selectedType = (Quantifier)typeChip.Value;
         ApplyCommon();
     }
 
     private void ApplyCommon()
     {
-        if (selectedType == Quantifier.Set)
+        if (DevelopModel.ActiveQuantifier == Quantifier.Set)
         {
             ApplyDefaultRanges();
         }
-        else if (selectedType == Quantifier.Range && currentMin != currentMax)
+        else if (DevelopModel.ActiveQuantifier == Quantifier.Range && currentMinRange != currentMaxRange)
         {
-            ApplyMinRange(currentMin);
-            ApplyMaxRange(currentMax);
+            ApplyMinRange(currentMinRange);
+            ApplyMaxRange(currentMaxRange);
         }
     }
 
     private void ApplyDefaultRanges()
     {
-        List<DevelopmentRange> setCompareRange = LeagueDevelopmentRanges.GetAspectRanges(selectedAspect);
+        List<DevelopmentRange> setCompareRange = LeagueDevelopmentRanges.GetAspectRanges(DevelopModel.ActiveAspect);
         List<DevelopmentRange>? additionalCompareRange = LeagueDevelopmentRanges.GetAspectRanges(Aspect.Age);
 
         // I know, I know this is awful
-        if (selectedEntrant != Entrant.Driver || selectedAspect != Aspect.Skill)
+        if (DevelopModel.ActiveEntrant != Entrant.Driver || DevelopModel.ActiveAspect != Aspect.Skill)
             additionalCompareRange = null;
 
         if (!setCompareRange.Any() && !(additionalCompareRange?.Any() == true))
@@ -381,7 +304,7 @@
 
     private void ApplyMinRange(int newMin)
     {
-        currentMin = newMin;
+        currentMinRange = newMin;
 
         foreach (var entrant in DevelopedEntrants)
             entrant.Min = newMin;
@@ -389,26 +312,60 @@
 
     private void ApplyMaxRange(int newMax)
     {
-        currentMax = newMax;
+        currentMaxRange = newMax;
 
         foreach (var entrant in DevelopedEntrants)
             entrant.Max = newMax;
+    }
+
+    private void RunDevelop()
+    {
+        foreach (var entrant in DevelopedEntrants)
+        {
+            if (entrant.Min > entrant.Max)
+            {
+                _snack.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
+                return;
+            }
+
+            entrant.Change = NumberHelper.RandomInt(entrant.Min, entrant.Max);
+            entrant.New = entrant.Old + entrant.Change;
+
+            // Sets the minimum and maximum value limit if those are set
+            if (entrant.New < entrant.ValueMinimumLimit)
+                entrant.New = entrant.ValueMinimumLimit;
+            else if (entrant.New > entrant.ValueMaximumLimit)
+                entrant.New = entrant.ValueMaximumLimit;
+
+            // Reapply the change one more time in the case a min/max-limit was set
+            entrant.Change = entrant.New - entrant.Old;
+        }
+
+        var allChanges = DevelopedEntrants.Select(e => e.Change).Where(e => e != 0).ToArray();
+
+        if (allChanges.Any())
+        {
+            DevelopModel.MinChange = allChanges.Min();
+            DevelopModel.MaxChange = allChanges.Max();
+
+            ranDevelop = true;
+        }
     }
 
     private async Task SaveDevelopment()
     {
         var developedValues = DevelopedEntrants.ToDictionary(e => e.Id, e => e.New);
 
-        switch (selectedEntrant)
+        switch (DevelopModel.ActiveEntrant)
         {
             case Entrant.Driver:
-                await _entrantService.SaveDriverDevelopment(developedValues, selectedAspect);
+                await _entrantService.SaveDriverDevelopment(developedValues, DevelopModel.ActiveAspect);
                 break;
             case Entrant.Team:
-                await _entrantService.SaveTeamDevelopment(developedValues, selectedAspect);
+                await _entrantService.SaveTeamDevelopment(developedValues, DevelopModel.ActiveAspect);
                 break;
             case Entrant.Engine:
-                await _entrantService.SaveEngineDevelopment(developedValues, selectedAspect);
+                await _entrantService.SaveEngineDevelopment(developedValues, DevelopModel.ActiveAspect);
                 break;
         }
 
@@ -422,8 +379,8 @@
         new DevelopmentLog
             {
                 EntrantId = e.Id,
-                EntrantGroup = selectedEntrant,
-                DevelopedAspect = selectedAspect,
+                EntrantGroup = DevelopModel.ActiveEntrant,
+                DevelopedAspect = DevelopModel.ActiveAspect,
                 Change = e.Change,
                 SeasonId = SeasonId,
             })
@@ -432,20 +389,20 @@
     private async Task ShowWeightedDevelopmentRanges()
     {
         var aspectRanges = new Dictionary<Aspect, List<DevelopmentRange>>();
-        var activeRanges = LeagueDevelopmentRanges.GetAspectRanges(selectedAspect);
+        var activeRanges = LeagueDevelopmentRanges.GetAspectRanges(DevelopModel.ActiveAspect);
         var ageRanges = LeagueDevelopmentRanges.GetAspectRanges(Aspect.Age);
 
         // TODO: As of now there is no easy way to get all the development ranges meant for a certain entrant
 
         if (activeRanges?.Any() == true)
-            aspectRanges.Add(selectedAspect, activeRanges);
+            aspectRanges.Add(DevelopModel.ActiveAspect, activeRanges);
 
-        if (selectedEntrant == Entrant.Driver && ageRanges?.Any() == true)
+        if (DevelopModel.ActiveEntrant == Entrant.Driver && ageRanges?.Any() == true)
             aspectRanges.Add(Aspect.Age, ageRanges);
 
         var parameters = new DialogParameters
         {
-            ["ForEntrant"] = selectedEntrant,
+            ["ForEntrant"] = DevelopModel.ActiveEntrant,
             ["AspectRanges"] = aspectRanges
         };
 
