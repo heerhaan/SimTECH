@@ -46,7 +46,7 @@
 
     private bool showingExpired = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         var allContracts = await _contractService.GetExtendedLeagueContracts(LeagueId);
         activeContracts = allContracts.Where(e => e.Duration != 0).ToList();

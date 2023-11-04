@@ -1,0 +1,109 @@
+﻿@if (RaceClasses?.Any() == true)
+{
+    <MudStack Spacing="1">
+        <MudText Typo="Typo.subtitle1">Class</MudText>
+        <MudChipSet SelectedChipChanged="RaceClassChipChanged" Mandatory="true" Class="d-flex flex-row">
+            <MudChip Color="Color.Dark" Value="0L" Default="true" Class="flex-1">All</MudChip>
+            @foreach (var raceClass in RaceClasses)
+            {
+                <MudChip Color="Color.Dark" Value="@raceClass.Id" Class="flex-1">@raceClass.Name</MudChip>
+            }
+        </MudChipSet>
+    </MudStack>
+}
+
+<MudStack Spacing="1">
+    <MudTooltip Text="For whom the development is run">
+        <MudText Typo="Typo.subtitle1">Entrant</MudText>
+    </MudTooltip>
+    <MudChipSet SelectedChipChanged="EntrantChipChanged" Mandatory="true" Class="d-flex flex-row">
+        <MudChip Color="Color.Primary" Value="Entrant.Driver" Default="true" Class="flex-1">Driver</MudChip>
+        <MudChip Color="Color.Primary" Value="Entrant.Team" Class="flex-1">Team</MudChip>
+        <MudChip Color="Color.Primary" Value="Entrant.Engine" Class="flex-1">Engine</MudChip>
+    </MudChipSet>
+</MudStack>
+
+<MudStack Spacing="1">
+    <MudTooltip Text="Which aspect is going to be developed">
+        <MudText Typo="Typo.subtitle1">Target</MudText>
+    </MudTooltip>
+    <MudChipSet SelectedChipChanged="TargetChipChanged" Mandatory="true" Class="d-flex flex-row">
+        <MudChip Color="Color.Secondary" Value="Aspect.Reliability" Default="true" Class="flex-1">@Aspect.Reliability.ShortReadableAspect()</MudChip>
+
+        @if (DevelopModel.ActiveEntrant == Entrant.Driver)
+        {
+            <MudChip Color="Color.Secondary" Value="Aspect.Skill" Class="flex-1">@Aspect.Skill.ShortReadableAspect()</MudChip>
+            <MudChip Color="Color.Secondary" Value="Aspect.Attack" Class="flex-1">@Aspect.Attack.ShortReadableAspect()</MudChip>
+            <MudChip Color="Color.Secondary" Value="Aspect.Defense" Class="flex-1">@Aspect.Defense.ShortReadableAspect()</MudChip>
+        }
+        else if (DevelopModel.ActiveEntrant == Entrant.Team)
+        {
+            <MudChip Color="Color.Secondary" Value="Aspect.BaseCar" Class="flex-1">@Aspect.BaseCar.ShortReadableAspect()</MudChip>
+            <MudChip Color="Color.Secondary" Value="Aspect.Aero" Class="flex-1">@Aspect.Aero.ShortReadableAspect()</MudChip>
+            <MudChip Color="Color.Secondary" Value="Aspect.Chassis" Class="flex-1">@Aspect.Chassis.ShortReadableAspect()</MudChip>
+            <MudChip Color="Color.Secondary" Value="Aspect.Powertrain" Class="flex-1">@Aspect.Powertrain.ShortReadableAspect()</MudChip>
+        }
+        else if (DevelopModel.ActiveEntrant == Entrant.Engine)
+        {
+            <MudChip Color="Color.Secondary" Value="Aspect.Engine" Class="flex-1">@Aspect.Engine.ShortReadableAspect()</MudChip>
+        }
+    </MudChipSet>
+</MudStack>
+
+<MudStack Spacing="1">
+    <MudTooltip Text="How the development ranges are determined">
+        <MudText Typo="Typo.subtitle1">Type</MudText>
+    </MudTooltip>
+    <MudChipSet SelectedChipChanged="TypeChipChanged" Mandatory="true" Class="d-flex flex-row">
+        <MudChip Color="Color.Tertiary" Value="Quantifier.Range" Default="true" Class="flex-1">Range</MudChip>
+        <MudChip Color="Color.Tertiary" Value="Quantifier.Set" Class="flex-1">Set</MudChip>
+        <MudChip Color="Color.Tertiary" Value="Quantifier.Direct" Class="flex-1">Direct</MudChip>
+    </MudChipSet>
+</MudStack>
+
+@code {
+    [CascadingParameter] public DevelopModel DevelopModel { get; set; }
+    [Parameter] public List<RaceClass>? RaceClasses { get; set; }
+    [Parameter] public EventCallback<bool> OnChipChanged { get; set; }
+
+    private void RaceClassChipChanged(MudChip? classChip)
+    {
+        if (classChip == null)
+            return;
+
+        DevelopModel.ActiveRaceClassId = (long)classChip.Value;
+
+        OnChipChanged.InvokeAsync(true);
+    }
+
+    private void EntrantChipChanged(MudChip? entrantChip)
+    {
+        if (entrantChip == null)
+            return;
+
+        DevelopModel.ActiveAspect = Aspect.Reliability;
+        DevelopModel.ActiveEntrant = (Entrant)entrantChip.Value;
+
+        OnChipChanged.InvokeAsync(true);
+    }
+
+    private void TargetChipChanged(MudChip? devChip)
+    {
+        if (devChip == null)
+            return;
+
+        DevelopModel.ActiveAspect = (Aspect)devChip.Value;
+
+        OnChipChanged.InvokeAsync(true);
+    }
+
+    private void TypeChipChanged(MudChip? typeChip)
+    {
+        if (typeChip == null)
+            return;
+
+        DevelopModel.ActiveQuantifier = (Quantifier)typeChip.Value;
+
+        OnChipChanged.InvokeAsync(false);
+    }
+}

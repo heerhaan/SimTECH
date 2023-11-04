@@ -26,7 +26,7 @@
                     {
                         <MudIconButton Icon="@Icons.Material.Filled.AssignmentInd"
                                        Color="Color.Secondary"
-                                       OnClick="@(async () => await OnShowLeagueContracts(context.Item.Id))" />
+                                       OnClick="@(async () => await ShowLeagueContracted(context.Item))" />
                     }
                 </MudButtonGroup>
             </CellTemplate>
@@ -99,9 +99,20 @@
 </MudDataGrid>
 
 @code {
-    [Parameter] public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
-    [Parameter] public IEnumerable<Tyre> Tyres { get; set; } = Enumerable.Empty<Tyre>();
-    [Parameter] public EventCallback<long> ShowLeagueContracts { get; set; }
+    [Parameter] public long? SelectedLeagueId { get; set; }
+
+    [Parameter] public EventCallback<long?> SelectedLeagueIdChanged { get; set; }
+
+    //[Parameter] public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
+
+    //[Parameter] public IEnumerable<Tyre> Tyres { get; set; } = Enumerable.Empty<Tyre>();
+
+    // Bound value could be used again if we want to bind the value to another nested child component
+    // private long? BoundValue
+    // {
+    //     get => SelectedLeagueId;
+    //     set => SelectedLeagueIdChanged.InvokeAsync(value);
+    // }
 
     private List<League> leagues = new();
     private List<Tyre> tyres = new();
@@ -136,9 +147,8 @@
         leagues.Remove(league);
     }
 
-    private async Task OnShowLeagueContracts(long leagueId)
+    private async Task ShowLeagueContracted(League league)
     {
-        if (ShowLeagueContracts.HasDelegate)
-            await ShowLeagueContracts.InvokeAsync(leagueId);
+        await SelectedLeagueIdChanged.InvokeAsync(league.Id);
     }
 }

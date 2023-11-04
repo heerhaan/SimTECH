@@ -16,13 +16,13 @@
             <MudText Typo="Typo.h3">Motorsport</MudText>
         </MudPaper>
         <MudStack Row="true" Class="pa-0">
-            <MudPaper Class="pa-2">
-                <LeagueView ShowLeagueContracts="ShowContracts" />
+            <MudPaper Width="50%" Class="pa-2">
+                <LeagueView @bind-SelectedLeagueId="ContractsOfLeagueId" />
             </MudPaper>
-            @if (contractsOfLeagueId != default)
+            @if (ContractsOfLeagueId != null)
             {
-                <MudPaper Class="pa-2">
-                    <ContractView LeagueId="@contractsOfLeagueId" />
+                <MudPaper Width="50%" Class="pa-2">
+                    <ContractView LeagueId="@ContractsOfLeagueId.Value" />
                 </MudPaper>
             }
         </MudStack>
@@ -30,7 +30,7 @@
 </MudContainer>
 
 @code {
-    private long contractsOfLeagueId = default;
+    public long? ContractsOfLeagueId { get; set; }
 
     protected override void OnInitialized()
     {
@@ -40,6 +40,4 @@
             new BreadcrumbItem("Motorsport", href: "motorsport", disabled: true),
         });
     }
-
-    private void ShowContracts(long leagueId) => contractsOfLeagueId = leagueId;
 }
