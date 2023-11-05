@@ -1,7 +1,7 @@
 # SimTECH
 An application in where one can run motorsport simulations, an useful and fun activity.
 
-|![image](https://github.com/heerhaan/SimTECH/assets/28059040/9053fb25-414d-4cad-9803-1b7c0bab9cfb)|
+|![image](https://github.com/heerhaan/SimTECH/assets/28059040/f9e99385-2524-4408-9b3a-c6721ea2b6c1)|
 |-|
 |_Fig.1: Race in SimTECH_|
 
