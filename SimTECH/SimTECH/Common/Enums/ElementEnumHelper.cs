@@ -1,5 +1,5 @@
 ﻿namespace SimTECH.Common.Enums;
 
-public class ElementEnumHelper
+public static class ElementEnumHelper
 {
 }

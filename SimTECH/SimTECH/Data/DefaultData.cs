@@ -1,4 +1,5 @@
 ﻿using MudBlazor;
+using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
 
 namespace SimTECH.Data;

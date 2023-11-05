@@ -1,5 +1,6 @@
 ﻿using SimTECH.Constants;
 using SimTECH.Data.Models;
+using SimTECH.Common.Enums;
 
 namespace SimTECH.Data.EditModels
 {

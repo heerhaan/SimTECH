@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.EditModels
+﻿using SimTECH.Common.Enums;
+
+namespace SimTECH.Data.EditModels
 {
     // NOTE: leaving this here as an idea/notation, there should be a way to have a generic record with id and state to be
     // changed, to a new class and then to return a valid instance of that same record

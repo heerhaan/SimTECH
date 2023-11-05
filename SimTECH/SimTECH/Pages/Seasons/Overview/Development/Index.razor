@@ -68,20 +68,18 @@
                             <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Text">
                                 @if (ranDevelop)
                                 {
-                                    <MudTooltip Text="Save development" Placement="Placement.Top">
+                                    <MudTooltip Text="Save development" Placement="Placement.Top" Color="Color.Tertiary">
                                         <MudIconButton Icon="@Icons.Material.Filled.Save"
                                                        OnClick="SaveDevelopment"
                                                        Class="btn-sm" />
                                     </MudTooltip>
                                 }
-                                <MudTooltip Text="Run development" Placement="Placement.Top">
+                                <MudTooltip Text="Run development" Placement="Placement.Top" Color="Color.Tertiary">
                                     <MudIconButton Icon="@Icons.Material.Filled.Recycling"
                                                    OnClick="RunDevelop"
                                                    Class="btn-sm" />
                                 </MudTooltip>
-                                <MudTooltip Text="Take a screenshot" Placement="Placement.Top">
-                                    <ScreenshotIconButton TargetId="development-results" Class="btn-sm" />
-                                </MudTooltip>
+                                <ScreenshotIconButton TargetId="development-results" Class="btn-sm" />
                             </MudButtonGroup>
                         </DevelopEntrant>
                     </MudPaper>
@@ -94,14 +92,14 @@
 @code {
     [Parameter] public long SeasonId { get; set; }
 
+    public DevelopModel DevelopModel { get; set; } = new();
+    public List<DevelopedEntrant> DevelopedEntrants { get; set; } = new();
+    public List<RaceClass>? RaceClasses { get; set; }
+
     private List<SeasonEngine> SeasonEngines { get; set; }
     private List<SeasonTeam> SeasonTeams { get; set; }
     private List<SeasonDriver> SeasonDrivers { get; set; }
     private List<DevelopmentRange> LeagueDevelopmentRanges { get; set; }
-    public List<RaceClass>? RaceClasses { get; set; }
-
-    public DevelopModel DevelopModel { get; set; } = new();
-    public List<DevelopedEntrant> DevelopedEntrants { get; set; } = new();
 
     bool loading = true;
     bool ranDevelop;

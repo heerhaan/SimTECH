@@ -1,5 +1,6 @@
 ﻿using SimTECH.Data.Models;
 using SimTECH.Extensions;
+using SimTECH.Common.Enums;
 
 namespace SimTECH.Data.EditModels
 {

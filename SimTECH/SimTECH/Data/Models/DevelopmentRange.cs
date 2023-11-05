@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Data.Models
+﻿using SimTECH.Common.Enums;
+
+namespace SimTECH.Data.Models
 {
     public class DevelopmentRange : ModelBase
     {

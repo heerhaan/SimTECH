@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Extensions
+﻿using SimTECH.Common.Enums;
+
+namespace SimTECH.Extensions
 {
     public static class ViewHelper
     {

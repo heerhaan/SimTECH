@@ -1,4 +1,5 @@
-﻿using SimTECH.Data.Models;
+﻿using SimTECH.Common.Enums;
+using SimTECH.Data.Models;
 
 namespace SimTECH.PageModels.RaceWeek
 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 

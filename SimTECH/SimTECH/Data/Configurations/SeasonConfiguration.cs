@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Configurations
@@ -9,6 +10,7 @@ namespace SimTECH.Data.Configurations
         public void Configure(EntityTypeBuilder<Season> builder)
         {
             builder.HasKey(e => e.Id);
+
             builder.Property(e => e.QualifyingFormat)
                 .HasDefaultValue(QualyFormat.TripleEliminate);
         }

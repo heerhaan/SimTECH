@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MudBlazor;
+using SimTECH.Common.Enums;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;

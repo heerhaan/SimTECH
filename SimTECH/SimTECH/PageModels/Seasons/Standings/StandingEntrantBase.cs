@@ -1,4 +1,6 @@
-﻿namespace SimTECH.PageModels.Seasons.Standings
+﻿using SimTECH.Common.Enums;
+
+namespace SimTECH.PageModels.Seasons.Standings
 {
     public abstract class StandingEntrantBase
     {

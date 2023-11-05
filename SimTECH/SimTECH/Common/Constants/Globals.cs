@@ -1,4 +1,5 @@
 ﻿using MudBlazor;
+using SimTECH.Common.Enums;
 using SimTECH.PageModels;
 using Graph = ApexCharts;
 

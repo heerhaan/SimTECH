@@ -1,4 +1,5 @@
-﻿using SimTECH.Extensions;
+﻿using SimTECH.Common.Enums;
+using SimTECH.Extensions;
 
 namespace SimTECH.Data.Models
 {

@@ -1,11 +1,13 @@
 ﻿@inject IJSRuntime JS
 
-<MudIconButton Variant="Variant.Text"
-               Icon="@Icons.Material.Filled.Image"
-               Disabled="@disabled"
-               OnClick="TakeScreenshot"
-               Class="@_classes"
-               Style="@_styles" />
+<MudTooltip Text="Take a screenshot" Placement="Placement.Top" Color="Color.Tertiary">
+    <MudIconButton Variant="Variant.Text"
+                   Icon="@Icons.Material.Filled.Image"
+                   Disabled="@disabled"
+                   OnClick="TakeScreenshot"
+                   Class="@_classes"
+                   Style="@_styles" />
+</MudTooltip>
 
 @code {
     [Parameter, EditorRequired] public string TargetId { get; set; }

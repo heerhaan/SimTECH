@@ -1,4 +1,6 @@
-﻿namespace SimTECH.PageModels.Seasons
+﻿using SimTECH.Common.Enums;
+
+namespace SimTECH.PageModels.Seasons
 {
     public class SeasonListModel
     {

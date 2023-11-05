@@ -1,4 +1,5 @@
-﻿using SimTECH.Constants;
+﻿using SimTECH.Common.Enums;
+using SimTECH.Constants;
 
 namespace SimTECH.PageModels
 {
