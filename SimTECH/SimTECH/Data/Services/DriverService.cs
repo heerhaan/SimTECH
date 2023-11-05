@@ -62,7 +62,7 @@ namespace SimTECH.Data.Services
                 {
                     SeasonDriverId = sd.Id,
                     DriverId = sd.DriverId,
-                    League = sd.Season.League.Name,
+                    LeagueName = sd.Season.League.Name,
                     Colour = sd.SeasonTeam == null ? Globals.DefaultColour : sd.SeasonTeam.Colour
                 })
                 .ToListAsync();
