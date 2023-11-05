@@ -270,7 +270,7 @@ namespace SimTECH.Data.Services
                 result.AbsoluteGrid = achievedPosition.Item2;
                 result.AbsolutePosition = achievedPosition.Item2;
 
-                result.Status = achievedPosition.Item1 > maximumRace ? RaceStatus.Dnq : RaceStatus.Racing;
+                result.Status = achievedPosition.Item2 > maximumRace ? RaceStatus.Dnq : RaceStatus.Racing;
             }
 
             context.UpdateRange(driverResults);

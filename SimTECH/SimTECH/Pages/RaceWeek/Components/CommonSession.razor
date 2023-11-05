@@ -1,98 +1,109 @@
-﻿<MudTable Items="@Drivers.OrderBy(e => e.AbsolutePosition)"
-          Dense="true"
-          Class="extra-dense collapse"
-          RowStyleFunc="@_sessionRowStyles"
-          id="session-table">
-    <HeaderContent>
-        <MudTh></MudTh>
-        <MudTh Class="accent-cell"></MudTh>
-        <MudTh>Driver</MudTh>
-        <MudTh Class="number-col">NO</MudTh>
-        <MudTh>Team</MudTh>
-        @if (HasRaceClasses)
-        {
-            <MudTh Class="number-col">CLA</MudTh>
-        }
-        <MudTh Class="number-col-xl">PWR</MudTh>
-        @for (int i = 1; i <= AmountRuns; i++)
-        {
-            var j = i;
-            <MudTh Class="number-col-lg">@j</MudTh>
-        }
-        <MudTh Class="number-col-xl">Score</MudTh>
-        <MudTh>Gap</MudTh>
-        <MudTh></MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd Class="number-col">
-            <div class="d-flex flex-row align-items-center gap-1">
-                <DriverPosition Number="@context.Position" />
-                @if (HasRaceClasses)
-                {
-                    <sup>@context.AbsolutePosition</sup>
-                }
-            </div>
-        </MudTd>
-        <MudTd Class="accent-cell">
-            <SmolAccent Colour="@context.Colour" />
-        </MudTd>
-        <MudTd Class="overflow-hider">
-            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                <MudText Typo="Typo.body1">@context.FirstName</MudText>
-                <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
-                <MudSpacer />
-                <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
-            </MudStack>
-        </MudTd>
-        <MudTd Class="number-col">
-            <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
-        </MudTd>
-        <MudTd Class="overflow-hider">
-            <MudText>@context.TeamName</MudText>
-        </MudTd>
-        @if (HasRaceClasses)
-        {
+﻿@if (ChildContent != null)
+{
+    <MudPaper MinHeight="60px">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
+            @ChildContent
+        </MudStack>
+    </MudPaper>
+}
+<MudPaper Elevation="25">
+    <MudTable Items="@Drivers.OrderBy(e => e.AbsolutePosition)"
+              Dense="true"
+              Class="extra-dense collapse"
+              RowStyleFunc="@_sessionRowStyles"
+              id="session-table">
+        <HeaderContent>
+            <MudTh></MudTh>
+            <MudTh Class="accent-cell"></MudTh>
+            <MudTh>Driver</MudTh>
+            <MudTh Class="number-col">NO</MudTh>
+            <MudTh>Team</MudTh>
+            @if (HasRaceClasses)
+            {
+                <MudTh Class="number-col">CLA</MudTh>
+            }
+            <MudTh Class="number-col-xl">PWR</MudTh>
+            @for (int i = 1; i <= AmountRuns; i++)
+            {
+                var j = i;
+                <MudTh Class="number-col-lg">@j</MudTh>
+            }
+            <MudTh Class="number-col-xl">Score</MudTh>
+            <MudTh>Gap</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
             <MudTd Class="number-col">
-                <SupplierDisplay Colour="@context.Class?.Colour">
-                    @context.Class?.Tag
-                </SupplierDisplay>
+                <div class="d-flex flex-row align-items-center gap-1">
+                    <DriverPosition Number="@context.Position" />
+                    @if (HasRaceClasses)
+                    {
+                        <sup>@context.AbsolutePosition</sup>
+                    }
+                </div>
             </MudTd>
-        }
-        <MudTd Class="number-col-xl">
-            <MudText Typo="Typo.caption">@context.Power</MudText>
-        </MudTd>
-        @for (int i = 0; i < context.Scores.Length; i++)
-        {
-            var j = i;
+            <MudTd Class="accent-cell">
+                <SmolAccent Colour="@context.Colour" />
+            </MudTd>
+            <MudTd Class="overflow-hider">
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.body1">@context.FirstName</MudText>
+                    <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
+                    <MudSpacer />
+                    <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
+                </MudStack>
+            </MudTd>
+            <MudTd Class="number-col">
+                <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
+            </MudTd>
+            <MudTd Class="overflow-hider">
+                <MudText>@context.TeamName</MudText>
+            </MudTd>
+            @if (HasRaceClasses)
+            {
+                <MudTd Class="number-col">
+                    <SupplierDisplay Colour="@context.Class?.Colour">
+                        @context.Class?.Tag
+                    </SupplierDisplay>
+                </MudTd>
+            }
             <MudTd Class="number-col-xl">
-                <GradientColour Min="@LowestScore" Max="@HighestScore" Value="@(context.Scores[j])">
-                    <MudText Typo="Typo.caption" Color="Color.Inherit">@(context.Scores[j])</MudText>
+                <MudText Typo="Typo.caption">@context.Power</MudText>
+            </MudTd>
+            @for (int i = 0; i < context.Scores.Length; i++)
+            {
+                var j = i;
+                <MudTd Class="number-col-xl">
+                    <GradientColour Min="@LowestScore" Max="@HighestScore" Value="@(context.Scores[j])">
+                        <MudText Typo="Typo.caption" Color="Color.Inherit">@context.Scores[j]</MudText>
                     </GradientColour>
                 </MudTd>
-        }
-        <MudTd Class="number-col-xl">
-            <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScore()</MudText>
-        </MudTd>
-        <MudTd>
-            <MudText Typo="Typo.button">@context.GapAbove</MudText>
-        </MudTd>
-        <MudTd>
-            @if (TryLocateCutoff(context.Position, out var tuple))
-            {
-                <MudPopover OverflowBehavior="OverflowBehavior.FlipNever"
-                            Open="true"
-                            AnchorOrigin="Origin.BottomRight"
-                            TransformOrigin="Origin.TopRight"
-                            Class="px-1"
-                            Style="@tuple.Style">
-                    <MudText Typo="Typo.subtitle2">@tuple.Tag</MudText>
-                </MudPopover>
             }
-        </MudTd>
-    </RowTemplate>
-</MudTable>
+            <MudTd Class="number-col-xl">
+                <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScore()</MudText>
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.button">@context.GapAbove</MudText>
+            </MudTd>
+            <MudTd>
+                @if (TryLocateCutoff(context.AbsolutePosition, out var tuple))
+                {
+                    <MudPopover OverflowBehavior="OverflowBehavior.FlipNever"
+                                Open="true"
+                                AnchorOrigin="Origin.BottomRight"
+                                TransformOrigin="Origin.TopRight"
+                                Class="px-1"
+                                Style="@tuple.Style">
+                        <MudText Typo="Typo.subtitle2">@tuple.Tag</MudText>
+                    </MudPopover>
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
 
 @code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public IEnumerable<SessionDriver> Drivers { get; set; } = Enumerable.Empty<SessionDriver>();
     [Parameter] public int AmountRuns { get; set; }
     [Parameter] public int EntryCutoff { get; set; }
@@ -103,12 +114,12 @@
 
     private Func<SessionDriver, int, string> _sessionRowStyles => (driver, index) =>
     {
-        if (driver.Position != Drivers.Count() && driver.Position != 0)
+        if (driver.AbsolutePosition != Drivers.Count() && driver.AbsolutePosition != 0)
         {
-            if (driver.Position == ProgressCutoff)
+            if (driver.AbsolutePosition == ProgressCutoff)
                 return "border-bottom: 2px solid red";
 
-            if (driver.Position == EntryCutoff)
+            if (driver.AbsolutePosition == EntryCutoff)
                 return "border-bottom: 2px solid mediumpurple";
         }
 

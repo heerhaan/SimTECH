@@ -2,16 +2,16 @@
 
 <MudGrid id="raceweek-landing" Spacing="1">
     <MudItem xs="12">
-        <MudPaper MinHeight="60px" Class="pa-2 d-flex flex-row align-center justify-center">
+        <MudPaper MinHeight="60px" Class="pa-2 d-flex flex-row align-center justify-space-between">
+            <div class="btn-md"></div>
             <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
-            <ScreenshotIconButton TargetId="raceweek-landing" Colour="Color.Tertiary" />
+            <ScreenshotIconButton TargetId="raceweek-landing" Colour="Color.Tertiary" Class="btn-sm" />
         </MudPaper>
     </MudItem>
     <MudItem xs="3">
         <MudPaper Class="pa-4 mud-height-full">
             <MudText Typo="Typo.h5">Track information</MudText>
             <MudDivider />
-
             <MudListExtended T="string" Dense="true">
                 <MudListItemExtended T="string" SecondaryText="Country">
                     <CountryNamedFlag Code="@Model.Race.Track.Country" Size="ElementSize.Normal" Reverse="true" />
@@ -44,34 +44,28 @@
                                      SecondaryText="Defense modifier" />
             </MudListExtended>
 
-            <MudText Typo="Typo.subtitle1">Circuit Traits</MudText>
+            <MudText Typo="Typo.subtitle1">Circuit traits</MudText>
+            <MudDivider />
             @if (TrackTraits.Any() == true)
             {
-                <MudList>
+                <MudListExtended T="string" Dense="true">
                     @foreach (var trait in TrackTraits)
                     {
-                        <MudListItem>
-                            <MudStack Spacing="1">
-                                <MudText Typo="Typo.subtitle2">@trait.Name</MudText>
-                                <MudDivider />
-                                <MudText Typo="Typo.body2">@trait.Description</MudText>
-                            </MudStack>
-                        </MudListItem>
+                        <MudListItemExtended T="string" Text="@trait.Name" SecondaryText="@trait.Description" />
                     }
-                </MudList>
+                </MudListExtended>
             }
             else
             {
-                <MudText Typo="Typo.subtitle2">None</MudText>
+                <MudText Typo="Typo.subtitle2">No traits for this track.</MudText>
             }
         </MudPaper>
     </MudItem>
     <MudItem xs="7">
         <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.h5">Starting grid</MudText>
+            <MudDivider />
             <MudTable Items="@Model.RaweCeekDrivers.OrderBy(e => e.AbsoluteGrid)" Dense="true" Class="extra-dense">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h5">Starting grid</MudText>
-                </ToolBarContent>
                 <HeaderContent>
                     <MudTh Class="number-col-lg">Grid</MudTh>
                     <MudTh Class="number-col">TGT</MudTh>
@@ -83,7 +77,7 @@
                     {
                         <MudTh Class="number-col">CLA</MudTh>
                     }
-                    <MudTh Class="number-col">SUPP</MudTh>
+                    <MudTh Class="number-col">SUP</MudTh>
                     <MudTh>Tyre</MudTh>
                 </HeaderContent>
                 <RowTemplate>
@@ -97,7 +91,13 @@
                             }
                             else
                             {
-                                <DriverPosition Number="@context.Grid" />
+                                <div class="d-flex flex-row align-items-center gap-1">
+                                    <DriverPosition Number="@context.Grid" />
+                                    @if (Model.Season.HasRaceClasses)
+                                    {
+                                        <sup>@context.AbsoluteGrid</sup>
+                                    }
+                                </div>
                             }
                         </PenaltyBadge>
                     </MudTd>
@@ -152,13 +152,20 @@
     </MudItem>
     <MudItem xs="2">
         <MudPaper Class="pa-4 mud-height-full">
-            <MudText Typo="Typo.h5">idk man</MudText>
+            <MudText Typo="Typo.h5">Weekend</MudText>
             <MudDivider />
 
+            <MudText Typo="Typo.subtitle1">Weather</MudText>
+            <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour">
+                <MudText Typo="Typo.h5" Color="Color.Default">@Model.Climate.Terminology</MudText>
+            </CustomIcon>
+
+            <MudText Typo="Typo.subtitle1">Giraffe</MudText>
             <MudText Class="my-2">
                 He who reads is not a giraffe (presumably)
             </MudText>
 
+            <MudText Typo="Typo.subtitle1">Help</MudText>
             <MudText Class="my-2" Typo="Typo.body2" Color="Color.Info">
                 <MudIcon Icon="@IconCollection.Target" Size="Size.Small" />
                 [TGT]: Target position

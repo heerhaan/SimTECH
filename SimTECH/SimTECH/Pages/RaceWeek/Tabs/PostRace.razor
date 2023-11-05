@@ -9,9 +9,11 @@
                     <MudText Typo="Typo.h3">Post race</MudText>
 
                     <div class="d-flex flex-row-reverse" style="width:30%">
-                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-                            <MudButton OnClick="GoToOverview" Class="btn-md">Standings</MudButton>
-                            <ScreenshotButton TargetId="postrace-container" Class="btn-md" />
+                        <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Text">
+                            <MudTooltip Text="Standings" Placement="Placement.Top" Color="Color.Tertiary">
+                                <MudIconButton Icon="@Icons.Material.Filled.AutoGraph" OnClick="GoToOverview" Class="btn-sm" />
+                            </MudTooltip>
+                            <ScreenshotIconButton TargetId="postrace-container" Class="btn-sm" />
                         </MudButtonGroup>
                     </div>
                 </MudStack>
@@ -20,6 +22,7 @@
         <MudItem xs="8">
             <MudPaper Class="mud-height-full pa-4">
                 <MudText Typo="Typo.h5">Final standings</MudText>
+                <MudDivider />
                 <MudTable T="RaweCeekDriver" Items="@Model.RaweCeekDrivers.OrderBy(e => e.AbsolutePosition)" Dense="true" Class="extra-dense">
                     <HeaderContent>
                         <MudTh Class="number-col-lg"></MudTh>
@@ -95,6 +98,7 @@
             <MudStack Class="mud-height-full">
                 <MudPaper Class="pa-4 mud-height-full">
                     <MudText Typo="Typo.h5">Race incidents</MudText>
+                    <MudDivider />
                     <MudSimpleTable Dense="true" Class="extra-dense">
                         <thead>
                             <tr>
@@ -116,7 +120,7 @@
                                     </td>
                                     <td>@result.Incident?.Name</td>
                                     <td class="number-col-lg">
-                                        <div class="result-cell" style="@(result.Status.StatusStyles())">
+                                        <div class="result-cell" style="@result.Status.StatusStyles()">
                                             <MudText Typo="Typo.caption" Color="Color.Inherit">@result.Status.ReadableStatus()</MudText>
                                         </div>
                                     </td>
@@ -127,7 +131,7 @@
                 </MudPaper>
                 <MudPaper Class="pa-4 mud-height-full">
                     <MudText Typo="Typo.h5">Upcoming penalties</MudText>
-
+                    <MudDivider />
                     <MudTable T="DriverPenalty" Items="@driverPenalties" Dense="true" Class="extra-dense">
                         <HeaderContent>
                             <MudTh>Name</MudTh>

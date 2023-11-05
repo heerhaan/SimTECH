@@ -4,29 +4,26 @@
     <div id="practice-table">
         @if (!loading)
         {
-            <MudPaper MinHeight="60px">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
-                    <CountryFlag Code="@raceCountry" />
-                    <MudText Typo="Typo.h5">@raceName</MudText>
+            <CommonSession Drivers="@practiceDrivers"
+                           AmountRuns="@amountRuns"
+                           HighestScore="@highestScore"
+                           LowestScore="@lowestScore"
+                           HasRaceClasses="@hasRaceClasses">
+                <CountryFlag Code="@raceCountry" />
+                <MudText Typo="Typo.h5">@raceName</MudText>
 
-                    <MudSpacer />
+                <MudSpacer />
 
-                    <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Text">
-                        <ScreenshotIconButton TargetId="practice-table" />
-                        @if (!PracticeSession.IsFinished && advancedRuns != amountRuns)
-                        {
-                            <MudIconButton OnClick="Advance" Icon="@IconCollection.ChevronsRight" />
-                        }
-                    </MudButtonGroup>
-                </MudStack>
-            </MudPaper>
-            <MudPaper>
-                <CommonSession Drivers="@practiceDrivers"
-                               AmountRuns="@amountRuns"
-                               HighestScore="@highestScore"
-                               LowestScore="@lowestScore"
-                               HasRaceClasses="@hasRaceClasses" />
-            </MudPaper>
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Tertiary">
+                    <ScreenshotIconButton TargetId="practice-table" Class="btn-sm" />
+                    @if (PracticeSession.IsFinished == false && advancedRuns != amountRuns)
+                    {
+                        <MudTooltip Text="Advance to next run" Placement="Placement.Top" Color="Color.Tertiary">
+                            <MudIconButton Icon="@IconCollection.ChevronsRight" OnClick="Advance" Class="btn-sm" />
+                        </MudTooltip>
+                    }
+                </MudButtonGroup>
+            </CommonSession>
         }
     </div>
 </MudContainer>
@@ -48,7 +45,6 @@
     int highestScore;
     int lowestScore = int.MaxValue;
     bool hasRaceClasses;
-
     double gapMarge;
 
     protected override void OnInitialized()
