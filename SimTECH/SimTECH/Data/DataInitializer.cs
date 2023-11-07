@@ -5,7 +5,9 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.Data
 {
-    // TODO: Yoink this DataInitializer out of the program for being shit to work with, just rely on that default button
+    // TODO: Yoink this DataInitializer out of the program for being shit to work with, just rely on that default button...
+    // Well, might be a bad idea since some data IS initialized on startup so this does work... somewhat.
+    // Fuck.
     public class DataInitializer
     {
         private readonly ModelBuilder builder;
