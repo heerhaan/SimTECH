@@ -26,9 +26,9 @@
             <RowTemplate>
                 <MudTd>
                     <MudStack Row="true" AlignItems="AlignItems.Center">
-                        <MudText>@(context.Driver?.FullName ?? "[Unknown driver]")</MudText>
+                        <MudText>@(context.Driver?.FullName ?? "[UNKNOWN]")</MudText>
                         <MudSpacer />
-                        <CountryFlag Code="@(context.Driver?.Country ?? Globals.DefaultCountry)" Size="ElementSize.Small" />
+                        <CountryFlag Code="@context.Driver?.Country" Size="ElementSize.Small" />
                     </MudStack>
                 </MudTd>
                 <MudTd>
@@ -38,13 +38,20 @@
             <RowEditingTemplate>
                 <MudTd>
                     <MudStack Row="true" AlignItems="AlignItems.Center">
-                        <MudText>@(context.Driver?.FullName ?? "[Unknown driver]")</MudText>
+                        <MudText>@(context.Driver?.FullName ?? "[UNKNOWN]")</MudText>
                         <MudSpacer />
-                        <CountryFlag Code="@(context.Driver?.Country ?? Globals.DefaultCountry)" Size="ElementSize.Small" />
+                        <CountryFlag Code="@context.Driver?.Country" Size="ElementSize.Small" />
                     </MudStack>
                 </MudTd>
                 <MudTd>
-                    <MudNumericField @bind-Value="@context.Duration" Min="1" Class="field-sm" />
+                    <MudText Typo="Typo.caption">@context.Duration</MudText>
+                    <MudSlider @bind-Value="@context.Duration"
+                               Min="1"
+                               Max="10"
+                               Step="1"
+                               TickMarks="true"
+                               Variant="Variant.Filled"
+                               Size="Size.Medium" />
                 </MudTd>
             </RowEditingTemplate>
             <EditButtonContent Context="button">

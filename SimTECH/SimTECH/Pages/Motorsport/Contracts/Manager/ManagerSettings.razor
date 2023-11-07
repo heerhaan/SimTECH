@@ -1,19 +1,19 @@
 ﻿<MudContainer>
     <MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <MudSelect T="long" @bind-Value="@selectedLeagueId" Label="League" Class="field-md">
+        <MudSelect T="long" @bind-Value="@_selectedLeagueId" Label="League" Class="field-md">
             @foreach (var league in Leagues)
             {
                 <MudSelectItem Value="@league.Id">@league.Name</MudSelectItem>
             }
         </MudSelect>
 
-        <MudSwitchM3 @bind-Checked="@onlyLeagueTeams"
+        <MudSwitchM3 @bind-Checked="@_onlyActiveTeams"
                      ThumbIcon="@Icons.Material.Filled.Done"
                      ThumbOffIcon="@Icons.Material.Filled.Close"
                      Label="Teams active in league"
                      Color="Color.Secondary" />
 
-        <MudSwitchM3 @bind-Checked="@onlyLeagueDrivers"
+        <MudSwitchM3 @bind-Checked="@_onlyActiveDrivers"
                      ThumbIcon="@Icons.Material.Filled.Done"
                      ThumbOffIcon="@Icons.Material.Filled.Close"
                      Label="Drivers active in League"
@@ -24,8 +24,36 @@
 </MudContainer>
 
 @code {
+    long _selectedLeagueId
+    {
+        get => SelectedLeagueId;
+        set
+        {
+            if (value != _selectedLeagueId)
+                InvokeAsync(LeagueChanged);
+        }
+    }
+
+    bool _onlyActiveTeams { get; set; }
+
+    bool _onlyActiveDrivers { get; set; }
+
     [Parameter] public List<League> Leagues { get; set; }
+
+    [Parameter] public long SelectedLeagueId { get; set; }
+    [Parameter] public EventCallback<long> SelectedLeagueIdChanged { get; set; }
+
+    [Parameter] public bool OnlyActiveTeams { get; set; }
+    [Parameter] public EventCallback<bool> OnlyActiveTeamsChanged { get; set; }
+
+    [Parameter] public bool OnlyActiveDrivers { get; set; }
+    [Parameter] public EventCallback<bool> OnlyActiveDriversChanged { get; set; }
+
     [Parameter] public EventCallback<Tuple<long, bool, bool>> OnLoadSetting { get; set; }
+
+    async Task LeagueChanged() => await SelectedLeagueIdChanged.InvokeAsync(_selectedLeagueId);
+
+    async Task CheckActiveTeam(bool option) => await OnlyActiveTeamsChanged.InvokeAsync(option);
 
     long selectedLeagueId;
     bool onlyLeagueTeams;

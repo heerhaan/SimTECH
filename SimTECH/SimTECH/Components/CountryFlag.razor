@@ -3,9 +3,9 @@
 </MudElement>
 
 @code {
-    [Parameter] public Country Code { get; set; } = Globals.DefaultCountry;
-    [Parameter] public ElementSize Size { get; set; } = ElementSize.Normal;
-    [Parameter] public string Class { get; set; } = string.Empty;
+    [Parameter] public Country? Code { get; set; } = Globals.DefaultCountry;
+    [Parameter] public ElementSize? Size { get; set; } = ElementSize.Normal;
+    [Parameter] public string? Class { get; set; } = string.Empty;
 
     private string flagSize
     {
@@ -37,7 +37,7 @@
     {
         get
         {
-            return Code.CountryCodeToEmoji();
+            return Code.GetValueOrDefault().CountryCodeToEmoji();
         }
     }
 }
