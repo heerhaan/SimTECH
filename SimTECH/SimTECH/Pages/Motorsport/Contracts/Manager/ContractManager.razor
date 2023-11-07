@@ -15,14 +15,23 @@
 
         @if (Leagues != null)
         {
-            <ManagerSettings Leagues="Leagues" OnLoadSetting="HandleSettingLoad" />
+            <ManagerSettings Leagues="@Leagues"
+                             OnLoad="HandleSettingLoad"
+                             @bind-SelectedLeagueId="leagueId"
+                             @bind-OnlyActiveTeams="onlyTeams"
+                             @bind-OnlyActiveDrivers="onlyDrivers"  />
         }
     </MudPaper>
 
+    <<MudTabs Centered="true" Outlined="true">
+        <MudTabPanel Text="">
+
+        </MudTabPanel>
+    </MudTabs>
     @if (showDropper)
     {
         <MudPaper Elevation="10">
-            <ManagerDropper Teams="Teams" EditableContracts="@EditableContracts" OnDriversDropped="HandleDriversDropped" />
+            <ManagerDropper Teams="@Teams" EditableContracts="@EditableContracts" OnDriversDropped="HandleDriversDropped" />
         </MudPaper>
     }
 
@@ -40,6 +49,10 @@
     public List<Team> Teams { get; set; } = new();
     public List<EditContract> EditableContracts { get; set; } = new();
 
+    private long leagueId;
+    private bool onlyTeams;
+    private bool onlyDrivers;
+
     private bool showDropper = false;
     private bool showDurationAssigner = false;
 
@@ -56,27 +69,23 @@
         });
     }
 
-    private async Task HandleSettingLoad(Tuple<long, bool, bool> settings)
+    private async Task HandleSettingLoad()
     {
         showDurationAssigner = false;
 
-        var selectedLeagueId = settings.Item1;
-        var onlyCertainTeams = settings.Item2;
-        var onlyCertainDrivers = settings.Item3;
-
         List<Team> teams;
-        if (onlyCertainTeams)
-            teams = await _teamService.GetLeagueTeams(selectedLeagueId);
+        if (onlyTeams)
+            teams = await _teamService.GetLeagueTeams(leagueId);
         else
             teams = await _teamService.GetTeams();
 
         List<Driver> drivers;
-        if (onlyCertainDrivers)
-            drivers = await _driverService.GetDriversFromLeague(selectedLeagueId);
+        if (onlyDrivers)
+            drivers = await _driverService.GetDriversFromLeague(leagueId);
         else
             drivers = await _driverService.GetDrivers();
 
-        var leagueContracts = await _contractService.GetLeagueContracts(selectedLeagueId);
+        var leagueContracts = await _contractService.GetLeagueContracts(leagueId);
 
         var editableContracts = leagueContracts.Select(e => new EditContract(e)).ToList();
         foreach (var editable in editableContracts)
@@ -90,7 +99,7 @@
             var agentContract = new EditContract(null);
             agentContract.DriverId = freeAgent.Id;
             agentContract.Driver = freeAgent;
-            agentContract.LeagueId = selectedLeagueId;
+            agentContract.LeagueId = leagueId;
             agentContract.Duration = 1;
 
             editableContracts.Add(agentContract);

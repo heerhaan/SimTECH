@@ -19,7 +19,7 @@
                      Label="Drivers active in League"
                      Color="Color.Secondary" />
 
-        <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="HandleSettingLoad">Load</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="@(() => OnLoad.InvokeAsync())">Load</MudButton>
     </MudStack>
 </MudContainer>
 
@@ -27,17 +27,21 @@
     long _selectedLeagueId
     {
         get => SelectedLeagueId;
-        set
-        {
-            if (value != _selectedLeagueId)
-                InvokeAsync(LeagueChanged);
-        }
+        set => SelectedLeagueIdChanged.InvokeAsync(value);
     }
 
-    bool _onlyActiveTeams { get; set; }
+    bool _onlyActiveTeams
+    {
+        get => OnlyActiveTeams;
+        set => OnlyActiveTeamsChanged.InvokeAsync(value);
+    }
 
-    bool _onlyActiveDrivers { get; set; }
-
+    bool _onlyActiveDrivers
+    {
+        get => OnlyActiveDrivers;
+        set => OnlyActiveDriversChanged.InvokeAsync(value);
+    }
+    
     [Parameter] public List<League> Leagues { get; set; }
 
     [Parameter] public long SelectedLeagueId { get; set; }
@@ -49,25 +53,7 @@
     [Parameter] public bool OnlyActiveDrivers { get; set; }
     [Parameter] public EventCallback<bool> OnlyActiveDriversChanged { get; set; }
 
-    [Parameter] public EventCallback<Tuple<long, bool, bool>> OnLoadSetting { get; set; }
+    [Parameter] public EventCallback OnLoad { get; set; }
 
-    async Task LeagueChanged() => await SelectedLeagueIdChanged.InvokeAsync(_selectedLeagueId);
-
-    async Task CheckActiveTeam(bool option) => await OnlyActiveTeamsChanged.InvokeAsync(option);
-
-    long selectedLeagueId;
-    bool onlyLeagueTeams;
-    bool onlyLeagueDrivers;
-
-    private async Task HandleSettingLoad()
-    {
-        if (OnLoadSetting.HasDelegate)
-        {
-            if (selectedLeagueId != 0)
-            {
-                var resultTuple = Tuple.Create(selectedLeagueId, onlyLeagueTeams, onlyLeagueDrivers);
-                await OnLoadSetting.InvokeAsync(resultTuple);
-            }
-        }
-    }
+    
 }
