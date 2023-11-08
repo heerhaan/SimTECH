@@ -15,6 +15,7 @@ namespace SimTECH.Data.EditModels
         // Supportive fields
         public Team? Team { get; set; }
         public Driver? Driver { get; set; }
+        public bool Editing { get; set; }
 
         public EditContract(Contract? contract)
         {

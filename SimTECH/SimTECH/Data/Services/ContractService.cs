@@ -52,7 +52,13 @@ namespace SimTECH.Data.Services
 
             // Validations to check if there are no running contracts?
 
-            context.AddRange(contracts);
+            foreach (var  contract in contracts)
+            {
+                if (contract.Id == 0)
+                    context.Add(contract);
+                else
+                    context.Update(contract);
+            }
 
             await context.SaveChangesAsync();
         }

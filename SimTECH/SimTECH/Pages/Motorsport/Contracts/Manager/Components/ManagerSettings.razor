@@ -1,0 +1,55 @@
+﻿<MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
+    <MudSelect T="long" @bind-Value="@_selectedLeagueId" Label="League" Class="field-md">
+        @foreach (var league in Leagues)
+        {
+            <MudSelectItem Value="@league.Id">@league.Name</MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudSwitchM3 @bind-Checked="@_onlyActiveTeams"
+                 ThumbIcon="@Icons.Material.Filled.Done"
+                 ThumbOffIcon="@Icons.Material.Filled.Close"
+                 Label="Teams active in league"
+                 Color="Color.Secondary" />
+
+    <MudSwitchM3 @bind-Checked="@_onlyActiveDrivers"
+                 ThumbIcon="@Icons.Material.Filled.Done"
+                 ThumbOffIcon="@Icons.Material.Filled.Close"
+                 Label="Drivers active in League"
+                 Color="Color.Secondary" />
+
+    <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="@(() => OnLoad.InvokeAsync())">Load</MudButton>
+</MudStack>
+
+@code {
+    long _selectedLeagueId
+    {
+        get => SelectedLeagueId;
+        set => SelectedLeagueIdChanged.InvokeAsync(value);
+    }
+
+    bool _onlyActiveTeams
+    {
+        get => OnlyActiveTeams;
+        set => OnlyActiveTeamsChanged.InvokeAsync(value);
+    }
+
+    bool _onlyActiveDrivers
+    {
+        get => OnlyActiveDrivers;
+        set => OnlyActiveDriversChanged.InvokeAsync(value);
+    }
+    
+    [Parameter] public List<League> Leagues { get; set; }
+
+    [Parameter] public long SelectedLeagueId { get; set; }
+    [Parameter] public EventCallback<long> SelectedLeagueIdChanged { get; set; }
+
+    [Parameter] public bool OnlyActiveTeams { get; set; }
+    [Parameter] public EventCallback<bool> OnlyActiveTeamsChanged { get; set; }
+
+    [Parameter] public bool OnlyActiveDrivers { get; set; }
+    [Parameter] public EventCallback<bool> OnlyActiveDriversChanged { get; set; }
+
+    [Parameter] public EventCallback OnLoad { get; set; }
+}

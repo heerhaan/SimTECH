@@ -1,11 +1,14 @@
 ﻿@page "/contractmanager"
 
+@using SimTECH.Pages.Motorsport.Contracts.Manager.Components
+
 @inject ContractService _contractService
 @inject LeagueService _leagueService
 @inject DriverService _driverService
 @inject TeamService _teamService
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
+@inject ISnackbar _snack
 
 <PageTitle>Contract manager</PageTitle>
 
@@ -20,25 +23,21 @@
                              @bind-SelectedLeagueId="leagueId"
                              @bind-OnlyActiveTeams="onlyTeams"
                              @bind-OnlyActiveDrivers="onlyDrivers"  />
+
+            @if (isLoaded)
+            {
+                <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="SaveContracts" Class="pa-2 my-2">
+                    Save
+                </MudButton>
+            }
         }
     </MudPaper>
 
-    <<MudTabs Centered="true" Outlined="true">
-        <MudTabPanel Text="">
-
-        </MudTabPanel>
-    </MudTabs>
-    @if (showDropper)
+    @if (isLoaded && EditableContracts.Any())
     {
         <MudPaper Elevation="10">
-            <ManagerDropper Teams="@Teams" EditableContracts="@EditableContracts" OnDriversDropped="HandleDriversDropped" />
-        </MudPaper>
-    }
-
-    @if (showDurationAssigner)
-    {
-        <MudPaper Elevation="25">
-            <ManagerDuration EditableContracts="@EditableContracts" OnSave="SaveContracts" />
+            <ManagerDropper Teams="@Teams"
+                            @bind-EditableContracts="EditableContracts" />
         </MudPaper>
     }
 </MudContainer>
@@ -52,9 +51,7 @@
     private long leagueId;
     private bool onlyTeams;
     private bool onlyDrivers;
-
-    private bool showDropper = false;
-    private bool showDurationAssigner = false;
+    private bool isLoaded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,8 +68,6 @@
 
     private async Task HandleSettingLoad()
     {
-        showDurationAssigner = false;
-
         List<Team> teams;
         if (onlyTeams)
             teams = await _teamService.GetLeagueTeams(leagueId);
@@ -111,21 +106,30 @@
             .OrderBy(e => e.Driver!.FirstName)
             .ToList();
 
-        showDropper = true;
+        isLoaded = true;
     }
 
-    private void HandleDriversDropped(List<EditContract> editableContracts)
+    private async Task SaveContracts()
     {
-        showDropper = false;
+        var saveableContracts = EditableContracts
+                .Where(e => e.TeamId != 0 && e.Team is not null)
+                .ToList();
 
-        EditableContracts = editableContracts;
+        if (saveableContracts.Any(e => e.Duration == 0))
+        {
+            _snack.Add("Not all assigned contracts have an actual duration, is meaningless without ya?", Severity.Warning);
+            return;
+        }
 
-        showDurationAssigner = true;
-    }
+        if (saveableContracts.Any(e => e.LeagueId == 0 || e.DriverId == 0))
+        {
+            _snack.Add("Somehow the new contracts have some invalid data, dunno man. Weird shit.", Severity.Error);
+            return;
+        }
 
-    private async Task SaveContracts(List<Contract> addedContracts)
-    {
+        var addedContracts = saveableContracts.Select(e => e.Record).ToList();
         await _contractService.AddContracts(addedContracts);
+
         _nav.NavigateTo("motorsport");
     }
 }
