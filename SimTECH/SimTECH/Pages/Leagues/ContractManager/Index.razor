@@ -1,6 +1,6 @@
-﻿@page "/contractmanager"
+﻿@page "/contractmanager/{LeagueId:long}"
 
-@using SimTECH.Pages.Motorsport.Contracts.Manager.Components
+@using SimTECH.Pages.Leagues.ContractManager.Components
 
 @inject ContractService _contractService
 @inject LeagueService _leagueService
@@ -13,76 +13,71 @@
 <PageTitle>Contract manager</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-4">
-    <MudPaper MaxHeight="150px" Class="text-center">
-        <MudText Typo="Typo.h3" Class="mx-auto">Manage contracts</MudText>
-
-        @if (Leagues != null)
-        {
-            <ManagerSettings Leagues="@Leagues"
-                             OnLoad="HandleSettingLoad"
-                             @bind-SelectedLeagueId="leagueId"
-                             @bind-OnlyActiveTeams="onlyTeams"
-                             @bind-OnlyActiveDrivers="onlyDrivers"  />
-
-            @if (isLoaded)
-            {
-                <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="SaveContracts" Class="pa-2 my-2">
-                    Save
-                </MudButton>
-            }
-        }
-    </MudPaper>
-
-    @if (isLoaded && EditableContracts.Any())
+    @if (League != null)
     {
-        <MudPaper Elevation="10">
-            <ManagerDropper Teams="@Teams"
-                            @bind-EditableContracts="EditableContracts" />
+        <MudPaper MaxHeight="150px" Class="text-center">
+            <MudText Typo="Typo.h3" Class="mx-auto">Manage contracts for @League.Name</MudText>
+
+            <ManagerSettings @bind-OnlyActiveTeams="onlyTeams" @bind-OnlyActiveDrivers="onlyDrivers">
+                <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small">
+                    <MudButton Color="Color.Primary" OnClick="HandleSettingLoad">Load</MudButton>
+                    <MudButton Color="Color.Success" Disabled="@(!isLoaded)" OnClick="SaveContracts">Save</MudButton>
+                </MudButtonGroup>
+            </ManagerSettings>
         </MudPaper>
+
+        @if (isLoaded && EditableContracts.Any())
+        {
+            <MudPaper Elevation="10">
+                <ManagerDropper @bind-EditableContracts="EditableContracts" Teams="@Teams" />
+            </MudPaper>
+        }
     }
 </MudContainer>
 
 @code {
-    public List<League>? Leagues { get; set; }
+    [Parameter] public long LeagueId { get; set; }
+
+    public League? League { get; set; }
     public List<Contract> Contracts { get; set; } = new();
     public List<Team> Teams { get; set; } = new();
     public List<EditContract> EditableContracts { get; set; } = new();
 
-    private long leagueId;
     private bool onlyTeams;
     private bool onlyDrivers;
     private bool isLoaded = false;
 
     protected override async Task OnInitializedAsync()
     {
-        var existingLeagues = await _leagueService.GetLeagues();
-        Leagues = existingLeagues.Where(e => e.Options.HasFlag(LeagueOptions.AllowContracting)).ToList();
+        League = await _leagueService.GetLeagueById(LeagueId);
+        Contracts = await _contractService.GetLeagueContracts(League.Id);
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: "/"),
-            new BreadcrumbItem("Motorsport", href: "motorsport"),
-            new BreadcrumbItem("Manager", href: "contractmanager", disabled: true),
+            new BreadcrumbItem("Leagues", href: "leagues"),
+            new BreadcrumbItem("Contract manager", href: "contractmanager", disabled: true),
         });
     }
 
     private async Task HandleSettingLoad()
     {
+        if (League == null)
+            return;
+
         List<Team> teams;
         if (onlyTeams)
-            teams = await _teamService.GetLeagueTeams(leagueId);
+            teams = await _teamService.GetLeagueTeams(League.Id);
         else
             teams = await _teamService.GetTeams();
 
         List<Driver> drivers;
         if (onlyDrivers)
-            drivers = await _driverService.GetDriversFromLeague(leagueId);
+            drivers = await _driverService.GetDriversFromLeague(League.Id);
         else
             drivers = await _driverService.GetDrivers();
 
-        var leagueContracts = await _contractService.GetLeagueContracts(leagueId);
-
-        var editableContracts = leagueContracts.Select(e => new EditContract(e)).ToList();
+        var editableContracts = Contracts.Select(e => new EditContract(e)).ToList();
         foreach (var editable in editableContracts)
         {
             editable.Team = teams.Find(e => e.Id == editable.TeamId);
@@ -94,7 +89,7 @@
             var agentContract = new EditContract(null);
             agentContract.DriverId = freeAgent.Id;
             agentContract.Driver = freeAgent;
-            agentContract.LeagueId = leagueId;
+            agentContract.LeagueId = League.Id;
             agentContract.Duration = 1;
 
             editableContracts.Add(agentContract);
@@ -130,6 +125,8 @@
         var addedContracts = saveableContracts.Select(e => e.Record).ToList();
         await _contractService.AddContracts(addedContracts);
 
-        _nav.NavigateTo("motorsport");
+        Contracts = await _contractService.GetLeagueContracts(LeagueId);
+
+        await HandleSettingLoad();
     }
 }
