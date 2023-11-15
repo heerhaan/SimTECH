@@ -18,12 +18,19 @@
         <MudPaper MaxHeight="150px" Class="text-center">
             <MudText Typo="Typo.h3" Class="mx-auto">Manage contracts for @League.Name</MudText>
 
-            <ManagerSettings @bind-OnlyActiveTeams="onlyTeams" @bind-OnlyActiveDrivers="onlyDrivers">
+            @* <ManagerSettings @bind-OnlyActiveTeams="onlyTeams" @bind-OnlyActiveDrivers="onlyDrivers">
                 <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small">
                     <MudButton Color="Color.Primary" OnClick="HandleSettingLoad">Load</MudButton>
                     <MudButton Color="Color.Success" Disabled="@(!isLoaded)" OnClick="SaveContracts">Save</MudButton>
                 </MudButtonGroup>
-            </ManagerSettings>
+            </ManagerSettings> *@
+
+            <MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                <ManagerSettings @bind-OnlyActiveTeams="onlyTeams" @bind-OnlyActiveDrivers="onlyDrivers" />
+                <MudButton Variant="Variant.Outlined" Size="Size.Medium" Color="Color.Info" OnClick="HandleSettingLoad">Reload</MudButton>
+                <MudSpacer />
+                <MudButton Variant="Variant.Outlined" Size="Size.Medium" Color="Color.Success" Disabled="@(!isLoaded)" OnClick="SaveContracts">Save</MudButton>
+            </MudStack>
         </MudPaper>
 
         @if (isLoaded && EditableContracts.Any())
@@ -43,8 +50,8 @@
     public List<Team> Teams { get; set; } = new();
     public List<EditContract> EditableContracts { get; set; } = new();
 
-    private bool onlyTeams;
-    private bool onlyDrivers;
+    private bool onlyTeams = true;
+    private bool onlyDrivers = true;
     private bool isLoaded = false;
 
     protected override async Task OnInitializedAsync()
@@ -58,6 +65,8 @@
             new BreadcrumbItem("Leagues", href: "leagues"),
             new BreadcrumbItem("Contract manager", href: "contractmanager", disabled: true),
         });
+
+        await HandleSettingLoad();
     }
 
     private async Task HandleSettingLoad()
@@ -128,5 +137,7 @@
         Contracts = await _contractService.GetLeagueContracts(LeagueId);
 
         await HandleSettingLoad();
+
+        _snack.Add($"Updated {League?.Name} contracts", Severity.Success);
     }
 }

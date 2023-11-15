@@ -17,6 +17,19 @@ namespace SimTECH.Data.EditModels
         public Driver? Driver { get; set; }
         public bool Editing { get; set; }
 
+        public string DropperStyle
+        {
+            get
+            {
+                if (Id != 0)
+                {
+                    return "color: var(--mud-palette-action-disabled) !important; cursor: default !important; pointer-events: none !important;";
+                }
+
+                return string.Empty;
+            }
+        }
+
         public EditContract(Contract? contract)
         {
             if (contract == null)
