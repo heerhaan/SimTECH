@@ -1,7 +1,13 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText>Modify trait</MudText>
-        <MudText>PS: Wear is subtracted from tyre, so higher number = more wear</MudText>
+        <MudStack Row="true" Justify="Justify.SpaceBetween" Class="pa-0">
+            <div>
+                <MudText>Modify trait</MudText>
+                <MudText>PS: Wear is subtracted from tyre, so higher number = more wear</MudText>
+            </div>
+
+            <MudSwitch @bind-Checked="showSliders" Label="Sliders" />
+        </MudStack>
     </TitleContent>
     <DialogContent>
         <MudForm>
@@ -51,10 +57,17 @@
                 </MudItem>
                 <MudItem xs="6">
                     <MudStack>
+                        @if (showSliders)
+                        {
+                            <MudRangeSlider @bind-Value="Model.WearMin" @bind-UpperValue="Model.WearMax" Size="Size.Medium" Variant="Variant.Filled" Display="true"
+                                            ValueLabel="true" Range="true" Color="Color.Tertiary" Step="1" Class="my-2"></MudRangeSlider>
+                        }
+
                         <MudStack Row="true">
                             <MudNumericField T="int" @bind-Value="Model.WearMin" Label="WearMin" />
                             <MudNumericField T="int" @bind-Value="Model.WearMax" Label="WearMax" />
                         </MudStack>
+
                         <MudStack Row="true">
                             <MudNumericField T="int" @bind-Value="Model.RngMin" Label="RngMin" />
                             <MudNumericField T="int" @bind-Value="Model.RngMax" Label="RngMax" />
@@ -83,6 +96,8 @@
     private MudChip? entrantChip;
 
     private EditTraitModel Model;
+
+    private bool showSliders = true;
 
     protected override void OnInitialized()
     {
