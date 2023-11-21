@@ -12,7 +12,9 @@
     <MudItem xs="4">
         <MudPaper Elevation="15" Class="pa-4 mud-height-full">
             <MudText Typo="Typo.h5">Settings 1</MudText>
-            <MudTextField @bind-Value="OverviewModel.Season.Year" Label="Year" ReadOnly="true"></MudTextField>
+            <MudTextField @bind-Value="OverviewModel.Season.Year"
+                          Label="Year"
+                          ReadOnly="true" />
             <MudTextField @bind-Value="OverviewModel.Season.MaximumDriversInRace" Label="MaximumDriversInRace" ReadOnly="true"></MudTextField>
             <MudTextField @bind-Value="OverviewModel.Season.QualifyingFormat" Text="@($"{OverviewModel.Season.QualifyingFormat}")" Label="Qualifying format" ReadOnly="true"></MudTextField>
             <MudTextField @bind-Value="OverviewModel.Season.QualifyingAmountQ2" Label="QualifyingAmountQ2" ReadOnly="true"></MudTextField>
@@ -80,5 +82,5 @@
         qualyFormat = OverviewModel.Season.QualifyingFormat.ToString();
     }
 
-    async Task UpdateSeason() => await OnEditorOpen.InvokeAsync();
+    private async Task UpdateSeason() => await OnEditorOpen.InvokeAsync();
 }
