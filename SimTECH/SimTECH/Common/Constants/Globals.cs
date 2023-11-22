@@ -46,7 +46,7 @@ public static class Globals
         DisableBackdropClick = false,
     };
 
-    public static readonly Graph.ApexChartOptions<DataPoint> ChartOptionsDefault = new()
+    public static Graph.ApexChartOptions<DataPoint> CreateDefaultChartOptions => new()
     {
         Chart = new()
         {

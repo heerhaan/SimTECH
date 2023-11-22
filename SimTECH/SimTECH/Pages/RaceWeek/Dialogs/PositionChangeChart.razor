@@ -43,6 +43,7 @@
 
 @code {
     [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
+
     [Parameter, EditorRequired] public List<RaceDriver> Drivers { get; set; }
 
     ApexCharts.ApexChartOptions<DataPoint> options;
@@ -63,7 +64,7 @@
 
     protected override void OnInitialized()
     {
-        options = Globals.ChartOptionsDefault;
+        options = Globals.CreateDefaultChartOptions;
 
         driverCount = Drivers.Count;
 
@@ -77,7 +78,15 @@
         foreach (var driver in Drivers)
         {
             var dataSet = new DataSet { Label = driver.FullName };
-            options.Yaxis.Add(new ApexCharts.YAxis { Reversed = true, Min = 1, Max = driverCount, SeriesName = driver.FullName, Show = isFirst });
+            options.Yaxis.Add(
+                new ApexCharts.YAxis
+                {
+                    Reversed = true,
+                    Min = 1,
+                    Max = driverCount,
+                    SeriesName = driver.FullName,
+                    Show = isFirst
+                });
 
             foreach (var driverPosition in positionData.Where(e => e.ResultId == driver.ResultId))
             {
@@ -93,7 +102,14 @@
             isFirst = false;
         }
 
-        options.Yaxis.Add(new ApexCharts.YAxis { SeriesName = "Retirements", Min = 1, Max = driverCount, Show = false });
+        options.Yaxis.Add(
+            new ApexCharts.YAxis
+            {
+                SeriesName = "Retirements",
+                Min = 1,
+                Max = driverCount,
+                Show = false
+            });
 
         loading = false;
     }
