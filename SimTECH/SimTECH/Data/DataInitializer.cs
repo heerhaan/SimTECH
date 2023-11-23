@@ -53,11 +53,11 @@ namespace SimTECH.Data
         private void SeedTyres()
         {
             builder.Entity<Tyre>().HasData(
-                    new Tyre { Id = 1, Name = "Soft", Colour = "#fa0536ff", Pace = 200, PitWhenBelow = 20, WearMin = 15, WearMax = 25, DistanceMin = 50, DistanceMax = 125, State = State.Active, },
-                    new Tyre { Id = 2, Name = "Medium", Colour = "#f4ea26ff", Pace = 180, PitWhenBelow = 15, WearMin = 9, WearMax = 15, DistanceMin = 125, DistanceMax = 999, State = State.Active, },
-                    new Tyre { Id = 3, Name = "Hard", Colour = "#dfdde9ff", Pace = 160, PitWhenBelow = 10, WearMin = 6, WearMax = 10, DistanceMin = 175, DistanceMax = 999, State = State.Active, },
-                    new Tyre { Id = 4, Name = "Grooved", Colour = "#bded80ff", Pace = 100, WearMin = 1, WearMax = 3, DistanceMin = 100, DistanceMax = 999, State = State.Closed, },
-                    new Tyre { Id = 5, Name = "Wet", Colour = "#3399ffff", Pace = 50, WearMin = 0, WearMax = 1, DistanceMin = 50, DistanceMax = 999, ForWet = true, State = State.Active, }
+                    new Tyre { Id = 1, Name = "Soft", Colour = "#fa0536ff", Pace = 200, MinimumLife = -25, PitWhenBelow = 20, WearMin = 15, WearMax = 25, DistanceMin = 50, DistanceMax = 125, State = State.Active, },
+                    new Tyre { Id = 2, Name = "Medium", Colour = "#f4ea26ff", Pace = 180, MinimumLife = -25, PitWhenBelow = 15, WearMin = 9, WearMax = 15, DistanceMin = 125, DistanceMax = 999, State = State.Active, },
+                    new Tyre { Id = 3, Name = "Hard", Colour = "#dfdde9ff", Pace = 160, MinimumLife = -25, PitWhenBelow = 10, WearMin = 6, WearMax = 10, DistanceMin = 175, DistanceMax = 999, State = State.Active, },
+                    new Tyre { Id = 4, Name = "Grooved", Colour = "#bded80ff", Pace = 100, MinimumLife = -25, WearMin = 1, WearMax = 3, DistanceMin = 100, DistanceMax = 999, State = State.Closed, },
+                    new Tyre { Id = 5, Name = "Wet", Colour = "#3399ffff", Pace = 50, MinimumLife = -25, WearMin = 0, WearMax = 1, DistanceMin = 50, DistanceMax = 999, ForWet = true, State = State.Active, }
             );
         }
 
