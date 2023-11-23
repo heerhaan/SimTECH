@@ -40,18 +40,6 @@ namespace SimTECH.Data.Services
         //        .ToListAsync();
         //}
 
-        public async Task<List<Driver>> GetAvailableDrivers()
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var query = context.Driver.Where(e => e.State == State.Active);
-
-            if (!_config.AllowMultiLeagueEntry)
-                query = query.Where(e => !e.SeasonDrivers!.Any(e => e.Season.State == State.Active));
-
-            return await query.ToListAsync();
-        }
-
         public async Task<List<CurrentDriver>> GetDriversInActiveSeason()
         {
             using var context = _dbFactory.CreateDbContext();

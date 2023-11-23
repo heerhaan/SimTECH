@@ -14,6 +14,7 @@ namespace SimTECH.Data.EditModels
         public State State { get; set; }
 
         public int LifeBonus { get; set; } = 100;
+        public int MinimumLife { get; set; } = -25;
         public int PitWhenBelow { get; set; } = 10;
         public int WearMin { get; set; } = 2;
         public int WearMax { get; set; } = 5;
@@ -34,6 +35,7 @@ namespace SimTECH.Data.EditModels
                 Colour = tyre.Colour;
                 State = tyre.State;
                 LifeBonus = tyre.Pace;
+                MinimumLife = tyre.MinimumLife;
                 PitWhenBelow = tyre.PitWhenBelow;
                 WearMin = tyre.WearMin;
                 WearMax = tyre.WearMax;
@@ -45,14 +47,14 @@ namespace SimTECH.Data.EditModels
             }
         }
 
-        public Tyre Record =>
-            new()
+        public Tyre Record => new()
             {
                 Id = Id,
                 Name = Name,
                 Colour = Colour,
                 State = State,
                 Pace = LifeBonus,
+                MinimumLife = MinimumLife,
                 PitWhenBelow = PitWhenBelow,
                 WearMax = WearMax,
                 WearMin = WearMin,

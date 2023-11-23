@@ -19,6 +19,20 @@
                 <MudText Typo="Typo.h3">SimTECH</MudText>
             </MudPaper>
         </MudItem>
+        <MudItem xs="12" md="3">
+            <MudPaper Elevation="5" Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.h5">Welcome</MudText>
+                <MudDivider />
+
+                @if (!hideDataMessage)
+                {
+                    <MudAlert Severity="Severity.Info" ShowCloseIcon="true" CloseIconClicked="HideDataMessage">
+                        First time here? Wow, how cool. Go to <MudLink Href="extra">extra</MudLink> to load some default data!
+                    </MudAlert>
+                    <MudText Typo="Typo.body2">First time here? Wow, how cool. Go to <MudLink Href="extra">extra</MudLink> to load some default data!</MudText>
+                }
+            </MudPaper>
+        </MudItem>
         <MudItem xs="12" md="9">
             <MudPaper Elevation="5" Class="pa-4 mud-height-full">
                 <MudTable id="recent-race-table" Items="@recentRaces" Dense="true" Class="overflow-hider">
@@ -76,14 +90,6 @@
                 </MudTable>
             </MudPaper>
         </MudItem>
-            <MudItem xs="12" md="3">
-                <MudPaper Elevation="5" Class="pa-4 mud-height-full">
-                    <MudText Typo="Typo.h5">Welcome</MudText>
-                    <MudDivider />
-
-                    <MudText Typo="Typo.body2">First time here? Wow, how cool. Go to <MudLink Href="extra">extra</MudLink> to load some default data!</MudText>
-                </MudPaper>
-            </MudItem>
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
                 <MudTable Items="@activeSeasons" Dense="true">
@@ -158,12 +164,13 @@
 @code {
     private SimConfig config;
     private List<League> activeLeagues;
-    private List<Data.Models.Season> activeSeasons = new();
+    private List<Season> activeSeasons = new();
 
     private List<FinishedRaceModel> recentRaces = new();
     private List<FinishedRaceModel> upcomingRaces = new();
 
     private int raceAmount = 5;
+    private bool hideDataMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -183,6 +190,15 @@
         recentRaces.AddRange(races);
 
         await RetrieveUpcomingRaces();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var storedDataMessage = await _localStorage.GetAsync<bool>("hidedatamsg");
+            hideDataMessage = storedDataMessage.Success ? storedDataMessage.Value : false;
+        }
     }
 
     private async Task RetrieveUpcomingRaces()
@@ -205,6 +221,12 @@
                 upcomingRaces.Add(upcoming);
             }
         }
+    }
+
+    private async Task HideDataMessage()
+    {
+        await _localStorage.SetAsync("hidedatamsg", true);
+        hideDataMessage = true;
     }
 
     private async Task InsertDefault()

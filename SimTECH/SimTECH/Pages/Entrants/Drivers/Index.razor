@@ -17,23 +17,32 @@
             <MudText Typo="Typo.h3">Drivers</MudText>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Driver" Items="@drivers" RowsPerPage="15" Dense="true" QuickFilter="@_driverFilter">
+    <MudDataGrid T="Driver" Items="@Drivers" RowsPerPage="15" Dense="true" QuickFilter="@_driverFilter">
         <ToolBarContent>
-            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 field-md" />
+            <MudTextField @bind-Value="_searchString"
+                          Placeholder="Search"
+                          Adornment="Adornment.Start"
+                          Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"
+                          Class="mt-0 field-md" />
             <MudSpacer />
-            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                <MudButton OnClick="ToggleDisplayArchived" Class="btn-md">
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small">
+                <MudButton StartIcon="@Icons.Material.Filled.Archive" IconSize="Size.Small" OnClick="ToggleDisplayArchived">
                     @(showingArchived ? "Active" : "Archive")
                 </MudButton>
-                <MudButton OnClick="GoToHumanGenerator" Class="btn-md">Generate</MudButton>
-                <MudButton OnClick="AddDriver" Class="btn-md">New</MudButton>
+                <MudButton OnClick="GoToHumanGenerator">
+                    Generate
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Add" IconSize="Size.Small" OnClick="AddDriver">
+                    New
+                </MudButton>
             </MudButtonGroup>
         </ToolBarContent>
         <Columns>
-            <PropertyColumn Property="e => e!.FullName" Title="Name" />
-            <PropertyColumn Property="e => e!.Abbreviation" Title="Tag" />
-            <PropertyColumn Property="e => e!.DateOfBirth" Title="Born in" Format="yyyy" />
+            <PropertyColumn Property="e => e.FullName" Title="Name" />
+            <PropertyColumn Property="e => e.Abbreviation" Title="Tag" />
+            <PropertyColumn Property="e => e.DateOfBirth" Title="Born in" Format="yyyy" />
             <TemplateColumn T="Driver" Title="Nation" SortBy="e => e.Country">
                 <CellTemplate>
                     <CountryNamedFlag Code="@context.Item.Country" Size="ElementSize.Small" Reverse="true" />
@@ -61,8 +70,8 @@
 </MudContainer>
 
 @code {
-    private List<Driver> drivers;
-    private List<CurrentDriver> currentDrivers;
+    private List<Driver> Drivers { get; set; } = new();
+    private List<CurrentDriver> CurrentDrivers { get; set; } = new();
 
     private bool showingArchived = false;
     private string _searchString;
@@ -75,19 +84,19 @@
             new BreadcrumbItem("Drivers", href: "drivers", disabled: true),
         });
 
-        currentDrivers = await _driverService.GetDriversInActiveSeason();
-        drivers = await _driverService.GetDrivers();
+        CurrentDrivers = await _driverService.GetDriversInActiveSeason();
+        Drivers = await _driverService.GetDrivers();
     }
 
-    private Func<Driver, bool> _driverFilter => x =>
+    private Func<Driver, bool> _driverFilter => driver =>
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
 
-        if (x.FirstName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+        if (driver.FirstName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (x.LastName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+        if (driver.LastName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
 
         return false;
@@ -95,7 +104,7 @@
 
     // Displayable helpers
     private string ReadActiveLeague(long driverId) =>
-        currentDrivers.Find(e => e.DriverId == driverId)?.LeagueName ?? "None";
+        CurrentDrivers.Find(e => e.DriverId == driverId)?.LeagueName ?? "None";
 
     private async Task ShowDetailData(Driver driver)
     {
@@ -107,7 +116,7 @@
                 ["DriverResults"] = driverResults
             };
 
-        _ = await _dialogService.ShowAsync<DriverDetailStat>("Driver details", parameters);
+        await _dialogService.ShowAsync<DriverDetailStat>("Driver details", parameters);
     }
 
     private async Task AddDriver() => await UpdateDriver(null);
@@ -126,22 +135,22 @@
         if (!result.Canceled && result.Data != null && result.Data is Driver updatedItem)
         {
             await _driverService.UpdateDriver(updatedItem);
-            drivers = await _driverService.GetDrivers();
+            Drivers = await _driverService.GetDrivers();
         }
     }
 
     private async Task ArchiveDriver(Driver driver)
     {
         await _driverService.ArchiveDriver(driver);
-        drivers.Remove(driver);
+        Drivers.Remove(driver);
     }
 
     private async Task ToggleDisplayArchived()
     {
         if (showingArchived)
-            drivers = await _driverService.GetDrivers(StateFilter.Default);
+            Drivers = await _driverService.GetDrivers(StateFilter.Default);
         else
-            drivers = await _driverService.GetDrivers(StateFilter.Archived);
+            Drivers = await _driverService.GetDrivers(StateFilter.Archived);
 
         _searchString = string.Empty;
         showingArchived = !showingArchived;

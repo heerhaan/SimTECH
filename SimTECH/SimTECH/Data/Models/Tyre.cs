@@ -8,6 +8,7 @@ namespace SimTECH.Data.Models
         public string Colour { get; set; }
 
         public int Pace { get; set; }
+        public int MinimumLife { get; set; }
         public int PitWhenBelow { get; set; }
         public int WearMin { get; set; }
         public int WearMax { get; set; }
