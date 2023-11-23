@@ -18,12 +18,13 @@
         </MudStack>
         <MudText Typo="Typo.body2" Color="Color.Info" Class="px-4">Distance per advance: @(advanceDistance)km</MudText>
     </MudPaper>
-    <MudDataGrid T="Tyre" Items="@tyres" RowsPerPage="15" Bordered="true" Dense="true">
+    <MudDataGrid T="Tyre" Items="@Tyres" RowsPerPage="15" Bordered="true" Dense="true">
         <Columns>
-            <PropertyColumn Property="e => e!.Name" CellStyleFunc="@_applyTyreColouring" />
-            <PropertyColumn Property="e => e!.ForWet" Title="Wet" />
-            <PropertyColumn Property="e => e!.Pace" Title="Life" CellClass="font-caption" />
-            <PropertyColumn Property="e => e!.PitWhenBelow" Title="&lt; PIT" CellClass="font-caption" />
+            <PropertyColumn Property="e => e.Name" CellStyleFunc="@_applyTyreColouring" />
+            <PropertyColumn Property="e => e.ForWet" Title="Wet" />
+            <PropertyColumn Property="e => e.Pace" Title="Life" CellClass="font-caption" />
+            <PropertyColumn Property="e => e.MinimumLife" Title="MIN life" CellClass="font-caption" />
+            <PropertyColumn Property="e => e.PitWhenBelow" Title="&lt; PIT" CellClass="font-caption" />
             <TemplateColumn T="Tyre" Title="Length" SortBy="e => e.ExpectedLength(advanceDistance)">
                 <CellTemplate>
                     <MudText Typo="Typo.caption">@(context.Item.ExpectedLength(advanceDistance))km</MudText>
@@ -52,7 +53,7 @@
                     <MudButtonGroup>
                         <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
                                             Default="@(context.Item.State == State.Active)" />
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTyre(context.Item))" />
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTyre(context.Item))" />
                         <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await ArchiveTyre(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
@@ -65,7 +66,7 @@
 </MudContainer>
 
 @code {
-    private List<Tyre> tyres = new();
+    private List<Tyre> Tyres { get; set; } = new();
 
     int advanceDistance;
 
@@ -77,7 +78,7 @@
             new BreadcrumbItem("Tyres", href: "tyres", disabled: true),
         });
 
-        tyres = await _tyreService.GetTyres();
+        Tyres = await _tyreService.GetTyres();
 
         advanceDistance = _config.Value.CalculationDistance;
     }
@@ -98,7 +99,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Tyre updatedItem)
         {
             await _tyreService.UpdateTyre(updatedItem);
-            tyres = await _tyreService.GetTyres();
+            Tyres = await _tyreService.GetTyres();
         }
     }
 
@@ -106,12 +107,12 @@
     private async Task ToggleState(Tyre tyre, State targetState)
     {
         await _tyreService.ChangeState(tyre, targetState);
-        tyres = await _tyreService.GetTyres();
+        Tyres = await _tyreService.GetTyres();
     }
 
     private async Task ArchiveTyre(Tyre tyre)
     {
         await _tyreService.ArchiveItem(tyre);
-        tyres.Remove(tyre);
+        Tyres.Remove(tyre);
     }
 }

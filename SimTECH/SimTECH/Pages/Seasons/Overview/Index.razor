@@ -330,7 +330,10 @@
 
     private async Task UpdateDriver(SeasonDriver? item)
     {
-        var drivers = await _driverService.GetAvailableDrivers();
+        var drivers = await _driverService.GetDrivers(StateFilter.Active);
+        drivers = drivers
+            .Where(e => !OverviewModel.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))
+            .ToList();
 
         var parameters = new DialogParameters
             {
@@ -352,7 +355,10 @@
 
     private async Task UpdateTeam(SeasonTeam? item)
     {
-        var teams = await _teamService.GetAvailableTeams();
+        var teams = await _teamService.GetTeams(StateFilter.Active);
+        teams = teams
+            .Where(e => !OverviewModel.SeasonTeams.Select(st => st.TeamId).Contains(e.Id))
+            .ToList();
         var activeManufacturers = OverviewModel.Manufacturers.Where(e => e.State == State.Active).ToList();
 
         var parameters = new DialogParameters

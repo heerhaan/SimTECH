@@ -260,7 +260,6 @@
     int safetyCarGap = 50;
     int safetyGapCloserDivider = 2;
     int safetyWearDivider = 3;
-    int minimumTyreLife = -25;
 
     bool isFirstLap => calculated == 1;
 
@@ -287,7 +286,6 @@
         safetyCarGap = Config.SafetyCarGap;
         battleRng = Config.BattleRng;
         gapMarge = Config.GapMarge;
-        minimumTyreLife = Config.MinimumTyreLife;
 
         calculationDistance = Config.CalculationDistance;
         calculationCount = Model.Race.RaceLength / calculationDistance;
@@ -565,8 +563,8 @@
         // Adds wear to the tyre
         driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
-        if (driver.TyreLife < minimumTyreLife)
-            driver.TyreLife = minimumTyreLife;
+        if (driver.TyreLife < driver.CurrentTyre.MinimumLife)
+            driver.TyreLife = driver.CurrentTyre.MinimumLife;
 
         return assignedLifeScore;
     }
@@ -613,8 +611,8 @@
 
             driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
-            if (driver.TyreLife < minimumTyreLife)
-                driver.TyreLife = minimumTyreLife;
+            if (driver.TyreLife < driver.CurrentTyre.MinimumLife)
+                driver.TyreLife = driver.CurrentTyre.MinimumLife;
 
             lapScore.TyreColour = driver.CurrentTyre.Colour;
 

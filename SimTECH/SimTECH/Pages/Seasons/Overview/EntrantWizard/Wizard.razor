@@ -161,8 +161,8 @@
         // TODO: Wizard deserves a refactor in that we might want to retrieve these values on a per-step basis instead of all at once
         // Or do we? Why would we? It's not like it's slow
         Engines = await _engineService.GetEngines();
-        Teams = await _teamService.GetAvailableTeams();
-        Drivers = await _driverService.GetAvailableDrivers();
+        Teams = await _teamService.GetTeams(StateFilter.Active);
+        Drivers = await _driverService.GetDrivers(StateFilter.Active);
         Contracts = await _contractService.GetLeagueContracts(Season.LeagueId);
         Manufacturers = await _manufacturerService.GetManufacturers();
 
