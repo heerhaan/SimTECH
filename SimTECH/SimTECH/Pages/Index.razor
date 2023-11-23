@@ -24,22 +24,25 @@
                 <MudText Typo="Typo.h5">Welcome</MudText>
                 <MudDivider />
 
+                <MudText Typo="Typo.body2" Class="my-2">
+                    Great to see you again, you love to see it.
+                </MudText>
+
                 @if (!hideDataMessage)
                 {
-                    <MudAlert Severity="Severity.Info" ShowCloseIcon="true" CloseIconClicked="HideDataMessage">
+                    <MudAlert Severity="Severity.Info" Dense="true" ShowCloseIcon="true" CloseIconClicked="HideDataMessage" Class="my-2">
                         First time here? Wow, how cool. Go to <MudLink Href="extra">extra</MudLink> to load some default data!
                     </MudAlert>
-                    <MudText Typo="Typo.body2">First time here? Wow, how cool. Go to <MudLink Href="extra">extra</MudLink> to load some default data!</MudText>
                 }
             </MudPaper>
         </MudItem>
         <MudItem xs="12" md="9">
             <MudPaper Elevation="5" Class="pa-4 mud-height-full">
-                <MudTable id="recent-race-table" Items="@recentRaces" Dense="true" Class="overflow-hider">
+                <MudTable id="recent-race-table" Items="@RecentRaces" Dense="true" Class="overflow-hider">
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Last races</MudText>
                         <MudSpacer />
-                        <ScreenshotButton TargetId="recent-race-table" Class="btn-md" />
+                        <ScreenshotIconButton TargetId="recent-race-table" Colour="Color.Primary" />
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>
@@ -92,7 +95,7 @@
         </MudItem>
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
-                <MudTable Items="@activeSeasons" Dense="true">
+                <MudTable Items="@ActiveSeasons" Dense="true">
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Active seasons</MudText>
                     </ToolBarContent>
@@ -114,8 +117,8 @@
                         </MudTd>
                         <MudTd>
                             <MudButton Variant="Variant.Text"
-                                        Color="Color.Secondary"
-                                        OnClick="@(() => GoToSeason(context.Id))">Overview</MudButton>
+                                       Color="Color.Secondary"
+                                       OnClick="@(() => GoToSeason(context.Id))">Overview</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -123,7 +126,7 @@
         </MudItem>
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
-                <MudTable T="FinishedRaceModel" Items="@upcomingRaces" Dense="true" Class="overflow-hider">
+                    <MudTable T="FinishedRaceModel" Items="@UpcomingRaces" Dense="true" Class="overflow-hider">
                     <ToolBarContent>
                         <MudText Typo="Typo.h5">Upcoming races</MudText>
                     </ToolBarContent>
@@ -162,15 +165,16 @@
 </MudContainer>
 
 @code {
-    private SimConfig config;
-    private List<League> activeLeagues;
-    private List<Season> activeSeasons = new();
+    private List<Season> ActiveSeasons { get; set; } = new();
 
-    private List<FinishedRaceModel> recentRaces = new();
-    private List<FinishedRaceModel> upcomingRaces = new();
+    private List<FinishedRaceModel> RecentRaces { get; set; } = new();
+    private List<FinishedRaceModel> UpcomingRaces { get; set; } = new();
+
+    private SimConfig config;
+    private List<League> activeLeagues { get; set; }
 
     private int raceAmount = 5;
-    private bool hideDataMessage;
+    private bool hideDataMessage = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -182,12 +186,10 @@
         config = _config.Value;
         activeLeagues = await _leagueService.GetLeagues(StateFilter.Active);
 
-        var seasons = await _seasonService.GetSeasons(StateFilter.Active);
-        activeSeasons.AddRange(seasons);
+        ActiveSeasons = await _seasonService.GetSeasons(StateFilter.Active);
 
         // following is possibly a very unoptimized call
-        var races = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
-        recentRaces.AddRange(races);
+        RecentRaces = await _raceService.GetRecentlyFinishedCalendarRaces(raceAmount);
 
         await RetrieveUpcomingRaces();
     }
@@ -203,7 +205,7 @@
 
     private async Task RetrieveUpcomingRaces()
     {
-        foreach (var season in activeSeasons)
+        foreach (var season in ActiveSeasons)
         {
             var nextRace = await _raceService.GetNextRaceOfSeason(season.Id);
             if (nextRace != null)
@@ -218,7 +220,7 @@
                     LeagueName = activeLeagues.Find(e => e.Id == season.LeagueId)?.Name ?? "[Unknown]",
                 };
 
-                upcomingRaces.Add(upcoming);
+                UpcomingRaces.Add(upcoming);
             }
         }
     }
