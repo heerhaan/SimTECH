@@ -18,18 +18,21 @@
         <MudPaper MaxHeight="150px" Class="text-center">
             <MudText Typo="Typo.h3" Class="mx-auto">Manage contracts for @League.Name</MudText>
 
-            @* <ManagerSettings @bind-OnlyActiveTeams="onlyTeams" @bind-OnlyActiveDrivers="onlyDrivers">
-                <MudButtonGroup Variant="Variant.Outlined" Size="Size.Small">
-                    <MudButton Color="Color.Primary" OnClick="HandleSettingLoad">Load</MudButton>
-                    <MudButton Color="Color.Success" Disabled="@(!isLoaded)" OnClick="SaveContracts">Save</MudButton>
-                </MudButtonGroup>
-            </ManagerSettings> *@
-
             <MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
-                <ManagerSettings @bind-OnlyActiveTeams="onlyTeams" @bind-OnlyActiveDrivers="onlyDrivers" />
-                <MudButton Variant="Variant.Outlined" Size="Size.Medium" Color="Color.Info" OnClick="HandleSettingLoad">Reload</MudButton>
-                <MudSpacer />
-                <MudButton Variant="Variant.Outlined" Size="Size.Medium" Color="Color.Success" Disabled="@(!isLoaded)" OnClick="SaveContracts">Save</MudButton>
+                <ManagerSettings @bind-OnlyActiveTeams="onlyTeams" @bind-OnlyActiveDrivers="onlyDrivers" LeagueName="@League.Name" />
+                <MudButton Variant="Variant.Outlined"
+                           Size="Size.Medium"
+                           Color="Color.Info"
+                           OnClick="HandleSettingLoad">
+                    Reload
+                </MudButton>
+                <MudButton Variant="Variant.Outlined"
+                           Size="Size.Medium"
+                           Color="Color.Success"
+                           Disabled="@(!isLoaded)"
+                           OnClick="SaveContracts">
+                    Save
+                </MudButton>
             </MudStack>
         </MudPaper>
 
@@ -76,7 +79,7 @@
 
         List<Team> teams;
         if (onlyTeams)
-            teams = await _teamService.GetLeagueTeams(League.Id);
+            teams = await _teamService.GetTeamsFromLeague(League.Id);
         else
             teams = await _teamService.GetTeams();
 
@@ -116,8 +119,8 @@
     private async Task SaveContracts()
     {
         var saveableContracts = EditableContracts
-                .Where(e => e.TeamId != 0 && e.Team is not null)
-                .ToList();
+            .Where(e => e.TeamId != 0 && e.Team is not null)
+            .ToList();
 
         if (saveableContracts.Any(e => e.Duration == 0))
         {

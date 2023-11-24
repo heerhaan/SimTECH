@@ -6,6 +6,7 @@
 
 @inject ClimateService _climateService
 @inject IncidentService _incidentService
+@inject LeagueService _leagueService
 @inject ManufacturerService _manufacturerService
 @inject RaceService _raceService
 @inject SeasonService _seasonService
@@ -137,6 +138,7 @@
 
         Model.Race = race;
         Model.Season = await _seasonService.GetSeasonById(race.SeasonId);
+        Model.League = await _leagueService.GetLeagueById(Model.Season.LeagueId);
         Model.Climate = await _climateService.GetClimateById(race.ClimateId);
         Model.GapMarge = config.GapMarge;
 
@@ -187,7 +189,7 @@
             if (team.Team.TeamTraits?.Any() == true)
                 driverTraits.AddRange(traits.Where(e => team.Team.TeamTraits.Select(dt => dt.TraitId).Contains(e.Id)));
 
-            var driverPower = driver.Skill + driver.RetrieveStatusBonus(config.CarDriverStatusModifier);
+            var driverPower = driver.Skill + driver.RetrieveStatusBonus(Model.League.DriverStatusPaceModifier);
             var carPower = team.BaseValue + team.ModifierApplication(race.Track);
             var enginePower = (engine.Power * climate.EngineMultiplier).RoundDouble();
             var totalPower = driverPower + carPower + enginePower;
@@ -522,7 +524,7 @@
         await _raceService.PersistOccurrences(occurrences);
         await _raceService.FinishRace(RaceId, finalResults, scoredPoints);
 
-        if (Model.LeagueOptions.HasFlag(LeagueOptions.EnablePenalty))
+        if (Model.League.Options.HasFlag(LeagueOptions.EnablePenalty))
         {
             await _seasonService.CheckPenalties(finalResults);
 

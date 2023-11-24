@@ -109,6 +109,7 @@ namespace SimTECH.Data.EditModels
 
             foreach (var point in PointAllotments)
                 point.ResetIdentifierFields();
+
             foreach (var raceClasss in RaceClasses)
                 raceClasss.ResetIdentifierFields();
         }

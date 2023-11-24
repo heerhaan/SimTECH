@@ -8,8 +8,7 @@ public class RaweCeekModel
     public Race Race { get; set; }
     public Climate Climate { get; set; }
     public Season Season { get; set; }
-
-    public LeagueOptions LeagueOptions { get; set; }
+    public League League { get; set; }
 
     public List<RaweCeekDriver> RaweCeekDrivers { get; set; }
 

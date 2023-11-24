@@ -12,9 +12,9 @@ namespace SimTECH.Data.Models
         public string? Biography { get; set; }
         public bool Mark { get; set; }
 
-        public IList<SeasonDriver>? SeasonDrivers { get; set; }
-        public IList<DriverTrait>? DriverTraits { get; set; }
-        public IList<Contract>? Contracts { get; set; }
+        public IList<SeasonDriver> SeasonDrivers { get; set; }
+        public IList<DriverTrait> DriverTraits { get; set; }
+        public IList<Contract> Contracts { get; set; }
 
         public string FullName
         {

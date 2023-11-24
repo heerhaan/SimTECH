@@ -33,6 +33,7 @@
     src: url('../fonts/Shoguns Clan.ttf') format('truetype');
 }
 
+/* common */
 html, body {
     font-family: NovaRegular;
     font-size: 20px;
@@ -60,12 +61,6 @@ th {
 
 .flag-lg {
     font-size: 4em;
-}
-
-.crumb-test {
-    border: 2px solid grey;
-    border-bottom-color: red;
-    border-right-color: red;
 }
 
 .tyre {
@@ -152,6 +147,10 @@ th {
     text-align: center !important;
 }
 
+.flex-stretch-items > * {
+    flex: 1 1 auto;
+}
+
 /* colours */
 .muted-background-primary {
     background-color: color-mix(in srgb, var(--mud-palette-primary) 25%, transparent) !important;
@@ -170,8 +169,19 @@ th {
 }
 
 /* buttons */
-.inline-edit-toggle-btn {
+.inline-edit-toggle-btn,
+.inline-edit-toggle-btn.active,
+.inline-edit-toggle-btn:not(.active) {
     cursor: pointer !important;
+    color: white;
+}
+
+.inline-edit-toggle-btn.active {
+    background-color: var(--mud-palette-success);
+}
+
+.inline-edit-toggle-btn:not(.active) {
+    background-color: var(--mud-palette-info);
 }
 
 /* text */

@@ -61,8 +61,25 @@ namespace SimTECH.Data.Services
         {
             using var context = _dbFactory.CreateDbContext();
 
+            var seasons = await context.Season
+                .Where(e => e.LeagueId == leagueId)
+                .Include(e => e.SeasonDrivers)
+                .ToListAsync();
+
+            var mostRecent = seasons.Find(e => e.State == State.Active)
+                ?? seasons.OrderByDescending(e => e.Year).FirstOrDefault();
+
+            if (mostRecent == null)
+            {
+                return await context.Driver
+                    .Where(e => filter.StatesForFilter().Contains(e.State))
+                    .Include(e => e.DriverTraits)
+                    .ToListAsync();
+            }
+
             return await context.Driver
-                .Where(e => filter.StatesForFilter().Contains(e.State) && e.SeasonDrivers!.Any(e => e.Season.LeagueId == leagueId))
+                .Where(e => filter.StatesForFilter().Contains(e.State)
+                    && e.SeasonDrivers.Any(e => e.SeasonId == mostRecent.Id))
                 .Include(e => e.DriverTraits)
                 .ToListAsync();
         }

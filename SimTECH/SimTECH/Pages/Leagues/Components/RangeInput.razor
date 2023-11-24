@@ -1,42 +1,58 @@
-﻿<MudContainer>
-    @ChildContent
-    <MudTable T="EditRangeModel" Items="@Items.OrderBy(e => e.Comparer)" Dense="true" Class="extra-dense">
-        <ToolBarContent>
-            <MudText Typo="Typo.h6">@_displayTitle</MudText>
-            <MudSpacer />
-            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Tertiary" Size="Size.Small" OnClick="AppendRow" />
-        </ToolBarContent>
-        <HeaderContent>
-            <MudTh>&lt; LESS</MudTh>
-            <MudTh>MIN</MudTh>
-            <MudTh>MAX</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>
-                <MudNumericField @bind-Value="@context.Comparer" Class="field-xs dense-field" />
-            </MudTd>
-            <MudTd>
-                <MudNumericField @bind-Value="@context.Minimum" Class="field-xs dense-field" />
-            </MudTd>
-            <MudTd>
-                <MudNumericField @bind-Value="@context.Maximum" Class="field-xs dense-field" />
-            </MudTd>
-            <MudTd>
-                <MudIconButton Icon="@Icons.Material.Outlined.Delete"
-                               Color="Color.Error"
-                               Size="Size.Small"
-                               OnClick="@(() => RemoveRow(context))" />
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
-</MudContainer>
+﻿<MudTable T="EditRangeModel" Items="@_items.OrderBy(e => e.Comparer)" Dense="true" Class="extra-dense" Style="@_styles">
+    <ToolBarContent>
+        <MudText Typo="Typo.subtitle1">@_displayTitle</MudText>
+        <MudSpacer />
+        <MudButton StartIcon="@Icons.Material.Filled.Add"
+                    IconColor="Color.Tertiary"
+                    Color="Color.Tertiary"
+                    Size="Size.Small"
+                    OnClick="AppendRow">
+            Add
+        </MudButton>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>&lt; LESS</MudTh>
+        <MudTh>MIN</MudTh>
+        <MudTh>MAX</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            <MudNumericField @bind-Value="@context.Comparer" Class="dense-field" />
+        </MudTd>
+        <MudTd>
+            <MudNumericField @bind-Value="@context.Minimum" Class="dense-field" />
+        </MudTd>
+        <MudTd>
+            <MudNumericField @bind-Value="@context.Maximum" Class="dense-field" />
+        </MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                            Color="Color.Error"
+                            Size="Size.Small"
+                            OnClick="@(() => RemoveRow(context))" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
 
 @code {
+    private List<EditRangeModel> _items
+    {
+        get => Items;
+        set => ItemsChanged.InvokeAsync(value);
+    }
+
     [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public IList<EditRangeModel> Items { get; set; } = new List<EditRangeModel>();
+
+    [Parameter] public List<EditRangeModel> Items { get; set; } = new List<EditRangeModel>();
+
+    [Parameter] public EventCallback<List<EditRangeModel>> ItemsChanged { get; set; }
+
     [Parameter] public Aspect RangeType { get; set; }
+
     [Parameter] public string? Title { get; set; }
+
+    [Parameter] public string? Style { get; set; }
 
     private string _displayTitle
     {
@@ -49,9 +65,20 @@
         }
     }
 
+    private string _styles
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(Style))
+                return string.Empty;
+
+            return Style;
+        }
+    }
+
     private void AppendRow()
     {
-        Items.Add(new EditRangeModel()
+        _items.Add(new EditRangeModel()
             {
                 Type = RangeType,
                 Comparer = 10,
@@ -62,6 +89,6 @@
 
     private void RemoveRow(EditRangeModel item)
     {
-        Items.Remove(item);
+        _items.Remove(item);
     }
 }

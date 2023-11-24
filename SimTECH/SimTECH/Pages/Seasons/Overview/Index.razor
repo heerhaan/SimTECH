@@ -18,7 +18,6 @@
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
 @inject IDialogService _dialogService
-@inject IOptions<SimConfig> _config
 @inject ISnackbar _snackbar
 
 @using SimTECH.Pages.Seasons.Dialogs
@@ -76,7 +75,7 @@
                             @if (powerLoaded)
                             {
                                 <PowerRankings Traits="@Traits"
-                                               TeamRoleCarModifier="@config.CarDriverStatusModifier" />
+                                               TeamRoleCarModifier="@driverStatusMod" />
                             }
                         </MudTabPanel>
                     </MudTabs>
@@ -100,9 +99,8 @@
     List<Climate> Climates { get; set; } = new();
     List<Trait> Traits { get; set; } = new();
 
-    SimConfig config;
-
-    int activeTabIndex = 0;
+    int activeTabIndex;
+    int driverStatusMod;
     bool loading = true;
     int nextRound;
 
@@ -130,10 +128,13 @@
         if (OverviewModel.Season.HasRaceClasses)
             OverviewModel.ActiveClassId = OverviewModel.Season.RaceClasses.First().Id;
 
-        config = _config.Value;
+        Leagues = await _leagueService.GetLeagues();
+
+        var currentLeague = Leagues.Find(e => e.Id == OverviewModel.Season.LeagueId);
+        driverStatusMod = currentLeague?.DriverStatusPaceModifier ?? 0;
 
         await PreloadTab();
-
+        
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),

@@ -8,6 +8,13 @@ public sealed class League : ModelState
     public string Name { get; set; } = default!;
     public int RaceLength { get; set; }
     public LeagueOptions Options { get; set; }
+    public int DisqualificationOdds { get; set; } = 100;
+    public int FatalityOdds { get; set; } = 250;
+    public int SafetyCarOdds { get; set; } = 5;
+    public int SafetyCarGap { get; set; } = 25;
+    public int SafetyCarReturnOdds { get; set; } = 2;
+    public int BattleRng { get; set; } = 5;
+    public int DriverStatusPaceModifier { get; set; } = 3;
 
     // TODO: Consider adding minimum and maximum values for skill, reliability, team, etc...
 

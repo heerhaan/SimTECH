@@ -13,6 +13,13 @@ namespace SimTECH.Data.EditModels
         public bool UsePenalty { get; set; }
         public bool EnableFatality { get; set; }
         public bool AllowContracting { get; set; }
+        public int DisqualificationOdds { get; set; } = 100;
+        public int FatalityOdds { get; set; } = 250;
+        public int SafetyCarOdds { get; set; } = 5;
+        public int SafetyCarGap { get; set; } = 25;
+        public int SafetyCarReturnOdds { get; set; } = 2;
+        public int BattleRng { get; set; } = 5;
+        public int DriverStatusPaceModifier { get; set; } = 3;
         public State State { get; set; }
         public IList<EditRangeModel> DevelopmentRanges { get; set; } = new List<EditRangeModel>();
         public IList<EditLeagueTyreModel> LeagueTyres { get; set; } = new List<EditLeagueTyreModel>();
@@ -31,11 +38,17 @@ namespace SimTECH.Data.EditModels
                 UsePenalty = league.Options.HasFlag(LeagueOptions.EnablePenalty);
                 EnableFatality = league.Options.HasFlag(LeagueOptions.EnableFatality);
                 AllowContracting = league.Options.HasFlag(LeagueOptions.AllowContracting);
+                DisqualificationOdds = league.DisqualificationOdds;
+                FatalityOdds = league.FatalityOdds;
+                SafetyCarOdds = league.SafetyCarOdds;
+                SafetyCarReturnOdds = league.SafetyCarReturnOdds;
+                SafetyCarGap = league.SafetyCarGap;
+                BattleRng = league.BattleRng;
+                DriverStatusPaceModifier = league.DriverStatusPaceModifier;
                 State = league.State;
                 DevelopmentRanges = league.DevelopmentRanges?
                     .Select(range => new EditRangeModel(range))
-                    .ToList()
-                    ?? new List<EditRangeModel>();
+                    .ToList() ?? [];
 
                 if (league.LeagueTyres?.Any() == true)
                     LeagueTyres = league.LeagueTyres.Select(e => new EditLeagueTyreModel(e)).ToList();
@@ -51,6 +64,13 @@ namespace SimTECH.Data.EditModels
                 Name = Name ?? string.Empty,
                 RaceLength = RaceLength,
                 Options = DetermineOptions(),
+                DisqualificationOdds = DisqualificationOdds,
+                FatalityOdds = FatalityOdds,
+                SafetyCarOdds = SafetyCarOdds,
+                SafetyCarReturnOdds = SafetyCarReturnOdds,
+                SafetyCarGap = SafetyCarGap,
+                BattleRng = BattleRng,
+                DriverStatusPaceModifier = DriverStatusPaceModifier,
                 State = State,
                 DevelopmentRanges = DevelopmentRanges.Select(e => e.Record).ToList(),
                 LeagueTyres = LeagueTyres.Select(e => e.Record).ToList()
