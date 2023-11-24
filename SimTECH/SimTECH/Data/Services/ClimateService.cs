@@ -1,14 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
-using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services
 {
-    public class ClimateService : StateService<Climate>
+    public class ClimateService(IDbContextFactory<SimTechDbContext> factory) : StateService<Climate>(factory)
     {
-        public ClimateService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
-
         public async Task<List<Climate>> GetClimates() => await GetClimates(StateFilter.Active);
         public async Task<List<Climate>> GetClimates(StateFilter filter)
         {

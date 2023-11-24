@@ -279,12 +279,12 @@
         mistakeMax = Model.Season.MistakeMaximum;
         safetyPitstopSubtract = Model.Season.PitCostSubtractCaution;
 
-        fatalityOdds = Config.FatalityChance;
-        disqualifyChance = Config.DisqualifyChance;
-        safetyCarOdds = Config.SafetyCarChance;
-        safetyReturnOdds = Config.SafetyCarReturnChance;
-        safetyCarGap = Config.SafetyCarGap;
-        battleRng = Config.BattleRng;
+        fatalityOdds = Model.League.FatalityOdds;
+        disqualifyChance = Model.League.DisqualificationOdds;
+        safetyCarOdds = Model.League.SafetyCarOdds;
+        safetyReturnOdds = Model.League.SafetyCarReturnOdds;
+        safetyCarGap = Model.League.SafetyCarGap;
+        battleRng = Model.League.BattleRng;
         gapMarge = Config.GapMarge;
 
         calculationDistance = Config.CalculationDistance;
@@ -509,7 +509,7 @@
         driver.InstantOvertaken = true;
 
         // If enabled, then we're also going to check if anyone experienced a fatal crash
-        if (Model.LeagueOptions.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
+        if (Model.League.Options.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
         {
             safetyCar = true;
 

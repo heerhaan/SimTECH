@@ -1,29 +1,29 @@
 ﻿<MudSwitchM3 @bind-Checked="@_onlyActiveTeams"
              ThumbIcon="@Icons.Material.Filled.Done"
              ThumbOffIcon="@Icons.Material.Filled.Close"
-             Label="Teams active in league"
+             Label="@($"Teams recently in {LeagueName}")"
              Color="Color.Secondary" />
 
 <MudSwitchM3 @bind-Checked="@_onlyActiveDrivers"
              ThumbIcon="@Icons.Material.Filled.Done"
              ThumbOffIcon="@Icons.Material.Filled.Close"
-             Label="Drivers active in League"
+             Label="@($"Drivers recently in {LeagueName}")"
              Color="Color.Secondary" />
 
 @code {
-    bool _onlyActiveTeams
+    private bool _onlyActiveTeams
     {
         get => OnlyActiveTeams;
         set => OnlyActiveTeamsChanged.InvokeAsync(value);
     }
 
-    bool _onlyActiveDrivers
+    private bool _onlyActiveDrivers
     {
         get => OnlyActiveDrivers;
         set => OnlyActiveDriversChanged.InvokeAsync(value);
     }
 
-    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string LeagueName { get; set; } = "Unknown";
 
     [Parameter] public bool OnlyActiveTeams { get; set; }
     [Parameter] public EventCallback<bool> OnlyActiveTeamsChanged { get; set; }

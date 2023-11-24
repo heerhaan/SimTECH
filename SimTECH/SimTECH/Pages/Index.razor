@@ -24,16 +24,34 @@
                 <MudText Typo="Typo.h5">Welcome</MudText>
                 <MudDivider />
 
-                <MudText Typo="Typo.body2" Class="my-2">
-                    Great to see you again, you love to see it.
-                </MudText>
+                <MudStack Class="pa-0 mt-2">
+                    <MudText Typo="Typo.body2">
+                        Great to see you again, you love to see it.
+                    </MudText>
 
-                @if (!hideDataMessage)
-                {
-                    <MudAlert Severity="Severity.Info" Dense="true" ShowCloseIcon="true" CloseIconClicked="HideDataMessage" Class="my-2">
-                        First time here? Wow, how cool. Go to <MudLink Href="extra">extra</MudLink> to load some default data!
-                    </MudAlert>
-                }
+                    <MudTooltip Placement="Placement.Right" Text="Represents amount kilometers driven per advance.">
+                        <MudText Typo="Typo.body2">
+                            Current advance distance: @(config.CalculationDistance)km.
+                        </MudText>
+                    </MudTooltip>
+
+                    <MudTooltip Placement="Placement.Right" Text="Represents time gap per score value.">
+                        <MudText Typo="Typo.body2">
+                            Current gap marge: @(config.GapMarge)s.
+                        </MudText>
+                    </MudTooltip>
+
+                    @if (!hideDataMessage)
+                    {
+                        <MudAlert Severity="Severity.Info"
+                                  Dense="true"
+                                  ShowCloseIcon="true"
+                                  CloseIconClicked="HideDataMessage"
+                                  Class="mb-2">
+                            First time here? Wow, how cool. Go to <MudLink Href="extra">extra</MudLink> to load some default data!
+                        </MudAlert>
+                    }
+                </MudStack>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" md="9">

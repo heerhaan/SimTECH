@@ -1,21 +1,13 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudStack Row="true" Justify="Justify.SpaceBetween" Class="pa-0">
-            <div>
-                <MudText Typo="Typo.h5">Modify trait</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Info">Wear is subtracted from tyre, so higher number = more wear</MudText>
-            </div>
-
-            <div class="additional-dialog-controls">
-                <MudSwitch @bind-Checked="showSliders" Label="Sliders" Color="Color.Secondary" />
-            </div>
-        </MudStack>
+        <MudText Typo="Typo.h5">Modify trait</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Info">Wear is subtracted from tyre. Higher number = more wear.</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm>
             <MudGrid Spacing="2">
                 <MudItem xs="6">
-                    <MudStack Justify="Justify.SpaceBetween" Class="py-2">
+                    <MudStack Justify="Justify.SpaceBetween" Class="pa-0">
                         <MudTextField @bind-Value="Model.Name" Label="Name" Class="field-md" />
                         <MudStack Spacing="0">
                             <MudText Typo="Typo.subtitle2">Entrant type</MudText>
@@ -33,6 +25,11 @@
                                 <MudText>@Model.Type.ToString()</MudText>
                             }
                         </MudStack>
+                        <MudSwitchM3 @bind-Checked="Model.ForWetConditions"
+                                     ThumbIcon="@Icons.Material.Filled.Done"
+                                     ThumbOffIcon="@Icons.Material.Filled.Close"
+                                     Label="Only applies during wet conditions"
+                                     Color="Color.Tertiary" />
                     </MudStack>
                 </MudItem>
                 <MudItem xs="6">
@@ -45,73 +42,59 @@
                     <MudText Typo="Typo.h6">Modifiers</MudText>
                     <MudDivider />
                 </MudItem>
-                <MudItem xs="3">
-                    <MudNumericField T="int" @bind-Value="Model.QualifyingPace" Label="Pace (qualifying)" />
-                    <MudNumericField T="int" @bind-Value="Model.RacePace" Label="Pace (race)" />
-                    <MudNumericField T="int" @bind-Value="Model.Attack" Label="Attack" />
-                    <MudNumericField T="int" @bind-Value="Model.Defense" Label="Defense" />
-                </MudItem>
-                <MudItem xs="3">
-                    <MudNumericField T="int" @bind-Value="Model.DriverReliability" Label="DriverReliability" />
-                    <MudNumericField T="int" @bind-Value="Model.CarReliability" Label="CarReliability" />
-                    <MudNumericField T="int" @bind-Value="Model.EngineReliability" Label="EngineReliability" />
-                </MudItem>
-                <MudItem xs="6">
-                    <MudStack>
-                        @if (showSliders)
-                        {
-                            <div class="d-flex flex-row justify-space-between align-items-center">
-                                <MudText Typo="Typo.subtitle2">Tyre wear</MudText>
-                                <MudText Typo="Typo.caption">[@Model.WearMin - @Model.WearMax]</MudText>
-                            </div>
-                            
-                            <MudRangeSlider @bind-Value="Model.WearMin"
-                                            @bind-UpperValue="Model.WearMax"
-                                            Size="Size.Medium"
-                                            Variant="Variant.Filled"
-                                            Range="true"
-                                            TickMarks="true"
-                                            Color="Color.Tertiary"
-                                            Step="1"
-                                            Min="-5"
-                                            Max="5"
-                                            Class="my-1" />
-
-                            <div class="d-flex flex-row justify-space-between align-items-center">
-                                <MudText Typo="Typo.subtitle2">RNG per advance</MudText>
-                                <MudText Typo="Typo.caption">[@Model.RngMin - @Model.RngMax]</MudText>
-                            </div>
-                            <MudRangeSlider @bind-Value="Model.RngMin"
-                                            @bind-UpperValue="Model.RngMax"
-                                            Size="Size.Small"
-                                            Variant="Variant.Filled"
-                                            Range="true"
-                                            TickMarks="true"
-                                            Color="Color.Tertiary"
-                                            Step="1"
-                                            Min="-10"
-                                            Max="10"
-                                            Class="my-1" />
-                        }
-                        else
-                        {
-                            <MudStack Row="true">
-                                <MudNumericField T="int" @bind-Value="Model.WearMin" Label="WearMin" />
-                                <MudNumericField T="int" @bind-Value="Model.WearMax" Label="WearMax" />
+                <MudItem xs="8">
+                    <MudStack Class="pa-0">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                            <MudNumericField T="int" @bind-Value="Model.QualifyingPace" Label="Pace (qualifying)" />
+                            <MudNumericField T="int" @bind-Value="Model.RacePace" Label="Pace (race)" />
+                        </MudStack>
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudNumericField T="int" @bind-Value="Model.Attack" Label="Attack" />
+                            <MudNumericField T="int" @bind-Value="Model.Defense" Label="Defense" />
+                        </MudStack>
+                        <div>
+                            <MudText Typo="Typo.subtitle2">Reliability</MudText>
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                <MudNumericField T="int" @bind-Value="Model.DriverReliability" Label="DriverReliability" HideSpinButtons="true" />
+                                <MudNumericField T="int" @bind-Value="Model.CarReliability" Label="CarReliability" HideSpinButtons="true" />
+                                <MudNumericField T="int" @bind-Value="Model.EngineReliability" Label="EngineReliability" HideSpinButtons="true" />
                             </MudStack>
-
-                            <MudStack Row="true">
-                                <MudNumericField T="int" @bind-Value="Model.RngMin" Label="RngMin" />
-                                <MudNumericField T="int" @bind-Value="Model.RngMax" Label="RngMax" />
-                            </MudStack>
-                        }
-
-                        <MudSwitchM3 @bind-Checked="Model.ForWetConditions"
-                                     ThumbIcon="@Icons.Material.Filled.Done"
-                                     ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Only applies during wet conditions"
-                                     Color="Color.Tertiary" />
+                        </div>
                     </MudStack>
+                </MudItem>
+                <MudItem xs="4">
+                    <MudRangeSlider @bind-Value="Model.WearMin"
+                                    @bind-UpperValue="Model.WearMax"
+                                    Size="Size.Large"
+                                    Variant="Variant.Filled"
+                                    Range="true"
+                                    TickMarks="true"
+                                    Color="Color.Tertiary"
+                                    Step="1"
+                                    Min="-5"
+                                    Max="5"
+                                    MinDistance="0">
+                        <div class="d-flex flex-row align-items-center gap-2">
+                            <MudText Typo="Typo.subtitle2">Tyre wear</MudText>
+                            <MudText Typo="Typo.caption">[@Model.WearMin - @Model.WearMax]</MudText>
+                        </div>
+                    </MudRangeSlider>
+                    <MudRangeSlider @bind-Value="Model.RngMin"
+                                    @bind-UpperValue="Model.RngMax"
+                                    Size="Size.Large"
+                                    Variant="Variant.Filled"
+                                    Range="true"
+                                    TickMarks="true"
+                                    Color="Color.Tertiary"
+                                    Step="1"
+                                    Min="-10"
+                                    Max="10"
+                                    MinDistance="0">
+                        <div class="d-flex flex-row justify-space-between align-items-center">
+                            <MudText Typo="Typo.subtitle2">RNG per advance</MudText>
+                            <MudText Typo="Typo.caption">[@Model.RngMin - @Model.RngMax]</MudText>
+                        </div>
+                    </MudRangeSlider>
                 </MudItem>
             </MudGrid>
         </MudForm>
@@ -127,11 +110,9 @@
 
     [Parameter] public Trait? Trait { get; set; }
 
+    private EditTraitModel Model { get; set; }
+
     private MudChip? entrantChip;
-
-    private EditTraitModel Model;
-
-    private bool showSliders = true;
 
     protected override void OnInitialized()
     {

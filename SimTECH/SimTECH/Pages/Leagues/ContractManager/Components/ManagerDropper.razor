@@ -46,21 +46,23 @@
                 </MudStack>
                 @if (context.TeamId != default)
                 {
-                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0 mx-1" Style="pointer-events: auto !important;">
+                    <MudStack Row="true"
+                              Justify="Justify.SpaceBetween"
+                              AlignItems="AlignItems.Center"
+                              Class="pa-0 mx-1"
+                              Style="pointer-events: auto !important;">
                         <MudNumericField @bind-Value="context.Duration"
                                          Min="1"
                                          Disabled="@(!context.Editing)"
                                          Class="dense-field" />
                         <MudToggleIconButton Size="Size.Small"
                                              Icon="@Icons.Material.Filled.Edit"
-                                             Color="Color.Info"
                                              Title="Edit"
                                              ToggledSize="Size.Small"
                                              ToggledIcon="@Icons.Material.Filled.Save"
-                                             ToggledColor="Color.Success"
                                              ToggledTitle="Save"
                                              @bind-Toggled="context.Editing"
-                                             Class="muted-background-secondary inline-edit-toggle-btn">
+                                             Class="@ToggleButtonClass(context)">
                         </MudToggleIconButton>
                     </MudStack>
                 }
@@ -70,7 +72,7 @@
 </MudDropContainer>
 
 @code {
-    List<EditContract> _editableContracts
+    private List<EditContract> _editableContracts
     {
         get => EditableContracts;
         set => EditableContractsChanged.InvokeAsync(value);
@@ -91,4 +93,7 @@
             dropItem.Item.Team = Teams.FirstOrDefault(e => e.Id == teamId);
         }
     }
+
+    private string ToggleButtonClass(EditContract contract)
+        => contract.Editing ? "inline-edit-toggle-btn active" : "inline-edit-toggle-btn";
 }
