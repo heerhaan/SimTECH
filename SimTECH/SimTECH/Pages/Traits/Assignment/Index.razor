@@ -1,0 +1,412 @@
+﻿@page "/traitassign"
+@using SimTECH.PageModels.Traits
+
+@inject DriverService _driverService
+@inject LeagueService _leagueService
+@inject TeamService _teamService
+@inject TrackService _trackService
+@inject TraitService _traitService
+@inject BreadcrumbProvider _bread
+@inject IDialogService _dialogService
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Elevation="15" MaxHeight="150px" Class="d-flex flex-column justify-center align-center pa-4">
+                <MudText Typo="Typo.h3">Assign traits</MudText>
+
+                <MudText>HEY THERE IS SOME ONGOING DEVELOPMENT FOR THIS PAGE GOING ON, THIS AINT GONNA WORK RN</MudText>
+
+                <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                    <div>
+                        <MudText Typo="Typo.h5">For entrants</MudText>
+                        <MudChipSet @bind-SelectedChip="entrantChip" Mandatory="true">
+                            <MudChip Color="Color.Primary" Value="Entrant.Driver">Driver</MudChip>
+                            <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
+                            <MudChip Color="Color.Primary" Value="Entrant.Track">Track</MudChip>
+                        </MudChipSet>
+                    </div>
+                    
+                    @if (ShowLeagueSelector)
+                    {
+                        <MudSelect T="long" @bind-Value="leagueFilter" Variant="Variant.Outlined" Label="League" Placeholder="All leagues">
+                            @foreach (var league in Leagues)
+                            {
+                                <MudSelectItem Value="@league.Id">
+                                    <MudText>@league.Name</MudText>
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
+
+                    <MudButtonGroup>
+                        <MudButton>Load</MudButton>
+                        <MudButton>Set</MudButton>
+                        <MudButton>Save</MudButton>
+                    </MudButtonGroup>
+                </MudStack>
+                <MudText Typo="Typo.body2" Color="Color.Warning">Page as a whole is very much too simplistic and crude but it works!</MudText>
+            </MudPaper>
+        </MudItem>
+        @* <MudItem xs="4">
+            <MudPaper Class="pa-2">
+                <MudStack>
+                    <MudText Typo="Typo.h5">For entrants</MudText>
+                    <MudDivider />
+
+                    <MudChipSet @bind-SelectedChip="entrantChip" Mandatory="true">
+                        <MudChip Color="Color.Primary" Value="Entrant.Driver">Driver</MudChip>
+                        <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
+                        <MudChip Color="Color.Primary" Value="Entrant.Track">Track</MudChip>
+                    </MudChipSet>
+
+                    @if (ShowLeagueSelector)
+                    {
+                        <MudSelect T="long" @bind-Value="leagueFilter" Variant="Variant.Outlined" Label="League" Placeholder="All leagues">
+                            @foreach (var league in Leagues)
+                            {
+                                <MudSelectItem Value="@league.Id">
+                                    <MudText>@league.Name</MudText>
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
+
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="LoadEntrants" Disabled="@(entrantChip == null)">Load</MudButton>
+
+                    @if (RelevantTraits.Any())
+                    {
+                        <MudText Typo="Typo.h5" Color="Color.Success">Relevant traits</MudText>
+                        <MudDivider />
+
+                        <MudListExtended T="string" Dense="true">
+                            @foreach (var trait in RelevantTraits)
+                            {
+                                <MudListItemExtended T="string"
+                                                     Text="@trait.Name"
+                                                     SecondaryText="@trait.Description" />
+                            }
+                        </MudListExtended>
+                    }
+
+                    <MudText Typo="Typo.h5" Class="mt-2">Assignment settings</MudText>
+                    <MudDivider />
+
+                    <MudText Typo="Typo.body2" Color="Color.Warning">
+                        Not implemented yet, should allow for which traits to assign or whether to randomly remove a trait.
+                        <br />
+                        Stretch goal: traits being assigned by certain events instead of manually applying it.
+                    </MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem> *@
+        <MudItem xs="4">
+            <MudPaper Class="pa-2">
+                <MudText Typo="Typo.body2" Color="Color.Info">
+                    Select which traits to assign, if you will.
+                </MudText>
+                @if (AssignableTraits.Any())
+                {
+                    <MudTable T="AssignableTrait"
+                              Items="@AssignableTraits"
+                              MultiSelection="true"
+                              @bind-SelectedItems="selectedTraits"
+                              Dense="true"
+                              FixedHeader="true">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h5">Traits</MudText>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>
+                                <MudTableSortLabel T="EntrantAssignee" SortBy="@(e => e.Name)">
+                                    Name
+                                </MudTableSortLabel>
+                            </MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudText>@context.Name</MudText>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="4">
+            <MudPaper Class="pa-2">
+                <MudText Typo="Typo.body2" Color="Color.Info">
+                    Entrada
+                </MudText>
+                @if (Entrants.Any())
+                {
+                    <MudTable T="EntrantAssignee"
+                              Items="@Entrants"
+                              MultiSelection="true"
+                              @bind-SelectedItems="selectedEntrants"
+                              Dense="true"
+                              FixedHeader="true">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h5">Entrants</MudText>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>
+                                <MudTableSortLabel T="EntrantAssignee" SortBy="@(e => e.Name)">
+                                    Name
+                                </MudTableSortLabel>
+                            </MudTh>
+                            <MudTh>Current trait(s)</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudText>@context.Name</MudText>
+                            </MudTd>
+                            <MudTd>
+                                @foreach (var traitId in context.ExistingTraitIds)
+                                {
+                                    <MudText Typo="Typo.body2">@(GetReadableTrait(traitId))</MudText>
+                                }
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudPaper>
+        </MudItem>
+        @* <MudItem xs="4">
+            <MudPaper Class="pa-2">
+                <MudText Typo="Typo.body2" Color="Color.Info">
+                    Can assign a trait by clicking the button or one of the rows.
+                </MudText>
+                @if (Entrants.Any())
+                {
+                    <MudTable T="EntrantAssignee"
+                              Items="@Entrants"
+                              Dense="true"
+                              Hover="true"
+                              FixedHeader="true"
+                              OnRowClick="@((TableRowClickEventArgs<EntrantAssignee> args) => AssignRandomTrait(args.Item))">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h5">Entrants</MudText>
+                            <MudSpacer />
+                            <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="AssignRandomTrait" Class="btn-md">Random</MudButton>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>
+                                <MudTableSortLabel T="EntrantAssignee" SortBy="@(e => e.Name)">
+                                    Name
+                                </MudTableSortLabel>
+                            </MudTh>
+                            <MudTh>Current trait(s)</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudText>@context.Name</MudText>
+                            </MudTd>
+                            <MudTd>
+                                @foreach (var traitId in context.ExistingTraitIds)
+                                {
+                                    <MudText Typo="Typo.body2">@(GetReadableTrait(traitId))</MudText>
+                                }
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="4">
+            <MudPaper Class="pa-2">
+                <MudText Typo="Typo.body2">
+                    Click on persist to save all the assigned traits.
+                    <br />
+                    Click on a row to remove the entrant.
+                </MudText>
+                @if (AssignedEntrants.Any())
+                {
+                    <MudTable T="EntrantAssignee"
+                              Items="@AssignedEntrants"
+                              Dense="true"
+                              Hover="true"
+                              OnRowClick="RemoveAssignedTrait">
+                        <ToolBarContent>
+                            <MudText Typo="Typo.h5">Newly assigned traits</MudText>
+                            <MudSpacer />
+                            <MudButton Color="Color.Success" OnClick="PersistAssignedTraits" Class="btn-md">Save</MudButton>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>
+                                <MudTableSortLabel T="EntrantAssignee" SortBy="@(e => e.Name)">
+                                    Name
+                                </MudTableSortLabel>
+                            </MudTh>
+                            <MudTh>Traits</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudText>@context.Name</MudText>
+                            </MudTd>
+                            <MudTd>
+                                @foreach (var traitId in context.AssignedTraitIds)
+                                {
+                                    <MudText Typo="Typo.body2">@(GetReadableTrait(traitId))</MudText>
+                                }
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudPaper>
+        </MudItem> *@
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<Trait> AllTraits { get; set; }
+    private List<Trait> RelevantTraits { get; set; } = [];
+    private List<AssignableTrait> AssignableTraits { get; set; } = [];
+    private List<EntrantAssignee> Entrants { get; set; } = [];
+    private List<EntrantAssignee> AssignedEntrants { get; set; } = [];
+    private List<League> Leagues { get; set; } = [];
+
+    private MudChip? entrantChip;
+    private HashSet<AssignableTrait>? selectedTraits;
+    private HashSet<EntrantAssignee>? selectedEntrants;
+
+    private Entrant activeEntrant = Entrant.None;
+    private long leagueFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _bread.Reset();
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Traits", href: "traits"),
+            new BreadcrumbItem("Assign traits", href: "traitassign", disabled: true),
+        });
+
+        AllTraits = await _traitService.GetTraits(StateFilter.Active);
+        Leagues = await _leagueService.GetLeagues();
+    }
+
+    private bool ShowLeagueSelector => entrantChip != null && ((Entrant)entrantChip.Value == Entrant.Driver || (Entrant)entrantChip.Value == Entrant.Team);
+
+    private async Task LoadEntrants()
+    {
+        if (entrantChip == null)
+            return;
+
+        activeEntrant = (Entrant)entrantChip.Value;
+
+        switch (activeEntrant)
+        {
+            case Entrant.Driver:
+                {
+                    List<Driver> drivers;
+                    if (leagueFilter != 0)
+                        drivers = await _driverService.GetDriversFromLeague(leagueFilter);
+                    else
+                        drivers = await _driverService.GetDrivers();
+
+                    Entrants = drivers.Select(e => new EntrantAssignee(e)).ToList();
+                }
+                break;
+            case Entrant.Team:
+                {
+                    List<Team> teams;
+                    if (leagueFilter != 0)
+                        teams = await _teamService.GetTeamsFromLeague(leagueFilter);
+                    else
+                        teams = await _teamService.GetTeams();
+
+                    Entrants = teams.Select(e => new EntrantAssignee(e)).ToList();
+                }
+                break;
+            case Entrant.Track:
+                {
+                    var tracks = await _trackService.GetTracks();
+
+                    Entrants = tracks.Select(e => new EntrantAssignee(e)).ToList();
+                }
+                break;
+            default:
+                throw new InvalidOperationException("wtf unexpected entrant added to develop?");
+        }
+
+        AssignedEntrants.Clear();
+        RelevantTraits = AllTraits.Where(e => e.Type == activeEntrant).ToList();
+        AssignableTraits = AllTraits
+            .Where(e => e.Type == activeEntrant)
+            .Select(e => new AssignableTrait
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                })
+            .ToList();
+    }
+
+    private string GetReadableTrait(long id) => AllTraits.Find(e => e.Id == id)?.Name ?? "Unknown";
+
+    private void AssignRandomTrait() => AssignRandomTrait(Entrants.TakeRandomItem());
+    private void AssignRandomTrait(EntrantAssignee item)
+    {
+        if (!RelevantTraits.Any())
+            return;
+
+        var assignee = AssignedEntrants.FirstOrDefault(e => e == item);
+
+        if (assignee == null)
+        {
+            assignee = item;
+            AssignedEntrants.Add(assignee);
+        }
+
+        var availableTraits = RelevantTraits.Where(e => !assignee.ExistingTraitIds.Contains(e.Id)).ToList();
+        if (!availableTraits.Any())
+            return;
+
+        var randomTrait = availableTraits.TakeRandomItem();
+
+        assignee.AssignedTraitIds.Add(randomTrait.Id);
+        assignee.ExistingTraitIds.Add(randomTrait.Id);
+    }
+
+    private async Task RemoveAssignedTrait(TableRowClickEventArgs<EntrantAssignee> rowItem)
+    {
+        bool? confirm = await _dialogService.ShowMessageBox(
+            "Warning",
+            $"Are you sure you want to remove these assigned traits for {rowItem.Item.Name}?",
+            yesText: "Yep", cancelText: "Nope");
+
+        if (confirm == true)
+        {
+            foreach (var assignedId in rowItem.Item.AssignedTraitIds)
+                rowItem.Item.ExistingTraitIds.Remove(assignedId);
+
+            rowItem.Item.AssignedTraitIds.Clear();
+
+            AssignedEntrants.Remove(rowItem.Item);
+        }
+    }
+
+    private async Task PersistAssignedTraits()
+    {
+        if (activeEntrant == Entrant.None || !AssignedEntrants.Any())
+            return;
+
+        switch (activeEntrant)
+        {
+            case Entrant.Driver:
+                await _traitService.AssignDriverTraits(AssignedEntrants);
+                break;
+            case Entrant.Team:
+                await _traitService.AssignTeamTraits(AssignedEntrants);
+                break;
+            case Entrant.Track:
+                await _traitService.AssignTrackTraits(AssignedEntrants);
+                break;
+            default:
+                throw new InvalidOperationException("wtf unexpected entrant added to develop?");
+        }
+
+        AssignedEntrants.Clear();
+        await LoadEntrants();
+    }
+}
