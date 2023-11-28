@@ -17,6 +17,7 @@
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">League settings</MudText>
                     <MudDivider />
+
                     <MudTextField @bind-Value="Model.Name" Label="Name" Class="field-md" />
                     <MudNumericField @bind-Value="Model.RaceLength"
                                      Min="10"
@@ -39,7 +40,7 @@
                             {
                                 <MudListItem>
                                     <MudText Color="Color.Error">@error</MudText>
-                                    </MudListItem>
+                                </MudListItem>
                             }
                         </MudList>
                     }
@@ -47,6 +48,7 @@
                 <MudItem xs="3">
                     <MudText Typo="Typo.subtitle1">Toggles</MudText>
                     <MudDivider />
+
                     <MudStack Class="mt-2">
                         <MudSwitchM3 @bind-Checked="Model.UsePenalty"
                                      ThumbIcon="@Icons.Material.Filled.Done"
@@ -115,31 +117,41 @@
                             <MudNumericField @bind-Value="Model.FatalityOdds"
                                              Min="0"
                                              Label="Fatal incident odds" />
-                            <div class="d-flex flex-column justify-end ml-5">
-                                <MudText Typo="Typo.body1">@(NumberHelper.Percentage(1, Model.FatalityOdds))%</MudText>
+                            <div class="inline-info-text-container">
+                                <MudText Typo="Typo.body1">@(NumberHelper.Percentage(1, 1 + Model.FatalityOdds))%</MudText>
                             </div>
                         </div>
                     }
-                    <MudNumericField @bind-Value="Model.DisqualificationOdds"
-                                     Min="0"
-                                     Label="Disqualification odds"
-                                     Class="field-md" />
-                    <MudNumericField @bind-Value="Model.SafetyCarOdds"
-                                     Min="0"
-                                     Label="Safety car odds"
-                                     Class="field-md" />
-                    <MudNumericField @bind-Value="Model.SafetyCarReturnOdds"
-                                     Min="0"
-                                     Label="Safety car return odds"
-                                     Class="field-md" />
+                    <div class="d-flex flex-row">
+                        <MudNumericField @bind-Value="Model.DisqualificationOdds"
+                                         Min="0"
+                                         Label="Disqualification odds" />
+                        <div class="inline-info-text-container">
+                            <MudText Typo="Typo.body1">@(NumberHelper.Percentage(1, 1 + Model.DisqualificationOdds))%</MudText>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row">
+                        <MudNumericField @bind-Value="Model.SafetyCarOdds"
+                                         Min="0"
+                                         Label="Safety car odds" />
+                        <div class="inline-info-text-container">
+                            <MudText Typo="Typo.body1">@(NumberHelper.Percentage(1, 1 + Model.SafetyCarOdds))%</MudText>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row">
+                        <MudNumericField @bind-Value="Model.SafetyCarReturnOdds"
+                                         Min="0"
+                                         Label="Safety car return odds" />
+                        <div class="inline-info-text-container">
+                            <MudText Typo="Typo.body1">@(NumberHelper.Percentage(1, 1 + Model.SafetyCarReturnOdds))%</MudText>
+                        </div>
+                    </div>
                     <MudNumericField @bind-Value="Model.SafetyCarGap"
                                      Min="1"
-                                     Label="Gap drivers safety car"
-                                     Class="field-md" />
+                                     Label="Gap drivers safety car" />
                     <MudNumericField @bind-Value="Model.DriverStatusPaceModifier"
                                      Min="0"
-                                     Label="Main/support driver pace modifier"
-                                     Class="field-md" />
+                                     Label="Main/support driver pace modifier" />
                 </MudItem>
                 <MudItem xs="8" Style="min-height: 500px">
                     <MudText Typo="Typo.subtitle1">Weighted development ranges</MudText>

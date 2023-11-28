@@ -1,7 +1,6 @@
 ﻿<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">Modify trait</MudText>
-        <MudText Typo="Typo.body2" Color="Color.Info">Wear is subtracted from tyre. Higher number = more wear.</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm>
@@ -9,7 +8,7 @@
                 <MudItem xs="6">
                     <MudStack Justify="Justify.SpaceBetween" Class="pa-0">
                         <MudTextField @bind-Value="Model.Name" Label="Name" Class="field-md" />
-                        <MudStack Spacing="0">
+                        <div>
                             <MudText Typo="Typo.subtitle2">Entrant type</MudText>
                             @if (Model.Id == 0)
                             {
@@ -24,12 +23,14 @@
                             {
                                 <MudText>@Model.Type.ToString()</MudText>
                             }
-                        </MudStack>
-                        <MudSwitchM3 @bind-Checked="Model.ForWetConditions"
-                                     ThumbIcon="@Icons.Material.Filled.Done"
-                                     ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Only applies during wet conditions"
-                                     Color="Color.Tertiary" />
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.subtitle2">Only when conditions are wet</MudText>
+                            <MudSwitchM3 @bind-Checked="Model.ForWetConditions"
+                                         ThumbIcon="@Icons.Material.Filled.Done"
+                                         ThumbOffIcon="@Icons.Material.Filled.Close"
+                                         Color="Color.Tertiary" />
+                        </div>
                     </MudStack>
                 </MudItem>
                 <MudItem xs="6">
@@ -55,14 +56,15 @@
                         <div>
                             <MudText Typo="Typo.subtitle2">Reliability</MudText>
                             <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                <MudNumericField T="int" @bind-Value="Model.DriverReliability" Label="DriverReliability" HideSpinButtons="true" />
-                                <MudNumericField T="int" @bind-Value="Model.CarReliability" Label="CarReliability" HideSpinButtons="true" />
-                                <MudNumericField T="int" @bind-Value="Model.EngineReliability" Label="EngineReliability" HideSpinButtons="true" />
+                                <MudNumericField T="int" @bind-Value="Model.DriverReliability" Label="Driver" HideSpinButtons="true" />
+                                <MudNumericField T="int" @bind-Value="Model.CarReliability" Label="Car" HideSpinButtons="true" />
+                                <MudNumericField T="int" @bind-Value="Model.EngineReliability" Label="Engine" HideSpinButtons="true" />
                             </MudStack>
                         </div>
                     </MudStack>
                 </MudItem>
                 <MudItem xs="4">
+                    <MudText Typo="Typo.body2" Color="Color.Info">Wear is subtracted from tyre. Higher number = more wear.</MudText>
                     <MudRangeSlider @bind-Value="Model.WearMin"
                                     @bind-UpperValue="Model.WearMax"
                                     Size="Size.Large"
@@ -79,6 +81,7 @@
                             <MudText Typo="Typo.caption">[@Model.WearMin - @Model.WearMax]</MudText>
                         </div>
                     </MudRangeSlider>
+
                     <MudRangeSlider @bind-Value="Model.RngMin"
                                     @bind-UpperValue="Model.RngMax"
                                     Size="Size.Large"
