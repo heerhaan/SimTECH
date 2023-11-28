@@ -6,11 +6,6 @@
     <TitleContent>
         <MudText Typo="Typo.h3">Modify league</MudText>
         <MudText Typo="Typo.body2">
-            Odds: input is the upper bound, if the random number is 0 then action will apply (so 0 means guaranteed).
-            <br />
-            For the development ranges: the range which will be used is the first comparer ('less than') which is equal or less than 
-            the corresponding value. (For a skill of 31, it would take the first comparer which is equal or less than 31.)
-            <br />
             Keep in mind that race length is used to determine the amount of calcuations each race, 
             which is why we round to 10 since every ten decimals amounts to one additional calculation.
         </MudText>
@@ -18,34 +13,36 @@
     <DialogContent>
         @if (!loading)
         {
-            @if (errorValidations.Any())
-            {
-                <MudList>
-                    <MudListSubheader>Error messages</MudListSubheader>
-                    @foreach (var error in errorValidations)
-                    {
-                        <MudListItem>
-                            <MudText Color="Color.Error">@error</MudText>
-                        </MudListItem>
-                    }
-                </MudList>
-            }
             <MudGrid>
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">League settings</MudText>
                     <MudDivider />
                     <MudTextField @bind-Value="Model.Name" Label="Name" Class="field-md" />
                     <MudNumericField @bind-Value="Model.RaceLength"
-                                     Min="0"
+                                     Min="10"
                                      Step="10"
                                      Label="Length (km)"
-                                     HelperText="Should round to nearest ten"
+                                     HelperText="Should round to nearest ten."
                                      Validation="@(new Func<int, string?>(LengthValidator))"
                                      Class="field-md" />
                     <MudNumericField @bind-Value="Model.BattleRng"
-                                     Min="0"
+                                     Min="1"
                                      Label="Battle RNG"
+                                     HelperText="Range is between given value and negative given value."
                                      Class="field-md" />
+
+                    @if (errorValidations.Any())
+                    {
+                        <MudList>
+                            <MudListSubheader>Error messages</MudListSubheader>
+                            @foreach (var error in errorValidations)
+                            {
+                                <MudListItem>
+                                    <MudText Color="Color.Error">@error</MudText>
+                                    </MudListItem>
+                            }
+                        </MudList>
+                    }
                 </MudItem>
                 <MudItem xs="3">
                     <MudText Typo="Typo.subtitle1">Toggles</MudText>
@@ -72,7 +69,7 @@
                     <MudText Typo="Typo.subtitle1">Available tyres for league<span style="color:red">*</span></MudText>
                     <MudDivider />
 
-                    <MudTable @bind-SelectedItems="@selectedTyres"
+                    <MudTable @bind-SelectedItems="selectedTyres"
                               Items="@Tyres"
                               MultiSelection="true"
                               SelectOnRowClick="true"
@@ -109,12 +106,19 @@
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle1">Configurations</MudText>
                     <MudDivider />
+                    <MudText Typo="Typo.body2" Color="Color.Info">
+                        About odds: input is the upper value and the lower value is 0, if the random number is 0 then action will apply (so 0 means guaranteed).
+                    </MudText>
                     @if (Model.EnableFatality)
                     {
-                        <MudNumericField @bind-Value="Model.FatalityOdds"
-                                         Min="0"
-                                         Label="Fatal incident odds"
-                                         Class="field-md" />
+                        <div class="d-flex flex-row">
+                            <MudNumericField @bind-Value="Model.FatalityOdds"
+                                             Min="0"
+                                             Label="Fatal incident odds" />
+                            <div class="d-flex flex-column justify-end ml-5">
+                                <MudText Typo="Typo.body1">@(NumberHelper.Percentage(1, Model.FatalityOdds))%</MudText>
+                            </div>
+                        </div>
                     }
                     <MudNumericField @bind-Value="Model.DisqualificationOdds"
                                      Min="0"
@@ -140,29 +144,30 @@
                 <MudItem xs="8" Style="min-height: 500px">
                     <MudText Typo="Typo.subtitle1">Weighted development ranges</MudText>
                     <MudDivider />
-                    @if (!loading)
-                    {
-                        <MudStack Row="true" Class="pa-0">
-                            <MudChipSet @bind-SelectedChip="selectedChip"
-                                        Filter="true"
-                                        Class="d-flex flex-column flex-wrap mt-3"
-                                        Style="height: 200px; width: 250px">
-                                @foreach (var aspect in rangeables)
-                                {
-                                    <MudChip Text="@aspect.ReadableAspect()"
-                                             Value="@aspect"
-                                             Color="Color.Secondary"
-                                             Style="width: 100px" />
-                                }
-                            </MudChipSet>
-                            @if (selectedChip != null && selectedChip.Value is Aspect selectedAspect)
+                    <MudText Typo="Typo.body2" Color="Color.Info">
+                        The range which will be used is the first comparer ('less than') which is equal or less than the corresponding value.
+                        &nbsp;So for a skill of 31, it would take the first comparer which is equal or less than 31.
+                    </MudText>
+                    <MudStack Row="true" Class="pa-0">
+                        <MudChipSet @bind-SelectedChip="selectedChip"
+                                    Filter="true"
+                                    Class="d-flex flex-column flex-wrap mt-3"
+                                    Style="height: 200px; width: 250px">
+                            @foreach (var aspect in rangeables)
                             {
-                                <RangeInput @bind-Items="@(weightedAspects[selectedAspect])"
-                                            RangeType="@selectedAspect"
-                                            Style="@("width: calc(100% - 250px)")"/>
+                                <MudChip Text="@aspect.ReadableAspect()"
+                                         Value="@aspect"
+                                         Color="Color.Secondary"
+                                         Style="width: 100px" />
                             }
-                        </MudStack>
-                    }
+                        </MudChipSet>
+                        @if (selectedChip != null && selectedChip.Value is Aspect selectedAspect)
+                        {
+                            <RangeInput @bind-Items="weightedAspects[selectedAspect]"
+                                        RangeType="@selectedAspect"
+                                        Style="@("width: calc(100% - 250px)")" />
+                        }
+                    </MudStack>
                 </MudItem>
             </MudGrid>
         }
