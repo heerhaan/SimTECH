@@ -49,52 +49,22 @@
                         @if (Model.QualifyingFormat == QualyFormat.TripleEliminate)
                         {
                             <MudStack Row="true" Spacing="1">
-                                <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ2" Label="Allowed drivers in Q2" Class="field-sm" />
-                                <MudNumericField T="int" @bind-Value="Model.QualifyingAmountQ3" Label="Allowed drivers in Q3" Class="field-sm" />
+                                <MudNumericField @bind-Value="Model.QualifyingAmountQ2" Label="Allowed drivers in Q2" Class="field-sm" />
+                                <MudNumericField @bind-Value="Model.QualifyingAmountQ3" Label="Allowed drivers in Q3" Class="field-sm" />
                             </MudStack>
                         }
 
-                        <MudNumericField T="int" @bind-Value="Model.RunAmountSession" Label="Run count per session" Class="field-sm" />
-                        <MudNumericField T="int" @bind-Value="Model.QualifyingRNG" Label="Qualifying MAX RNG" Class="field-sm" />
+                        <MudNumericField @bind-Value="Model.RunAmountSession" Label="Run count per session" Class="field-sm" />
+                        <MudNumericField @bind-Value="Model.QualifyingRNG" Label="Qualifying MAX RNG" Class="field-sm" />
                     </div>
                     <div>
                         <MudText Typo="Typo.subtitle1">Race setup</MudText>
                         <MudDivider />
 
-                        <MudRangeSlider @bind-Value="Model.RngMinimum"
-                                        @bind-UpperValue="Model.RngMaximum"
-                                        Size="Size.Medium"
-                                        Variant="Variant.Filled"
-                                        Range="true"
-                                        TickMarks="true"
-                                        Color="Color.Tertiary"
-                                        Min="0"
-                                        Max="100"
-                                        Step="5"
-                                        MinDistance="5">
-                            <div class="d-flex flex-row align-items-center gap-2">
-                                <MudText Typo="Typo.subtitle2">RNG per advance</MudText>
-                                <MudText Typo="Typo.caption">[@Model.RngMinimum - @Model.RngMaximum]</MudText>
-                            </div>
-                        </MudRangeSlider>
-
-                        <MudNumericField T="int" @bind-Value="Model.MistakeRolls" Min="0" Label="Mistake rolls" Class="field-sm" />
-                        <MudRangeSlider @bind-Value="Model.MistakeMinimum"
-                                        @bind-UpperValue="Model.MistakeMaximum"
-                                        Size="Size.Medium"
-                                        Variant="Variant.Filled"
-                                        Range="true"
-                                        TickMarks="true"
-                                        Color="Color.Tertiary"
-                                        Min="0"
-                                        Max="500"
-                                        Step="25"
-                                        MinDistance="25">
-                            <div class="d-flex flex-row align-items-center gap-2">
-                                <MudText Typo="Typo.subtitle2">Mistake score cost</MudText>
-                                <MudText Typo="Typo.caption">[@Model.MistakeMinimum - @Model.MistakeMaximum]</MudText>
-                            </div>
-                        </MudRangeSlider>
+                        <MudNumericField @bind-Value="Model.MaximumDriversInRace" Label="MAX drivers in race" />
+                        <MudNumericField @bind-Value="Model.GridBonus" Label="Bonus per grid POS" />
+                        <MudNumericField @bind-Value="Model.PitCostSubtractCaution" Min="0" Label="Subtracted from pit cost during SC" />
+                        <MudNumericField @bind-Value="Model.MistakeRolls" Min="0" Label="Mistake rolls" />
 
                         <MudRangeSlider @bind-Value="Model.PitMinimum"
                                         @bind-UpperValue="Model.PitMaximum"
@@ -112,10 +82,38 @@
                                 <MudText Typo="Typo.caption">[@Model.PitMinimum - @Model.PitMaximum]</MudText>
                             </div>
                         </MudRangeSlider>
-                        <MudNumericField T="int" @bind-Value="Model.PitCostSubtractCaution" Min="0" Label="Subtracted from pit cost during SC" />
-
-                        <MudNumericField T="int" @bind-Value="Model.MaximumDriversInRace" Label="MAX drivers in race" />
-                        <MudNumericField T="int" @bind-Value="Model.GridBonus" Label="Bonus per grid POS" />
+                        <MudRangeSlider @bind-Value="Model.RngMinimum"
+                                        @bind-UpperValue="Model.RngMaximum"
+                                        Size="Size.Medium"
+                                        Variant="Variant.Filled"
+                                        Range="true"
+                                        TickMarks="true"
+                                        Color="Color.Tertiary"
+                                        Min="0"
+                                        Max="100"
+                                        Step="5"
+                                        MinDistance="5">
+                            <div class="d-flex flex-row align-items-center gap-2">
+                                <MudText Typo="Typo.subtitle2">RNG per advance</MudText>
+                                <MudText Typo="Typo.caption">[@Model.RngMinimum - @Model.RngMaximum]</MudText>
+                            </div>
+                        </MudRangeSlider>
+                        <MudRangeSlider @bind-Value="Model.MistakeMinimum"
+                                        @bind-UpperValue="Model.MistakeMaximum"
+                                        Size="Size.Medium"
+                                        Variant="Variant.Filled"
+                                        Range="true"
+                                        TickMarks="true"
+                                        Color="Color.Tertiary"
+                                        Min="0"
+                                        Max="500"
+                                        Step="25"
+                                        MinDistance="25">
+                            <div class="d-flex flex-row align-items-center gap-2">
+                                <MudText Typo="Typo.subtitle2">Mistake score cost</MudText>
+                                <MudText Typo="Typo.caption">[@Model.MistakeMinimum - @Model.MistakeMaximum]</MudText>
+                            </div>
+                        </MudRangeSlider>
                     </div>
                 </MudStack>
             </MudPaper>
@@ -129,12 +127,7 @@
                     <MudTable Items="@Model.PointAllotments.OrderBy(e => e.Position)"
                                 Dense="true"
                                 ReadOnly="false"
-                                Class="extra-dense"
-                                RowEditPreview="BackupAllotment"
-                                RowEditCancel="ResetAllotment"
-                                ApplyButtonPosition="TableApplyButtonPosition.End"
-                                EditButtonPosition="TableEditButtonPosition.End"
-                                EditTrigger="TableEditTrigger.RowClick">
+                                Class="extra-dense">
                         <ToolBarContent>
                             <MudButton StartIcon="@Icons.Material.Filled.Add"
                                        Variant="Variant.Outlined"
@@ -151,13 +144,13 @@
                         </HeaderContent>
                         <RowTemplate>
                             <MudTd DataLabel="Position">
-                                <MudNumericField @bind-Value="context.Position" Class="field-xs dense-field" Required />
+                                <MudNumericField @bind-Value="context.Position" Min="1" Class="field-xs dense-field" Required />
                              </MudTd>
                              <MudTd DataLabel="Points">
-                                 <MudNumericField @bind-Value="context.Points" Class="field-xs dense-field" Required />
+                                 <MudNumericField @bind-Value="context.Points" Min="1" Class="field-xs dense-field" Required />
                              </MudTd>
                              <MudTd>
-                                 <MudIconButton Size="@Size.Small"
+                                 <MudIconButton Size="Size.Small"
                                                 Icon="@Icons.Material.Outlined.Delete"
                                                 Color="Color.Error"
                                                 Class="pa-0"
@@ -171,10 +164,8 @@
                      <MudText Typo="Typo.subtitle2">Bonus points</MudText>
                      <MudDivider />
 
-                     <MudStack Row="true">
-                         <MudNumericField T="int" @bind-Value="Model.PointsPole" Label="Pole position" Class="field-sm" />
-                         <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Fastest lap" Class="field-sm" />
-                     </MudStack>
+                     <MudNumericField @bind-Value="Model.PointsPole" Label="Pole position" />
+                     <MudNumericField @bind-Value="Model.PointsFastestLap" Label="Fastest lap" />
                  </div>
 
                 <MudPaper Class="mt-2">
@@ -218,13 +209,13 @@
                             </HeaderContent>
                             <RowTemplate>
                                 <MudTd>
-                                    <MudTextField T="string" @bind-Value="@context.Name" Class="field-sm dense-field" />
+                                    <MudTextField @bind-Value="@context.Name" Class="field-sm dense-field" />
                                 </MudTd>
                                 <MudTd>
                                     <MudColorPicker @bind-Text="context.Colour" Placeholder="Colour" Class="field-xs dense-field" />
                                 </MudTd>
                                 <MudTd>
-                                    <MudTextField T="string" @bind-Value="context.Tag" Class="field-sm dense-field" />
+                                    <MudTextField @bind-Value="context.Tag" Class="field-sm dense-field" />
                                 </MudTd>
                                 <MudTd>
                                     @if (Model.Id == 0)
@@ -262,8 +253,6 @@
     [Parameter] public EditSeasonModel Model { get; set; }
     [Parameter] public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
 
-    private EditPointAllotmentModel allotmentBackup;
-
     private int lowestPosition;
     private bool hasMultipleClasses;
 
@@ -281,27 +270,6 @@
             return;
 
         Model.QualifyingFormat = (QualyFormat)qualyChip.Value;
-    }
-
-    private void BackupAllotment(object allotmentObj)
-    {
-        var allotment = ((EditPointAllotmentModel)allotmentObj);
-
-        allotmentBackup = new()
-            {
-                Id = ((EditPointAllotmentModel)allotment).Id,
-                Position = ((EditPointAllotmentModel)allotment).Position,
-                Points = ((EditPointAllotmentModel)allotment).Points
-            };
-    }
-
-    private void ResetAllotment(object allotmentObj)
-    {
-        var allotment = ((EditPointAllotmentModel)allotmentObj);
-
-        ((EditPointAllotmentModel)allotment).Id = allotmentBackup.Id;
-        ((EditPointAllotmentModel)allotment).Position = allotmentBackup.Position;
-        ((EditPointAllotmentModel)allotment).Points = allotmentBackup.Points;
     }
 
     private void AppendAllotment()
