@@ -18,13 +18,16 @@
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
                 <MudText Typo="Typo.h3">Seasons</MudText>
                 <MudSpacer />
-                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="NewSeason" Class="btn-md">New</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small" OnClick="NewSeason"
+                           StartIcon="@Icons.Material.Filled.Add" IconSize="Size.Small" IconColor="Color.Tertiary" Class="btn-md">
+                    New
+                </MudButton>
             </MudStack>
         </MudPaper>
         <MudDataGrid T="SeasonListModel" Items="@SeasonListItems.OrderByDescending(e => e.Year)" Dense="true">
             <Columns>
-                <PropertyColumn Property="e => e!.Year" />
-                <TemplateColumn T="SeasonListModel" Title="NO" SortBy="e => e!.DriverNumber" HeaderClass="number-col hide-sort-icons" CellClass="number-col">
+                <PropertyColumn Property="e => e.Year" />
+                <TemplateColumn T="SeasonListModel" Title="NO" SortBy="e => e.DriverNumber" HeaderClass="number-col hide-sort-icons" CellClass="number-col">
                     <CellTemplate>
                         <NumberDisplay Colour="@context.Item.DriverColour"
                                        Accent="@context.Item.DriverAccent">
@@ -55,8 +58,8 @@
                         </MudStack>
                     </CellTemplate>
                 </TemplateColumn>
-                <PropertyColumn Property="e => e!.League" />
-                <PropertyColumn Property="e => e!.State" />
+                <PropertyColumn Property="e => e.League" />
+                <PropertyColumn Property="e => e.State" />
                 <TemplateColumn T="SeasonListModel" Sortable="false">
                     <CellTemplate>
                         <MudButtonGroup Size="@Size.Small">
@@ -118,8 +121,8 @@
 
     private async Task CopySeason(long seasonId)
     {
-        var copyingSeason = Seasons.Single(e => e.Id == seasonId);
-        var model = new EditSeasonModel(copyingSeason);
+        var copiedSeason = await _seasonService.GetSeasonById(seasonId);
+        var model = new EditSeasonModel(copiedSeason);
         model.ResetIdentifierFields();
         model.Year++;
 

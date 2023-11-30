@@ -16,24 +16,34 @@
 
             <MudSpacer />
 
-            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                <MudButton OnClick="GoToTraitAssign" Class="btn-md">Assign</MudButton>
-                <MudButton OnClick="AddTrait" Class="btn-md">New</MudButton>
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small">
+                <MudButton StartIcon="@Icons.Material.Filled.Add"
+                           IconSize="Size.Small"
+                           OnClick="GoToTraitAssign"
+                           Class="btn-md">
+                    Assign
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Add"
+                           IconSize="Size.Small"
+                           OnClick="AddItem"
+                           Class="btn-md">
+                    New
+                </MudButton>
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Trait" Items="@traits" RowsPerPage="15" Dense="true">
+    <MudDataGrid T="Trait" Items="@Traits" RowsPerPage="15" Dense="true">
         <Columns>
             <HierarchyColumn T="Trait" />
-            <PropertyColumn Property="e => e!.Name" />
-            <PropertyColumn Property="e => e!.Type" Filterable="true" />
-            <PropertyColumn Property="e => e!.ForWetConditions" Title="Wet" />
+            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.Type" Filterable="true" />
+            <PropertyColumn Property="e => e.ForWetConditions" Title="Wet" />
             <TemplateColumn T="Trait" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
                         <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
                                             Default="@(context.Item.State == State.Active)" />
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateTrait(context.Item))" />
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -44,9 +54,8 @@
                     <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0 mud-width-full" Style="height:75px">
                         <MudText Typo="Typo.h6">Details for @context.Item.Name</MudText>
                         <MudSpacer />
-                        <MudText>@(context.Item.Description)</MudText>
+                        <MudText>@context.Item.Description</MudText>
                         <MudSpacer />
-
                         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
                             <MudText>Only when wet:</MudText>
                             @if (context.Item.ForWetConditions)
@@ -89,11 +98,11 @@
 </MudContainer>
 
 @code {
-    private List<Trait> traits;
+    private List<Trait> Traits { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        traits = await _traitService.GetTraits();
+        Traits = await _traitService.GetTraits();
 
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -103,8 +112,8 @@
         });
     }
 
-    async Task AddTrait() => await UpdateTrait(null);
-    async Task UpdateTrait(Trait? item)
+    async Task AddItem() => await UpdateItem(null);
+    async Task UpdateItem(Trait? item)
     {
         var parameters = new DialogParameters { ["Trait"] = item };
 
@@ -114,7 +123,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Trait updatedItem)
         {
             await _traitService.UpdateTrait(updatedItem);
-            traits = await _traitService.GetTraits();
+            Traits = await _traitService.GetTraits();
         }
     }
 
@@ -122,7 +131,7 @@
     async Task ToggleState(Trait trait, State target)
     {
         await _traitService.ChangeState(trait, target);
-        traits = await _traitService.GetTraits();
+        Traits = await _traitService.GetTraits();
     }
 
     void GoToTraitAssign() => _nav.NavigateTo("traitassign");

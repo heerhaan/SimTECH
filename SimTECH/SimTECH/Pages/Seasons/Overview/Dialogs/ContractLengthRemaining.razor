@@ -38,20 +38,31 @@
 
     private List<DataSet> driverContractDurations = new();
 
-    ApexCharts.ApexChartOptions<DataPoint> options = Globals.CreateDefaultChartOptions;
-
-    bool loading = true;
-
-    protected override void OnInitialized()
-    {
-        options.PlotOptions = new ApexCharts.PlotOptions
+    ApexCharts.ApexChartOptions<DataPoint> options = new()
+        {
+            Chart = new()
+            {
+                Animations = new() { Enabled = false },
+                Background = "#080808",
+                Toolbar = new() { Show = false },
+            },
+            PlotOptions = new ApexCharts.PlotOptions
             {
                 Bar = new ApexCharts.PlotOptionsBar
                 {
                     Horizontal = true,
                 },
-            };
+            },
+            Theme = new()
+            {
+                Mode = ApexCharts.Mode.Dark,
+            },
+        };
 
+    bool loading = true;
+
+    protected override void OnInitialized()
+    {
         LoadContractData();
 
         loading = false;
@@ -59,6 +70,7 @@
 
     private void LoadContractData()
     {
+        // TODO: This data calculation is still borked
         foreach (var driver in SeasonDrivers)
         {
             if (driver.SeasonTeamId == null)

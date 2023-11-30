@@ -17,7 +17,7 @@
         <MudContainer Class="@(stepIndex == 0 ? string.Empty : "d-none")">
             <MudPaper MinWidth="1000px">
                 <MudTable T="Track"
-                          @ref="_table"
+                          @ref="trackTable"
                           @bind-SelectedItems="selectedTracks"
                           Items="@Tracks"
                           MultiSelection="true"
@@ -66,7 +66,7 @@
                         </MudTd>
                     </RowTemplate>
                     <PagerContent>
-                        <MudPagination SelectedChanged="PageChange" Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)"
+                        <MudPagination SelectedChanged="PageChange" Count="@((trackTable.GetFilteredItemsCount() + trackTable.RowsPerPage - 1) / trackTable.RowsPerPage)"
                                        Variant="Variant.Outlined"
                                        Class="pa-4" />
                     </PagerContent>
@@ -138,7 +138,7 @@
                     <ChildContent>
                         <MudPaper>
                             <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
-                                <MudListSubheader>Reorder races (just drag)</MudListSubheader>
+                                <MudListSubheader>Reorder races (try dragging)</MudListSubheader>
                                 <MudDropZone T="EditRaceModel" Identifier="@(SeasonId.ToString())" AllowReorder="true" Class="flex-grow-1" />
                             </MudList>
                         </MudPaper>
@@ -172,7 +172,7 @@
     [Parameter] public int DefaultRaceLength { get; set; }
     [Parameter] public List<Climate> Climates { get; set; }
 
-    private MudTable<Track> _table;
+    private MudTable<Track> trackTable;
     private MudDropContainer<EditRaceModel> reorderContainer;
 
     private HashSet<Track> selectedTracks = new();
@@ -210,7 +210,7 @@
 
     private void PageChange(int index)
     {
-        _table.NavigateTo(index - 1);
+        trackTable.NavigateTo(index - 1);
     }
 
     private void ReorderItems(MudItemDropInfo<EditRaceModel> item)

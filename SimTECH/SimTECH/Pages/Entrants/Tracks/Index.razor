@@ -16,14 +16,14 @@
             <MudSpacer />
             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                 <MudButton OnClick="ToggleDisplayArchived" Class="btn-md">@(showingArchived ? "Active" : "Archive")</MudButton>
-                <MudButton OnClick="AddTrack" Class="btn-md">New</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Add" IconSize="Size.Small" OnClick="AddTrack" Class="btn-md">New</MudButton>
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
     <MudDataGrid T="Track" Items="@TrackData" RowsPerPage="15" Dense="true">
         <Columns>
             <HierarchyColumn T="Track" />
-            <PropertyColumn Property="e => e!.Name" />
+            <PropertyColumn Property="e => e.Name" />
             <TemplateColumn T="Track" Title="Country" SortBy="e => e.Country">
                 <CellTemplate>
                     <CountryNamedFlag Code="@context.Item.Country" Size="ElementSize.Small" Reverse="true" />

@@ -11,7 +11,7 @@
             </MudStack>
             <MudPaper Class="px-2">
                 <MudTable T="QualyBattle"
-                          Items="@qualyBattleList.OrderBy(e => e.TeamName)"
+                          Items="@QualyBattleItems.OrderBy(e => e.TeamName)"
                           GroupBy="@groupDefinition"
                           GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
                           FixedHeader="true"
@@ -67,7 +67,7 @@
     [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
 
-    private List<QualyBattle> qualyBattleList = new();
+    private List<QualyBattle> QualyBattleItems { get; set; } = new();
 
     private TableGroupDefinition<QualyBattle> groupDefinition = new()
     {
@@ -102,7 +102,7 @@
             {
                 var driver = SeasonDrivers.First(e => e.Id == victory.Key);
 
-                qualyBattleList.Add(new QualyBattle
+                QualyBattleItems.Add(new QualyBattle
                 {
                     Name = driver.Driver.FullName,
                     Number = driver.Number,

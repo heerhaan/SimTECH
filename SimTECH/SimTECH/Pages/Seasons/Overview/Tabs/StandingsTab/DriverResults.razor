@@ -71,16 +71,9 @@
 
     [Parameter] public Dictionary<int, Country> CountryRounds { get; set; }
     [Parameter] public List<StandingDriverModel> StandingDrivers { get; set; }
+    [Parameter] public EventCallback OnOpenWdcChart { get; set; }
 
-    int lowestScoringPosition = 10;
-
-    DialogOptions customOptions = new()
-    {
-        MaxWidth = MaxWidth.ExtraLarge,
-        CloseButton = true,
-        DisableBackdropClick = true,
-        Position = DialogPosition.Center,
-    };
+    private int lowestScoringPosition = 10;
 
     protected override void OnInitialized()
     {
@@ -90,7 +83,6 @@
 
     async Task ShowWdcResultGraph()
     {
-        var parameters = new DialogParameters { ["Drivers"] = StandingDrivers, ["Season"] = OverviewModel.Season };
-        _ = await _dialog.ShowAsync<WdcResultChart>("WDC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
+        await OnOpenWdcChart.InvokeAsync();
     }
 }

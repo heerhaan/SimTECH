@@ -3,19 +3,26 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Engines</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Add" OnClick="EnterEngine" Class="btn-md">New</MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Success"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Outlined.Add"
+                       OnClick="AddItem"
+                       Class="btn-md">
+                New
+            </MudButton>
         </MudStack>
     </MudPaper>
     <MudDataGrid T="SeasonEngine" Items="@OverviewModel.SeasonEngines" Dense="true">
         <Columns>
-            <PropertyColumn Property="e => e!.Name" />
-            <PropertyColumn Property="e => e!.Power" CellClass="font-caption" />
-            <PropertyColumn Property="e => e!.Reliability" Title="REL" CellClass="font-caption" />
-            <PropertyColumn Property="e => e!.Rebadged" />
+            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.Power" CellClass="font-caption" />
+            <PropertyColumn Property="e => e.Reliability" Title="REL" CellClass="font-caption" />
+            <PropertyColumn Property="e => e.Rebadged" />
             <TemplateColumn T="SeasonEngine" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateEngine(context.Item))" />
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -28,8 +35,8 @@
 
     [Parameter] public EventCallback<SeasonEngine?> OnEditorOpen { get; set; }
 
-    async Task EnterEngine() => await UpdateEngine(null);
-    async Task UpdateEngine(SeasonEngine? item)
+    private async Task AddItem() => await UpdateItem(null);
+    private async Task UpdateItem(SeasonEngine? item)
     {
         await OnEditorOpen.InvokeAsync(item);
     }

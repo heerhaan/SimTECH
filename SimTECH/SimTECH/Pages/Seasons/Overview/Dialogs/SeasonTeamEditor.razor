@@ -3,9 +3,9 @@
         <MudText Typo="Typo.h5">Modify season team</MudText>
     </TitleContent>
     <DialogContent>
-        @if (model.Id == 0)
+        @if (Model.Id == 0)
         {
-            <MudSelect T="long" @bind-Value="@model.TeamId" Label="Team" Class="field-md">
+            <MudSelect T="long" @bind-Value="Model.TeamId" Label="Team" Class="field-md">
                 @foreach (var team in Teams)
                 {
                     <MudSelectItem Value="@team.Id">
@@ -16,37 +16,36 @@
             </MudSelect>
         }
 
-        <MudTextField @bind-Value="@model.Name" Label="Name" Class="field-md" Required />
-        <MudTextField @bind-Value="@model.Principal" Label="Team Principal" Class="field-md" Required />
+        <MudTextField @bind-Value="Model.Name" Label="Name" Class="field-md" Required />
+        <MudTextField @bind-Value="Model.Principal" Label="Team Principal" Class="field-md" Required />
 
         <MudStack Row="true" Spacing="4">
-            <MudColorPicker @bind-Text="@model.Colour" Label="Colour" Placeholder="Select colour" />
-            <MudColorPicker @bind-Text="@model.Accent" Label="Accent" Placeholder="Select accent" />
+            <MudColorPicker @bind-Text="Model.Colour" Label="Colour" Placeholder="Select colour" />
+            <MudColorPicker @bind-Text="Model.Accent" Label="Accent" Placeholder="Select accent" />
         </MudStack>
 
+        <MudNumericField @bind-Value="Model.BaseValue" Label="BaseValue" Class="field-sm" />
+        <MudNumericField @bind-Value="Model.Reliability" Label="Reliability" Class="field-sm" />
 
-        <MudNumericField @bind-Value="@model.BaseValue" Label="BaseValue" Class="field-sm" />
-        <MudNumericField @bind-Value="@model.Reliability" Label="Reliability" Class="field-sm" />
+        <MudNumericField @bind-Value="Model.Aero" Label="Aero" Class="field-sm" />
+        <MudNumericField @bind-Value="Model.Chassis" Label="Chassis" Class="field-sm" />
+        <MudNumericField @bind-Value="Model.Powertrain" Label="Powertrain" Class="field-sm" />
 
-        <MudNumericField @bind-Value="@model.Aero" Label="Aero" Class="field-sm" />
-        <MudNumericField @bind-Value="@model.Chassis" Label="Chassis" Class="field-sm" />
-        <MudNumericField @bind-Value="@model.Powertrain" Label="Powertrain" Class="field-sm" />
-
-        <MudSelect T="long" @bind-Value="@model.ManufacturerId" Label="Tyre manufacturer" Required="true">
+        <MudSelect T="long" @bind-Value="Model.ManufacturerId" Label="Tyre manufacturer" Required="true">
             @foreach (var manufacturer in Manufacturers)
             {
-                <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
+                <MudSelectItem Value="@manufacturer.Id">@manufacturer.Name</MudSelectItem>
             }
         </MudSelect>
 
-        <MudSelect T="long" @bind-Value="@model.SeasonEngineId" Label="Engine" Required="true">
+        <MudSelect T="long" @bind-Value="Model.SeasonEngineId" Label="Engine" Required="true">
             @foreach (var engine in SeasonEngines)
             {
-                <MudSelectItem Value="engine.Id">@engine.Name</MudSelectItem>
+                <MudSelectItem Value="@engine.Id">@engine.Name</MudSelectItem>
             }
         </MudSelect>
 
-        <PreviewColourMix Colour="@model.Colour" Accent="@model.Accent" Text="@model.Name" />
+        <PreviewColourMix Colour="@Model.Colour" Accent="@Model.Accent" Text="@Model.Name" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -62,19 +61,19 @@
     [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
     [Parameter] public SeasonTeam? SeasonTeam { get; set; }
 
-    EditSeasonTeamModel model;
+    private EditSeasonTeamModel Model { get; set; }
 
     protected override void OnInitialized()
     {
-        model = new EditSeasonTeamModel(SeasonTeam);
-        model.SeasonId = SeasonId;
+        Model = new EditSeasonTeamModel(SeasonTeam);
+        Model.SeasonId = SeasonId;
     }
 
     private void Submit()
     {
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            var modTeam = model.Record;
+            var modTeam = Model.Record;
             TeamDialog?.Close(DialogResult.Ok(modTeam));
         }
     }

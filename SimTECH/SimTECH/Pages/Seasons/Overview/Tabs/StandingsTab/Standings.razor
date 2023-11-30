@@ -1,4 +1,7 @@
 ﻿@using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Components
+@using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Dialogs
+
+@inject IDialogService _dialogService
 
 <MudTabs Outlined="true" Centered="true">
     <MudTabPanel Text="Standings">
@@ -12,44 +15,45 @@
                 </MudPaper>
             </MudItem>
             <MudItem xs="6">
-                <DriverStandings StandingDrivers="@driverResultsModel" />
+                <DriverStandings StandingDrivers="@DriverResultsModel" />
             </MudItem>
             <MudItem xs="6">
-                <ConstructorStandings StandingConstructors="@teamResultsModel" />
+                <ConstructorStandings StandingConstructors="@TeamResultsModel" />
             </MudItem>
         </MudGrid>
     </MudTabPanel>
     <MudTabPanel Text="WDC results">
-        <DriverResults StandingDrivers="@driverResultsModel"
-                       CountryRounds="@countryRounds" />
+        <DriverResults StandingDrivers="@DriverResultsModel"
+                       CountryRounds="@CountryRounds"
+                       OnOpenWdcChart="ShowWdcResultGraph" />
     </MudTabPanel>
     <MudTabPanel Text="WCC results">
-        <ConstructorResults StandingConstructors="@teamResultsModel"
-                            CountryRounds="@countryRounds" />
+        <ConstructorResults StandingConstructors="@TeamResultsModel"
+                            CountryRounds="@CountryRounds"
+                            OnOpenWccChart="ShowWccResultGraph" />
     </MudTabPanel>
 </MudTabs>
 
 @code {
     [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
-    List<StandingDriverModel> driverResultsModel = new();
-    List<StandingTeamModel> teamResultsModel = new();
-    Dictionary<int, Country> countryRounds = new();
+    public List<StandingDriverModel> DriverResultsModel { get; set; } = new();
+    public List<StandingTeamModel> TeamResultsModel { get; set; } = new();
+    public Dictionary<int, Country> CountryRounds { get; set; } = new();
 
     protected override void OnInitialized()
     {
-        countryRounds.Clear();
-        driverResultsModel.Clear();
-        teamResultsModel.Clear();
+        CountryRounds.Clear();
 
         var classResults = OverviewModel.ClassResults();
 
         foreach (var round in OverviewModel.Races.OrderBy(e => e.Round))
-            countryRounds.Add(round.Round, round.Track?.Country ?? Globals.DefaultCountry);
+            CountryRounds.Add(round.Round, round.Track?.Country ?? Globals.DefaultCountry);
 
         int indexer = 0;
 
-        driverResultsModel = OverviewModel.ClassDrivers()
+        // TODO: Can we generalize these calls somehow?
+        DriverResultsModel = OverviewModel.ClassDrivers()
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
             .Select(e =>
@@ -58,7 +62,7 @@
 
         indexer = 0;
 
-        teamResultsModel = OverviewModel.ClassTeams()
+        TeamResultsModel = OverviewModel.ClassTeams()
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
             .Select(e =>
@@ -117,5 +121,17 @@
                 Pole = result.Grid == 1,
                 FL = result.FastestLap,
             };
+    }
+
+    private async Task ShowWdcResultGraph()
+    {
+        var parameters = new DialogParameters { ["Drivers"] = DriverResultsModel, ["Season"] = OverviewModel.Season };
+        _ = await _dialogService.ShowAsync<WdcResultChart>("WDC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
+    }
+
+    private async Task ShowWccResultGraph()
+    {
+        var parameters = new DialogParameters { ["Teams"] = TeamResultsModel, ["Season"] = OverviewModel.Season };
+        _ = await _dialogService.ShowAsync<WccResultChart>("WCC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
     }
 }

@@ -3,11 +3,10 @@ using SimTECH.Common.Enums;
 
 namespace SimTECH.Data.EditModels
 {
-    public class EditLeagueModel
+    public class EditLeagueModel : EditBase
     {
         private readonly League _league;
 
-        public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public int RaceLength { get; set; } = 300;
         public bool UsePenalty { get; set; }

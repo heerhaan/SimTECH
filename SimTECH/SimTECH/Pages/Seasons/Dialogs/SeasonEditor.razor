@@ -112,71 +112,70 @@
                                 <MudText Typo="Typo.caption">[@Model.PitMinimum - @Model.PitMaximum]</MudText>
                             </div>
                         </MudRangeSlider>
-                        <MudNumericField T="int" @bind-Value="Model.PitCostSubtractCaution" Min="0" Label="Subtracted during SC" Class="field-sm" />
+                        <MudNumericField T="int" @bind-Value="Model.PitCostSubtractCaution" Min="0" Label="Subtracted from pit cost during SC" />
 
-                        <MudNumericField T="int" @bind-Value="Model.MaximumDriversInRace" Label="MAX drivers in race" Class="field-sm" />
-                        <MudNumericField T="int" @bind-Value="Model.GridBonus" Label="Bonus per grid POS" Class="field-sm" />
+                        <MudNumericField T="int" @bind-Value="Model.MaximumDriversInRace" Label="MAX drivers in race" />
+                        <MudNumericField T="int" @bind-Value="Model.GridBonus" Label="Bonus per grid POS" />
                     </div>
                 </MudStack>
             </MudPaper>
             <MudPaper Elevation="25" Width="600px" Class="pa-4 mud-height-full">
                 <MudText Typo="Typo.subtitle1">Points</MudText>
                 <MudDivider />
-                <MudStack Row="true" Justify="Justify.SpaceBetween" Class="pa-0">
-                    <div style="width: 300px">
-                        <MudText Typo="Typo.subtitle2">Per position</MudText>
-                        <MudDivider />
+                <div style="width: 300px">
+                    <MudText Typo="Typo.subtitle2">Per position</MudText>
+                    <MudDivider />
 
-                        <MudTable Items="@Model.PointAllotments.OrderBy(e => e.Position)"
-                                  Dense="true"
-                                  ReadOnly="false"
-                                  Class="extra-dense"
-                                  RowEditPreview="BackupAllotment"
-                                  RowEditCancel="ResetAllotment"
-                                  ApplyButtonPosition="TableApplyButtonPosition.End"
-                                  EditButtonPosition="TableEditButtonPosition.End"
-                                  EditTrigger="TableEditTrigger.RowClick">
-                            <ToolBarContent>
-                                <MudButton StartIcon="@Icons.Material.Filled.Add"
-                                           Variant="Variant.Outlined"
-                                           Color="Color.Tertiary"
-                                           OnClick="AppendAllotment"
-                                           Size="Size.Small">
-                                    Insert POS
-                                </MudButton>
-                            </ToolBarContent>
-                            <HeaderContent>
-                                <MudTh>POS</MudTh>
-                                <MudTh>PTS</MudTh>
-                                <MudTh></MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="Position">
-                                    <MudNumericField @bind-Value="@context.Position" Class="field-xs dense-field" Required />
-                                 </MudTd>
-                                 <MudTd DataLabel="Points">
-                                     <MudNumericField @bind-Value="@context.Points" Class="field-xs dense-field" Required />
-                                 </MudTd>
-                                 <MudTd>
-                                     <MudIconButton Size="@Size.Small"
-                                                    Icon="@Icons.Material.Outlined.Delete"
-                                                    Color="Color.Error"
-                                                    Class="pa-0"
-                                                    OnClick="@(() => RemoveAllotment(context))" />
-                                 </MudTd>
-                             </RowTemplate>
-                         </MudTable>
-                     </div>
-                     <div>
-                         <MudText Typo="Typo.subtitle2">Bonus</MudText>
-                         <MudDivider />
+                    <MudTable Items="@Model.PointAllotments.OrderBy(e => e.Position)"
+                                Dense="true"
+                                ReadOnly="false"
+                                Class="extra-dense"
+                                RowEditPreview="BackupAllotment"
+                                RowEditCancel="ResetAllotment"
+                                ApplyButtonPosition="TableApplyButtonPosition.End"
+                                EditButtonPosition="TableEditButtonPosition.End"
+                                EditTrigger="TableEditTrigger.RowClick">
+                        <ToolBarContent>
+                            <MudButton StartIcon="@Icons.Material.Filled.Add"
+                                       Variant="Variant.Outlined"
+                                       Color="Color.Tertiary"
+                                       OnClick="AppendAllotment"
+                                       Size="Size.Small">
+                                Insert position
+                            </MudButton>
+                        </ToolBarContent>
+                        <HeaderContent>
+                            <MudTh>POS</MudTh>
+                            <MudTh>PTS</MudTh>
+                            <MudTh></MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Position">
+                                <MudNumericField @bind-Value="context.Position" Class="field-xs dense-field" Required />
+                             </MudTd>
+                             <MudTd DataLabel="Points">
+                                 <MudNumericField @bind-Value="context.Points" Class="field-xs dense-field" Required />
+                             </MudTd>
+                             <MudTd>
+                                 <MudIconButton Size="@Size.Small"
+                                                Icon="@Icons.Material.Outlined.Delete"
+                                                Color="Color.Error"
+                                                Class="pa-0"
+                                                OnClick="@(() => RemoveAllotment(context))" />
+                             </MudTd>
+                         </RowTemplate>
+                     </MudTable>
+                 </div>
 
-                         <MudStack Row="true" Spacing="1">
-                             <MudNumericField T="int" @bind-Value="Model.PointsPole" Label="Pole position" Class="field-sm" />
-                             <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Fastest lap" Class="field-sm" />
-                         </MudStack>
-                     </div>
-                 </MudStack>
+                 <div>
+                     <MudText Typo="Typo.subtitle2">Bonus points</MudText>
+                     <MudDivider />
+
+                     <MudStack Row="true">
+                         <MudNumericField T="int" @bind-Value="Model.PointsPole" Label="Pole position" Class="field-sm" />
+                         <MudNumericField T="int" @bind-Value="Model.PointsFastestLap" Label="Fastest lap" Class="field-sm" />
+                     </MudStack>
+                 </div>
 
                 <MudPaper Class="mt-2">
                     <MudText Typo="Typo.subtitle1">Race classes</MudText>
@@ -225,7 +224,7 @@
                                     <MudColorPicker @bind-Text="context.Colour" Placeholder="Colour" Class="field-xs dense-field" />
                                 </MudTd>
                                 <MudTd>
-                                    <MudTextField T="string" @bind-Value="@context.Tag" Class="field-sm dense-field" />
+                                    <MudTextField T="string" @bind-Value="context.Tag" Class="field-sm dense-field" />
                                 </MudTd>
                                 <MudTd>
                                     @if (Model.Id == 0)

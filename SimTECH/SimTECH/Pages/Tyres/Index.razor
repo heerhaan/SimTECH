@@ -14,7 +14,15 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Tyres</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddItem" Class="btn-md">New</MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Tertiary"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       IconSize="Size.Small"
+                       OnClick="AddItem"
+                       Class="btn-md">
+                New
+            </MudButton>
         </MudStack>
         <MudText Typo="Typo.body2" Color="Color.Info" Class="px-4">Distance per advance: @(advanceDistance)km</MudText>
     </MudPaper>
@@ -83,10 +91,7 @@
         advanceDistance = _config.Value.CalculationDistance;
     }
 
-    private Func<Tyre, string> _applyTyreColouring => e =>
-    {
-        return $"border-color: {e.Colour}";
-    };
+    private Func<Tyre, string> _applyTyreColouring => e => $"border-color: {e.Colour}";
 
     private async Task AddItem() => await UpdateTyre(null);
     private async Task UpdateTyre(Tyre? item)

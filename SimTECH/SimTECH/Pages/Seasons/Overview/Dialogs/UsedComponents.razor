@@ -11,28 +11,28 @@
             </MudStack>
             @if (!loading)
             {
-                <MudTable T="UsedComponentParts"
-                          Items="@usedComponentParts"
+                <MudTable T="UsedParts"
+                          Items="@UsedComponentParts"
                           Dense="true"
                           Class="px-4"
                           id="used-components-table">
                     <HeaderContent>
                         <MudTh>
-                            <MudTableSortLabel T="UsedComponentParts" SortBy="@(e => e.Name)">
+                            <MudTableSortLabel T="UsedParts" SortBy="@(e => e.Name)">
                                 Name
                             </MudTableSortLabel>
                         </MudTh>
                         <MudTh Class="number-col">
-                            <MudTableSortLabel T="UsedComponentParts" SortBy="@(e => e.Number)">
+                            <MudTableSortLabel T="UsedParts" SortBy="@(e => e.Number)">
                                 NO
                             </MudTableSortLabel>
                         </MudTh>
                         <MudTh>
-                            <MudTableSortLabel T="UsedComponentParts" SortBy="@(e => e.Team)">
+                            <MudTableSortLabel T="UsedParts" SortBy="@(e => e.Team)">
                                 Team
                             </MudTableSortLabel>
                         </MudTh>
-                        @foreach (var incident in penalizableIncidents)
+                        @foreach (var incident in PenalizableIncidents)
                         {
                             <MudTh Class="number-col pb-20 overflow-hider">
                                 <MudBadge Content="@incident.Limit"
@@ -76,22 +76,22 @@
     [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
     [Parameter] public IEnumerable<Incident> Incidents { get; set; } = Enumerable.Empty<Incident>();
 
-    private List<UsedComponentParts> usedComponentParts;
-    private List<Incident> penalizableIncidents;
+    private List<UsedParts> UsedComponentParts { get; set; }
+    private List<Incident> PenalizableIncidents { get; set; }
 
     bool loading = true;
 
     protected override void OnInitialized()
     {
-        usedComponentParts = new(SeasonDrivers.Count());
-        penalizableIncidents = Incidents.Where(e => e.Penalized).OrderBy(e => e.Id).ToList();
+        UsedComponentParts = new(SeasonDrivers.Count());
+        PenalizableIncidents = Incidents.Where(e => e.Penalized).OrderBy(e => e.Id).ToList();
 
         foreach (var driver in SeasonDrivers)
         {
             var driverTeam = SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
             var driverResults = Results.Where(e => e.SeasonDriverId == driver.Id).ToList();
 
-            var partsUsedDriver = new UsedComponentParts
+            var partsUsedDriver = new UsedParts
                 {
                     Name = driver.Driver.FullName,
                     Number = driver.Number,
@@ -101,13 +101,13 @@
                     Accent = driverTeam?.Accent ?? Globals.DefaultAccent,
                 };
 
-            foreach (var penalizable in penalizableIncidents)
+            foreach (var penalizable in PenalizableIncidents)
             {
                 var amountUsed = driverResults.Count(e => e.IncidentId == penalizable.Id);
                 partsUsedDriver.AmountPenalizableIncidents.Add(penalizable, amountUsed);
             }
 
-            usedComponentParts.Add(partsUsedDriver);
+            UsedComponentParts.Add(partsUsedDriver);
         }
 
         loading = false;
@@ -122,17 +122,5 @@
             return "background-color: var(--mud-palette-warning)";
 
         return "background-color: lightgreen;";
-    }
-
-    internal class UsedComponentParts
-    {
-        public string Name { get; set; }
-        public int Number { get; set; }
-        public Country Country { get; set; }
-        public string Team { get; set; }
-        public string Colour { get; set; }
-        public string Accent { get; set; }
-
-        public Dictionary<Incident, int> AmountPenalizableIncidents { get; set; } = new();
     }
 }

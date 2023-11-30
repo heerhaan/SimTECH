@@ -17,15 +17,15 @@
         <MudText Typo="Typo.h3">Leagues</MudText>
         <MudSpacer />
         <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small" OnClick="AddLeague"
-                   StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Tertiary" Class="btn-sm">
+                   StartIcon="@Icons.Material.Filled.Add" IconSize="Size.Small" IconColor="Color.Tertiary" Class="btn-md">
             New
         </MudButton>
     </MudPaper>
     <MudDataGrid T="LeagueListItem" Items="@LeagueList" Bordered="true">
         <Columns>
             <HierarchyColumn T="LeagueListItem" />
-            <PropertyColumn Property="e => e!.Name" />
-            <PropertyColumn Property="e => e!.RaceLength" Title="Length" Style="font-family: var(--mud-typography-caption-family)" />
+            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.RaceLength" Title="Length" Style="font-family: var(--mud-typography-caption-family)" />
             <TemplateColumn T="LeagueListItem" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small">

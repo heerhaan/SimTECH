@@ -10,7 +10,7 @@
                     <MudStack>
                         @if (Model.Id == 0 && Drivers != null)
                         {
-                            <MudSelect T="long" @bind-Value="@Model.DriverId" Label="Driver" Style="width: 400px">
+                            <MudSelect T="long" @bind-Value="Model.DriverId" Label="Driver" Style="width: 400px">
                                 @foreach (var driver in Drivers)
                                 {
                                     <MudSelectItem Value="@driver.Id">
@@ -24,20 +24,20 @@
                             </MudSelect>
                         }
 
-                        <MudNumericField @bind-Value="@Model.Number" Label="Number" Class="field-sm" />
-                        <MudNumericField @bind-Value="@Model.Skill" Label="Skill" Class="field-sm" />
-                        <MudNumericField @bind-Value="@Model.Reliability" Label="Reliability" Class="field-sm" />
-                        <MudNumericField @bind-Value="@Model.Attack" Label="Attack" Class="field-sm" />
-                        <MudNumericField @bind-Value="@Model.Defense" Label="Defense" Class="field-sm" />
+                        <MudNumericField @bind-Value="Model.Number" Label="Number" Class="field-sm" />
+                        <MudNumericField @bind-Value="Model.Skill" Label="Skill" Class="field-sm" />
+                        <MudNumericField @bind-Value="Model.Reliability" Label="Reliability" Class="field-sm" />
+                        <MudNumericField @bind-Value="Model.Attack" Label="Attack" Class="field-sm" />
+                        <MudNumericField @bind-Value="Model.Defense" Label="Defense" Class="field-sm" />
 
-                        <MudSelect T="TeamRole" @bind-Value="@Model.TeamRole" Label="Team role" Style="width: 400px">
+                        <MudSelect T="TeamRole" @bind-Value="Model.TeamRole" Label="Team role" Style="width: 400px">
                             @foreach (var select in TeamRoleEnumHelper.GetTeamRoleSelection)
                             {
                                 <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
                             }
                         </MudSelect>
 
-                        <MudSwitchM3 @bind-Checked="@isDropped"
+                        <MudSwitchM3 @bind-Checked="isDropped"
                                      ThumbIcon="@Icons.Material.Filled.Done"
                                      ThumbOffIcon="@Icons.Material.Filled.Close"
                                      Label="Drop driver from team?"
@@ -45,7 +45,7 @@
 
                         @if (!isDropped)
                         {
-                            <MudSelect T="long" @bind-Value="@seasonTeamId" Label="Team" Style="width: 400px">
+                            <MudSelect T="long" @bind-Value="seasonTeamId" Label="Team" Style="width: 400px">
                                 @foreach (var steam in SeasonTeams)
                                 {
                                     <MudSelectItem Value="steam.Id">@steam.Name</MudSelectItem>

@@ -1,0 +1,25 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">Trait assignment results</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper>
+            Here is where I would show the assignment results, if I had them!
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? AssignmentDialog { get; set; }
+
+    private void Submit()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void Cancel() => AssignmentDialog?.Cancel();
+}

@@ -13,8 +13,8 @@ public static class Globals
 
     public const Country DefaultCountry = Country.FM;
 
-    public static readonly string[] AllWeatherIcons = new string[]
-        {
+    public static readonly string[] AllWeatherIcons =
+        [
             Icons.Material.Filled.WbSunny,
             Icons.Material.Filled.Cloud,
             Icons.Material.Filled.Air,
@@ -28,7 +28,7 @@ public static class Globals
             IconCollection.Snowflake,
             IconCollection.Comet,
             Icons.Material.Filled.NightsStay,
-        };
+        ];
 
     public static readonly DialogOptions StatisticDialogDefaultOptions = new()
     {

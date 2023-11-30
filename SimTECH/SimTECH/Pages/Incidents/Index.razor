@@ -12,16 +12,23 @@
             <MudText Typo="Typo.h3">Incidents</MudText>
             <MudSpacer />
 
-            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="AddItem" Class="btn-md">New</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Add"
+                       IconSize="Size.Small"
+                       Variant="Variant.Outlined"
+                       Color="Color.Tertiary"
+                       OnClick="AddItem"
+                       Class="btn-md">
+                New
+            </MudButton>
         </MudStack>
     </MudPaper>
     <MudDataGrid T="Incident" Items="@IncidentData" RowsPerPage="15" Dense="true">
         <Columns>
-            <PropertyColumn Property="e => e!.Name" />
-            <PropertyColumn Property="e => e!.Category" Filterable="true" />
-            <PropertyColumn Property="e => e!.Limit" />
-            <PropertyColumn Property="e => e!.Punishment" />
-            <PropertyColumn Property="e => e!.Odds" />
+            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.Category" Filterable="true" />
+            <PropertyColumn Property="e => e.Limit" />
+            <PropertyColumn Property="e => e.Punishment" />
+            <PropertyColumn Property="e => e.Odds" />
             <TemplateColumn T="Incident" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>

@@ -29,17 +29,14 @@
                         Great to see you again, you love to see it.
                     </MudText>
 
-                    <MudTooltip Placement="Placement.Right" Text="Represents amount kilometers driven per advance.">
-                        <MudText Typo="Typo.body2">
-                            Current advance distance: @(config.CalculationDistance)km.
-                        </MudText>
-                    </MudTooltip>
-
-                    <MudTooltip Placement="Placement.Right" Text="Represents time gap per score value.">
-                        <MudText Typo="Typo.body2">
-                            Current gap marge: @(config.GapMarge)s.
-                        </MudText>
-                    </MudTooltip>
+                    <MudListExtended T="string" Dense="true">
+                        <MudListItemExtended T="string"
+                                             Text="@($"Advance distance: {config.CalculationDistance}km")"
+                                             SecondaryText="Represents amount kilometers driven per advance." />
+                        <MudListItemExtended T="string"
+                                             Text="@($"Gap marge: {config.GapMarge}s")"
+                                             SecondaryText="Represents time gap per score value." />
+                    </MudListExtended>
 
                     @if (!hideDataMessage)
                     {
@@ -47,7 +44,7 @@
                                   Dense="true"
                                   ShowCloseIcon="true"
                                   CloseIconClicked="HideDataMessage"
-                                  Class="mb-2">
+                                  Class="my-4 mx-2">
                             First time here? Wow, how cool. Go to <MudLink Href="extra">extra</MudLink> to load some default data!
                         </MudAlert>
                     }

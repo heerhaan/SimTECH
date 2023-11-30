@@ -19,18 +19,26 @@
             <MudText Typo="Typo.h3" Class="mx-auto">Manage contracts for @League.Name</MudText>
 
             <MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
-                <ManagerSettings @bind-OnlyActiveTeams="onlyTeams" @bind-OnlyActiveDrivers="onlyDrivers" LeagueName="@League.Name" />
+                <ManagerSettings @bind-OnlyActiveTeams="onlyTeams"
+                                 @bind-OnlyActiveDrivers="onlyDrivers"
+                                 LeagueName="@League.Name" />
                 <MudButton Variant="Variant.Outlined"
-                           Size="Size.Medium"
+                           Size="Size.Small"
                            Color="Color.Info"
-                           OnClick="HandleSettingLoad">
+                           StartIcon="@Icons.Material.Filled.Sync"
+                           IconSize="Size.Small"
+                           OnClick="HandleSettingLoad"
+                           Class="btn-md">
                     Reload
                 </MudButton>
                 <MudButton Variant="Variant.Outlined"
-                           Size="Size.Medium"
+                           Size="Size.Small"
                            Color="Color.Success"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           IconSize="Size.Small"
                            Disabled="@(!isLoaded)"
-                           OnClick="SaveContracts">
+                           OnClick="SaveContracts"
+                           Class="btn-md">
                     Save
                 </MudButton>
             </MudStack>

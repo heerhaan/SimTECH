@@ -13,12 +13,6 @@
         public long LeagueId { get; set; }
         public League League { get; set; }
 
-        public bool IsExpired
-        {
-            get
-            {
-                return Duration == 0;
-            }
-        }
+        public bool IsExpired => Duration == 0;
     }
 }

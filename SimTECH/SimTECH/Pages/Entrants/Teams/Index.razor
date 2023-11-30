@@ -16,13 +16,13 @@
             <MudSpacer />
             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
                 <MudButton OnClick="ToggleDisplayArchived" Class="btn-md">@(showingArchived ? "Active" : "Archive")</MudButton>
-                <MudButton OnClick="AddTeam" Class="btn-md">New</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Add" IconSize="Size.Small" OnClick="AddTeam" Class="btn-md">New</MudButton>
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
     <MudDataGrid T="Team" Items="@teams" RowsPerPage="15" Dense="true">
         <Columns>
-            <PropertyColumn Property="e => e!.Name" />
+            <PropertyColumn Property="e => e.Name" />
             <TemplateColumn T="Team" Title="Country" SortBy="e => e.Country">
                 <CellTemplate>
                     <CountryNamedFlag Code="@context.Item.Country" Size="ElementSize.Small" Reverse="true" />

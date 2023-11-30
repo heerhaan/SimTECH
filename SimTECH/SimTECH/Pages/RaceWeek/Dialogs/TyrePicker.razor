@@ -2,7 +2,7 @@
 
 <MudDialog Class="dialog-shadow">
     <TitleContent>
-        <MudText>Pick here the first tyre a driver will use for this race</MudText>
+        <MudText>Pick here which tyre the driver will start on.</MudText>
     </TitleContent>
     <DialogContent>
         @if (Tyres?.Any() == true)
@@ -72,10 +72,7 @@
         advanceDistance = _config.Value.CalculationDistance;
     }
 
-    private void PickOption(Tyre tyre)
-    {
-        PickerDialog?.Close(DialogResult.Ok(tyre));
-    }
+    private void PickOption(Tyre tyre) => PickerDialog?.Close(DialogResult.Ok(tyre));
 
     private void Cancel() => PickerDialog?.Cancel();
 }
