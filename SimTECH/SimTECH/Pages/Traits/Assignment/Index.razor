@@ -45,78 +45,55 @@
                     }
 
                     <div>
-                        <MudSwitchM3 @bind-Checked="allowRemoval"
-                                     ThumbIcon="@Icons.Material.Filled.Done"
-                                     ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Include a random chance to remove a trait instead"
-                                     Color="Color.Error" />
-
-                        <MudNumericField @bind-Value="removalOdds"
-                                         Min="0"
-                                         Max="100"
-                                         HelperText="Percentage chance for a removal" />
+                        <MudText>Percentage chance of gaining a trait.</MudText>
+                        <MudSlider @bind-Value="@removalOdds"
+                                   Min="1"
+                                   Max="100"
+                                   TickMarks="true"
+                                   Step="1"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Secondary" />
                     </div>
 
-                    <MudButtonGroup>
-                        <MudButton>Reset</MudButton>
-                        <MudButton>Assign</MudButton>
+                    <div>
+                        <MudSwitchM3 @bind-Checked="@allowRemoval"
+                                     ThumbIcon="@Icons.Material.Filled.Done"
+                                     ThumbOffIcon="@Icons.Material.Filled.Close"
+                                     Label="Include a random % chance to remove a trait instead"
+                                     Color="Color.Error" />
+
+                        @if (allowRemoval)
+                        {
+                            <MudSlider @bind-Value="@removalOdds"
+                                       Min="1"
+                                       Max="100"
+                                       TickMarks="true"
+                                       Step="1"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Secondary" />
+
+                            <MudSlider @bind-Value="@removalOdds"
+                                       Min="1"
+                                       Max="100"
+                                       TickMarks="true"
+                                       Step="1"
+                                       Variant="Variant.Text"
+                                       Color="Color.Secondary" />
+                        }
+                    </div>
+
+                    <MudButtonGroup Variant="Variant.Outlined" Color="Color.Primary">
+                        <MudButton>
+                            Reset
+                        </MudButton>
+                        <MudButton Disabled="@(!CanAssignTraits)">
+                            Assign
+                        </MudButton>
                     </MudButtonGroup>
                 </MudStack>
             </MudPaper>
         </MudItem>
-        @* <MudItem xs="4">
-            <MudPaper Class="pa-2">
-                <MudStack>
-                    <MudText Typo="Typo.h5">For entrants</MudText>
-                    <MudDivider />
-
-                    <MudChipSet @bind-SelectedChip="entrantChip" Mandatory="true">
-                        <MudChip Color="Color.Primary" Value="Entrant.Driver">Driver</MudChip>
-                        <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
-                        <MudChip Color="Color.Primary" Value="Entrant.Track">Track</MudChip>
-                    </MudChipSet>
-
-                    @if (ShowLeagueSelector)
-                    {
-                        <MudSelect T="long" @bind-Value="leagueFilter" Variant="Variant.Outlined" Label="League" Placeholder="All leagues">
-                            @foreach (var league in Leagues)
-                            {
-                                <MudSelectItem Value="@league.Id">
-                                    <MudText>@league.Name</MudText>
-                                </MudSelectItem>
-                            }
-                        </MudSelect>
-                    }
-
-                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="LoadEntrants" Disabled="@(entrantChip == null)">Load</MudButton>
-
-                    @if (RelevantTraits.Any())
-                    {
-                        <MudText Typo="Typo.h5" Color="Color.Success">Relevant traits</MudText>
-                        <MudDivider />
-
-                        <MudListExtended T="string" Dense="true">
-                            @foreach (var trait in RelevantTraits)
-                            {
-                                <MudListItemExtended T="string"
-                                                     Text="@trait.Name"
-                                                     SecondaryText="@trait.Description" />
-                            }
-                        </MudListExtended>
-                    }
-
-                    <MudText Typo="Typo.h5" Class="mt-2">Assignment settings</MudText>
-                    <MudDivider />
-
-                    <MudText Typo="Typo.body2" Color="Color.Warning">
-                        Not implemented yet, should allow for which traits to assign or whether to randomly remove a trait.
-                        <br />
-                        Stretch goal: traits being assigned by certain events instead of manually applying it.
-                    </MudText>
-                </MudStack>
-            </MudPaper>
-        </MudItem> *@
-        <MudItem xs="4">
+        <MudItem xs="6">
             <MudPaper Class="pa-2">
                 <MudText Typo="Typo.body2" Color="Color.Info">
                     Select which traits to assign.
@@ -125,7 +102,7 @@
                 {
                     <MudTable T="AssignableTrait"
                               Items="@AssignableTraits"
-                              @bind-SelectedItems="selectedTraits"
+                              @bind-SelectedItems="@selectedTraits"
                               MultiSelection="true"
                               Dense="true"
                               FixedHeader="true">
@@ -148,14 +125,16 @@
                 }
             </MudPaper>
         </MudItem>
-        <MudItem xs="4">
+        <MudItem xs="6">
             <MudPaper Class="pa-2">
-                <MudText Typo="Typo.body2" Color="Color.Info">Entrada</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Info">
+                    Select for whom we're assigning traits
+                </MudText>
                 @if (Entrants.Any())
                 {
                     <MudTable T="EntrantAssignee"
                               Items="@Entrants"
-                              @bind-SelectedItems="selectedEntrants"
+                              @bind-SelectedItems="@selectedEntrants"
                               MultiSelection="true"
                               Dense="true"
                               FixedHeader="true">
@@ -190,11 +169,12 @@
 
 @code {
     private List<Trait> AllTraits { get; set; }
-    private List<Trait> RelevantTraits { get; set; } = [];
     private List<AssignableTrait> AssignableTraits { get; set; } = [];
     private List<EntrantAssignee> Entrants { get; set; } = [];
     private List<EntrantAssignee> AssignedEntrants { get; set; } = [];
     private List<League> Leagues { get; set; } = [];
+
+    private Dictionary<long, string> traitBook;
 
     private HashSet<AssignableTrait>? selectedTraits;
     private HashSet<EntrantAssignee>? selectedEntrants;
@@ -202,7 +182,12 @@
     private Entrant activeEntrant = Entrant.None;
     private long leagueFilter;
     private bool allowRemoval;
+    private int additionOdds = 100;
     private int removalOdds = 50;
+
+    private bool ShowLeagueSelector => activeEntrant == Entrant.Driver || activeEntrant == Entrant.Team;
+
+    private bool CanAssignTraits => selectedEntrants?.Any() == true && (selectedTraits?.Any() == true || allowRemoval);
 
     protected override async Task OnInitializedAsync()
     {
@@ -216,9 +201,9 @@
 
         AllTraits = await _traitService.GetTraits(StateFilter.Active);
         Leagues = await _leagueService.GetLeagues();
-    }
 
-    private bool ShowLeagueSelector => activeEntrant == Entrant.Driver || activeEntrant == Entrant.Team;
+        traitBook = AllTraits.ToDictionary(e => e.Id, e => e.Name);
+    }
 
     private async Task RetrieveEntrants(MudChip? chip)
     {
@@ -237,7 +222,7 @@
         await LoadEntrants();
     }
 
-    // Remnant of an older implementation, refactor this to something more readable later on
+    // TODO: Remnant of an older implementation, refactor this to something more readable later on
     private async Task LoadEntrants()
     {
         switch (activeEntrant)
@@ -276,7 +261,7 @@
         }
 
         AssignedEntrants.Clear();
-        RelevantTraits = AllTraits.Where(e => e.Type == activeEntrant).ToList();
+
         AssignableTraits = AllTraits
             .Where(e => e.Type == activeEntrant)
             .Select(e => new AssignableTrait
@@ -289,11 +274,15 @@
 
     private string GetReadableTrait(long id) => AllTraits.Find(e => e.Id == id)?.Name ?? "Unknown";
 
+    private async Task StartAssigningTraits()
+    {
+        
+    }
+
     private void AssignRandomTrait() => AssignRandomTrait(Entrants.TakeRandomItem());
     private void AssignRandomTrait(EntrantAssignee item)
     {
-        if (!RelevantTraits.Any())
-            return;
+        var relevantTraits = AllTraits.Where(e => e.Type == activeEntrant).ToList();
 
         var assignee = AssignedEntrants.FirstOrDefault(e => e == item);
 
@@ -303,7 +292,7 @@
             AssignedEntrants.Add(assignee);
         }
 
-        var availableTraits = RelevantTraits.Where(e => !assignee.ExistingTraitIds.Contains(e.Id)).ToList();
+        var availableTraits = relevantTraits.Where(e => !assignee.ExistingTraitIds.Contains(e.Id)).ToList();
         if (!availableTraits.Any())
             return;
 
