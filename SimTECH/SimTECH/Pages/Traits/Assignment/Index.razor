@@ -1,6 +1,7 @@
 ﻿@page "/traitassign"
 
 @using SimTECH.PageModels.Traits
+@using SimTECH.Pages.Traits.Assignment.Dialogs
 
 @inject DriverService _driverService
 @inject LeagueService _leagueService
@@ -276,7 +277,45 @@
 
     private async Task StartAssigningTraits()
     {
-        
+        var assignableTraits = selectedTraits?.ToList() ?? new();
+        var assignableEntrants = selectedEntrants?.ToList() ?? new();
+
+        if (!assignableEntrants.Any())
+            return;
+        if (!assignableTraits.Any() && allowRemoval == false)
+            return;
+
+        foreach (var entry in assignableEntrants)
+        {
+            var availableTraits = assignableTraits.Where(e => !entry.ExistingTraitIds.Contains(e.Id)).ToList();
+
+            if (availableTraits.Any() && NumberHelper.RandomInt(100) < additionOdds)
+            {
+                var randomTrait = availableTraits.TakeRandomItem();
+                entry.AssignedTraitIds.Add(randomTrait.Id);
+            }
+
+            if (entry.ExistingTraitIds.Any() && NumberHelper.RandomInt(100) < removalOdds)
+            {
+                var randomRemoval = entry.ExistingTraitIds.TakeRandomItem();
+                entry.RemovedTraitIds.Add(randomRemoval);
+            }
+        }
+
+        AssignedEntrants = assignableEntrants.Where(e => e.AssignedTraitIds.Any() || e.RemovedTraitIds.Any()).ToList();
+
+        var parameters = new DialogParameters
+            {
+                ["Entrants"] = AssignedEntrants,
+            };
+
+        var dialog = await _dialogService.ShowAsync<AssignmentResult>("Assignment result");
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await PersistAssignedTraits();
+        }
     }
 
     private void AssignRandomTrait() => AssignRandomTrait(Entrants.TakeRandomItem());

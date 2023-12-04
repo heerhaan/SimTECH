@@ -52,6 +52,7 @@ public class EntrantAssignee
 
     public List<long> ExistingTraitIds { get; set; } = [];
     public List<long> AssignedTraitIds { get; set; } = [];
+    public List<long> RemovedTraitIds { get; set; } = [];
 
     public Dictionary<long, string> ExistingTraits { get; set; } = [];
     public Dictionary<long, string> AssignedTraits { get; set; } = [];
