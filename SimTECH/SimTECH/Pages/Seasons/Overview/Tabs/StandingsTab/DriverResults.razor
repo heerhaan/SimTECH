@@ -1,17 +1,15 @@
 ﻿@using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Dialogs
 @using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Components
 
-@inject IDialogService _dialog
-
 <MudPaper Elevation="15">
     <MudTable Items="@StandingDrivers" Dense="true" Class="extra-dense" id="wdc-season-results">
         <ToolBarContent>
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4 mud-width-full">
-                <MudText Typo="Typo.h4">World Drivers Championship @OverviewModel.Season.Year</MudText>
+                <MudText Typo="Typo.h5">World Drivers Championship @OverviewModel.Season.Year</MudText>
                 <MudSpacer />
-                <MudButtonGroup Color="Color.Secondary" Variant="Variant.Text">
+                <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Text">
                     <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" />
-                    <ScreenshotIconButton TargetId="wdc-season-results" />
+                    <ScreenshotIconButton TargetId="wdc-season-results" Colour="Color.Tertiary" />
                 </MudButtonGroup>
             </MudStack>
         </ToolBarContent>
@@ -81,7 +79,7 @@
             lowestScoringPosition = OverviewModel.Season.PointAllotments.Max(e => e.Position);
     }
 
-    async Task ShowWdcResultGraph()
+    private async Task ShowWdcResultGraph()
     {
         await OnOpenWdcChart.InvokeAsync();
     }

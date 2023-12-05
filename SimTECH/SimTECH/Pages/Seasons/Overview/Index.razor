@@ -134,7 +134,7 @@
         driverStatusMod = currentLeague?.DriverStatusPaceModifier ?? 0;
 
         await PreloadTab();
-        
+
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
@@ -336,12 +336,15 @@
             .Where(e => !OverviewModel.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))
             .ToList();
 
+        var takenNumbers = OverviewModel.SeasonDrivers.Select(e => e.Number).ToArray();
+
         var parameters = new DialogParameters
             {
                 ["SeasonId"] = OverviewModel.Season.Id,
                 ["SeasonTeams"] = OverviewModel.SeasonTeams,
                 ["Drivers"] = drivers,
                 ["SeasonDriver"] = item,
+                ["TakenNumbers"] = takenNumbers,
             };
 
         var dialog = await _dialogService.ShowAsync<SeasonDriverEditor>("Modify in-season driver", parameters);

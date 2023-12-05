@@ -11,14 +11,6 @@
 </MudTooltip>
 
 @code {
-    [Parameter, EditorRequired] public string TargetId { get; set; }
-    [Parameter] public Color Colour { get; set; } = Color.Default;
-    [Parameter] public bool FullWidth { get; set; } = false;
-    [Parameter] public string Class { get; set; } = string.Empty;
-    [Parameter] public string Styles { get; set; } = string.Empty;
-
-    bool disabled = false;
-
     private string _classes
     {
         get
@@ -34,6 +26,14 @@
             return Styles;
         }
     }
+    
+    [Parameter, EditorRequired] public string TargetId { get; set; }
+    [Parameter] public Color Colour { get; set; } = Color.Default;
+    [Parameter] public bool FullWidth { get; set; } = false;
+    [Parameter] public string Class { get; set; } = string.Empty;
+    [Parameter] public string Styles { get; set; } = string.Empty;
+
+    private bool disabled = false;
 
     private async Task TakeScreenshot()
     {

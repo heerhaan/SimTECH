@@ -10,18 +10,22 @@
                     <MudStack>
                         @if (Model.Id == 0 && Drivers != null)
                         {
-                            <MudSelect T="long" @bind-Value="Model.DriverId" Label="Driver" Style="width: 400px">
-                                @foreach (var driver in Drivers)
-                                {
-                                    <MudSelectItem Value="@driver.Id">
-                                        <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                            <MudText>@driver.FullName</MudText>
+                            <MudSelectExtended ItemCollection="@Drivers.ToList()"
+                                               T="Driver"
+                                               Label="Driver"
+                                               Variant="Variant.Outlined"
+                                               SearchBox="true"
+                                               SearchFunc="SearchDrivers"
+                                               Value="@Model.Driver"
+                                               ValueChanged="LookupDriverData">
+                                <ItemTemplate>
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                        <MudText>@context.Value.FullName</MudText>
                                             <MudSpacer />
-                                            <CountryFlag Code="@driver.Country" Size="ElementSize.Tiny" />
-                                        </MudStack>
-                                    </MudSelectItem>
-                                }
-                            </MudSelect>
+                                        <CountryFlag Code="@context.Value.Country" Size="ElementSize.Tiny" />
+                                    </MudStack>
+                                </ItemTemplate>
+                            </MudSelectExtended>
                         }
 
                         <MudNumericField @bind-Value="Model.Number" Label="Number" Class="field-sm" />
@@ -67,23 +71,41 @@
     [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
 
     [Parameter, EditorRequired] public long SeasonId { get; set; }
-    //[Parameter] public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
     [Parameter, EditorRequired] public List<SeasonTeam> SeasonTeams { get; set; }
     [Parameter] public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
     [Parameter] public SeasonDriver? SeasonDriver { get; set; }
+    [Parameter] public int[] TakenNumbers { get; set; }
 
     private EditSeasonDriverModel Model;
     private long seasonTeamId;
     private bool loading = true;
     private bool isDropped = false;
+    private int nextNumber;
 
     protected override void OnInitialized()
     {
         Model = new EditSeasonDriverModel(SeasonDriver);
         Model.SeasonId = SeasonId;
         seasonTeamId = Model.SeasonTeamId.GetValueOrDefault();
+        Model.Number = TakenNumbers?.Max() + 1 ?? 2;
 
         loading = false;
+    }
+
+    private bool SearchDrivers(Driver driver, string searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+            return true;
+
+        var driverName = driver.FullName.ToLowerInvariant();
+
+        return driverName.Contains(searchText.ToLowerInvariant());
+    }
+
+    private async Task LookupDriverData(Driver driver)
+    {
+        Model.DriverId = driver.Id;
+        Model.Driver = driver;
     }
 
     private void Submit()
