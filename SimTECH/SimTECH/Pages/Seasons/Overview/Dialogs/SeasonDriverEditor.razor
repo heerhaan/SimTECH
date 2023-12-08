@@ -3,67 +3,65 @@
         <MudText Typo="Typo.h5">Modify in-season driver</MudText>
     </TitleContent>
     <DialogContent>
-        <MudContainer>
-            <MudPaper MinWidth="750px">
-                @if (!loading)
-                {
-                    <MudStack>
-                        @if (Model.Id == 0 && Drivers != null)
-                        {
-                            <MudSelectExtended ItemCollection="@Drivers.ToList()"
-                                               T="Driver"
-                                               Label="Driver"
-                                               Variant="Variant.Outlined"
-                                               SearchBox="true"
-                                               SearchFunc="SearchDrivers"
-                                               Value="@Model.Driver"
-                                               ValueChanged="LookupDriverData">
-                                <ItemTemplate>
-                                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                        <MudText>@context.Value.FullName</MudText>
-                                            <MudSpacer />
+        <MudPaper MinWidth="750px">
+            @if (!loading)
+            {
+                <MudStack>
+                    @if (Model.Id == 0 && Drivers != null)
+                    {
+                        <MudSelectExtended ItemCollection="@Drivers.ToList()"
+                                           T="Driver"
+                                           Label="Driver"
+                                           Variant="Variant.Outlined"
+                                           SearchBox="true"
+                                           SearchFunc="SearchDrivers"
+                                           Value="@Model.Driver"
+                                           ValueChanged="LookupDriverData">
+                            <ItemTemplate>
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText>@context.Value.FullName</MudText>
+                                        <MudSpacer />
                                         <CountryFlag Code="@context.Value.Country" Size="ElementSize.Tiny" />
                                     </MudStack>
                                 </ItemTemplate>
                             </MudSelectExtended>
+                    }
+
+                    <MudNumericField @bind-Value="Model.Number" Label="Number" Class="field-sm" />
+                    <MudNumericField @bind-Value="Model.Skill" Label="Skill" Class="field-sm" />
+                    <MudNumericField @bind-Value="Model.Reliability" Label="Reliability" Class="field-sm" />
+                    <MudNumericField @bind-Value="Model.Attack" Label="Attack" Class="field-sm" />
+                    <MudNumericField @bind-Value="Model.Defense" Label="Defense" Class="field-sm" />
+
+                    <MudSelect T="TeamRole" @bind-Value="Model.TeamRole" Label="Team role" Style="width: 400px">
+                        @foreach (var select in TeamRoleEnumHelper.GetTeamRoleSelection)
+                        {
+                            <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
                         }
+                    </MudSelect>
 
-                        <MudNumericField @bind-Value="Model.Number" Label="Number" Class="field-sm" />
-                        <MudNumericField @bind-Value="Model.Skill" Label="Skill" Class="field-sm" />
-                        <MudNumericField @bind-Value="Model.Reliability" Label="Reliability" Class="field-sm" />
-                        <MudNumericField @bind-Value="Model.Attack" Label="Attack" Class="field-sm" />
-                        <MudNumericField @bind-Value="Model.Defense" Label="Defense" Class="field-sm" />
+                    <MudSwitchM3 @bind-Checked="isDropped"
+                                 ThumbIcon="@Icons.Material.Filled.Done"
+                                 ThumbOffIcon="@Icons.Material.Filled.Close"
+                                 Label="Drop driver from team?"
+                                 Color="Color.Error" />
 
-                        <MudSelect T="TeamRole" @bind-Value="Model.TeamRole" Label="Team role" Style="width: 400px">
-                            @foreach (var select in TeamRoleEnumHelper.GetTeamRoleSelection)
+                    @if (!isDropped)
+                    {
+                        <MudSelect T="long" @bind-Value="seasonTeamId" Label="Team" Style="width: 400px">
+                            @foreach (var steam in SeasonTeams)
                             {
-                                <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                                <MudSelectItem Value="steam.Id">@steam.Name</MudSelectItem>
                             }
                         </MudSelect>
-
-                        <MudSwitchM3 @bind-Checked="isDropped"
-                                     ThumbIcon="@Icons.Material.Filled.Done"
-                                     ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Drop driver from team?"
-                                     Color="Color.Error" />
-
-                        @if (!isDropped)
-                        {
-                            <MudSelect T="long" @bind-Value="seasonTeamId" Label="Team" Style="width: 400px">
-                                @foreach (var steam in SeasonTeams)
-                                {
-                                    <MudSelectItem Value="steam.Id">@steam.Name</MudSelectItem>
-                                }
-                            </MudSelect>
-                        }
-                    </MudStack>
-                }
-            </MudPaper>
-        </MudContainer>
+                    }
+                </MudStack>
+            }
+        </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">OK</MudButton>
     </DialogActions>
 </MudDialog>
 
