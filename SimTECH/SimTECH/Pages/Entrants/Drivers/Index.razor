@@ -34,6 +34,9 @@
                 <MudButton StartIcon="@Icons.Material.Filled.Sync" IconSize="Size.Small" OnClick="GoToHumanGenerator" Class="btn-md">
                     Generate
                 </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Download" IconSize="Size.Small" OnClick="OpenDriverImporter" Class="btn-md">
+                    Import
+                </MudButton>
                 <MudButton StartIcon="@Icons.Material.Filled.Add"
                            IconSize="Size.Small"
                            OnClick="AddDriver"
@@ -72,7 +75,7 @@
     </MudDataGrid>
 </MudContainer>
 
-@code {
+    @code {
     private List<Driver> Drivers { get; set; } = new();
     private List<CurrentDriver> CurrentDrivers { get; set; } = new();
 
@@ -157,6 +160,18 @@
 
         _searchString = string.Empty;
         showingArchived = !showingArchived;
+    }
+
+    private async Task OpenDriverImporter()
+    {
+        var dialog = await _dialogService.ShowAsync<Import>("Import drivers");
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is List<Driver> bulkDrivers)
+        {
+            await _driverService.BulkAddDrivers(bulkDrivers.ToArray());
+            Drivers = await _driverService.GetDrivers();
+        }
     }
 
     private void GoToHumanGenerator() => _nav.NavigateTo("humanbeinggenerator");

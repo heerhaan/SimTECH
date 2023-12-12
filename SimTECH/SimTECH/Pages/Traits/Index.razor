@@ -112,8 +112,8 @@
         });
     }
 
-    async Task AddItem() => await UpdateItem(null);
-    async Task UpdateItem(Trait? item)
+    private async Task AddItem() => await UpdateItem(null);
+    private async Task UpdateItem(Trait? item)
     {
         var parameters = new DialogParameters { ["Trait"] = item };
 
@@ -127,12 +127,14 @@
         }
     }
 
-    async Task OnToggleChange(Trait trait, bool toggled) => await ToggleState(trait, (toggled ? State.Active : State.Closed));
-    async Task ToggleState(Trait trait, State target)
+    private async Task OnToggleChange(Trait trait, bool toggled) =>
+        await ToggleState(trait, (toggled ? State.Active : State.Closed));
+
+    private async Task ToggleState(Trait trait, State target)
     {
         await _traitService.ChangeState(trait, target);
         Traits = await _traitService.GetTraits();
     }
 
-    void GoToTraitAssign() => _nav.NavigateTo("traitassign");
+    private void GoToTraitAssign() => _nav.NavigateTo("traitassignlegacy");
 }

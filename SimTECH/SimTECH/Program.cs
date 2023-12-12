@@ -43,6 +43,7 @@ namespace SimTECH
             // Provider services
             builder.Services.AddScoped<BreadcrumbProvider>();
             builder.Services.AddScoped<HumanBeingProvider>();
+            builder.Services.AddScoped<RealityDataProvider>();
 
             // Data services
             builder.Services.AddScoped<CommonService>();

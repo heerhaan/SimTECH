@@ -1,4 +1,5 @@
 ﻿using SimTECH.Common.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SimTECH.Data.Models
 {
@@ -23,5 +24,8 @@ namespace SimTECH.Data.Models
                 return $"{FirstName} {LastName}";
             }
         }
+
+        [NotMapped]
+        public DateTime? TempDob { get; set; }
     }
 }
