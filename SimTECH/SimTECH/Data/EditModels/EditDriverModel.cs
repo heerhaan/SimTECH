@@ -1,7 +1,6 @@
 ﻿using SimTECH.Constants;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
-using SimTECH.Extensions;
 
 namespace SimTECH.Data.EditModels
 {
@@ -21,6 +20,9 @@ namespace SimTECH.Data.EditModels
 
         public IList<EditDriverTraitModel> DriverTraits { get; set; } = new List<EditDriverTraitModel>();
 
+        // Supportive properties
+        public DateTime? DateSetter { get; set; } = DateTime.Today;
+
         public EditDriverModel(Driver? driver)
         {
             if (driver == null)
@@ -38,6 +40,7 @@ namespace SimTECH.Data.EditModels
                 LastName = driver.LastName;
                 Abbreviation = driver.Abbreviation;
                 DateOfBirth = driver.DateOfBirth;
+                DateSetter = driver.DateOfBirth;
                 Country = driver.Country;
                 Biography = driver.Biography;
                 Mark = driver.Mark;
@@ -57,7 +60,7 @@ namespace SimTECH.Data.EditModels
                 FirstName = FirstName ?? string.Empty,
                 LastName = LastName ?? string.Empty,
                 Abbreviation = Abbreviation ?? string.Empty,
-                DateOfBirth = DateOfBirth,
+                DateOfBirth = DateSetter.GetValueOrDefault(),
                 Country = Country,
                 Biography = Biography ?? string.Empty,
                 Mark = Mark,

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using SimTECH.Constants;
+using SimTECH.Extensions;
+using System.ComponentModel;
 
 namespace SimTECH.Common.Enums;
 
@@ -263,6 +265,42 @@ public enum Country
  *   [Description("Wallis and Futuna")] WF = 245,
  */
 
-public class CountryEnumHelper
+public static class CountryEnumHelper
 {
+    private static readonly Dictionary<string, Country> CountryPronouns = new Dictionary<string, Country>()
+    {
+        { "British", Country.GB },
+        { "German", Country.DE },
+        { "Spanish", Country.ES },
+        { "Finnish", Country.FI },
+        { "Japanese", Country.JP },
+        { "French", Country.FR },
+        { "Polish", Country.PL },
+        { "Australian", Country.AU },
+        { "Italian", Country.IT },
+        { "Brazilian", Country.BR },
+        { "Austrian", Country.AT },
+        { "Dutch", Country.NL },
+    };
+
+    public static Country TryFindCountryByPronoun(string pronoun)
+    {
+        if (CountryPronouns.TryGetValue(pronoun, out Country value))
+            return value;
+
+        return Globals.DefaultCountry;
+    }
+
+    public static Country TryFindCountryByDescription(string description)
+    {
+        var countries = EnumHelper.GetEnumValues<Country>();
+
+        foreach (var country in countries)
+        {
+            if (description.ToLowerInvariant().Equals(country.GetDescription().ToLowerInvariant()))
+                return country;
+        }
+
+        return Globals.DefaultCountry;
+    }
 }

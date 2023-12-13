@@ -27,7 +27,7 @@
                                               Class="field-sm"
                                               Required="true" />
 
-                                <MudDatePicker @bind-Date=dateSetter
+                                <MudDatePicker @bind-Date="Model.DateSetter"
                                                DisableToolbar="true"
                                                DateFormat="yyyy"
                                                FixDay="1" FixMonth="1" OpenTo="OpenTo.Year"
@@ -95,7 +95,6 @@
     [Parameter] public List<Trait> Traits { get; set; } = new();
 
     private EditDriverModel Model;
-    private DateTime? dateSetter { get; set; }
     private List<Trait> selectableTraits;
     private ICollection<object>? selectedTraits { get; set; }
 
@@ -104,9 +103,9 @@
     protected override void OnInitialized()
     {
         Model = new EditDriverModel(Driver);
-        dateSetter = Model.DateOfBirth;
 
         var driverTraitIds = Model.DriverTraits.Select(e => e.TraitId).ToList();
+
         selectableTraits = Traits.Where(e => e.State == State.Active || driverTraitIds.Contains(e.Id)).ToList();
         selectedTraits = driverTraitIds.Cast<object>().ToList();
     }
@@ -127,8 +126,6 @@
 
     private void Submit()
     {
-        Model.DateOfBirth = dateSetter.GetValueOrDefault();
-
         if (selectedTraits != null)
         {
             Model.DriverTraits = selectedTraits

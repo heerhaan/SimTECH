@@ -1,14 +1,22 @@
 ﻿@inject RealityDataProvider _realityProvider
 
-<!--
-
-<MudDataGrid T="RealDriver"
-                             Items="RealDrivers"
-                             RowsPerPage="15"
+<MudDialog>
+    <TitleContent>
+        <MudText>Import drivers from real life data</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (firstStep)
+        {
+            @if (RealDrivers?.Any() == true)
+            {
+                <MudDataGrid T="RealDriver"
+                             Items="@RealDrivers"
+                             RowsPerPage="10"
                              Dense="true"
                              MultiSelection="true"
-                             SelectedItemsChanged="SetSelected">
+                             @bind-SelectedItems="SelectedDrivers">
                     <Columns>
+                        <SelectColumn T="RealDriver" />
                         <PropertyColumn Property="e => e.Code" />
                         <PropertyColumn Property="e => e.Number" />
                         <PropertyColumn Property="e => e.Forename" />
@@ -20,49 +28,6 @@
                         <MudDataGridPager T="RealDriver" />
                     </PagerContent>
                 </MudDataGrid>
--->
-
-<MudDialog>
-    <TitleContent>
-        <MudText>Import real life drivers</MudText>
-    </TitleContent>
-    <DialogContent>
-        @if (firstStep)
-        {
-            @if (RealDrivers?.Any() == true)
-            {
-                
-
-                <MudTable T="RealDriver"
-                          @ref="realTable"
-                          Items="@RealDrivers"
-                          RowsPerPage="15"
-                          Dense="true"
-                          MultiSelection="true"
-                          Hover="true"
-                          @bind-SelectedItems="SelectedDrivers">
-                    <HeaderContent>
-                        <MudTh>Code</MudTh>
-                        <MudTh>Number</MudTh>
-                        <MudTh>Forename</MudTh>
-                        <MudTh>Surname</MudTh>
-                        <MudTh>Dob</MudTh>
-                        <MudTh>Nationality</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>@context.Code</MudTd>
-                        <MudTd>@context.Number</MudTd>
-                        <MudTd>@context.Forename</MudTd>
-                        <MudTd>@context.Surname</MudTd>
-                        <MudTd>@context.Dob</MudTd>
-                        <MudTd>@context.Nationality</MudTd>
-                    </RowTemplate>
-                    <PagerContent>
-                        <MudPagination SelectedChanged="PageChange" Count="@((realTable.GetFilteredItemsCount() + realTable.RowsPerPage - 1) / realTable.RowsPerPage)"
-                                       Variant="Variant.Outlined"
-                                       Class="pa-4" />
-                    </PagerContent>
-                </MudTable>
             }
         }
         else
@@ -78,23 +43,23 @@
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>
-                        <MudTextField @bind-Value="@context.FirstName" Class="dense-field" />
+                        <MudTextField @bind-Value="context.FirstName" Class="dense-field" />
                     </MudTd>
                     <MudTd>
-                        <MudTextField @bind-Value="@context.LastName" Class="dense-field" />
+                        <MudTextField @bind-Value="context.LastName" Class="dense-field" />
                     </MudTd>
                     <MudTd>
-                        <MudTextField @bind-Value="@context.Abbreviation" Class="dense-field" />
+                        <MudTextField @bind-Value="context.Abbreviation" Class="dense-field" />
                     </MudTd>
                     <MudTd>
-                        <MudDatePicker @bind-Date="@context.TempDob"
+                        <MudDatePicker @bind-Date="context.DateSetter"
                                        DisableToolbar="true"
                                        DateFormat="yyyy"
                                        FixDay="1" FixMonth="1" OpenTo="OpenTo.Year"
                                        PickerVariant="PickerVariant.Dialog"
                                        Editable="true"
-                                       Class="field-sm"
-                                       Required="true" />
+                                       Required="true"
+                                       Class="field-sm" />
                     </MudTd>
                     <MudTd>
                         <CountrySelect @bind-Value="context.Country"
@@ -128,9 +93,7 @@
 
     private HashSet<RealDriver> SelectedDrivers { get; set; } = new();
 
-    private List<Driver> ImportDrivers { get; set; } = new();
-
-    private MudTable<RealDriver> realTable;
+    private List<EditDriverModel> ImportDrivers { get; set; } = new();
 
     private bool firstStep = true;
 
@@ -142,26 +105,6 @@
             return;
     }
 
-    private void SetSelected(HashSet<RealDriver> selection) => SelectedDrivers = selection;
-
-    private void PageChange(int index)
-    {
-        realTable.NavigateTo(index - 1);
-    }
-
-    private Driver ParseRealDriver(RealDriver realDriver)
-    {
-        return new Driver
-        {
-            FirstName = realDriver.Forename,
-            LastName = realDriver.Surname,
-            Abbreviation = realDriver.Code,
-            DateOfBirth = realDriver.Dob,
-            TempDob = realDriver.Dob,
-            Country = Globals.DefaultCountry,
-        };
-    }
-
     private void Next()
     {
         if (SelectedDrivers == null || SelectedDrivers.Count == 0)
@@ -171,7 +114,7 @@
         }
 
         ImportDrivers = SelectedDrivers
-            .Select(e => ParseRealDriver(e))
+            .Select(e => e.BuildEditModel())
             .ToList();
 
         firstStep = false;
@@ -179,12 +122,11 @@
 
     private void Submit()
     {
-        foreach (var driver in ImportDrivers)
-            driver.DateOfBirth = driver.TempDob.GetValueOrDefault();
+        var importedDrivers = ImportDrivers.Select(e => e.Record).ToList();
 
         // NOTE: check if all valid?
 
-        ImportDialog?.Close(DialogResult.Ok(ImportDrivers));
+        ImportDialog?.Close(DialogResult.Ok(importedDrivers));
     }
 
     private void Cancel() => ImportDialog?.Cancel();

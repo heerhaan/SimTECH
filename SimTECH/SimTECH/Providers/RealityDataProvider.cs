@@ -1,4 +1,7 @@
-﻿namespace SimTECH.Providers;
+﻿using SimTECH.Common.Enums;
+using SimTECH.Data.EditModels;
+
+namespace SimTECH.Providers;
 
 public class RealityDataProvider
 {
@@ -72,6 +75,14 @@ public class RealityDataProvider
     }
 }
 
+// TODO: Somehow there is a way to make this work but how?
+public abstract class RealData
+{
+    public int Id { get; set; }
+
+    public abstract RealData FromCsv(string csvLine);
+}
+
 public class RealCircuit
 {
     public int Id { get; set; }
@@ -91,10 +102,19 @@ public class RealCircuit
         return new RealCircuit
         {
             Id = int.Parse(values[0]),
-            Ref = values[1],
-            Name = values[2],
-            Location = values[3],
-            Country = values[4],
+            Ref = values[1].Trim('"'),
+            Name = values[2].Trim('"'),
+            Location = values[3].Trim('"'),
+            Country = values[4].Trim('"'),
+        };
+    }
+
+    public EditTrackModel BuildEditModel()
+    {
+        return new EditTrackModel(null)
+        {
+            Name = Name,
+            Country = CountryEnumHelper.TryFindCountryByDescription(Country),
         };
     }
 }
@@ -114,8 +134,16 @@ public class RealConstructor
         return new RealConstructor
         {
             Id = int.Parse(values[0]),
-            Ref = values[1],
-            Name = values[2],
+            Ref = values[1].Trim('"'),
+            Name = values[2].Trim('"'),
+        };
+    }
+
+    public EditTeamModel BuildEditModel()
+    {
+        return new EditTeamModel(null)
+        {
+            Name = Name,
         };
     }
 }
@@ -145,20 +173,33 @@ public class RealDriver
         var realDriver = new RealDriver
         {
             Id = int.Parse(values[0]),
-            Ref = values[1],
-            Code = values[3],
-            Forename = values[4],
-            Surname = values[5],
-            Nationality = values[7],
+            Ref = values[1].Trim('"'),
+            Code = values[3].Trim('"'),
+            Forename = values[4].Trim('"'),
+            Surname = values[5].Trim('"'),
+            Nationality = values[7].Trim('"'),
         };
 
         if (int.TryParse(values[2], out int parsedNum))
             realDriver.Number = parsedNum;
 
-        if (DateTime.TryParse(values[6], out DateTime parsedDate))
+        if (DateTime.TryParse(values[6].Trim('"'), out DateTime parsedDate))
             realDriver.Dob = parsedDate;
 
         return realDriver;
+    }
+
+    public EditDriverModel BuildEditModel()
+    {
+        return new EditDriverModel(null)
+        {
+            FirstName = Forename,
+            LastName = Surname,
+            Abbreviation = Code,
+            DateOfBirth = Dob,
+            DateSetter = Dob,
+            Country = CountryEnumHelper.TryFindCountryByPronoun(Nationality),
+        };
     }
 }
 
@@ -175,7 +216,15 @@ public class RealStatus
         return new RealStatus
         {
             Id = int.Parse(values[0]),
-            Status = values[1],
+            Status = values[1].Trim('"'),
+        };
+    }
+
+    public EditIncident BuildEditModel()
+    {
+        return new EditIncident(null)
+        {
+            Name = Status,
         };
     }
 }
