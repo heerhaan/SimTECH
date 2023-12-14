@@ -15,30 +15,6 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Secondary" Edge="Edge.Start" OnClick="ToggleSidebar" />
         <CustomBreadcrumbs />
 
-        @* <MudSpacer />
-
-        <MudExpansionPanels Dense="true" >
-            <MudExpansionPanel @bind-IsExpanded="isHelpOpen" Disabled="@(HelpContent == null)" Dense="true" Style="width: 500px !important">
-                <TitleContent>
-                <div class="d-flex">
-                <MudIconButton Icon="@Icons.Material.Filled.QuestionMark"
-                Variant="Variant.Outlined"
-                Color="Color.Secondary"
-                Size="Size.Small"
-                Disabled="@(HelpContent == null)"
-                OnClick="@(() => isHelpOpen = !isHelpOpen)"
-                Class="ml-auto"/>
-                </div>
-                </TitleContent>
-                <ChildContent>
-                    @if (HelpContent != null)
-                    {
-                        <DynamicComponent Type="@HelpContent" />
-                    }
-                </ChildContent>
-            </MudExpansionPanel>
-        </MudExpansionPanels> *@
-
         <MudSpacer />
 
         <MudToggleIconButton @bind-Toggled="@isDarkTheme"
@@ -54,10 +30,12 @@
 
         <MudIconButton Href="/guide" Icon="@Icons.Material.Filled.MenuBook" Color="Color.Dark" />
 
-        <MudPopover Open="@isHelpOpen" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopRight">
+        <MudPopover Open="@isHelpOpen" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             @if (HelpContent != null)
             {
-                <DynamicComponent Type="@HelpContent" />
+                <MudPaper Class="pa-2">
+                    <DynamicComponent Type="@HelpContent" />
+                </MudPaper>
             }
         </MudPopover>
         <MudIconButton Icon="@Icons.Material.Filled.MenuBook" Color="Color.Secondary" Disabled="@(HelpContent == null)" OnClick="@(() => isHelpOpen = !isHelpOpen)" />
