@@ -1,16 +1,11 @@
 ﻿@page "/guide"
 
 @using SimTECH.Pages.Guide.Topics
-@using SimTECH.Pages.Guide.Topics.FactorCat
-@using SimTECH.Pages.Guide.Topics.LeagueCat
-@using SimTECH.Pages.Guide.Topics.Misc
 @using SimTECH.Pages.Guide.Topics.RaceCat
-@using SimTECH.Pages.Guide.Topics.SeasonCat
-@using SimTECH.Pages.Guide.Topics.SetupCat
 
 @inject BreadcrumbProvider _bread
 
-<PageTitle>Guide</PageTitle>
+<PageTitle>Guide (additional)</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudGrid Spacing="1">
@@ -59,65 +54,6 @@
             ExpandedIcon = Icons.Custom.FileFormats.FileExcel,
             Type = typeof(Intro),
             Order = 0,
-        },
-        new GuideCategory
-        {
-            Title = "Setup",
-            Icon = Icons.Custom.Uncategorized.Folder,
-            ExpandedIcon = Icons.Custom.Uncategorized.FolderOpen,
-            Type = typeof(UnknownTopic),
-            Order = 10,
-            Children = new()
-            {
-                new GuidePage("Drivers", IconCollection.Helmet, typeof(DriverTopic), 0),
-                new GuidePage("Teams", Icons.Material.Filled.CarRepair, typeof(TeamTopic), 1),
-                new GuidePage("Engines", IconCollection.Engine, typeof(EngineTopic), 2),
-                new GuidePage("Tracks", Icons.Material.Filled.AddRoad, typeof(TrackTopic), 3),
-                new GuidePage("Traits", Icons.Material.Filled.FlashOn, typeof(TraitTopic), 4),
-            }
-        },
-        new GuideCategory
-        {
-            Title = "Factors",
-            Icon = IconCollection.SteeringWheel,
-            ExpandedIcon = IconCollection.SteeringWheel,
-            Type = typeof(UnknownTopic),
-            Order = 20,
-            Children = new()
-            {
-                new GuidePage("Tyre suppliers", Icons.Material.Filled.Cloud, typeof(ManufacturerTopic)),
-                new GuidePage("Tyres", Icons.Material.Filled.LocalGasStation, typeof(TyreTopic)),
-                new GuidePage("Incidents", IconCollection.TrafficCone, typeof(IncidentTopic)),
-                new GuidePage("Climates", Icons.Material.Filled.Cloud, typeof(ClimateTopic)),
-            }
-        },
-        new GuideCategory
-        {
-            Title = "Contracts",
-            Icon = Icons.Material.Filled.AssignmentInd,
-            ExpandedIcon = Icons.Material.Outlined.AssignmentInd,
-            Type = typeof(ContractTopic),
-            Order = 30,
-        },
-        new GuideCategory
-        {
-            Title = "Leagues",
-            Icon = IconCollection.Trophy,
-            ExpandedIcon = IconCollection.Trophy,
-            Type = typeof(LeagueTopic),
-            Order = 40,
-        },
-        new GuideCategory
-        {
-            Title = "Seasons",
-            Icon = Icons.Material.Filled.Flag,
-            ExpandedIcon = Icons.Material.Outlined.Flag,
-            Type = typeof(SeasonTopic),
-            Order = 50,
-            Children = new()
-            {
-                new GuidePage("Development", IconCollection.Polygon, typeof(DevelopTopic)),
-            }
         },
         new GuideCategory
         {
