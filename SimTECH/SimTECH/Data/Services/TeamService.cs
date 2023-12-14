@@ -4,10 +4,8 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services;
 
-public class TeamService(IDbContextFactory<SimTechDbContext> factory)
+public class TeamService(IDbContextFactory<SimTechDbContext> factory) : StateService<Team>(factory)
 {
-    private readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;
-
     public async Task<List<Team>> GetTeams() => await GetTeams(StateFilter.Default);
     public async Task<List<Team>> GetTeams(StateFilter filter)
     {
@@ -62,7 +60,7 @@ public class TeamService(IDbContextFactory<SimTechDbContext> factory)
                 .Where(e => e.TeamId == team.Id)
                 .ToListAsync();
 
-            if (removeables.Any())
+            if (removeables.Count != 0)
                 context.RemoveRange(removeables);
 
             if (team.TeamTraits?.Any() ?? false)

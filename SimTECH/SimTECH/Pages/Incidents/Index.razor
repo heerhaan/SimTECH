@@ -11,18 +11,23 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Incidents</MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Tertiary"
-                       Size="Size.Small"
-                       StartIcon="@Icons.Material.Filled.Add"
-                       IconSize="Size.Small"
-                       OnClick="AddItem"
-                       Class="btn-md">
-                New
-            </MudButton>
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small">
+                <MudButton StartIcon="@Icons.Material.Filled.Download"
+                           IconSize="Size.Small"
+                           OnClick="OpenImporter"
+                           Class="btn-md">
+                    Import
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Add"
+                           IconSize="Size.Small"
+                           OnClick="AddItem"
+                           Class="btn-md">
+                    New
+                </MudButton>
+            </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Incident" Items="@IncidentData" RowsPerPage="15" Dense="true">
+    <MudDataGrid T="Incident" Items="@Incidents" RowsPerPage="15" Dense="true">
         <Columns>
             <PropertyColumn Property="e => e.Name" />
             <PropertyColumn Property="e => e.Category" Filterable="true" />
@@ -32,9 +37,9 @@
             <TemplateColumn T="Incident" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
+                        <StateTogglerButton CallbackToggled="@((bool toggled) => OnToggleChange(context.Item, toggled))"
                                             Default="@(context.Item.State == State.Active)" />
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item))" />
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => UpdateItem(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -46,7 +51,7 @@
 </MudContainer>
 
 @code {
-    List<Incident> IncidentData;
+    List<Incident> Incidents { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -56,7 +61,7 @@
             new BreadcrumbItem("Incidents", href: "incidents", disabled: true),
         });
 
-        IncidentData = await _incidentService.GetIncidents(StateFilter.All);
+        Incidents = await _incidentService.GetIncidents(StateFilter.All);
     }
 
     async Task AddItem() => await UpdateItem(null);
@@ -73,7 +78,7 @@
         if (!result.Canceled && result.Data != null && result.Data is Incident updatedItem)
         {
             await _incidentService.UpdateIncident(updatedItem);
-            IncidentData = await _incidentService.GetIncidents(StateFilter.All);
+            Incidents = await _incidentService.GetIncidents(StateFilter.All);
         }
     }
 
@@ -82,5 +87,17 @@
     {
         await _incidentService.ChangeState(incident, targetState);
         incident.State = targetState;
+    }
+
+    private async Task OpenImporter()
+    {
+        var dialog = await _dialogService.ShowAsync<Import>("Import incidents");
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is List<Incident> bulkIncidents)
+        {
+            await _incidentService.BulkAddItems(bulkIncidents);
+            Incidents = await _incidentService.GetIncidents();
+        }
     }
 }

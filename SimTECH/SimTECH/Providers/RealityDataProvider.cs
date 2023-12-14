@@ -180,6 +180,9 @@ public class RealDriver
             Nationality = values[7].Trim('"'),
         };
 
+        if (realDriver.Code.Equals("\\N") && realDriver.Surname.Length > 2)
+            realDriver.Code = realDriver.Surname.Substring(3);
+
         if (int.TryParse(values[2], out int parsedNum))
             realDriver.Number = parsedNum;
 

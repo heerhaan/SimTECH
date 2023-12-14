@@ -21,6 +21,15 @@ namespace SimTECH.Data.Services
 
             return await entity.FirstAsync(x => x.Id == id);
         }
+
+        public async Task BulkAddItems(List<T> items)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.AddRange(items);
+
+            await context.SaveChangesAsync();
+        }
     }
 
     public abstract class StateService<T> : BaseService<T> where T : ModelState

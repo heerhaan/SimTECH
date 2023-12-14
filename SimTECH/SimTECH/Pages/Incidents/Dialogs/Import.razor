@@ -1,5 +1,157 @@
-﻿<h3>Import</h3>
+﻿@inject RealityDataProvider _realityProvider
+
+<MudDialog>
+    <TitleContent>
+        <MudText>Import incidents from real life</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudContainer MaxWidth="MaxWidth.False">
+            @if (firstStep)
+            {
+                @if (RealStatii?.Any() == true)
+                {
+                    <MudDataGrid T="RealStatus"
+                                 Items="@RealStatii"
+                                 RowsPerPage="10"
+                                 Dense="true"
+                                 MultiSelection="true"
+                                 @bind-SelectedItems="SelectedStatii"
+                                 Class="overflow-y-hide">
+                        <Columns>
+                            <SelectColumn T="RealStatus" />
+                            <PropertyColumn Property="e => e.Status" />
+                        </Columns>
+                        <PagerContent>
+                            <MudDataGridPager T="RealStatus" />
+                        </PagerContent>
+                    </MudDataGrid>
+                }
+            }
+            else
+            {
+                <MudTable Items="@ImportIncidents">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Category</MudTh>
+                        <MudTh>Colour</MudTh>
+                        <MudTh>Odds</MudTh>
+                        <MudTh>Penalized</MudTh>
+                        <MudTh>Limit</MudTh>
+                        <MudTh>Punishment</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudTextField @bind-Value="context.Name" Class="dense-field" />
+                        </MudTd>
+                        <MudTd>
+                            <MudSelect T="CategoryIncident" @bind-Value="context.Category" Required="true">
+                                @foreach (var cat in CategoryIncidentEnumHelper.GetIncidentCategories)
+                                {
+                                    <MudSelectItem T="CategoryIncident" Value="@cat.Key">
+                                        @cat.Value
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudTd>
+                        <MudTd>
+                            <MudColorPicker @bind-Text="context.Colour" Class="dense-field" />
+                        </MudTd>
+                        <MudTd>
+                            <MudNumericField @bind-Value="context.Odds" Min="0" Class="dense-field" />
+                        </MudTd>
+                        <MudTd>
+                            <MudSwitch @bind-Checked="context.Penalized"
+                                       Color="Color.Secondary" />
+                        </MudTd>
+                        <MudTd>
+                            @if (context.Penalized)
+                            {
+                                <MudNumericField @bind-Value="context.Limit" Min="0" Class="dense-field" />
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body2">No</MudText>
+                            }
+                        </MudTd>
+                        <MudTd>
+                            @if (context.Penalized)
+                            {
+                                <MudNumericField @bind-Value="context.Punishment" Min="1" Class="dense-field" />
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body2">No</MudText>
+                            }
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        @if (firstStep)
+        {
+            <MudButton Color="Color.Primary" OnClick="Next">Next</MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
 
 @code {
+    [CascadingParameter] protected MudDialogInstance? ImportDialog { get; set; }
 
+    private List<RealStatus>? RealStatii { get; set; }
+
+    private HashSet<RealStatus> SelectedStatii { get; set; } = new();
+
+    private List<EditIncident> ImportIncidents { get; set; }
+
+    private bool firstStep = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        RealStatii = await _realityProvider.GetExistingStatii();
+
+        if (firstStep == true)
+            return;
+    }
+
+    private void Next()
+    {
+        if (SelectedStatii.Count == 0)
+        {
+            // NOTE: warning?
+            return;
+        }
+
+        ImportIncidents = SelectedStatii
+            .Select(e => e.BuildEditModel())
+            .ToList();
+
+        firstStep = false;
+    }
+
+    private void Submit()
+    {
+        foreach (var incident in ImportIncidents)
+        {
+            if (incident.Penalized)
+            {
+                incident.Limit = 0;
+                incident.Punishment = 0;
+            }
+        }
+
+        var importedTeams = ImportIncidents.Select(e => e.Record).ToList();
+
+        // NOTE: check if all valid?
+
+        ImportDialog?.Close(DialogResult.Ok(importedTeams));
+    }
+
+    private void Cancel() => ImportDialog?.Cancel();
 }

@@ -18,13 +18,16 @@
                 <MudButton StartIcon="@Icons.Material.Filled.Archive" IconSize="Size.Small" OnClick="ToggleDisplayArchived" Class="btn-md">
                     @(showingArchived ? "Active" : "Archive")
                 </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Download" IconSize="Size.Small" OnClick="OpenImporter" Class="btn-md">
+                    Import
+                </MudButton>
                 <MudButton StartIcon="@Icons.Material.Filled.Add" IconSize="Size.Small" OnClick="AddTrack" Class="btn-md">
                     New
                 </MudButton>
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Track" Items="@TrackData" RowsPerPage="15" Dense="true">
+    <MudDataGrid T="Track" Items="@Tracks" RowsPerPage="15" Dense="true">
         <Columns>
             <HierarchyColumn T="Track" />
             <PropertyColumn Property="e => e.Name" />
@@ -89,7 +92,7 @@
 </MudContainer>
 
 @code {
-    List<Track> TrackData;
+    List<Track> Tracks { get; set; }
 
     private bool showingArchived = false;
 
@@ -101,7 +104,7 @@
             new BreadcrumbItem("Tracks", href: "tracks", disabled: true),
         });
 
-        TrackData = await _trackService.GetTracks();
+        Tracks = await _trackService.GetTracks();
     }
 
     async Task AddTrack() => await UpdateTrack(null);
@@ -119,23 +122,35 @@
         if (!result.Canceled && result.Data != null && result.Data is Track updatedItem)
         {
             await _trackService.UpdateTrack(updatedItem);
-            TrackData = await _trackService.GetTracks();
+            Tracks = await _trackService.GetTracks();
         }
     }
 
     async Task DeleteTrack(Track track)
     {
         await _trackService.ArchiveTrack(track);
-        TrackData.Remove(track);
+        Tracks.Remove(track);
     }
 
     async Task ToggleDisplayArchived()
     {
         if (showingArchived)
-            TrackData = await _trackService.GetTracks();
+            Tracks = await _trackService.GetTracks();
         else
-            TrackData = await _trackService.GetTracks(StateFilter.Archived);
+            Tracks = await _trackService.GetTracks(StateFilter.Archived);
 
         showingArchived = !showingArchived;
+    }
+
+    private async Task OpenImporter()
+    {
+        var dialog = await _dialogService.ShowAsync<Import>("Import circuits");
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is List<Track> bulkTracks)
+        {
+            await _trackService.BulkAddItems(bulkTracks);
+            Tracks = await _trackService.GetTracks();
+        }
     }
 }

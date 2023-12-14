@@ -1,147 +1,140 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using SimTECH.Common.Enums;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
-using SimTECH.Extensions;
 using SimTECH.PageModels;
 
-namespace SimTECH.Data.Services
+namespace SimTECH.Data.Services;
+
+public sealed class DriverService : StateService<Driver>
 {
-    public sealed class DriverService : StateService<Driver>
+    public DriverService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
+
+    public async Task<List<Driver>> GetDrivers() => await GetDrivers(StateFilter.Default);
+    public async Task<List<Driver>> GetDrivers(StateFilter filter)
     {
-        private readonly SimConfig _config;
+        using var context = _dbFactory.CreateDbContext();
 
-        public DriverService(IDbContextFactory<SimTechDbContext> factory, IOptions<SimConfig> config) : base(factory)
+        return await context.Driver
+            .Where(e => filter.StatesForFilter().Contains(e.State))
+            .Include(e => e.DriverTraits)
+            .ToListAsync();
+    }
+    // First test whether this impacts the performance significantly before (possibly) replacing the above
+    //public async Task<List<Driver>> GetDrivers(Expression<Func<Driver, bool>>? selector = null, StateFilter filter = StateFilter.Default)
+    //{
+    //    selector ??= _ => true;
+
+    //    using var context = _dbFactory.CreateDbContext();
+
+    //    return await context.Driver
+    //        .Where(e => filter.StatesForFilter().Contains(e.State))
+    //        .Where(selector)
+    //        .ToListAsync();
+    //}
+
+    public async Task<List<CurrentDriver>> GetDriversInActiveSeason()
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.SeasonDriver
+            .Where(sd => sd.Season.State == State.Active)
+            .Select(sd => new CurrentDriver
+            {
+                SeasonDriverId = sd.Id,
+                DriverId = sd.DriverId,
+                LeagueName = sd.Season.League.Name,
+                Colour = sd.SeasonTeam == null ? Globals.DefaultColour : sd.SeasonTeam.Colour
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<Driver>> GetDriversFromLeague(long leagueId) => await GetDriversFromLeague(leagueId, StateFilter.Default);
+    public async Task<List<Driver>> GetDriversFromLeague(long leagueId, StateFilter filter)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        var seasons = await context.Season
+            .Where(e => e.LeagueId == leagueId)
+            .Include(e => e.SeasonDrivers)
+            .ToListAsync();
+
+        var mostRecent = seasons.Find(e => e.State == State.Active)
+            ?? seasons.OrderByDescending(e => e.Year).FirstOrDefault();
+
+        if (mostRecent == null)
         {
-            _config = config.Value;
-        }
-
-        public async Task<List<Driver>> GetDrivers() => await GetDrivers(StateFilter.Default);
-        public async Task<List<Driver>> GetDrivers(StateFilter filter)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
             return await context.Driver
                 .Where(e => filter.StatesForFilter().Contains(e.State))
                 .Include(e => e.DriverTraits)
                 .ToListAsync();
         }
-        // First test whether this impacts the performance significantly before (possibly) replacing the above
-        //public async Task<List<Driver>> GetDrivers(Expression<Func<Driver, bool>>? selector = null, StateFilter filter = StateFilter.Default)
-        //{
-        //    selector ??= _ => true;
 
-        //    using var context = _dbFactory.CreateDbContext();
+        return await context.Driver
+            .Where(e => filter.StatesForFilter().Contains(e.State)
+                && e.SeasonDrivers.Any(e => e.SeasonId == mostRecent.Id))
+            .Include(e => e.DriverTraits)
+            .ToListAsync();
+    }
 
-        //    return await context.Driver
-        //        .Where(e => filter.StatesForFilter().Contains(e.State))
-        //        .Where(selector)
-        //        .ToListAsync();
-        //}
+    public async Task UpdateDriver(Driver driver)
+    {
+        using var context = _dbFactory.CreateDbContext();
 
-        public async Task<List<CurrentDriver>> GetDriversInActiveSeason()
+        if (driver.Id == 0)
         {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.SeasonDriver
-                .Where(sd => sd.Season.State == State.Active)
-                .Select(sd => new CurrentDriver
-                {
-                    SeasonDriverId = sd.Id,
-                    DriverId = sd.DriverId,
-                    LeagueName = sd.Season.League.Name,
-                    Colour = sd.SeasonTeam == null ? Globals.DefaultColour : sd.SeasonTeam.Colour
-                })
-                .ToListAsync();
+            driver.State = State.Active;
+            context.Add(driver);
         }
-
-        public async Task<List<Driver>> GetDriversFromLeague(long leagueId) => await GetDriversFromLeague(leagueId, StateFilter.Default);
-        public async Task<List<Driver>> GetDriversFromLeague(long leagueId, StateFilter filter)
+        else
         {
-            using var context = _dbFactory.CreateDbContext();
-
-            var seasons = await context.Season
-                .Where(e => e.LeagueId == leagueId)
-                .Include(e => e.SeasonDrivers)
-                .ToListAsync();
-
-            var mostRecent = seasons.Find(e => e.State == State.Active)
-                ?? seasons.OrderByDescending(e => e.Year).FirstOrDefault();
-
-            if (mostRecent == null)
-            {
-                return await context.Driver
-                    .Where(e => filter.StatesForFilter().Contains(e.State))
-                    .Include(e => e.DriverTraits)
+            var removeables = await context.DriverTrait
+                    .Where(e => e.DriverId == driver.Id)
                     .ToListAsync();
-            }
 
-            return await context.Driver
-                .Where(e => filter.StatesForFilter().Contains(e.State)
-                    && e.SeasonDrivers.Any(e => e.SeasonId == mostRecent.Id))
-                .Include(e => e.DriverTraits)
-                .ToListAsync();
+            if (removeables.Any())
+                context.RemoveRange(removeables);
+
+            if (driver.DriverTraits?.Any() ?? false)
+                context.AddRange(driver.DriverTraits);
+
+            context.Update(driver);
         }
 
-        public async Task UpdateDriver(Driver driver)
+        await context.SaveChangesAsync();
+    }
+
+    public async Task BulkAddDrivers(Driver[] drivers)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        context.AddRange(drivers);
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task ArchiveDriver(Driver driver)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        if (driver.State == State.Archived)
         {
-            using var context = _dbFactory.CreateDbContext();
-
-            if (driver.Id == 0)
+            driver.State = State.Active;
+        }
+        else
+        {
+            if (context.SeasonDriver.Any(e => e.DriverId == driver.Id))
             {
-                driver.State = State.Active;
-                context.Add(driver);
-            }
-            else
-            {
-                var removeables = await context.DriverTrait
-                        .Where(e => e.DriverId == driver.Id)
-                        .ToListAsync();
-
-                if (removeables.Any())
-                    context.RemoveRange(removeables);
-
-                if (driver.DriverTraits?.Any() ?? false)
-                    context.AddRange(driver.DriverTraits);
-
+                driver.State = State.Archived;
                 context.Update(driver);
             }
-
-            await context.SaveChangesAsync();
-        }
-
-        public async Task BulkAddDrivers(Driver[] drivers)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            context.AddRange(drivers);
-
-            await context.SaveChangesAsync();
-        }
-
-        public async Task ArchiveDriver(Driver driver)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            if (driver.State == State.Archived)
-            {
-                driver.State = State.Active;
-            }
             else
             {
-                if (context.SeasonDriver.Any(e => e.DriverId == driver.Id))
-                {
-                    driver.State = State.Archived;
-                    context.Update(driver);
-                }
-                else
-                {
-                    context.Remove(driver);
-                }
+                context.Remove(driver);
             }
-
-            await context.SaveChangesAsync();
         }
+
+        await context.SaveChangesAsync();
     }
 }
+

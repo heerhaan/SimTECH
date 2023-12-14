@@ -145,8 +145,8 @@
 @code {
     private enum GenerateBy { Language, Nationality }
 
-    IEnumerable<Country> SelectedCountries { get; set; } = new HashSet<Country>();
-    IEnumerable<LanguageInfo> SelectedLanguages { get; set; } = new HashSet<LanguageInfo>();
+    private IEnumerable<Country> SelectedCountries { get; set; } = new HashSet<Country>();
+    private IEnumerable<LanguageInfo> SelectedLanguages { get; set; } = new HashSet<LanguageInfo>();
 
     LanguageInfo[]? availableLanguages;
     List<HumanBeing>? humanBeans;
@@ -168,13 +168,13 @@
         availableLanguages = _humanProvider.GetLanguageHumanInfo();
     }
 
-    void GenderChange(MudChip? genderChip)
+    private void GenderChange(MudChip? genderChip)
     {
         if (genderChip != null)
             genderFilter = (Gender)genderChip.Value;
     }
 
-    void GenerateHumans()
+    private void GenerateHumans()
     {
         if (availableLanguages == null)
         {
@@ -198,7 +198,7 @@
         humanBeans = _humanProvider.GetHumanBeings(generateAmount, langsToGenerate, genderFilter, dateRange);
     }
 
-    async Task SaveHumanBeings()
+    private async Task SaveHumanBeings()
     {
         if (humanBeans == null)
         {
@@ -206,18 +206,20 @@
             return;
         }
 
-        var drivers = humanBeans.Select(e => e.ToDriver).ToArray();
-        await _driverService.BulkAddDrivers(drivers);
+        var drivers = humanBeans.Select(e => e.ToDriver).ToList();
+
+        await _driverService.BulkAddItems(drivers);
+
         _nav.NavigateTo("/drivers");
     }
 
-    async Task SaveSingleHuman(HumanBeing realHero)
+    private async Task SaveSingleHuman(HumanBeing realHero)
     {
-        await _driverService.BulkAddDrivers(new Driver[] { realHero.ToDriver });
+        await _driverService.BulkAddItems(new(){ realHero.ToDriver });
         _nav.NavigateTo("/drivers");
     }
 
-    void RemoveHumanBeing(HumanBeing realLoser)
+    private void RemoveHumanBeing(HumanBeing realLoser)
     {
         if (humanBeans?.Contains(realLoser) ?? false)
             humanBeans.Remove(realLoser);

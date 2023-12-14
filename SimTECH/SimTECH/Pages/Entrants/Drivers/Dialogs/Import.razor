@@ -5,73 +5,76 @@
         <MudText>Import drivers from real life data</MudText>
     </TitleContent>
     <DialogContent>
-        @if (firstStep)
-        {
-            @if (RealDrivers?.Any() == true)
+        <div class="px-4 py-2">
+            @if (firstStep)
             {
-                <MudDataGrid T="RealDriver"
-                             Items="@RealDrivers"
-                             RowsPerPage="10"
-                             Dense="true"
-                             MultiSelection="true"
-                             @bind-SelectedItems="SelectedDrivers">
-                    <Columns>
-                        <SelectColumn T="RealDriver" />
-                        <PropertyColumn Property="e => e.Code" />
-                        <PropertyColumn Property="e => e.Number" />
-                        <PropertyColumn Property="e => e.Forename" />
-                        <PropertyColumn Property="e => e.Surname" />
-                        <PropertyColumn Property="e => e.Dob" />
-                        <PropertyColumn Property="e => e.Nationality" />
-                    </Columns>
-                    <PagerContent>
-                        <MudDataGridPager T="RealDriver" />
-                    </PagerContent>
-                </MudDataGrid>
+                @if (RealDrivers?.Any() == true)
+                {
+                    <MudDataGrid T="RealDriver"
+                                 Items="@RealDrivers"
+                                 RowsPerPage="10"
+                                 Dense="true"
+                                 MultiSelection="true"
+                                 @bind-SelectedItems="SelectedDrivers"
+                                 Class="overflow-y-hide">
+                        <Columns>
+                            <SelectColumn T="RealDriver" />
+                            <PropertyColumn Property="e => e.Code" />
+                            <PropertyColumn Property="e => e.Number" />
+                            <PropertyColumn Property="e => e.Forename" />
+                            <PropertyColumn Property="e => e.Surname" />
+                            <PropertyColumn Property="e => e.Dob" Format="dd/MM/yyyy" />
+                            <PropertyColumn Property="e => e.Nationality" />
+                        </Columns>
+                        <PagerContent>
+                            <MudDataGridPager T="RealDriver" />
+                        </PagerContent>
+                    </MudDataGrid>
+                }
             }
-        }
-        else
-        {
-            <MudTable Items="@ImportDrivers" >
-                <HeaderContent>
-                    <MudTh>FirstName</MudTh>
-                    <MudTh>LastName</MudTh>
-                    <MudTh>Abbreviation</MudTh>
-                    <MudTh>DoB</MudTh>
-                    <MudTh>Country</MudTh>
-                    <MudTh>Mark</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>
-                        <MudTextField @bind-Value="context.FirstName" Class="dense-field" />
-                    </MudTd>
-                    <MudTd>
-                        <MudTextField @bind-Value="context.LastName" Class="dense-field" />
-                    </MudTd>
-                    <MudTd>
-                        <MudTextField @bind-Value="context.Abbreviation" Class="dense-field" />
-                    </MudTd>
-                    <MudTd>
-                        <MudDatePicker @bind-Date="context.DateSetter"
-                                       DisableToolbar="true"
-                                       DateFormat="yyyy"
-                                       FixDay="1" FixMonth="1" OpenTo="OpenTo.Year"
-                                       PickerVariant="PickerVariant.Dialog"
-                                       Editable="true"
-                                       Required="true"
-                                       Class="field-sm" />
-                    </MudTd>
-                    <MudTd>
-                        <CountrySelect @bind-Value="context.Country"
-                                       Class="field-md" />
-                    </MudTd>
-                    <MudTd>
-                        <MudSwitch @bind-Checked="context.Mark"
-                                   Color="Color.Secondary" />
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
-        }
+            else
+            {
+                <MudTable Items="@ImportDrivers" Class="pa-4">
+                    <HeaderContent>
+                        <MudTh>FirstName</MudTh>
+                        <MudTh>LastName</MudTh>
+                        <MudTh>Abbreviation</MudTh>
+                        <MudTh>DoB</MudTh>
+                        <MudTh>Country</MudTh>
+                        <MudTh>Mark</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudTextField @bind-Value="context.FirstName" Class="dense-field" />
+                        </MudTd>
+                        <MudTd>
+                            <MudTextField @bind-Value="context.LastName" Class="dense-field" />
+                        </MudTd>
+                        <MudTd>
+                            <MudTextField @bind-Value="context.Abbreviation" Class="dense-field" />
+                        </MudTd>
+                        <MudTd>
+                            <MudDatePicker @bind-Date="context.DateSetter"
+                                           DisableToolbar="true"
+                                           DateFormat="yyyy"
+                                           FixDay="1" FixMonth="1" OpenTo="OpenTo.Year"
+                                           PickerVariant="PickerVariant.Dialog"
+                                           Editable="true"
+                                           Required="true"
+                                           Class="field-sm" />
+                        </MudTd>
+                        <MudTd>
+                            <CountrySelect @bind-Value="context.Country"
+                                           Class="field-md" />
+                        </MudTd>
+                        <MudTd>
+                            <MudSwitch @bind-Checked="context.Mark"
+                                       Color="Color.Secondary" />
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </div>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>

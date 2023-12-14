@@ -1,37 +1,33 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
-using SimTECH.Extensions;
 
-namespace SimTECH.Data.Services
+namespace SimTECH.Data.Services;
+
+public class IncidentService(IDbContextFactory<SimTechDbContext> factory) : StateService<Incident>(factory)
 {
-    public class IncidentService : StateService<Incident>
+    public async Task<List<Incident>> GetIncidents() => await GetIncidents(StateFilter.Default);
+    public async Task<List<Incident>> GetIncidents(StateFilter filter)
     {
-        public IncidentService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
+        using var context = _dbFactory.CreateDbContext();
 
-        public async Task<List<Incident>> GetIncidents() => await GetIncidents(StateFilter.Default);
-        public async Task<List<Incident>> GetIncidents(StateFilter filter)
+        return await context.Incident.Where(e => filter.StatesForFilter().Contains(e.State)).ToListAsync();
+    }
+
+    public async Task UpdateIncident(Incident incident)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        if (incident.Id == 0)
         {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.Incident.Where(e => filter.StatesForFilter().Contains(e.State)).ToListAsync();
+            incident.State = State.Active;
+            context.Add(incident);
+        }
+        else
+        {
+            context.Update(incident);
         }
 
-        public async Task UpdateIncident(Incident incident)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            if (incident.Id == 0)
-            {
-                incident.State = State.Active;
-                context.Add(incident);
-            }
-            else
-            {
-                context.Update(incident);
-            }
-
-            await context.SaveChangesAsync();
-        }
+        await context.SaveChangesAsync();
     }
 }

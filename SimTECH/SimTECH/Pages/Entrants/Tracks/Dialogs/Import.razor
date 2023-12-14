@@ -1,5 +1,138 @@
-﻿<h3>Import</h3>
+﻿@inject RealityDataProvider _realityProvider
+
+<MudDialog>
+    <TitleContent>
+        <MudText>Import tracks from real life</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Warning">
+            There are no checks here for valid data, so make sure to not fuck up the 'Length'.
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (firstStep)
+        {
+            @if (RealCircuits?.Any() == true)
+            {
+                <MudDataGrid T="RealCircuit"
+                             Items="@RealCircuits"
+                             RowsPerPage="10"
+                             Dense="true"
+                             MultiSelection="true"
+                             @bind-SelectedItems="SelectedCircuits"
+                             Class="overflow-y-hide">
+                    <Columns>
+                        <SelectColumn T="RealCircuit" />
+                        <PropertyColumn Property="e => e.Name" />
+                        <PropertyColumn Property="e => e.Location" />
+                        <PropertyColumn Property="e => e.Country" />
+                    </Columns>
+                    <PagerContent>
+                        <MudDataGridPager T="RealCircuit" />
+                    </PagerContent>
+                </MudDataGrid>
+            }
+        }
+        else
+        {
+            <MudTable Items="@ImportTracks" Class="pa-4">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Country</MudTh>
+                    <MudTh>Length</MudTh>
+                    <MudTh>AER</MudTh>
+                    <MudTh>CHA</MudTh>
+                    <MudTh>POW</MudTh>
+                    <MudTh>QUA</MudTh>
+                    <MudTh>DEF</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <MudTextField @bind-Value="context.Name" Class="dense-field" />
+                    </MudTd>
+                    <MudTd>
+                        <CountrySelect @bind-Value="context.Country" />
+                    </MudTd>
+                    <MudTd>
+                        <MudNumericField T="double"
+                                         @bind-Value="context.Length"
+                                         Format="N2"
+                                         Adornment="Adornment.End"
+                                         AdornmentText="Km"
+                                         AdornmentColor="Color.Tertiary" />
+                    </MudTd>
+                    <MudTd>
+                        <MudNumericField T="double" @bind-Value="context.AeroMod" Step="0.1" Format="N2" />
+                    </MudTd>
+                    <MudTd>
+                        <MudNumericField T="double" @bind-Value="context.ChassisMod" Step="0.1" Format="N2" />
+                    </MudTd>
+                    <MudTd>
+                        <MudNumericField T="double" @bind-Value="context.PowerMod" Step="0.1" Format="N2" />
+                    </MudTd>
+                    <MudTd>
+                        <MudNumericField T="double" @bind-Value="context.QualifyingMod" Step="0.1" Format="N2" />
+                    </MudTd>
+                    <MudTd>
+                        <MudNumericField T="double" @bind-Value="context.DefenseMod" Step="0.1" Format="N2" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        @if (firstStep)
+        {
+            <MudButton Color="Color.Primary" OnClick="Next">Next</MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
 
 @code {
+    [CascadingParameter] protected MudDialogInstance? ImportDialog { get; set; }
 
+    private List<RealCircuit>? RealCircuits { get; set; }
+
+    private HashSet<RealCircuit> SelectedCircuits { get; set; } = new();
+
+    private List<EditTrackModel> ImportTracks { get; set; }
+
+    private bool firstStep = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        RealCircuits = await _realityProvider.GetExistingCircuits();
+
+        if (firstStep == true)
+            return;
+    }
+
+    private void Next()
+    {
+        if (SelectedCircuits.Count == 0)
+        {
+            // NOTE: warning?
+            return;
+        }
+
+        ImportTracks = SelectedCircuits
+            .Select(e => e.BuildEditModel())
+            .ToList();
+
+        firstStep = false;
+    }
+
+    private void Submit()
+    {
+        var importedTracks = ImportTracks.Select(e => e.Record).ToList();
+
+        // NOTE: check if all valid?
+
+        ImportDialog?.Close(DialogResult.Ok(importedTracks));
+    }
+
+    private void Cancel() => ImportDialog?.Cancel();
 }

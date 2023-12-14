@@ -1,5 +1,110 @@
-﻿<h3>Import</h3>
+﻿@inject RealityDataProvider _realityProvider
+
+<MudDialog>
+    <TitleContent>
+        <MudText>Import teams from real life</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (firstStep)
+        {
+            @if (RealConstructors?.Any() == true)
+            {
+                <MudDataGrid T="RealConstructor"
+                             Items="@RealConstructors"
+                             RowsPerPage="10"
+                             Dense="true"
+                             MultiSelection="true"
+                             @bind-SelectedItems="SelectedConstructors"
+                             Class="overflow-y-hide">
+                    <Columns>
+                        <SelectColumn T="RealConstructor" />
+                        <PropertyColumn Property="e => e.Name" />
+                    </Columns>
+                    <PagerContent>
+                        <MudDataGridPager T="RealConstructor" />
+                    </PagerContent>
+                </MudDataGrid>
+            }
+        }
+        else
+        {
+            <MudTable Items="@ImportTeams" Class="pa-4">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Country</MudTh>
+                    <MudTh>Mark</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <MudTextField @bind-Value="context.Name" Class="dense-field" />
+                    </MudTd>
+                    <MudTd>
+                        <CountrySelect @bind-Value="context.Country"
+                                       Class="field-md" />
+                    </MudTd>
+                    <MudTd>
+                        <MudSwitch @bind-Checked="context.Mark"
+                                   Color="Color.Secondary" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        @if (firstStep)
+        {
+            <MudButton Color="Color.Primary" OnClick="Next">Next</MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
 
 @code {
+    [CascadingParameter] protected MudDialogInstance? ImportDialog { get; set; }
 
+    private List<RealConstructor>? RealConstructors { get; set; }
+
+    private HashSet<RealConstructor> SelectedConstructors { get; set; } = new();
+
+    private List<EditTeamModel> ImportTeams { get; set; }
+
+    private bool firstStep = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        RealConstructors = await _realityProvider.GetExistingConstructors();
+
+        if (firstStep == true)
+            return;
+    }
+
+    private void Next()
+    {
+        if (SelectedConstructors.Count == 0)
+        {
+            // NOTE: warning?
+            return;
+        }
+
+        ImportTeams = SelectedConstructors
+            .Select(e => e.BuildEditModel())
+            .ToList();
+
+        firstStep = false;
+    }
+
+    private void Submit()
+    {
+        var importedTeams = ImportTeams.Select(e => e.Record).ToList();
+
+        // NOTE: check if all valid?
+
+        ImportDialog?.Close(DialogResult.Ok(importedTeams));
+    }
+
+    private void Cancel() => ImportDialog?.Cancel();
 }

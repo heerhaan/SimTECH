@@ -18,13 +18,16 @@
                 <MudButton StartIcon="@Icons.Material.Filled.Archive" IconSize="Size.Small" OnClick="ToggleDisplayArchived" Class="btn-md">
                     @(showingArchived ? "Active" : "Archive")
                 </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Download" IconSize="Size.Small" OnClick="OpenImporter" Class="btn-md">
+                    Import
+                </MudButton>
                 <MudButton StartIcon="@Icons.Material.Filled.Add" IconSize="Size.Small" OnClick="AddTeam" Class="btn-md">
                     New
                 </MudButton>
             </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Team" Items="@teams" RowsPerPage="15" Dense="true">
+    <MudDataGrid T="Team" Items="@Teams" RowsPerPage="15" Dense="true">
         <Columns>
             <PropertyColumn Property="e => e.Name" />
             <TemplateColumn T="Team" Title="Country" SortBy="e => e.Country">
@@ -48,7 +51,7 @@
 </MudContainer>
 
 @code {
-    private List<Team> teams = new();
+    private List<Team> Teams { get; set; } = new();
 
     private bool showingArchived = false;
 
@@ -60,7 +63,7 @@
             new BreadcrumbItem("Teams", href: "teams", disabled: true),
         });
 
-        teams = await _teamService.GetTeams();
+        Teams = await _teamService.GetTeams();
     }
 
     private async Task AddTeam() => await UpdateTeam(null);
@@ -78,23 +81,35 @@
         if (!result.Canceled && result.Data != null && result.Data is Team updatedItem)
         {
             await _teamService.UpdateTeam(updatedItem);
-            teams = await _teamService.GetTeams();
+            Teams = await _teamService.GetTeams();
         }
     }
 
     private async Task DeleteTeam(Team item)
     {
         await _teamService.ArchiveTeam(item);
-        teams.Remove(item);
+        Teams.Remove(item);
     }
 
     private async Task ToggleDisplayArchived()
     {
         if (showingArchived)
-            teams = await _teamService.GetTeams();
+            Teams = await _teamService.GetTeams();
         else
-            teams = await _teamService.GetTeams(StateFilter.Archived);
+            Teams = await _teamService.GetTeams(StateFilter.Archived);
 
         showingArchived = !showingArchived;
+    }
+
+    private async Task OpenImporter()
+    {
+        var dialog = await _dialogService.ShowAsync<Import>("Import constructors");
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null && result.Data is List<Team> bulkTeams)
+        {
+            await _teamService.BulkAddItems(bulkTeams);
+            Teams = await _teamService.GetTeams();
+        }
     }
 }
