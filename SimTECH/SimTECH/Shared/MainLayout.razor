@@ -1,9 +1,10 @@
 ﻿@using static SimTECH.Providers.GuideBookProvider;
 
 @inject ProtectedLocalStorage _storage
+
 @inherits LayoutComponentBase
 
-<MudThemeProvider @bind-IsDarkMode="@isDarkTheme" Theme="@Theme" />
+<MudThemeProvider @bind-IsDarkMode="isDarkTheme" Theme="@Theme" />
 <MudDialogProvider MaxWidth="MaxWidth.Large"
                    CloseButton="true"
                    DisableBackdropClick="true"
@@ -12,12 +13,15 @@
 
 <MudLayout>
     <MudAppBar Elevation="5" Dense="true" Style="border-bottom: 1px solid var(--mud-palette-primary)">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Secondary" Edge="Edge.Start" OnClick="ToggleSidebar" />
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Secondary"
+                       Edge="Edge.Start"
+                       OnClick="@(() => drawerOpen = !drawerOpen)" />
         <CustomBreadcrumbs />
 
         <MudSpacer />
 
-        <MudToggleIconButton @bind-Toggled="@isDarkTheme"
+        <MudToggleIconButton @bind-Toggled="isDarkTheme"
             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
         
@@ -30,18 +34,22 @@
 
         <MudIconButton Href="/guide" Icon="@Icons.Material.Filled.MenuBook" Color="Color.Dark" />
 
-        <MudPopover Open="@isHelpOpen" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+        <MudPopover Open="@isHelpOpen" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Style="margin-right: 20px">
             @if (HelpContent != null)
             {
-                <MudPaper Class="pa-2">
+                <MudPaper Class="pa-2 dialog-shadow">
                     <DynamicComponent Type="@HelpContent" />
                 </MudPaper>
             }
         </MudPopover>
-        <MudIconButton Icon="@Icons.Material.Filled.MenuBook" Color="Color.Secondary" Disabled="@(HelpContent == null)" OnClick="@(() => isHelpOpen = !isHelpOpen)" />
+        <MudIconButton Icon="@Icons.Material.Filled.QuestionMark"
+                       Color="Color.Secondary"
+                       Disabled="@(HelpContent == null)"
+                       OnClick="@(() => isHelpOpen = !isHelpOpen)" />
         
     </MudAppBar>
-    <MudDrawer @bind-Open="@drawerOpen"
+
+    <MudDrawer @bind-Open="drawerOpen"
                ClipMode="DrawerClipMode.Always"
                Variant="DrawerVariant.Responsive"
                Style="border-right: 1px solid var(--mud-palette-primary)">
@@ -73,6 +81,7 @@
     {
         if (PageType != HelpContent)
         {
+            isHelpOpen = false;
             HelpContent = GuideBookProvider.GetHelpContentForPage(PageType);
         }
     }
@@ -89,8 +98,6 @@
             }
         }
     }
-
-    private void ToggleSidebar() => drawerOpen = !drawerOpen;
 
     private async Task SetTheme(string themeName)
     {

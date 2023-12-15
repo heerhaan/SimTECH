@@ -5,13 +5,13 @@
 
 @inject BreadcrumbProvider _bread
 
-<PageTitle>Guide (additional)</PageTitle>
+<PageTitle>Help</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudGrid Spacing="1">
         <MudItem xs=12>
-            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center pa-4">
-                <MudText Typo="Typo.h3">Guide</MudText>
+            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center">
+                <MudText Typo="Typo.h3">FAG</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="3">
@@ -49,7 +49,7 @@
     {
         new GuideCategory
         {
-            Title = "Intro",
+            Title = "FAQ",
             Icon = Icons.Custom.FileFormats.FileExcel,
             ExpandedIcon = Icons.Custom.FileFormats.FileExcel,
             Type = typeof(Intro),
@@ -57,11 +57,27 @@
         },
         new GuideCategory
         {
-            Title = "Race week",
+            Title = "Quick start",
+            Icon = Icons.Custom.FileFormats.FileExcel,
+            ExpandedIcon = Icons.Custom.FileFormats.FileExcel,
+            Type = typeof(QuickStartTopic),
+            Order = 5,
+        },
+        new GuideCategory
+        {
+            Title = "Glossary",
+            Icon = Icons.Material.Filled.MenuBook,
+            ExpandedIcon = Icons.Material.Filled.MenuBook,
+            Type = typeof(Glossary),
+            Order = 99,
+        },
+        new GuideCategory
+        {
+            Title = "Racing info",
             Icon = Icons.Custom.Uncategorized.Folder,
             ExpandedIcon = Icons.Custom.Uncategorized.FolderOpen,
             Type = typeof(RaceweekTopic),
-            Order = 60,
+            Order = 10,
             Children = new()
             {
                 new GuidePage("Practice", IconCollection.Polygon, typeof(PracticeTopic)),
@@ -75,14 +91,6 @@
                 new GuidePage("Safety car", IconCollection.AlertTriangle, typeof(SafetyMoment)),
                 new GuidePage("Modifiers", IconCollection.Polygon, typeof(Modifiers)),
             }
-        },
-        new GuideCategory
-        {
-            Title = "Glossary",
-            Icon = Icons.Material.Filled.MenuBook,
-            ExpandedIcon = Icons.Material.Filled.MenuBook,
-            Type = typeof(Glossary),
-            Order = 999,
         },
     };
 
