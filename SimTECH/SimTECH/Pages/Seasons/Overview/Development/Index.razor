@@ -4,6 +4,7 @@
 @using SimTECH.Pages.Seasons.Overview.Development.Dialogs
 
 @inject LeagueService _leagueService
+@inject RaceService _raceService
 @inject SeasonEntrantService _entrantService
 @inject SeasonService _seasonService
 @inject BreadcrumbProvider _bread
@@ -106,6 +107,7 @@
     int currentYear;
     int currentMinRange = 0;
     int currentMaxRange = 0;
+    int lastCompletedRound = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,6 +120,10 @@
 
         currentYear = season.Year;
         LeagueDevelopmentRanges = await _leagueService.GetLeagueDevelopmentRanges(season.LeagueId);
+
+        var races = await _raceService.GetRacesBySeason(SeasonId);
+        if (races.Any(e => e.DateFinished != null))
+            lastCompletedRound = races.Where(e => e.DateFinished != null).OrderByDescending(e => e.Round).FirstOrDefault()?.Round ?? 0;
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -380,6 +386,7 @@
                 EntrantGroup = DevelopModel.ActiveEntrant,
                 DevelopedAspect = DevelopModel.ActiveAspect,
                 Change = e.Change,
+                AfterRound = lastCompletedRound,
                 SeasonId = SeasonId,
             })
         .ToList();

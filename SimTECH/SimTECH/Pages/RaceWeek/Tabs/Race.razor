@@ -18,13 +18,13 @@
                 <MudText Typo="Typo.subtitle2">Laps to advance</MudText>
                 <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
                     <MudChip Value="1" Color="Color.Primary">
-                        @(NumberHelper.CalculateLapCount(1 * calculationDistance, Model.Race.Track.Length))
+                        @(NumberHelper.LapCount(1 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
                     <MudChip Value="5" Default="true" Color="Color.Primary">
-                        @(NumberHelper.CalculateLapCount(5 * calculationDistance, Model.Race.Track.Length))
+                        @(NumberHelper.LapCount(5 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
                     <MudChip Value="10" Color="Color.Primary">
-                        @(NumberHelper.CalculateLapCount(10 * calculationDistance, Model.Race.Track.Length))
+                        @(NumberHelper.LapCount(10 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
                     <MudChip Value="@calculationCount" Color="Color.Primary">@totalLaps</MudChip>
                 </MudChipSet>
@@ -295,7 +295,7 @@
         }
 
         racedLaps = GetCurrentLapCount;
-        totalLaps = NumberHelper.CalculateLapCount(Model.Race.RaceLength, Model.Race.Track.Length);
+        totalLaps = NumberHelper.LapCount(Model.Race.RaceLength, Model.Race.Track.Length);
 
         BuildRaceDrivers();
     }
@@ -799,7 +799,7 @@
 
     private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
-    private int GetCurrentLapCount => NumberHelper.CalculateLapCount(calculated * calculationDistance, Model.Race.Track.Length);
+    private int GetCurrentLapCount => NumberHelper.LapCount(calculated * calculationDistance, Model.Race.Track.Length);
 
     private Dictionary<long, int> GetCurrentActualPositions()
     {

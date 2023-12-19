@@ -10,6 +10,8 @@ namespace SimTECH.Data.Models
 
         public int Change { get; set; }
 
+        public int AfterRound { get; set; }
+
         public long SeasonId { get; set; }
         public Season Season { get; set; }
     }
