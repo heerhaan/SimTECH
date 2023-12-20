@@ -12,6 +12,7 @@ namespace SimTECH.Data.EditModels
         public bool UsePenalty { get; set; }
         public bool EnableFatality { get; set; }
         public bool AllowContracting { get; set; }
+        public bool AllowPersonalNumbers { get; set; }
         public int DisqualificationOdds { get; set; } = 100;
         public int FatalityOdds { get; set; } = 250;
         public int SafetyCarOdds { get; set; } = 5;
@@ -37,6 +38,7 @@ namespace SimTECH.Data.EditModels
                 UsePenalty = league.Options.HasFlag(LeagueOptions.EnablePenalty);
                 EnableFatality = league.Options.HasFlag(LeagueOptions.EnableFatality);
                 AllowContracting = league.Options.HasFlag(LeagueOptions.AllowContracting);
+                AllowPersonalNumbers = league.Options.HasFlag(LeagueOptions.PersonalNumbers);
                 DisqualificationOdds = league.DisqualificationOdds;
                 FatalityOdds = league.FatalityOdds;
                 SafetyCarOdds = league.SafetyCarOdds;
@@ -87,6 +89,8 @@ namespace SimTECH.Data.EditModels
                 baseOptions |= LeagueOptions.EnableFatality;
             if (AllowContracting)
                 baseOptions |= LeagueOptions.AllowContracting;
+            if (AllowPersonalNumbers)
+                baseOptions |= LeagueOptions.PersonalNumbers;
 
             return baseOptions;
         }

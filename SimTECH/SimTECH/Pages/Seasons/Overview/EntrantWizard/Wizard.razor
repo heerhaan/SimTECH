@@ -186,11 +186,9 @@
         loading = false;
     }
 
-    private async Task<bool> InvalidStepPrevention(StepChangeDirection direction)
+    private async Task<bool> InvalidStepPrevention(StepChangeDirection direction, int activeIndex)
     {
         errors.Clear();
-
-        var activeIndex = stepper.GetActiveIndex();
 
         if (direction == StepChangeDirection.Backward)
         {
