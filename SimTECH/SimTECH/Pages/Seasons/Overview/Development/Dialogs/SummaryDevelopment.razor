@@ -13,7 +13,16 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => DevelopDialog?.Close())" />
                 </MudButtonGroup>
             </MudStack>
-            <MudText Typo="Typo.body2" Color="Color.Info">OLD - CHANGE - NEW</MudText>
+            <div class="d-flex flex-row align-center justify-space-between">
+                <MudText Typo="Typo.body2" Color="Color.Info">OLD - CHANGE - NEW</MudText>
+                <MudChipSet SelectedChipChanged="SelectRound" Mandatory="true">
+                    <MudChip Default="true">All</MudChip>
+                    @foreach (var round in Rounds)
+                    {
+                        <MudChip Value="@round">@round</MudChip>
+                    }
+                </MudChipSet>
+            </div>
         </MudPaper>
         <MudPaper id="developed-summary">
             <MudStack Row="true" Spacing="0" Justify="Justify.SpaceBetween">
@@ -53,10 +62,39 @@
     private DevelopSummary? TeamSummary;
     private DevelopSummary? EngineSummary;
 
+    private List<int> Rounds { get; set; } = new();
+
+    private int? SelectedRound { get; set; }
+
     protected override void OnInitialized()
     {
         // Build summaries first
-        foreach (var entrantSummary in DevelopmentLog.GroupBy(e => e.EntrantGroup))
+        BuildSummaries();
+
+        foreach (var round in DevelopmentLog.Select(e => e.AfterRound).Distinct())
+            Rounds.Add(round);
+    }
+
+    private void SelectRound(MudChip? chip)
+    {
+        if (chip == null)
+            return;
+
+        if (chip.Value is int number)
+            SelectedRound = number;
+        else
+            SelectedRound = null;
+
+        BuildSummaries();
+
+        StateHasChanged();
+    }
+
+    private void BuildSummaries()
+    {
+        foreach (var entrantSummary in DevelopmentLog
+            .Where(e => SelectedRound == null || e.AfterRound == SelectedRound.Value)
+            .GroupBy(e => e.EntrantGroup))
         {
             var entrantLog = new List<EntrantDevelopLog>();
 
@@ -95,12 +133,12 @@
             }
 
             var developedSummary = new DevelopSummary
-            {
-                EntrantGroup = entrantSummary.Key,
-                Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),
-                EntrantLogs = entrantLog,
-                MinMaxValues = minMaxPerAspect,
-            };
+                {
+                    EntrantGroup = entrantSummary.Key,
+                    Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),
+                    EntrantLogs = entrantLog,
+                    MinMaxValues = minMaxPerAspect,
+                };
 
             switch (entrantSummary.Key)
             {
