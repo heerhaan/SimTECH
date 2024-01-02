@@ -85,7 +85,10 @@
         Model = new EditSeasonDriverModel(SeasonDriver);
         Model.SeasonId = SeasonId;
         seasonTeamId = Model.SeasonTeamId.GetValueOrDefault();
-        Model.Number = TakenNumbers?.Max() + 1 ?? 2;
+
+        Model.Number = 2;
+        if (TakenNumbers?.Any() == true)
+            Model.Number = TakenNumbers.Max() + 1;
 
         loading = false;
     }
