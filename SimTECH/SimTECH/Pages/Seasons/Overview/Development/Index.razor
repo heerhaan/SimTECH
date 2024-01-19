@@ -328,7 +328,9 @@
         {
             if (entrant.Min > entrant.Max)
             {
-                _snack.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
+                _snack.Add(
+                    "oi you cunt, a minimum should be less than the maximum. you better fix that shit first",
+                    Severity.Error);
                 return;
             }
 
@@ -397,7 +399,7 @@
         var activeRanges = LeagueDevelopmentRanges.GetAspectRanges(DevelopModel.ActiveAspect);
         var ageRanges = LeagueDevelopmentRanges.GetAspectRanges(Aspect.Age);
 
-        // TODO: As of now there is no easy way to get all the development ranges meant for a certain entrant
+        // TODO: Currently there is no easy way to get all the development ranges meant for a certain entrant
 
         if (activeRanges?.Any() == true)
             aspectRanges.Add(DevelopModel.ActiveAspect, activeRanges);

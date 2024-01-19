@@ -11,19 +11,28 @@
                     <div class="d-flex flex-row-reverse" style="width:30%">
                         <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Outlined">
                             <MudTooltip Text="Standings" Placement="Placement.Top" Color="Color.Tertiary">
-                                <MudIconButton Icon="@Icons.Material.Filled.AutoGraph" OnClick="GoToOverview" Class="btn-sm" />
+                                <MudIconButton Icon="@Icons.Material.Filled.AutoGraph"
+                                               OnClick="GoToOverview" Class="btn-sm" />
                             </MudTooltip>
                             <ScreenshotIconButton TargetId="postrace-container" Class="btn-sm" />
                         </MudButtonGroup>
                     </div>
                 </MudStack>
+                <div class="d-flex flex-row justify-space-between align-content-center">
+                    <div>.</div>
+                    <div>.</div>
+                </div>
             </MudPaper>
         </MudItem>
         <MudItem xs="8">
             <MudPaper Class="mud-height-full pa-4">
                 <MudText Typo="Typo.h5">Final standings</MudText>
                 <MudDivider />
-                <MudTable T="RaweCeekDriver" Items="@Model.RaweCeekDrivers.OrderBy(e => e.AbsolutePosition)" Dense="true" Class="extra-dense">
+                <MudTable T="RaweCeekDriver"
+                          Items="@Model.RaweCeekDrivers.OrderBy(e => e.AbsolutePosition)"
+                          Dense="true"
+                          Class="extra-dense"
+                          GroupBy="@raceClassDefinition">
                     <HeaderContent>
                         <MudTh Class="number-col-lg"></MudTh>
                         <MudTh Class="number-col">Grid</MudTh>
@@ -38,6 +47,18 @@
                         }
                         <MudTh Class="number-col">PTS</MudTh>
                     </HeaderContent>
+                    <GroupHeaderTemplate>
+                        <MudTh Class="postrace-table-group-header" colspan="9">
+                            @if (context.Key is long raceClassId)
+                            {
+                                <div>@($"{context.GroupName}: {GetRaceClassName(raceClassId)}")</div>
+                            }
+                            else
+                            {
+                                <div>-</div>
+                            }
+                        </MudTh>
+                    </GroupHeaderTemplate>
                     <RowTemplate>
                         <MudTd Class="number-col-lg">
                             @if (context.Status == RaceStatus.Racing)
@@ -163,14 +184,34 @@
 
     private List<DriverPenalty> driverPenalties = new();
     private Dictionary<int, int> allotments;
+    private List<RaceClass>? RaceClasses { get; set; }
     private bool loading;
     private int lowestScoring;
+
+    private TableGroupDefinition<RaweCeekDriver>? raceClassDefinition;
 
     protected override void OnInitialized()
     {
         allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
         if (allotments.Any())
             lowestScoring = allotments.Keys.Max();
+
+        if (Model.Season.HasRaceClasses)
+        {
+            RaceClasses = new();
+
+            raceClassDefinition = new()
+            {
+                GroupName = "Class",
+                Selector = (e) => e.ClassId
+            };
+
+            foreach (var raceClass in Model.RaweCeekDrivers.Select(e => e.Class).Distinct())
+            {
+                if (raceClass != null)
+                    RaceClasses.Add(raceClass);
+            }
+        }
     }
 
     protected override void OnParametersSet()
@@ -199,6 +240,14 @@
             points += allotedPoints;
 
         return points;
+    }
+
+    private string GetRaceClassName(long classId)
+    {
+        if (!Model.Season.HasRaceClasses || RaceClasses == null || RaceClasses.Count == 0)
+            return string.Empty;
+
+        return RaceClasses.FirstOrDefault(e => e.Id == classId)?.Name ?? string.Empty;
     }
 
     // NOTE: Not a definitive solution probably as it could be done much better
