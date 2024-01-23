@@ -179,7 +179,7 @@
     </MudGrid>
 </MudContainer>
 
-@code {
+    @code {
     private List<Season> ActiveSeasons { get; set; } = new();
 
     private List<FinishedRaceModel> RecentRaces { get; set; } = new();
@@ -215,6 +215,12 @@
         {
             var storedDataMessage = await _localStorage.GetAsync<bool>("hidedatamsg");
             hideDataMessage = storedDataMessage.Success ? storedDataMessage.Value : false;
+
+            var storedHasHiddenSetup = await _localStorage.GetAsync<bool>("hidefirstsetup");
+            if (storedHasHiddenSetup.Success && storedHasHiddenSetup.Value)
+            {
+                // This could be the place to pop open a dialog for the user to go through for first time setup, can be useful!
+            }
         }
     }
 
@@ -244,6 +250,16 @@
     {
         await _localStorage.SetAsync("hidedatamsg", true);
         hideDataMessage = true;
+    }
+
+    private async Task OpenFirstSetup()
+    {
+
+    }
+
+    private async Task PermanentlyHideFirstSetup()
+    {
+        
     }
 
     private async Task InsertDefault()
