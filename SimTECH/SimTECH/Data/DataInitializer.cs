@@ -8,6 +8,7 @@ namespace SimTECH.Data
     // TODO: Yoink this DataInitializer out of the program for being shit to work with, just rely on that default button...
     // Well, might be a bad idea since some data IS initialized on startup so this does work... somewhat.
     // Fuck.
+    // 24-01-2024: Tried again, no dice on empty database, it is in migrations file but it wont seed, it just wont. Stupid.
     public class DataInitializer
     {
         private readonly ModelBuilder builder;
@@ -30,7 +31,7 @@ namespace SimTECH.Data
         private void SeedTracks()
         {
             builder.Entity<Track>().HasData(
-                new Track { Id = 1, Name = "Spa-Francorchamps", Country = Country.BE, Length = 7.01, AeroMod = 0.55, ChassisMod = 1.1, PowerMod = 1.35, QualifyingMod = 0.7, DefenseMod = 0.9, State = State.Active },
+                new Track { Id = 1, Name = "Spa-Francorchamps", Country = Country.BE, Length = 7.01d, AeroMod = 0.55d, ChassisMod = 1.1d, PowerMod = 1.35d, QualifyingMod = 0.7d, DefenseMod = 0.9d, State = State.Active },
                 new Track { Id = 2, Name = "Circuit de Monaco", Country = Country.MO, Length = 3.05, AeroMod = 1.5, ChassisMod = 1.25, PowerMod = 0.50, QualifyingMod = 2.0, DefenseMod = 2.0, State = State.Active },
                 new Track { Id = 3, Name = "Autodromo de Interlagos", Country = Country.BR, Length = 4.31, AeroMod = 0.85, ChassisMod = 1.05, PowerMod = 1.1, QualifyingMod = 0.9, DefenseMod = 0.8, State = State.Active },
                 new Track { Id = 4, Name = "TT Assen", Country = Country.NL, Length = 4.55, AeroMod = 0.95, ChassisMod = 1.1, PowerMod = 0.95, QualifyingMod = 1.1, DefenseMod = 1.3, State = State.Active },
