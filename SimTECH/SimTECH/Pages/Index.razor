@@ -53,12 +53,10 @@
         </MudItem>
         <MudItem xs="12" md="9">
             <MudPaper Elevation="5" Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.h5">Last races</MudText>
+                <MudDivider />
+
                 <MudTable id="recent-race-table" Items="@RecentRaces" Dense="true" Class="overflow-hider">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h5">Last races</MudText>
-                        <MudSpacer />
-                        <ScreenshotIconButton TargetId="recent-race-table" Colour="Color.Primary" />
-                    </ToolBarContent>
                     <HeaderContent>
                         <MudTh>
                             <MudTableSortLabel SortBy="new Func<FinishedRaceModel, object>(e => e.LeagueName)">
@@ -110,10 +108,10 @@
         </MudItem>
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.h5">Active seasons</MudText>
+                <MudDivider />
+
                 <MudTable Items="@ActiveSeasons" Dense="true">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h5">Active seasons</MudText>
-                    </ToolBarContent>
                     <HeaderContent>
                         <MudTh>League</MudTh>
                         <MudTh>
@@ -141,10 +139,10 @@
         </MudItem>
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
-                    <MudTable T="FinishedRaceModel" Items="@UpcomingRaces" Dense="true" Class="overflow-hider">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h5">Upcoming races</MudText>
-                    </ToolBarContent>
+                <MudText Typo="Typo.h5">Upcoming races</MudText>
+                <MudDivider />
+
+                <MudTable T="FinishedRaceModel" Items="@UpcomingRaces" Dense="true" Class="overflow-hider">
                     <HeaderContent>
                         <MudTh>
                             <MudTableSortLabel SortBy="new Func<FinishedRaceModel, object>(e => e.LeagueName)">
@@ -186,7 +184,7 @@
     private List<FinishedRaceModel> UpcomingRaces { get; set; } = new();
 
     private SimConfig config;
-    private List<League> activeLeagues { get; set; }
+    private List<League> ActiveLeagues { get; set; }
 
     private int raceAmount = 5;
     private bool hideDataMessage = true;
@@ -199,7 +197,7 @@
         });
 
         config = _config.Value;
-        activeLeagues = await _leagueService.GetLeagues(StateFilter.Active);
+        ActiveLeagues = await _leagueService.GetLeagues(StateFilter.Active);
 
         ActiveSeasons = await _seasonService.GetSeasons(StateFilter.Active);
 
@@ -238,7 +236,7 @@
                     Round = nextRace.Round,
                     Country = nextRace.Track?.Country ?? Globals.DefaultCountry,
                     SeasonDisplay = season.Year.ToString(),
-                    LeagueName = activeLeagues.Find(e => e.Id == season.LeagueId)?.Name ?? "[Unknown]",
+                    LeagueName = ActiveLeagues.Find(e => e.Id == season.LeagueId)?.Name ?? "[Unknown]",
                 };
 
                 UpcomingRaces.Add(upcoming);
@@ -273,7 +271,7 @@
             await _commonService.InsertDefaultData();
     }
 
-    private string DisplayLeagueName(long leagueId) => activeLeagues.Find(e => e.Id == leagueId)?.Name ?? "[Unknown]";
+    private string DisplayLeagueName(long leagueId) => ActiveLeagues.Find(e => e.Id == leagueId)?.Name ?? "[Unknown]";
 
     private void GoToSeason(long seasonId) => _nav.NavigateTo($"/overview/{seasonId}");
     private void GoToPostRace(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");

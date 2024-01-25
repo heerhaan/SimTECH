@@ -28,13 +28,22 @@
                           Class="mt-0 field-md" />
             <MudSpacer />
             <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary" Size="Size.Small">
-                <MudButton StartIcon="@Icons.Material.Filled.Archive" IconSize="Size.Small" OnClick="ToggleDisplayArchived" Class="btn-md">
+                <MudButton StartIcon="@Icons.Material.Filled.Archive"
+                           IconSize="Size.Small"
+                           OnClick="ToggleDisplayArchived"
+                           Class="btn-md">
                     @(showingArchived ? "Active" : "Archive")
                 </MudButton>
-                <MudButton StartIcon="@Icons.Material.Filled.Sync" IconSize="Size.Small" OnClick="GoToHumanGenerator" Class="btn-md">
+                <MudButton StartIcon="@Icons.Material.Filled.Sync"
+                           IconSize="Size.Small"
+                           OnClick="GoToHumanGenerator"
+                           Class="btn-md">
                     Generate
                 </MudButton>
-                <MudButton StartIcon="@Icons.Material.Filled.Download" IconSize="Size.Small" OnClick="OpenImporter" Class="btn-md">
+                <MudButton StartIcon="@Icons.Material.Filled.Download"
+                           IconSize="Size.Small"
+                           OnClick="OpenImporter"
+                           Class="btn-md">
                     Import
                 </MudButton>
                 <MudButton StartIcon="@Icons.Material.Filled.Add"
@@ -61,10 +70,14 @@
             </TemplateColumn>
             <TemplateColumn T="Driver" Sortable="false">
                 <CellTemplate>
-                    <MudButtonGroup Size="@Size.Small" Class="ml-auto">
-                        <MudIconButton Icon="@Icons.Material.Outlined.QueryStats" OnClick="@(async () => await ShowDetailData(context.Item))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateDriver(context.Item))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await ArchiveDriver(context.Item))" />
+                    <MudButtonGroup Size="Size.Small" Class="ml-auto">
+                        <MudIconButton Icon="@Icons.Material.Outlined.QueryStats"
+                                       OnClick="@(() => ShowDetailData(context.Item))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                                       OnClick="@(() => UpdateDriver(context.Item))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                       Color="Color.Error"
+                                       OnClick="@(() => ArchiveDriver(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>

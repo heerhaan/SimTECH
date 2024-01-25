@@ -107,7 +107,11 @@
                 lowestScore = result;
         }
 
-        var positionIndexDict = practiceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
+        var positionIndexDict = practiceDrivers
+            .Select(e => e.ClassId)
+            .Distinct()
+            .ToDictionary(e => e, e => 0);
+
         int absoluteIndex = 0;
 
         foreach (var driver in practiceDrivers.OrderByDescending(e => e.MaxScore()))

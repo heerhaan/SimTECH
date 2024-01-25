@@ -9,6 +9,7 @@ namespace SimTECH.Data
     // Well, might be a bad idea since some data IS initialized on startup so this does work... somewhat.
     // Fuck.
     // 24-01-2024: Tried again, no dice on empty database, it is in migrations file but it wont seed, it just wont. Stupid.
+    // Consider moving all this seed to the configurations tho
     public class DataInitializer
     {
         private readonly ModelBuilder builder;
