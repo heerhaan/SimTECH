@@ -90,6 +90,7 @@
                 <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small">
                     <MudButton FullWidth="true" OnClick="OnShowComponentUsage">Components</MudButton>
                     <MudButton FullWidth="true" OnClick="ShowQualyBattles">Q.Battles</MudButton>
+
                     @if (OverviewModel.Season.State == State.Active)
                     {
                         <MudButton FullWidth="true" OnClick="ShowContractDurations">Contract durations</MudButton>
@@ -109,11 +110,13 @@
                 {
                     <MudText Color="Color.Warning">selector works, but pls more pretti</MudText>
 
-                    <MudRadioGroup SelectedOption="@OverviewModel.ActiveClassId"
-                                   SelectedOptionChanged="OnClassSelected">
+                    <MudRadioGroup Value="@OverviewModel.ActiveClassId"
+                                   ValueChanged="OnClassSelected">
                         @foreach (var raceClass in OverviewModel.Season.RaceClasses)
                         {
-                            <MudRadio Option="@raceClass.Id" Color="Color.Primary" UnCheckedColor="Color.Default">@raceClass.Name</MudRadio>
+                            <MudRadio Value="@raceClass.Id"
+                                      Color="Color.Primary"
+                                      UnCheckedColor="Color.Default">@raceClass.Name</MudRadio>
                         }
                     </MudRadioGroup>
                 }

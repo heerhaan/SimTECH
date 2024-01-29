@@ -127,12 +127,9 @@
 
     private async Task ShowDetailData(Driver driver)
     {
-        var driverResults = await _resultService.GetAllResultsOfDriver(driver.Id);
-
         var parameters = new DialogParameters
             {
-                ["Driver"] = driver,
-                ["DriverResults"] = driverResults
+                ["Driver"] = driver
             };
 
         await _dialogService.ShowAsync<DriverDetailStat>("Driver details", parameters);

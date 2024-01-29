@@ -3,6 +3,7 @@ using SimTECH.Common.Enums;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.PageModels;
+using SimTECH.PageModels.Entrants.Drivers;
 
 namespace SimTECH.Data.Services;
 
@@ -47,6 +48,17 @@ public sealed class DriverService : StateService<Driver>
                 Colour = sd.SeasonTeam == null ? Globals.DefaultColour : sd.SeasonTeam.Colour
             })
             .ToListAsync();
+    }
+
+    public async Task<List<DriverListItem>> GetIndexListDrivers(bool archivedOnly = false)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        var activeDrivers = await context.SeasonDriver
+            .Where(e => e.Season.State == State.Active)
+            .ToListAsync();
+
+        return new();
     }
 
     public async Task<List<Driver>> GetDriversFromLeague(long leagueId) => await GetDriversFromLeague(leagueId, StateFilter.Default);

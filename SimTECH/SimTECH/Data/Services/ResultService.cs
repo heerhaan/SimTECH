@@ -41,4 +41,14 @@ public class ResultService : BaseService<Result>
             .Where(e => e.SeasonDriver.DriverId == driverId)
             .ToListAsync();
     }
+
+    public async Task<List<Result>> GetAllDriverResultsForLeague(long driverId, long leagueId)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.Result
+            .Where(e => e.SeasonDriver.DriverId == driverId
+                && e.SeasonDriver.Season.LeagueId == leagueId)
+            .ToListAsync();
+    }
 }
