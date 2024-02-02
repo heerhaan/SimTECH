@@ -11,8 +11,9 @@ public sealed class League : ModelState
     public int DisqualificationOdds { get; set; } = 100;
     public int FatalityOdds { get; set; } = 250;
     public int SafetyCarOdds { get; set; } = 5;
-    public int SafetyCarGap { get; set; } = 25;
     public int SafetyCarReturnOdds { get; set; } = 2;
+    public int SafetyCarGap { get; set; } = 25;
+    public int SafetyCarGapCloser { get; set; } = 200;
     public int BattleRng { get; set; } = 5;
     public int DriverStatusPaceModifier { get; set; } = 3;
 

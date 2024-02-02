@@ -48,25 +48,25 @@ public static class DefaultData
 
     public static List<Incident> DefaultIncidents => new()
     {
-        new Incident { Name = "Damage", Category = CategoryIncident.Driver, Limit = 0, Punishment = 0, Odds = 2, Penalized = false, State = State.Active, },
-        new Incident { Name = "Collision", Category = CategoryIncident.Driver, Limit = 2, Punishment = 3, Odds = 1, Penalized = true, State = State.Active, },
-        new Incident { Name = "Accident", Category = CategoryIncident.Driver, Limit = 5, Punishment = 3, Odds = 2, Penalized = true, State = State.Active, },
-        new Incident { Name = "Puncture", Category = CategoryIncident.Driver, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
+        new Incident { Name = "Damage", Category = IncidentCategory.Driver, Limit = 0, Punishment = 0, Odds = 2, Penalized = false, State = State.Active, },
+        new Incident { Name = "Collision", Category = IncidentCategory.Driver, Limit = 2, Punishment = 3, Odds = 1, Penalized = true, State = State.Active, },
+        new Incident { Name = "Accident", Category = IncidentCategory.Driver, Limit = 5, Punishment = 3, Odds = 2, Penalized = true, State = State.Active, },
+        new Incident { Name = "Puncture", Category = IncidentCategory.Driver, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
 
-        new Incident { Name = "Engine", Category = CategoryIncident.Engine, Limit = 5, Punishment = 10, Odds = 3, Penalized = true, State = State.Active, },
+        new Incident { Name = "Engine", Category = IncidentCategory.Engine, Limit = 5, Punishment = 10, Odds = 3, Penalized = true, State = State.Active, },
         
-        new Incident { Name = "Electrics", Category = CategoryIncident.Car, Limit = 3, Punishment = 5, Odds = 1, Penalized = true, State = State.Active, },
-        new Incident { Name = "Exhaust", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
-        new Incident { Name = "Gearbox", Category = CategoryIncident.Car, Limit = 4, Punishment = 5, Odds = 2, Penalized = true, State = State.Active, },
-        new Incident { Name = "Hydraulics", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
-        new Incident { Name = "Wheel", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
-        new Incident { Name = "Brakes", Category = CategoryIncident.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
+        new Incident { Name = "Electrics", Category = IncidentCategory.Car, Limit = 3, Punishment = 5, Odds = 1, Penalized = true, State = State.Active, },
+        new Incident { Name = "Exhaust", Category = IncidentCategory.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
+        new Incident { Name = "Gearbox", Category = IncidentCategory.Car, Limit = 4, Punishment = 5, Odds = 2, Penalized = true, State = State.Active, },
+        new Incident { Name = "Hydraulics", Category = IncidentCategory.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
+        new Incident { Name = "Wheel", Category = IncidentCategory.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
+        new Incident { Name = "Brakes", Category = IncidentCategory.Car, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, },
         
-        new Incident { Name = "Illegal", Category = CategoryIncident.Disqualified, Limit = 0, Punishment = 10, Odds = 1, Penalized = true, State = State.Active, },
-        new Incident { Name = "Fuel", Category = CategoryIncident.Disqualified, Limit = 0, Punishment = 10, Odds = 1, Penalized = true, State = State.Active, },
-        new Incident { Name = "Dangerous", Category = CategoryIncident.Disqualified, Limit = 0, Punishment = 10, Odds = 1, Penalized = true, State = State.Active, },
+        new Incident { Name = "Illegal", Category = IncidentCategory.Disqualified, Limit = 0, Punishment = 10, Odds = 1, Penalized = true, State = State.Active, },
+        new Incident { Name = "Fuel", Category = IncidentCategory.Disqualified, Limit = 0, Punishment = 10, Odds = 1, Penalized = true, State = State.Active, },
+        new Incident { Name = "Dangerous", Category = IncidentCategory.Disqualified, Limit = 0, Punishment = 10, Odds = 1, Penalized = true, State = State.Active, },
         
-        new Incident { Name = "Hospital", Category = CategoryIncident.Lethal, Limit = 0, Punishment = 0, Odds = 5, Penalized = false, State = State.Active, },
-        new Incident { Name = "Death", Category = CategoryIncident.Lethal, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, }
+        new Incident { Name = "Hospital", Category = IncidentCategory.Lethal, Limit = 0, Punishment = 0, Odds = 5, Penalized = false, State = State.Active, },
+        new Incident { Name = "Death", Category = IncidentCategory.Lethal, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, }
     };
 }

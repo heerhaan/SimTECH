@@ -157,7 +157,10 @@
                     </div>
                     <MudNumericField @bind-Value="Model.SafetyCarGap"
                                      Min="1"
-                                     Label="Gap between drivers during safety car" />
+                                     Label="Gap between drivers during a SC" />
+                    <MudNumericField @bind-Value="Model.SafetyCarGapCloser"
+                                     Min="50"
+                                     Label="How much the gap closes during a SC every advance" />
                     <MudNumericField @bind-Value="Model.DriverStatusPaceModifier"
                                      Min="0"
                                      Label="Main/support driver pace modifier" />
@@ -165,6 +168,7 @@
                 <MudItem xs="8" Style="min-height: 500px">
                     <MudText Typo="Typo.subtitle1">Weighted development ranges</MudText>
                     <MudDivider />
+
                     <MudText Typo="Typo.body2" Color="Color.Info">
                         The range which will be used is the first comparer ('less than') which is equal or less than the corresponding value.
                         &nbsp;So for a skill of 31, it would take the first comparer which is equal or less than 31.

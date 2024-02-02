@@ -16,8 +16,9 @@ namespace SimTECH.Data.EditModels
         public int DisqualificationOdds { get; set; } = 100;
         public int FatalityOdds { get; set; } = 250;
         public int SafetyCarOdds { get; set; } = 5;
-        public int SafetyCarGap { get; set; } = 25;
         public int SafetyCarReturnOdds { get; set; } = 2;
+        public int SafetyCarGap { get; set; } = 25;
+        public int SafetyCarGapCloser { get; set; } = 200;
         public int BattleRng { get; set; } = 5;
         public int DriverStatusPaceModifier { get; set; } = 3;
         public State State { get; set; }
@@ -44,6 +45,7 @@ namespace SimTECH.Data.EditModels
                 SafetyCarOdds = league.SafetyCarOdds;
                 SafetyCarReturnOdds = league.SafetyCarReturnOdds;
                 SafetyCarGap = league.SafetyCarGap;
+                SafetyCarGapCloser = league.SafetyCarGapCloser;
                 BattleRng = league.BattleRng;
                 DriverStatusPaceModifier = league.DriverStatusPaceModifier;
                 State = league.State;
@@ -70,6 +72,7 @@ namespace SimTECH.Data.EditModels
                 SafetyCarOdds = SafetyCarOdds,
                 SafetyCarReturnOdds = SafetyCarReturnOdds,
                 SafetyCarGap = SafetyCarGap,
+                SafetyCarGapCloser = SafetyCarGapCloser,
                 BattleRng = BattleRng,
                 DriverStatusPaceModifier = DriverStatusPaceModifier,
                 State = State,

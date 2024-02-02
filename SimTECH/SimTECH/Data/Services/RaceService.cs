@@ -370,7 +370,7 @@ namespace SimTECH.Data.Services
             }
 
             // Drop drivers which had a lethal crash
-            foreach (var driverFatality in finishedResults.Where(e => e.Incident?.Category == CategoryIncident.Lethal))
+            foreach (var driverFatality in finishedResults.Where(e => e.Incident?.Category == IncidentCategory.Lethal))
             {
                 var droppedDriver = seasonDrivers.Single(e => e.Id == driverFatality.SeasonDriverId);
                 droppedDriver.SeasonTeamId = null;

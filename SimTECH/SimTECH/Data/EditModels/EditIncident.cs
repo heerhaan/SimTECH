@@ -13,7 +13,7 @@ namespace SimTECH.Data.EditModels
         public string? Colour { get; set; }
         public State State { get; set; }
 
-        public CategoryIncident Category { get; set; }
+        public IncidentCategory Category { get; set; }
         public int Limit { get; set; }
         public int Punishment { get; set; }
         public bool Penalized { get; set; }

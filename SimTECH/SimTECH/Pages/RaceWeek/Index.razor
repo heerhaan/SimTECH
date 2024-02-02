@@ -37,7 +37,8 @@
                             <MudTabs Centered="true" Outlined="true">
                                 @foreach (var session in practiceSessions.OrderBy(e => e.SessionIndex))
                                 {
-                                    <MudTabPanel Text="@($"FP{session.SessionIndex}")" ID="@($"fp_{session.SessionIndex}")">
+                                    <MudTabPanel Text="@($"FP{session.SessionIndex}")"
+                                                 ID="@($"fp_{session.SessionIndex}")">
                                         <Practice PracticeSession="@session"
                                                   OnFinish="PersistPractice" />
                                     </MudTabPanel>
@@ -512,7 +513,8 @@
             return;
         }
 
-        var allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
+        var allotments = Model.Season.PointAllotments?
+            .ToDictionary(e => e.Position, e => e.Points) ?? new();
         var finalResults = Model.RaweCeekDrivers
             .Select(e => e.MapToResult(RaceId))
             .ToList();

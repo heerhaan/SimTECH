@@ -40,7 +40,7 @@
                         }
                     </MudSelect>
 
-                    <MudSwitchM3 @bind-Checked="isDropped"
+                    <MudSwitchM3 @bind-Value="isDropped"
                                  ThumbIcon="@Icons.Material.Filled.Done"
                                  ThumbOffIcon="@Icons.Material.Filled.Close"
                                  Label="Drop driver from team?"
@@ -74,7 +74,8 @@
     [Parameter] public SeasonDriver? SeasonDriver { get; set; }
     [Parameter] public int[] TakenNumbers { get; set; }
 
-    private EditSeasonDriverModel Model;
+    private EditSeasonDriverModel Model { get; set; }
+
     private long seasonTeamId;
     private bool loading = true;
     private bool isDropped = false;

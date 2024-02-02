@@ -44,10 +44,10 @@
                             <MudTextField @bind-Value="context.Name" Class="dense-field" />
                         </MudTd>
                         <MudTd>
-                            <MudSelect T="CategoryIncident" @bind-Value="context.Category" Required="true">
-                                @foreach (var cat in CategoryIncidentEnumHelper.GetIncidentCategories)
+                            <MudSelect T="IncidentCategory" @bind-Value="context.Category" Required="true">
+                                @foreach (var cat in IncidentCategoryEnumHelper.GetIncidentCategories)
                                 {
-                                    <MudSelectItem T="CategoryIncident" Value="@cat.Key">
+                                    <MudSelectItem T="IncidentCategory" Value="@cat.Key">
                                         @cat.Value
                                     </MudSelectItem>
                                 }

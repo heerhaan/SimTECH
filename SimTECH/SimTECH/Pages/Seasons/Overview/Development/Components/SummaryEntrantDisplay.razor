@@ -1,7 +1,5 @@
 ﻿<MudTable T="EntrantDevelopLog"
           Items="@EntrantSummary.EntrantLogs.OrderBy(e => e.Name)"
-          GroupBy="@_entrantDefinition"
-          GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
           FixedHeader="true"
           Bordered="true"
           Dense="true"
@@ -15,6 +13,7 @@
         <ScreenshotIconButton TargetId="@EntrantSummary.SummaryElementId" />
     </ToolBarContent>
     <HeaderContent>
+        <MudTd>Name</MudTd>
         @foreach (var (aspect, i) in EntrantSummary.Aspects.OrderBy(e => e.ReadableAspect()).WithIndex())
         {
             <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")">
@@ -22,27 +21,23 @@
             </MudTh>
         }
     </HeaderContent>
-    <GroupHeaderTemplate>
-        <MudTh Class="mud-table-cell-custom-group" colspan="10">
-            <MudText>@context.Key</MudText>
-        </MudTh>
-    </GroupHeaderTemplate>
     <RowTemplate>
+        <MudTd>@context.Name</MudTd>
         @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()).WithIndex())
         {
             <MudTd Class="@(InspectTheWheel(i))">
                 <MudStack Row="true" Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
                     <MudText Typo="Typo.caption" Style="color:white !important">@(dev.Value.Item2 - dev.Value.Item1)</MudText>
-                        <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
-                        <GradientColour Min="@EntrantSummary.MinMaxValues[dev.Key].Item1"
-                                        Max="@EntrantSummary.MinMaxValues[dev.Key].Item2"
-                                        Value="@dev.Value.Item1">
-                            <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
-                        </GradientColour>
-                        <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
-                        <MudText Typo="Typo.caption" Style="color:white !important">@dev.Value.Item2</MudText>
-                    </MudStack>
-                </MudTd>
+                    <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
+                    <GradientColour Min="@EntrantSummary.MinMaxValues[dev.Key].Item1"
+                                    Max="@EntrantSummary.MinMaxValues[dev.Key].Item2"
+                                    Value="@dev.Value.Item1">
+                        <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
+                    </GradientColour>
+                    <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
+                    <MudText Typo="Typo.caption" Style="color:white !important">@dev.Value.Item2</MudText>
+                </MudStack>
+            </MudTd>
         }
     </RowTemplate>
 </MudTable>

@@ -4,14 +4,14 @@
     </TitleContent>
     <DialogContent>
         <MudStack>
-            <MudTextField T="string" @bind-Text="@Model.Name" Label="Name" />
+            <MudTextField T="string" @bind-Text="Model.Name" Label="Name" />
 
             <div>
                 <MudText Typo="Typo.subtitle2">Category</MudText>
                 @if (Model.Id == 0)
                 {
                     <MudChipSet @bind-SelectedChip="categoryChip" Mandatory="true">
-                        @foreach (var cat in CategoryIncidentEnumHelper.GetIncidentCategories)
+                        @foreach (var cat in IncidentCategoryEnumHelper.GetIncidentCategories)
                         {
                             <MudChip Value="@cat.Key">@cat.Value</MudChip>
                         }
@@ -23,13 +23,13 @@
                 }
             </div>
 
-            <MudColorPicker @bind-Text="@Model.Colour" Label="Colour" Placeholder="Select colour" Class="field-md" />
+            <MudColorPicker @bind-Text="Model.Colour" Label="Colour" Placeholder="Select colour" Class="field-md" />
 
-            <MudNumericField T="int" @bind-Value="@Model.Odds"
+            <MudNumericField T="int" @bind-Value="Model.Odds"
                              Min="0"
                              Label="Odds" />
 
-            <MudSwitchM3 @bind-Checked="@Model.Penalized"
+            <MudSwitchM3 @bind-Value="Model.Penalized"
                          Label="Is penalized"
                          Color="Color.Secondary"
                          ThumbIcon="@Icons.Material.Filled.Done"
@@ -37,11 +37,11 @@
 
             @if (Model.Penalized)
             {
-                <MudNumericField T="int" @bind-Value="@Model.Limit"
+                <MudNumericField T="int" @bind-Value="Model.Limit"
                                  Min="0"
                                  Label="Limit" />
 
-                <MudNumericField T="int" @bind-Value="@Model.Punishment"
+                <MudNumericField T="int" @bind-Value="Model.Punishment"
                                  Min="1"
                                  Label="Punishment" />
             }
@@ -74,7 +74,7 @@
             if (categoryChip == null)
                 return;
 
-            Model.Category = (CategoryIncident)categoryChip.Value;
+            Model.Category = (IncidentCategory)categoryChip.Value;
         }
 
         if (!Model.Penalized)

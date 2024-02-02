@@ -7,7 +7,7 @@ namespace SimTECH.Data.Models
     {
         public string Name { get; set; }
         //public string Icon { get; set; }
-        public CategoryIncident Category { get; set; }
+        public IncidentCategory Category { get; set; }
         public int Limit { get; set; }
         public int Punishment { get; set; }
         public int Odds { get; set; }

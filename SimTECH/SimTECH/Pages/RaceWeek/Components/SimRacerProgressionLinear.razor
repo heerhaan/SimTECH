@@ -1,4 +1,4 @@
-﻿<div class="relative" style="height:8px;width:100%">
+﻿<div class="flat-signal-icons-race-bar-wrapper">
     @foreach (var lapEvent in RaceDriver.LapScores)
     {
         @foreach (var raceEvent in lapEvent.ListOfDubiousEvents())
@@ -8,9 +8,21 @@
         }
     }
 </div>
-<SimProgressLinear Bars="@RaceDriver.ColoursOfUsedTyres(CalculationCount)" />
+<SimProgressLinear Bars="@coloursOfUsedTyres" />
 
 @code {
     [Parameter, EditorRequired] public RaceDriver RaceDriver { get; set; }
     [Parameter, EditorRequired] public int CalculationCount { get; set; }
+
+    private List<(double, string)> coloursOfUsedTyres
+    {
+        get
+        {
+            if (RaceDriver == null)
+                return new();
+
+            return RaceDriver.LapScores
+                .ConvertAll(e => (NumberHelper.Percentage(1, CalculationCount), e.TyreColour ?? Globals.DefaultColour));
+        }
+    }
 }

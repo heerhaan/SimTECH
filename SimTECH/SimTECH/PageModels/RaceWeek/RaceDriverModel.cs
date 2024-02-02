@@ -1,7 +1,5 @@
 ﻿using SimTECH.Common.Enums;
-using SimTECH.Constants;
 using SimTECH.Data.Models;
-using SimTECH.Extensions;
 
 namespace SimTECH.PageModels.RaceWeek
 {
@@ -34,7 +32,7 @@ namespace SimTECH.PageModels.RaceWeek
         public List<LapScore> LapScores { get; set; } = new();
 
         public int LapSum => LapScores.Sum(e => e.Score);
-        public int GridChange => Grid - Position;
+        public int GridChange => AbsoluteGrid - AbsolutePosition;
         public int LastScore { get; set; }
         public int OvertakeCount { get; set; }
         public int DefensiveCount { get; set; }
@@ -43,30 +41,7 @@ namespace SimTECH.PageModels.RaceWeek
 
     public static class ExtendRaceDriver
     {
-        public static List<(double, string)> ColoursOfUsedTyres(this RaceDriver driver, int calculationCount) =>
-            driver.LapScores.ConvertAll(e => (NumberHelper.Percentage(1, calculationCount), e.TyreColour ?? Globals.DefaultColour));
-
         public static int QualifyingBonus(this RaceDriver driver, int racerCount, int gridBonus) =>
             (racerCount * gridBonus) - ((driver.AbsoluteGrid - 1) * gridBonus);
-
-        public static void SetPositions(this List<RaceDriver> raceDrivers, double gapMarge)
-        {
-            int absoluteIndex = 0;
-            int scoreAboveDriver = 0;
-
-            var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, _ => 0);
-
-            foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
-            {
-                driver.Position = ++positionIndexDict[driver.ClassId];
-                driver.AbsolutePosition = ++absoluteIndex;
-
-                driver.GapAbove = driver.AbsolutePosition == 1
-                    ? "LEADER"
-                    : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
-
-                scoreAboveDriver = driver.LapSum;
-            }
-        }
     }
 }

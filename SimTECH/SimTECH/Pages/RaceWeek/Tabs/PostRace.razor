@@ -15,14 +15,10 @@
                                        OnClick="GoToOverview">
                                 Standings
                             </MudButton>
-                            <ScreenshotIconButton TargetId="postrace-container" />
+                            <ScreenshotButton TargetId="postrace-container" />
                         </MudButtonGroup>
                     </div>
                 </MudStack>
-                <div class="d-flex flex-row justify-space-between align-content-center">
-                    <div>.</div>
-                    <div>.</div>
-                </div>
             </MudPaper>
         </MudItem>
         <MudItem xs="8">
@@ -154,7 +150,7 @@
                 <MudPaper Class="pa-4 mud-height-full">
                     <MudText Typo="Typo.h5">Upcoming penalties</MudText>
                     <MudDivider />
-                    <MudTable T="DriverPenalty" Items="@driverPenalties" Dense="true" Class="extra-dense">
+                    <MudTable T="DriverPenalty" Items="@DriverPenalties" Dense="true" Class="extra-dense">
                         <HeaderContent>
                             <MudTh>Name</MudTh>
                             <MudTh>Reason</MudTh>
@@ -183,9 +179,9 @@
     [Parameter] public IEnumerable<GivenPenalty> UpcomingPenalties { get; set; } = Enumerable.Empty<GivenPenalty>();
     [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
-    private List<DriverPenalty> driverPenalties = new();
-    private Dictionary<int, int> allotments;
-    private List<RaceClass>? RaceClasses { get; set; }
+    private List<DriverPenalty> DriverPenalties { get; set; } = new();
+    private Dictionary<int, int> Allotments { get; set; }
+    private List<RaceClass> RaceClasses { get; set; } = new();
     private bool loading;
     private int lowestScoring;
 
@@ -193,14 +189,14 @@
 
     protected override void OnInitialized()
     {
-        allotments = Model.Season.PointAllotments?.ToDictionary(e => e.Position, e => e.Points) ?? new();
-        if (allotments.Any())
-            lowestScoring = allotments.Keys.Max();
+        Allotments = Model.Season.PointAllotments?
+            .ToDictionary(e => e.Position, e => e.Points) ?? new();
+
+        if (Allotments.Any())
+            lowestScoring = Allotments.Keys.Max();
 
         if (Model.Season.HasRaceClasses)
         {
-            RaceClasses = new();
-
             raceClassDefinition = new()
             {
                 GroupName = "Class",
@@ -237,7 +233,7 @@
         if (result.Status != RaceStatus.Racing)
             return points;
 
-        if (allotments.TryGetValue(result.Position, out int allotedPoints))
+        if (Allotments.TryGetValue(result.Position, out int allotedPoints))
             points += allotedPoints;
 
         return points;
@@ -245,7 +241,7 @@
 
     private string GetRaceClassName(long classId)
     {
-        if (!Model.Season.HasRaceClasses || RaceClasses == null || RaceClasses.Count == 0)
+        if (!Model.Season.HasRaceClasses || RaceClasses.Count == 0)
             return string.Empty;
 
         return RaceClasses.FirstOrDefault(e => e.Id == classId)?.Name ?? string.Empty;
@@ -259,7 +255,7 @@
             var driver = Model.RaweCeekDrivers.Find(e => e.SeasonDriverId == penalty.SeasonDriverId);
             if (driver != null)
             {
-                driverPenalties.Add(new DriverPenalty
+                DriverPenalties.Add(new DriverPenalty
                     {
                         Name = driver.FullName,
                         Reason = penalty.Incident.Name,
