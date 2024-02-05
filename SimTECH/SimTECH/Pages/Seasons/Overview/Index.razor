@@ -20,7 +20,9 @@
 @inject RaceService _raceService
 @inject ResultService _resultService
 @inject SeasonService _seasonService
-@inject SeasonEntrantService _entrantService
+@inject SeasonDriverService _seasonDriverService
+@inject SeasonEngineService _seasonEngineService
+@inject SeasonTeamService _seasonTeamService
 @inject TeamService _teamService
 @inject TrackService _trackService
 @inject TraitService _traitService
@@ -113,9 +115,9 @@
 
         OverviewModel.Season = await _seasonService.GetSeasonById(SeasonId);
         OverviewModel.Races = await _raceService.GetRacesBySeason(SeasonId);
-        OverviewModel.SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
-        OverviewModel.SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-        OverviewModel.SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        OverviewModel.SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
+        OverviewModel.SeasonTeams = await _seasonTeamService.GetSeasonTeams(SeasonId);
+        OverviewModel.SeasonDrivers = await _seasonDriverService.GetSeasonDrivers(SeasonId);
         OverviewModel.Results = await _resultService.GetResultsOfSeason(SeasonId);
         OverviewModel.Manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
 
@@ -352,8 +354,8 @@
 
         if (!result.Canceled && result.Data != null && result.Data is SeasonDriver updatedDriver)
         {
-            await _entrantService.UpdateSeasonDriver(updatedDriver);
-            OverviewModel.SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+            await _seasonDriverService.UpdateSeasonDriver(updatedDriver);
+            OverviewModel.SeasonDrivers = await _seasonDriverService.GetSeasonDrivers(SeasonId);
         }
     }
 
@@ -379,8 +381,8 @@
 
         if (!result.Canceled && result.Data != null && result.Data is SeasonTeam updatedTeam)
         {
-            await _entrantService.UpdateSeasonTeam(updatedTeam);
-            OverviewModel.SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
+            await _seasonTeamService.UpdateSeasonTeam(updatedTeam);
+            OverviewModel.SeasonTeams = await _seasonTeamService.GetSeasonTeams(SeasonId);
         }
     }
 
@@ -400,8 +402,8 @@
 
         if (!result.Canceled && result.Data != null && result.Data is SeasonEngine updatedEngine)
         {
-            await _entrantService.UpdateSeasonEngine(updatedEngine);
-            OverviewModel.SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
+            await _seasonEngineService.UpdateSeasonEngine(updatedEngine);
+            OverviewModel.SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
         }
     }
 

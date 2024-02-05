@@ -64,23 +64,41 @@
                     </div>
                 </MudStack>
             </ToolBarContent>
-            <HeaderContent>
-                <MudTh Style="width: 20px"></MudTh>
-                <MudTh Style="width: 40px">Grid</MudTh>
-                <MudTh Class="pa-0" Style="width: 5px"></MudTh>
-                <MudTh Style="max-width: 220px">Name</MudTh>
-                <MudTh Class="number-col">NO</MudTh>
-                <MudTh Style="max-width: 220px">Team</MudTh>
+            <ColGroup>
+                <col style="width: 20px" />
+                <col style="width: 40px" />
+                <col class="pa-0" style="width: 5px" />
+                <col style="width: 275px" />
+                <col style="width: 30px" />
+                <col style="width: 200px" />
                 @if (Model.Season.HasRaceClasses)
                 {
-                    <MudTh Class="number-col">CLA</MudTh>
+                    <col style="width: 30px" />
                 }
-                <MudTh Class="number-col">PWR</MudTh>
-                <MudTh Class="text-center" Style="width: 175px">ATT / DEF</MudTh>
+                <col style="width: 30px" />
+                <col style="width: 175px" />
+                <col style="width: 75px" />
+                <col style="width: 30px" />
+                <col style="width: 50px" />
+                <col />
+            </ColGroup>
+            <HeaderContent>
+                <MudTh></MudTh>
+                <MudTh>Grid</MudTh>
+                <MudTh Class="pa-0"></MudTh>
+                <MudTh>Name</MudTh>
+                <MudTh>NO</MudTh>
+                <MudTh>Team</MudTh>
+                @if (Model.Season.HasRaceClasses)
+                {
+                    <MudTh>CLA</MudTh>
+                }
+                <MudTh>PWR</MudTh>
+                <MudTh Class="text-center">ATT / DEF</MudTh>
                 <MudTh>Tyre</MudTh>
-                <MudTh Class="number-col">Pace</MudTh>
-                <MudTh Class="number-col-lg">Status</MudTh>
-                <MudTh Style="min-width: 500px">Progression</MudTh>
+                <MudTh>Pace</MudTh>
+                <MudTh>Status</MudTh>
+                <MudTh>Progression</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>
@@ -99,7 +117,7 @@
                     <SmolAccent Colour="@context.Colour" />
                 </MudTd>
                 <MudTd>
-                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0" Style="max-width: 300px">
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0" Style="max-width: 275px">
                         <MudText>@context.FirstName</MudText>
                         <MudText Typo="Typo.button" Class="fontsize-button-text overflow-hider">@context.LastName</MudText>
                         @if (context.HasFastestLap)
@@ -110,21 +128,23 @@
                         <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
                     </MudStack>
                 </MudTd>
-                <MudTd Class="number-col">
+                <MudTd>
                     <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
                 </MudTd>
-                <MudTd Class="overflow-hider" Style="max-width:250px">
-                    <MudText Typo="Typo.button">@context.TeamName</MudText>
+                <MudTd>
+                    <div class="overflow-hider" style="max-width: 200px">
+                        <MudText Typo="Typo.button">@context.TeamName</MudText>
+                    </div>
                 </MudTd>
                 @if (Model.Season.HasRaceClasses)
                 {
-                    <MudTd Class="number-col">
+                    <MudTd>
                         <SupplierDisplay Colour="@context.Class?.Colour">
                             @context.Class?.Tag
                         </SupplierDisplay>
                     </MudTd>
                 }
-                <MudTd Class="number-col">
+                <MudTd>
                     <MudText Typo="Typo.caption">@context.Power</MudText>
                 </MudTd>
                 <MudTd>
@@ -143,7 +163,7 @@
                         <TyreElement Colour="@context.CurrentTyre.Colour">@context.TyreLife</TyreElement>
                     </div>
                 </MudTd>
-                <MudTd Class="number-col">
+                <MudTd>
                     @if (context.Status == RaceStatus.Racing && context.SingleOccurrence == null)
                     {
                         <GradientColour Min="@lastLowestScore" Max="@lastHighestScore" Value="@context.LastScore">
@@ -155,7 +175,7 @@
                         <MudText Typo="Typo.button" Color="Color.Warning">@(context.SingleOccurrence ?? "-")</MudText>
                     }
                 </MudTd>
-                <MudTd Class="number-col-lg">
+                <MudTd>
                     @if (context.Incident == null)
                     {
                         <MudText Typo="Typo.caption">@context.GapAbove</MudText>
@@ -355,7 +375,7 @@
         }
     }
 
-    private async void Advance()
+    private async Task Advance()
     {
         // Use this variable to persist the lap scores which were generated in this advance
         var lapScoresToPersist = new List<LapScore>();
@@ -395,6 +415,7 @@
             }
 
             DeterminePositions();
+
             PostProcessAdvance();
 
             if (safetyCarOut)
@@ -409,6 +430,7 @@
         racedLaps = GetCurrentLapCount;
 
         var lastScores = raceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
+
         if (lastScores.Any())
         {
             lastLowestScore = lastScores.Min();
@@ -465,7 +487,10 @@
             // Adds the overall power of the driver
             lapValue += driver.Power;
 
-            int actualLap = calculated == 1 ? lapValue - driver.QualifyingBonus(racerCount, Model.Season.GridBonus) : lapValue;
+            int actualLap = calculated == 1
+                ? lapValue - driver.QualifyingBonus(racerCount, Model.Season.GridBonus)
+                : lapValue;
+
             if (actualLap > fastestLap)
             {
                 fastestLap = actualLap;

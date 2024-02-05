@@ -5,7 +5,9 @@
 
 @inject LeagueService _leagueService
 @inject RaceService _raceService
-@inject SeasonEntrantService _entrantService
+@inject SeasonDriverService _seasonDriverService
+@inject SeasonEngineService _seasonEngineService
+@inject SeasonTeamService _seasonTeamService
 @inject SeasonService _seasonService
 @inject BreadcrumbProvider _bread
 @inject IDialogService _dialogService
@@ -140,9 +142,9 @@
 
     private async Task RetrieveEntrants()
     {
-        SeasonEngines = await _entrantService.GetSeasonEngines(SeasonId);
-        SeasonTeams = await _entrantService.GetSeasonTeams(SeasonId);
-        SeasonDrivers = await _entrantService.GetSeasonDrivers(SeasonId);
+        SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
+        SeasonTeams = await _seasonTeamService.GetSeasonTeams(SeasonId);
+        SeasonDrivers = await _seasonDriverService.GetSeasonDrivers(SeasonId);
     }
 
     private void LoadEntrants()
@@ -365,18 +367,18 @@
         switch (DevelopModel.ActiveEntrant)
         {
             case Entrant.Driver:
-                await _entrantService.SaveDriverDevelopment(developedValues, DevelopModel.ActiveAspect);
+                await _seasonDriverService.SaveDriverDevelopment(developedValues, DevelopModel.ActiveAspect);
                 break;
             case Entrant.Team:
-                await _entrantService.SaveTeamDevelopment(developedValues, DevelopModel.ActiveAspect);
+                await _seasonTeamService.SaveTeamDevelopment(developedValues, DevelopModel.ActiveAspect);
                 break;
             case Entrant.Engine:
-                await _entrantService.SaveEngineDevelopment(developedValues, DevelopModel.ActiveAspect);
+                await _seasonEngineService.SaveEngineDevelopment(developedValues, DevelopModel.ActiveAspect);
                 break;
         }
 
         await RetrieveEntrants();
-        await _entrantService.SaveDevelopmentLog(CreateLog);
+        await _seasonService.SaveDevelopmentLog(CreateLog);
 
         LoadEntrants();
     }
@@ -418,7 +420,7 @@
 
     private async Task ShowDevelopmentSummary()
     {
-        var developmentLog = await _entrantService.GetDevelopmentLog(SeasonId);
+        var developmentLog = await _seasonService.GetDevelopmentLog(SeasonId);
 
         var parameters = new DialogParameters
             {

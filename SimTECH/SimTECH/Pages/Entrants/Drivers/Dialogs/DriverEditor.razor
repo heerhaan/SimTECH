@@ -48,7 +48,7 @@
 
                                 <MudText Typo="Typo.subtitle1">Options</MudText>
                                 <MudDivider />
-                                <MudSwitchM3 @bind-Checked="Model.Mark"
+                                <MudSwitchM3 @bind-Value="Model.Mark"
                                              Label="Mark"
                                              Color="Color.Secondary"
                                              ThumbIcon="@Icons.Material.Filled.Done"
@@ -61,7 +61,7 @@
                         <MudPaper Elevation="15" Class="pa-2 mud-height-full">
                             <MudText Typo="Typo.subtitle1">Traits</MudText>
                             <MudDivider />
-                            <MudChipSet @bind-SelectedValues="@selectedTraits" MultiSelection="true" Filter="true">
+                            <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
                                 @foreach (var trait in selectableTraits)
                                 {
                                     <MudChip Text="@trait.Name" Value="@trait.Id" Color="Color.Primary"></MudChip>

@@ -1,5 +1,10 @@
 ﻿@page "/entrantwizard/{SeasonId:long}"
 
+@using MudBlazor.Extensions
+@using MudExtensions.Enums;
+@using MudExtensions.Utilities
+@using SimTECH.Pages.Seasons.Overview.EntrantWizard.Steps
+
 @inject ContractService _contractService
 @inject DriverService _driverService
 @inject EngineService _engineService
@@ -7,15 +12,11 @@
 @inject TeamService _teamService
 @inject LeagueService _leagueService
 @inject SeasonService _seasonService
-@inject SeasonEntrantService _entrantService
+@inject SeasonDriverService _seasonDriverService
+@inject SeasonEngineService _seasonEngineService
+@inject SeasonTeamService _seasonTeamService
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
-@inject IOptions<SimConfig> _config
-
-@using MudBlazor.Extensions
-@using MudExtensions.Enums;
-@using MudExtensions.Utilities
-@using SimTECH.Pages.Seasons.Overview.EntrantWizard.Steps
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudPaper Elevation="5">
@@ -356,7 +357,7 @@
 
         foreach (var engine in Model.BaseEngines.Where(e => !(Model.SeasonEngines.Select(se => se.EngineId).Contains(e.Id))))
         {
-            var previousEngine = await _entrantService.FindRecentSeasonEngine(engine.Id, Model.LeagueId);
+            var previousEngine = await _seasonEngineService.FindRecentSeasonEngine(engine.Id, Model.LeagueId);
 
             var model = new EditSeasonEngineModel(previousEngine);
             model.ResetIdentifierFields();
@@ -380,7 +381,7 @@
         if (PreviousSeason != null)
         {
             var existingEngineIds = Model.SeasonEngines.Select(e => e.EngineId).ToArray();
-            var allPrevious = await _entrantService.GetSeasonEngines(PreviousSeason.Id);
+            var allPrevious = await _seasonEngineService.GetSeasonEngines(PreviousSeason.Id);
             previousEngines = allPrevious.Where(e => existingEngineIds.Contains(e.EngineId)).ToList();
 
             if (PreviousSeason?.RaceClasses?.Any() == true)
@@ -396,7 +397,7 @@
 
         foreach (var team in Model.BaseTeams.Where(e => !(Model.SeasonTeams.Select(st => st.TeamId).Contains(e.Id))))
         {
-            var previousTeam = await _entrantService.FindRecentSeasonTeam(team.Id, Season.LeagueId);
+            var previousTeam = await _seasonTeamService.FindRecentSeasonTeam(team.Id, Season.LeagueId);
 
             var model = new EditSeasonTeamModel(previousTeam);
             model.ResetIdentifierFields();
@@ -433,7 +434,7 @@
         if (PreviousSeason != null)
         {
             var existingTeamIds = Model.SeasonTeams.Select(e => e.TeamId).ToArray();
-            var allPrevious = await _entrantService.GetSeasonTeams(PreviousSeason.Id);
+            var allPrevious = await _seasonTeamService.GetSeasonTeams(PreviousSeason.Id);
 
             previousTeams = allPrevious.Where(e => existingTeamIds.Contains(e.TeamId)).ToList();
         }
@@ -441,7 +442,7 @@
         int indexer = 0;
         foreach (var driver in Model.BaseDrivers.Where(e => !(Model.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))))
         {
-            var previousDriver = await _entrantService.FindRecentSeasonDriver(driver.Id);
+            var previousDriver = await _seasonDriverService.FindRecentSeasonDriver(driver.Id);
 
             // Create a new edit model from the nullable entity, reset the identifying fields and assign the new ones
             var model = new EditSeasonDriverModel(previousDriver);
@@ -510,7 +511,7 @@
     {
         var rootEntrants = Model.CombineEntrantsToRoot();
 
-        await _entrantService.PersistSeasonEntrants(rootEntrants);
+        await _seasonService.PersistSeasonEntrants(rootEntrants);
 
         _nav.NavigateTo($"/overview/{SeasonId}");
     }

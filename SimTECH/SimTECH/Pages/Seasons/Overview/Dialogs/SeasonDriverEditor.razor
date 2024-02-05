@@ -1,4 +1,4 @@
-﻿@inject SeasonEntrantService _entrantService
+﻿@inject SeasonDriverService _seasonDriverService
 
 <MudDialog>
     <TitleContent>
@@ -158,7 +158,7 @@
         Model.DriverId = driver.Id;
         Model.Driver = driver;
 
-        PastSetups = await _entrantService.PreviousDriverSetups(driver.Id);
+        PastSetups = await _seasonDriverService.PreviousDriverSetups(driver.Id);
     }
 
     private void OnSelectedPastSetup(PreviousEntrantSetup<SeasonDriver> setup)

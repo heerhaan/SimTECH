@@ -1,6 +1,8 @@
 ﻿@using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Dialogs
 @using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Components
 
+@inject IDialogService _dialogService
+
 <MudPaper Elevation="15">
     <MudTable Items="@StandingDrivers" Dense="true" Class="extra-dense" id="wdc-season-results">
         <ToolBarContent>
@@ -69,7 +71,6 @@
 
     [Parameter] public Dictionary<int, Country> CountryRounds { get; set; }
     [Parameter] public List<StandingDriverModel> StandingDrivers { get; set; }
-    [Parameter] public EventCallback OnOpenWdcChart { get; set; }
 
     private int lowestScoringPosition = 10;
 
@@ -81,6 +82,8 @@
 
     private async Task ShowWdcResultGraph()
     {
-        await OnOpenWdcChart.InvokeAsync();
+        var parameters = new DialogParameters { ["Drivers"] = StandingDrivers, ["Season"] = OverviewModel.Season };
+
+        _ = await _dialogService.ShowAsync<WdcResultChart>("WDC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
     }
 }

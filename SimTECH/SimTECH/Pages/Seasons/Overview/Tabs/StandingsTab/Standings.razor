@@ -1,8 +1,6 @@
 ﻿@using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Components
 @using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Dialogs
 
-@inject IDialogService _dialogService
-
 <MudTabs Outlined="true" Centered="true">
     <MudTabPanel Text="Standings">
         <MudGrid Spacing="2" id="standings-numerical-overview">
@@ -24,13 +22,11 @@
     </MudTabPanel>
     <MudTabPanel Text="WDC results">
         <DriverResults StandingDrivers="@DriverResultsModel"
-                       CountryRounds="@CountryRounds"
-                       OnOpenWdcChart="ShowWdcResultGraph" />
+                       CountryRounds="@CountryRounds" />
     </MudTabPanel>
     <MudTabPanel Text="WCC results">
         <ConstructorResults StandingConstructors="@TeamResultsModel"
-                            CountryRounds="@CountryRounds"
-                            OnOpenWccChart="ShowWccResultGraph" />
+                            CountryRounds="@CountryRounds" />
     </MudTabPanel>
 </MudTabs>
 
@@ -121,19 +117,5 @@
             Pole = result.Grid == 1,
             FL = result.FastestLap,
         };
-    }
-
-    private async Task ShowWdcResultGraph()
-    {
-        var parameters = new DialogParameters { ["Drivers"] = DriverResultsModel, ["Season"] = OverviewModel.Season };
-
-        _ = await _dialogService.ShowAsync<WdcResultChart>("WDC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
-    }
-
-    private async Task ShowWccResultGraph()
-    {
-        var parameters = new DialogParameters { ["Teams"] = TeamResultsModel, ["Season"] = OverviewModel.Season };
-
-        _ = await _dialogService.ShowAsync<WccResultChart>("WCC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
     }
 }

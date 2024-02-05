@@ -17,6 +17,7 @@
                        Color="Color.Secondary"
                        Edge="Edge.Start"
                        OnClick="@(() => drawerOpen = !drawerOpen)" />
+
         <CustomBreadcrumbs />
 
         <MudSpacer />
@@ -26,23 +27,26 @@
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
         
         <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Secondary">
-            @foreach (var themeItem in simThemes.Keys)
+            @foreach (var themeItem in SimThemes.Keys)
             {
                 <MudMenuItem OnClick="@(() => SetTheme(themeItem))">@themeItem</MudMenuItem>
             }
         </MudMenu>
 
         <MudIconButton Href="/guide" Icon="@Icons.Material.Filled.MenuBook" Color="Color.Dark" />
-        <ScreenshotIconButton TargetId="sim-page-content" Colour="Color.Primary" />
 
-        <MudPopover Open="@isHelpOpen" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Style="margin-right: 20px">
+        <MudPopover Open="@isHelpOpen"
+                    AnchorOrigin="Origin.BottomRight"
+                    TransformOrigin="Origin.TopRight"
+                    Class="guide-popup-element">
             @if (HelpContent != null)
             {
-                <MudPaper Class="pa-2 dialog-shadow" Style="min-width: 500px">
+                <MudPaper Class="pa-2 dialog-shadow dynamic-guide-container">
                     <DynamicComponent Type="@HelpContent" />
                 </MudPaper>
             }
         </MudPopover>
+
         <MudIconButton Icon="@Icons.Material.Filled.QuestionMark"
                        Color="Color.Secondary"
                        Disabled="@(HelpContent == null)"
@@ -68,20 +72,21 @@
     [CascadingParameter(Name = "PageType")]
     public Type PageType { get; set; }
 
-    MudTheme Theme { get; set; } = CustomThemes.GalacticTheme;
+    private MudTheme Theme { get; set; } = CustomThemes.GalacticTheme;
 
-    bool drawerOpen = true;
-    bool isDarkTheme = true;
-    bool isHelpOpen = false;
+    private Dictionary<string, MudTheme> SimThemes { get; set; } = CustomThemes.SimThemes;
 
-    Dictionary<string, MudTheme> simThemes = CustomThemes.SimThemes;
+    private Type? HelpContent { get; set; }
 
-    Type? HelpContent { get; set; }
+    private bool drawerOpen = true;
+    private bool isDarkTheme = true;
+    private bool isHelpOpen = false;
 
     protected override void OnParametersSet()
     {
         if (PageType != HelpContent)
         {
+            // Alternatively this could also be implemented by checking for the content on click
             isHelpOpen = false;
             HelpContent = GuideBookProvider.GetHelpContentForPage(PageType);
         }
@@ -92,9 +97,12 @@
         if (firstRender)
         {
             var storedTheme = await _storage.GetAsync<string>("activeTheme");
-            if (storedTheme.Success && storedTheme.Value != null && simThemes.ContainsKey(storedTheme.Value))
+
+            if (storedTheme.Success
+                && storedTheme.Value != null
+                && SimThemes.ContainsKey(storedTheme.Value))
             {
-                Theme = simThemes[storedTheme.Value];
+                Theme = SimThemes[storedTheme.Value];
                 StateHasChanged();
             }
         }
@@ -102,7 +110,8 @@
 
     private async Task SetTheme(string themeName)
     {
-        Theme = simThemes[themeName];
+        Theme = SimThemes[themeName];
+
         await _storage.SetAsync("activeTheme", themeName);
     }
 }

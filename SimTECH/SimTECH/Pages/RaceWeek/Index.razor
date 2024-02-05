@@ -10,7 +10,9 @@
 @inject ManufacturerService _manufacturerService
 @inject RaceService _raceService
 @inject SeasonService _seasonService
-@inject SeasonEntrantService _entrantService
+@inject SeasonDriverService _seasonDriverService
+@inject SeasonEngineService _seasonEngineService
+@inject SeasonTeamService _seasonTeamService
 @inject TraitService _traitService
 @inject TyreService _tyreService
 @inject BreadcrumbProvider _bread
@@ -162,9 +164,9 @@
         var race = Model.Race;
         var climate = Model.Climate;
 
-        var seasonDrivers = await _entrantService.GetSeasonDrivers(race.SeasonId);
-        var seasonTeams = await _entrantService.GetSeasonTeams(race.SeasonId);
-        var seasonEngines = await _entrantService.GetSeasonEngines(race.SeasonId);
+        var seasonDrivers = await _seasonDriverService.GetSeasonDrivers(race.SeasonId);
+        var seasonTeams = await _seasonTeamService.GetSeasonTeams(race.SeasonId);
+        var seasonEngines = await _seasonEngineService.GetSeasonEngines(race.SeasonId);
         var manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
         var raceResults = await _raceService.GetResultsOfRace(RaceId);
         var allTraits = await _traitService.GetTraits();

@@ -160,6 +160,34 @@ namespace SimTECH.Data.Services
             }
         }
 
+        #region entrant controls
+        public async Task<List<DevelopmentLog>> GetDevelopmentLog(long seasonId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.DevelopmentLog.Where(e => e.SeasonId == seasonId).ToListAsync();
+        }
+
+        public async Task SaveDevelopmentLog(List<DevelopmentLog> logs)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.DevelopmentLog.AddRange(logs);
+
+            await context.SaveChangesAsync();
+        }
+
+        // List of season engines contains (or is expected to) have all related data
+        public async Task PersistSeasonEntrants(List<SeasonEngine> rootEngines)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            context.AddRange(rootEngines);
+
+            await context.SaveChangesAsync();
+        }
+        #endregion
+
         #region page models
         public async Task<List<SeasonListModel>> GetSeasonList()
         {

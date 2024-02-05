@@ -5,7 +5,7 @@
 @inject DriverService _driverService
 @inject LeagueService _leagueService
 @inject ResultService _resultService
-@inject SeasonEntrantService _entrantservice
+@inject SeasonDriverService _seasonDriverService
 @inject BreadcrumbProvider _bread
 @inject IDialogService _dialog
 
@@ -117,7 +117,7 @@
     {
         // Im not necessarily a big fan of how this is done but it's honestly not an issue (for now) either
         var drivers = await _driverService.GetDrivers(StateFilter.All);
-        var seasonDrivers = await _entrantservice.GetAllSeasonDrivers();
+        var seasonDrivers = await _seasonDriverService.GetAllSeasonDrivers();
 
         List<Result> results;
         if (leagueFilter != 0)
