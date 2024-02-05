@@ -1,63 +1,86 @@
-﻿<MudDialog>
+﻿@inject SeasonEntrantService _entrantService
+
+<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5">Modify in-season driver</MudText>
     </TitleContent>
     <DialogContent>
-        <MudPaper MinWidth="750px">
-            @if (!loading)
-            {
-                <MudStack>
-                    @if (Model.Id == 0 && Drivers != null)
+        <div style="min-width: 500px">
+            <MudStack>
+                @if (Model.Id == 0 && Drivers != null)
+                {
+                    <MudSelectExtended T="Driver"
+                                       ItemCollection="@Drivers.ToList()"
+                                       Label="Driver"
+                                       Variant="Variant.Outlined"
+                                       SearchBox="true"
+                                       SearchFunc="SearchDrivers"
+                                       Value="@Model.Driver"
+                                       ValueChanged="LookupDriverData"
+                                       ToStringFunc="@_driverToString">
+                        <ItemTemplate>
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                <MudText>@context.Value.FullName</MudText>
+                                <MudSpacer />
+                                <CountryFlag Code="@context.Value.Country" Size="ElementSize.Tiny" />
+                            </MudStack>
+                        </ItemTemplate>
+                    </MudSelectExtended>
+
+                    @if (PastSetups?.Any() == true)
                     {
-                        <MudSelectExtended ItemCollection="@Drivers.ToList()"
-                                           T="Driver"
-                                           Label="Driver"
+                        <MudSelectExtended T="PreviousEntrantSetup<SeasonDriver>"
+                                           ItemCollection="@PastSetups"
+                                           Label="Previous driver season configurations"
                                            Variant="Variant.Outlined"
-                                           SearchBox="true"
-                                           SearchFunc="SearchDrivers"
-                                           Value="@Model.Driver"
-                                           ValueChanged="LookupDriverData">
+                                           ValueChanged="OnSelectedPastSetup"
+                                           ToStringFunc="@_previousToString">
                             <ItemTemplate>
-                                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                    <MudText>@context.Value.FullName</MudText>
-                                        <MudSpacer />
-                                        <CountryFlag Code="@context.Value.Country" Size="ElementSize.Tiny" />
-                                    </MudStack>
-                                </ItemTemplate>
-                            </MudSelectExtended>
+                                <div class="past-setup-dropdown-item">
+                                    <MudText Typo="Typo.subtitle1">@context.Value.LeagueName - @context.Value.SeasonYear</MudText>
+                                    <div class="setup-block">
+                                        <span>NO: @context.Value.Entrant.Number</span>
+                                        <span>SKL: @context.Value.Entrant.Skill</span>
+                                        <span>REL: @context.Value.Entrant.Reliability</span>
+                                        <span>ATT: @context.Value.Entrant.Attack</span>
+                                        <span>DEF: @context.Value.Entrant.Defense</span>
+                                    </div>
+                                </div>
+                            </ItemTemplate>
+                        </MudSelectExtended>
                     }
+                }
 
-                    <MudNumericField @bind-Value="Model.Number" Label="Number" Class="field-sm" />
-                    <MudNumericField @bind-Value="Model.Skill" Label="Skill" Class="field-sm" />
-                    <MudNumericField @bind-Value="Model.Reliability" Label="Reliability" Class="field-sm" />
-                    <MudNumericField @bind-Value="Model.Attack" Label="Attack" Class="field-sm" />
-                    <MudNumericField @bind-Value="Model.Defense" Label="Defense" Class="field-sm" />
+                <MudNumericField @bind-Value="Model.Number" Label="Number" Validation="@_numberValidation" />
+                <MudNumericField @bind-Value="Model.Skill" Label="Skill" />
+                <MudNumericField @bind-Value="Model.Reliability" Label="Reliability" />
+                <MudNumericField @bind-Value="Model.Attack" Label="Attack" />
+                <MudNumericField @bind-Value="Model.Defense" Label="Defense" />
 
-                    <MudSelect T="TeamRole" @bind-Value="Model.TeamRole" Label="Team role" Style="width: 400px">
-                        @foreach (var select in TeamRoleEnumHelper.GetTeamRoleSelection)
+                <MudSwitchM3 @bind-Value="isDropped"
+                             ThumbIcon="@Icons.Material.Filled.Done"
+                             ThumbOffIcon="@Icons.Material.Filled.Close"
+                             Label="Drop driver from team"
+                             Color="Color.Error" />
+
+                @if (!isDropped)
+                {
+                    <MudSelect T="long" @bind-Value="seasonTeamId" Label="Team">
+                        @foreach (var team in SeasonTeams)
                         {
-                            <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
+                            <MudSelectItem Value="@team.Id">@team.Name</MudSelectItem>
                         }
                     </MudSelect>
 
-                    <MudSwitchM3 @bind-Value="isDropped"
-                                 ThumbIcon="@Icons.Material.Filled.Done"
-                                 ThumbOffIcon="@Icons.Material.Filled.Close"
-                                 Label="Drop driver from team?"
-                                 Color="Color.Error" />
-
-                    @if (!isDropped)
-                    {
-                        <MudSelect T="long" @bind-Value="seasonTeamId" Label="Team" Style="width: 400px">
-                            @foreach (var steam in SeasonTeams)
-                            {
-                                <MudSelectItem Value="steam.Id">@steam.Name</MudSelectItem>
-                            }
-                        </MudSelect>
-                    }
-                </MudStack>
-            }
-        </MudPaper>
+                    <MudSelect T="TeamRole" @bind-Value="Model.TeamRole" Label="Team role">
+                        @foreach (var select in TeamRoleEnumHelper.GetTeamRoleSelection)
+                        {
+                            <MudSelectItem Value="@select.Key">@select.Value</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+            </MudStack>
+        </div>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -76,10 +99,36 @@
 
     private EditSeasonDriverModel Model { get; set; }
 
+    private List<PreviousEntrantSetup<SeasonDriver>>? PastSetups { get; set; }
+
     private long seasonTeamId;
     private bool loading = true;
     private bool isDropped = false;
     private int nextNumber;
+
+    private Func<int, string?> _numberValidation => number =>
+    {
+        if (TakenNumbers.Contains(number))
+            return $"Given number {number} is already used by another driver in this season.";
+
+        return null;
+    };
+
+    private Func<Driver, string> _driverToString => driver =>
+    {
+        if (driver == null)
+            return "Please select a driver";
+
+        return $"{driver.FullName} {driver.Country.CountryCodeToEmoji()}";
+    };
+
+    private Func<PreviousEntrantSetup<SeasonDriver>, string> _previousToString => setup =>
+    {
+        if (setup == null)
+            return "Select the league and year to take the configuration from";
+
+        return $"{setup.LeagueName} - {setup.SeasonYear}";
+    };
 
     protected override void OnInitialized()
     {
@@ -108,6 +157,24 @@
     {
         Model.DriverId = driver.Id;
         Model.Driver = driver;
+
+        PastSetups = await _entrantService.PreviousDriverSetups(driver.Id);
+    }
+
+    private void OnSelectedPastSetup(PreviousEntrantSetup<SeasonDriver> setup)
+    {
+        Model.Number = setup.Entrant.Number;
+        Model.Skill = setup.Entrant.Skill;
+        Model.Reliability = setup.Entrant.Reliability;
+        Model.Attack = setup.Entrant.Attack;
+        Model.Defense = setup.Entrant.Defense;
+
+        var pastTeam = SeasonTeams.Find(e => e.TeamId == setup.MemberId);
+
+        if (pastTeam == null)
+            return;
+
+        seasonTeamId = pastTeam.Id;
     }
 
     private void Submit()

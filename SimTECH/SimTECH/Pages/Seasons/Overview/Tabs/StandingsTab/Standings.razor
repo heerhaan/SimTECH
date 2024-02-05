@@ -74,64 +74,66 @@
     {
         var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
         return new StandingDriverModel
-            {
-                Id = driver.Id,
-                Position = position,
-                Name = driver.Driver.FullName,
-                Number = driver.Number,
-                Nationality = driver.Driver.Country,
-                Colour = team?.Colour ?? "var(--mud-palette-primary)",
-                Accent = team?.Accent ?? "var(--mud-palette-primary-text)",
-                Points = driver.Points,
-                HiddenPoints = driver.HiddenPoints,
-                Mark = driver.Driver.Mark,
-                SeasonTeamId = driver.SeasonTeamId,
-                Team = team?.Team?.Name ?? "None",
+        {
+            Id = driver.Id,
+            Position = position,
+            Name = driver.Driver.FullName,
+            Number = driver.Number,
+            Nationality = driver.Driver.Country,
+            Colour = team?.Colour ?? "var(--mud-palette-primary)",
+            Accent = team?.Accent ?? "var(--mud-palette-primary-text)",
+            Points = driver.Points,
+            HiddenPoints = driver.HiddenPoints,
+            Mark = driver.Driver.Mark,
+            SeasonTeamId = driver.SeasonTeamId,
+            Team = team?.Team?.Name ?? "None",
 
-                ResultCells = results.Select(ToResultCell).ToList(),
-            };
+            ResultCells = results.Select(ToResultCell).ToList(),
+        };
     }
 
     private StandingTeamModel ToTeamResultModel(SeasonTeam team, List<Result> results, int position)
     {
         return new StandingTeamModel
-            {
-                Id = team.Id,
-                Position = position,
-                Name = team.Name,
-                Principal = team.Principal,
-                Nationality = team.Team.Country,
-                Colour = team.Colour,
-                Accent = team.Accent,
-                Points = team.Points,
-                HiddenPoints = team.HiddenPoints,
-                Mark = team.Team.Mark,
+        {
+            Id = team.Id,
+            Position = position,
+            Name = team.Name,
+            Principal = team.Principal,
+            Nationality = team.Team.Country,
+            Colour = team.Colour,
+            Accent = team.Accent,
+            Points = team.Points,
+            HiddenPoints = team.HiddenPoints,
+            Mark = team.Team.Mark,
 
-                ResultCells = results.Select(ToResultCell).ToList() ?? new(),
-            };
+            ResultCells = results.Select(ToResultCell).ToList() ?? new(),
+        };
     }
 
     private StandingResultCell ToResultCell(Result result)
     {
         return new StandingResultCell
-            {
-                Position = result.Position,
-                Status = result.Status,
-                Round = OverviewModel.Races.Single(e => e.Id == result.RaceId).Round,
-                Pole = result.Grid == 1,
-                FL = result.FastestLap,
-            };
+        {
+            Position = result.Position,
+            Status = result.Status,
+            Round = OverviewModel.Races.Single(e => e.Id == result.RaceId).Round,
+            Pole = result.Grid == 1,
+            FL = result.FastestLap,
+        };
     }
 
     private async Task ShowWdcResultGraph()
     {
         var parameters = new DialogParameters { ["Drivers"] = DriverResultsModel, ["Season"] = OverviewModel.Season };
+
         _ = await _dialogService.ShowAsync<WdcResultChart>("WDC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
     }
 
     private async Task ShowWccResultGraph()
     {
         var parameters = new DialogParameters { ["Teams"] = TeamResultsModel, ["Season"] = OverviewModel.Season };
+
         _ = await _dialogService.ShowAsync<WccResultChart>("WCC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
     }
 }

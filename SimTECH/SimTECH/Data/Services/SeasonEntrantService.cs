@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
+using SimTECH.PageModels.Seasons;
 
 namespace SimTECH.Data.Services
 {
@@ -35,6 +36,36 @@ namespace SimTECH.Data.Services
             using var context = _dbFactory.CreateDbContext();
 
             return await context.SeasonEngine.Where(e => e.SeasonId == seasonId).ToListAsync();
+        }
+
+        public async Task<List<PreviousEntrantSetup<SeasonEngine>>> PreviousEngineSetups(long engineId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var seasonEngines = await context.SeasonEngine
+                .Include(e => e.Season)
+                    .ThenInclude(e => e.League)
+                .Where(e => e.EngineId == engineId && e.Season.State == State.Closed)
+                .GroupBy(e => e.Season.LeagueId)
+                .Take(5)
+                .SelectMany(e => e)
+                .ToListAsync();
+
+            if (seasonEngines.Count > 0)
+            {
+                return seasonEngines
+                    .Select(e => new PreviousEntrantSetup<SeasonEngine>
+                    {
+                        LeagueId = e.Season.LeagueId,
+                        LeagueName = e.Season.League.Name,
+                        SeasonId = e.SeasonId,
+                        SeasonYear = e.Season.Year,
+                        Entrant = e
+                    })
+                    .ToList();
+            }
+
+            return [];
         }
 
         public async Task<SeasonEngine?> FindRecentSeasonEngine(long engineId, long leagueId)
@@ -197,6 +228,42 @@ namespace SimTECH.Data.Services
                 .Where(e => e.DriverId == driverId && e.Season.State == State.Closed)
                 .OrderByDescending(e => e.SeasonId)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<PreviousEntrantSetup<SeasonDriver>>> PreviousDriverSetups(long driverId)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            var seasonDrivers = await context.SeasonDriver
+                .Include(e => e.SeasonTeam)
+                .Where(e => e.DriverId == driverId && e.Season.State == State.Closed)
+                .ToListAsync();
+
+            var seasons = await context.Season
+                .Include(e => e.League)
+                .ToListAsync();
+
+            var results = new List<PreviousEntrantSetup<SeasonDriver>>();
+
+            foreach (var seasonDriver in seasonDrivers)
+            {
+                var season = seasons.Find(e => e.Id == seasonDriver.SeasonId);
+
+                if (season == null)
+                    continue;
+
+                results.Add(new()
+                {
+                    LeagueId = season.LeagueId,
+                    LeagueName = season.League.Name,
+                    SeasonId = season.Id,
+                    SeasonYear = season.Year,
+                    MemberId = seasonDriver.SeasonTeam?.TeamId,
+                    Entrant = seasonDriver
+                });
+            }
+
+            return results.OrderByDescending(e => e.SeasonYear).ToList();
         }
 
         public async Task UpdateSeasonDriver(SeasonDriver driver)
