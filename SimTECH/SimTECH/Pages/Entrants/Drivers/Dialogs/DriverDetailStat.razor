@@ -3,7 +3,7 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h5">Detailed statistics for a driver</MudText>
+        <MudText Typo="Typo.h5">Detailed statistics for @Driver?.FullName</MudText>
     </TitleContent>
     <DialogContent>
         <MudPaper MinWidth="600px" MinHeight="400px">
@@ -11,9 +11,23 @@
             {
                 <MudStack Row="true" Justify="Justify.SpaceBetween" Class="mud-width-full">
                     <MudPaper>
-                        <MudText>Hababab</MudText>
+                        <MudText Typo="Typo.subtitle1">Grab data from a league:</MudText>
                         <MudRadioGroup T="long" Value="@SelectedLeagueId" ValueChanged="OnChangeSelectedLeague">
-
+                            <MudRadio T="long"
+                                      Value="default"
+                                      Color="Color.Primary"
+                                      UnCheckedColor="Color.Default">
+                                All
+                            </MudRadio>
+                            @foreach (var league in Leagues)
+                            {
+                                <MudRadio T="long"
+                                          Value="@league.Id"
+                                          Color="Color.Primary"
+                                          UnCheckedColor="Color.Default">
+                                    @league.Name
+                                </MudRadio>
+                            }
                         </MudRadioGroup>
                     </MudPaper>
                     <MudPaper>
@@ -21,19 +35,24 @@
                     </MudPaper>
                 </MudStack>
 
-                <MudText>Chosen is @(Driver.FullName)</MudText>
-
-                <ApexCharts.ApexChart @ref="PositionChart"
-                                      TItem="DataPoint"
-                                      Title="Position results"
-                                      Options="@positionOptions"
-                                      Height="500">
-                    <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                Items="@PositionData.DataPoints"
-                                                XValue="@(e => e.XData)"
-                                                YValue="@(e => e.YData)"
-                                                SeriesType="ApexCharts.SeriesType.Bar" />
-                </ApexCharts.ApexChart>
+                @if (PositionData != null && PositionData.DataPoints.Any())
+                {
+                    <ApexCharts.ApexChart @ref="PositionChart"
+                                          TItem="DataPoint"
+                                          Title="Position results"
+                                          Options="@positionOptions"
+                                          Height="500">
+                        <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                    Items="@PositionData.DataPoints"
+                                                    XValue="@(e => e.XData)"
+                                                    YValue="@(e => e.YData)"
+                                                    SeriesType="ApexCharts.SeriesType.Bar" />
+                    </ApexCharts.ApexChart>
+                }
+                else
+                {
+                    <div>No data found!</div>
+                }
             }
         </MudPaper>
     </DialogContent>
@@ -42,7 +61,7 @@
 @code {
     [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
 
-    [Parameter] public Driver Driver { get; set; }
+    [Parameter, EditorRequired] public Driver Driver { get; set; }
 
     private List<Result> DriverResults { get; set; }
 
@@ -50,13 +69,13 @@
 
     private DataSet PositionData = new DataSet { Label = "Scored positions" };
 
-    ApexCharts.ApexChart<DataPoint> PositionChart { get; set; }
+    private ApexCharts.ApexChart<DataPoint> PositionChart { get; set; }
 
-    ApexCharts.ApexChartOptions<DataPoint> positionOptions = Globals.CreateDefaultChartOptions;
+    private ApexCharts.ApexChartOptions<DataPoint> positionOptions = Globals.CreateDefaultChartOptions;
 
     private long SelectedLeagueId { get; set; }
 
-    bool loading = true;
+    private bool loading = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -70,15 +89,15 @@
 
     private void CreatePositionChart()
     {
-        if (DriverResults?.Any() == true)
-        {
-            var highestPositionScored = DriverResults.Select(e => e.Position).Max();
+        if (DriverResults == null || DriverResults.Count == 0)
+            return;
 
-            for (int i = 1; i <= highestPositionScored; i++)
-            {
-                PositionData.DataPoints.Add(
-                    new DataPoint($"P{i}", DriverResults.Count(e => e.Position == i)));
-            }
+        var highestPositionScored = DriverResults.Select(e => e.Position).Max();
+
+        for (int i = 1; i <= highestPositionScored; i++)
+        {
+            PositionData.DataPoints.Add(
+                new DataPoint($"P{i}", DriverResults.Count(e => e.Position == i)));
         }
     }
 
