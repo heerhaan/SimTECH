@@ -6,34 +6,29 @@
         <MudText Typo="Typo.h5">Detailed statistics for @Driver?.FullName</MudText>
     </TitleContent>
     <DialogContent>
-        <MudPaper MinWidth="600px" MinHeight="400px">
+        <MudPaper MinWidth="900px" MinHeight="400px" Class="pa-2">
             @if (!loading)
             {
-                <MudStack Row="true" Justify="Justify.SpaceBetween" Class="mud-width-full">
-                    <MudPaper>
-                        <MudText Typo="Typo.subtitle1">Grab data from a league:</MudText>
-                        <MudRadioGroup T="long" Value="@SelectedLeagueId" ValueChanged="OnChangeSelectedLeague">
+                <MudPaper>
+                    <MudText Typo="Typo.subtitle1">Grab data from a league:</MudText>
+                    <MudRadioGroup T="long" Value="@SelectedLeagueId" ValueChanged="OnChangeSelectedLeague">
+                        <MudRadio T="long"
+                                  Value="default"
+                                  Color="Color.Primary"
+                                  UnCheckedColor="Color.Default">
+                            All
+                        </MudRadio>
+                        @foreach (var league in Leagues)
+                        {
                             <MudRadio T="long"
-                                      Value="default"
+                                      Value="@league.Id"
                                       Color="Color.Primary"
                                       UnCheckedColor="Color.Default">
-                                All
+                                @league.Name
                             </MudRadio>
-                            @foreach (var league in Leagues)
-                            {
-                                <MudRadio T="long"
-                                          Value="@league.Id"
-                                          Color="Color.Primary"
-                                          UnCheckedColor="Color.Default">
-                                    @league.Name
-                                </MudRadio>
-                            }
-                        </MudRadioGroup>
-                    </MudPaper>
-                    <MudPaper>
-                        <MudText Color="Color.Secondary">This area can optionally be used to further specify the detail data</MudText>
-                    </MudPaper>
-                </MudStack>
+                        }
+                    </MudRadioGroup>
+                </MudPaper>
 
                 @if (PositionData != null && PositionData.DataPoints.Any())
                 {
@@ -46,6 +41,7 @@
                                                     Items="@PositionData.DataPoints"
                                                     XValue="@(e => e.XData)"
                                                     YValue="@(e => e.YData)"
+                                                    PointColor="@_colourSetter"
                                                     SeriesType="ApexCharts.SeriesType.Bar" />
                     </ApexCharts.ApexChart>
                 }
@@ -63,11 +59,11 @@
 
     [Parameter, EditorRequired] public Driver Driver { get; set; }
 
-    private List<Result> DriverResults { get; set; }
+    private List<Result> DriverResults { get; set; } = new();
 
     private List<League> Leagues { get; set; } = new();
 
-    private DataSet PositionData = new DataSet { Label = "Scored positions" };
+    private DataSet PositionData { get; set; } = new DataSet { Label = "Scored positions" };
 
     private ApexCharts.ApexChart<DataPoint> PositionChart { get; set; }
 
@@ -76,6 +72,26 @@
     private long SelectedLeagueId { get; set; }
 
     private bool loading = true;
+
+    private Func<DataPoint, string> _colourSetter => dataPoint =>
+    {
+        if (!int.TryParse(dataPoint.XData.ToString(), out int parsedPosition))
+            return "#4098DB";
+
+        switch (parsedPosition)
+        {
+            case 1:
+                return "#FFD700";
+            case 2:
+                return "#C0C0C0";
+            case 3:
+                return "#CD7F32";
+            case < 11:
+                return "#04DB21";
+            default:
+                return "#4098DB";
+        }
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -92,18 +108,21 @@
         if (DriverResults == null || DriverResults.Count == 0)
             return;
 
+        PositionData.DataPoints = new();
+
         var highestPositionScored = DriverResults.Select(e => e.Position).Max();
 
         for (int i = 1; i <= highestPositionScored; i++)
         {
             PositionData.DataPoints.Add(
-                new DataPoint($"P{i}", DriverResults.Count(e => e.Position == i)));
+                new DataPoint($"{i}", DriverResults.Count(e => e.Position == i)));
         }
     }
 
     private async Task OnChangeSelectedLeague(long leagueId)
     {
-        // TODO: logic to refresh position data to only show for a certain league
+        SelectedLeagueId = leagueId;
+
         if (leagueId == default)
             DriverResults = await _resultService.GetAllResultsOfDriver(Driver.Id);
         else

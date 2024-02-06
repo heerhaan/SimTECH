@@ -25,7 +25,7 @@
         </MudStack>
         <MudText Typo="Typo.body2" Color="Color.Info" Class="px-4">These values do not apply when using wet tyres.</MudText>
     </MudPaper>
-    <MudTable Items="@ManufacturerData" Bordered="true" Dense="true">
+    <MudTable Items="@TyreSuppliers" Bordered="true" Dense="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Life Bonus</MudTh>
@@ -47,10 +47,10 @@
                 </MudStack>
             </MudTd>
             <MudTd>
-                <MudButtonGroup Size="@Size.Small">
+                <MudButtonGroup Size="Size.Small">
                     <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context, toggled))"
                                         Default="@(context.State == State.Active)" />
-                    <MudIconButton Size="@Size.Small"
+                    <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Outlined.Edit"
                                    OnClick="@(async () => await UpdateItem(context))" />
                 </MudButtonGroup>
@@ -60,7 +60,7 @@
 </MudContainer>
 
 @code {
-    private List<Manufacturer> ManufacturerData = new();
+    private List<Manufacturer> TyreSuppliers { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -70,11 +70,11 @@
             new BreadcrumbItem("Manufacturers", href: "manufacturers", disabled: true),
         });
 
-        ManufacturerData = await _manufacturerService.GetManufacturers(StateFilter.All);
+        TyreSuppliers = await _manufacturerService.GetManufacturers(StateFilter.All);
     }
 
-    async Task AddItem() => await UpdateItem(null);
-    async Task UpdateItem(Manufacturer? item)
+    private async Task AddItem() => await UpdateItem(null);
+    private async Task UpdateItem(Manufacturer? item)
     {
         var parameters = new DialogParameters { ["Manufacturer"] = item };
 
@@ -84,12 +84,14 @@
         if (!result.Canceled && result.Data != null && result.Data is Manufacturer updatedItem)
         {
             await _manufacturerService.UpdateManufacturer(updatedItem);
-            ManufacturerData = await _manufacturerService.GetManufacturers();
+            TyreSuppliers = await _manufacturerService.GetManufacturers();
         }
     }
 
-    async Task OnToggleChange(Manufacturer manufacturer, bool toggled) => await ToggleState(manufacturer, (toggled ? State.Active : State.Closed));
-    async Task ToggleState(Manufacturer manufacturer, State targetState)
+    private async Task OnToggleChange(Manufacturer manufacturer, bool toggled) =>
+        await ToggleState(manufacturer, (toggled ? State.Active : State.Closed));
+    
+    private async Task ToggleState(Manufacturer manufacturer, State targetState)
     {
         await _manufacturerService.ChangeState(manufacturer, targetState);
         manufacturer.State = targetState;

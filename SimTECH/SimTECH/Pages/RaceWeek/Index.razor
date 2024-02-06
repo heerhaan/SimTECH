@@ -31,6 +31,7 @@
                 <MudTabs Centered="true" Outlined="true">
                     <MudTabPanel Text="Raceweek">
                         <Landing TrackTraits="@trackTraits"
+                                 TyreSuppliers="@TyreSuppliers"
                                  OnOpenTyrePicker="PickRaceTyre" />
                     </MudTabPanel>
                     <MudTabPanel Text="Practice" OnClick="OnOpenPractice">
@@ -88,6 +89,7 @@
 
     public RaweCeekModel Model { get; set; } = new();
 
+    private List<Manufacturer> TyreSuppliers { get; set; } = new();
     private List<Incident> incidents;
     private List<Trait> trackTraits = new();
     private List<Tyre> tyres;
@@ -286,6 +288,12 @@
             foreach (var driver in driverGroup.OrderByDescending(e => e.RelativePower))
                 driver.ExpectedPosition = ++indexer;
         }
+
+        var uniqueSupplierIds = raweceekDrivers.Select(d => d.ManufacturerId).Distinct().ToList();
+
+        TyreSuppliers = manufacturers
+            .Where(e => uniqueSupplierIds.Contains(e.Id))
+            .ToList();
 
         Model.RaweCeekDrivers = raweceekDrivers;
     }
