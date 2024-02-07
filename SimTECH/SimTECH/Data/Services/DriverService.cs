@@ -58,7 +58,7 @@ public sealed class DriverService : StateService<Driver>
             .Where(e => e.Season.State == State.Active)
             .ToListAsync();
 
-        return new();
+        return [];
     }
 
     public async Task<List<Driver>> GetDriversFromLeague(long leagueId) => await GetDriversFromLeague(leagueId, StateFilter.Default);
@@ -85,6 +85,17 @@ public sealed class DriverService : StateService<Driver>
         return await context.Driver
             .Where(e => filter.StatesForFilter().Contains(e.State)
                 && e.SeasonDrivers.Any(e => e.SeasonId == mostRecent.Id))
+            .Include(e => e.DriverTraits)
+            .ToListAsync();
+    }
+
+    public async Task<List<Driver>> GetAvailableDrivers(long seasonId)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.Driver
+            .Where(e => StateFilter.Active.StatesForFilter().Contains(e.State)
+                && !e.SeasonDrivers.Any(sd => sd.SeasonId == seasonId))
             .Include(e => e.DriverTraits)
             .ToListAsync();
     }

@@ -21,8 +21,7 @@
         </MudGrid>
     </MudTabPanel>
     <MudTabPanel Text="WDC results">
-        <DriverResults StandingDrivers="@DriverResultsModel"
-                       CountryRounds="@CountryRounds" />
+        <DriverResults CountryRounds="@CountryRounds" />
     </MudTabPanel>
     <MudTabPanel Text="WCC results">
         <ConstructorResults StandingConstructors="@TeamResultsModel"
@@ -69,6 +68,7 @@
     private StandingDriverModel ToDriverResultModel(SeasonDriver driver, List<Result> results, int position)
     {
         var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
+
         return new StandingDriverModel
         {
             Id = driver.Id,
@@ -84,7 +84,9 @@
             SeasonTeamId = driver.SeasonTeamId,
             Team = team?.Team?.Name ?? "None",
 
-            ResultCells = results.Select(ToResultCell).ToList(),
+            ResultCells = results
+                .Select(res => res.MapToResultCell(OverviewModel.Races.Single(e => e.Id == res.RaceId).Round))
+                .ToList(),
         };
     }
 
@@ -103,19 +105,9 @@
             HiddenPoints = team.HiddenPoints,
             Mark = team.Team.Mark,
 
-            ResultCells = results.Select(ToResultCell).ToList() ?? new(),
-        };
-    }
-
-    private StandingResultCell ToResultCell(Result result)
-    {
-        return new StandingResultCell
-        {
-            Position = result.Position,
-            Status = result.Status,
-            Round = OverviewModel.Races.Single(e => e.Id == result.RaceId).Round,
-            Pole = result.Grid == 1,
-            FL = result.FastestLap,
+            ResultCells = results
+                .Select(res => res.MapToResultCell(OverviewModel.Races.Single(e => e.Id == res.RaceId).Round))
+                .ToList(),
         };
     }
 }

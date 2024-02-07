@@ -70,14 +70,49 @@
     [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
     [Parameter] public Dictionary<int, Country> CountryRounds { get; set; }
-    [Parameter] public List<StandingDriverModel> StandingDrivers { get; set; }
+
+    private List<StandingDriverModel> StandingDrivers { get; set; } = new();
 
     private int lowestScoringPosition = 10;
 
     protected override void OnInitialized()
     {
+        int indexer = 0;
+
+        StandingDrivers = OverviewModel.ClassDrivers()
+            .OrderByDescending(e => e.Points)
+                .ThenByDescending(e => e.HiddenPoints)
+            .Select(e =>
+                ToDriverResultModel(e, OverviewModel.ClassResults().Where(r => r.SeasonDriverId == e.Id).ToList(), ++indexer))
+            .ToList();
+
         if (OverviewModel.Season?.PointAllotments?.Any() == true)
             lowestScoringPosition = OverviewModel.Season.PointAllotments.Max(e => e.Position);
+    }
+
+    private StandingDriverModel ToDriverResultModel(SeasonDriver driver, List<Result> results, int position)
+    {
+        var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
+
+        return new StandingDriverModel
+            {
+                Id = driver.Id,
+                Position = position,
+                Name = driver.Driver.FullName,
+                Number = driver.Number,
+                Nationality = driver.Driver.Country,
+                Colour = team?.Colour ?? "var(--mud-palette-primary)",
+                Accent = team?.Accent ?? "var(--mud-palette-primary-text)",
+                Points = driver.Points,
+                HiddenPoints = driver.HiddenPoints,
+                Mark = driver.Driver.Mark,
+                SeasonTeamId = driver.SeasonTeamId,
+                Team = team?.Team?.Name ?? "None",
+
+                ResultCells = results
+                    .Select(res => res.MapToResultCell(OverviewModel.Races.Single(e => e.Id == res.RaceId).Round))
+                    .ToList(),
+            };
     }
 
     private async Task ShowWdcResultGraph()

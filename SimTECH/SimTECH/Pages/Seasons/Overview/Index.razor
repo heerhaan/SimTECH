@@ -42,22 +42,13 @@
                     <Landing NextRace="@NextRace"
                              OnStartSeason="StartSeason"
                              OnFinishSeason="FinishSeason"
-                             OnShowComponentUsage="ShowUsedComponents"
-                             OnShowQualyBattles="ShowQualyBattles"
-                             OnShowContractDurations="ShowRemainingContractDurations"
-                             OnNextRace="GoToNextRace"
-                             OnClassSelected="SetActiveRaceClass"
-                             OnNavigate="GoToCommon" />
+                             OnClassSelected="SetActiveRaceClass" />
                 </MudTabPanel>
-                <MudTabPanel Text="Calendar" OnClick="OnOpenCalendar">
-                    @if (calendarLoaded)
-                    {
-                        <Calendar Climates="@Climates"
-                                  OnAddRaces="AddRaces"
-                                  OnEditorOpen="UpdateRace"
-                                  OnDelete="DeleteRace"
-                                  OnGoToRace="GoToRace" />
-                    }
+                <MudTabPanel Text="Calendar">
+                    <Calendar Climates="@Climates"
+                              OnAddRaces="AddRaces"
+                              OnEditorOpen="UpdateRace"
+                              OnDelete="DeleteRace" />
                 </MudTabPanel>
                 <MudTabPanel Text="Standings">
                     <Standings />
@@ -73,12 +64,9 @@
                         <MudTabPanel Text="Engines">
                             <SeasonEngines OnEditorOpen="UpdateEngine" />
                         </MudTabPanel>
-                        <MudTabPanel Text="Power rankings" OnClick="OnOpenPower">
-                            @if (powerLoaded)
-                            {
-                                <PowerRankings Traits="@Traits"
-                                               TeamRoleCarModifier="@driverStatusMod" />
-                            }
+                        <MudTabPanel Text="Power rankings">
+                            <PowerRankings Traits="@Traits"
+                                           TeamRoleCarModifier="@driverStatusMod" />
                         </MudTabPanel>
                     </MudTabs>
                 </MudTabPanel>
@@ -104,10 +92,6 @@
     private int activeTabIndex;
     private int driverStatusMod;
     private bool loading = true;
-    private int nextRound;
-
-    private bool calendarLoaded = false;
-    private bool powerLoaded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -124,18 +108,17 @@
         if (OverviewModel.Season.State == State.Active)
         {
             NextRace = OverviewModel.Races.FindNext();
-            nextRound = NextRace?.Round ?? 0;
         }
 
         if (OverviewModel.Season.HasRaceClasses)
             OverviewModel.ActiveClassId = OverviewModel.Season.RaceClasses.First().Id;
 
+        Climates = await _climateService.GetClimates(StateFilter.All);
         Leagues = await _leagueService.GetLeagues();
+        Traits = await _traitService.GetTraits(StateFilter.All);
 
         var currentLeague = Leagues.Find(e => e.Id == OverviewModel.Season.LeagueId);
         driverStatusMod = currentLeague?.DriverStatusPaceModifier ?? 0;
-
-        await PreloadTab();
 
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -145,33 +128,6 @@
         });
 
         loading = false;
-    }
-
-    private async Task PreloadTab()
-    {
-        // Used to have more options, but alas
-        switch (activeTabIndex)
-        {
-            case 1:
-                await OnOpenCalendar();
-                break;
-        }
-    }
-
-    private async Task OnOpenCalendar()
-    {
-        if (!Climates.Any())
-            Climates = await _climateService.GetClimates(StateFilter.All);
-
-        calendarLoaded = true;
-    }
-
-    private async Task OnOpenPower()
-    {
-        if (!Traits.Any())
-            Traits = await _traitService.GetTraits(StateFilter.All);
-
-        powerLoaded = true;
     }
 
     private async Task StartSeason()
@@ -201,9 +157,6 @@
     private async Task UpdateSeason()
     {
         var editModel = new EditSeasonModel(OverviewModel.Season);
-
-        if (Leagues == null)
-            Leagues = await _leagueService.GetLeagues();
 
         var parameters = new DialogParameters { ["Model"] = editModel, ["Leagues"] = Leagues };
 
@@ -239,11 +192,6 @@
 
     private async Task AddRaces()
     {
-        if (!Leagues.Any())
-            Leagues = await _leagueService.GetLeagues();
-        if (!Climates.Any())
-            Climates = await _climateService.GetClimates(StateFilter.All);
-
         var league = Leagues.First(e => e.Id == OverviewModel.Season.LeagueId);
 
         var usedTrackIds = OverviewModel.Races.Select(e => e.TrackId).ToArray();
@@ -258,13 +206,13 @@
         }
 
         var parameters = new DialogParameters
-            {
-                ["Tracks"] = availableTracks,
-                ["SeasonId"] = SeasonId,
-                ["OffsetRound"] = 1 + OverviewModel.Races.Count(),
-                ["DefaultRaceLength"] = league.RaceLength,
-                ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
-            };
+        {
+            ["Tracks"] = availableTracks,
+            ["SeasonId"] = SeasonId,
+            ["OffsetRound"] = 1 + OverviewModel.Races.Count(),
+            ["DefaultRaceLength"] = league.RaceLength,
+            ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
+        };
 
         var dialog = await _dialogService.ShowAsync<AddRaces>("Insert races", parameters);
         var result = await dialog.Result;
@@ -278,9 +226,6 @@
 
     private async Task UpdateRace(Race? item)
     {
-        if (!Leagues.Any())
-            Leagues = await _leagueService.GetLeagues();
-
         var currentLeague = Leagues.First(e => e.Id == OverviewModel.Season.LeagueId);
 
         var parameters = new DialogParameters
@@ -306,37 +251,9 @@
         OverviewModel.Races = await _raceService.GetRacesBySeason(SeasonId);
     }
 
-    private async Task GoToNextRace() => await GoToRace(nextRound);
-
-    private async Task GoToRace(int round)
-    {
-        var race = OverviewModel.Races.FirstOrDefault(e => e.Round == round);
-        if (race == null)
-        {
-            _snackbar.Add("can't find the next race, you sure it exists lad?");
-            return;
-        }
-
-        if (race.State == State.Concept)
-        {
-            if (race.Round != nextRound)
-            {
-                _snackbar.Add("oi oi oi, a previous round hasn't been finished (or even started!) yet. do that one first, cunt.", Severity.Error);
-                return;
-            }
-
-            await _raceService.ActivateRace(race.Id);
-        }
-
-        _nav.NavigateTo($"/raceweek/{race.Id}");
-    }
-
     private async Task UpdateDriver(SeasonDriver? item)
     {
-        var drivers = await _driverService.GetDrivers(StateFilter.Active);
-        drivers = drivers
-            .Where(e => !OverviewModel.SeasonDrivers.Select(sd => sd.DriverId).Contains(e.Id))
-            .ToList();
+        var drivers = await _driverService.GetAvailableDrivers(SeasonId);
 
         var takenNumbers = OverviewModel.SeasonDrivers.Select(e => e.Number).ToArray();
 
@@ -406,47 +323,4 @@
             OverviewModel.SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
         }
     }
-
-    private async Task ShowQualyBattles()
-    {
-        var parameters = new DialogParameters
-            {
-                ["SeasonDrivers"] = OverviewModel.ClassDrivers(),
-                ["SeasonTeams"] = OverviewModel.ClassTeams(),
-                ["Results"] = OverviewModel.ClassResults()
-            };
-
-        _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters, Globals.StatisticDialogDefaultOptions);
-    }
-
-    private async Task ShowUsedComponents()
-    {
-        var incidents = await _incidentService.GetIncidents(StateFilter.Default);
-
-        var parameters = new DialogParameters
-            {
-                ["SeasonDrivers"] = OverviewModel.ClassDrivers(),
-                ["SeasonTeams"] = OverviewModel.ClassTeams(),
-                ["Results"] = OverviewModel.ClassResults(),
-                ["Incidents"] = incidents,
-            };
-
-        _ = await _dialogService.ShowAsync<UsedComponents>("UsedComponents", parameters, Globals.StatisticDialogDefaultOptions);
-    }
-
-    private async Task ShowRemainingContractDurations()
-    {
-        var activeContracts = await _contractService.GetLeagueContracts(OverviewModel.Season.LeagueId);
-
-        var parameters = new DialogParameters
-            {
-                ["SeasonDrivers"] = OverviewModel.ClassDrivers(),
-                ["SeasonTeams"] = OverviewModel.ClassTeams(),
-                ["Contracts"] = activeContracts
-            };
-
-        _ = await _dialogService.ShowAsync<ContractLengthRemaining>("Remaining durations", parameters, Globals.StatisticDialogDefaultOptions);
-    }
-
-    private void GoToCommon(string path) => _nav.NavigateTo(path);
 }

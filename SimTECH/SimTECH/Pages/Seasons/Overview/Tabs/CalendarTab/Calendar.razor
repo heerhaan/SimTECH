@@ -1,4 +1,7 @@
-﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0" id="current-season-calendar-races-overview">
+﻿@inject NavigationManager _nav
+@inject ISnackbar _snackbar
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0" id="current-season-calendar-races-overview">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Races</MudText>
@@ -15,7 +18,7 @@
                     Add races
                 </MudButton>
             }
-            <ScreenshotIconButton TargetId="current-season-calendar-races-overview" Colour="Color.Secondary" />
+            <ScreenshotIconButton TargetId="current-season-calendar-races-overview" Colour="Color.Tertiary" />
         </MudStack>
     </MudPaper>
     <MudTable T="CalendarList" Items="@seasonCalendar.OrderBy(e => e.Round)" Dense="true" Loading="@loading">
@@ -119,12 +122,11 @@
     [Parameter] public EventCallback OnAddRaces { get; set; }
     [Parameter] public EventCallback<Race?> OnEditorOpen { get; set; }
     [Parameter] public EventCallback<long> OnDelete { get; set; }
-    [Parameter] public EventCallback<int> OnGoToRace { get; set; }
 
-    List<CalendarList> seasonCalendar = new();
+    private List<CalendarList> seasonCalendar = new();
 
-    bool loading = true;
-    int nextRound;
+    private bool loading = true;
+    private int nextRound;
 
     protected override void OnParametersSet()
     {
@@ -218,9 +220,19 @@
 
     private async Task AddRaces() => await OnAddRaces.InvokeAsync();
 
+    private void GoToRace(int round)
+    {
+        var race = OverviewModel.Races.FirstOrDefault(e => e.Round == round);
+        if (race == null)
+        {
+            _snackbar.Add("can't find the next race, you sure it exists lad?");
+            return;
+        }
+
+        _nav.NavigateTo($"/raceweek/{race.Id}");
+    }
+
     private async Task UpdateRace(Race? item) => await OnEditorOpen.InvokeAsync(item);
 
     private async Task DeleteRace(long raceId) => await OnDelete.InvokeAsync(raceId);
-
-    private async Task GoToRace(int round) => await OnGoToRace.InvokeAsync(round);
 }

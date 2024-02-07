@@ -1,4 +1,12 @@
-﻿<MudGrid Spacing="2">
+﻿@using SimTECH.Pages.Seasons.Overview.Dialogs
+
+@inject ContractService _contractService
+@inject IncidentService _incidentService
+@inject NavigationManager _nav
+@inject IDialogService _dialogService
+@inject ISnackbar _snackbar
+
+<MudGrid Spacing="2">
     <MudItem xs="12">
         <MudPaper Class="pa-4">
             <MudStack>
@@ -13,7 +21,6 @@
             </MudStack>
         </MudPaper>
     </MudItem>
-
     <MudItem xs="6">
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
@@ -46,7 +53,6 @@
             </MudStack>
         </MudPaper>
     </MudItem>
-
     <MudItem xs="6">
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
@@ -75,7 +81,6 @@
             </MudStack>
         </MudPaper>
     </MudItem>
-
     <MudItem xs="6">
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
@@ -88,18 +93,17 @@
                 <MudSpacer />
 
                 <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small">
-                    <MudButton FullWidth="true" OnClick="OnShowComponentUsage">Components</MudButton>
+                    <MudButton FullWidth="true" OnClick="ShowUsedComponents">Components</MudButton>
                     <MudButton FullWidth="true" OnClick="ShowQualyBattles">Q.Battles</MudButton>
 
                     @if (OverviewModel.Season.State == State.Active)
                     {
-                        <MudButton FullWidth="true" OnClick="ShowContractDurations">Contract durations</MudButton>
+                        <MudButton FullWidth="true" OnClick="ShowRemainingContractDurations">Contract durations</MudButton>
                     }
                 </MudButtonGroup>
             </MudStack>
         </MudPaper>
     </MudItem>
-
     <MudItem xs="6">
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
@@ -131,23 +135,66 @@
     [Parameter] public Race? NextRace { get; set; }
     [Parameter] public EventCallback OnStartSeason { get; set; }
     [Parameter] public EventCallback OnFinishSeason { get; set; }
-    [Parameter] public EventCallback OnShowComponentUsage { get; set; }
-    [Parameter] public EventCallback OnShowQualyBattles { get; set; }
-    [Parameter] public EventCallback OnShowContractDurations { get; set; }
-    [Parameter] public EventCallback OnNextRace { get; set; }
     [Parameter] public EventCallback<long> OnClassSelected { get; set; }
-    [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
     private async Task TriggerStart() => await OnStartSeason.InvokeAsync();
     private async Task TriggerFinish() => await OnFinishSeason.InvokeAsync();
 
-    private async Task ShowComponentUsage() => await OnShowComponentUsage.InvokeAsync();
-    private async Task ShowQualyBattles() => await OnShowQualyBattles.InvokeAsync();
-    private async Task ShowContractDurations() => await OnShowContractDurations.InvokeAsync();
+    private async Task ShowQualyBattles()
+    {
+        var parameters = new DialogParameters
+        {
+            ["SeasonDrivers"] = OverviewModel.ClassDrivers(),
+            ["SeasonTeams"] = OverviewModel.ClassTeams(),
+            ["Results"] = OverviewModel.ClassResults()
+        };
 
-    private async Task GoToNextRace() => await OnNextRace.InvokeAsync();
+        _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters, Globals.StatisticDialogDefaultOptions);
+    }
 
-    private async Task GoToAddEntrants() => await OnNavigate.InvokeAsync($"/entrantwizard/{OverviewModel.Season.Id}");
-    private async Task GoToDeveloper() => await OnNavigate.InvokeAsync($"/developer/{OverviewModel.Season.Id}");
-    private async Task GoToClassDeveloper() => await OnNavigate.InvokeAsync($"/developer/{OverviewModel.Season.Id}/{OverviewModel.ActiveClassId}");
+    private async Task ShowUsedComponents()
+    {
+        var incidents = await _incidentService.GetIncidents(StateFilter.Default);
+
+        var parameters = new DialogParameters
+            {
+                ["SeasonDrivers"] = OverviewModel.ClassDrivers(),
+                ["SeasonTeams"] = OverviewModel.ClassTeams(),
+                ["Results"] = OverviewModel.ClassResults(),
+                ["Incidents"] = incidents,
+            };
+
+        _ = await _dialogService.ShowAsync<UsedComponents>("UsedComponents", parameters, Globals.StatisticDialogDefaultOptions);
+    }
+
+    private async Task ShowRemainingContractDurations()
+    {
+        var activeContracts = await _contractService.GetLeagueContracts(OverviewModel.Season.LeagueId);
+
+        var parameters = new DialogParameters
+            {
+                ["SeasonDrivers"] = OverviewModel.ClassDrivers(),
+                ["SeasonTeams"] = OverviewModel.ClassTeams(),
+                ["Contracts"] = activeContracts
+            };
+
+        _ = await _dialogService.ShowAsync<ContractLengthRemaining>("Remaining durations", parameters, Globals.StatisticDialogDefaultOptions);
+    }
+
+    private void GoToNextRace()
+    {
+        if (NextRace == null)
+        {
+            _snackbar.Add("Can't find the next race, ya sure it exists lad?");
+            return;
+        }
+
+        _nav.NavigateTo($"/raceweek/{NextRace.Id}");
+    }
+
+    private void GoToAddEntrants() => _nav.NavigateTo($"/entrantwizard/{OverviewModel.Season.Id}");
+
+    private void GoToDeveloper() => _nav.NavigateTo($"/developer/{OverviewModel.Season.Id}");
+
+    private void GoToClassDeveloper() => _nav.NavigateTo($"/developer/{OverviewModel.Season.Id}/{OverviewModel.ActiveClassId}");
 }

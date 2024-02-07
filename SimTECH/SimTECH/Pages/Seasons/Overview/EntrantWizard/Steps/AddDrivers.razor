@@ -1,9 +1,9 @@
 ﻿<MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
-        <MudText Color="Color.Tertiary">Amount drivers: @(Model.BaseDrivers.Count)</MudText>
-        <MudTable T="Driver"
-                  @ref="@_table"
-                  @bind-SelectedItems="@Model.BaseDrivers"
+        <MudText Color="Color.Tertiary">Current driver count: @(Model.BaseDrivers.Count)</MudText>
+        <MudTable @ref="_table"
+                  @bind-SelectedItems="Model.BaseDrivers"
+                  T="Driver"
                   Items="@Drivers"
                   MultiSelection="true"
                   RowsPerPage="15"
@@ -27,7 +27,8 @@
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudPagination SelectedChanged="PageChange" Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)"
+                <MudPagination SelectedChanged="PageChange"
+                               Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)"
                                Variant="Variant.Outlined"
                                Class="pa-4" />
             </PagerContent>

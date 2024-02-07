@@ -128,7 +128,7 @@
                 throw new InvalidOperationException("Somehow you landed inside a raceweek which is not valid for activation, dumbass");
 
             await _raceService.ActivateRace(race.Id);
-            race.State = State.Active;
+            race = await _raceService.GetRaceById(RaceId);
         }
         else if (race.State == State.Closed)
         {
