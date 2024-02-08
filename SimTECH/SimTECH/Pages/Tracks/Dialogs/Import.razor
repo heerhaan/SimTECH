@@ -33,7 +33,7 @@
         }
         else
         {
-            <MudTable Items="@ImportTracks" Class="pa-4">
+            <MudTable Items="@ImportedTracks" Class="pa-4">
                 <HeaderContent>
                     <MudTh>Name</MudTh>
                     <MudTh>Country</MudTh>
@@ -60,19 +60,19 @@
                                          AdornmentColor="Color.Tertiary" />
                     </MudTd>
                     <MudTd>
-                        <MudNumericField T="double" @bind-Value="context.AeroMod" Step="0.1" Format="N2" />
+                        <MudNumericField T="double" @bind-Value="context.AeroMod" Step="0.1d" Format="N2" />
                     </MudTd>
                     <MudTd>
-                        <MudNumericField T="double" @bind-Value="context.ChassisMod" Step="0.1" Format="N2" />
+                        <MudNumericField T="double" @bind-Value="context.ChassisMod" Step="0.1d" Format="N2" />
                     </MudTd>
                     <MudTd>
-                        <MudNumericField T="double" @bind-Value="context.PowerMod" Step="0.1" Format="N2" />
+                        <MudNumericField T="double" @bind-Value="context.PowerMod" Step="0.1d" Format="N2" />
                     </MudTd>
                     <MudTd>
-                        <MudNumericField T="double" @bind-Value="context.QualifyingMod" Step="0.1" Format="N2" />
+                        <MudNumericField T="double" @bind-Value="context.QualifyingMod" Step="0.1d" Format="N2" />
                     </MudTd>
                     <MudTd>
-                        <MudNumericField T="double" @bind-Value="context.DefenseMod" Step="0.1" Format="N2" />
+                        <MudNumericField T="double" @bind-Value="context.DefenseMod" Step="0.1d" Format="N2" />
                     </MudTd>
                 </RowTemplate>
             </MudTable>
@@ -98,7 +98,7 @@
 
     private HashSet<RealCircuit> SelectedCircuits { get; set; } = new();
 
-    private List<EditTrackModel> ImportTracks { get; set; }
+    private List<EditTrackModel> ImportedTracks { get; set; } = new();
 
     private bool firstStep = true;
 
@@ -118,7 +118,7 @@
             return;
         }
 
-        ImportTracks = SelectedCircuits
+        ImportedTracks = SelectedCircuits
             .Select(e => e.BuildEditModel())
             .ToList();
 
@@ -127,7 +127,7 @@
 
     private void Submit()
     {
-        var importedTracks = ImportTracks.Select(e => e.Record).ToList();
+        var importedTracks = ImportedTracks.Select(e => e.Record).ToList();
 
         // NOTE: check if all valid?
 

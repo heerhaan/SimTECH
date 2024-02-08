@@ -1,4 +1,6 @@
-﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0" id="power-rankings-overview">
+﻿@inject TraitService _traitService
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0" id="power-rankings-overview">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Power rankings</MudText>
@@ -99,16 +101,19 @@
 @code {
     [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
-    [Parameter] public IEnumerable<Trait> Traits { get; set; } = Enumerable.Empty<Trait>();
     [Parameter] public int TeamRoleCarModifier { get; set; }
 
-    private List<PowerRankingItem> PowahList = new();
+    private List<PowerRankingItem> PowahList { get; set; } = new();
+
+    private List<Trait> Traits { get; set; } = new();
 
     private bool loading = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        foreach (var driver in OverviewModel.ClassDrivers())
+        Traits = await _traitService.GetTraits(StateFilter.All);
+
+        foreach (var driver in OverviewModel.ClassDrivers)
         {
             var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
             // Skip any driver who isn't currently part of a team
@@ -159,5 +164,6 @@
         loading = false;
     }
 
-    private Func<PowerRankingItem, string> SimpleCellStyle => power => ViewHelper.SetBorderRightStyle(power.Colour);
+    private Func<PowerRankingItem, string> SimpleCellStyle => power =>
+        ViewHelper.SetBorderRightStyle(power.Colour);
 }

@@ -57,7 +57,7 @@
 
     private List<SeasonDriverList> DriverItems { get; set; } = new();
 
-    bool loading = true;
+    private bool loading = true;
 
     // Warning: this is also triggered when just pressing the button to start editing (duhh, OnEditorOpen is a parameter)
     protected override void OnParametersSet()
@@ -66,7 +66,7 @@
 
         DriverItems.Clear();
 
-        foreach (var driver in OverviewModel.ClassDrivers())
+        foreach (var driver in OverviewModel.ClassDrivers)
         {
             var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
 
@@ -94,8 +94,8 @@
         loading = false;
     }
 
-    async Task AddItem() => await UpdateItem(null);
-    async Task UpdateItem(SeasonDriver? item)
+    private async Task AddItem() => await UpdateItem(null);
+    private async Task UpdateItem(SeasonDriver? item)
     {
         await OnEditorOpen.InvokeAsync(item);
     }

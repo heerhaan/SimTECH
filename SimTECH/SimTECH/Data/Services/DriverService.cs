@@ -89,12 +89,12 @@ public sealed class DriverService : StateService<Driver>
             .ToListAsync();
     }
 
-    public async Task<List<Driver>> GetAvailableDrivers(long seasonId)
+    public async Task<List<Driver>> GetAvailableDrivers(long seasonId, StateFilter filter = StateFilter.Active)
     {
         using var context = _dbFactory.CreateDbContext();
 
         return await context.Driver
-            .Where(e => StateFilter.Active.StatesForFilter().Contains(e.State)
+            .Where(e => filter.StatesForFilter().Contains(e.State)
                 && !e.SeasonDrivers.Any(sd => sd.SeasonId == seasonId))
             .Include(e => e.DriverTraits)
             .ToListAsync();

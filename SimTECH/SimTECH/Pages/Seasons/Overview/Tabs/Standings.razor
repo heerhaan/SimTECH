@@ -1,5 +1,5 @@
-﻿@using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Components
-@using SimTECH.Pages.Seasons.Overview.Tabs.StandingsTab.Dialogs
+﻿@using SimTECH.Pages.Seasons.Overview.Components
+@using SimTECH.Pages.Seasons.Overview.Dialogs
 
 <MudTabs Outlined="true" Centered="true">
     <MudTabPanel Text="Standings">
@@ -13,34 +13,33 @@
                 </MudPaper>
             </MudItem>
             <MudItem xs="6">
-                <DriverStandings StandingDrivers="@DriverResultsModel" />
+                <DriverStandings StandingDrivers="@DriverResults" />
             </MudItem>
             <MudItem xs="6">
-                <ConstructorStandings StandingConstructors="@TeamResultsModel" />
+                <ConstructorStandings StandingConstructors="@TeamResults" />
             </MudItem>
         </MudGrid>
     </MudTabPanel>
     <MudTabPanel Text="WDC results">
-        <DriverResults CountryRounds="@CountryRounds" />
+        <DriverResults StandingDrivers="@DriverResults" CountryRounds="@CountryRounds" />
     </MudTabPanel>
     <MudTabPanel Text="WCC results">
-        <ConstructorResults StandingConstructors="@TeamResultsModel"
-                            CountryRounds="@CountryRounds" />
+        <ConstructorResults StandingConstructors="@TeamResults" CountryRounds="@CountryRounds" />
     </MudTabPanel>
 </MudTabs>
 
 @code {
     [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
-    public List<StandingDriverModel> DriverResultsModel { get; set; } = new();
-    public List<StandingTeamModel> TeamResultsModel { get; set; } = new();
+    public List<StandingDriverModel> DriverResults { get; set; } = new();
+    public List<StandingTeamModel> TeamResults { get; set; } = new();
     public Dictionary<int, Country> CountryRounds { get; set; } = new();
 
     protected override void OnInitialized()
     {
         CountryRounds.Clear();
 
-        var classResults = OverviewModel.ClassResults();
+        var classResults = OverviewModel.ClassResults;
 
         foreach (var round in OverviewModel.Races.OrderBy(e => e.Round))
             CountryRounds.Add(round.Round, round.Track?.Country ?? Globals.DefaultCountry);
@@ -48,7 +47,7 @@
         int indexer = 0;
 
         // TODO: Can we generalize these calls somehow?
-        DriverResultsModel = OverviewModel.ClassDrivers()
+        DriverResults = OverviewModel.ClassDrivers
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
             .Select(e =>
@@ -57,7 +56,7 @@
 
         indexer = 0;
 
-        TeamResultsModel = OverviewModel.ClassTeams()
+        TeamResults = OverviewModel.ClassTeams
             .OrderByDescending(e => e.Points)
                 .ThenByDescending(e => e.HiddenPoints)
             .Select(e =>

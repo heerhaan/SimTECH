@@ -25,6 +25,16 @@ namespace SimTECH.Data.Services
                 .ToListAsync();
         }
 
+        public async Task<List<Engine>> GetAvailableEngines(long seasonId, StateFilter filter = StateFilter.Active)
+        {
+            using var context = _dbFactory.CreateDbContext();
+
+            return await context.Engine
+                .Where(e => filter.StatesForFilter().Contains(e.State)
+                    && !e.SeasonEngines.Any(se => se.SeasonId == seasonId))
+                .ToListAsync();
+        }
+
         public async Task UpdateEngine(Engine engine)
         {
             ValidateEngine(engine);

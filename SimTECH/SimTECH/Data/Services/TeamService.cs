@@ -45,6 +45,16 @@ public class TeamService(IDbContextFactory<SimTechDbContext> factory) : StateSer
             .ToListAsync();
     }
 
+    public async Task<List<Team>> GetAvailableTeams(long seasonId, StateFilter filter = StateFilter.Active)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.Team
+            .Where(e => filter.StatesForFilter().Contains(e.State)
+                && !e.SeasonTeams.Any(st => st.SeasonId == seasonId))
+            .ToListAsync();
+    }
+
     public async Task UpdateTeam(Team team)
     {
         using var context = _dbFactory.CreateDbContext();

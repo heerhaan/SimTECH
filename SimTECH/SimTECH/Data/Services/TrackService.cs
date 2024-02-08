@@ -17,6 +17,17 @@ public class TrackService(IDbContextFactory<SimTechDbContext> factory) : StateSe
             .ToListAsync();
     }
 
+    public async Task<List<Track>> GetAvailableTracks(long seasonId, StateFilter filter = StateFilter.Active)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.Track
+            .Where(e => filter.StatesForFilter().Contains(e.State)
+                && !e.Races.Any(r => r.SeasonId == seasonId))
+            .Include(e => e.TrackTraits)
+            .ToListAsync();
+    }
+
     public async Task UpdateTrack(Track track)
     {
         using var context = _dbFactory.CreateDbContext();
