@@ -4,6 +4,8 @@ namespace SimTECH.Constants;
 
 public static class CustomColours
 {
+    public static readonly MudColor AestheticWhite = new("#E7E7E7");
+
     public static readonly MudColor UltraDeepDarkFadedRed = new("#0A0505");
     public static readonly MudColor UltraDarkFadedRed = new("#100a0a");
     public static readonly MudColor DeepDarkFadedRed = new("#110808");
@@ -11,6 +13,7 @@ public static class CustomColours
     public static readonly MudColor MaroonRed = new("#B12926");
     public static readonly MudColor ActiveDarkRed = new("#3C0D0F");
     public static readonly MudColor FadedRed = new("#FF463F");
+    public static readonly MudColor DigitalRed = new("#C95252");
     public static readonly MudColor BrightRed = new("#ff0015");
 
     public static readonly MudColor LightBeige = new("#ffac79");
@@ -38,8 +41,14 @@ public static class CustomColours
     public static readonly MudColor MildCyan = new("#569d9a");
     public static readonly MudColor BrightCyan = new("#40CDD6");
 
+    public static readonly MudColor LightDigitalGreen = new("#66D9A4");
+    public static readonly MudColor DigitalGreen = new("#35A394");
     public static readonly MudColor StreetGreen = new("#18B256");
 
+    public static readonly MudColor VagueGreenishBlack = new("#16211E");
+    public static readonly MudColor DigitalGreenishBlack = new("#101B17");
+
+    public static readonly MudColor FadedBlack = new("#17201E");
     public static readonly MudColor DarkBlack = new("#0f0f0f");
     public static readonly MudColor DeepDarkBlack = new("#070707");
 }

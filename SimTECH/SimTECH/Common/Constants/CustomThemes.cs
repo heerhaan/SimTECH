@@ -9,9 +9,10 @@ public static class CustomThemes
         { "Galaxy", GalacticTheme },
         { "Cosmic", GalacticAltTheme },
         { "Oceanic", OceanicTheme },
-        { "Cyber", CyberTheme },
         { "Fiery", FieryTheme },
+        { "Cyber", CyberTheme },
         { "Neon", NeonTheme },
+        { "Digital", DigitalTheme },
         { "Basic", DefaultTheme },
     };
 
@@ -19,57 +20,57 @@ public static class CustomThemes
     {
         Default = new Default()
         {
-            FontFamily = new[] { "NovaRegular" }
+            FontFamily = ["NovaRegular"]
         },
         H1 = new H1()
         {
-            FontFamily = new[] { "F1Regular" },
+            FontFamily = ["F1Regular"],
             FontSize = "4rem",
         },
         H2 = new H2()
         {
-            FontFamily = new[] { "F1Bold" },
+            FontFamily = ["F1Bold"],
             FontSize = "3rem",
         },
         H3 = new H3()
         {
-            FontFamily = new[] { "F1Regular" },
+            FontFamily = ["F1Regular"],
             FontSize = "2rem",
         },
         H4 = new H4()
         {
-            FontFamily = new[] { "F1Bold" },
+            FontFamily = ["F1Bold"],
             FontSize = "1rem",
         },
         H5 = new H5()
         {
-            FontFamily = new[] { "F1Regular" },
+            FontFamily = ["F1Regular"],
             FontSize = "1rem",
         },
         H6 = new H6()
         {
-            FontFamily = new[] { "NovaBlack" },
+            FontFamily = ["NovaBlack"],
             FontSize = "1rem",
         },
         Subtitle1 = new Subtitle1()
         {
-            FontFamily = new[] { "NovaBold" },
+            FontFamily = ["NovaBold"],
         },
         Subtitle2 = new Subtitle2()
         {
-            FontFamily = new[] { "NovaBold" },
+            FontFamily = ["NovaBold"],
         },
         Button = new Button()
         {
-            FontFamily = new[] { "NovaBold" },
+            FontFamily = ["NovaBold"],
         },
         Caption = new Caption()
         {
-            FontFamily = new[] { "F1Bold" },
+            FontFamily = ["F1Bold"],
         },
         Overline = new Overline()
         {
-            FontFamily = new[] { "F1Wide" },
+            FontFamily = ["F1Wide"],
             LetterSpacing = ".01em"
         },
     };
@@ -248,6 +249,32 @@ public static class CustomThemes
             Surface = CustomColours.DeepDarkFadedHarshBlue,
             DrawerBackground = CustomColours.UltraDeepDarkFadedHarshBlue,
             AppbarBackground = CustomColours.UltraDeepDarkFadedHarshBlue,
+        },
+        Typography = CommonTypo,
+    };
+
+    public static readonly MudTheme DigitalTheme = new()
+    {
+        Palette = new PaletteLight()
+        {
+            Primary = CustomColours.DigitalGreen,
+            Secondary = CustomColours.DigitalRed,
+            Tertiary = CustomColours.FadedBlack,
+
+            DrawerBackground = CustomColours.VagueGreenishBlack,
+            AppbarBackground = CustomColours.VagueGreenishBlack,
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = CustomColours.LightDigitalGreen,
+            Secondary = CustomColours.DigitalRed,
+            Tertiary = CustomColours.AestheticWhite,
+
+            Background = CustomColours.FadedBlack,
+            BackgroundGrey = CustomColours.VagueGreenishBlack,
+            Surface = CustomColours.DigitalGreenishBlack,
+            DrawerBackground = CustomColours.VagueGreenishBlack,
+            AppbarBackground = CustomColours.VagueGreenishBlack,
         },
         Typography = CommonTypo,
     };
