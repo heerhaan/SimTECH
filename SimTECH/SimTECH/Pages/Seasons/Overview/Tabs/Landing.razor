@@ -36,18 +36,14 @@
                     {
                         <CountryNamedFlag Code="@NextRace.Track.Country" Justify="Justify.FlexStart" Size="ElementSize.Normal" />
                         <MudText>Round @NextRace.Round - @NextRace.Name</MudText>
-
                         <MudSpacer />
-
                         <MudButton FullWidth="true" Variant="Variant.Text" Color="Color.Secondary" OnClick="GoToNextRace">Go</MudButton>
                     }
                 }
                 else
                 {
                     <MudText Typo="Typo.body2">
-                        Dimwit, of course there is no next race since this season isn't even active.
-                        <br />
-                        Doubt anything is going to happen here so fuck off or start this bich, willy schlobberer.
+                        Of course there is no next race since this season isn't even active, you absolute willy schlobberer.
                     </MudText>
                 }
             </MudStack>
@@ -59,7 +55,7 @@
                 <MudText Typo="Typo.h5">Controls</MudText>
                 <MudDivider />
                 <MudText Typo="Typo.body2">
-                    Control the world, bring ruin to all who oppose you.
+                    Control the world, bring ruin to those who would oppose you.
                 </MudText>
 
                 <MudSpacer />
@@ -112,7 +108,7 @@
 
                 @if (OverviewModel.Season.HasRaceClasses)
                 {
-                    <MudText Color="Color.Warning">This specific block will still be improved in terms of designing</MudText>
+                    <MudText Color="Color.Warning">This specific block should be improved in terms of designing</MudText>
 
                     <MudRadioGroup Value="@OverviewModel.ActiveClassId"
                                    ValueChanged="OnClassSelected">
@@ -143,11 +139,11 @@
     private async Task ShowQualyBattles()
     {
         var parameters = new DialogParameters
-        {
-            ["SeasonDrivers"] = OverviewModel.ClassDrivers,
-            ["SeasonTeams"] = OverviewModel.ClassTeams,
-            ["Results"] = OverviewModel.ClassResults
-        };
+            {
+                ["SeasonDrivers"] = OverviewModel.ClassDrivers,
+                ["SeasonTeams"] = OverviewModel.ClassTeams,
+                ["Results"] = OverviewModel.ClassResults
+            };
 
         _ = await _dialogService.ShowAsync<QualyBattles>("QualifyingBattles", parameters, Globals.StatisticDialogDefaultOptions);
     }

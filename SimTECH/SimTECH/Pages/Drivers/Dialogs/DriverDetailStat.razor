@@ -22,7 +22,7 @@
                         {
                             <MudRadio T="long"
                                       Value="@league.Id"
-                                      Color="Color.Primary"
+                                      Color="Color.Secondary"
                                       UnCheckedColor="Color.Default">
                                 @league.Name
                             </MudRadio>
@@ -47,7 +47,9 @@
                 }
                 else
                 {
-                    <div>No data found!</div>
+                    <MudPaper Class="d-flex flex-column justify-center align-center" Style="height: 300px">
+                        <MudText Typo="Typo.subtitle1">No data has been found!</MudText>
+                    </MudPaper>
                 }
             }
         </MudPaper>
@@ -95,6 +97,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        loading = true;
+
         DriverResults = await _resultService.GetAllResultsOfDriver(Driver.Id);
         Leagues = await _leagueService.GetLeagues();
 
@@ -105,10 +109,10 @@
 
     private void CreatePositionChart()
     {
+        PositionData.DataPoints = new();
+
         if (DriverResults == null || DriverResults.Count == 0)
             return;
-
-        PositionData.DataPoints = new();
 
         var highestPositionScored = DriverResults.Select(e => e.Position).Max();
 
