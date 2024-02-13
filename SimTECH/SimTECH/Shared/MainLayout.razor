@@ -11,7 +11,7 @@
                    Position="DialogPosition.Center" />
 <MudSnackbarProvider />
 
-<MudLayout>
+<MudLayout @onclick="HandleLayoutClick">
     <MudAppBar Elevation="5" Dense="true" Style="border-bottom: 1px solid var(--mud-palette-primary)">
         <MudIconButton Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Secondary"
@@ -41,7 +41,8 @@
                     Class="guide-popup-element">
             @if (HelpContent != null)
             {
-                <MudPaper Class="pa-2 dialog-shadow dynamic-guide-container">
+                <MudPaper Class="pa-2 dialog-shadow dynamic-guide-container"
+                          @onclick:stopPropagation="true">
                     <DynamicComponent Type="@HelpContent" />
                 </MudPaper>
             }
@@ -113,5 +114,11 @@
         Theme = SimThemes[themeName];
 
         await _storage.SetAsync("activeTheme", themeName);
+    }
+
+    private void HandleLayoutClick()
+    {
+        if (isHelpOpen)
+            isHelpOpen = false;
     }
 }

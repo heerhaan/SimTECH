@@ -2,8 +2,8 @@
     <DialogContent>
         <MudPaper MinHeight="900px" MinWidth="1400px" Class="pa-2" id="wcc-chart-container">
             <MudStack Row="true" AlignItems="AlignItems.Center">
-                <MudIcon Icon="@Icons.Material.Filled.SsidChart" />
-                <MudText>Constructors championship points progression</MudText>
+                <MudIcon Icon="@Icons.Material.Filled.SsidChart" Color="Color.Secondary" />
+                <MudText Typo="Typo.h5" Color="Color.Secondary">Constructors championship points progression</MudText>
                 <MudSpacer />
                 <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
                     <ScreenshotIconButton TargetId="wcc-chart-container" />
@@ -12,7 +12,7 @@
             </MudStack>
             @if (!loading)
             {
-                <ApexCharts.ApexChart TItem="DataPoint" Title="WDC Chart" Options="@options" Width="1400">
+                <ApexCharts.ApexChart TItem="DataPoint" Title="WCC Chart" Options="@options" Width="1400">
                     @foreach (var result in DataSets)
                     {
                         <ApexCharts.ApexPointSeries TItem="DataPoint"
