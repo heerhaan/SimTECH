@@ -14,5 +14,10 @@
 
         public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> self)
             => self.Select((item, index) => (item, index));
+
+        public static T[] TempExample<T>(this T[] items, int amount)
+        {
+            return Random.Shared.GetItems(items, amount);
+        }
     }
 }
