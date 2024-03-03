@@ -3,14 +3,9 @@
 namespace SimTECH.Data.Services;
 
 // Yes this service is unique in that it doesnt belong to a single "Model", it breaks a design rule but lmao who cares
-public class CommonService
+public class CommonService(IDbContextFactory<SimTechDbContext> factory)
 {
-    private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-
-    public CommonService(IDbContextFactory<SimTechDbContext> factory)
-    {
-        _dbFactory = factory;
-    }
+    private readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;
 
     public async Task InsertDefaultData()
     {

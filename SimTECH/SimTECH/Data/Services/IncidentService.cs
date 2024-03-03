@@ -7,6 +7,7 @@ namespace SimTECH.Data.Services;
 public class IncidentService(IDbContextFactory<SimTechDbContext> factory) : StateService<Incident>(factory)
 {
     public async Task<List<Incident>> GetIncidents() => await GetIncidents(StateFilter.Default);
+
     public async Task<List<Incident>> GetIncidents(StateFilter filter)
     {
         using var context = _dbFactory.CreateDbContext();

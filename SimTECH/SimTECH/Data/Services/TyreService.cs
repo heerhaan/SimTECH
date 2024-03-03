@@ -1,38 +1,34 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
-using SimTECH.Extensions;
 
-namespace SimTECH.Data.Services
+namespace SimTECH.Data.Services;
+
+public class TyreService(IDbContextFactory<SimTechDbContext> factory) : StateService<Tyre>(factory)
 {
-    public class TyreService : StateService<Tyre>
+    public async Task<List<Tyre>> GetTyres() => await GetTyres(StateFilter.Default);
+    public async Task<List<Tyre>> GetTyres(StateFilter filter)
     {
-        public TyreService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
+        using var context = _dbFactory.CreateDbContext();
 
-        public async Task<List<Tyre>> GetTyres() => await GetTyres(StateFilter.Default);
-        public async Task<List<Tyre>> GetTyres(StateFilter filter)
+        return await context.Tyre
+            .Where(e => filter.StatesForFilter().Contains(e.State))
+            .Include(e => e.LeagueTyres)
+            .ToListAsync();
+    }
+
+    public async Task UpdateTyre(Tyre tyre)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        if (tyre.Id == 0)
         {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.Tyre
-                .Where(e => filter.StatesForFilter().Contains(e.State))
-                .Include(e => e.LeagueTyres)
-                .ToListAsync();
+            tyre.State = State.Active;
+            context.Add(tyre);
         }
+        else
+            context.Update(tyre);
 
-        public async Task UpdateTyre(Tyre tyre)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            if (tyre.Id == 0)
-            {
-                tyre.State = State.Active;
-                context.Add(tyre);
-            }
-            else
-                context.Update(tyre);
-
-            await context.SaveChangesAsync();
-        }
+        await context.SaveChangesAsync();
     }
 }

@@ -2,62 +2,54 @@
 using SimTECH.Data.Models;
 using SimTECH.Common.Enums;
 
-namespace SimTECH.Data.Services
+namespace SimTECH.Data.Services;
+
+public abstract class BaseService<T>(IDbContextFactory<SimTechDbContext> factory) where T : ModelBase
 {
-    public abstract class BaseService<T> where T : ModelBase
+    protected readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;
+
+    public async Task<T> GetItemById(long id)
     {
-        protected readonly IDbContextFactory<SimTechDbContext> _dbFactory;
+        using var context = _dbFactory.CreateDbContext();
 
-        protected BaseService(IDbContextFactory<SimTechDbContext> factory)
-        {
-            _dbFactory = factory;
-        }
+        var entity = context.Set<T>();
 
-        public async Task<T> GetItemById(long id)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            var entity = context.Set<T>();
-
-            return await entity.FirstAsync(x => x.Id == id);
-        }
-
-        public async Task BulkAddItems(List<T> items)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            context.AddRange(items);
-
-            await context.SaveChangesAsync();
-        }
+        return await entity.FirstAsync(x => x.Id == id);
     }
 
-    public abstract class StateService<T> : BaseService<T> where T : ModelState
+    public async Task BulkAddItems(List<T> items)
     {
-        protected StateService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
+        using var context = _dbFactory.CreateDbContext();
 
-        public async Task ChangeState(T item, State targetState)
-        {
-            using var context = _dbFactory.CreateDbContext();
+        context.AddRange(items);
 
-            item.State = targetState;
-            context.Update(item);
+        await context.SaveChangesAsync();
+    }
+}
 
-            await context.SaveChangesAsync();
-        }
+public abstract class StateService<T>(IDbContextFactory<SimTechDbContext> factory) : BaseService<T>(factory) where T : ModelState
+{
+    public async Task ChangeState(T item, State targetState)
+    {
+        using var context = _dbFactory.CreateDbContext();
 
-        public async Task ArchiveItem(T item)
-        {
-            using var context = _dbFactory.CreateDbContext();
+        item.State = targetState;
+        context.Update(item);
 
-            if (item.State == State.Archived)
-                item.State = State.Active;
-            else
-                item.State = State.Archived;
+        await context.SaveChangesAsync();
+    }
 
-            context.Update(item);
+    public async Task ArchiveItem(T item)
+    {
+        using var context = _dbFactory.CreateDbContext();
 
-            await context.SaveChangesAsync();
-        }
+        if (item.State == State.Archived)
+            item.State = State.Active;
+        else
+            item.State = State.Archived;
+
+        context.Update(item);
+
+        await context.SaveChangesAsync();
     }
 }

@@ -3,10 +3,8 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services;
 
-public class ResultService : BaseService<Result>
+public class ResultService(IDbContextFactory<SimTechDbContext> factory) : BaseService<Result>(factory)
 {
-    public ResultService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
-
     public async Task<List<Result>> GetAllResults()
     {
         using var context = _dbFactory.CreateDbContext();

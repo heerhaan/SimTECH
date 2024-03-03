@@ -5,14 +5,9 @@ using SimTECH.PageModels.Seasons;
 
 namespace SimTECH.Data.Services;
 
-public class SeasonDriverService
+public class SeasonDriverService(IDbContextFactory<SimTechDbContext> factory)
 {
-    private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-
-    public SeasonDriverService(IDbContextFactory<SimTechDbContext> factory)
-    {
-        _dbFactory = factory;
-    }
+    private readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;
 
     public async Task<List<SeasonDriver>> GetAllSeasonDrivers()
     {

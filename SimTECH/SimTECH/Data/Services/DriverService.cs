@@ -7,10 +7,8 @@ using SimTECH.PageModels.Entrants.Drivers;
 
 namespace SimTECH.Data.Services;
 
-public sealed class DriverService : StateService<Driver>
+public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) : StateService<Driver>(factory)
 {
-    public DriverService(IDbContextFactory<SimTechDbContext> factory) : base(factory) { }
-
     public async Task<List<Driver>> GetDrivers() => await GetDrivers(StateFilter.Default);
     public async Task<List<Driver>> GetDrivers(StateFilter filter)
     {

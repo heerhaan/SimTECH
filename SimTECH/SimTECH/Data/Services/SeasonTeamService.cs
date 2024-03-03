@@ -4,14 +4,9 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.Data.Services;
 
-public class SeasonTeamService
+public class SeasonTeamService(IDbContextFactory<SimTechDbContext> factory)
 {
-    private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
-
-    public SeasonTeamService(IDbContextFactory<SimTechDbContext> factory)
-    {
-        _dbFactory = factory;
-    }
+    private readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;
 
     public async Task<List<SeasonTeam>> GetSeasonTeams(long seasonId)
     {

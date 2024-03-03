@@ -3,95 +3,90 @@ using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 
-namespace SimTECH.Data.Services
+namespace SimTECH.Data.Services;
+
+public class LeagueService(IDbContextFactory<SimTechDbContext> factory)
 {
-    public class LeagueService
+    private readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;
+
+    public async Task<List<League>> GetLeagues() => await GetLeagues(StateFilter.Default);
+
+    public async Task<List<League>> GetLeagues(StateFilter filter)
     {
-        private readonly IDbContextFactory<SimTechDbContext> _dbFactory;
+        using var context = _dbFactory.CreateDbContext();
 
-        public LeagueService(IDbContextFactory<SimTechDbContext> factory)
+        return await context.League
+            .Where(e => filter.StatesForFilter().Contains(e.State))
+            .Include(e => e.DevelopmentRanges)
+            .Include(e => e.LeagueTyres)
+            .ToListAsync();
+    }
+
+    public async Task<League> GetLeagueById(long leagueId)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.League
+            .Include(e => e.DevelopmentRanges)
+            .Include(e => e.LeagueTyres)
+            .SingleAsync(e => e.Id == leagueId);
+    }
+
+    public async Task UpdateLeague(League league)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        if (league.Id == 0)
         {
-            _dbFactory = factory;
+            league.State = State.Active;
+            context.Add(league);
         }
-
-
-        public async Task<List<League>> GetLeagues() => await GetLeagues(StateFilter.Default);
-        public async Task<List<League>> GetLeagues(StateFilter filter)
+        else
         {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.League
-                .Where(e => filter.StatesForFilter().Contains(e.State))
-                .Include(e => e.DevelopmentRanges)
-                .Include(e => e.LeagueTyres)
-                .ToListAsync();
-        }
-
-        public async Task<League> GetLeagueById(long leagueId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.League
-                .Include(e => e.DevelopmentRanges)
-                .Include(e => e.LeagueTyres)
-                .SingleAsync(e => e.Id == leagueId);
-        }
-
-        public async Task UpdateLeague(League league)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            if (league.Id == 0)
+            if (league.DevelopmentRanges?.Any() == true)
             {
-                league.State = State.Active;
-                context.Add(league);
-            }
-            else
-            {
-                if (league.DevelopmentRanges?.Any() == true)
-                {
-                    var removeableRanges = await context.DevelopmentRange
-                        .Where(e => e.LeagueId == league.Id && !league.DevelopmentRanges.Select(e => e.Id).Contains(e.Id))
-                        .ToListAsync();
-
-                    context.RemoveRange(removeableRanges);
-                }
-
-                var removeableTyres = await context.LeagueTyre
-                    .Where(e => e.LeagueId == league.Id)
+                var removeableRanges = await context.DevelopmentRange
+                    .Where(e => e.LeagueId == league.Id && !league.DevelopmentRanges.Select(e => e.Id).Contains(e.Id))
                     .ToListAsync();
 
-                if (removeableTyres.Any())
-                    context.RemoveRange(removeableTyres);
-
-                if (league.LeagueTyres?.Any() == true)
-                    context.AddRange(league.LeagueTyres);
-
-                context.Update(league);
+                context.RemoveRange(removeableRanges);
             }
 
-            await context.SaveChangesAsync();
-        }
-
-        public async Task DeleteLeague(League league)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            if (context.Season.Any(e => e.LeagueId == league.Id))
-                throw new InvalidOperationException("Can not delete leagues containing seasons");
-            else
-                context.Remove(league);
-
-            await context.SaveChangesAsync();
-        }
-
-        public async Task<List<DevelopmentRange>> GetLeagueDevelopmentRanges(long leagueId)
-        {
-            using var context = _dbFactory.CreateDbContext();
-
-            return await context.DevelopmentRange
-                .Where(e => e.LeagueId == leagueId)
+            var removeableTyres = await context.LeagueTyre
+                .Where(e => e.LeagueId == league.Id)
                 .ToListAsync();
+
+            if (removeableTyres.Any())
+                context.RemoveRange(removeableTyres);
+
+            if (league.LeagueTyres?.Any() == true)
+                context.AddRange(league.LeagueTyres);
+
+            context.Update(league);
         }
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteLeague(League league)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        if (context.Season.Any(e => e.LeagueId == league.Id))
+            throw new InvalidOperationException("Can not delete leagues containing seasons");
+        else
+            context.Remove(league);
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<List<DevelopmentRange>> GetLeagueDevelopmentRanges(long leagueId)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.DevelopmentRange
+            .Where(e => e.LeagueId == leagueId)
+            .ToListAsync();
     }
 }
+
