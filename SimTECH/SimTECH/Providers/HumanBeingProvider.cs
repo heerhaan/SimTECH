@@ -113,27 +113,25 @@ public class LanguageInfo
 public class HumanBeing
 {
     public string FirstName { get; set; }
+
     public string LastName { get; set; }
+
     public Gender Gender { get; set; }
+
     public Country Nationality { get; set; }
+
     public DateTime Dob { get; set; }
 
     public string FullName => $"{FirstName} {LastName}";
 
-    public Driver ToDriver
+    public Driver ToDriver => new()
     {
-        get
-        {
-            return new()
-            {
-                FirstName = FirstName,
-                LastName = LastName,
-                Abbreviation = LastName[..3].ToUpper(),
-                DateOfBirth = Dob,
-                Country = Nationality,
-                Biography = string.Empty,
-                State = State.Active,
-            };
-        }
-    }
+        FirstName = FirstName,
+        LastName = LastName,
+        Abbreviation = LastName[..3].ToUpper(),
+        DateOfBirth = Dob,
+        Country = Nationality,
+        Biography = string.Empty,
+        State = State.Active,
+    };
 }

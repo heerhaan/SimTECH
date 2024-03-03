@@ -4,7 +4,7 @@ namespace SimTECH.Providers;
 
 public static class GuideBookProvider
 {
-    private static readonly Dictionary<Type, Type> pageGuidanceDict = new()
+    private static readonly Dictionary<Type, Type> pageGuideDictionary = new()
     {
         { typeof(Pages.Index), typeof(Pages.Guide.Topics.Intro) },
         { typeof(Pages.Climates.Index), typeof(ClimateTopic) },
@@ -24,7 +24,7 @@ public static class GuideBookProvider
 
     public static Type GetHelpContentForPage(Type page)
     {
-        if (pageGuidanceDict.TryGetValue(page, out Type? value))
+        if (pageGuideDictionary.TryGetValue(page, out Type? value))
             return value;
 
         return typeof(NotFoundTopic);
