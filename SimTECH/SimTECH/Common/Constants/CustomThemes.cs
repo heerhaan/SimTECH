@@ -1,4 +1,5 @@
 ﻿using MudBlazor;
+using Newtonsoft.Json;
 
 namespace SimTECH.Constants;
 
@@ -278,4 +279,12 @@ public static class CustomThemes
         },
         Typography = CommonTypo,
     };
+
+    public static MudTheme DeepCopyDefaultTheme()
+    {
+        var copiedTheme = JsonConvert.DeserializeObject<MudTheme>(JsonConvert.SerializeObject(DefaultTheme));
+
+        // New should never be hit and if it will, it may cause issues. But alas, it is what it is.
+        return copiedTheme ?? new();
+    }
 }

@@ -4,6 +4,23 @@ namespace SimTECH.Constants;
 
 public static class CustomColours
 {
+    public static List<MudColor> ColourCollection =>
+    [
+        AestheticWhite,
+        UltraDeepDarkFadedRed,
+        MaroonRed,
+        FadedRed,
+        BrightRed,
+        LightBeige,
+        DarkFadedPink,
+        DarkFadedPurple,
+        DeepDarkFadedHarshBlue,
+        DarkFadedBlue,
+        BrightCyan,
+        StreetGreen,
+        DeepDarkBlack,
+    ];
+
     public static readonly MudColor AestheticWhite = new("#E7E7E7");
 
     public static readonly MudColor UltraDeepDarkFadedRed = new("#0A0505");

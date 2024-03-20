@@ -1,0 +1,107 @@
+﻿@using MudBlazor.Utilities
+@using System.Text.Json
+
+@inject ProtectedLocalStorage _storage
+
+<MudToggleIconButton @bind-Toggled="EditingDarkTheme"
+                     Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
+                     ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
+
+@if (EditingDarkTheme)
+{
+    @if (CustomTheme?.PaletteDark != null)
+    {
+        <MudColorPicker Label="Primary"
+                        ColorPickerView="ColorPickerView.Palette"
+                        Palette="@AvailableColours"
+                        @bind-Value="CustomTheme.PaletteDark.Primary" />
+
+        <ul>
+            <li>
+                <MudColorPicker Label="Primary"
+                                ColorPickerView="ColorPickerView.Palette"
+                                Palette="@AvailableColours"
+                                @bind-Value="CustomTheme.PaletteDark.Primary" />
+            </li>
+            <li>Secondary</li>
+            <li>Tertiary</li>
+            <li>Background</li>
+            <li>BackgroundGrey</li>
+            <li>Surface</li>
+            <li>DrawerBackground</li>
+            <li>AppbarBackground</li>
+        </ul>
+
+        <div style="background-color: @(CustomTheme.PaletteDark.Background)">
+            <h5 style="color: @(CustomTheme.PaletteDark.Primary)">I am primary</h5>
+        </div>
+    }
+}
+else
+{
+    <div>Lol, you wish</div>
+}
+
+<MudButton OnClick="SaveCustomTheme">Save theme</MudButton>
+
+@code {
+    private MudTheme CustomTheme { get; set; } = new();
+
+    private IEnumerable<MudColor> AvailableColours { get; set; } = new MudColor[]
+    {
+        CustomColours.AestheticWhite, CustomColours.FadedRed, CustomColours.StreetGreen, CustomColours.DeepDarkBlack
+    };
+
+    private bool EditingDarkTheme { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var setTheme = await GetUserDefinedTheme();
+
+            if (setTheme == null)
+                CustomTheme = CustomThemes.DeepCopyDefaultTheme();
+            else
+                CustomTheme = setTheme;
+
+            StateHasChanged();
+            EditingDarkTheme = true;
+        }
+    }
+
+    // Cool idea, doesnt work. Keeps throwing TaskCanceledException when attempting to retrieve it, probably due to size
+    private const string themeKey = "KaasdomThema";
+
+    public async Task<MudTheme?> GetUserDefinedTheme()
+    {
+        try
+        {
+            var storedTheme = await _storage.GetAsync<string>(themeKey);
+
+            if (!storedTheme.Success || string.IsNullOrEmpty(storedTheme.Value))
+                return null;
+
+            return JsonSerializer.Deserialize<MudTheme>(storedTheme.Value);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+    }
+
+    private async Task SaveCustomTheme()
+    {
+        try
+        {
+            var themeJson = JsonSerializer.Serialize(CustomTheme);
+
+            await _storage.SetAsync(themeKey, themeJson);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

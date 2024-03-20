@@ -1,4 +1,5 @@
-﻿@using static SimTECH.Providers.GuideBookProvider;
+﻿@using System.Text.Json
+@using static SimTECH.Providers.GuideBookProvider;
 
 @inject ProtectedLocalStorage _storage
 
@@ -103,7 +104,23 @@
                 && storedTheme.Value != null
                 && SimThemes.ContainsKey(storedTheme.Value))
             {
+                // if (storedTheme.Value == "Custom")
+                // {
+                //     var customTheme = await GetUserDefinedTheme();
+
+                //     // Set the default theme as the active theme if no custom theme was set
+                //     if (customTheme == null)
+                //         customTheme = SimThemes[storedTheme.Value];
+
+                //     Theme = customTheme;
+                // }
+                // else
+                // {
+                //     Theme = SimThemes[storedTheme.Value];
+                // }
+
                 Theme = SimThemes[storedTheme.Value];
+                
                 StateHasChanged();
             }
         }
@@ -111,6 +128,20 @@
 
     private async Task SetTheme(string themeName)
     {
+        // if (themeName == "Custom")
+        // {
+        //     var customTheme = await GetUserDefinedTheme();
+
+        //     if (customTheme == null)
+        //         customTheme = SimThemes[themeName];
+
+        //     Theme = customTheme;
+        // }
+        // else
+        // {
+        //     Theme = SimThemes[themeName];
+        // }
+
         Theme = SimThemes[themeName];
 
         await _storage.SetAsync("activeTheme", themeName);
