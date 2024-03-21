@@ -29,7 +29,8 @@
                         DisableSkipButton="true"
                         HeaderTextView="HeaderTextView.All"
                         HeaderBadgeView="HeaderBadgeView.GreyOutIncomplete"
-                        PreventStepChangeAsync="InvalidStepPrevention">
+                        PreventStepChangeAsync="InvalidStepPrevention"
+                        ActiveStepChanged="HandleStepChange">
                 <StaticContent>
                     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                         <div style="width:25%">
@@ -59,6 +60,7 @@
                     </MudStep>
                     <MudStep Title="Edit engines" Icon="@IconCollection.Engine">
                         <ChildContent>
+                            <!-- Yes, these if-conditions are here to prevent the step from rendering in advance -->
                             @if (stepper.GetActiveIndex() == 1)
                             {
                                 <EditEngines />
@@ -147,13 +149,16 @@
     public List<Contract> Contracts { get; set; } = new();
     public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
 
+    private EntrantWizardStep ActiveStep { get; set; } = EntrantWizardStep.EnginesAdd;
+
     private bool allowPersonalNumbers;
 
     private MudStepper stepper;
 
     private bool loading = true;
-    private string stepTitle = "Add engines";
     private List<string> errors = new();
+
+    private string stepTitle => ActiveStep.GetStepTitle();
 
     protected override async Task OnInitializedAsync()
     {
@@ -187,29 +192,29 @@
         loading = false;
     }
 
-    private async Task<bool> InvalidStepPrevention(StepChangeDirection direction, int activeIndex)
+    private Task<bool> InvalidStepPrevention(StepChangeDirection direction, int activeIndex)
     {
+        var nextStep = (EntrantWizardStep)activeIndex;
+        var lastStep = (EntrantWizardStep)activeIndex - 1;
+
         errors.Clear();
 
         if (direction == StepChangeDirection.Backward)
         {
-            SetTitle(--activeIndex);
-            return false;
+            return Task.FromResult(false);
         }
 
         loading = true;
 
-        switch (activeIndex)
+        switch (lastStep)
         {
-            //Step: adding engines to season
-            case 0:
+            case EntrantWizardStep.EnginesAdd:
                 if (!(Model.BaseEngines?.Any() == true))
                 {
                     errors.Add("Suggestion: add some goddamn engines to the season");
                 }
                 break;
-            //Step: editing entered engines
-            case 1:
+            case EntrantWizardStep.EnginesEdit:
                 {
                     if (Model.SeasonEngines.Any())
                     {
@@ -222,15 +227,13 @@
                     }
                 }
                 break;
-            //Step: adding teams to season
-            case 2:
+            case EntrantWizardStep.TeamsAdd:
                 if (!(Model.BaseTeams?.Any() == true))
                 {
                     errors.Add("Suggestion: add some goddamn teams to the season");
                 }
                 break;
-            //Step: editing teams
-            case 3:
+            case EntrantWizardStep.TeamsEdit:
                 {
                     if (Model.SeasonTeams.Any())
                     {
@@ -243,29 +246,25 @@
                     }
                 }
                 break;
-            //Step: team assignment
-            case 4:
+            case EntrantWizardStep.TeamsAssignment:
                 if (Model.SeasonTeams.Any(e => e.BaseEngineId == 0))
                 {
                     errors.Add("Oi oi mate, how is a team going to drive without an engine? Try again.");
                 }
                 break;
-            //Step: raceclass assignment
-            case 5:
+            case EntrantWizardStep.RaceClassAssignment:
                 if (Model.Classes.Any() && Model.SeasonTeams.Any(e => e.ClassId == 0))
                 {
                     errors.Add("See these race classes? Yeah? Well, you better give every team one.");
                 }
                 break;
-            //Step: adding drivers
-            case 6:
+            case EntrantWizardStep.DriversAdd:
                 if (!(Model.BaseDrivers?.Any() == true))
                 {
                     errors.Add("Suggestion: add some goddamn drivers to the season");
                 }
                 break;
-            //Step: editing drivers
-            case 7:
+            case EntrantWizardStep.DriversEdit:
                 {
                     if (Model.SeasonDrivers.Any())
                     {
@@ -278,7 +277,7 @@
                     }
                 }
                 break;
-            case 8:
+            case EntrantWizardStep.DriversAssignment:
                 {
                     if (!allowPersonalNumbers)
                     {
@@ -290,65 +289,48 @@
                 break;
         }
 
-        if (errors.Any())
-        {
-            loading = false;
-            return true;
-        }
-
-        await PreProcessUpcomingStep(++activeIndex);
-
         loading = false;
 
-        return false;
+        if (errors.Any())
+            return Task.FromResult(true);
+
+        return Task.FromResult(false);
     }
 
-    private async Task PreProcessUpcomingStep(int stepIndex)
+    private async Task HandleStepChange(int activeIndex)
     {
-        switch (stepIndex)
+        ActiveStep = (EntrantWizardStep)activeIndex;
+
+        switch (ActiveStep)
         {
-            case 0:
-                stepTitle = "Add engines";
-                break;
-            case 1:
+            case EntrantWizardStep.EnginesEdit:
                 {
                     await SetEngineEditors();
-                    stepTitle = "Edit engines";
                 }
                 break;
-            case 2:
-                {
-                    stepTitle = "Add teams";
-                }
-                break;
-            case 3:
+            case EntrantWizardStep.TeamsEdit:
                 {
                     await SetTeamEditors();
-                    stepTitle = "Edit teams";
                 }
                 break;
-            case 4:
-                stepTitle = "Assign teams";
-                break;
-            case 5:
-                stepTitle = "Assign race classes";
-                break;
-            case 6:
-                stepTitle = "Add drivers";
-                break;
-            case 7:
+            case EntrantWizardStep.DriversEdit:
                 {
                     await SetDriverEditors();
-                    stepTitle = "Edit drivers";
                 }
                 break;
-            case 8:
-                stepTitle = "Assign drivers";
-                break;
-            case 9:
-                stepTitle = "Participants";
+            case EntrantWizardStep.DriversAssignment:
+                {
+                    if (!allowPersonalNumbers)
+                    {
+                        int numberIndexer = 0;
+                        foreach (var driver in Model.SeasonDrivers.OrderBy(e => e.BaseTeamId))
+                            driver.Number = ++numberIndexer;
+                    }
+                }
                 break;
         }
+
+        //stepTitle = activeStep.GetStepTitle();
     }
 
     private async Task SetEngineEditors()
@@ -471,40 +453,6 @@
         }
 
         Model.RemoveUnsetDrivers();
-    }
-
-    private void SetTitle(int forIndex)
-    {
-        switch (forIndex)
-        {
-            case 0:
-                stepTitle = "Add engines";
-                break;
-            case 1:
-                stepTitle = "Edit engines";
-                break;
-            case 2:
-                stepTitle = "Add teams";
-                break;
-            case 3:
-                stepTitle = "Edit teams";
-                break;
-            case 4:
-                stepTitle = "Assign teams";
-                break;
-            case 5:
-                stepTitle = "Add drivers";
-                break;
-            case 6:
-                stepTitle = "Edit drivers";
-                break;
-            case 7:
-                stepTitle = "Assign drivers";
-                break;
-            case 8:
-                stepTitle = "Participants";
-                break;
-        }
     }
 
     private async Task AddAllEntrants()
