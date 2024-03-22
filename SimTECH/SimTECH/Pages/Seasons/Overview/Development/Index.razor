@@ -58,6 +58,10 @@
                                        OnClick="ShowDevelopmentSummary">
                                 <span>Season summary</span>
                             </MudButton>
+                            <MudButton FullWidth="true"
+                                       OnClick="ShowDevelopmentProgressionChart">
+                                <span>Developed chart</span>
+                            </MudButton>
                         </MudButtonGroup>
                     </MudPaper>
                 </MudItem>
@@ -431,5 +435,33 @@
             };
 
         await _dialogService.ShowAsync<SummaryDevelopment>("Summary development", parameters, Globals.StatisticDialogDefaultOptionsXl);
+    }
+
+    private async Task ShowDevelopmentProgressionChart()
+    {
+        List<DataSet> developData;
+
+        switch (DevelopModel.ActiveEntrant)
+        {
+            case Entrant.Driver:
+                developData = await _seasonDriverService.GetSeasonDevelopmentProgressionData(SeasonId, DevelopModel.ActiveAspect);
+                break;
+            case Entrant.Team:
+                developData = await _seasonTeamService.GetSeasonDevelopmentProgressionData(SeasonId, DevelopModel.ActiveAspect);
+                break;
+            case Entrant.Engine:
+                developData = await _seasonEngineService.GetSeasonDevelopmentProgressionData(SeasonId, DevelopModel.ActiveAspect);
+                break;
+            default:
+                return;
+        }
+
+        var parameters = new DialogParameters()
+            {
+                ["DataSets"] = developData,
+                ["Aspect"] = DevelopModel.ActiveAspect,
+            };
+
+        await _dialogService.ShowAsync<SeasonDevelopChartDialog>("Season aspect development", parameters, Globals.StatisticDialogDefaultOptionsXl);
     }
 }

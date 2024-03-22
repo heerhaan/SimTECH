@@ -1,10 +1,12 @@
-﻿<MudContainer MaxWidth="MaxWidth.Small">
+﻿@inject EngineService _engineService
+
+<MudContainer MaxWidth="MaxWidth.Small">
     <MudPaper Elevation="15">
         <MudText Color="Color.Tertiary">Amount engines: @(Model.BaseEngines.Count)</MudText>
         <MudTable T="Engine"
                   Items="@Engines"
-                  @ref="@_table"
-                  @bind-SelectedItems="@Model.BaseEngines"
+                  @ref="_table"
+                  @bind-SelectedItems="Model.BaseEngines"
                   MultiSelection="true"
                   Dense="true"
                   Hover="true">
@@ -26,9 +28,14 @@
 @code {
     [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    [Parameter, EditorRequired] public IEnumerable<Engine> Engines { get; set; } = Enumerable.Empty<Engine>();
+    private List<Engine> Engines { get; set; } = new();
 
     private MudTable<Engine> _table;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Engines = await _engineService.GetEngines();
+    }
 
     private void PageChange(int index)
     {

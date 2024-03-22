@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
+using SimTECH.PageModels;
 using SimTECH.PageModels.Seasons;
 
 namespace SimTECH.Data.Services;
@@ -107,5 +108,60 @@ public class SeasonDriverService(IDbContextFactory<SimTechDbContext> factory)
         context.UpdateRange(drivers);
 
         await context.SaveChangesAsync();
+    }
+
+    public async Task<List<DataSet>> GetSeasonDevelopmentProgressionData(long seasonId, Aspect aspect)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        var dataSets = new List<DataSet>();
+
+        var developLog = await context.DevelopmentLog
+            .Where(e => e.SeasonId == seasonId
+                && e.EntrantGroup == Entrant.Driver
+                && e.DevelopedAspect == aspect)
+            .ToListAsync();
+
+        if (developLog.Count == 0)
+            return dataSets;
+
+        var seasonDrivers = await context.SeasonDriver
+            .Include(e => e.Driver)
+            .Include(e => e.SeasonTeam)
+            .Where(e => e.SeasonId == seasonId)
+            .ToListAsync();
+
+        var maxRoundCount = developLog.Select(e => e.AfterRound).Max();
+
+        foreach (var driver in seasonDrivers)
+        {
+            var dataSet = new DataSet
+            {
+                Label = driver.Driver.FullName,
+                Stroke = new ApexCharts.SeriesStroke
+                {
+                    Color = driver.SeasonTeam?.Colour ?? Constants.Globals.DefaultColour,
+                    Width = 3,
+                }
+            };
+
+            var driverLog = developLog.Where(e => e.EntrantId == driver.Id).ToList();
+
+            var change = aspect.GetAspectDriverValue(driver) - driverLog.Select(e => e.Change).Sum();
+
+            for (int i = 0; i < maxRoundCount; i++)
+            {
+                var data = driverLog.Where(e => e.AfterRound == i).ToList();
+
+                if (data.Count != 0)
+                    change += data.Sum(e => e.Change);
+
+                dataSet.DataPoints.Add(new(i, change));
+            }
+
+            dataSets.Add(dataSet);
+        }
+
+        return dataSets;
     }
 }

@@ -6,10 +6,7 @@
 @using SimTECH.Pages.Seasons.Overview.EntrantWizard.Steps
 
 @inject ContractService _contractService
-@inject DriverService _driverService
-@inject EngineService _engineService
 @inject ManufacturerService _manufacturerService
-@inject TeamService _teamService
 @inject LeagueService _leagueService
 @inject SeasonService _seasonService
 @inject SeasonDriverService _seasonDriverService
@@ -33,7 +30,7 @@
                         ActiveStepChanged="HandleStepChange">
                 <StaticContent>
                     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                        <div style="width:25%">
+                        <div style="width: 150px">
                             <MudStack Class="pa-0 mx-2">
                                 @foreach (var error in errors)
                                 {
@@ -44,10 +41,13 @@
 
                         <MudText Typo="Typo.h3">@stepTitle</MudText>
 
-                        <div style="width:25%">
+                        <div style="width: 150px">
                             @if (stepper?.IsAllStepsCompleted() == true)
                             {
-                                <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="AddAllEntrants" Class="btn-md">Confirm & save</MudButton>
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Success"
+                                           FullWidth="true"
+                                           OnClick="AddAllEntrants">Confirm & save</MudButton>
                             }
                         </div>
                     </MudStack>
@@ -55,7 +55,7 @@
                 <ChildContent>
                     <MudStep Title="Add engines" Icon="@IconCollection.Engine">
                         <ChildContent>
-                            <AddEngines Engines="@Engines" />
+                            <AddEngines />
                         </ChildContent>
                     </MudStep>
                     <MudStep Title="Edit engines" Icon="@IconCollection.Engine">
@@ -71,7 +71,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 2)
                             {
-                                <AddTeams Teams="@Teams" Contracts="@Contracts" />
+                                <AddTeams Contracts="@Contracts" />
                             }
                         </ChildContent>
                     </MudStep>
@@ -103,7 +103,7 @@
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 6)
                             {
-                                <AddDrivers Drivers="@Drivers" Year="@Season.Year" Contracts="@Contracts" />
+                                <AddDrivers Year="@Season.Year" Contracts="@Contracts" />
                             }
                         </ChildContent>
                     </MudStep>
@@ -140,12 +140,11 @@
 @code {
     [Parameter] public long SeasonId { get; set; }
 
+    private MudStepper stepper;
+
     public AddEntrantsModel Model { get; set; } = new();
     public Season Season { get; set; }
     public Season? PreviousSeason { get; set; }
-    public List<Engine> Engines { get; set; } = new();
-    public List<Team> Teams { get; set; } = new();
-    public List<Driver> Drivers { get; set; } = new();
     public List<Contract> Contracts { get; set; } = new();
     public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
 
@@ -153,9 +152,8 @@
 
     private bool allowPersonalNumbers;
 
-    private MudStepper stepper;
-
     private bool loading = true;
+
     private List<string> errors = new();
 
     private string stepTitle => ActiveStep.GetStepTitle();
@@ -164,11 +162,6 @@
     {
         Season = await _seasonService.GetSeasonById(SeasonId);
         PreviousSeason = await _seasonService.FindRecentClosedSeason(Season.LeagueId);
-        // TODO: Wizard deserves a refactor in that we might want to retrieve these values on a per-step basis instead of all at once
-        // Or do we? Why would we? It's not like it's slow
-        Engines = await _engineService.GetEngines();
-        Teams = await _teamService.GetTeams(StateFilter.Active);
-        Drivers = await _driverService.GetDrivers(StateFilter.Active);
         Contracts = await _contractService.GetLeagueContracts(Season.LeagueId);
         Manufacturers = await _manufacturerService.GetManufacturers();
 
@@ -194,7 +187,6 @@
 
     private Task<bool> InvalidStepPrevention(StepChangeDirection direction, int activeIndex)
     {
-        var nextStep = (EntrantWizardStep)activeIndex;
         var lastStep = (EntrantWizardStep)activeIndex - 1;
 
         errors.Clear();
@@ -329,8 +321,6 @@
                 }
                 break;
         }
-
-        //stepTitle = activeStep.GetStepTitle();
     }
 
     private async Task SetEngineEditors()

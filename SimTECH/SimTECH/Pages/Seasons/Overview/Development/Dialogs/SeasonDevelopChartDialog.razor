@@ -1,0 +1,55 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudPaper MinHeight="900px" MinWidth="1400px" id="aspect-season-development-container">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.SsidChart" Color="Color.Secondary" />
+                <MudText Typo="Typo.h5" Color="Color.Secondary">Aspect development progression</MudText>
+                <MudSpacer />
+                <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
+                    <ScreenshotIconButton TargetId="aspect-season-development-container" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => ChartDialog?.Close())" />
+                </MudButtonGroup>
+            </MudStack>
+            @if (DataSets.Count > 0)
+            {
+                <ApexCharts.ApexChart TItem="DataPoint"
+                                      Title="@($"In-season {Aspect} development progression")"
+                                      Options="@options"
+                                      Height="900">
+                    @foreach (var result in DataSets)
+                    {
+                        <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                    Items="@result.DataPoints"
+                                                    Name="@result.Label"
+                                                    SeriesType="ApexCharts.SeriesType.Line"
+                                                    XValue="@(e => e.XData)"
+                                                    YValue="@(e => e.YData)"
+                                                    OrderBy="e => e.X"
+                                                    Stroke="@result.Stroke" />
+                    }
+                </ApexCharts.ApexChart>
+            }
+        </MudPaper>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
+
+    [Parameter]
+    public List<DataSet> DataSets { get; set; } = new();
+
+    [Parameter]
+    public Aspect Aspect { get; set; }
+
+    private ApexCharts.ApexChartOptions<DataPoint> options;
+
+    private bool loading;
+
+    protected override void OnInitialized()
+    {
+        options = Globals.CreateDefaultChartOptions;
+    }
+
+    private void Close() => ChartDialog?.Close();
+}

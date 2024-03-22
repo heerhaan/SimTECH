@@ -1,4 +1,6 @@
-﻿<MudContainer MaxWidth="MaxWidth.Medium">
+﻿@inject TeamService _teamService
+
+<MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
         <MudText Color="Color.Tertiary">Amount teams: @(Model.BaseTeams.Count)</MudText>
         <MudTable T="Team"
@@ -21,7 +23,8 @@
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudPagination SelectedChanged="PageChange" Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)"
+                <MudPagination SelectedChanged="PageChange"
+                               Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)"
                                Variant="Variant.Outlined"
                                Class="pa-4" />
             </PagerContent>
@@ -32,13 +35,16 @@
 @code {
     [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    [Parameter, EditorRequired] public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
     [Parameter] public IList<Contract>? Contracts { get; set; }
+
+    private List<Team> Teams { get; set; } = new();
 
     private MudTable<Team> _table;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        Teams = await _teamService.GetTeams(StateFilter.Active);
+
         if (Contracts?.Any() == true)
             Preselect();
     }

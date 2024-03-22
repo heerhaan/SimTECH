@@ -1,4 +1,6 @@
-﻿namespace SimTECH.Common.Enums;
+﻿using SimTECH.Data.Models;
+
+namespace SimTECH.Common.Enums;
 
 public enum Aspect
 {
@@ -60,4 +62,39 @@ public static class AspectEnumHelper
         Aspect.Defense => "DEF",
         _ => "IDK"
     };
+
+    public static int GetAspectDriverValue(this Aspect aspect, SeasonDriver driver)
+    {
+        return aspect switch
+        {
+            Aspect.Skill => driver.Skill,
+            Aspect.Reliability => driver.Reliability,
+            Aspect.Attack => driver.Attack,
+            Aspect.Defense => driver.Defense,
+            _ => 0,
+        };
+    }
+
+    public static int GetAspectTeamValue(this Aspect aspect, SeasonTeam team)
+    {
+        return aspect switch
+        {
+            Aspect.BaseCar => team.BaseValue,
+            Aspect.Reliability => team.Reliability,
+            Aspect.Aero => team.Aero,
+            Aspect.Chassis => team.Chassis,
+            Aspect.Powertrain => team.Powertrain,
+            _ => 0,
+        };
+    }
+
+    public static int GetAspectEngineValue(this Aspect aspect, SeasonEngine engine)
+    {
+        return aspect switch
+        {
+            Aspect.Engine => engine.Power,
+            Aspect.Reliability => engine.Reliability,
+            _ => 0,
+        };
+    }
 }

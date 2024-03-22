@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
+using SimTECH.PageModels;
 using SimTECH.PageModels.Seasons;
 
 namespace SimTECH.Data.Services;
@@ -85,5 +86,57 @@ public class SeasonEngineService(IDbContextFactory<SimTechDbContext> factory)
         context.UpdateRange(engines);
 
         await context.SaveChangesAsync();
+    }
+
+    public async Task<List<DataSet>> GetSeasonDevelopmentProgressionData(long seasonId, Aspect aspect)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        var dataSets = new List<DataSet>();
+
+        var developLog = await context.DevelopmentLog
+            .Where(e => e.SeasonId == seasonId
+                && e.EntrantGroup == Entrant.Engine
+                && e.DevelopedAspect == aspect)
+            .ToListAsync();
+
+        if (developLog.Count == 0)
+            return dataSets;
+
+        var seasonEngines = await context.SeasonEngine
+            .Where(e => e.SeasonId == seasonId)
+            .ToListAsync();
+
+        var maxRoundCount = developLog.Select(e => e.AfterRound).Max();
+
+        foreach (var engine in seasonEngines)
+        {
+            var dataSet = new DataSet
+            {
+                Label = engine.Name,
+                Stroke = new ApexCharts.SeriesStroke
+                {
+                    Width = 4,
+                }
+            };
+
+            var engineLog = developLog.Where(e => e.EntrantId == engine.Id).ToList();
+
+            var change = aspect.GetAspectEngineValue(engine) - engineLog.Select(e => e.Change).Sum();
+
+            for (int i = 0; i < maxRoundCount; i++)
+            {
+                var data = engineLog.Where(e => e.AfterRound == i).ToList();
+
+                if (data.Count != 0)
+                    change += data.Sum(e => e.Change);
+
+                dataSet.DataPoints.Add(new(i, change));
+            }
+
+            dataSets.Add(dataSet);
+        }
+
+        return dataSets;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
+using SimTECH.PageModels;
 
 namespace SimTECH.Data.Services;
 
@@ -94,5 +95,59 @@ public class SeasonTeamService(IDbContextFactory<SimTechDbContext> factory)
         context.UpdateRange(teams);
 
         await context.SaveChangesAsync();
+    }
+
+    public async Task<List<DataSet>> GetSeasonDevelopmentProgressionData(long seasonId, Aspect aspect)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        var dataSets = new List<DataSet>();
+
+        var developLog = await context.DevelopmentLog
+            .Where(e => e.SeasonId == seasonId
+                && e.EntrantGroup == Entrant.Team
+                && e.DevelopedAspect == aspect)
+            .ToListAsync();
+
+        if (developLog.Count == 0)
+            return dataSets;
+
+        var seasonTeams = await context.SeasonTeam
+            .Include(e => e.Team)
+            .Where(e => e.SeasonId == seasonId)
+            .ToListAsync();
+
+        var maxRoundCount = developLog.Select(e => e.AfterRound).Max();
+
+        foreach (var team in seasonTeams)
+        {
+            var dataSet = new DataSet
+            {
+                Label = team.Team.Name,
+                Stroke = new ApexCharts.SeriesStroke
+                {
+                    Color = team.Colour,
+                    Width = 4,
+                }
+            };
+
+            var teamLog = developLog.Where(e => e.EntrantId == team.Id).ToList();
+
+            var change = aspect.GetAspectTeamValue(team) - teamLog.Select(e => e.Change).Sum();
+
+            for (int i = 0; i < maxRoundCount; i++)
+            {
+                var data = teamLog.Where(e => e.AfterRound == i).ToList();
+
+                if (data.Count != 0)
+                    change += data.Sum(e => e.Change);
+
+                dataSet.DataPoints.Add(new(i, change));
+            }
+
+            dataSets.Add(dataSet);
+        }
+
+        return dataSets;
     }
 }
