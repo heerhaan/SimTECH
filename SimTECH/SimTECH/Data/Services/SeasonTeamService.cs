@@ -127,7 +127,7 @@ public class SeasonTeamService(IDbContextFactory<SimTechDbContext> factory)
                 Stroke = new ApexCharts.SeriesStroke
                 {
                     Color = team.Colour,
-                    Width = 4,
+                    Width = 3,
                 }
             };
 
@@ -135,7 +135,7 @@ public class SeasonTeamService(IDbContextFactory<SimTechDbContext> factory)
 
             var change = aspect.GetAspectTeamValue(team) - teamLog.Select(e => e.Change).Sum();
 
-            for (int i = 0; i < maxRoundCount; i++)
+            for (int i = 0; i <= maxRoundCount; i++)
             {
                 var data = teamLog.Where(e => e.AfterRound == i).ToList();
 

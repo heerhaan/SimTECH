@@ -116,7 +116,7 @@ public class SeasonEngineService(IDbContextFactory<SimTechDbContext> factory)
                 Label = engine.Name,
                 Stroke = new ApexCharts.SeriesStroke
                 {
-                    Width = 4,
+                    Width = 3,
                 }
             };
 
@@ -124,7 +124,7 @@ public class SeasonEngineService(IDbContextFactory<SimTechDbContext> factory)
 
             var change = aspect.GetAspectEngineValue(engine) - engineLog.Select(e => e.Change).Sum();
 
-            for (int i = 0; i < maxRoundCount; i++)
+            for (int i = 0; i <= maxRoundCount; i++)
             {
                 var data = engineLog.Where(e => e.AfterRound == i).ToList();
 

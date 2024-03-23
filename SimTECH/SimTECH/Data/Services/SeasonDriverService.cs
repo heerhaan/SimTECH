@@ -149,14 +149,14 @@ public class SeasonDriverService(IDbContextFactory<SimTechDbContext> factory)
 
             var change = aspect.GetAspectDriverValue(driver) - driverLog.Select(e => e.Change).Sum();
 
-            for (int i = 0; i < maxRoundCount; i++)
+            for (int i = 0; i <= maxRoundCount; i++)
             {
                 var data = driverLog.Where(e => e.AfterRound == i).ToList();
 
                 if (data.Count != 0)
                     change += data.Sum(e => e.Change);
 
-                dataSet.DataPoints.Add(new(i, change));
+                dataSet.DataPoints.Add(new DataPoint(i, change));
             }
 
             dataSets.Add(dataSet);

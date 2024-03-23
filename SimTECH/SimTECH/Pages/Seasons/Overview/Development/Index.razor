@@ -41,22 +41,28 @@
 
                                 <MudStack Spacing="1">
                                     <MudText Typo="Typo.subtitle1">Development range</MudText>
-                                    <MudNumericField T="int" Label="MIN" ValueChanged="ApplyMinRange" Class="field-sm" />
-                                    <MudNumericField T="int" Label="MAX" ValueChanged="ApplyMaxRange" Class="field-sm" />
+                                    <MudNumericField T="int" Label="MIN" ValueChanged="ApplyMinRange" />
+                                    <MudNumericField T="int" Label="MAX" ValueChanged="ApplyMaxRange" />
                                 </MudStack>
                             }
                         </MudStack>
 
                         <MudDivider />
 
-                        <MudButtonGroup VerticalAlign="true" Variant="Variant.Outlined" Color="Color.Secondary" Class="mt-4">
+                        <MudText Class="mt-4 mb-2">
+                            For @(DevelopModel.ActiveEntrant.ToString().ToLower()) and @(DevelopModel.ActiveAspect.ReadableAspect().ToLower()) show the:
+                        </MudText>
+                        <MudButtonGroup VerticalAlign="true"
+                                        Variant="Variant.Outlined"
+                                        Color="Color.Secondary"
+                                        Class="mud-width-full">
                             <MudButton FullWidth="true"
                                        OnClick="ShowWeightedDevelopmentRanges">
-                                <span>SET ranges</span>
+                                <span>Weighted ranges</span>
                             </MudButton>
                             <MudButton FullWidth="true"
                                        OnClick="ShowDevelopmentSummary">
-                                <span>Season summary</span>
+                                <span>Development summary</span>
                             </MudButton>
                             <MudButton FullWidth="true"
                                        OnClick="ShowDevelopmentProgressionChart">

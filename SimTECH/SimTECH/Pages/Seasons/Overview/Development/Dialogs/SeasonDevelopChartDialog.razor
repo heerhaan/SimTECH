@@ -1,6 +1,6 @@
 ﻿<MudDialog>
     <DialogContent>
-        <MudPaper MinHeight="900px" MinWidth="1400px" id="aspect-season-development-container">
+        <MudPaper MinHeight="800px" MinWidth="1000px">
             <MudStack Row="true" AlignItems="AlignItems.Center">
                 <MudIcon Icon="@Icons.Material.Filled.SsidChart" Color="Color.Secondary" />
                 <MudText Typo="Typo.h5" Color="Color.Secondary">Aspect development progression</MudText>
@@ -10,25 +10,27 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => ChartDialog?.Close())" />
                 </MudButtonGroup>
             </MudStack>
-            @if (DataSets.Count > 0)
-            {
-                <ApexCharts.ApexChart TItem="DataPoint"
-                                      Title="@($"In-season {Aspect} development progression")"
-                                      Options="@options"
-                                      Height="900">
-                    @foreach (var result in DataSets)
-                    {
-                        <ApexCharts.ApexPointSeries TItem="DataPoint"
-                                                    Items="@result.DataPoints"
-                                                    Name="@result.Label"
-                                                    SeriesType="ApexCharts.SeriesType.Line"
-                                                    XValue="@(e => e.XData)"
-                                                    YValue="@(e => e.YData)"
-                                                    OrderBy="e => e.X"
-                                                    Stroke="@result.Stroke" />
-                    }
-                </ApexCharts.ApexChart>
-            }
+            <div id="aspect-season-development-container">
+                @if (DataSets.Count > 0)
+                {
+                    <ApexCharts.ApexChart TItem="DataPoint"
+                                          Title="@($"In-season {Aspect} development progression")"
+                                          Options="@options"
+                                          Height="800">
+                        @foreach (var result in DataSets)
+                        {
+                            <ApexCharts.ApexPointSeries TItem="DataPoint"
+                                                        Items="@result.DataPoints"
+                                                        Name="@result.Label"
+                                                        SeriesType="ApexCharts.SeriesType.Line"
+                                                        XValue="@(e => e.XData)"
+                                                        YValue="@(e => e.YData)"
+                                                        OrderBy="e => e.X"
+                                                        Stroke="@result.Stroke" />
+                        }
+                    </ApexCharts.ApexChart>
+                }
+            </div>
         </MudPaper>
     </DialogContent>
 </MudDialog>
