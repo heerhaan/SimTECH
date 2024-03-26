@@ -2,6 +2,7 @@
 @using SimTECH.Pages.RaceWeek.Dialogs
 
 @inject IDialogService _dialog
+@inject ISnackbar _snackbar
 
 @if (!loading)
 {
@@ -605,7 +606,7 @@
         return assignedLifeScore;
     }
 
-    // returns bool which indicates whether a safety car has been caused by a DNF-result
+    // returns boolean which indicates whether a safety car is going to return has been caused by a DNF-result
     private bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
     {
         int scoreAboveDriver = 0;
@@ -654,7 +655,10 @@
 
             driver.LapScores.Add(lapScore);
             lapScoresToPersist.Add(lapScore);
-            scoreAboveDriver = driver.LapSum;
+
+            // Only update the score of the above driver if the driver did NOT take this opportunity for a pitstop
+            if (!lapScore.RacerEvents.HasFlag(RacerEvent.Pitstop))
+                scoreAboveDriver = driver.LapSum;
         }
 
         SetPositions();
