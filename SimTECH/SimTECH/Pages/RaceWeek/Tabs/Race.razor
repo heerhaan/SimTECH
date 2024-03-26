@@ -32,20 +32,20 @@
             </MudStack>
 
             <div class="d-flex flex-row-reverse" style="width:30%">
-                <MudButtonGroup Variant="Variant.Text" Color="Color.Tertiary">
-                    <ScreenshotIconButton TargetId="race-display" Class="btn-sm" />
+                <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
+                    <ScreenshotButton TargetId="race-display" Class="btn-sm" />
                     @if (Model.Race.State != State.Closed)
                     {
-                        <MudTooltip Text="Advance race" Placement="Placement.Top" Color="Color.Tertiary">
-                            <MudIconButton Icon="@IconCollection.ChevronsRight" OnClick="Advance" Class="btn-sm" />
-                        </MudTooltip>
+                        <MudButton StartIcon="@IconCollection.ChevronsRight"
+                                   OnClick="Advance"
+                                   Class="btn-sm">Advance</MudButton>
                     }
                 </MudButtonGroup>
             </div>
         </MudStack>
     </MudPaper>
     <div id="race-display">
-        <MudTable Items="@raceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.AbsolutePosition)"
+        <MudTable Items="@RaceDrivers.OrderBy(e => (int)e.Status).ThenBy(e => e.AbsolutePosition)"
                   Dense="true"
                   Class="extra-dense overflow-x-hide">
             <ToolBarContent>
@@ -55,8 +55,13 @@
                         <MudText Typo="Typo.h5" Class="overflow-hider">@Model.Race.Name - ROUND @Model.Race.Round</MudText>
                     </div>
 
-                    <MudChip Color="@lapIndicatorBackground" Label="true" DisableRipple="true">
-                        <MudText Typo="Typo.h5" Color="@lapIndicatorColour">LAP @(racedLaps) / @(totalLaps)</MudText>
+                    <MudChip Color="@CurrentSituation.GetIndicatorBackgroundColour()"
+                             Label="true"
+                             DisableRipple="true">
+                        <MudText Typo="Typo.h5"
+                                 Color="@CurrentSituation.GetIndicatorTextColour()">
+                            LAP @(racedLaps) / @(totalLaps)
+                        </MudText>
                     </MudChip>
 
                     <div class="d-flex flex-row-reverse align-center gap-3 pa-0" style="width: 30%">
@@ -192,7 +197,7 @@
             </RowTemplate>
         </MudTable>
         <MudPaper Class="pt-2 px-1">
-            <SimProgressLinear Bars="@(occurrences.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
+            <SimProgressLinear Bars="@(AdvanceOccurrences.Select(e => ((NumberHelper.Percentage(1, calculationCount)), e.Value.SituationColour())).ToList())"
                                AddIndicator="true"
                                LineSize="ElementSize.Normal"
                                CalculationDistance="@calculationDistance"
@@ -246,80 +251,45 @@
 
     private static readonly Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
 
-    Dictionary<int, SituationOccurrence> occurrences = new();
-    List<RaceDriver> raceDrivers = new();
-    List<Incident> possibleIncidents = new();
-    List<Tyre> availableTyres = new();
+    private Dictionary<int, SituationOccurrence> AdvanceOccurrences { get; set; } = new();
+    private List<RaceDriver> RaceDrivers { get; set; } = new();
+    private List<Incident> PossibleIncidents { get; set; } = new();
+    private List<Tyre> AvailableTyres { get; set; } = new();
     private List<Tyre> ValidTyres { get; set; } = new();
 
     // Controls for the view
-    bool loading = true;
-    bool safetyCarOut = false;
-    Color lapIndicatorBackground = Color.Dark;
-    Color lapIndicatorColour = Color.Default;
+    private bool loading = true;
+    private bool safetyCarOut = false;
 
-    Entrant activeReliabilityCheck = Entrant.Driver;
-    int reliablityCycler = 0;
+    private SituationOccurrence CurrentSituation { get; set; } = SituationOccurrence.Raced;
+
+    private Entrant activeReliabilityCheck = Entrant.Driver;
+    private int reliablityCycler = 0;
 
     // Supportive caluclation fields
-    int fatalityOdds;
-    int disqualifyChance;
-    int safetyCarOdds;
-    int safetyReturnOdds;
-    int safetyPitstopSubtract;
-    int mistakeRolls;
-    int mistakeMin;
-    int mistakeMax;
-    int battleRng;
-    double gapMarge;
+    private int fastestLap;
+    private int highestScore;
+    private int racedLaps;
+    private int totalLaps;
+    private int racerCount;
 
-    int fastestLap;
-    int highestScore;
-    int racedLaps;
-    int totalLaps;
-    int minLapRng;
-    int maxLapRng;
-    int pitMin;
-    int pitMax;
-    int racerCount;
+    private int calculated;
+    private int calculationCount;
+    private int calculationsPerAdvance = 5;
+    private int calculationDistance = 10;
 
-    int calculated;
-    int calculationCount;
-    int calculationsPerAdvance = 5;
-    int calculationDistance = 10;
+    private int lastHighestScore = 0;
+    private int lastLowestScore = 0;
+    private int safetyWearDivider = 3;
 
-    int lastHighestScore = 0;
-    int lastLowestScore = 0;
-    int safetyCarGap = 50;
-    int safetyGapCloser = 300;
-    int safetyWearDivider = 3;
-
-    bool isFirstLap => calculated == 1;
+    private bool isFirstLap => calculated == 1;
 
     protected override void OnInitialized()
     {
-        possibleIncidents.AddRange(
+        PossibleIncidents.AddRange(
             Incidents.Where(e => e.State == State.Active));
-        availableTyres.AddRange(
+        AvailableTyres.AddRange(
             Tyres.Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false)));
-
-        minLapRng = Model.Season.RngMinimum;
-        maxLapRng = Model.Season.RngMaximum;
-        pitMin = Model.Season.PitMinimum;
-        pitMax = Model.Season.PitMaximum;
-        mistakeRolls = Model.Season.MistakeRolls;
-        mistakeMin = Model.Season.MistakeMinimum;
-        mistakeMax = Model.Season.MistakeMaximum;
-        safetyPitstopSubtract = Model.Season.PitCostSubtractCaution;
-
-        fatalityOdds = Model.League.FatalityOdds;
-        disqualifyChance = Model.League.DisqualificationOdds;
-        safetyCarOdds = Model.League.SafetyCarOdds;
-        safetyReturnOdds = Model.League.SafetyCarReturnOdds;
-        safetyCarGap = Model.League.SafetyCarGap;
-        safetyGapCloser = Model.League.SafetyCarGapCloser;
-        battleRng = Model.League.BattleRng;
-        gapMarge = Config.GapMarge;
 
         calculationDistance = Config.CalculationDistance;
         calculationCount = Model.Race.RaceLength / calculationDistance;
@@ -327,11 +297,11 @@
         if (LapScores.Any())
             calculated = LapScores.Select(e => e.Order).Max();
 
-        for (int i = 1; i <= calculationCount; i++)
+        for (int index = 1; index <= calculationCount; index++)
         {
-            var occurrMatch = Occurrences.FirstOrDefault(e => e.Order == i);
+            var situationMatch = Occurrences.FirstOrDefault(e => e.Order == index);
 
-            occurrences.Add(i, occurrMatch?.Occurrences ?? SituationOccurrence.Unknown);
+            AdvanceOccurrences.Add(index, situationMatch?.Occurrences ?? SituationOccurrence.Unknown);
         }
 
         racedLaps = GetCurrentLapCount;
@@ -341,40 +311,40 @@
 
         // Run this one time so that we have valid tyres to show
         var distanceLeft = Model.Race.RaceLength - (calculated * calculationDistance);
-        ValidTyres = availableTyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
+
+        ValidTyres = AvailableTyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
 
         loading = false;
     }
 
     private void BuildRaceDrivers()
     {
-        raceDrivers = Model.RaweCeekDrivers
+        RaceDrivers = Model.RaweCeekDrivers
             .OrderBy(e => e.AbsolutePosition)
             .Take(Model.Season.MaximumDriversInRace)
             .Select(e => e.MapToRaceDriver())
             .ToList();
 
-        racerCount = raceDrivers.Count;
+        racerCount = RaceDrivers.Count;
 
         // Refactor this if persisting happens per advance
         if (Model.Race.State == State.Closed)
         {
-            foreach (var driver in raceDrivers)
+            foreach (var driver in RaceDrivers)
             {
                 driver.LapScores = LapScores.Where(e => e.ResultId == driver.ResultId).ToList();
 
-                var lastScore = driver.LapScores.MaxBy(e => e.Order)?.Score ?? 0;
-                driver.LastScore = lastScore;
+                driver.LastScore = driver.LapScores.MaxBy(e => e.Order)?.Score ?? 0;
 
-                if (lastScore > lastHighestScore)
-                    lastHighestScore = lastScore;
-                else if (lastScore < lastLowestScore)
-                    lastLowestScore = lastScore;
+                if (driver.LastScore > lastHighestScore)
+                    lastHighestScore = driver.LastScore;
+                else if (driver.LastScore < lastLowestScore)
+                    lastLowestScore = driver.LastScore;
             }
 
             SetPositions();
 
-            highestScore = raceDrivers.Max(e => e.LapSum);
+            highestScore = RaceDrivers.Max(e => e.LapSum);
         }
     }
 
@@ -401,15 +371,15 @@
                 if (safetyCarGoesBackIn)
                 {
                     // After handling a safety car round, it goes back in
-                    lapIndicatorBackground = Color.Dark;
-                    lapIndicatorColour = Color.Default;
                     safetyCarOut = false;
+
+                    CurrentSituation = SituationOccurrence.Raced;
                 }
 
                 continue;
             }
 
-            foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing))
+            foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
             {
                 var lapScore = HandleDriverAdvancement(driver);
 
@@ -421,18 +391,14 @@
 
             PostProcessAdvance();
 
+            // Stop iterating through all advances since SC has gone out
             if (safetyCarOut)
-            {
-                lapIndicatorBackground = Color.Warning;
-                lapIndicatorColour = Color.Dark;
-                // Stop iterating through all advances since SC occurrence
                 break;
-            }
         }
 
         racedLaps = GetCurrentLapCount;
 
-        var lastScores = raceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
+        var lastScores = RaceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
 
         if (lastScores.Any())
         {
@@ -463,8 +429,8 @@
         // Calculate the score for drivers which are still racing
         if (driver.Status == RaceStatus.Racing)
         {
-            var minRng = (minLapRng + driver.RngMinMod);
-            var maxRng = (maxLapRng + driver.RngMaxMod);
+            var minRng = (Model.Season.RngMinimum + driver.RngMinMod);
+            var maxRng = (Model.Season.RngMaximum + driver.RngMaxMod);
 
             int lapValue = NumberHelper.RandomInt(minRng, maxRng);
 
@@ -473,11 +439,11 @@
                 lapValue += driver.QualifyingBonus(racerCount, Model.Season.GridBonus);
 
             // Check if driver made a mistake, if so then it's going to cost him
-            for (int j = 0; j < mistakeRolls; j++)
+            for (int j = 0; j < Model.Season.MistakeRolls; j++)
             {
                 if (DidReliabilityFail(driver.DriverReliability))
                 {
-                    lapValue -= NumberHelper.RandomInt(mistakeMin, mistakeMax);
+                    lapValue -= NumberHelper.RandomInt(Model.Season.MistakeMinimum, Model.Season.MistakeMaximum);
                     lapScore.RacerEvents |= RacerEvent.Mistake;
                     driver.RecentMistake = true;
                     break;
@@ -498,7 +464,7 @@
             {
                 fastestLap = actualLap;
 
-                foreach (var raceDriver in raceDrivers)
+                foreach (var raceDriver in RaceDrivers)
                     raceDriver.HasFastestLap = false;
 
                 driver.HasFastestLap = true;
@@ -511,6 +477,7 @@
         else if (safetyCarOccurrence)
         {
             safetyCarOut = safetyCarOccurrence;
+            CurrentSituation = SituationOccurrence.Caution;
         }
 
         lapScore.TyreColour = driver.CurrentTyre.Colour;
@@ -525,23 +492,23 @@
         if (activeReliabilityCheck == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
-            driver.Incident = possibleIncidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
+            driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
         }
         else if (activeReliabilityCheck == Entrant.Team && DidReliabilityFail(driver.CarReliability))
         {
             lapScore.RacerEvents |= RacerEvent.CarDnf;
-            driver.Incident = possibleIncidents.Where(e => e.Category == IncidentCategory.Car).ToList().TakeRandomIncident();
+            driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Car).ToList().TakeRandomIncident();
         }
         else if (activeReliabilityCheck == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
         {
             lapScore.RacerEvents |= RacerEvent.EngineDnf;
-            driver.Incident = possibleIncidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
+            driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
         }
         // Additional reliability check happens on the opening lap, as crashes are more frequent then
         else if (isFirstLap && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
-            driver.Incident = possibleIncidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
+            driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
         }
         else
         {
@@ -552,21 +519,21 @@
         driver.InstantOvertaken = true;
 
         // If enabled, then we're also going to check if anyone experienced a fatal crash
-        if (Model.League.Options.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(fatalityOdds) == 0))
+        if (Model.League.Options.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(Model.League.FatalityOdds) == 0))
         {
             safetyCar = true;
 
             driver.Status = RaceStatus.Fatal;
-            driver.Incident = possibleIncidents.Where(e => e.Category == IncidentCategory.Lethal).ToList().TakeRandomIncident();
+            driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Lethal).ToList().TakeRandomIncident();
             lapScore.RacerEvents = RacerEvent.Death;
-            lapIndicatorBackground = Color.Error;
-            lapIndicatorColour = Color.Default;
+
+            CurrentSituation = SituationOccurrence.Halted;
 
             return safetyCar;
         }
 
         // Randomly determines the odds a safety car occured due to the DNF'ing driver
-        safetyCar = NumberHelper.RandomInt(safetyCarOdds) == 0;
+        safetyCar = NumberHelper.RandomInt(Model.League.SafetyCarOdds) == 0;
         driver.Status = RaceStatus.Dnf;
 
         return safetyCar;
@@ -583,12 +550,12 @@
         if (tyreMinWear > tyreMaxWear)
         {
             tyreMaxWear = tyreMinWear + 1;
-            //_snackbar.Add("A situation occurred where the maximum wear was lower than the minimum wear, please reconsider some set tyre wear values!");
+            _snackbar.Add("A situation occurred where the maximum wear was lower than the minimum wear, please reconsider some set tyre wear values!");
         }
 
         // Maximum wear is more than the tyre can handle, it's time for a pitstop!
         // Or minimum wear? Or 0?
-        // We might want to make this an option to something
+        // We might want to make this an option to something, maybe?
         if (ValidTyres.Any() && driver.CurrentTyre.PitWhenBelow > driver.TyreLife)
         {
             var pitCost = PitstopDriver(driver, lapScore);
@@ -610,7 +577,7 @@
     private bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
     {
         int scoreAboveDriver = 0;
-        foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
+        foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
         {
             driver.SingleOccurrence = null;
             driver.InstantOvertaken = false;
@@ -629,11 +596,12 @@
                 var scoreGap = scoreAboveDriver - driver.LapSum;
 
                 // Current score gap is greater than the expected SC-gap
-                if (scoreGap > safetyCarGap)
+                if (scoreGap > Model.League.SafetyCarGap)
                 {
-                    int gapSubtractedBy = safetyGapCloser;
-                    if (scoreGap < safetyGapCloser)
-                        gapSubtractedBy = scoreGap - safetyCarGap;
+                    int gapSubtractedBy = Model.League.SafetyCarGapCloser;
+
+                    if (scoreGap < Model.League.SafetyCarGapCloser)
+                        gapSubtractedBy = scoreGap - Model.League.SafetyCarGap;
 
                     lapScore.Score += gapSubtractedBy;
                 }
@@ -664,7 +632,7 @@
 
         SetPositions();
 
-        return NumberHelper.RandomInt(safetyReturnOdds) == 0;
+        return NumberHelper.RandomInt(Model.League.SafetyCarReturnOdds) == 0;
     }
 
     // Returns the score cost which the pitstop took
@@ -687,17 +655,17 @@
         lapScore.RacerEvents |= RacerEvent.Pitstop;
 
         // Pitstop duration is reduced since this is a safety car moment
-        var pitCost = NumberHelper.RandomInt(pitMin, pitMax);
+        var pitCost = NumberHelper.RandomInt(Model.Season.PitMinimum, Model.Season.PitMaximum);
 
-        if (safetyCarOut && pitCost > safetyPitstopSubtract)
-            pitCost -= safetyPitstopSubtract;
+        if (safetyCarOut && pitCost > Model.Season.PitCostSubtractCaution)
+            pitCost -= Model.Season.PitCostSubtractCaution;
 
         return pitCost;
     }
 
     private void PostProcessAdvance()
     {
-        highestScore = raceDrivers.Max(e => e.LapSum);
+        highestScore = RaceDrivers.Max(e => e.LapSum);
 
         // Cycle through the reliability, to check something else (otherwise we have way too many DNFs)
         reliablityCycler++;
@@ -706,7 +674,7 @@
 
         // Set the next amount of tyres valid for drivers to stop on to.
         var distanceLeft = Model.Race.RaceLength - (calculated * calculationDistance);
-        ValidTyres = availableTyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
+        ValidTyres = AvailableTyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
     }
 
     private void DeterminePositions()
@@ -718,7 +686,7 @@
         // This likely can be optimized further
         while (!allPositionsAligned)
         {
-            foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
+            foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
             {
                 var lastScore = driver.LapScores.Last();
 
@@ -734,7 +702,7 @@
             allPositionsAligned = true;
             actualPositions = GetCurrentActualPositions();
 
-            foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
+            foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
             {
                 if (driver.AbsolutePosition != actualPositions[driver.SeasonDriverId])
                     allPositionsAligned = false;
@@ -746,13 +714,15 @@
 
     private void HandlePositionGain(RaceDriver driver, LapScore lastScore, int gainedPositions)
     {
+        var battleRng = Model.League.BattleRng;
+
         while (gainedPositions > 0)
         {
             var abovePosition = driver.AbsolutePosition - 1;
             if (abovePosition == 0)
                 break;
 
-            var defendingDriver = raceDrivers.First(e => e.AbsolutePosition == abovePosition);
+            var defendingDriver = RaceDrivers.First(e => e.AbsolutePosition == abovePosition);
 
             // Driver above is teammate AND support driver AND attacker is main driver, swap time!
             //if (defendingDriver.SeasonTeamId == driver.SeasonTeamId
@@ -801,11 +771,11 @@
     {
         bool anyoneDisqualified = false;
 
-        foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing))
+        foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
         {
-            if (NumberHelper.RandomInt(disqualifyChance) == 0)
+            if (NumberHelper.RandomInt(Model.League.DisqualificationOdds) == 0)
             {
-                driver.Incident = possibleIncidents.Where(e => e.Category == IncidentCategory.Disqualified).ToList().TakeRandomIncident();
+                driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Disqualified).ToList().TakeRandomIncident();
                 driver.Status = RaceStatus.Dsq;
 
                 anyoneDisqualified = true;
@@ -821,16 +791,16 @@
         int absoluteIndex = 0;
         int scoreAboveDriver = 0;
 
-        var positionIndexDict = raceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, _ => 0);
+        var positionIndexDict = RaceDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, _ => 0);
 
-        foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
+        foreach (var driver in RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
         {
             driver.Position = ++positionIndexDict[driver.ClassId];
             driver.AbsolutePosition = ++absoluteIndex;
 
             driver.GapAbove = driver.AbsolutePosition == 1
                 ? "LEADER"
-                : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * gapMarge, 2)).ToString("F2");
+                : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * Config.GapMarge, 2)).ToString("F2");
 
             scoreAboveDriver = driver.LapSum;
         }
@@ -841,17 +811,17 @@
         PreProcessFinish();
 
         // Update object references
-        Model.SetRacerData(raceDrivers);
+        Model.SetRacerData(RaceDrivers);
 
         // Should be removed when it is done per advance
-        var allLapScores = raceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();
+        var allLapScores = RaceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();
         LapScores.AddRange(allLapScores);
 
         int initialHighestOccurr = 0;
         if (Occurrences.Any())
             initialHighestOccurr = Occurrences.Select(e => e.Order).Max();
 
-        foreach (var occurr in occurrences.Where(e => e.Key > initialHighestOccurr))
+        foreach (var occurr in AdvanceOccurrences.Where(e => e.Key > initialHighestOccurr))
         {
             Occurrences.Add(new RaceOccurrence
             {
@@ -870,7 +840,7 @@
             calculationsPerAdvance = (int)calcChip.Value;
     }
 
-    private void AddCalculationSituation() => occurrences[calculated] = safetyCarOut ? SituationOccurrence.Caution : SituationOccurrence.Raced;
+    private void AddCalculationSituation() => AdvanceOccurrences[calculated] = CurrentSituation;
 
     private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
@@ -881,7 +851,7 @@
         var actualPositions = new Dictionary<long, int>();
         int absoluteIndex = 0;
 
-        foreach (var driver in raceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
+        foreach (var driver in RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
             actualPositions.Add(driver.SeasonDriverId, ++absoluteIndex);
 
         return actualPositions;
@@ -895,7 +865,7 @@
         //func: (dict, driver) =>
 
         var absoluteIndex = 0;
-        return raceDrivers
+        return RaceDrivers
             .OrderBy(e => (int)e.Status)
                 .ThenByDescending(e => e.LapSum)
             .Aggregate
@@ -909,9 +879,13 @@
             );
     }
 
-    private async Task ShowGapperChart() => _ =
-        await _dialog.ShowAsync<GapChartDialog>("Gapper chart", new DialogParameters { ["Drivers"] = raceDrivers }, Globals.StatisticDialogDefaultOptionsXl);
+    private async Task ShowGapperChart() => _ = await _dialog.ShowAsync<GapChartDialog>(
+        "Gapper chart",
+        new DialogParameters { ["Drivers"] = RaceDrivers },
+        Globals.StatisticDialogDefaultOptionsXl);
     
-    private async Task ShowPositionChart() => _ =
-        await _dialog.ShowAsync<PositionChangeChart>("Position chart", new DialogParameters { ["Drivers"] = raceDrivers }, Globals.StatisticDialogDefaultOptionsXl);
+    private async Task ShowPositionChart() => _ = await _dialog.ShowAsync<PositionChangeChart>(
+        "Position chart",
+        new DialogParameters { ["Drivers"] = RaceDrivers },
+        Globals.StatisticDialogDefaultOptionsXl);
 }

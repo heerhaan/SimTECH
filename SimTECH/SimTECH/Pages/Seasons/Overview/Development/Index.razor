@@ -50,7 +50,7 @@
                         <MudDivider />
 
                         <MudText Class="mt-4 mb-2">
-                            For @(DevelopModel.ActiveEntrant.ToString().ToLower()) and @(DevelopModel.ActiveAspect.ReadableAspect().ToLower()) show the:
+                            For @(DevelopModel.ActiveEntrant.ToString().ToLower()) and @(DevelopModel.ActiveAspect.GetReadableAspect().ToLower()) show the:
                         </MudText>
                         <MudButtonGroup VerticalAlign="true"
                                         Variant="Variant.Outlined"
@@ -76,7 +76,7 @@
                         <DevelopEntrant DevelopedEntrants="@DevelopedEntrants">
                             <MudText Typo="Typo.h5">Development</MudText>
                             <MudDivider Vertical="true" Class="mx-2" />
-                            <MudText Typo="Typo.h5">@DevelopModel.ActiveAspect.ReadableAspect()</MudText>
+                            <MudText Typo="Typo.h5">@DevelopModel.ActiveAspect.GetReadableAspect()</MudText>
                             <MudSpacer />
                             <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Text">
                                 @if (ranDevelop)

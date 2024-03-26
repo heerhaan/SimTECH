@@ -15,10 +15,24 @@ public enum RacerEvent
     Pitstop = 32,
     Swap = 64,
     Death = 128,
+    FastestLap = 256,
 }
 
 public static class RacerEventEnumHelper
 {
+    public static readonly RacerEvent[] RacerEvents =
+    [
+        RacerEvent.Racing,
+        RacerEvent.DriverDnf,
+        RacerEvent.CarDnf,
+        RacerEvent.EngineDnf,
+        RacerEvent.Mistake,
+        RacerEvent.Pitstop,
+        RacerEvent.Swap,
+        RacerEvent.Death,
+        RacerEvent.FastestLap,
+    ];
+
     public static string RacerEventIcon(this RacerEvent racerEvent) => racerEvent switch
     {
         RacerEvent.DriverDnf => IconCollection.HelmetOff,
@@ -28,6 +42,7 @@ public static class RacerEventEnumHelper
         RacerEvent.Pitstop => Icons.Material.Filled.LocalGasStation,
         RacerEvent.Swap => Icons.Material.Filled.SwapVert,
         RacerEvent.Death => IconCollection.Skull,
+        RacerEvent.FastestLap => Icons.Material.Filled.Timer,
         _ => Icons.Material.Filled.QuestionMark
     };
 }

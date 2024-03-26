@@ -3,7 +3,7 @@
     // Small = 24px
     public static class IconCollection
     {
-        public static readonly string[] ArrayOfIcons = new[]
+        public static readonly string[] ArrayOfIcons =
         {
             BrandCupra, BrandMercedes, BrandToyota, BrandVolkswagen,
             CarCrash, CrossFilled, Engine, Helmet, Skull, SteeringWheel, TrafficCone

@@ -3,18 +3,18 @@
         <MudPaper MinHeight="800px" MinWidth="1000px">
             <MudStack Row="true" AlignItems="AlignItems.Center">
                 <MudIcon Icon="@Icons.Material.Filled.SsidChart" Color="Color.Secondary" />
-                <MudText Typo="Typo.h5" Color="Color.Secondary">Aspect development progression</MudText>
+                <MudText Typo="Typo.h5">Aspect development progression</MudText>
                 <MudSpacer />
                 <MudButtonGroup Variant="Variant.Text" Color="Color.Secondary">
                     <ScreenshotIconButton TargetId="aspect-season-development-container" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(() => ChartDialog?.Close())" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="Close" />
                 </MudButtonGroup>
             </MudStack>
             <div id="aspect-season-development-container">
                 @if (DataSets.Count > 0)
                 {
                     <ApexCharts.ApexChart TItem="DataPoint"
-                                          Title="@($"In-season {Aspect} development progression")"
+                                          Title="@($"{Aspect.GetReadableAspect()} development progression")"
                                           Options="@options"
                                           Height="800">
                         @foreach (var result in DataSets)
@@ -45,8 +45,6 @@
     public Aspect Aspect { get; set; }
 
     private ApexCharts.ApexChartOptions<DataPoint> options;
-
-    private bool loading;
 
     protected override void OnInitialized()
     {

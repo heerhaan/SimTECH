@@ -33,7 +33,7 @@ public static class AspectEnumHelper
             Aspect.Defense,
         ];
 
-    public static string ReadableAspect(this Aspect aspect)
+    public static string GetReadableAspect(this Aspect aspect)
     {
         return aspect switch
         {
@@ -51,7 +51,7 @@ public static class AspectEnumHelper
         };
     }
 
-    public static string ShortReadableAspect(this Aspect aspect)
+    public static string GetShortAspectText(this Aspect aspect)
     {
         return aspect switch
         {

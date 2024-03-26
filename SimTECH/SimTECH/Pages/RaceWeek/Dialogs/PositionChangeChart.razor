@@ -46,10 +46,10 @@
 
     [Parameter, EditorRequired] public List<RaceDriver> Drivers { get; set; }
 
-    ApexCharts.ApexChartOptions<DataPoint> options;
+    private ApexCharts.ApexChartOptions<DataPoint> options;
 
-    List<DataSet> dataSets = new();
-    DataSet retiredSet = new()
+    private List<DataSet> dataSets = new();
+    private DataSet retiredSet = new()
         {
             Label = "Retirements",
             Stroke = new ApexCharts.SeriesStroke
@@ -59,8 +59,8 @@
             },
         };
 
-    bool loading = true;
-    int driverCount;
+    private bool loading = true;
+    private int driverCount;
 
     protected override void OnInitialized()
     {
@@ -78,6 +78,7 @@
         foreach (var driver in Drivers)
         {
             var dataSet = new DataSet { Label = driver.FullName };
+
             options.Yaxis.Add(
                 new ApexCharts.YAxis
                 {
@@ -99,6 +100,7 @@
 
             seenTeamIdentifiers.Add(driver.SeasonTeamId);
             dataSets.Add(dataSet);
+
             isFirst = false;
         }
 

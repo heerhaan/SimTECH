@@ -14,16 +14,16 @@
     </ToolBarContent>
     <HeaderContent>
         <MudTd>Name</MudTd>
-        @foreach (var (aspect, i) in EntrantSummary.Aspects.OrderBy(e => e.ReadableAspect()).WithIndex())
+        @foreach (var (aspect, i) in EntrantSummary.Aspects.OrderBy(e => e.GetReadableAspect()).WithIndex())
         {
             <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")">
-                @aspect.ReadableAspect()
+                @aspect.GetReadableAspect()
             </MudTh>
         }
     </HeaderContent>
     <RowTemplate>
         <MudTd>@context.Name</MudTd>
-        @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.ReadableAspect()).WithIndex())
+        @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.GetReadableAspect()).WithIndex())
         {
             <MudTd Class="@(InspectTheWheel(i))">
                 <MudStack Row="true" Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
