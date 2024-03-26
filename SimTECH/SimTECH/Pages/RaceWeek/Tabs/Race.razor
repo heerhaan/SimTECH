@@ -606,7 +606,7 @@
         return assignedLifeScore;
     }
 
-    // returns boolean which indicates whether a safety car is going to return has been caused by a DNF-result
+    // returns boolean which indicates whether a safety car is returning after the current advance
     private bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
     {
         int scoreAboveDriver = 0;
@@ -628,6 +628,7 @@
                 // closes the gap to the driver above
                 var scoreGap = scoreAboveDriver - driver.LapSum;
 
+                // Current score gap is greater than the expected SC-gap
                 if (scoreGap > safetyCarGap)
                 {
                     int gapSubtractedBy = safetyGapCloser;
