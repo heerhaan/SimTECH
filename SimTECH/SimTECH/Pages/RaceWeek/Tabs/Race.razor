@@ -33,12 +33,12 @@
 
             <div class="d-flex flex-row-reverse" style="width:30%">
                 <MudButtonGroup Variant="Variant.Outlined" Color="Color.Tertiary">
-                    <ScreenshotButton TargetId="race-display" Class="btn-sm" />
+                    <ScreenshotButton TargetId="race-display" Class="btn-md" />
                     @if (Model.Race.State != State.Closed)
                     {
                         <MudButton StartIcon="@IconCollection.ChevronsRight"
                                    OnClick="Advance"
-                                   Class="btn-sm">Advance</MudButton>
+                                   Class="btn-md">Advance</MudButton>
                     }
                 </MudButtonGroup>
             </div>
@@ -213,7 +213,11 @@
                 <MudChip Text="Swap" Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Info" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
                 <MudChip Text="Injury" Icon="@Icons.Material.Filled.Healing" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
                 <MudSpacer />
-                <MudText Typo="Typo.button">Tyres</MudText>
+                <MudText Typo="Typo.button">
+                    Available
+                    <br />
+                    Tyres
+                </MudText>
                 @if (ValidTyres?.Any() == true)
                 {
                     <div class="d-flex flex-row gap-1 align-center justify-center">
