@@ -205,14 +205,16 @@
 
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 pt-5 pb-2">
                 <MudText Typo="Typo.button">Legend</MudText>
-                <MudChip Text="Pitstop" Icon="@IconCollection.RefreshDot" IconColor="Color.Success" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
-                <MudChip Text="Crash" Icon="@IconCollection.HelmetOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
-                <MudChip Text="Issues" Icon="@IconCollection.CarCrash" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
-                <MudChip Text="Engine" Icon="@IconCollection.EngineOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
-                <MudChip Text="Mistake" Icon="@Icons.Material.Filled.ErrorOutline" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
-                <MudChip Text="Injury" Icon="@Icons.Material.Filled.Healing" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
-                <MudChip Text="Swap" Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Info" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
-                <MudChip Text="Fastest" Icon="@Icons.Material.Filled.Timer" IconColor="Color.Primary" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
+                @foreach (var signal in signalEvents)
+                {
+                    <MudChip Text="@signal.GetShortText()"
+                             Icon="@signal.GetEventIcon()"
+                             IconColor="@signal.GetSignalColour()"
+                             Size="Size.Small"
+                             Variant="Variant.Text"
+                             DisableRipple="true"
+                             Label="true" />
+                }
 
                 <MudSpacer />
 
@@ -260,6 +262,17 @@
     [Parameter] public EventCallback OnFinish { get; set; } = new();
 
     private static readonly Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
+    private static readonly RacerEvent[] signalEvents =
+    [
+        RacerEvent.Pitstop,
+        RacerEvent.DriverDnf,
+        RacerEvent.CarDnf,
+        RacerEvent.EngineDnf,
+        RacerEvent.Mistake,
+        RacerEvent.Death,
+        RacerEvent.Swap,
+        RacerEvent.FastestLap,
+    ];
 
     private Dictionary<int, SituationOccurrence> AdvanceOccurrences { get; set; } = new();
     private List<RaceDriver> RaceDrivers { get; set; } = new();

@@ -4,15 +4,18 @@
         @foreach (var raceEvent in lapEvent.ListOfDubiousEvents())
         {
             <SignalNote LapPercentage="@(NumberHelper.Percentage((lapEvent.Order - 1), CalculationCount))"
-                        OldSignal="@raceEvent.ToString()" />
+                        Signal="@raceEvent" />
         }
     }
 </div>
 <SimProgressLinear Bars="@coloursOfUsedTyres" />
 
 @code {
-    [Parameter, EditorRequired] public RaceDriver RaceDriver { get; set; }
-    [Parameter, EditorRequired] public int CalculationCount { get; set; }
+    [Parameter, EditorRequired]
+    public RaceDriver RaceDriver { get; set; }
+
+    [Parameter, EditorRequired]
+    public int CalculationCount { get; set; }
 
     private List<(double, string)> coloursOfUsedTyres
     {
@@ -24,10 +27,5 @@
             return RaceDriver.LapScores
                 .ConvertAll(e => (NumberHelper.Percentage(1, CalculationCount), e.TyreColour ?? Globals.DefaultColour));
         }
-    }
-
-    private void Test(Enum eee)
-    {
-        var baja = eee as RacerEvent?;
     }
 }

@@ -1,77 +1,18 @@
-﻿<MudPaper Class="absolute overflow-visible" Style="@_styles">
-    <MudIcon Icon="@_signalIcon"
+﻿<MudPaper Class="absolute overflow-visible signal-icon" Style="@_styles">
+    <MudIcon Icon="@Signal.GetEventIcon()"
              Size="@Size"
-             Color="@_signalColour" />
+             Color="@Signal.GetSignalColour()" />
 </MudPaper>
 
 @code {
     [Parameter]
     public double LapPercentage { get; set; }
 
-    [Obsolete("Ew")]
     [Parameter]
-    public string OldSignal { get; set; }
-
-    [Parameter]
-    public RacerEvent? Signal { get; set; }
+    public RacerEvent Signal { get; set; }
 
     [Parameter]
     public Size Size { get; set; } = Size.Small;
-
-    // We might want to make the following common somewhere
-    private string _signalIcon
-    {
-        get
-        {
-            switch (OldSignal)
-            {
-                case "DriverDnf":
-                    return IconCollection.HelmetOff;
-                case "CarDnf":
-                    return IconCollection.CarCrash;
-                case "EngineDnf":
-                    return IconCollection.EngineOff;
-                case "Mistake":
-                    return Icons.Material.Filled.ErrorOutline;
-                case "Pitstop":
-                    return IconCollection.RefreshDot;
-                case "Swap":
-                    return Icons.Material.Filled.SwapVert;
-                case "Caution":
-                    return IconCollection.AlertTriangle;
-                case "Death":
-                    return Icons.Material.Filled.Healing;
-                default:
-                    return Icons.Material.Filled.QuestionMark;
-            }
-        }
-    }
-
-    // We might want to make the following common somewhere
-    private Color _signalColour
-    {
-        get
-        {
-            switch (OldSignal)
-            {
-                case "DriverDnf":
-                case "CarDnf":
-                case "EngineDnf":
-                    return Color.Error;
-                case "Mistake":
-                case "Caution":
-                    return Color.Warning;
-                case "Pitstop":
-                    return Color.Success;
-                case "Swap":
-                    return Color.Info;
-                case "Death":
-                    return Color.Inherit;
-                default:
-                    return Color.Warning;
-            }
-        }
-    }
 
     private string _styles
     {
@@ -81,7 +22,7 @@
 
             styles += "; line-height:0; background-color:var(--mud-palette-surface)";
 
-            if (OldSignal == "Death")
+            if (Signal.HasFlag(RacerEvent.Death))
                 styles += "; color: white";
 
             return styles;
