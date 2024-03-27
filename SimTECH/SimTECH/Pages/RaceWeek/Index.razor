@@ -37,16 +37,25 @@
                     <MudTabPanel Text="Practice" OnClick="OnOpenPractice">
                         @if (practiceLoaded)
                         {
-                            <MudTabs Centered="true" Outlined="true">
-                                @foreach (var session in practiceSessions.OrderBy(e => e.SessionIndex))
-                                {
-                                    <MudTabPanel Text="@($"FP{session.SessionIndex}")"
-                                                 ID="@($"fp_{session.SessionIndex}")">
-                                        <Practice PracticeSession="@session"
-                                                  OnFinish="PersistPractice" />
-                                    </MudTabPanel>
-                                }
-                            </MudTabs>
+                            @if (practiceSessions?.Any() == true)
+                            {
+                                <MudTabs Centered="true" Outlined="true">
+                                    @foreach (var session in practiceSessions.OrderBy(e => e.SessionIndex))
+                                    {
+                                        <MudTabPanel Text="@($"FP{session.SessionIndex}")"
+                                                     ID="@($"fp_{session.SessionIndex}")">
+                                            <Practice PracticeSession="@session"
+                                                      OnFinish="PersistPractice" />
+                                        </MudTabPanel>
+                                    }
+                                </MudTabs>
+                            }
+                            else
+                            {
+                                <div class="empty-page-container">
+                                    <MudText>No practice data found</MudText>
+                                </div>
+                            }
                         }
                     </MudTabPanel>
                     <MudTabPanel Text="Qualifying" OnClick="OnOpenQualifying">
