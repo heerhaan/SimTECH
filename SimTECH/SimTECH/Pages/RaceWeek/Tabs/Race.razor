@@ -205,19 +205,23 @@
 
             <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 pt-5 pb-2">
                 <MudText Typo="Typo.button">Legend</MudText>
+                <MudChip Text="Pitstop" Icon="@IconCollection.RefreshDot" IconColor="Color.Success" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
                 <MudChip Text="Crash" Icon="@IconCollection.HelmetOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
                 <MudChip Text="Issues" Icon="@IconCollection.CarCrash" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
                 <MudChip Text="Engine" Icon="@IconCollection.EngineOff" IconColor="Color.Error" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
                 <MudChip Text="Mistake" Icon="@Icons.Material.Filled.ErrorOutline" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
-                <MudChip Text="Pitstop" Icon="@IconCollection.RefreshDot" IconColor="Color.Success" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
-                <MudChip Text="Swap" Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Info" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
                 <MudChip Text="Injury" Icon="@Icons.Material.Filled.Healing" IconColor="Color.Warning" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
+                <MudChip Text="Swap" Icon="@Icons.Material.Filled.SwapVert" IconColor="Color.Info" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
+                <MudChip Text="Fastest" Icon="@Icons.Material.Filled.Timer" IconColor="Color.Primary" Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true" />
+
                 <MudSpacer />
+
                 <MudText Typo="Typo.button">
                     Available
                     <br />
                     Tyres
                 </MudText>
+
                 @if (ValidTyres?.Any() == true)
                 {
                     <div class="d-flex flex-row gap-1 align-center justify-center">
@@ -231,9 +235,11 @@
                 {
                     <MudIcon Icon="@Icons.Material.Filled.Block" Size="Size.Medium" Color="Color.Error" />
                 }
+
                 <MudSpacer />
 
                 <MudSpacer />
+
                 <MudText Typo="Typo.button">Next REL</MudText>
                 <MudChip Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
                     @activeReliabilityCheck.ToString()
@@ -472,6 +478,7 @@
                     raceDriver.HasFastestLap = false;
 
                 driver.HasFastestLap = true;
+                lapScore.RacerEvents |= RacerEvent.FastestLap;
             }
 
             // Finally add the score to the lap results
@@ -523,7 +530,7 @@
         driver.InstantOvertaken = true;
 
         // If enabled, then we're also going to check if anyone experienced a fatal crash
-        if (Model.League.Options.HasFlag(LeagueOptions.EnableFatality) && (NumberHelper.RandomInt(Model.League.FatalityOdds) == 0))
+        if (Model.League.Options.HasFlag(LeagueOptions.EnableFatality) && NumberHelper.RandomInt(Model.League.FatalityOdds) == 0)
         {
             safetyCar = true;
 

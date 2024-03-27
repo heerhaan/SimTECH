@@ -1,7 +1,7 @@
 ﻿<MudNavMenu Color="Color.Primary">
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
 
-    <MudNavGroup Title="Entrants" Icon="@Icons.Material.Filled.Settings" @bind-Expanded="entrantsExpanded">
+    <MudNavGroup Title="Entrants" Icon="@Icons.Material.Filled.Settings" @bind-Expanded="EntrantsExpanded">
         <MudNavLink Href="/drivers" Match="NavLinkMatch.Prefix" Icon="@IconCollection.Helmet">Drivers</MudNavLink>
         <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.CarRepair">Teams</MudNavLink>
         <MudNavLink Href="/engines" Match="NavLinkMatch.Prefix" Icon="@IconCollection.Engine">Engines</MudNavLink>
@@ -9,7 +9,7 @@
         <MudNavLink Href="/traits" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FlashOn">Traits</MudNavLink>
     </MudNavGroup>
 
-    <MudNavGroup Title="Race factors" Icon="@IconCollection.Truck" @bind-Expanded="factorsExpanded">
+    <MudNavGroup Title="Race factors" Icon="@IconCollection.Truck" @bind-Expanded="FactorsExpanded">
         <MudNavLink Href="/manufacturers" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Garage">Suppliers</MudNavLink>
         <MudNavLink Href="/tyres" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.LocalGasStation">Tyres</MudNavLink>
         <MudNavLink Href="/incidents" Match="NavLinkMatch.Prefix" Icon="@IconCollection.TrafficCone">Incidents</MudNavLink>
@@ -20,16 +20,17 @@
     
     <MudNavLink Href="/seasons" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Flag">Seasons</MudNavLink>
 
-    <MudNavGroup Title="Extra" Icon="@Icons.Material.Filled.Explicit" @bind-Expanded="extraExpanded">
-        <MudNavLink Href="/stats" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.BarChart">Stats</MudNavLink>
-        <MudNavLink Href="/test" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Lightbulb">Test</MudNavLink>
-        <MudNavLink Href="/legacy" Match="NavLinkMatch.Prefix" Icon="@IconCollection.Planet">Legacy</MudNavLink>
-        <MudNavLink Href="/extra" Match="NavLinkMatch.Prefix" Icon="@IconCollection.BrandVolkswagen">Extra</MudNavLink>
-    </MudNavGroup>
+    <MudNavLink Href="/stats" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.BarChart">Stats</MudNavLink>
+    
+    <MudNavLink Href="/extra" Match="NavLinkMatch.Prefix" Icon="@IconCollection.BrandVolkswagen">Extra</MudNavLink>
+
+    <MudNavLink Href="/legacy" Match="NavLinkMatch.Prefix" Icon="@IconCollection.Planet">Legacy</MudNavLink>
+
+    <MudNavLink Href="/test" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Lightbulb">Test</MudNavLink>
 </MudNavMenu>
 
 @code {
-    bool entrantsExpanded = true;
-    bool factorsExpanded = true;
-    bool extraExpanded = false;
+    private bool EntrantsExpanded { get; set; } = true;
+
+    private bool FactorsExpanded { get; set; } = true;
 }

@@ -4,7 +4,7 @@
         @foreach (var raceEvent in lapEvent.ListOfDubiousEvents())
         {
             <SignalNote LapPercentage="@(NumberHelper.Percentage((lapEvent.Order - 1), CalculationCount))"
-                        Signal="@raceEvent.ToString()" />
+                        OldSignal="@raceEvent.ToString()" />
         }
     }
 </div>
@@ -24,5 +24,10 @@
             return RaceDriver.LapScores
                 .ConvertAll(e => (NumberHelper.Percentage(1, CalculationCount), e.TyreColour ?? Globals.DefaultColour));
         }
+    }
+
+    private void Test(Enum eee)
+    {
+        var baja = eee as RacerEvent?;
     }
 }
