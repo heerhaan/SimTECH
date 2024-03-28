@@ -1,7 +1,8 @@
 ﻿@using SimTECH.Pages.RaceWeek.Components
 @using SimTECH.Pages.RaceWeek.Dialogs
 
-@inject IDialogService _dialog
+@inject IncidentService _incidentService
+@inject IDialogService _dialogService
 @inject ISnackbar _snackbar
 
 @if (!loading)
@@ -256,7 +257,6 @@
 
     [Parameter] public List<LapScore> LapScores { get; set; } = new();
     [Parameter] public List<RaceOccurrence> Occurrences { get; set; } = new();
-    [Parameter] public IEnumerable<Incident> Incidents { get; set; } = Enumerable.Empty<Incident>();
     [Parameter] public IEnumerable<Tyre> Tyres { get; set; } = Enumerable.Empty<Tyre>();
     [Parameter] public SimConfig Config { get; set; } = new();
     [Parameter] public EventCallback OnFinish { get; set; } = new();
@@ -271,12 +271,12 @@
         RacerEvent.Mistake,
         RacerEvent.Death,
         RacerEvent.Swap,
-        RacerEvent.FastestLap,
+        //RacerEvent.FastestLap,
     ];
 
     private Dictionary<int, SituationOccurrence> AdvanceOccurrences { get; set; } = new();
     private List<RaceDriver> RaceDrivers { get; set; } = new();
-    private List<Incident> PossibleIncidents { get; set; } = new();
+    private List<Incident> Incidents { get; set; } = new();
     private List<Tyre> AvailableTyres { get; set; } = new();
     private List<Tyre> ValidTyres { get; set; } = new();
 
@@ -307,10 +307,10 @@
 
     private bool isFirstLap => calculated == 1;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        PossibleIncidents.AddRange(
-            Incidents.Where(e => e.State == State.Active));
+        Incidents = await _incidentService.GetIncidents(StateFilter.Active);
+
         AvailableTyres.AddRange(
             Tyres.Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false)));
 
@@ -516,23 +516,23 @@
         if (activeReliabilityCheck == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
-            driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
+            driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
         }
         else if (activeReliabilityCheck == Entrant.Team && DidReliabilityFail(driver.CarReliability))
         {
             lapScore.RacerEvents |= RacerEvent.CarDnf;
-            driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Car).ToList().TakeRandomIncident();
+            driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Car).ToList().TakeRandomIncident();
         }
         else if (activeReliabilityCheck == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
         {
             lapScore.RacerEvents |= RacerEvent.EngineDnf;
-            driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
+            driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
         }
         // Additional reliability check happens on the opening lap, as crashes are more frequent then
         else if (isFirstLap && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
-            driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
+            driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
         }
         else
         {
@@ -548,7 +548,7 @@
             safetyCar = true;
 
             driver.Status = RaceStatus.Fatal;
-            driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Lethal).ToList().TakeRandomIncident();
+            driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Lethal).ToList().TakeRandomIncident();
             lapScore.RacerEvents = RacerEvent.Death;
 
             CurrentSituation = SituationOccurrence.Halted;
@@ -799,7 +799,10 @@
         {
             if (NumberHelper.RandomInt(Model.League.DisqualificationOdds) == 0)
             {
-                driver.Incident = PossibleIncidents.Where(e => e.Category == IncidentCategory.Disqualified).ToList().TakeRandomIncident();
+                driver.Incident = Incidents
+                    .Where(e => e.Category == IncidentCategory.Disqualified)
+                    .ToList()
+                    .TakeRandomIncident();
                 driver.Status = RaceStatus.Dsq;
 
                 anyoneDisqualified = true;
@@ -882,33 +885,33 @@
     }
 
     // Honestly, below is more of an example to the first one
-    private Dictionary<long, int> AggregateActualPositions()
-    {
-        //source: racedrivers
-        //seed: dict
-        //func: (dict, driver) =>
+    // private Dictionary<long, int> AggregateActualPositions()
+    // {
+    //     //source: racedrivers
+    //     //seed: dict
+    //     //func: (dict, driver) =>
 
-        var absoluteIndex = 0;
-        return RaceDrivers
-            .OrderBy(e => (int)e.Status)
-                .ThenByDescending(e => e.LapSum)
-            .Aggregate
-            (
-                new Dictionary<long, int>(),
-                (dict, driver) =>
-                {
-                    dict.Add(driver.SeasonDriverId, ++absoluteIndex);
-                    return dict;
-                }
-            );
-    }
+    //     var absoluteIndex = 0;
+    //     return RaceDrivers
+    //         .OrderBy(e => (int)e.Status)
+    //             .ThenByDescending(e => e.LapSum)
+    //         .Aggregate
+    //         (
+    //             new Dictionary<long, int>(),
+    //             (dict, driver) =>
+    //             {
+    //                 dict.Add(driver.SeasonDriverId, ++absoluteIndex);
+    //                 return dict;
+    //             }
+    //         );
+    // }
 
-    private async Task ShowGapperChart() => _ = await _dialog.ShowAsync<GapChartDialog>(
+    private async Task ShowGapperChart() => _ = await _dialogService.ShowAsync<GapChartDialog>(
         "Gapper chart",
         new DialogParameters { ["Drivers"] = RaceDrivers },
         Globals.StatisticDialogDefaultOptionsXl);
     
-    private async Task ShowPositionChart() => _ = await _dialog.ShowAsync<PositionChangeChart>(
+    private async Task ShowPositionChart() => _ = await _dialogService.ShowAsync<PositionChangeChart>(
         "Position chart",
         new DialogParameters { ["Drivers"] = RaceDrivers },
         Globals.StatisticDialogDefaultOptionsXl);

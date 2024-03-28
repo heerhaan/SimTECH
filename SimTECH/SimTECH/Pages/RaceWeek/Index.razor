@@ -17,8 +17,8 @@
 @inject TyreService _tyreService
 @inject BreadcrumbProvider _bread
 @inject NavigationManager _nav
-@inject IDialogService _dialog
-@inject ISnackbar _snack
+@inject IDialogService _dialogService
+@inject ISnackbar _snackbar
 @inject IOptions<SimConfig> _config
 
 <PageTitle>Raweceek</PageTitle>
@@ -64,7 +64,9 @@
                             <MudTabs @ref="_qualyTabs" Centered="true" Outlined="true">
                                 @foreach (var session in qualySessions)
                                 {
-                                    <MudTabPanel Text="@($"Q{session.SessionIndex}")" Icon="@Icons.Material.Filled.AccessTime" Disabled="@session.IsDisabled">
+                                    <MudTabPanel Text="@($"Q{session.SessionIndex}")"
+                                                 Icon="@Icons.Material.Filled.AccessTime"
+                                                 Disabled="@session.IsDisabled">
                                         <Qualifying QualySession="@session"
                                                     OnFinish="PersistQualifying" />
                                     </MudTabPanel>
@@ -77,7 +79,6 @@
                         {
                             <Race LapScores="@lapScores"
                                   Occurrences="@occurrences"
-                                  Incidents="@incidents"
                                   Tyres="@tyres"
                                   Config="@config"
                                   OnFinish="PersistRace" />
@@ -99,7 +100,6 @@
     public RaweCeekModel Model { get; set; } = new();
 
     private List<Manufacturer> TyreSuppliers { get; set; } = new();
-    private List<Incident> incidents;
     private List<Trait> trackTraits = new();
     private List<Tyre> tyres;
 
@@ -120,11 +120,11 @@
     bool raceLoaded;
 
     bool raceDisabled => Model.Race.State != State.Advanced && Model.Race.State != State.Closed;
+    //bool raceDisabled => Model.Race.State is not State.Advanced and not State.Closed; // works too, which is prettier?
     bool postraceDisabled => Model.Race.State != State.Closed;
 
     protected override async Task OnInitializedAsync()
     {
-        incidents = await _incidentService.GetIncidents(StateFilter.All);
         tyres = await _tyreService.GetTyres(StateFilter.All);
 
         config = _config.Value;
@@ -181,6 +181,7 @@
         var manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
         var raceResults = await _raceService.GetResultsOfRace(RaceId);
         var allTraits = await _traitService.GetTraits();
+        var incidents = await _incidentService.GetIncidents(StateFilter.All);
 
         var traits = allTraits.Where(e => !e.ForWetConditions || e.ForWetConditions == climate.IsWet).ToList();
 
@@ -265,7 +266,8 @@
 
             if (!climate.IsWet)
             {
-                // Adds on to the existing tyre, should probably be added when activating instead
+                // Adds on to the existing tyre
+                // TODO: Should probably be added when activating instead
                 raweDriver.TyreLife += manufacturer.Pace;
 
                 raweDriver.LifeBonus = manufacturer.Pace;
@@ -398,7 +400,7 @@
                     .ToList(),
             };
 
-        var dialog = await _dialog.ShowAsync<TyrePicker>("Set tyre", parameters);
+        var dialog = await _dialogService.ShowAsync<TyrePicker>("Set tyre", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null && result.Data is Tyre pickedTyre)
@@ -528,7 +530,7 @@
     {
         if (!lapScores.Any() || !occurrences.Any())
         {
-            _snack.Add("good god, saving a race for which we have NO data. How wrong!", Severity.Error);
+            _snackbar.Add("good god, saving a race for which we have NO data. How wrong!", Severity.Error);
             return;
         }
 
