@@ -17,12 +17,17 @@
                 <MudSpacer />
 
                 <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Text">
-                    <ScreenshotIconButton TargetId="qualy-table" Colour="Color.Tertiary" Class="btn-sm" />
+                    <ScreenshotButton TargetId="qualy-table"
+                                      Colour="Color.Tertiary"
+                                      IconSize="Size.Small"
+                                      PostFixIcon="true"
+                                      Class="btn-md" />
                     @if (QualySession.IsFinished == false && advancedRuns != amountRuns)
                     {
-                        <MudTooltip Text="Advance to next run" Placement="Placement.Top" Color="Color.Tertiary">
-                            <MudIconButton Icon="@IconCollection.ChevronsRight" OnClick="Advance" Class="btn-sm" />
-                        </MudTooltip>
+                        <MudButton EndIcon="@IconCollection.ChevronsRight"
+                                   IconSize="Size.Small"
+                                   OnClick="Advance"
+                                   Class="btn-md">Advance</MudButton>
                     }
                 </MudButtonGroup>
             </CommonSession>

@@ -3,7 +3,8 @@
 public enum TeamRole
 {
     None = 0,
-    Main, Support
+    Main,
+    Support
 }
 
 public static class TeamRoleEnumHelper

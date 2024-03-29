@@ -2,7 +2,8 @@
 
 <MudButton Variant="Variant.Outlined"
            Color="@Colour"
-           StartIcon="@Icons.Material.Filled.Image"
+           StartIcon="@(PostFixIcon ? null : Icons.Material.Filled.Image)"
+           EndIcon="@(PostFixIcon ? Icons.Material.Filled.Image : null)"
            IconSize="@IconSize"
            FullWidth="@FullWidth"
            Disabled="@IsDisabled"
@@ -16,6 +17,7 @@
     [Parameter, EditorRequired] public string TargetId { get; set; }
     [Parameter] public Color Colour { get; set; } = Color.Inherit;
     [Parameter] public Size IconSize { get; set; } = Size.Medium;
+    [Parameter] public bool PostFixIcon { get; set; }
     [Parameter] public bool FullWidth { get; set; } = false;
     [Parameter] public string Class { get; set; } = string.Empty;
     [Parameter] public string Styles { get; set; } = string.Empty;

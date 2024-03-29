@@ -23,12 +23,17 @@
                     <MudSpacer />
 
                     <MudButtonGroup Variant="Variant.Text" Color="Color.Tertiary">
-                        <ScreenshotIconButton TargetId="practice-table" Colour="Color.Tertiary" Class="btn-sm" />
+                        <ScreenshotButton TargetId="practice-table"
+                                          Colour="Color.Tertiary"
+                                          IconSize="Size.Small"
+                                          PostFixIcon="true"
+                                          Class="btn-md" />
                         @if (PracticeSession.IsFinished == false && advancedRuns != amountRuns)
                         {
-                            <MudTooltip Text="Advance to next run" Placement="Placement.Top" Color="Color.Tertiary">
-                                <MudIconButton Icon="@IconCollection.ChevronsRight" OnClick="Advance" Class="btn-sm" />
-                            </MudTooltip>
+                            <MudButton EndIcon="@IconCollection.ChevronsRight"
+                                       IconSize="Size.Small"
+                                       OnClick="Advance"
+                                       Class="btn-md">Advance</MudButton>
                         }
                     </MudButtonGroup>
                 </CommonSession>
