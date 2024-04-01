@@ -4,6 +4,6 @@ namespace SimTECH.PageModels.RaceWeek
 {
     public class PracticeSession : SessionBase
     {
-        public List<PracticeScore> SessionScores { get; set; }
+        public List<PracticeScore> SessionScores { get; set; } = new();
     }
 }

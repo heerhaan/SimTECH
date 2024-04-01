@@ -16,7 +16,6 @@
 @inject TraitService _traitService
 @inject TyreService _tyreService
 @inject BreadcrumbProvider _bread
-@inject NavigationManager _nav
 @inject IDialogService _dialogService
 @inject ISnackbar _snackbar
 @inject IOptions<SimConfig> _config
@@ -25,22 +24,22 @@
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudPaper Elevation="100">
-        @if (!loading)
+        @if (!Loading)
         {
             <CascadingValue Value="@Model">
                 <MudTabs Centered="true" Outlined="true">
                     <MudTabPanel Text="Raceweek">
-                        <Landing TrackTraits="@trackTraits"
+                        <Landing TrackTraits="@TrackTraits"
                                  TyreSuppliers="@TyreSuppliers"
                                  OnOpenTyrePicker="PickRaceTyre" />
                     </MudTabPanel>
                     <MudTabPanel Text="Practice" OnClick="OnOpenPractice">
                         @if (practiceLoaded)
                         {
-                            @if (practiceSessions?.Any() == true)
+                            @if (PracticeSessions?.Any() == true)
                             {
                                 <MudTabs Centered="true" Outlined="true">
-                                    @foreach (var session in practiceSessions.OrderBy(e => e.SessionIndex))
+                                    @foreach (var session in PracticeSessions.OrderBy(e => e.SessionIndex))
                                     {
                                         <MudTabPanel Text="@($"FP{session.SessionIndex}")"
                                                      ID="@($"fp_{session.SessionIndex}")">
@@ -62,7 +61,7 @@
                         @if (qualifyingLoaded)
                         {
                             <MudTabs @ref="_qualyTabs" Centered="true" Outlined="true">
-                                @foreach (var session in qualySessions)
+                                @foreach (var session in QualySessions)
                                 {
                                     <MudTabPanel Text="@($"Q{session.SessionIndex}")"
                                                  Icon="@Icons.Material.Filled.AccessTime"
@@ -77,16 +76,15 @@
                     <MudTabPanel Text="Race" Disabled="@raceDisabled" OnClick="OnOpenRace">
                         @if (raceLoaded)
                         {
-                            <Race LapScores="@lapScores"
-                                  Occurrences="@occurrences"
-                                  Tyres="@tyres"
+                            <Race LapScores="@LapScores"
+                                  Occurrences="@RaceOccurrences"
+                                  Tyres="@Tyres"
                                   Config="@config"
                                   OnFinish="PersistRace" />
                         }
                     </MudTabPanel>
                     <MudTabPanel Text="Post race" Disabled="@postraceDisabled">
-                        <PostRace UpcomingPenalties="@upcomingPenalties"
-                                  OnNavigate="GoToCommon" />
+                        <PostRace />
                     </MudTabPanel>
                 </MudTabs>
             </CascadingValue>
@@ -100,32 +98,30 @@
     public RaweCeekModel Model { get; set; } = new();
 
     private List<Manufacturer> TyreSuppliers { get; set; } = new();
-    private List<Trait> trackTraits = new();
-    private List<Tyre> tyres;
+    private List<Trait> TrackTraits { get; set; } = new();
+    private List<Tyre> Tyres { get; set; } = new();
 
-    private List<PracticeSession> practiceSessions = new();
-    private List<QualifyingSession> qualySessions = new();
-    private List<LapScore> lapScores = new();
-    private List<RaceOccurrence> occurrences = new();
+    private List<PracticeSession> PracticeSessions { get; set; } = new();
+    private List<QualifyingSession> QualySessions { get; set; } = new();
+    private List<LapScore> LapScores { get; set; } = new();
+    private List<RaceOccurrence> RaceOccurrences { get; set; } = new();
 
-    private List<GivenPenalty> upcomingPenalties = new();
+    private SimConfig config;
 
-    SimConfig config;
+    private MudTabs? _qualyTabs;
 
-    MudTabs? _qualyTabs;
+    private bool Loading { get; set; } = true;
+    private bool practiceLoaded;
+    private bool qualifyingLoaded;
+    private bool raceLoaded;
 
-    bool loading = true;
-    bool practiceLoaded;
-    bool qualifyingLoaded;
-    bool raceLoaded;
-
-    bool raceDisabled => Model.Race.State != State.Advanced && Model.Race.State != State.Closed;
+    private bool raceDisabled => Model.Race.State != State.Advanced && Model.Race.State != State.Closed;
     //bool raceDisabled => Model.Race.State is not State.Advanced and not State.Closed; // works too, which is prettier?
-    bool postraceDisabled => Model.Race.State != State.Closed;
+    private bool postraceDisabled => Model.Race.State != State.Closed;
 
     protected override async Task OnInitializedAsync()
     {
-        tyres = await _tyreService.GetTyres(StateFilter.All);
+        Tyres = await _tyreService.GetTyres(StateFilter.All);
 
         config = _config.Value;
 
@@ -138,16 +134,6 @@
 
             await _raceService.ActivateRace(race.Id);
             race = await _raceService.GetRaceById(RaceId);
-        }
-        else if (race.State == State.Closed)
-        {
-            var nextRaceId = await _raceService.GetRaceIdByRound(race.SeasonId, (1 + race.Round));
-            if (nextRaceId.HasValue)
-            {
-                var nextRacePenalties = await _raceService.GetRacePenalties(nextRaceId.Value);
-                if (nextRacePenalties?.Any() ?? false)
-                    upcomingPenalties.AddRange(nextRacePenalties);
-            }
         }
 
         Model.Race = race;
@@ -167,7 +153,7 @@
             new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}", disabled: true),
         });
 
-        loading = false;
+        Loading = false;
     }
 
     private async Task LoadDrivers()
@@ -186,12 +172,12 @@
         var traits = allTraits.Where(e => !e.ForWetConditions || e.ForWetConditions == climate.IsWet).ToList();
 
         var trackTraitIds = race.Track.TrackTraits?.Select(e => e.TraitId).ToList() ?? new();
-        trackTraits = traits.Where(e => trackTraitIds.Contains(e.Id)).ToList();
+        TrackTraits = traits.Where(e => trackTraitIds.Contains(e.Id)).ToList();
 
         var raweceekDrivers = new List<RaweCeekDriver>();
         foreach (var result in raceResults)
         {
-            var driverTraits = new List<Trait>(trackTraits);
+            var driverTraits = new List<Trait>(TrackTraits);
 
             var driver = seasonDrivers.First(e => e.Id == result.SeasonDriverId);
             var team = seasonTeams.First(e => e.Id == result.SeasonTeamId);
@@ -255,7 +241,7 @@
                     Defended = result.Defended,
 
                     Incident = incidents.FirstOrDefault(e => e.Id == result.IncidentId.GetValueOrDefault()),
-                    Tyre = tyres.First(e => e.Id == result.TyreId),
+                    Tyre = Tyres.First(e => e.Id == result.TyreId),
                 };
 
             if (Model.Season.HasRaceClasses)
@@ -318,7 +304,7 @@
 
         foreach (var groupedPracticeScores in practiceScores.GroupBy(e => e.Index))
         {
-            practiceSessions.Add(new PracticeSession
+            PracticeSessions.Add(new PracticeSession
                 {
                     SessionIndex = groupedPracticeScores.Key,
                     IsFinished = true,
@@ -373,7 +359,7 @@
                 }
             }
 
-            qualySessions.Add(qSession);
+            QualySessions.Add(qSession);
         }
 
         qualifyingLoaded = true;
@@ -384,8 +370,8 @@
         if (raceLoaded)
             return;
 
-        lapScores = await _raceService.GetLapScores(RaceId);
-        occurrences = await _raceService.GetRaceOccurrences(RaceId);
+        LapScores = await _raceService.GetLapScores(RaceId);
+        RaceOccurrences = await _raceService.GetRaceOccurrences(RaceId);
 
         raceLoaded = true;
     }
@@ -395,7 +381,7 @@
         var parameters = new DialogParameters 
             {
                 ["ResultId"] = resultId,
-                ["Tyres"] = tyres
+                ["Tyres"] = Tyres
                     .Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false))
                     .ToList(),
             };
@@ -416,8 +402,8 @@
 
     private void AddNewPracticeSession()
     {
-        var nextSession = practiceSessions.Count() + 1;
-        practiceSessions.Add(new PracticeSession
+        var nextSession = PracticeSessions.Count() + 1;
+        PracticeSessions.Add(new PracticeSession
             {
                 SessionIndex = nextSession,
                 IsFinished = false,
@@ -427,7 +413,7 @@
 
     private async Task PersistPractice(int practiceIndex)
     {
-        var practiceSession = practiceSessions.First(e => e.SessionIndex == practiceIndex);
+        var practiceSession = PracticeSessions.First(e => e.SessionIndex == practiceIndex);
         var gridResults = practiceSession.SessionScores.ToDictionary(e => e.ResultId, e => e.Position);
 
         await _raceService.PersistPracticeScores(practiceSession.SessionScores);
@@ -448,7 +434,7 @@
     private async Task PersistQualifying(int qualyIndex)
     {
         var qSessionCount = Model.Season.QualifyingFormat.SessionCount();
-        var qualySession = qualySessions.First(e => e.SessionIndex == qualyIndex);
+        var qualySession = QualySessions.First(e => e.SessionIndex == qualyIndex);
 
         if (!qualySession.SessionScores.Any())
             throw new InvalidOperationException("No score data to persist");
@@ -458,12 +444,12 @@
         if (qSessionCount == qualyIndex)
         {
             var finalQualyPosition = new Dictionary<long, (int, int)>();
-            var qualySessionScores = qualySessions.SelectMany(e => e.SessionScores).ToList();
+            var qualySessionScores = QualySessions.SelectMany(e => e.SessionScores).ToList();
 
             foreach (var seasonGroup in Model.ResultsGroupedByRaceClass())
             {
                 int positionIndexer = 0;
-                var gridResults = qualySessions
+                var gridResults = QualySessions
                     .SelectMany(e => e.SessionScores)
                     .Where(e => seasonGroup.Value.Contains(e.ResultId))
                     .GroupBy(e => e.ResultId)
@@ -508,7 +494,7 @@
                 matchingDriver.AbsolutePosition = res.AbsolutePosition;
             }
 
-            var nextSession = qualySessions.First(e => e.SessionIndex == (1 + qualyIndex));
+            var nextSession = QualySessions.First(e => e.SessionIndex == (1 + qualyIndex));
             nextSession.IsDisabled = false;
 
             // Navigate to the next qualifying session
@@ -517,20 +503,20 @@
             //    _qualyTabs.ActivatePanel($"q_{nextQ}");
         }
 
-        if (qualyIndex == 1 && practiceLoaded && practiceSessions.Any())
+        if (qualyIndex == 1 && practiceLoaded && PracticeSessions.Any())
         {
             // Removes the last added practice session
-            var latestPracticeSession = practiceSessions.MaxBy(e => e.SessionIndex);
+            var latestPracticeSession = PracticeSessions.MaxBy(e => e.SessionIndex);
             if (latestPracticeSession != null)
-                practiceSessions.Remove(latestPracticeSession);
+                PracticeSessions.Remove(latestPracticeSession);
         }
     }
 
     private async Task PersistRace()
     {
-        if (!lapScores.Any() || !occurrences.Any())
+        if (!LapScores.Any() || !RaceOccurrences.Any())
         {
-            _snackbar.Add("good god, saving a race for which we have NO data. How wrong!", Severity.Error);
+            _snackbar.Add("Good god, saving a race for which we have NO data. That's so wrong!", Severity.Error);
             return;
         }
 
@@ -543,25 +529,15 @@
             .Select(e => e.MapToScoredPoints(allotments, Model.Season.PointsPole, Model.Season.PointsFastestLap))
             .ToList();
 
-        await _raceService.PersistLapScores(lapScores);
-        await _raceService.PersistOccurrences(occurrences);
+        await _raceService.PersistLapScores(LapScores);
+        await _raceService.PersistOccurrences(RaceOccurrences);
         await _raceService.FinishRace(RaceId, finalResults, scoredPoints);
 
         if (Model.League.Options.HasFlag(LeagueOptions.EnablePenalty))
         {
             await _seasonService.CheckPenalties(finalResults);
-
-            var nextRaceId = await _raceService.GetRaceIdByRound(Model.Season.Id, (1 + Model.Race.Round));
-            if (nextRaceId.HasValue)
-            {
-                var nextRacePenalties = await _raceService.GetRacePenalties(nextRaceId.Value);
-                if (nextRacePenalties?.Any() ?? false)
-                    upcomingPenalties.AddRange(nextRacePenalties);
-            }
         }
 
         Model.Race.State = State.Closed;
     }
-
-    private void GoToCommon(string path) => _nav.NavigateTo(path);
 }

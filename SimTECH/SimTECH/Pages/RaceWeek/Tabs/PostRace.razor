@@ -1,4 +1,7 @@
-﻿@if (!loading)
+﻿@inject RaceService _raceService
+@inject NavigationManager _nav
+
+@if (!Loading)
 {
     <MudGrid Spacing="1" id="postrace-container">
         <MudItem xs=12>
@@ -180,13 +183,17 @@
 
 @code {
     [CascadingParameter] public RaweCeekModel Model { get; set; }
-    [Parameter] public IEnumerable<GivenPenalty> UpcomingPenalties { get; set; } = Enumerable.Empty<GivenPenalty>();
-    [Parameter] public EventCallback<string> OnNavigate { get; set; }
 
     private List<DriverPenalty> DriverPenalties { get; set; } = new();
+
     private Dictionary<int, int> Allotments { get; set; }
+
     private List<RaceClass> RaceClasses { get; set; } = new();
-    private bool loading;
+
+    private List<GivenPenalty> UpcomingPenalties { get; set; } = new();
+
+    private bool Loading { get; set; }
+
     private int lowestScoring;
 
     private TableGroupDefinition<RaweCeekDriver>? raceClassDefinition;
@@ -215,13 +222,24 @@
         }
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        var nextRaceId = await _raceService.GetRaceIdByRound(Model.Season.Id, (1 + Model.Race.Round));
+        if (nextRaceId.HasValue)
+        {
+            var nextRacePenalties = await _raceService.GetRacePenalties(nextRaceId.Value);
+            if (nextRacePenalties?.Any() ?? false)
+                UpcomingPenalties = nextRacePenalties;
+        }
+    }
+
     protected override void OnParametersSet()
     {
-        loading = true;
+        Loading = true;
 
         BuildDriverPenalties();
 
-        loading = false;
+        Loading = false;
     }
 
     private int ReadScoredResult(RaweCeekDriver result)
@@ -270,5 +288,5 @@
         }
     }
 
-    private async Task GoToOverview() => await OnNavigate.InvokeAsync($"overview/{Model.Season.Id}/2");
+    private void GoToOverview() => _nav.NavigateTo($"overview/{Model.Season.Id}/2");
 }
