@@ -67,15 +67,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        League = await _leagueService.GetLeagueById(LeagueId);
-        Contracts = await _contractService.GetLeagueContracts(League.Id);
-
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: "/"),
             new BreadcrumbItem("Leagues", href: "leagues"),
             new BreadcrumbItem("Contract manager", href: "contractmanager", disabled: true),
         });
+
+        League = await _leagueService.GetLeagueById(LeagueId);
+        Contracts = await _contractService.GetLeagueContracts(League.Id);
 
         await HandleSettingLoad();
     }

@@ -1,5 +1,6 @@
 ﻿@page "/raceweek/{RaceId:long}"
 
+@using MudExtensions.Enums
 @using SimTECH.Pages.RaceWeek.Components
 @using SimTECH.Pages.RaceWeek.Dialogs
 @using SimTECH.Pages.RaceWeek.Tabs
@@ -24,8 +25,9 @@
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudPaper Elevation="100">
-        @if (!Loading)
-        {
+        <MudLoading Loading="@Loading"
+                    LoaderType="LoaderType.Circular"
+                    Text="Have some patience, mate. Preparing the goods for ya.">
             <CascadingValue Value="@Model">
                 <MudTabs Centered="true" Outlined="true">
                     <MudTabPanel Text="Raceweek">
@@ -34,7 +36,7 @@
                                  OnOpenTyrePicker="PickRaceTyre" />
                     </MudTabPanel>
                     <MudTabPanel Text="Practice" OnClick="OnOpenPractice">
-                        @if (practiceLoaded)
+                        @if (PracticeLoaded)
                         {
                             @if (PracticeSessions?.Any() == true)
                             {
@@ -58,7 +60,7 @@
                         }
                     </MudTabPanel>
                     <MudTabPanel Text="Qualifying" OnClick="OnOpenQualifying">
-                        @if (qualifyingLoaded)
+                        @if (QualifyingLoaded)
                         {
                             <MudTabs @ref="_qualyTabs" Centered="true" Outlined="true">
                                 @foreach (var session in QualySessions)
@@ -74,7 +76,7 @@
                         }
                     </MudTabPanel>
                     <MudTabPanel Text="Race" Disabled="@raceDisabled" OnClick="OnOpenRace">
-                        @if (raceLoaded)
+                        @if (RaceLoaded)
                         {
                             <Race LapScores="@LapScores"
                                   Occurrences="@RaceOccurrences"
@@ -88,7 +90,7 @@
                     </MudTabPanel>
                 </MudTabs>
             </CascadingValue>
-        }
+        </MudLoading>
     </MudPaper>
 </MudContainer>
 
@@ -111,9 +113,9 @@
     private MudTabs? _qualyTabs;
 
     private bool Loading { get; set; } = true;
-    private bool practiceLoaded;
-    private bool qualifyingLoaded;
-    private bool raceLoaded;
+    private bool PracticeLoaded;
+    private bool QualifyingLoaded;
+    private bool RaceLoaded;
 
     private bool raceDisabled => Model.Race.State != State.Advanced && Model.Race.State != State.Closed;
     //bool raceDisabled => Model.Race.State is not State.Advanced and not State.Closed; // works too, which is prettier?
@@ -297,7 +299,7 @@
 
     private async Task OnOpenPractice()
     {
-        if (practiceLoaded)
+        if (PracticeLoaded)
             return;
 
         var practiceScores = await _raceService.GetPracticeScores(RaceId);
@@ -315,12 +317,12 @@
         if (Model.Race.State != State.Advanced && Model.Race.State != State.Closed)
             AddNewPracticeSession();
 
-        practiceLoaded = true;
+        PracticeLoaded = true;
     }
 
     private async Task OnOpenQualifying()
     {
-        if (qualifyingLoaded)
+        if (QualifyingLoaded)
             return;
 
         var qualyScores = await _raceService.GetQualifyingScores(RaceId);
@@ -362,18 +364,18 @@
             QualySessions.Add(qSession);
         }
 
-        qualifyingLoaded = true;
+        QualifyingLoaded = true;
     }
 
     private async Task OnOpenRace()
     {
-        if (raceLoaded)
+        if (RaceLoaded)
             return;
 
         LapScores = await _raceService.GetLapScores(RaceId);
         RaceOccurrences = await _raceService.GetRaceOccurrences(RaceId);
 
-        raceLoaded = true;
+        RaceLoaded = true;
     }
 
     private async Task PickRaceTyre(long resultId)
@@ -505,7 +507,7 @@
             //    _qualyTabs.ActivatePanel($"q_{nextQ}");
         }
 
-        if (qualyIndex == 1 && practiceLoaded && PracticeSessions.Any())
+        if (qualyIndex == 1 && PracticeLoaded && PracticeSessions.Any())
         {
             // Removes the last added practice session
             var latestPracticeSession = PracticeSessions.MaxBy(e => e.SessionIndex);

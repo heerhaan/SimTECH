@@ -29,7 +29,7 @@
 <PageTitle>Overview</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    <MudLoading @bind-Loading="loading"
+    <MudLoading Loading="@loading"
                 LoaderType="MudExtensions.Enums.LoaderType.Circular"
                 Text="Page is being loaded, some patience please. umu"
                 Class="loader">
@@ -87,11 +87,16 @@
 
     private int activeTabIndex;
     private int driverStatusMod;
-    private bool loading;
+    private bool loading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        loading = true;
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: $"overview/{SeasonId}", disabled: true),
+        });
 
         activeTabIndex = TabIndex;
 
@@ -114,13 +119,6 @@
 
         var currentLeague = Leagues.Find(e => e.Id == OverviewModel.Season.LeagueId);
         driverStatusMod = currentLeague?.DriverStatusPaceModifier ?? 0;
-
-        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
-        {
-            new BreadcrumbItem("Home", href: ""),
-            new BreadcrumbItem("Seasons", href: "seasons"),
-            new BreadcrumbItem("Overview", href: $"overview/{SeasonId}", disabled: true),
-        });
 
         loading = false;
     }

@@ -1,46 +1,52 @@
 ﻿@using SimTECH.Pages.RaceWeek.Components
 
-<MudContainer MaxWidth="MaxWidth.Large">
-    <div id="practice-table">
-        @if (!loading)
-        {
-            @if (practiceDrivers.Count == 0)
-            {
-                <div class="empty-page-container">
-                    <MudText>No practice data found</MudText>
-                </div>
-            }
-            else
-            {
-                <CommonSession Drivers="@practiceDrivers"
-                               AmountRuns="@amountRuns"
-                               HighestScore="@highestScore"
-                               LowestScore="@lowestScore"
-                               HasRaceClasses="@hasRaceClasses">
-                    <CountryFlag Code="@raceCountry" />
-                    <MudText Typo="Typo.h5">@raceName</MudText>
+@inject RaceService _raceService
 
-                    <MudSpacer />
+<MudLoading Loading="@loading"
+            LoaderType="MudExtensions.Enums.LoaderType.Circular"
+            Text="Gettin' some practice in getting this practice">
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <div id="practice-table">
+            @if (!loading)
+            {
+                @if (practiceDrivers.Count == 0)
+                {
+                    <div class="empty-page-container">
+                        <MudText>No practice data found</MudText>
+                    </div>
+                }
+                else
+                {
+                    <CommonSession Drivers="@practiceDrivers"
+                                   AmountRuns="@amountRuns"
+                                   HighestScore="@highestScore"
+                                   LowestScore="@lowestScore"
+                                   HasRaceClasses="@hasRaceClasses">
+                        <CountryFlag Code="@raceCountry" />
+                        <MudText Typo="Typo.h5">@raceName</MudText>
 
-                    <MudButtonGroup Variant="Variant.Text" Color="Color.Tertiary">
-                        <ScreenshotButton TargetId="practice-table"
-                                          Colour="Color.Tertiary"
-                                          IconSize="Size.Small"
-                                          PostFixIcon="true"
-                                          Class="btn-md" />
-                        @if (PracticeSession.IsFinished == false && advancedRuns != amountRuns)
-                        {
-                            <MudButton EndIcon="@IconCollection.ChevronsRight"
-                                       IconSize="Size.Small"
-                                       OnClick="Advance"
-                                       Class="btn-md">Advance</MudButton>
-                        }
-                    </MudButtonGroup>
-                </CommonSession>
+                        <MudSpacer />
+
+                        <MudButtonGroup Variant="Variant.Text" Color="Color.Tertiary">
+                            <ScreenshotButton TargetId="practice-table"
+                                              Colour="Color.Tertiary"
+                                              IconSize="Size.Small"
+                                              PostFixIcon="true"
+                                              Class="btn-md" />
+                            @if (PracticeSession.IsFinished == false && advancedRuns != amountRuns)
+                            {
+                                <MudButton EndIcon="@IconCollection.ChevronsRight"
+                                           IconSize="Size.Small"
+                                           OnClick="Advance"
+                                           Class="btn-md">Advance</MudButton>
+                            }
+                        </MudButtonGroup>
+                    </CommonSession>
+                }
             }
-        }
-    </div>
-</MudContainer>
+        </div>
+    </MudContainer>
+</MudLoading>
 
 @code {
     [CascadingParameter] public RaweCeekModel Model { get; set; }
