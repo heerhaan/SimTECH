@@ -378,12 +378,14 @@
 
     private async Task PickRaceTyre(long resultId)
     {
+        var availableTyres = Tyres
+            .Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false))
+            .ToList();
+
         var parameters = new DialogParameters 
             {
                 ["ResultId"] = resultId,
-                ["Tyres"] = Tyres
-                    .Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false))
-                    .ToList(),
+                ["Tyres"] = availableTyres,
             };
 
         var dialog = await _dialogService.ShowAsync<TyrePicker>("Set tyre", parameters);
