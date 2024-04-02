@@ -114,16 +114,26 @@
     private List<SeasonDriver> SeasonDrivers { get; set; }
     private List<DevelopmentRange> LeagueDevelopmentRanges { get; set; }
 
-    bool loading = true;
-    bool ranDevelop;
-    int currentYear;
-    int currentMinRange = 0;
-    int currentMaxRange = 0;
-    int lastCompletedRound = 0;
+    private bool loading = true;
+    private bool ranDevelop;
+    private int currentYear;
+    private int currentMinRange = 0;
+    private int currentMaxRange = 0;
+    private int lastCompletedRound = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        await RetrieveEntrants();
+        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
+        {
+            new BreadcrumbItem("Home", href: ""),
+            new BreadcrumbItem("Seasons", href: "seasons"),
+            new BreadcrumbItem("Overview", href: $"overview/{SeasonId}"),
+            new BreadcrumbItem("Development", href: $"developer/{SeasonId}", disabled: true),
+        });
+
+        SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
+        SeasonTeams = await _seasonTeamService.GetSeasonTeams(SeasonId);
+        SeasonDrivers = await _seasonDriverService.GetSeasonDrivers(SeasonId);
 
         var season = await _seasonService.GetSeasonById(SeasonId);
 
@@ -137,24 +147,9 @@
         if (races.Any(e => e.DateFinished != null))
             lastCompletedRound = races.Where(e => e.DateFinished != null).OrderByDescending(e => e.Round).FirstOrDefault()?.Round ?? 0;
 
-        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
-        {
-            new BreadcrumbItem("Home", href: ""),
-            new BreadcrumbItem("Seasons", href: "seasons"),
-            new BreadcrumbItem("Overview", href: $"overview/{SeasonId}"),
-            new BreadcrumbItem("Development", href: $"developer/{SeasonId}", disabled: true),
-        });
-
         LoadEntrants();
 
         loading = false;
-    }
-
-    private async Task RetrieveEntrants()
-    {
-        SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
-        SeasonTeams = await _seasonTeamService.GetSeasonTeams(SeasonId);
-        SeasonDrivers = await _seasonDriverService.GetSeasonDrivers(SeasonId);
     }
 
     private void LoadEntrants()
@@ -340,9 +335,7 @@
         {
             if (entrant.Min > entrant.Max)
             {
-                _snack.Add(
-                    "oi you cunt, a minimum should be less than the maximum. you better fix that shit first",
-                    Severity.Error);
+                _snack.Add("oi you cunt, a minimum should be less than the maximum. you better fix that shit first", Severity.Error);
                 return;
             }
 
@@ -355,7 +348,7 @@
             else if (entrant.New > entrant.ValueMaximumLimit)
                 entrant.New = entrant.ValueMaximumLimit;
 
-            // Reapply the change one more time in the case a min/max-limit was set
+            // Re-apply the change one more time in the case a min/max-limit was set
             entrant.Change = entrant.New - entrant.Old;
         }
 
@@ -378,16 +371,18 @@
         {
             case Entrant.Driver:
                 await _seasonDriverService.SaveDriverDevelopment(developedValues, DevelopModel.ActiveAspect);
+                SeasonDrivers = await _seasonDriverService.GetSeasonDrivers(SeasonId);
                 break;
             case Entrant.Team:
                 await _seasonTeamService.SaveTeamDevelopment(developedValues, DevelopModel.ActiveAspect);
+                SeasonTeams = await _seasonTeamService.GetSeasonTeams(SeasonId);
                 break;
             case Entrant.Engine:
                 await _seasonEngineService.SaveEngineDevelopment(developedValues, DevelopModel.ActiveAspect);
+                SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
                 break;
         }
 
-        await RetrieveEntrants();
         await _seasonService.SaveDevelopmentLog(CreateLog);
 
         LoadEntrants();
@@ -399,6 +394,7 @@
                 EntrantId = e.Id,
                 EntrantGroup = DevelopModel.ActiveEntrant,
                 DevelopedAspect = DevelopModel.ActiveAspect,
+                Initial = e.Old,
                 Change = e.Change,
                 AfterRound = lastCompletedRound,
                 SeasonId = SeasonId,

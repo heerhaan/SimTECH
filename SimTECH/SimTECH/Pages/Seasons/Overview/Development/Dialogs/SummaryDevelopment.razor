@@ -29,19 +29,19 @@
                 <MudPaper Elevation="15" Class="px-4 py-2">
                     @if (DriverSummary != null)
                     {
-                        <SummaryEntrantDisplay EntrantSummary="@DriverSummary" />
+                        <SummaryEntrantDisplay EntrantSummary="@DriverSummary" EntrantAspects="@DriverAspects" />
                     }
                 </MudPaper>
                 <MudPaper Elevation="15" Class="px-4 py-2">
                     <MudStack Justify="Justify.SpaceBetween" Class="pa-0">
                         @if (TeamSummary != null)
                         {
-                            <SummaryEntrantDisplay EntrantSummary="@TeamSummary" />
+                            <SummaryEntrantDisplay EntrantSummary="@TeamSummary" EntrantAspects="@TeamAspects" />
                         }
 
                         @if (EngineSummary != null)
                         {
-                            <SummaryEntrantDisplay EntrantSummary="@EngineSummary" />
+                            <SummaryEntrantDisplay EntrantSummary="@EngineSummary" EntrantAspects="@EngineAspects" />
                         }
                     </MudStack>
                 </MudPaper>
@@ -57,6 +57,10 @@
     [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
     [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
+
+    private static readonly Aspect[] DriverAspects = [Aspect.Skill, Aspect.Reliability, Aspect.Attack, Aspect.Defense];
+    private static readonly Aspect[] TeamAspects = [Aspect.BaseCar, Aspect.Reliability, Aspect.Aero, Aspect.Chassis, Aspect.Powertrain];
+    private static readonly Aspect[] EngineAspects = [Aspect.Engine, Aspect.Reliability];
 
     private DevelopSummary? DriverSummary;
     private DevelopSummary? TeamSummary;
@@ -129,13 +133,13 @@
             {
                 var lowest = allChanged.Select(e => e.Value.Item1).Min();
                 var highest = allChanged.Select(e => e.Value.Item1).Max();
+
                 minMaxPerAspect.Add(allChanged.Key, (lowest, highest));
             }
 
             var developedSummary = new DevelopSummary
                 {
                     EntrantGroup = entrantSummary.Key,
-                    Aspects = entrantLog[0].DevelopedAspects.Keys.ToArray(),
                     EntrantLogs = entrantLog,
                     MinMaxValues = minMaxPerAspect,
                 };
@@ -162,18 +166,30 @@
         if (matchingDriver == null)
             return null;
 
-        var developedAspects = logs
-            .GroupBy(e => e.DevelopedAspect)
-            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingDriver.RetrieveAspectValue(e.Key)));
+        var driverDeveloped = new Dictionary<Aspect, (int, int)>();
+
+        foreach (var asp in DriverAspects)
+        {
+            var valueChanged = logs.Where(e => e.DevelopedAspect == asp).Select(e => e.Change).Sum();
+            var actualValue = matchingDriver.RetrieveAspectValue(asp);
+
+            driverDeveloped.Add(asp, (valueChanged, actualValue));
+        }
+
+        // var developedAspects = logs
+        //     .GroupBy(e => e.DevelopedAspect)
+        //     .ToDictionary(e =>
+        //         e.Key,
+        //         e => (e.Select(x => x.Change).Sum(), matchingDriver.RetrieveAspectValue(e.Key)));
 
         return new EntrantDevelopLog
-        {
-            EntrantId = driverId,
-            Entrant = Entrant.Driver,
-            Name = matchingDriver.Driver.FullName,
-            Nationality = matchingDriver.Driver.Country,
-            DevelopedAspects = developedAspects,
-        };
+            {
+                EntrantId = driverId,
+                Entrant = Entrant.Driver,
+                Name = matchingDriver.Driver.FullName,
+                Nationality = matchingDriver.Driver.Country,
+                DevelopedAspects = driverDeveloped,
+            };
     }
 
     private EntrantDevelopLog? CreateTeamLog(long teamId, DevelopmentLog[] logs)
@@ -183,18 +199,24 @@
         if (matchingTeam == null)
             return null;
 
-        var developedAspects = logs
-            .GroupBy(e => e.DevelopedAspect)
-            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingTeam.RetrieveAspectValue(e.Key)));
+        var teamDeveloped = new Dictionary<Aspect, (int, int)>();
+
+        foreach (var asp in TeamAspects)
+        {
+            var valueChanged = logs.Where(e => e.DevelopedAspect == asp).Select(e => e.Change).Sum();
+            var actualValue = matchingTeam.RetrieveAspectValue(asp);
+
+            teamDeveloped.Add(asp, (valueChanged, actualValue));
+        }
 
         return new EntrantDevelopLog
-        {
-            EntrantId = teamId,
-            Entrant = Entrant.Team,
-            Name = matchingTeam.Name,
-            Nationality = matchingTeam.Team.Country,
-            DevelopedAspects = developedAspects,
-        };
+            {
+                EntrantId = teamId,
+                Entrant = Entrant.Team,
+                Name = matchingTeam.Name,
+                Nationality = matchingTeam.Team.Country,
+                DevelopedAspects = teamDeveloped,
+            };
     }
 
     private EntrantDevelopLog? CreateEngineLog(long engineId, DevelopmentLog[] logs)
@@ -204,16 +226,22 @@
         if (matchingEngine == null)
             return null;
 
-        var developedAspects = logs
-            .GroupBy(e => e.DevelopedAspect)
-            .ToDictionary(e => e.Key, e => (e.Select(x => x.Change).Sum(), matchingEngine.RetrieveAspectValue(e.Key)));
+        var engineDeveloped = new Dictionary<Aspect, (int, int)>();
+
+        foreach (var asp in EngineAspects)
+        {
+            var valueChanged = logs.Where(e => e.DevelopedAspect == asp).Select(e => e.Change).Sum();
+            var actualValue = matchingEngine.RetrieveAspectValue(asp);
+
+            engineDeveloped.Add(asp, (valueChanged, actualValue));
+        }
 
         return new EntrantDevelopLog
-        {
-            EntrantId = engineId,
-            Entrant = Entrant.Engine,
-            Name = matchingEngine.Name,
-            DevelopedAspects = developedAspects,
-        };
+            {
+                EntrantId = engineId,
+                Entrant = Entrant.Engine,
+                Name = matchingEngine.Name,
+                DevelopedAspects = engineDeveloped,
+            };
     }
 }

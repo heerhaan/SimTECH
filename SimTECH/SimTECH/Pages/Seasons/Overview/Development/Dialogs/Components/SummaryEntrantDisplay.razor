@@ -14,28 +14,37 @@
     </ToolBarContent>
     <HeaderContent>
         <MudTd>Name</MudTd>
-        @foreach (var (aspect, i) in EntrantSummary.Aspects.OrderBy(e => e.GetReadableAspect()).WithIndex())
+        @foreach (var (asp, index) in EntrantAspects.WithIndex())
         {
-            <MudTh Class="@($"overflow-hider {InspectTheWheel(i)}")">
-                @aspect.GetReadableAspect()
+            <MudTh Class="@($"overflow-hider {InspectTheWheel(index)}")">
+                @asp.GetReadableAspect()
             </MudTh>
         }
     </HeaderContent>
     <RowTemplate>
         <MudTd>@context.Name</MudTd>
-        @foreach (var (dev, i) in context.DevelopedAspects.OrderBy(e => e.Key.GetReadableAspect()).WithIndex())
+        @foreach (var (asp, index) in EntrantAspects.WithIndex())
         {
-            <MudTd Class="@(InspectTheWheel(i))">
-                <MudStack Row="true" Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
-                    <MudText Typo="Typo.caption" Style="color:white !important">@(dev.Value.Item2 - dev.Value.Item1)</MudText>
-                    <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
-                    <GradientColour Min="@EntrantSummary.MinMaxValues[dev.Key].Item1"
-                                    Max="@EntrantSummary.MinMaxValues[dev.Key].Item2"
-                                    Value="@dev.Value.Item1">
-                        <MudText Typo="Typo.caption">@dev.Value.Item1</MudText>
+            <MudTd Class="@(InspectTheWheel(index))">
+                @{
+                    var developed = context.DevelopedAspects[asp];
+                }
+                <MudStack Row="true"
+                          Spacing="0"
+                          AlignItems="AlignItems.Center"
+                          Justify="Justify.Center">
+                    <MudText Typo="Typo.caption"
+                             Style="color:white !important">
+                        @(developed.Item2 - developed.Item1)
+                    </MudText>
+                    <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small" />
+                    <GradientColour Min="@EntrantSummary.MinMaxValues[asp].Item1"
+                                    Max="@EntrantSummary.MinMaxValues[asp].Item2"
+                                    Value="@developed.Item1">
+                        <MudText Typo="Typo.caption">@developed.Item1</MudText>
                     </GradientColour>
-                    <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small"></MudIcon>
-                    <MudText Typo="Typo.caption" Style="color:white !important">@dev.Value.Item2</MudText>
+                    <MudIcon Icon="@IconCollection.ArrowNarrowRight" Size="Size.Small" />
+                    <MudText Typo="Typo.caption" Style="color:white !important">@developed.Item2</MudText>
                 </MudStack>
             </MudTd>
         }
@@ -43,7 +52,11 @@
 </MudTable>
 
 @code {
-    [Parameter] public DevelopSummary EntrantSummary { get; set; }
+    [Parameter]
+    public DevelopSummary EntrantSummary { get; set; }
+
+    [Parameter]
+    public Aspect[] EntrantAspects { get; set; }
 
     private static readonly string[] cycleWheel = new[]
     {

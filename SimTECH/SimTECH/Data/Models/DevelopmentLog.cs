@@ -8,6 +8,7 @@ namespace SimTECH.Data.Models
         public Entrant EntrantGroup { get; set; }
         public Aspect DevelopedAspect { get; set; }
 
+        public int Initial { get; set; }
         public int Change { get; set; }
 
         public int AfterRound { get; set; }
