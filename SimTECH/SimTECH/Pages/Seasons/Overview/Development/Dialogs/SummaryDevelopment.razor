@@ -14,12 +14,21 @@
                 </MudButtonGroup>
             </MudStack>
             <div class="d-flex flex-row align-center justify-space-between">
-                <MudText Typo="Typo.body2" Color="Color.Info">OLD - CHANGE - NEW</MudText>
+                <MudStack Row="true"
+                          Spacing="0"
+                          AlignItems="AlignItems.Center"
+                          Justify="Justify.Center">
+                    <MudText Typo="Typo.caption" Color="Color.Info">OLD</MudText>
+                    <MudIcon Icon="@IconCollection.ArrowNarrowRight" Color="Color.Info" Size="Size.Small" />
+                    <MudText Typo="Typo.caption" Color="Color.Info">CHANGE</MudText>
+                    <MudIcon Icon="@IconCollection.ArrowNarrowRight" Color="Color.Info" Size="Size.Small" />
+                    <MudText Typo="Typo.caption" Color="Color.Info">NEW</MudText>
+                </MudStack>
                 <MudChipSet SelectedChipChanged="SelectRound" Mandatory="true">
-                    <MudChip Default="true">All</MudChip>
+                    <MudChip Default="true" Value="null">All</MudChip>
                     @foreach (var round in Rounds)
                     {
-                        <MudChip Value="@round">@round</MudChip>
+                        <MudChip Value="@round" Color="Color.Secondary">@round</MudChip>
                     }
                 </MudChipSet>
             </div>

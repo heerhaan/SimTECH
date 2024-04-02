@@ -65,14 +65,18 @@
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
-    <MudMainContent id="sim-page-content">
-        @Body
-    </MudMainContent>
+    <CascadingValue Value="@SetGuideItem" IsFixed="true">
+        <MudMainContent id="sim-page-content">
+            @Body
+        </MudMainContent>
+    </CascadingValue>
 </MudLayout>
 
 @code {
     [CascadingParameter(Name = "PageType")]
     public Type PageType { get; set; }
+
+    private EventCallback<Type> SetGuideItem => EventCallback.Factory.Create(this, (Type type) => SetGuideContent(type));
 
     private MudTheme Theme { get; set; } = CustomThemes.GalacticTheme;
 
@@ -120,7 +124,7 @@
                 // }
 
                 Theme = SimThemes[storedTheme.Value];
-                
+
                 StateHasChanged();
             }
         }
@@ -151,5 +155,14 @@
     {
         if (isHelpOpen)
             isHelpOpen = false;
+    }
+
+    private void SetGuideContent(Type componentType)
+    {
+        if (HelpContent == componentType)
+            return;
+
+        isHelpOpen = false;
+        HelpContent = GuideBookProvider.GetHelpContentForPage(componentType);
     }
 }

@@ -16,6 +16,8 @@ public static class GuideBookProvider
         { typeof(Pages.Leagues.Index), typeof(LeagueTopic) },
         { typeof(Pages.Manufacturers.Index), typeof(ManufacturerTopic) },
         { typeof(Pages.Seasons.Index), typeof(SeasonTopic) },
+        { typeof(Pages.RaceWeek.Index), typeof(RaceweekTopic) },
+        { typeof(Pages.RaceWeek.Tabs.Race), typeof(TestTopic) },
         { typeof(Pages.Teams.Index), typeof(TeamTopic) },
         { typeof(Pages.Tracks.Index), typeof(TrackTopic) },
         { typeof(Pages.Traits.Index), typeof(TraitTopic) },

@@ -10,7 +10,10 @@
     <MudPaper Elevation="25" MinHeight="60px" Width="100%">
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
             <div style="width:30%">
-                <MudMenu Label="Charts" Icon="@Icons.Material.Outlined.InsertChart" Color="Color.Secondary" Variant="Variant.Text">
+                <MudMenu Label="Charts"
+                         Icon="@Icons.Material.Outlined.InsertChart"
+                         Color="Color.Secondary"
+                         Variant="Variant.Text">
                     <MudMenuItem OnClick="ShowGapperChart">Gap-to-leader</MudMenuItem>
                     <MudMenuItem OnClick="ShowPositionChart">Position-progression</MudMenuItem>
                 </MudMenu>
@@ -249,7 +252,7 @@
 
                 <MudText Typo="Typo.button">Next REL</MudText>
                 <MudChip Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                    @activeReliabilityCheck.ToString()
+                    Next REL @activeReliabilityCheck.ToString()
                 </MudChip>
             </MudStack>
         </MudPaper>
@@ -257,6 +260,7 @@
 }
 
 @code {
+    [CascadingParameter] public EventCallback<Type> SetGuideItem { get; set; }
     [CascadingParameter] public RaweCeekModel Model { get; set; }
 
     [Parameter] public List<LapScore> LapScores { get; set; } = new();
@@ -264,6 +268,11 @@
     [Parameter] public IEnumerable<Tyre> Tyres { get; set; } = Enumerable.Empty<Tyre>();
     [Parameter] public SimConfig Config { get; set; } = new();
     [Parameter] public EventCallback OnFinish { get; set; } = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await SetGuideItem.InvokeAsync(typeof(Pages.RaceWeek.Tabs.Race));
+    }
 
     private static readonly Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
     private static readonly RacerEvent[] signalEvents =
