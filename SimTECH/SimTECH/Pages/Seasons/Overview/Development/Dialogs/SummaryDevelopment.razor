@@ -96,9 +96,7 @@
 
     private void BuildSummaries()
     {
-        foreach (var entrantSummary in DevelopmentLog
-            .Where(e => SelectedRound == null || e.AfterRound == SelectedRound.Value)
-            .GroupBy(e => e.EntrantGroup))
+        foreach (var entrantSummary in DevelopmentLog.GroupBy(e => e.EntrantGroup))
         {
             var entrantLog = new List<EntrantDevelopLog>();
 
@@ -106,7 +104,10 @@
             foreach (var developed in entrantSummary.ToArray().GroupBy(e => e.EntrantId))
             {
                 EntrantDevelopLog? currentLog;
-                var developedLogs = developed.ToArray();
+
+                var developedLogs = developed
+                    .Where(e => SelectedRound == null || e.AfterRound == SelectedRound.Value)
+                    .ToArray();
 
                 switch (entrantSummary.Key)
                 {
