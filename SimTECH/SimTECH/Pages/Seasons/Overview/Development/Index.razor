@@ -23,7 +23,7 @@
                     <MudText Typo="Typo.h3">Entrant development</MudText>
                 </MudPaper>
             </MudItem>
-            @if (!loading)
+            @if (!Loading)
             {
                 <MudItem xs="3">
                     <MudPaper Class="pa-2">
@@ -79,7 +79,7 @@
                             <MudText Typo="Typo.h5">@DevelopModel.ActiveAspect.GetReadableAspect()</MudText>
                             <MudSpacer />
                             <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Text">
-                                @if (ranDevelop)
+                                @if (HasDeveloped)
                                 {
                                     <MudButton StartIcon="@Icons.Material.Filled.Save"
                                                IconSize="Size.Small"
@@ -114,8 +114,9 @@
     private List<SeasonDriver> SeasonDrivers { get; set; }
     private List<DevelopmentRange> LeagueDevelopmentRanges { get; set; }
 
-    private bool loading = true;
-    private bool ranDevelop;
+    private bool Loading { get; set; } = true;
+    private bool HasDeveloped { get; set; }
+
     private int currentYear;
     private int currentMinRange = 0;
     private int currentMaxRange = 0;
@@ -149,12 +150,12 @@
 
         LoadEntrants();
 
-        loading = false;
+        Loading = false;
     }
 
     private void LoadEntrants()
     {
-        ranDevelop = false;
+        HasDeveloped = false;
 
         switch (DevelopModel.ActiveEntrant)
         {
@@ -359,7 +360,7 @@
             DevelopModel.MinChange = allChanges.Min();
             DevelopModel.MaxChange = allChanges.Max();
 
-            ranDevelop = true;
+            HasDeveloped = true;
         }
     }
 
@@ -383,23 +384,23 @@
                 break;
         }
 
-        await _seasonService.SaveDevelopmentLog(CreateLog);
+        var developLogs = DevelopedEntrants.Select(e =>
+            new DevelopmentLog
+                {
+                    EntrantId = e.Id,
+                    EntrantGroup = DevelopModel.ActiveEntrant,
+                    DevelopedAspect = DevelopModel.ActiveAspect,
+                    Initial = e.Old,
+                    Change = e.Change,
+                    AfterRound = lastCompletedRound,
+                    SeasonId = SeasonId,
+                })
+            .ToList();
+
+        await _seasonService.SaveDevelopmentLog(developLogs);
 
         LoadEntrants();
     }
-
-    private List<DevelopmentLog> CreateLog => DevelopedEntrants.Select(e =>
-        new DevelopmentLog
-            {
-                EntrantId = e.Id,
-                EntrantGroup = DevelopModel.ActiveEntrant,
-                DevelopedAspect = DevelopModel.ActiveAspect,
-                //Initial = e.Old,
-                Change = e.Change,
-                AfterRound = lastCompletedRound,
-                SeasonId = SeasonId,
-            })
-        .ToList();
 
     private async Task ShowWeightedDevelopmentRanges()
     {
