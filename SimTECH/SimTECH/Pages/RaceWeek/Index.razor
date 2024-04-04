@@ -242,7 +242,7 @@
                     Overtaken = result.Overtaken,
                     Defended = result.Defended,
 
-                    TraitNames = driverTraits.Select(e => e.Name).ToList(),
+                    TraitNames = driverTraits.Where(e => e.Type != Entrant.Track).Select(e => e.Name).ToList(),
 
                     Engine = engine.Engine,
                     Incident = incidents.FirstOrDefault(e => e.Id == result.IncidentId.GetValueOrDefault()),
