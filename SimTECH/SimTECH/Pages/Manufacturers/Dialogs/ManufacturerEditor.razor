@@ -8,21 +8,21 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudTextField T="string" @bind-Value="model.Name" Label="Name" Class="field-md" />
+        <MudTextField T="string" @bind-Value="Model.Name" Label="Name" Class="field-md" />
 
         <MudStack Row="true" Spacing="4">
-            <MudColorPicker @bind-Text="model.Colour" Label="Colour" Placeholder="Select colour" />
-            <MudColorPicker @bind-Text="model.Accent" Label="Accent" Placeholder="Select accent" />
+            <MudColorPicker @bind-Text="Model.Colour" Label="Colour" Placeholder="Select colour" />
+            <MudColorPicker @bind-Text="Model.Accent" Label="Accent" Placeholder="Select accent" />
         </MudStack>
 
-        <MudNumericField T="int" @bind-Value="model.Pace" Label="Life Bonus" Class="field-sm" />
+        <MudNumericField T="int" @bind-Value="Model.Pace" Label="Life Bonus" Class="field-sm" />
 
         <MudStack Row="true" Spacing="4">
-            <MudNumericField T="int" @bind-Value="model.WearMin" Label="Minimum wear" />
-            <MudNumericField T="int" @bind-Value="model.WearMax" Label="Maximum wear" />
+            <MudNumericField T="int" @bind-Value="Model.WearMin" Label="Minimum wear" />
+            <MudNumericField T="int" @bind-Value="Model.WearMax" Label="Maximum wear" />
         </MudStack>
 
-        <PreviewColourMix Colour="@model.Colour" Accent="@model.Accent" Text="@model.Name" />
+        <PreviewColourMix Colour="@Model.Colour" Accent="@Model.Accent" Text="@Model.Name" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -34,18 +34,18 @@
     [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
     [Parameter] public Manufacturer? Manufacturer { get; set; }
 
-    EditManufacturerModel model;
+    private EditManufacturerModel Model { get; set; }
 
     protected override void OnInitialized()
     {
-        model = new EditManufacturerModel(Manufacturer);
+        Model = new EditManufacturerModel(Manufacturer);
     }
 
     private void Submit()
     {
-        if (model.IsDirty)
+        if (Model.IsDirty)
         {
-            EditDialog?.Close(DialogResult.Ok(model.Record));
+            EditDialog?.Close(DialogResult.Ok(Model.Record));
         }
     }
 

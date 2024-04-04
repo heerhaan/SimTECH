@@ -6,13 +6,20 @@
         <MudForm Model="@Model">
             <MudTextField T="string" @bind-Value="Model.Name" Label="Name" />
 
+            <MudStack Row="true" Spacing="4">
+                <MudColorPicker @bind-Text="Model.Colour" Label="Colour" Placeholder="Select colour" />
+                <MudColorPicker @bind-Text="Model.Accent" Label="Accent" Placeholder="Select accent" />
+            </MudStack>
+
             <MudText Typo="Typo.subtitle1">Toggles</MudText>
             <MudDivider />
-            <MudSwitchM3 @bind-Checked="Model.Mark"
-                         Label="Mark"
+            <MudSwitchM3 @bind-Value="Model.Mark"
+                         Label="Enable underscore marker"
                          Color="Color.Secondary"
                          ThumbIcon="@Icons.Material.Filled.Done"
                          ThumbOffIcon="@Icons.Material.Filled.Close" />
+
+            <PreviewColourMix Colour="@Model.Colour" Accent="@Model.Accent" Text="@Model.Name" />
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -26,7 +33,7 @@
 
     [Parameter] public Engine? Engine { get; set; }
 
-    private EditEngineModel Model;
+    private EditEngineModel Model { get; set; }
 
     protected override void OnInitialized()
     {

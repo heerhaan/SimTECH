@@ -14,7 +14,7 @@ public class SeasonEngineService(IDbContextFactory<SimTechDbContext> factory)
     {
         using var context = _dbFactory.CreateDbContext();
 
-        return await context.SeasonEngine.Where(e => e.SeasonId == seasonId).ToListAsync();
+        return await context.SeasonEngine.Include(e => e.Engine).Where(e => e.SeasonId == seasonId).ToListAsync();
     }
 
     public async Task<List<PreviousEntrantSetup<SeasonEngine>>> PreviousEngineSetups(long engineId)

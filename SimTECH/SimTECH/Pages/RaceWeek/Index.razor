@@ -113,9 +113,9 @@
     private MudTabs? _qualyTabs;
 
     private bool Loading { get; set; } = true;
-    private bool PracticeLoaded;
-    private bool QualifyingLoaded;
-    private bool RaceLoaded;
+    private bool PracticeLoaded { get; set; }
+    private bool QualifyingLoaded { get; set; }
+    private bool RaceLoaded { get; set; }
 
     private bool raceDisabled => Model.Race.State != State.Advanced && Model.Race.State != State.Closed;
     //bool raceDisabled => Model.Race.State is not State.Advanced and not State.Closed; // works too, which is prettier?
@@ -144,8 +144,6 @@
         Model.Climate = await _climateService.GetClimateById(race.ClimateId);
         Model.GapMarge = config.GapMarge;
 
-        await LoadDrivers();
-
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -154,6 +152,8 @@
             new BreadcrumbItem("Overview", href: $"overview/{Model.Season.Id}"),
             new BreadcrumbItem("Raceweek", href: $"raceweek/{RaceId}", disabled: true),
         });
+
+        await LoadDrivers();
 
         Loading = false;
     }
@@ -242,6 +242,9 @@
                     Overtaken = result.Overtaken,
                     Defended = result.Defended,
 
+                    TraitNames = driverTraits.Select(e => e.Name).ToList(),
+
+                    Engine = engine.Engine,
                     Incident = incidents.FirstOrDefault(e => e.Id == result.IncidentId.GetValueOrDefault()),
                     Tyre = Tyres.First(e => e.Id == result.TyreId),
                 };

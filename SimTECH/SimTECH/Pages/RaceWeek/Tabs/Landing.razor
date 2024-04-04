@@ -12,7 +12,7 @@
                               Class="btn-md" />
         </MudPaper>
     </MudItem>
-    <MudItem xs="3">
+    <MudItem xs="2">
         <MudPaper Class="pa-4 mud-height-full">
             <MudText Typo="Typo.h5">Track information</MudText>
             <MudDivider />
@@ -28,19 +28,19 @@
                                      SecondaryText="Laps" />
                 <MudListItemExtended T="double"
                                      Text="@Model.Race.Track.AeroMod.ToString("F2")"
-                                     SecondaryText="Aero modifier" />
+                                     SecondaryText="Aero mod" />
                 <MudListItemExtended T="double"
                                      Text="@Model.Race.Track.ChassisMod.ToString("F2")"
-                                     SecondaryText="Chassis modifier" />
+                                     SecondaryText="Chassis mod" />
                 <MudListItemExtended T="double"
                                      Text="@Model.Race.Track.PowerMod.ToString("F2")"
-                                     SecondaryText="Powertrain modifier" />
+                                     SecondaryText="Powertrain mod" />
                 <MudListItemExtended T="double"
                                      Text="@Model.Race.Track.QualifyingMod.ToString("F2")"
-                                     SecondaryText="Qualifying modifier" />
+                                     SecondaryText="Qualifying mod" />
                 <MudListItemExtended T="double"
                                      Text="@Model.Race.Track.DefenseMod.ToString("F2")"
-                                     SecondaryText="Defense modifier" />
+                                     SecondaryText="Defense mod" />
             </MudListExtended>
 
             <MudText Typo="Typo.subtitle1">Circuit traits</MudText>
@@ -60,7 +60,7 @@
             }
         </MudPaper>
     </MudItem>
-    <MudItem xs="6">
+    <MudItem xs="7">
         <MudPaper Class="pa-4 mud-height-full">
             <MudText Typo="Typo.h5">Starting grid</MudText>
             <MudDivider />
@@ -72,11 +72,13 @@
                     <MudTh Style="max-width: 220px">Name</MudTh>
                     <MudTh Class="number-col">NO</MudTh>
                     <MudTh Style="max-width: 220px">Team</MudTh>
+                    <MudTh Class="number-col">ENG</MudTh>
                     @if (Model.Season.HasRaceClasses)
                     {
                         <MudTh Class="number-col">CLA</MudTh>
                     }
                     <MudTh Class="number-col">SUP</MudTh>
+                    <MudTh>Traits</MudTh>
                     <MudTh>Tyre</MudTh>
                 </HeaderContent>
                 <RowTemplate>
@@ -125,11 +127,16 @@
                     <MudTd Style="max-width: 220px">
                         <MudText Class="overflow-hider">@context.TeamName</MudText>
                     </MudTd>
+                    <MudTd Class="number-col">
+                        <NumberDisplay Colour="@context.Engine.Colour" Accent="@context.Engine.Accent" Typo="Typo.button">
+                            @context.Engine.Name.ElementAt(0)
+                        </NumberDisplay>
+                    </MudTd>
                     @if (Model.Season.HasRaceClasses)
                     {
                         <MudTd Class="number-col">
                             <SupplierDisplay Colour="@context.Class?.Colour">
-                                <MudText>@context.Class?.Tag</MudText>
+                                @context.Class?.Tag
                             </SupplierDisplay>
                         </MudTd>
                     }
@@ -137,6 +144,14 @@
                         <SupplierDisplay Colour="@context.ManufacturerColour" Accent="@context.ManufacturerAccent">
                             @context.ManufacturerName.ElementAt(0)
                         </SupplierDisplay>
+                    </MudTd>
+                    <MudTd>
+                        <div class="d-flex flex-column">
+                            @foreach (var trait in context.TraitNames)
+                            {
+                                <p class="tiny-text-list-item">@trait</p>
+                            }
+                        </div>
                     </MudTd>
                     <MudTd>
                         <div class="d-flex flex-row justify-center">
@@ -161,15 +176,19 @@
                 <MudText Typo="Typo.h5" Color="Color.Default">@Model.Climate.Terminology</MudText>
             </CustomIcon>
 
-            <MudText Typo="Typo.subtitle1">Horse</MudText>
+            <MudText Typo="Typo.subtitle1">Bob</MudText>
             <MudText Class="my-2">
-                He who reads is not a honse (perhapsment)
+                Praise be but also be aware
             </MudText>
 
             <MudText Typo="Typo.subtitle1">Help</MudText>
             <MudText Class="my-2" Typo="Typo.body2" Color="Color.Info">
                 <MudIcon Icon="@IconCollection.Target" Size="Size.Small" />
                 [TGT]: Target position
+            </MudText>
+
+            <MudText Class="my-2" Typo="Typo.body2" Color="Color.Warning">
+                Yes, I'm aware traits look ugly. Working on a good solution for this still.
             </MudText>
 
             <MudText Typo="Typo.subtitle1">Tyre suppliers</MudText>

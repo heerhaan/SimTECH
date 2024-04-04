@@ -3,6 +3,7 @@ using SimTECH.Data.Models;
 
 namespace SimTECH.PageModels.RaceWeek;
 
+// TODO: Refactor this model away, retrieve necessary objects per tab
 public class RaweCeekDriver
 {
     public long SeasonDriverId { get; set; }
@@ -55,6 +56,9 @@ public class RaweCeekDriver
     public int Overtaken { get; set; }
     public int Defended { get; set; }
 
+    public List<string> TraitNames { get; set; } = new();
+
+    public Engine Engine { get; set; }
     public Tyre Tyre { get; set; }
     public Incident? Incident { get; set; }
 

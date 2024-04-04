@@ -9,6 +9,8 @@ namespace SimTECH.Data.EditModels
 
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Colour { get; set; } = string.Empty;
+        public string Accent { get; set; } = string.Empty;
         public bool Mark { get; set; }
         public State State { get; set; }
 
@@ -16,12 +18,18 @@ namespace SimTECH.Data.EditModels
         {
             if (engine == null)
             {
+                Name = "NewEngine";
+                Colour = "#ffffffff";
+                Accent = "#000000ff";
+
                 _engine = new();
             }
             else
             {
                 Id = engine.Id;
                 Name = engine.Name;
+                Colour = engine.Colour;
+                Accent = engine.Accent;
                 State = engine.State;
                 Mark = engine.Mark;
 
@@ -34,6 +42,8 @@ namespace SimTECH.Data.EditModels
             {
                 Id = Id,
                 Name = Name,
+                Colour = Colour,
+                Accent = Accent,
                 Mark = Mark,
                 State = State.HasFlag(State.Concept) ? State.Active : State,
             };
