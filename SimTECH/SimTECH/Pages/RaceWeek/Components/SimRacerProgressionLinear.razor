@@ -24,7 +24,10 @@
             if (RaceDriver == null)
                 return new();
 
+            // Filters out the lapscore created on formation
             return RaceDriver.LapScores
+                .Where(e => e.Order > 0)
+                .ToList()
                 .ConvertAll(e => (NumberHelper.Percentage(1, CalculationCount), e.TyreColour ?? Globals.DefaultColour));
         }
     }

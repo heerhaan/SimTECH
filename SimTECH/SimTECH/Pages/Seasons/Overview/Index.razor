@@ -37,6 +37,7 @@
             <MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="@activeTabIndex">
                 <MudTabPanel Text="Overview">
                     <Landing NextRace="@NextRace"
+                             HasContractsEnabled="@ContractsEnabled"
                              OnStartSeason="StartSeason"
                              OnFinishSeason="FinishSeason"
                              OnClassSelected="SetActiveRaceClass" />
@@ -88,6 +89,7 @@
     private int activeTabIndex;
     private int driverStatusMod;
     private bool loading = true;
+    private bool ContractsEnabled { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,6 +121,7 @@
 
         var currentLeague = Leagues.Find(e => e.Id == OverviewModel.Season.LeagueId);
         driverStatusMod = currentLeague?.DriverStatusPaceModifier ?? 0;
+        ContractsEnabled = currentLeague?.Options.HasFlag(LeagueOptions.AllowContracting) ?? false;
 
         loading = false;
     }

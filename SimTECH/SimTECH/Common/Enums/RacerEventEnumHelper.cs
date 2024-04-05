@@ -18,6 +18,9 @@ public enum RacerEvent
     FastestLap = 256,
 }
 
+// Add Formation Lap?
+// FastestLap relatively unused?
+
 public static class RacerEventEnumHelper
 {
     public static readonly RacerEvent[] RacerEvents =

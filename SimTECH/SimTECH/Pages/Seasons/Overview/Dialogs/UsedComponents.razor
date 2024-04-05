@@ -14,7 +14,6 @@
                 <MudTable T="UsedParts"
                           Items="@UsedComponentParts"
                           Dense="true"
-                          Class="px-4"
                           id="used-components-table">
                     <HeaderContent>
                         <MudTh>
@@ -34,13 +33,15 @@
                         </MudTh>
                         @foreach (var incident in PenalizableIncidents)
                         {
-                            <MudTh Class="number-col pb-20 overflow-hider">
+                            <MudTh Class="incident-col overflow-hider">
                                 <MudBadge Content="@incident.Limit"
                                           Color="Color.Error"
                                           Origin="Origin.TopCenter"
                                           Overlap="true"
                                           Style="width:inherit">
-                                    <MudText Class="number-col" Style="transform: rotate(90deg)">@incident.Name</MudText>
+                                    <MudText Class="rotated-text">
+                                        @incident.Name
+                                    </MudText>
                                 </MudBadge>
                             </MudTh>
                         }

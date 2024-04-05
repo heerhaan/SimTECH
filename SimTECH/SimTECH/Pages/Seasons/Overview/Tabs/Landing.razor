@@ -92,7 +92,7 @@
                     <MudButton FullWidth="true" OnClick="ShowUsedComponents">Components</MudButton>
                     <MudButton FullWidth="true" OnClick="ShowQualyBattles">Q.Battles</MudButton>
 
-                    @if (OverviewModel.Season.State == State.Active)
+                    @if (OverviewModel.Season.State == State.Active && HasContractsEnabled)
                     {
                         <MudButton FullWidth="true" OnClick="ShowRemainingContractDurations">Contract durations</MudButton>
                     }
@@ -129,6 +129,7 @@
     [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
     [Parameter] public Race? NextRace { get; set; }
+    [Parameter] public bool HasContractsEnabled { get; set; }
     [Parameter] public EventCallback OnStartSeason { get; set; }
     [Parameter] public EventCallback OnFinishSeason { get; set; }
     [Parameter] public EventCallback<long> OnClassSelected { get; set; }

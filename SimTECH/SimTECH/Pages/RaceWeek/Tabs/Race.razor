@@ -276,15 +276,15 @@
 
     private static readonly Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
     private static readonly RacerEvent[] signalEvents =
-    [
-        RacerEvent.Pitstop,
-        RacerEvent.DriverDnf,
-        RacerEvent.CarDnf,
-        RacerEvent.EngineDnf,
-        RacerEvent.Mistake,
-        RacerEvent.Death,
-        RacerEvent.Swap,
-        //RacerEvent.FastestLap,
+        [
+            RacerEvent.Pitstop,
+    RacerEvent.DriverDnf,
+    RacerEvent.CarDnf,
+    RacerEvent.EngineDnf,
+    RacerEvent.Mistake,
+    RacerEvent.Death,
+    RacerEvent.Swap,
+    //RacerEvent.FastestLap,
     ];
 
     private Dictionary<int, SituationOccurrence> AdvanceOccurrences { get; set; } = new();
@@ -325,7 +325,8 @@
         Incidents = await _incidentService.GetIncidents(StateFilter.Active);
 
         AvailableTyres.AddRange(
-            Tyres.Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false)));
+            Tyres.Where(e => e.State == State.Active
+                && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false)));
 
         calculationDistance = Config.CalculationDistance;
         calculationCount = Model.Race.RaceLength / calculationDistance;
@@ -378,9 +379,30 @@
                     lastLowestScore = driver.LastScore;
             }
 
-            SetPositions();
-
             highestScore = RaceDrivers.Max(e => e.LapSum);
+        }
+        else if (calculated == 0)
+        {
+            AddFormationLap();
+        }
+
+        SetPositions();
+    }
+
+    private void AddFormationLap()
+    {
+        foreach (var driver in RaceDrivers)
+        {
+            var lapScore = new LapScore
+            {
+                ResultId = driver.ResultId,
+                Order = 0,
+                Score = driver.QualifyingBonus(racerCount, Model.Season.GridBonus),
+                TyreColour = driver.CurrentTyre.Colour,
+            };
+
+            driver.LapScores.Add(lapScore);
+            driver.LastScore = lapScore.Score;
         }
     }
 
@@ -470,10 +492,6 @@
 
             int lapValue = NumberHelper.RandomInt(minRng, maxRng);
 
-            // Adds the qualifying bonus in the first lap, should be thought about once more though in terms of what we do with this
-            if (isFirstLap)
-                lapValue += driver.QualifyingBonus(racerCount, Model.Season.GridBonus);
-
             // Check if driver made a mistake, if so then it's going to cost him
             for (int j = 0; j < Model.Season.MistakeRolls; j++)
             {
@@ -492,13 +510,9 @@
             // Adds the overall power of the driver
             lapValue += driver.Power;
 
-            int actualLap = calculated == 1
-                ? lapValue - driver.QualifyingBonus(racerCount, Model.Season.GridBonus)
-                : lapValue;
-
-            if (actualLap > fastestLap)
+            if (lapValue > fastestLap)
             {
-                fastestLap = actualLap;
+                fastestLap = lapValue;
 
                 foreach (var raceDriver in RaceDrivers)
                     raceDriver.HasFastestLap = false;
@@ -506,6 +520,10 @@
                 driver.HasFastestLap = true;
                 lapScore.RacerEvents |= RacerEvent.FastestLap;
             }
+
+            // Add time cost of the pitstop
+            if (lapScore.RacerEvents.HasFlag(RacerEvent.Pitstop))
+                lapValue -= GetPitstopCost();
 
             // Finally add the score to the lap results
             lapScore.Score = lapValue;
@@ -590,15 +608,12 @@
             _snackbar.Add("A situation occurred where the maximum wear was lower than the minimum wear, please reconsider some set tyre wear values!");
         }
 
-        // Maximum wear is more than the tyre can handle, it's time for a pitstop!
-        // Or minimum wear? Or 0?
-        // We might want to make this an option to something, maybe?
+        // Triggers a pitstop if condition is met
         if (ValidTyres.Any() && driver.CurrentTyre.PitWhenBelow > driver.TyreLife)
         {
-            var pitCost = PitstopDriver(driver, lapScore);
+            ChangeTyres(driver, lapScore);
 
             assignedLifeScore = driver.TyreLife;
-            assignedLifeScore -= pitCost;
         }
 
         // Adds wear to the tyre
@@ -624,7 +639,10 @@
             // If the tyre life is less than half of the tyres overall pace, then check for a pitstop
             if (ValidTyres.Count() > 0 && driver.TyreLife < (driver.CurrentTyre.Pace / 2))
             {
-                var pitCost = PitstopDriver(driver, lapScore);
+                ChangeTyres(driver, lapScore);
+
+                var pitCost = GetPitstopCost();
+
                 lapScore.Score -= pitCost;
             }
             else
@@ -673,7 +691,7 @@
     }
 
     // Returns the score cost which the pitstop took
-    private int PitstopDriver(RaceDriver driver, LapScore lapScore)
+    private void ChangeTyres(RaceDriver driver, LapScore lapScore)
     {
         var currentTyres = ValidTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList();
 
@@ -690,10 +708,13 @@
         driver.InstantOvertaken = true;
 
         lapScore.RacerEvents |= RacerEvent.Pitstop;
+    }
 
-        // Pitstop duration is reduced since this is a safety car moment
+    private int GetPitstopCost()
+    {
         var pitCost = NumberHelper.RandomInt(Model.Season.PitMinimum, Model.Season.PitMaximum);
 
+        // Pitstop duration is reduced since this is a safety car moment
         if (safetyCarOut && pitCost > Model.Season.PitCostSubtractCaution)
             pitCost -= Model.Season.PitCostSubtractCaution;
 
