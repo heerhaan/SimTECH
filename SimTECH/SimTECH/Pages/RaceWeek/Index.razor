@@ -1,6 +1,7 @@
 ﻿@page "/raceweek/{RaceId:long}"
 
 @using MudExtensions.Enums
+@using SimTECH.PageModels.Common
 @using SimTECH.Pages.RaceWeek.Components
 @using SimTECH.Pages.RaceWeek.Dialogs
 @using SimTECH.Pages.RaceWeek.Tabs
@@ -95,7 +96,8 @@
 </MudContainer>
 
 @code {
-    [Parameter] public long RaceId { get; set; }
+    [Parameter]
+    public long RaceId { get; set; }
 
     public RaweCeekModel Model { get; set; } = new();
 
@@ -212,6 +214,7 @@
                     TeamName = team.Name,
                     Colour = team.Colour,
                     Accent = team.Accent,
+                    Parts = new CarParts(team.Aero, team.Chassis, team.Powertrain),
 
                     ManufacturerId = manufacturer.Id,
                     ManufacturerName = manufacturer.Name,

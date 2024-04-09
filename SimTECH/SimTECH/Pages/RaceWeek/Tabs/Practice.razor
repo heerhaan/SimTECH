@@ -2,14 +2,14 @@
 
 @inject RaceService _raceService
 
-<MudLoading Loading="@loading"
+<MudLoading Loading="@Loading"
             LoaderType="MudExtensions.Enums.LoaderType.Circular"
             Text="Gettin' some practice in getting this practice">
     <MudContainer MaxWidth="MaxWidth.Large">
         <div id="practice-table">
-            @if (!loading)
+            @if (!Loading)
             {
-                @if (practiceDrivers.Count == 0)
+                @if (PracticeDrivers.Count == 0)
                 {
                     <div class="empty-page-container">
                         <MudText>No practice data found</MudText>
@@ -17,7 +17,7 @@
                 }
                 else
                 {
-                    <CommonSession Drivers="@practiceDrivers"
+                    <CommonSession Drivers="@PracticeDrivers"
                                    AmountRuns="@amountRuns"
                                    HighestScore="@highestScore"
                                    LowestScore="@lowestScore"
@@ -54,9 +54,10 @@
     [Parameter] public PracticeSession PracticeSession { get; set; } = new();
     [Parameter] public EventCallback<int> OnFinish { get; set; }
 
-    private List<SessionDriver> practiceDrivers = new();
+    private List<SessionDriver> PracticeDrivers { get; set; } = new();
 
-    bool loading = true;
+    private bool Loading { get; set; } = true;
+
     string raceName = string.Empty;
     Country raceCountry = Globals.DefaultCountry;
     int amountRuns;
@@ -69,7 +70,7 @@
 
     protected override void OnInitialized()
     {
-        loading = true;
+        Loading = true;
 
         gapMarge = Model.GapMarge / 2;
 
@@ -108,15 +109,15 @@
                     mappedDriver.GapAbove = "+" + (Math.Round((highestScore - mappedDriver.MaxScore()) * gapMarge, 2)).ToString("F2");
             }
 
-            practiceDrivers.Add(mappedDriver);
+            PracticeDrivers.Add(mappedDriver);
         }
 
-        loading = false;
+        Loading = false;
     }
 
     private async void Advance()
     {
-        foreach (var driver in practiceDrivers)
+        foreach (var driver in PracticeDrivers)
         {
             var result = driver.Power + NumberHelper.RandomInt((practiceRng * -1), practiceRng);
             driver.Scores[advancedRuns] = result;
@@ -127,14 +128,14 @@
                 lowestScore = result;
         }
 
-        var positionIndexDict = practiceDrivers
+        var positionIndexDict = PracticeDrivers
             .Select(e => e.ClassId)
             .Distinct()
             .ToDictionary(e => e, e => 0);
 
         int absoluteIndex = 0;
 
-        foreach (var driver in practiceDrivers.OrderByDescending(e => e.MaxScore()))
+        foreach (var driver in PracticeDrivers.OrderByDescending(e => e.MaxScore()))
         {
             driver.Position = ++positionIndexDict[driver.ClassId];
             driver.AbsolutePosition = ++absoluteIndex;
@@ -152,7 +153,7 @@
 
     private async Task Finish()
     {
-        var newScores = practiceDrivers.Select(e => new PracticeScore
+        var newScores = PracticeDrivers.Select(e => new PracticeScore
             {
                 Index = PracticeSession.SessionIndex,
                 Scores = e.Scores,

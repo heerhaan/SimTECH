@@ -1,5 +1,6 @@
 ﻿using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
+using SimTECH.PageModels.Common;
 
 namespace SimTECH.PageModels.RaceWeek;
 
@@ -17,6 +18,7 @@ public class RaweCeekDriver
     public string TeamName { get; set; }
     public string Colour { get; set; }
     public string Accent { get; set; }
+    public CarParts Parts { get; set; }
 
     public long ClassId { get; set; }
     public RaceClass? Class { get; set; }
@@ -65,6 +67,24 @@ public class RaweCeekDriver
     public int ExpectedPosition { get; set; }
     public int RelativePower => (QualyPower / 2) + RacePower;
     public string FullName => FirstName + " " + LastName;
+}
+
+// Unused for now but it should eventually replace the one above
+public class FixedRaweCeekDriver
+{
+    public SeasonDriver SeasonDriver { get; set; }
+
+    public SeasonTeam SeasonTeam { get; set; }
+
+    public Engine Engine { get; set; }
+
+    public Manufacturer Manufacturer { get; set; }
+
+    public RaceClass? Class { get; set; }
+
+    public Result Result { get; set; }
+
+    public Tyre Tyre { get; set; }
 }
 
 public static class ExtendRaweCeekDriver

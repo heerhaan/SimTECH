@@ -48,11 +48,11 @@ namespace SimTECH.Data.Models
             _ => throw new InvalidOperationException("Invalid aspect for this entrant")
         };
 
-        public static int ModifierApplication(this SeasonTeam team, Track? track)
+        public static int ModifierApplication(this SeasonTeam team, Track track)
         {
-            var modifiers = (team.Aero * track?.AeroMod ?? 1)
-                + (team.Chassis * track?.ChassisMod ?? 1)
-                + (team.Powertrain * track?.PowerMod ?? 1);
+            var modifiers = (team.Aero * track.AeroMod )
+                + (team.Chassis * track.ChassisMod)
+                + (team.Powertrain * track.PowerMod);
 
             return modifiers.RoundDouble();
         }
