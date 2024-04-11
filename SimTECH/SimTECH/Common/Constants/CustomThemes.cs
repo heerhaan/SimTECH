@@ -3,18 +3,20 @@ using Newtonsoft.Json;
 
 namespace SimTECH.Constants;
 
+// TODO: A lot, if not all, light themes
 public static class CustomThemes
 {
     public static Dictionary<string, MudTheme> SimThemes => new()
     {
+        { "Basic", DefaultTheme },
         { "Galaxy", GalacticTheme },
         { "Cosmic", GalacticAltTheme },
         { "Oceanic", OceanicTheme },
-        { "Fiery", FieryTheme },
+        { "(WIP) Fiery", FieryTheme },
         { "Cyber", CyberTheme },
-        { "Neon", NeonTheme },
-        { "Digital", DigitalTheme },
-        { "Basic", DefaultTheme },
+        { "(WIP) Neon", NeonTheme },
+        { "(WIP) Digital", DigitalTheme },
+        { "(WIP) Netherlands", NetherlandsTheme },
     };
 
     public static readonly Typography CommonTypo = new()
@@ -203,6 +205,8 @@ public static class CustomThemes
         Typography = CommonTypo,
     };
 
+    // TODO: unfinished theme
+    // Thematically something that is a bright, violet and futuristic palette. Think of Hotline Miami | pink/cyan/???
     public static readonly MudTheme NeonTheme = new()
     {
         Palette = new PaletteLight()
@@ -251,9 +255,68 @@ public static class CustomThemes
             DrawerBackground = CustomColours.UltraDeepDarkFadedHarshBlue,
             AppbarBackground = CustomColours.UltraDeepDarkFadedHarshBlue,
         },
-        Typography = CommonTypo,
+        Typography = new Typography()
+        {
+            Default = new Default()
+            {
+                FontFamily = ["NovaRegular"]
+            },
+            H1 = new H1()
+            {
+                FontFamily = ["ShogunsClan"],
+                FontSize = "4rem",
+            },
+            H2 = new H2()
+            {
+                FontFamily = ["RoadRage"],
+                FontSize = "3rem",
+            },
+            H3 = new H3()
+            {
+                FontFamily = ["RoadRage"],
+                FontSize = "2rem",
+            },
+            H4 = new H4()
+            {
+                FontFamily = ["F1Bold"],
+                FontSize = "1rem",
+            },
+            H5 = new H5()
+            {
+                FontFamily = ["F1Regular"],
+                FontSize = "1rem",
+            },
+            H6 = new H6()
+            {
+                FontFamily = ["NovaBlack"],
+                FontSize = "1rem",
+            },
+            Subtitle1 = new Subtitle1()
+            {
+                FontFamily = ["NovaBold"],
+            },
+            Subtitle2 = new Subtitle2()
+            {
+                FontFamily = ["NovaBold"],
+            },
+            Button = new Button()
+            {
+                FontFamily = ["NovaBold"],
+            },
+            Caption = new Caption()
+            {
+                FontFamily = ["F1Bold"],
+            },
+            Overline = new Overline()
+            {
+                FontFamily = ["F1Wide"],
+                LetterSpacing = ".01em"
+            },
+        },
     };
 
+    // TODO: unfinished theme
+    // The idea is to have something very "green"-ish, emulating a kind of old casettepunk-like computer interface | black/green/???
     public static readonly MudTheme DigitalTheme = new()
     {
         Palette = new PaletteLight()
@@ -276,6 +339,19 @@ public static class CustomThemes
             Surface = CustomColours.DigitalGreenishBlack,
             DrawerBackground = CustomColours.VagueGreenishBlack,
             AppbarBackground = CustomColours.VagueGreenishBlack,
+        },
+        Typography = CommonTypo,
+    };
+
+    // TODO: unfinished theme
+    // kleurenpalette nakken van typische "neder"-sites, zoals de koninklijkecirkeltrek.nl | orange/tri-color/???
+    public static readonly MudTheme NetherlandsTheme = new()
+    {
+        Palette = new PaletteLight()
+        {
+        },
+        PaletteDark = new PaletteDark()
+        {
         },
         Typography = CommonTypo,
     };
