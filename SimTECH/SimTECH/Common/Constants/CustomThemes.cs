@@ -349,9 +349,21 @@ public static class CustomThemes
     {
         Palette = new PaletteLight()
         {
+            Primary = CustomColours.RedDutch,
+            Secondary = CustomColours.WhiteAlmost,
+            Tertiary = CustomColours.BlueDutch,
         },
         PaletteDark = new PaletteDark()
         {
+            Primary = CustomColours.OrangeDutch,
+            Secondary = CustomColours.BlueDiscord,
+            Tertiary = CustomColours.WhiteAlmost,
+
+            Background = CustomColours.BlackBackground,
+            BackgroundGrey = CustomColours.FadedBlack,
+            Surface = CustomColours.BlackSurface,
+            DrawerBackground = CustomColours.BlackSurface,
+            AppbarBackground = CustomColours.BlackSurface,
         },
         Typography = CommonTypo,
     };
