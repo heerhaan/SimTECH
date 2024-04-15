@@ -1,6 +1,7 @@
 ﻿@page "/overview/{SeasonId:long}"
 @page "/overview/{SeasonId:long}/{TabIndex:int}"
 
+@using MudExtensions.Enums
 @using SimTECH.Pages.Seasons.Dialogs
 @using SimTECH.Pages.Seasons.Overview.Development
 @using SimTECH.Pages.Seasons.Overview.Dialogs
@@ -10,7 +11,6 @@
 @inject ClimateService _climateService
 @inject DriverService _driverService
 @inject EngineService _engineService
-@inject IncidentService _incidentService
 @inject LeagueService _leagueService
 @inject ManufacturerService _manufacturerService
 @inject RaceService _raceService
@@ -30,7 +30,7 @@
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudLoading Loading="@loading"
-                LoaderType="MudExtensions.Enums.LoaderType.Circular"
+                LoaderType="LoaderType.Circular"
                 Text="Page is being loaded, some patience please. umu"
                 Class="loader">
         <CascadingValue Value="@OverviewModel">

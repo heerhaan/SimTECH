@@ -24,6 +24,7 @@ public class SessionDriver
     public int AbsolutePosition { get; set; }
     public int PenaltyPunish { get; set; }
     public string GapAbove { get; set; } = string.Empty;
+    public int Setup { get; set; }
 
     public long ClassId { get; set; }
     public RaceClass? Class { get; set; }
