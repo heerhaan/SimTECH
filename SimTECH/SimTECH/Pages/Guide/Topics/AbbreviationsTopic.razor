@@ -1,0 +1,38 @@
+﻿<MudText Typo="Typo.subtitle1" Class="mt-2">Abbreviations</MudText>
+<MudDivider Class="my-1" />
+
+<MudSimpleTable>
+    <thead>
+        <tr>
+            <th>Abbreviation</th>
+            <th>Meaning</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var abb in Abbreviations.OrderBy(e => e.Key))
+        {
+            <tr>
+                <td>@abb.Key</td>
+                <td>@abb.Value</td>
+            </tr>
+        }
+    </tbody>
+</MudSimpleTable>
+
+@code {
+    private static readonly Dictionary<string, string> Abbreviations = new()
+    {
+        { "CHA", "Chassis" },
+        { "LB", "Life bonus" },
+        { "PTS", "Points" },
+        { "TGT", "Target" },
+        { "ENG", "Engine" },
+        { "PWR", "Power" },
+        { "REL", "Reliability" },
+        { "RNG", "Ask jesus for this" },
+        { "STP", "Setup" },
+        { "SUP", "Tyre supplier" },
+        { "AER", "Aero" },
+        { "POW", "Powertrain" },
+    };
+}

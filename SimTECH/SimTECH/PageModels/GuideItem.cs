@@ -5,11 +5,20 @@ namespace SimTECH.PageModels;
 
 public class GuideItem
 {
-    public string Link { get; set; } = string.Empty;
+    public GuideItem() { }
+    public GuideItem(string title, string icon, Type type, int order = 5)
+    {
+        Title = title;
+        Icon = icon;
+        Type = type;
+        Order = order;
+    }
 
     public string Title { get; set; } = string.Empty;
 
     public string Icon { get; set; } = IconCollection.Pyramid;
+
+    public Type Type { get; set; }
 
     public int Order { get; set; }
 }

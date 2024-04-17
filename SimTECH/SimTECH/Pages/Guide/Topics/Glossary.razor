@@ -20,58 +20,21 @@
     </RowTemplate>
 </MudTable>
 
-<MudText Typo="Typo.subtitle1" Class="mt-2">Abbreviations</MudText>
-<MudDivider Class="my-1" />
-
-<MudSimpleTable>
-    <thead>
-        <tr>
-            <th>Abbreviation</th>
-            <th>Meaning</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var abb in Abbreviations.OrderBy(e => e.Key))
-        {
-            <tr>
-                <td>@abb.Key</td>
-                <td>@abb.Value</td>
-            </tr>
-        }
-    </tbody>
-</MudSimpleTable>
-
 @code {
-    private static readonly GlossaryItem[] GlossaryTerms = new GlossaryItem[]
+    private static readonly List<GlossaryItem> GlossaryTerms = new()
         {
             new GlossaryItem("Advance",
-                @"A single round of calculation for every driver during a race. Equivalent for a certain distance 
+                @"A single round of calculation for every driver during a race. Equivalent for a certain distance
                 traveled during a race (default is 10km).",
                 "Calculation"),
             new GlossaryItem("Session",
-                @"The sessions during a race week which occur before the race. 
+                @"The sessions during a race week which occur before the race.
                 Usually refers to practice and qualifying."),
         };
 
-    private static readonly Dictionary<string, string> Abbreviations = new()
-    {
-        { "CHA", "Chassis" },
-        { "LB", "Life bonus" },
-        { "PTS", "Points" },
-        { "TGT", "Target" },
-        { "ENG", "Engine" },
-        { "PWR", "Power" },
-        { "REL", "Reliability" },
-        { "RNG", "Ask jesus for this" },
-        { "STP", "Setup" },
-        { "SUP", "Tyre supplier" },
-        { "AER", "Aero" },
-        { "POW", "Powertrain" },
-    };
-
     internal class GlossaryItem
     {
-        internal GlossaryItem(string? term, string? explain, params string[] synonyms)
+        public GlossaryItem(string? term, string? explain, params string[] synonyms)
         {
             Term = term ?? string.Empty;
             Explain = explain ?? string.Empty;

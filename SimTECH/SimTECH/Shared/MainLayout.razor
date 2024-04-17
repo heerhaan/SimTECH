@@ -1,11 +1,11 @@
 ﻿@using System.Text.Json
-@using static SimTECH.Providers.GuideBookProvider;
+@using static SimTECH.Providers.HelpBlockProvider;
 
 @inject ProtectedLocalStorage _storage
 
 @inherits LayoutComponentBase
 
-<MudThemeProvider @bind-IsDarkMode="isDarkTheme" Theme="@Theme" />
+<MudThemeProvider @bind-IsDarkMode="IsDarkTheme" Theme="@Theme" />
 <MudDialogProvider MaxWidth="MaxWidth.Large"
                    CloseButton="true"
                    DisableBackdropClick="true"
@@ -13,17 +13,17 @@
 <MudSnackbarProvider />
 
 <MudLayout @onclick="HandleLayoutClick">
-    <MudAppBar Elevation="5" Dense="true" Style="border-bottom: 1px solid var(--mud-palette-primary)">
+    <MudAppBar Elevation="5" Dense="true" Class="layout-appbar">
         <MudIconButton Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Secondary"
                        Edge="Edge.Start"
-                       OnClick="@(() => drawerOpen = !drawerOpen)" />
+                       OnClick="ToggleDrawer" />
 
         <CustomBreadcrumbs />
 
         <MudSpacer />
 
-        <MudToggleIconButton @bind-Toggled="isDarkTheme"
+        <MudToggleIconButton @bind-Toggled="IsDarkTheme"
             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
         
@@ -36,7 +36,7 @@
 
         <MudIconButton Href="/guide" Icon="@Icons.Material.Filled.MenuBook" Color="Color.Secondary" />
 
-        <MudPopover Open="@isHelpOpen"
+        <MudPopover Open="@IsHelpOpen"
                     AnchorOrigin="Origin.BottomRight"
                     TransformOrigin="Origin.TopRight"
                     Class="guide-popup-element">
@@ -52,31 +52,27 @@
         <MudIconButton Icon="@Icons.Material.Filled.QuestionMark"
                        Color="Color.Secondary"
                        Disabled="@(HelpContent == null)"
-                       OnClick="@(() => isHelpOpen = !isHelpOpen)" />
+                       OnClick="ToggleHelpBlock" />
         
     </MudAppBar>
 
-    <MudDrawer @bind-Open="drawerOpen"
+    <MudDrawer @bind-Open="DrawerOpen"
                ClipMode="DrawerClipMode.Always"
                Variant="DrawerVariant.Responsive"
-               Style="border-right: 1px solid var(--mud-palette-primary)">
+               Class="layout-drawer">
         <MudDrawerHeader>
             <MudText Color="Color.Tertiary" Typo="Typo.h5">SimTECH</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
-    <CascadingValue Value="@SetGuideItem" IsFixed="true">
-        <MudMainContent id="sim-page-content">
-            @Body
-        </MudMainContent>
-    </CascadingValue>
+    <MudMainContent id="sim-page-content">
+        @Body
+    </MudMainContent>
 </MudLayout>
 
 @code {
     [CascadingParameter(Name = "PageType")]
     public Type PageType { get; set; }
-
-    private EventCallback<Type> SetGuideItem => EventCallback.Factory.Create(this, (Type type) => SetGuideContent(type));
 
     private MudTheme Theme { get; set; } = CustomThemes.GalacticTheme;
 
@@ -84,17 +80,17 @@
 
     private Type? HelpContent { get; set; }
 
-    private bool drawerOpen = true;
-    private bool isDarkTheme = true;
-    private bool isHelpOpen = false;
+    private bool DrawerOpen { get; set; } = true;
+    private bool IsDarkTheme { get; set; } = true;
+    private bool IsHelpOpen { get; set; } = false;
 
     protected override void OnParametersSet()
     {
         if (PageType != HelpContent)
         {
             // Alternatively this could also be implemented by checking for the content on click
-            isHelpOpen = false;
-            HelpContent = GuideBookProvider.GetHelpContentForPage(PageType);
+            IsHelpOpen = false;
+            HelpContent = HelpBlockProvider.GetHelpContentForPage(PageType);
         }
     }
 
@@ -108,21 +104,6 @@
                 && storedTheme.Value != null
                 && SimThemes.ContainsKey(storedTheme.Value))
             {
-                // if (storedTheme.Value == "Custom")
-                // {
-                //     var customTheme = await GetUserDefinedTheme();
-
-                //     // Set the default theme as the active theme if no custom theme was set
-                //     if (customTheme == null)
-                //         customTheme = SimThemes[storedTheme.Value];
-
-                //     Theme = customTheme;
-                // }
-                // else
-                // {
-                //     Theme = SimThemes[storedTheme.Value];
-                // }
-
                 Theme = SimThemes[storedTheme.Value];
 
                 StateHasChanged();
@@ -132,20 +113,6 @@
 
     private async Task SetTheme(string themeName)
     {
-        // if (themeName == "Custom")
-        // {
-        //     var customTheme = await GetUserDefinedTheme();
-
-        //     if (customTheme == null)
-        //         customTheme = SimThemes[themeName];
-
-        //     Theme = customTheme;
-        // }
-        // else
-        // {
-        //     Theme = SimThemes[themeName];
-        // }
-
         Theme = SimThemes[themeName];
 
         await _storage.SetAsync("activeTheme", themeName);
@@ -153,16 +120,20 @@
 
     private void HandleLayoutClick()
     {
-        if (isHelpOpen)
-            isHelpOpen = false;
+        if (IsHelpOpen)
+            IsHelpOpen = false;
     }
 
-    private void SetGuideContent(Type componentType)
+    private void SetHelpContent(Type componentType)
     {
         if (HelpContent == componentType)
             return;
 
-        isHelpOpen = false;
-        HelpContent = GuideBookProvider.GetHelpContentForPage(componentType);
+        IsHelpOpen = false;
+        HelpContent = HelpBlockProvider.GetHelpContentForPage(componentType);
     }
+
+    private void ToggleDrawer() => DrawerOpen = !DrawerOpen;
+
+    private void ToggleHelpBlock() => IsHelpOpen = !IsHelpOpen;
 }

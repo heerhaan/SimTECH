@@ -1,11 +1,11 @@
 ﻿@page "/guide"
 
 @using SimTECH.Pages.Guide.Topics
-@using SimTECH.Pages.Guide.Topics.RaceCat
+@using SimTECH.Pages.Guide.Topics.RaceCategory
 
 @inject BreadcrumbProvider _bread
 
-<PageTitle>Help</PageTitle>
+<PageTitle>Guidebook</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudGrid Spacing="1">
@@ -17,7 +17,7 @@
         <MudItem xs="3">
             <MudPaper Class="mud-height-full">
                 <MudTreeView T="Type" Color="Color.Secondary" Hover="true" SelectedValueChanged="ActiveTopicChanged">
-                    @foreach (var cat in guideCategories.OrderBy(e => e.Order))
+                    @foreach (var cat in GuideItems.OrderBy(e => e.Order))
                     {
                         <MudTreeViewItem @bind-Expanded="cat.Expanded"
                                          Text="@cat.Title"
@@ -45,9 +45,9 @@
 @code {
     public Type ActiveTopic { get; set; } = typeof(Intro);
 
-    private static List<GuideCategory> guideCategories = new()
+    private static readonly List<GuideGroupItem> GuideItems = new()
     {
-        new GuideCategory
+        new GuideGroupItem
         {
             Title = "FAQ",
             Icon = Icons.Custom.FileFormats.FileExcel,
@@ -55,7 +55,7 @@
             Type = typeof(Intro),
             Order = 0,
         },
-        new GuideCategory
+        new GuideGroupItem
         {
             Title = "Quick start",
             Icon = Icons.Custom.FileFormats.FileExcel,
@@ -63,7 +63,7 @@
             Type = typeof(QuickStartTopic),
             Order = 5,
         },
-        new GuideCategory
+        new GuideGroupItem
         {
             Title = "Glossary",
             Icon = Icons.Material.Filled.MenuBook,
@@ -71,25 +71,25 @@
             Type = typeof(Glossary),
             Order = 99,
         },
-        new GuideCategory
+        new GuideGroupItem
         {
-            Title = "Racing info",
+            Title = "Racing information",
             Icon = Icons.Custom.Uncategorized.Folder,
             ExpandedIcon = Icons.Custom.Uncategorized.FolderOpen,
-            Type = typeof(Shared.GuideItems.RaceweekTopic),
+            Type = typeof(UnknownTopic),
             Order = 10,
             Children = new()
             {
-                new GuidePage("Practice", IconCollection.Polygon, typeof(PracticeTopic)),
-                new GuidePage("Qualifying", IconCollection.Polygon, typeof(QualifyingTopic)),
-                new GuidePage("Race", IconCollection.Polygon, typeof(RaceTopic)),
-                new GuidePage("Distance", IconCollection.Polygon, typeof(Distance)),
-                new GuidePage("Advance", IconCollection.Polygon, typeof(Advance)),
-                new GuidePage("Reliability", IconCollection.Polygon, typeof(Reliability)),
-                new GuidePage("Strategy", IconCollection.Polygon, typeof(Strategy)),
-                new GuidePage("Overtaking", IconCollection.Polygon, typeof(Overtaking)),
-                new GuidePage("Safety car", IconCollection.AlertTriangle, typeof(SafetyMoment)),
-                new GuidePage("Modifiers", IconCollection.Polygon, typeof(Modifiers)),
+                new GuideItem("Practice", IconCollection.Polygon, typeof(PracticeTopic)),
+                new GuideItem("Qualifying", IconCollection.Polygon, typeof(QualifyingTopic)),
+                new GuideItem("Race", IconCollection.Polygon, typeof(RaceTopic)),
+                new GuideItem("Distance", IconCollection.Polygon, typeof(Distance)),
+                new GuideItem("Advance", IconCollection.Polygon, typeof(Advance)),
+                new GuideItem("Reliability", IconCollection.Polygon, typeof(Reliability)),
+                new GuideItem("Strategy", IconCollection.Polygon, typeof(Strategy)),
+                new GuideItem("Overtaking", IconCollection.Polygon, typeof(Overtaking)),
+                new GuideItem("Safety car", IconCollection.AlertTriangle, typeof(SafetyMoment)),
+                new GuideItem("Modifiers", IconCollection.Polygon, typeof(Modifiers)),
             }
         },
     };
@@ -107,29 +107,5 @@
     {
         if (activeTopic != null)
             ActiveTopic = activeTopic;
-    }
-
-    internal class GuidePage
-    {
-        public GuidePage() { }
-        public GuidePage(string title, string icon, Type type, int order = 5)
-        {
-            Title = title;
-            Icon = icon;
-            Type = type;
-            Order = order;
-        }
-
-        public string Title { get; set; } = "[UNKNOWN]";
-        public string Icon { get; set; } = IconCollection.Pyramid;
-        public Type Type { get; set; } = typeof(UnknownTopic);
-        public int Order { get; set; } = 5;
-    }
-
-    internal class GuideCategory : GuidePage
-    {
-        public bool Expanded { get; set; } = false;
-        public string ExpandedIcon { get; set; } = Icons.Custom.Uncategorized.FolderOpen;
-        public List<GuidePage> Children { get; set; } = new();
     }
 }

@@ -76,7 +76,7 @@
                             </MudTabs>
                         }
                     </MudTabPanel>
-                    <MudTabPanel Text="Race" Disabled="@raceDisabled" OnClick="OnOpenRace">
+                    <MudTabPanel Text="Race" Disabled="@IsRaceDisabled" OnClick="OnOpenRace">
                         @if (RaceLoaded)
                         {
                             <Race LapScores="@LapScores"
@@ -86,7 +86,7 @@
                                   OnFinish="PersistRace" />
                         }
                     </MudTabPanel>
-                    <MudTabPanel Text="Post race" Disabled="@postraceDisabled">
+                    <MudTabPanel Text="Post race" Disabled="@IsPostRaceDisabled">
                         <PostRace />
                     </MudTabPanel>
                 </MudTabs>
@@ -119,9 +119,9 @@
     private bool QualifyingLoaded { get; set; }
     private bool RaceLoaded { get; set; }
 
-    private bool raceDisabled => Model.Race.State != State.Advanced && Model.Race.State != State.Closed;
+    private bool IsRaceDisabled => Model.Race.State != State.Advanced && Model.Race.State != State.Closed;
     //bool raceDisabled => Model.Race.State is not State.Advanced and not State.Closed; // works too, which is prettier?
-    private bool postraceDisabled => Model.Race.State != State.Closed;
+    private bool IsPostRaceDisabled => Model.Race.State != State.Closed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -416,8 +416,6 @@
         PracticeSessions.Add(new PracticeSession
             {
                 SessionIndex = nextSession,
-                IsFinished = false,
-                SessionScores = new(),
             });
     }
 
@@ -470,7 +468,8 @@
                     finalQualyPosition.Add(penaltyResult!.ResultId, (++positionIndexer, penaltyResult.AbsolutePosition));
             }
 
-            await _raceService.FinishQualifying(qualySession.SessionScores, finalQualyPosition, RaceId, Model.Season.MaximumDriversInRace);
+            await _raceService.FinishQualifying(
+                qualySession.SessionScores, finalQualyPosition, RaceId, Model.Season.MaximumDriversInRace);
 
             if (Model.ConsumablePenalties.Any())
                 await _raceService.ConsumePenalties(Model.ConsumablePenalties, RaceId);
@@ -506,11 +505,6 @@
 
             var nextSession = QualySessions.First(e => e.SessionIndex == (1 + qualyIndex));
             nextSession.IsDisabled = false;
-
-            // Navigate to the next qualifying session
-            //var nextQ = 1 + qualyIndex;
-            //if (qualySessions > 1 && _qualyTabs != null)
-            //    _qualyTabs.ActivatePanel($"q_{nextQ}");
         }
 
         if (qualyIndex == 1 && PracticeLoaded && PracticeSessions.Any())
