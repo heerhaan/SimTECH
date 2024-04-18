@@ -26,7 +26,7 @@
             <MudStack Class="mud-height-full">
                 <MudText Typo="Typo.h5">Upcoming race</MudText>
                 <MudDivider />
-                @if (OverviewModel.Season.State == State.Active)
+                @if (OverviewModel.Season.State is State.Active)
                 {
                     @if (NextRace is null)
                     {
@@ -71,6 +71,7 @@
                 {
                     <MudButtonGroup Variant="Variant.Text" Color="Color.Primary">
                         <MudButton FullWidth="true" OnClick="GoToDeveloper">Development</MudButton>
+                        <MudButton FullWidth="true">Trait growth</MudButton>
                         <MudButton FullWidth="true" OnClick="TriggerFinish">Finish season</MudButton>
                     </MudButtonGroup>
                 }

@@ -58,13 +58,25 @@ public class TraitService(IDbContextFactory<SimTechDbContext> factory) : StateSe
 
         foreach (var driver in assignedDrivers)
         {
-            foreach (var trait in driver.AssignedTraitIds)
+            if (driver.AssignedTraits.Count != 0)
             {
-                assignedDriverTraits.Add(new DriverTrait { DriverId = driver.Id, TraitId = trait });
+                var assignableTraits = driver.AssignedTraitIds
+                    .Select(e => new DriverTrait { DriverId = driver.Id, TraitId = e })
+                    .ToList();
+
+                context.AddRange(assignableTraits);
+            }
+
+            if (driver.RemovedTraitIds.Count != 0)
+            {
+                var removeableTraits = await context.DriverTrait
+                    .Where(e => e.DriverId == driver.Id
+                        && driver.RemovedTraitIds.Contains(e.TraitId))
+                    .ToListAsync();
+
+                context.RemoveRange(removeableTraits);
             }
         }
-
-        context.AddRange(assignedDriverTraits);
 
         await context.SaveChangesAsync();
     }

@@ -18,7 +18,10 @@
                 <MudText Typo="Typo.h3">Assign traits</MudText>
 
                 <MudText Color="Color.Error">HEY THERE IS SOME ONGOING DEVELOPMENT FOR THIS PAGE GOING ON, THIS AINT GONNA WORK RN</MudText>
-                <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                <MudStack Row="true"
+                          Justify="Justify.SpaceBetween"
+                          AlignItems="AlignItems.Center"
+                          Class="trait-assignment-menu-bar">
                     <div>
                         <MudText Typo="Typo.h5">For entrants</MudText>
                         <MudChipSet SelectedChipChanged="RetrieveEntrants" Mandatory="true">
@@ -35,7 +38,8 @@
                                    ValueChanged="FilterEntrantsByLeague"
                                    Variant="Variant.Outlined"
                                    Label="League"
-                                   Placeholder="All leagues">
+                                   Placeholder="All leagues"
+                                   Class="field-sm">
                             @foreach (var league in Leagues)
                             {
                                 <MudSelectItem Value="@league.Id">
@@ -47,17 +51,21 @@
 
                     <div>
                         <MudText>Percentage chance of gaining a trait.</MudText>
-                        <MudSlider @bind-Value="@removalOdds"
+                        <MudNumericField @bind-Value="@additionOdds"
+                                         Min="1"
+                                         Max="100"
+                                         Class="field-sm"/>
+                        @* <MudSlider @bind-Value="@additionOdds"
                                    Min="1"
                                    Max="100"
                                    TickMarks="true"
                                    Step="1"
                                    Variant="Variant.Filled"
-                                   Color="Color.Secondary" />
+                                   Color="Color.Secondary" /> *@
                     </div>
 
                     <div>
-                        <MudSwitchM3 @bind-Checked="@allowRemoval"
+                        <MudSwitchM3 @bind-Value="@allowRemoval"
                                      ThumbIcon="@Icons.Material.Filled.Done"
                                      ThumbOffIcon="@Icons.Material.Filled.Close"
                                      Label="Include a random % chance to remove a trait instead"
@@ -65,7 +73,12 @@
 
                         @if (allowRemoval)
                         {
-                            <MudSlider @bind-Value="@removalOdds"
+                            <MudNumericField @bind-Value="@removalOdds"
+                                             Min="1"
+                                             Max="100"
+                                             Class="field-sm" />
+
+                            @* <MudSlider @bind-Value="@removalOdds"
                                        Min="1"
                                        Max="100"
                                        TickMarks="true"
@@ -79,7 +92,7 @@
                                        TickMarks="true"
                                        Step="1"
                                        Variant="Variant.Text"
-                                       Color="Color.Secondary" />
+                                       Color="Color.Secondary" /> *@
                         }
                     </div>
 
@@ -87,7 +100,8 @@
                         <MudButton>
                             Reset
                         </MudButton>
-                        <MudButton Disabled="@(!CanAssignTraits)">
+                        <MudButton Disabled="@(CanAssignTraits == false)"
+                                   OnClick="StartAssigningTraits">
                             Assign
                         </MudButton>
                     </MudButtonGroup>
@@ -112,7 +126,9 @@
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>
-                                <MudTableSortLabel T="EntrantAssignee" SortBy="@(e => e.Name)">
+                                <MudTableSortLabel T="EntrantAssignee"
+                                                   SortBy="@(e => e.Name)"
+                                                   InitialDirection="SortDirection.Ascending">
                                     Name
                                 </MudTableSortLabel>
                             </MudTh>
@@ -144,7 +160,9 @@
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>
-                                <MudTableSortLabel T="EntrantAssignee" SortBy="@(e => e.Name)">
+                                <MudTableSortLabel T="EntrantAssignee"
+                                                   SortBy="@(e => e.Name)"
+                                                   InitialDirection="SortDirection.Ascending">
                                     Name
                                 </MudTableSortLabel>
                             </MudTh>
@@ -261,7 +279,7 @@
                 throw new InvalidOperationException("wtf unexpected entrant added to develop?");
         }
 
-        AssignedEntrants.Clear();
+        AssignedEntrants = new();
 
         AssignableTraits = AllTraits
             .Where(e => e.Type == activeEntrant)
@@ -309,7 +327,7 @@
                 ["Entrants"] = AssignedEntrants,
             };
 
-        var dialog = await _dialogService.ShowAsync<AssignmentResult>("Assignment result");
+        var dialog = await _dialogService.ShowAsync<AssignmentResult>("Assignment result", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)

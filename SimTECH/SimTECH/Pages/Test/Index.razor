@@ -100,8 +100,6 @@
                             <MudListItemExtended T="string" Text="@config.CalculationDistance.ToString()" SecondaryText="Calculation distance" />
                             <MudListItemExtended T="string" Text="@config.GapMarge.ToString()" SecondaryText="Time score equivalent" />
                         </MudListExtended>
-
-                        <MudButton OnClick="ToggleLoader">TestLoader</MudButton>
                     </MudPaper>
                 </MudItem>
             </MudGrid>
@@ -116,7 +114,7 @@
     private string newExampleString = "Stored and retrieved from the local storage";
     private SimConfig config;
 
-    int? rangeLow, rangeHigh;
+    private int? rangeLow, rangeHigh;
 
     private bool loading;
     private bool otherLoading = true;
@@ -160,10 +158,5 @@
     private async Task SetExample()
     {
         await _storage.SetAsync("example", newExampleString);
-    }
-
-    private void ToggleLoader()
-    {
-        loading = !loading;
     }
 }

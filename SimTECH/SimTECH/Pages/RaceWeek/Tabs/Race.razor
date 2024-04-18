@@ -2,6 +2,7 @@
 @using SimTECH.Pages.RaceWeek.Dialogs
 
 @inject IncidentService _incidentService
+@inject TyreService _tyreService
 @inject IDialogService _dialogService
 @inject ISnackbar _snackbar
 
@@ -248,10 +249,8 @@
 
                 <MudSpacer />
 
-                <MudSpacer />
-
                 <MudChip Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
-                    Next REL @activeReliabilityCheck.ToString()
+                    Next REL @ActiveReliabilityCheck.ToString()
                 </MudChip>
             </MudStack>
         </MudPaper>
@@ -259,7 +258,6 @@
 }
 
 @code {
-    [CascadingParameter] public EventCallback<Type> SetGuideItem { get; set; }
     [CascadingParameter] public RaweCeekModel Model { get; set; }
 
     [Parameter] public List<LapScore> LapScores { get; set; } = new();
@@ -268,23 +266,18 @@
     [Parameter] public SimConfig Config { get; set; } = new();
     [Parameter] public EventCallback OnFinish { get; set; } = new();
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await SetGuideItem.InvokeAsync(typeof(Pages.RaceWeek.Tabs.Race));
-    }
-
-    private static readonly Entrant[] cycleableReliablities = new[] { Entrant.Driver, Entrant.Team, Entrant.Engine };
+    private static readonly Entrant[] cycleableReliablities = [Entrant.Driver, Entrant.Team, Entrant.Engine];
     private static readonly RacerEvent[] signalEvents =
         [
             RacerEvent.Pitstop,
-    RacerEvent.DriverDnf,
-    RacerEvent.CarDnf,
-    RacerEvent.EngineDnf,
-    RacerEvent.Mistake,
-    RacerEvent.Death,
-    RacerEvent.Swap,
-    //RacerEvent.FastestLap,
-    ];
+            RacerEvent.DriverDnf,
+            RacerEvent.CarDnf,
+            RacerEvent.EngineDnf,
+            RacerEvent.Mistake,
+            RacerEvent.Death,
+            RacerEvent.Swap,
+            //RacerEvent.FastestLap,
+        ];
 
     private Dictionary<int, SituationOccurrence> AdvanceOccurrences { get; set; } = new();
     private List<RaceDriver> RaceDrivers { get; set; } = new();
@@ -298,7 +291,7 @@
 
     private SituationOccurrence CurrentSituation { get; set; } = SituationOccurrence.Raced;
 
-    private Entrant activeReliabilityCheck = Entrant.Driver;
+    private Entrant ActiveReliabilityCheck { get; set; } = Entrant.Driver;
     private int reliablityCycler = 0;
 
     // Supportive caluclation fields
@@ -543,17 +536,17 @@
     {
         var safetyCar = false;
 
-        if (activeReliabilityCheck == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
+        if (ActiveReliabilityCheck == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
             driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
         }
-        else if (activeReliabilityCheck == Entrant.Team && DidReliabilityFail(driver.CarReliability))
+        else if (ActiveReliabilityCheck == Entrant.Team && DidReliabilityFail(driver.CarReliability))
         {
             lapScore.RacerEvents |= RacerEvent.CarDnf;
             driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Car).ToList().TakeRandomIncident();
         }
-        else if (activeReliabilityCheck == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
+        else if (ActiveReliabilityCheck == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
         {
             lapScore.RacerEvents |= RacerEvent.EngineDnf;
             driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
@@ -728,7 +721,7 @@
         // Cycle through the reliability, to check something else (otherwise we have way too many DNFs)
         reliablityCycler++;
         reliablityCycler %= cycleableReliablities.Length;
-        activeReliabilityCheck = cycleableReliablities[reliablityCycler];
+        ActiveReliabilityCheck = cycleableReliablities[reliablityCycler];
 
         // Set the next amount of tyres valid for drivers to stop on to.
         var distanceLeft = Model.Race.RaceLength - (calculated * calculationDistance);

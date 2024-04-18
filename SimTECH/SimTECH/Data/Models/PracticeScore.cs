@@ -1,6 +1,5 @@
-﻿namespace SimTECH.Data.Models
+﻿namespace SimTECH.Data.Models;
+
+public sealed class PracticeScore : ScoreBase
 {
-    public sealed class PracticeScore : ScoreBase
-    {
-    }
 }

@@ -6,7 +6,19 @@
         <MudPaper>
             Here is where I would show the assignment results, if I had them!
         </MudPaper>
-        <MudText>Save if you want to save this, cancel for cancel culture.</MudText>
+        <MudText>
+            Save if you want to save this, cancel for cancel culture.
+        </MudText>
+        @if (Entrants?.Any() == true)
+        {
+            @foreach(var entrant in Entrants)
+            {
+                <div class="d-flex flex-row">
+                    @entrant.Name
+                    @string.Join(", ", entrant.AssignedTraitIds.ToArray())
+                </div>
+            }
+        }
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -17,9 +29,12 @@
 @code {
     [CascadingParameter] protected MudDialogInstance? AssignmentDialog { get; set; }
 
+    [Parameter]
+    public List<EntrantAssignee> Entrants { get; set; } = new();
+
     private void Submit()
     {
-        throw new NotImplementedException();
+        AssignmentDialog?.Close(DialogResult.Ok(true));
     }
 
     private void Cancel() => AssignmentDialog?.Cancel();

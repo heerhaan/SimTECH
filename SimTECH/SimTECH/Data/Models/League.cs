@@ -24,6 +24,7 @@ public sealed class League : ModelState
     public IList<Contract> Contracts { get; set; }
     public IList<LeagueTyre> LeagueTyres { get; set; }
 
+    // Next time leave a comment why this was added here, bellend
     public override int GetHashCode() => Name?.GetHashCode() ?? 0;
     public override string ToString() => string.IsNullOrEmpty(Name) ? "[Unknown]" : Name;
 }

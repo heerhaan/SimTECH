@@ -15,8 +15,8 @@ public enum RecordStat
 
 public static class RecordStatEnumHelper
 {
-    public static readonly RecordStat[] DriverRecordStats = new RecordStat[]
-        {
+    public static readonly RecordStat[] DriverRecordStats =
+        [
             RecordStat.Entry,
             RecordStat.Start,
             RecordStat.Win,
@@ -24,5 +24,5 @@ public static class RecordStatEnumHelper
             RecordStat.Retired,
             RecordStat.Overtakes,
             RecordStat.Defended,
-        };
+        ];
 }

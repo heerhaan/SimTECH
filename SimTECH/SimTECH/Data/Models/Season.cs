@@ -20,7 +20,7 @@ public sealed class Season : ModelState
     public int MistakeRolls { get; set; }
     public int MistakeMinimum { get; set; }
     public int MistakeMaximum { get; set; }
-    public int SetupMaxBonus { get; set; }
+    //public int SetupMaxSessionBonus { get; set; }
 
     public int PointsPole { get; set; }
     public int PointsFastestLap { get; set; }
