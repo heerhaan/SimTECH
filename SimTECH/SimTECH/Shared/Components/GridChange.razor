@@ -1,16 +1,27 @@
-﻿<MudStack Row="true" Spacing="1" Class="align-center">
-    <MudIcon Size="Size.Medium" Icon="@_icon" Color="@_iconColour" Style="@_style" />
-    <MudText Typo="Typo.subtitle1" Color="@_iconColour">@_gridDisplay</MudText>
+﻿<MudStack Row="true"
+          Spacing="1"
+          Class="align-center">
+    <MudIcon Size="Size.Medium"
+             Icon="@_icon"
+             Color="@_iconColour"
+             Style="@_style" />
+    <MudText Typo="Typo.subtitle1"
+             Color="@_iconColour">
+        @_gridDisplay
+    </MudText>
 </MudStack>
 
 @code {
-    [Parameter] public int Change { get; set; }
+    [Parameter]
+    public int Change { get; set; }
 
-    private string _icon {
+    private string _icon
+    {
         get
         {
             if (Change > 0)
                 return IconCollection.ArrowUp;
+
             if (Change < 0)
                 return IconCollection.ArrowDown;
 
