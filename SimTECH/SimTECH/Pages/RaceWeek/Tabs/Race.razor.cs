@@ -15,13 +15,13 @@ public partial class Race
     public RaweCeekModel Model { get; set; }
 
     [Parameter]
-    public List<LapScore> LapScores { get; set; } = new();
+    public List<LapScore> LapScores { get; set; } = [];
 
     [Parameter]
-    public List<RaceOccurrence> Occurrences { get; set; } = new();
+    public List<RaceOccurrence> Occurrences { get; set; } = [];
 
     [Parameter]
-    public IEnumerable<Tyre> Tyres { get; set; } = Enumerable.Empty<Tyre>();
+    public IEnumerable<Tyre> Tyres { get; set; } = [];
 
     [Parameter]
     public SimConfig Config { get; set; } = new();
@@ -42,11 +42,11 @@ public partial class Race
             //RacerEvent.FastestLap,
         ];
 
-    private Dictionary<int, SituationOccurrence> AdvanceOccurrences { get; set; } = new();
-    private List<RaceDriver> RaceDrivers { get; set; } = new();
-    private List<Incident> Incidents { get; set; } = new();
-    private List<Tyre> AvailableTyres { get; set; } = new();
-    private List<Tyre> ValidTyres { get; set; } = new();
+    private Dictionary<int, SituationOccurrence> AdvanceOccurrences { get; set; } = [];
+    private List<RaceDriver> RaceDrivers { get; set; } = [];
+    private List<Incident> Incidents { get; set; } = [];
+    private List<Tyre> AvailableTyres { get; set; } = [];
+    private List<Tyre> ValidTyres { get; set; } = [];
 
     // Controls for the view
     private bool loading = true;
@@ -70,7 +70,7 @@ public partial class Race
 
     private int lastHighestScore = 0;
     private int lastLowestScore = 0;
-    private int safetyWearDivider = 3;
+    private readonly int safetyWearDivider = 3;
 
     private bool isFirstLap => calculated == 1;
 
@@ -210,7 +210,7 @@ public partial class Race
 
         var lastScores = RaceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
 
-        if (lastScores.Any())
+        if (lastScores.Length != 0)
         {
             lastLowestScore = lastScores.Min();
             lastHighestScore = lastScores.Max();
@@ -361,7 +361,7 @@ public partial class Race
         }
 
         // Triggers a pitstop if condition is met
-        if (ValidTyres.Any() && driver.CurrentTyre.PitWhenBelow > driver.TyreLife)
+        if (ValidTyres.Count != 0 && driver.CurrentTyre.PitWhenBelow > driver.TyreLife)
         {
             ChangeTyres(driver, lapScore);
 
@@ -389,7 +389,7 @@ public partial class Race
             var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
             // If the tyre life is less than half of the tyres overall pace, then check for a pitstop
-            if (ValidTyres.Count() > 0 && driver.TyreLife < (driver.CurrentTyre.Pace / 2))
+            if (ValidTyres.Count > 0 && driver.TyreLife < (driver.CurrentTyre.Pace / 2))
             {
                 ChangeTyres(driver, lapScore);
 
@@ -418,9 +418,9 @@ public partial class Race
             var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
 
             if (tyreMinWear > 0)
-                tyreMinWear = tyreMinWear / safetyWearDivider;
+                tyreMinWear /= safetyWearDivider;
             if (tyreMaxWear > 0)
-                tyreMaxWear = tyreMaxWear / safetyWearDivider;
+                tyreMaxWear /= safetyWearDivider;
 
             driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
@@ -448,9 +448,9 @@ public partial class Race
         var currentTyres = ValidTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList();
 
         Tyre nextTyre;
-        if (currentTyres.Count() > 1)
+        if (currentTyres.Count > 1)
             nextTyre = currentTyres.TakeRandomItem();
-        else if (currentTyres.Count() == 1)
+        else if (currentTyres.Count == 1)
             nextTyre = currentTyres.First();
         else
             nextTyre = ValidTyres.First();
@@ -552,7 +552,7 @@ public partial class Race
 
                 // Defender frequently made a mistake, so we're punishing him for it :)
                 if (defendingDriver.RecentMistake)
-                    defendingResult = defendingResult / 2;
+                    defendingResult /= 2;
 
                 var battleCost = defendingResult - attackingResult;
 
@@ -631,7 +631,7 @@ public partial class Race
         LapScores.AddRange(allLapScores);
 
         int initialHighestOccurr = 0;
-        if (Occurrences.Any())
+        if (Occurrences.Count != 0)
             initialHighestOccurr = Occurrences.Select(e => e.Order).Max();
 
         foreach (var occurr in AdvanceOccurrences.Where(e => e.Key > initialHighestOccurr))
@@ -655,7 +655,7 @@ public partial class Race
 
     private void AddCalculationSituation() => AdvanceOccurrences[calculated] = CurrentSituation;
 
-    private bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
+    private static bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
     private int GetCurrentLapCount => NumberHelper.LapCount(calculated * calculationDistance, Model.Race.Track.Length);
 

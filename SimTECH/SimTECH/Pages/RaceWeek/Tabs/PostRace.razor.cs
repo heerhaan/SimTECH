@@ -11,13 +11,13 @@ public partial class PostRace
     [CascadingParameter]
     public RaweCeekModel Model { get; set; }
 
-    private List<DriverPenalty> DriverPenalties { get; set; } = new();
+    private List<DriverPenalty> DriverPenalties { get; set; } = [];
 
     private Dictionary<int, int> Allotments { get; set; }
 
-    private List<RaceClass> RaceClasses { get; set; } = new();
+    private List<RaceClass> RaceClasses { get; set; } = [];
 
-    private List<GivenPenalty> UpcomingPenalties { get; set; } = new();
+    private List<GivenPenalty> UpcomingPenalties { get; set; } = [];
 
     private bool Loading { get; set; }
 

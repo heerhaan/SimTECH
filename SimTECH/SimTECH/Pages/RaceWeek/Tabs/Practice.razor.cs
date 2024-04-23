@@ -2,13 +2,16 @@
 using SimTECH.Common.Enums;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
+using SimTECH.Data.Services;
 using SimTECH.Extensions;
 using SimTECH.PageModels.RaceWeek;
 
 namespace SimTECH.Pages.RaceWeek.Tabs;
 
-public partial class Practice
+public partial class Practice(RaceService raceService)
 {
+    protected RaceService _raceService { get; } = raceService;
+
     [CascadingParameter]
     public RaweCeekModel Model { get; set; }
 
@@ -18,7 +21,7 @@ public partial class Practice
     [Parameter]
     public EventCallback<int> OnFinish { get; set; }
 
-    private List<SessionDriver> PracticeDrivers { get; set; } = new();
+    private List<SessionDriver> PracticeDrivers { get; set; } = [];
 
     private bool Loading { get; set; } = true;
 

@@ -9,13 +9,19 @@ namespace SimTECH.Pages.RaceWeek.Tabs;
 
 public partial class Qualifying
 {
-    [CascadingParameter] public RaweCeekModel Model { get; set; }
+    [CascadingParameter]
+    public RaweCeekModel Model { get; set; }
 
-    [Parameter] public QualifyingSession QualySession { get; set; } = new();
-    [Parameter] public int MaximumAllowed { get; set; } = int.MaxValue;
-    [Parameter] public EventCallback<int> OnFinish { get; set; }
+    [Parameter]
+    public QualifyingSession QualySession { get; set; } = new();
 
-    private List<SessionDriver> qualyDrivers = new();
+    [Parameter]
+    public int MaximumAllowed { get; set; } = int.MaxValue;
+
+    [Parameter]
+    public EventCallback<int> OnFinish { get; set; }
+
+    private List<SessionDriver> QualyDrivers { get; set; } = [];
 
     bool loading = true;
     string raceName = string.Empty;
@@ -74,7 +80,7 @@ public partial class Qualifying
                     mappedDriver.GapAbove = "+" + (Math.Round((highestScore - mappedDriver.MaxScore()) * gapMarge, 2)).ToString("F2");
             }
 
-            qualyDrivers.Add(mappedDriver);
+            QualyDrivers.Add(mappedDriver);
         }
 
         loading = false;
@@ -82,7 +88,7 @@ public partial class Qualifying
 
     private async void Advance()
     {
-        foreach (var driver in qualyDrivers)
+        foreach (var driver in QualyDrivers)
         {
             var result = driver.Power + NumberHelper.RandomInt(qualyRng);
             driver.Scores[advancedRuns] = result;
@@ -93,10 +99,10 @@ public partial class Qualifying
                 lowestScore = result;
         }
 
-        var positionIndexDict = qualyDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
+        var positionIndexDict = QualyDrivers.Select(e => e.ClassId).Distinct().ToDictionary(e => e, e => 0);
         int absoluteIndex = 0;
 
-        foreach (var driver in qualyDrivers.OrderByDescending(e => e.MaxScore()))
+        foreach (var driver in QualyDrivers.OrderByDescending(e => e.MaxScore()))
         {
             driver.Position = ++positionIndexDict[driver.ClassId];
             driver.AbsolutePosition = ++absoluteIndex;
@@ -114,7 +120,7 @@ public partial class Qualifying
 
     private async Task Finish()
     {
-        var newScores = qualyDrivers.Select(e => new QualifyingScore
+        var newScores = QualyDrivers.Select(e => new QualifyingScore
         {
             Index = QualySession.SessionIndex,
             Scores = e.Scores,

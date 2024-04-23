@@ -256,7 +256,7 @@ public partial class Index
             {
                 SessionIndex = i,
                 IsDisabled = !previousSessionIsFinished,
-                IsFinished = currentScores.Any(),
+                IsFinished = currentScores.Count != 0,
                 SessionScores = currentScores,
             };
 
@@ -325,7 +325,7 @@ public partial class Index
 
     private void AddNewPracticeSession()
     {
-        var nextSession = PracticeSessions.Count() + 1;
+        var nextSession = PracticeSessions.Count + 1;
         PracticeSessions.Add(new PracticeSession
         {
             SessionIndex = nextSession,
@@ -357,7 +357,7 @@ public partial class Index
         var qSessionCount = Model.Season.QualifyingFormat.SessionCount();
         var qualySession = QualySessions.First(e => e.SessionIndex == qualyIndex);
 
-        if (!qualySession.SessionScores.Any())
+        if (qualySession.SessionScores.Count == 0)
             throw new InvalidOperationException("No score data to persist");
 
         qualySession.IsFinished = true;
@@ -384,7 +384,7 @@ public partial class Index
             await _raceService.FinishQualifying(
                 qualySession.SessionScores, finalQualyPosition, RaceId, Model.Season.MaximumDriversInRace);
 
-            if (Model.ConsumablePenalties.Any())
+            if (Model.ConsumablePenalties.Count != 0)
                 await _raceService.ConsumePenalties(Model.ConsumablePenalties, RaceId);
 
             // Update the new grid, position and status
@@ -431,7 +431,7 @@ public partial class Index
 
     private async Task PersistRace()
     {
-        if (!LapScores.Any() || !RaceOccurrences.Any())
+        if (LapScores.Count == 0 || RaceOccurrences.Count == 0)
         {
             _snackbar.Add("Good god, saving a race for which we have NO data. That's so wrong!", Severity.Error);
             return;
