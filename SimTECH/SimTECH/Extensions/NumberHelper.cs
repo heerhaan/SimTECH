@@ -3,7 +3,8 @@
 public static class NumberHelper
 {
     private static int rngSeed = Environment.TickCount;
-    private static readonly ThreadLocal<Random> _rng = new(() => new Random(Interlocked.Increment(ref rngSeed)));
+    private static readonly ThreadLocal<Random> _rng = new(()
+        => new Random(Interlocked.Increment(ref rngSeed)));
 
     public static int RandomInt(int max) => RandomInt(0, max);
     public static int RandomInt(int min, int max)
