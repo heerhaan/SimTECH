@@ -127,13 +127,23 @@
 </MudGrid>
 
 @code {
-    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter]
+    public OverviewModel OverviewModel { get; set; }
 
-    [Parameter] public Race? NextRace { get; set; }
-    [Parameter] public bool HasContractsEnabled { get; set; }
-    [Parameter] public EventCallback OnStartSeason { get; set; }
-    [Parameter] public EventCallback OnFinishSeason { get; set; }
-    [Parameter] public EventCallback<long> OnClassSelected { get; set; }
+    [Parameter]
+    public Race? NextRace { get; set; }
+
+    [Parameter]
+    public bool HasContractsEnabled { get; set; }
+
+    [Parameter]
+    public EventCallback OnStartSeason { get; set; }
+
+    [Parameter]
+    public EventCallback OnFinishSeason { get; set; }
+
+    [Parameter]
+    public EventCallback<long> OnClassSelected { get; set; }
 
     private async Task TriggerStart() => await OnStartSeason.InvokeAsync();
     private async Task TriggerFinish() => await OnFinishSeason.InvokeAsync();

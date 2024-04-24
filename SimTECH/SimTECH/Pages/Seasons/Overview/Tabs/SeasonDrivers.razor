@@ -51,9 +51,11 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter]
+    public OverviewModel OverviewModel { get; set; }
 
-    [Parameter] public EventCallback<SeasonDriver?> OnEditorOpen { get; set; }
+    [Parameter]
+    public EventCallback<SeasonDriver?> OnEditorOpen { get; set; }
 
     private List<SeasonDriverList> DriverItems { get; set; } = new();
 
@@ -64,6 +66,13 @@
     {
         loading = true;
 
+        RestoreSeasonDrivers();
+
+        loading = false;
+    }
+
+    private void RestoreSeasonDrivers()
+    {
         DriverItems.Clear();
 
         foreach (var driver in OverviewModel.ClassDrivers)
@@ -71,27 +80,25 @@
             var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
 
             var listing = new SeasonDriverList
-            {
-                Name = driver.Driver.FullName,
-                Age = driver.GimmeAge(OverviewModel.Season.Year),
-                Number = driver.Number,
-                Country = driver.Driver.Country,
-                Role = driver.TeamRole,
-                Skill = driver.Skill,
-                Reliability = driver.Reliability,
-                Attack = driver.Attack,
-                Defense = driver.Defense,
-                Team = team?.Team?.Name ?? "DROPPED",
-                Colour = team?.Colour ?? Globals.DefaultColour,
-                Accent = team?.Accent ?? Globals.DefaultAccent,
+                {
+                    Name = driver.Driver.FullName,
+                    Age = driver.GimmeAge(OverviewModel.Season.Year),
+                    Number = driver.Number,
+                    Country = driver.Driver.Country,
+                    Role = driver.TeamRole,
+                    Skill = driver.Skill,
+                    Reliability = driver.Reliability,
+                    Attack = driver.Attack,
+                    Defense = driver.Defense,
+                    Team = team?.Team?.Name ?? "DROPPED",
+                    Colour = team?.Colour ?? Globals.DefaultColour,
+                    Accent = team?.Accent ?? Globals.DefaultAccent,
 
-                SeasonDriver = driver
-            };
+                    SeasonDriver = driver
+                };
 
             DriverItems.Add(listing);
         }
-
-        loading = false;
     }
 
     private async Task AddItem() => await UpdateItem(null);

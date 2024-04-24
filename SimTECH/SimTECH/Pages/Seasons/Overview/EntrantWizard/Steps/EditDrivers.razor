@@ -7,6 +7,7 @@
                     <MudTh>Name</MudTh>
                     <MudTh>Number</MudTh>
                     <MudTh>TeamRole</MudTh>
+                    <MudTh>Configuration</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="Name">
@@ -21,6 +22,16 @@
                     </MudTd>
                     <MudTd DataLabel="TeamRole">
                         <MudText>@context.TeamRole</MudText>
+                    </MudTd>
+                    <MudTd>
+                        @if (context.PastSetups?.Count > 0)
+                        {
+                            <MudText>Start editing to pick</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Bloke got none</MudText>
+                        }
                     </MudTd>
                 </RowTemplate>
                 <RowEditingTemplate>
@@ -42,9 +53,40 @@
                             }
                         </MudSelect>
                     </MudTd>
+                    <MudTd>
+                        @if (context.PastSetups?.Count > 0)
+                        {
+                            <MudSelectExtended T="PreviousEntrantSetup<SeasonDriver>"
+                                               ItemCollection="@context.PastSetups"
+                                               Label="Past configuration of driver"
+                                               Variant="Variant.Outlined"
+                                               ValueChanged="@((PreviousEntrantSetup<SeasonDriver> setup) => OnSelectedPastSetup(context, setup))"
+                                               ToStringFunc="@_previousToString">
+                                <ItemTemplate Context="setup">
+                                    <div class="past-setup-dropdown-item">
+                                        <MudText Typo="Typo.subtitle1">@setup.Value.LeagueName - @setup.Value.SeasonYear</MudText>
+                                        <div class="setup-block">
+                                            <span>NO: @setup.Value.Entrant.Number</span>
+                                            <span>SKL: @setup.Value.Entrant.Skill</span>
+                                            <span>REL: @setup.Value.Entrant.Reliability</span>
+                                            <span>ATT: @setup.Value.Entrant.Attack</span>
+                                            <span>DEF: @setup.Value.Entrant.Defense</span>
+                                        </div>
+                                    </div>
+                                </ItemTemplate>
+                            </MudSelectExtended>
+                        }
+                        else
+                        {
+                            <MudText>No past configs</MudText>
+                        }
+                    </MudTd>
                 </RowEditingTemplate>
                 <EditButtonContent Context="button">
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+                    <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Outlined.Edit"
+                                   Class="pa-0"
+                                   OnClick="@button.ButtonAction" />
                 </EditButtonContent>
             </MudTable>
         </MudForm>
@@ -52,5 +94,25 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public AddEntrantsModel Model { get; set; }
+    [CascadingParameter]
+    public AddEntrantsModel Model { get; set; }
+
+    private Func<PreviousEntrantSetup<SeasonDriver>, string> _previousToString => setup =>
+    {
+        if (setup == null)
+            return "Select the league and year to take the configuration from";
+
+        return $"{setup.LeagueName} - {setup.SeasonYear}";
+    };
+
+    private void OnSelectedPastSetup(EditSeasonDriverModel driver, PreviousEntrantSetup<SeasonDriver> setup)
+    {
+        driver.Skill = setup.Entrant.Skill;
+        driver.Reliability = setup.Entrant.Reliability;
+        driver.Attack = setup.Entrant.Attack;
+        driver.Defense = setup.Entrant.Defense;
+
+        // Team assignment happens in a following step
+        // Maybe assign number dependant on whether personal numbers are allowed?
+    }
 }

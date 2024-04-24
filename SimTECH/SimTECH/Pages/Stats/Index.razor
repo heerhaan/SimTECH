@@ -1,5 +1,6 @@
 ﻿@page "/stats"
 
+@using SimTECH.PageModels.Stats
 @using SimTECH.Pages.Stats.Dialogs
 
 @inject DriverService _driverService
@@ -37,7 +38,7 @@
                     </MudCardContent>
                     <MudCardActions>
                         <MudSelect T="long" @bind-Value="@leagueFilter" Variant="Variant.Outlined" Label="League" Placeholder="All leagues">
-                            @foreach (var league in leagues)
+                            @foreach (var league in Leagues)
                             {
                                 <MudSelectItem Value="@league.Id">
                                     <MudText>@league.Name</MudText>
@@ -47,7 +48,7 @@
                     </MudCardActions>
                 </MudCard>
             </MudItem>
-            @foreach (var topic in topics)
+            @foreach (var topic in Topics)
             {
                 <MudItem xs="4">
                     <MudCard Class="mud-height-full">
@@ -75,15 +76,15 @@
 </MudContainer>
 
 @code {
-    List<StatTopic> topics = new();
-    List<League> leagues;
+    private List<StatTopic> Topics { get; set; } = new();
+    private List<League> Leagues;
 
-    bool loading = true;
-    long leagueFilter;
+    private bool loading = true;
+    private long leagueFilter;
 
     protected override async Task OnInitializedAsync()
     {
-        leagues = await _leagueService.GetLeagues();
+        Leagues = await _leagueService.GetLeagues();
 
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -99,18 +100,20 @@
 
     private void LoadTopics()
     {
-        topics.Add(
+        // Use an enum instead of a method as parameter here? Removes the need to load it like this
+        Topics = new()
+        {
             new StatTopic(
                 "Compare drivers",
                 "Compare statistics between multiple drivers",
                 typeof(DriverCompareStat),
-                GetDriverParameters));
-        topics.Add(
+                GetDriverParameters),
             new StatTopic(
                 "Records drivers",
                 "Leaderboards of drivers with the most of something",
                 typeof(DriverRecord),
-                GetDriverParameters));
+                GetDriverParameters)
+        };
     }
 
     private async Task<DialogParameters> GetDriverParameters()
@@ -137,21 +140,5 @@
     {
         var parameters = await topic.ParameterQuery.Invoke();
         _ = await _dialog.ShowAsync(topic.StatisticType, topic.Title, parameters, Globals.StatisticDialogDefaultOptions);
-    }
-
-    internal class StatTopic
-    {
-        public StatTopic(string title, string description, Type statType, Func<Task<DialogParameters>> query)
-        {
-            Title = title;
-            Description = description;
-            StatisticType = statType;
-            ParameterQuery = query;
-        }
-
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public Type StatisticType { get; set; }
-        public Func<Task<DialogParameters>> ParameterQuery { get; set; }
     }
 }

@@ -54,9 +54,11 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter]
+    public OverviewModel OverviewModel { get; set; }
 
-    [Parameter] public EventCallback<SeasonTeam?> OnEditorOpen { get; set; }
+    [Parameter]
+    public EventCallback<SeasonTeam?> OnEditorOpen { get; set; }
 
     private List<SeasonTeamList> TeamItems = new();
 
@@ -67,6 +69,13 @@
     {
         loading = true;
 
+        RestoreSeasonTeams();
+
+        loading = false;
+    }
+
+    private void RestoreSeasonTeams()
+    {
         TeamItems.Clear();
 
         foreach (var team in OverviewModel.ClassTeams)
@@ -75,28 +84,26 @@
             var manufacturer = OverviewModel.Manufacturers.FirstOrDefault(e => e.Id == team.ManufacturerId);
 
             var listing = new SeasonTeamList
-            {
-                Name = team.Name,
-                Country = team.Team.Country,
-                Principal = team.Principal,
-                Colour = team.Colour,
-                BaseValue = team.BaseValue,
-                Aero = team.Aero,
-                Chassis = team.Chassis,
-                Powertrain = team.Powertrain,
-                Reliability = team.Reliability,
-                Engine = engine?.Name ?? "[Unknown]",
-                Manufacturer = manufacturer?.Name ?? "[Unknown]",
-                ManColour = manufacturer?.Colour ?? Globals.DefaultColour,
-                ManAccent = manufacturer?.Accent ?? Globals.DefaultAccent,
+                {
+                    Name = team.Name,
+                    Country = team.Team.Country,
+                    Principal = team.Principal,
+                    Colour = team.Colour,
+                    BaseValue = team.BaseValue,
+                    Aero = team.Aero,
+                    Chassis = team.Chassis,
+                    Powertrain = team.Powertrain,
+                    Reliability = team.Reliability,
+                    Engine = engine?.Name ?? "[Unknown]",
+                    Manufacturer = manufacturer?.Name ?? "[Unknown]",
+                    ManColour = manufacturer?.Colour ?? Globals.DefaultColour,
+                    ManAccent = manufacturer?.Accent ?? Globals.DefaultAccent,
 
-                SeasonTeam = team
-            };
+                    SeasonTeam = team
+                };
 
             TeamItems.Add(listing);
         }
-
-        loading = false;
     }
 
     async Task AddItem() => await UpdateItem(null);

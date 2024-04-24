@@ -21,7 +21,7 @@
             <ScreenshotIconButton TargetId="current-season-calendar-races-overview" Colour="Color.Tertiary" />
         </MudStack>
     </MudPaper>
-    <MudTable T="CalendarList" Items="@seasonCalendar.OrderBy(e => e.Round)" Dense="true" Loading="@loading">
+    <MudTable T="CalendarList" Items="@SeasonCalendar.OrderBy(e => e.Round)" Dense="true" Loading="@loading">
         <HeaderContent>
             <MudTh Class="number-col">Round</MudTh>
             <MudTh>Country</MudTh>
@@ -123,7 +123,7 @@
     [Parameter] public EventCallback<Race?> OnEditorOpen { get; set; }
     [Parameter] public EventCallback<long> OnDelete { get; set; }
 
-    private List<CalendarList> seasonCalendar = new();
+    private List<CalendarList> SeasonCalendar { get; set; } = new();
 
     private bool loading = true;
     private int nextRound;
@@ -131,8 +131,16 @@
     protected override void OnParametersSet()
     {
         loading = true;
+
+        RestoreCalendar();
+
+        loading = false;
+    }
+
+    private void RestoreCalendar()
+    {
         nextRound = OverviewModel.Races.FindNext()?.Round ?? 0;
-        seasonCalendar.Clear();
+        SeasonCalendar.Clear();
 
         var classResults = OverviewModel.ClassResults;
         var classDrivers = OverviewModel.ClassDrivers;
@@ -143,19 +151,19 @@
             var climate = Climates.First(e => e.Id == race.ClimateId);
 
             var listing = new CalendarList
-            {
-                RaceId = race.Id,
-                Round = race.Round,
-                Name = race.Name,
-                Country = race.Track.Country,
-                State = race.State,
-                Weather = climate.Terminology,
-                WeatherIcon = climate.Icon,
-                WeatherColour = climate.Colour ?? "#FFFFFF",
-                TrackId = race.TrackId,
+                {
+                    RaceId = race.Id,
+                    Round = race.Round,
+                    Name = race.Name,
+                    Country = race.Track.Country,
+                    State = race.State,
+                    Weather = climate.Terminology,
+                    WeatherIcon = climate.Icon,
+                    WeatherColour = climate.Colour ?? "#FFFFFF",
+                    TrackId = race.TrackId,
 
-                Race = race
-            };
+                    Race = race
+                };
 
             var polesitter = classResults.FirstOrDefault(e => e.RaceId == race.Id && e.Grid == 1);
             if (polesitter != null)
@@ -212,10 +220,8 @@
                 }
             }
 
-            seasonCalendar.Add(listing);
+            SeasonCalendar.Add(listing);
         }
-
-        loading = false;
     }
 
     private async Task AddRaces() => await OnAddRaces.InvokeAsync();

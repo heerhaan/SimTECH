@@ -89,13 +89,23 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? DriverDialog { get; set; }
 
-    [Parameter, EditorRequired] public long SeasonId { get; set; }
-    [Parameter, EditorRequired] public List<SeasonTeam> SeasonTeams { get; set; }
-    [Parameter] public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
-    [Parameter] public SeasonDriver? SeasonDriver { get; set; }
-    [Parameter] public int[] TakenNumbers { get; set; }
+    [Parameter, EditorRequired]
+    public long SeasonId { get; set; }
+
+    [Parameter, EditorRequired]
+    public List<SeasonTeam> SeasonTeams { get; set; }
+
+    [Parameter]
+    public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
+
+    [Parameter]
+    public SeasonDriver? SeasonDriver { get; set; }
+
+    [Parameter]
+    public int[] TakenNumbers { get; set; }
 
     private EditSeasonDriverModel Model { get; set; }
 
@@ -109,7 +119,7 @@
     private Func<int, string?> _numberValidation => number =>
     {
         if (TakenNumbers.Contains(number))
-            return $"Given number {number} is already used by another driver in this season.";
+            return $"Number {number} is already in use, pick something else.";
 
         return null;
     };

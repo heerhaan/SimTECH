@@ -1,5 +1,6 @@
 ﻿using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
+using SimTECH.PageModels.Seasons;
 
 namespace SimTECH.Data.EditModels
 {
@@ -25,6 +26,8 @@ namespace SimTECH.Data.EditModels
         public long BaseTeamId { get; set; }
         public Driver? Driver { get; set; }
         public bool Contracted { get; set; }
+
+        public List<PreviousEntrantSetup<SeasonDriver>>? PastSetups { get; set; }
 
         public EditSeasonDriverModel(SeasonDriver? seasonDriver)
         {

@@ -29,13 +29,21 @@
 </MudTabs>
 
 @code {
-    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter]
+    public OverviewModel OverviewModel { get; set; }
 
     public List<StandingDriverModel> DriverResults { get; set; } = new();
+
     public List<StandingTeamModel> TeamResults { get; set; } = new();
+
     public Dictionary<int, Country> CountryRounds { get; set; } = new();
 
     protected override void OnInitialized()
+    {
+        RestoreStandingResults();
+    }
+
+    private void RestoreStandingResults()
     {
         CountryRounds.Clear();
 

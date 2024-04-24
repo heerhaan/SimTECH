@@ -91,20 +91,29 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter]
+    public OverviewModel OverviewModel { get; set; }
 
-    [Parameter] public int TeamRoleCarModifier { get; set; }
+    [Parameter]
+    public int TeamRoleCarModifier { get; set; }
 
     private List<PowerRankingItem> PowahList { get; set; } = new();
 
     private List<Trait> Traits { get; set; } = new();
 
-    private bool Loading { get; set; } = true;
+    private bool Loading { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        Loading = true;
+
         Traits = await _traitService.GetTraits(StateFilter.All);
 
+        Loading = false;
+    }
+
+    private void RestorePowerRanking()
+    {
         foreach (var driver in OverviewModel.ClassDrivers)
         {
             var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
@@ -126,37 +135,35 @@
                 + engine.Power;
 
             var listing = new PowerRankingItem
-            {
-                DriverName = driver.Driver.FullName,
-                DriverNumber = driver.Number,
-                Nationality = driver.Driver.Country,
-                TeamName = team.Team.Name,
-                Colour = team.Colour,
-                Accent = team.Accent,
-                Engine = engine.Name,
-                Manufacturer = manufacturer.Name,
-                QualyPower = basePower + relevantTraits.Sum(e => e.QualifyingPace),
-                RacePower = basePower + relevantTraits.Sum(e => e.RacePace),
-                Aero = team.Aero,
-                Chassis = team.Chassis,
-                Powertrain = team.Powertrain,
-                DriverRel = driver.Reliability,
-                CarRel = team.Reliability,
-                EngineRel = engine.Reliability,
-                LifeBonus = manufacturer.Pace,
-                WearMin = manufacturer.WearMin + relevantTraits.Sum(e => e.WearMin),
-                WearMax = manufacturer.WearMax + relevantTraits.Sum(e => e.WearMax),
-                RngMin = relevantTraits.Sum(e => e.RngMin),
-                RngMax = relevantTraits.Sum(e => e.RngMax),
+                {
+                    DriverName = driver.Driver.FullName,
+                    DriverNumber = driver.Number,
+                    Nationality = driver.Driver.Country,
+                    TeamName = team.Team.Name,
+                    Colour = team.Colour,
+                    Accent = team.Accent,
+                    Engine = engine.Name,
+                    Manufacturer = manufacturer.Name,
+                    QualyPower = basePower + relevantTraits.Sum(e => e.QualifyingPace),
+                    RacePower = basePower + relevantTraits.Sum(e => e.RacePace),
+                    Aero = team.Aero,
+                    Chassis = team.Chassis,
+                    Powertrain = team.Powertrain,
+                    DriverRel = driver.Reliability,
+                    CarRel = team.Reliability,
+                    EngineRel = engine.Reliability,
+                    LifeBonus = manufacturer.Pace,
+                    WearMin = manufacturer.WearMin + relevantTraits.Sum(e => e.WearMin),
+                    WearMax = manufacturer.WearMax + relevantTraits.Sum(e => e.WearMax),
+                    RngMin = relevantTraits.Sum(e => e.RngMin),
+                    RngMax = relevantTraits.Sum(e => e.RngMax),
 
-                CarPartAvg = NumberHelper.Average(team.Aero, team.Chassis, team.Powertrain),
-                RelAvg = NumberHelper.Average(driver.Reliability, team.Reliability, engine.Reliability),
-            };
+                    CarPartAvg = NumberHelper.Average(team.Aero, team.Chassis, team.Powertrain),
+                    RelAvg = NumberHelper.Average(driver.Reliability, team.Reliability, engine.Reliability),
+                };
 
             PowahList.Add(listing);
         }
-
-        Loading = false;
     }
 
     private Func<PowerRankingItem, string> SimpleCellStyle => power => ViewHelper.SetBorderRightStyle(power.Colour);
