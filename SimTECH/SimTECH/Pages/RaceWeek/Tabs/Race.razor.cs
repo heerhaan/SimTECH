@@ -189,6 +189,7 @@ public partial class Race
                 continue;
             }
 
+            // No safety car is active = this is a regular advance
             foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
             {
                 var lapScore = HandleDriverAdvancement(driver);
@@ -239,8 +240,8 @@ public partial class Race
         // Calculate the score for drivers which are still racing
         if (driver.Status == RaceStatus.Racing)
         {
-            var minRng = (Model.Season.RngMinimum + driver.RngMinMod);
-            var maxRng = (Model.Season.RngMaximum + driver.RngMaxMod);
+            var minRng = Model.Season.RngMinimum + driver.RngMinMod;
+            var maxRng = Model.Season.RngMaximum + driver.RngMaxMod;
 
             int lapValue = NumberHelper.RandomInt(minRng, maxRng);
 
@@ -380,7 +381,8 @@ public partial class Race
     // returns boolean which indicates whether a safety car is returning after the current advance
     private bool HandleSafetyMoment(List<LapScore> lapScoresToPersist)
     {
-        int scoreAboveDriver = 0;
+        int oldScoreAboveDriver = 0;
+
         foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
         {
             driver.SingleOccurrence = null;
@@ -399,6 +401,14 @@ public partial class Race
             }
             else
             {
+                var scoreAboveDriver = GetScoreOneAboveDriver(driver.LapSum);
+
+                if (scoreAboveDriver != oldScoreAboveDriver)
+                {
+                    // This should probably rarely if ever get hit, if it does then AAAAAAAAAAAAAAAA
+                    _snackbar.Add("ScoreAboveDriver differed from the legacy implementation, this MAY mean that solution is borked or you dumdum", Severity.Error);
+                }
+
                 // closes the gap to the driver above
                 var scoreGap = scoreAboveDriver - driver.LapSum;
 
@@ -434,12 +444,30 @@ public partial class Race
 
             // Only update the score of the above driver if the driver did NOT take this opportunity for a pitstop
             if (!lapScore.RacerEvents.HasFlag(RacerEvent.Pitstop))
-                scoreAboveDriver = driver.LapSum;
+                oldScoreAboveDriver = driver.LapSum;
         }
 
         SetPositions();
 
         return NumberHelper.RandomInt(Model.League.SafetyCarReturnOdds) == 0;
+    }
+
+    private int GetScoreOneAboveDriver(int givenScore)
+    {
+        return RaceDrivers
+            .Where(e => e.Status == RaceStatus.Racing)
+            .OrderBy(e => e.LapSum)
+            .FirstOrDefault(e => e.LapSum > givenScore)
+            ?.LapSum
+            ?? 0;
+
+        //foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.LapSum))
+        //{
+        //    if (driver.LapSum > givenScore)
+        //        return driver.LapSum;
+        //}
+
+        //return 0;
     }
 
     // Returns the score cost which the pitstop took
