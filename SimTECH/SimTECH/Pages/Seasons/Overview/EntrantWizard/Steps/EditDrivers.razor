@@ -20,10 +20,10 @@
                     </MudStack>
                 </MudTd>
                 <MudTd DataLabel="Number">
-                    <MudNumericField @bind-Value="@context.Number" Validation="@_numberValidation" />
+                    <MudNumericField @bind-Value="@context.Number" Validation="@_numberValidation" Class="field-sm dense-field" />
                 </MudTd>
                 <MudTd DataLabel="TeamRole">
-                    <MudSelect T="TeamRole" @bind-Value="@context.TeamRole">
+                    <MudSelect T="TeamRole" @bind-Value="@context.TeamRole" Dense="true" Class="field-sm dense-field">
                         @foreach (var select in TeamRoleEnumHelper.GetTeamRoleSelection)
                         {
                             <MudSelectItem Value="select.Key">@select.Value</MudSelectItem>
@@ -78,7 +78,7 @@
     private Func<PreviousEntrantSetup<SeasonDriver>, string> _previousToString => setup =>
     {
         if (setup == null)
-            return "Select the league and year to take the configuration from";
+            return "Select a previous configuration";
 
         return $"{setup.LeagueName} - {setup.SeasonYear}";
     };

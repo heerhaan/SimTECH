@@ -1,78 +1,61 @@
 ﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudPaper Elevation="15">
-        <MudForm>
-            <MudTable T="EditSeasonTeamModel" Items="@Model.SeasonTeams" Hover="true" Class="overflow-hider">
-                <HeaderContent>
-                    <MudTh Style="min-width: 200px;">Team</MudTh>
-                    <MudTh Style="min-width: 200px;">Name</MudTh>
-                    <MudTh Style="min-width: 200px;">Principal</MudTh>
-                    <MudTh Style="min-width: 100px;">Colour</MudTh>
-                    <MudTh Style="min-width: 100px;">Accent</MudTh>
-                    <MudTh Style="min-width: 200px;">Manufacturer</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Team">
-                        <MudText>@(context.Team?.Name ?? "Unknown")</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Name">
-                        <MudText>@context.Name</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Principal">
-                        <MudText>@context.Principal</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Colour" Style="@ViewHelper.SetBackgroundColour(context.Colour)">
-                        @context.Colour
-                    </MudTd>
-                    <MudTd DataLabel="Accent" Style="@ViewHelper.SetBackgroundColour(context.Accent)">
-                        @context.Accent
-                    </MudTd>
-                    <MudTd DataLabel="Manufacturer">
-                        <MudText>@ReadManufacturerName(context.ManufacturerId)</MudText>
-                    </MudTd>
-                </RowTemplate>
-                <RowEditingTemplate>
-                    <MudTd DataLabel="Team">
-                        <MudText>@(context.Team?.Name ?? "Unknown")</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Name">
-                        <MudTextField @bind-Value="@context.Name" Required />
-                    </MudTd>
-                    <MudTd DataLabel="Principal">
-                        <MudTextField @bind-Value="@context.Principal" Required />
-                    </MudTd>
-                    <MudTd DataLabel="Colour">
-                        <MudColorPicker @bind-Text="@context.Colour" />
-                    </MudTd>
-                    <MudTd DataLabel="Accent">
-                        <MudColorPicker @bind-Text="@context.Accent" />
-                    </MudTd>
-                    <MudTd DataLabel="Manufacturer">
-                         <MudSelect T="long" @bind-Value="@context.ManufacturerId" Dense="true" Required>
-                            @foreach (var manufacturer in Manufacturers)
-                            {
-                                <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
-                            }
-                        </MudSelect>
-                    </MudTd>
-                </RowEditingTemplate>
-                <EditButtonContent Context="button">
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@button.ButtonAction" Class="pa-0" />
-                </EditButtonContent>
-            </MudTable>
-        </MudForm>
+        <MudTable T="EditSeasonTeamModel"
+                  Items="@Model.SeasonTeams"
+                  Hover="true"
+                  Class="overflow-hider">
+            <HeaderContent>
+                <MudTh Style="min-width: 200px;">Team</MudTh>
+                <MudTh Style="min-width: 200px;">Name</MudTh>
+                <MudTh Style="min-width: 200px;">Principal</MudTh>
+                <MudTh Style="min-width: 200px;">Manufacturer</MudTh>
+                <MudTh Style="min-width: 80px;">Colour</MudTh>
+                <MudTh Style="min-width: 80px;">Accent</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Team" Style="@(GetColourPreview(context))">
+                    <MudText>@(context.Team?.Name ?? "Unknown")</MudText>
+                </MudTd>
+                <MudTd DataLabel="Name">
+                    <MudTextField @bind-Value="@context.Name" Class="dense-field" />
+                </MudTd>
+                <MudTd DataLabel="Principal">
+                    <MudTextField @bind-Value="@context.Principal" Class="field-sm dense-field" />
+                </MudTd>
+                <MudTd DataLabel="Manufacturer">
+                    <MudSelect T="long"
+                               @bind-Value="@context.ManufacturerId"
+                               Dense="true"
+                               Class="field-sm dense-field">
+                        @foreach (var manufacturer in Manufacturers)
+                        {
+                            <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudTd>
+                <MudTd DataLabel="Colour">
+                    <MudColorPicker @bind-Text="@context.Colour" Class="field-sm dense-field" />
+                </MudTd>
+                <MudTd DataLabel="Accent">
+                    <MudColorPicker @bind-Text="@context.Accent" Class="field-sm dense-field" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
     </MudPaper>
 </MudContainer>
 
 @code {
-    [CascadingParameter] public AddEntrantsModel Model { get; set; }
-    [Parameter] public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
+    [CascadingParameter]
+    public AddEntrantsModel Model { get; set; }
 
-    private string ReadManufacturerName(long id)
+    [Parameter]
+    public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
+
+    private string GetColourPreview(EditSeasonTeamModel item)
     {
-        var manufacturer = Manufacturers.FirstOrDefault(e => e.Id == id);
-        if (manufacturer != null)
-            return manufacturer.Name;
+        var background = item.Colour ?? Globals.DefaultBackground;
+        var accent = item.Accent ?? Globals.DefaultAccent;
 
-        return "Unknown";
+        return $"background-color: {background}; color: {accent}";
     }
 }

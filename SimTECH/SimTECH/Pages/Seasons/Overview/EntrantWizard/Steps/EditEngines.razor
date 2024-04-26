@@ -1,28 +1,22 @@
 ﻿<MudContainer MaxWidth="MaxWidth.Small">
     <MudPaper Elevation="15">
-        <MudForm>
-            <MudTable T="EditSeasonEngineModel" Items="@Model.SeasonEngines" Hover="true" Class="overflow-hider">
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Name">
-                        <MudText Typo="Typo.caption">@context.Name</MudText>
-                    </MudTd>
-                </RowTemplate>
-                <RowEditingTemplate>
-                    <MudTd DataLabel="Name">
-                        <MudTextField @bind-Value="@context.Name" Required />
-                    </MudTd>
-                </RowEditingTemplate>
-                <EditButtonContent Context="button">
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
-                </EditButtonContent>
-            </MudTable>
-        </MudForm>
+        <MudTable T="EditSeasonEngineModel"
+                  Items="@Model.SeasonEngines"
+                  Hover="true"
+                  Class="overflow-hider">
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">
+                    <MudTextField @bind-Value="@context.Name" Class="field-sm dense-field" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
     </MudPaper>
 </MudContainer>
 
 @code {
-    [CascadingParameter] public AddEntrantsModel Model { get; set; }
+    [CascadingParameter]
+    public AddEntrantsModel Model { get; set; }
 }
