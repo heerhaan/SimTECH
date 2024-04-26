@@ -1,28 +1,60 @@
 ﻿@inject IJSRuntime JS
 
-<MudButton Variant="Variant.Outlined"
-           Color="@Colour"
-           StartIcon="@(PostFixIcon ? null : Icons.Material.Filled.Image)"
-           EndIcon="@(PostFixIcon ? Icons.Material.Filled.Image : null)"
-           IconSize="@IconSize"
-           FullWidth="@FullWidth"
-           Disabled="@IsDisabled"
-           OnClick="TakeScreenshot"
-           Class="@_classes"
-           Style="@_styles">
-    <span>@ButtonText</span>
-</MudButton>
+@if (IsIconButton)
+{
+    <MudTooltip Text="Take a screenshot" Placement="Placement.Top" Color="@Colour">
+        <MudIconButton Variant="Variant.Text"
+                       Icon="@Icons.Material.Filled.Image"
+                       Color="@Colour"
+                       Disabled="@IsDisabled"
+                       OnClick="TakeScreenshot"
+                       Class="@_classes"
+                       Style="@_styles" />
+    </MudTooltip>
+}
+else
+{
+    <MudButton Variant="Variant.Outlined"
+               Color="@Colour"
+               StartIcon="@(PostFixIcon ? null : Icons.Material.Filled.Image)"
+               EndIcon="@(PostFixIcon ? Icons.Material.Filled.Image : null)"
+               IconSize="@IconSize"
+               FullWidth="@FullWidth"
+               Disabled="@IsDisabled"
+               OnClick="TakeScreenshot"
+               Class="@_classes"
+               Style="@_styles">
+        <span>@ButtonText</span>
+    </MudButton>
+}
 
 @code {
-    [Parameter, EditorRequired] public string TargetId { get; set; }
-    [Parameter] public Color Colour { get; set; } = Color.Inherit;
-    [Parameter] public Size IconSize { get; set; } = Size.Medium;
-    [Parameter] public bool PostFixIcon { get; set; }
-    [Parameter] public bool FullWidth { get; set; } = false;
-    [Parameter] public string Class { get; set; } = string.Empty;
-    [Parameter] public string Styles { get; set; } = string.Empty;
+    [Parameter, EditorRequired]
+    public string TargetId { get; set; }
+
+    [Parameter]
+    public Color Colour { get; set; } = Color.Inherit;
+
+    [Parameter]
+    public Size IconSize { get; set; } = Size.Medium;
+
+    [Parameter]
+    public bool IsIconButton { get; set; }
+
+    [Parameter]
+    public bool PostFixIcon { get; set; }
+
+    [Parameter]
+    public bool FullWidth { get; set; } = false;
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Styles { get; set; } = string.Empty;
 
     private bool IsDisabled { get; set; } = false;
+
     private string ButtonText { get; set; } = "Copy";
 
     private string _classes
