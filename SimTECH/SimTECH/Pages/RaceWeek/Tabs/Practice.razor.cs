@@ -2,16 +2,13 @@
 using SimTECH.Common.Enums;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
-using SimTECH.Data.Services;
 using SimTECH.Extensions;
 using SimTECH.PageModels.RaceWeek;
 
 namespace SimTECH.Pages.RaceWeek.Tabs;
 
-public partial class Practice(RaceService raceService)
+public partial class Practice
 {
-    protected RaceService _raceService { get; } = raceService;
-
     [CascadingParameter]
     public RaweCeekModel Model { get; set; }
 
@@ -21,19 +18,23 @@ public partial class Practice(RaceService raceService)
     [Parameter]
     public EventCallback<int> OnFinish { get; set; }
 
+    // Following parameters are (probably) not yet in use but are meant to do the data retrieval simply here
+
     private List<SessionDriver> PracticeDrivers { get; set; } = [];
 
     private bool Loading { get; set; } = true;
 
-    string raceName = string.Empty;
-    Country raceCountry = Globals.DefaultCountry;
-    int amountRuns;
-    int practiceRng;
-    int advancedRuns;
-    int highestScore;
-    int lowestScore = int.MaxValue;
-    bool hasRaceClasses;
-    double gapMarge;
+    private string raceName = string.Empty;
+    private Country raceCountry = Globals.DefaultCountry;
+    private int amountRuns;
+    private int practiceRng;
+    private int advancedRuns;
+    private int highestScore;
+    private int lowestScore = int.MaxValue;
+    private bool hasRaceClasses;
+    private double gapMarge;
+
+    // required id's: raceId - sessionIndex
 
     protected override void OnInitialized()
     {
@@ -50,7 +51,7 @@ public partial class Practice(RaceService raceService)
         if (PracticeSession.IsFinished)
         {
             var scoreNumbers = PracticeSession.SessionScores
-                .SelectMany(e => e.Scores ?? Array.Empty<int>())
+                .SelectMany(e => e.Scores ?? [])
                 .Where(e => e != 0)
                 .ToArray();
 
@@ -64,7 +65,7 @@ public partial class Practice(RaceService raceService)
 
             var driverScore = PracticeSession.SessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId);
 
-            if (driverScore?.Scores?.Any() ?? false)
+            if (driverScore?.Scores?.Length > 0)
             {
                 mappedDriver.Scores = driverScore.Scores;
                 mappedDriver.Position = driverScore.Position;
@@ -109,7 +110,7 @@ public partial class Practice(RaceService raceService)
 
             driver.GapAbove = driver.AbsolutePosition == 1
                 ? "LEADER"
-                : "+" + (Math.Round((highestScore - driver.MaxScore()) * gapMarge, 2)).ToString("F2");
+                : "+" + Math.Round((highestScore - driver.MaxScore()) * gapMarge, 2).ToString("F2");
         }
 
         advancedRuns++;
@@ -120,19 +121,40 @@ public partial class Practice(RaceService raceService)
 
     private async Task Finish()
     {
-        var newScores = PracticeDrivers.Select(e => new PracticeScore
-        {
-            Index = PracticeSession.SessionIndex,
-            Scores = e.Scores,
-            Position = e.Position,
-            AbsolutePosition = e.AbsolutePosition,
-            RaceId = Model.Race.Id,
-            ResultId = e.ResultId
-        })
+        var newScores = PracticeDrivers
+            .Select(e => new PracticeScore
+            {
+                Index = PracticeSession.SessionIndex,
+                Scores = e.Scores,
+                Position = e.Position,
+                AbsolutePosition = e.AbsolutePosition,
+                RaceId = Model.Race.Id,
+                ResultId = e.ResultId
+            })
             .ToList();
 
         PracticeSession.SessionScores.AddRange(newScores);
 
         await OnFinish.InvokeAsync(PracticeSession.SessionIndex);
+    }
+
+    // Following methods are in development but ultimately used to reduce some of the load of the index above
+    private async Task OnInitializeSession(long raceId, int practiceIndex)
+    {
+        var practiceScores = await _raceService.GetPracticeScores(raceId, practiceIndex);
+
+        if (practiceScores.Count > 0)
+        {
+            var practiceSession = new PracticeSession()
+            {
+                SessionIndex = practiceIndex,
+                IsFinished = true,
+                SessionScores = practiceScores,
+            };
+        }
+        else
+        {
+            // This is a new session!
+        }
     }
 }

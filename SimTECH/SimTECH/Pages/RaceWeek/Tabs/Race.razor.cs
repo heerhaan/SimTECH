@@ -29,7 +29,7 @@ public partial class Race
     [Parameter]
     public EventCallback OnFinish { get; set; } = new();
 
-    private static readonly Entrant[] cycleableReliablities = [Entrant.Driver, Entrant.Team, Entrant.Engine];
+    private static readonly Entrant[] cycleableReliablities = [ Entrant.Driver, Entrant.Team, Entrant.Engine ];
     private static readonly RacerEvent[] signalEvents =
         [
             RacerEvent.Pitstop,

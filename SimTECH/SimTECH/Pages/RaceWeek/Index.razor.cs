@@ -262,7 +262,7 @@ public partial class Index
 
             previousSessionIsFinished = qSession.IsFinished;
 
-            // REFACTOR: Er is hier vast een betere oplossing voor
+            // TODO: Er is hier vast een betere oplossing voor
             if (Model.Season.QualifyingFormat == QualyFormat.TripleEliminate)
             {
                 if (qSession.SessionIndex == 1)

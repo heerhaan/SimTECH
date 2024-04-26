@@ -102,6 +102,16 @@ public class RaceService(IDbContextFactory<SimTechDbContext> factory)
             .ToListAsync();
     }
 
+    public async Task<List<PracticeScore>> GetPracticeScores(long raceId, int index)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.PracticeScore
+            .Where(e => e.Result.RaceId == raceId
+                && e.Index == index)
+            .ToListAsync();
+    }
+
     public async Task UpdateRace(Race race)
     {
         using var context = _dbFactory.CreateDbContext();

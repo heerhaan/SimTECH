@@ -1,4 +1,6 @@
-﻿using MudBlazor.Services;
+﻿using Microsoft.Extensions.DependencyInjection;
+using MudBlazor.Services;
+using SimTECH.UnitTests.Data.Services;
 
 namespace SimTECH.UnitTests.Extensions;
 
@@ -11,5 +13,8 @@ public static class TestContextExtensions
             options.SnackbarConfiguration.ShowTransitionDuration = 0;
             options.SnackbarConfiguration.HideTransitionDuration = 0;
         });
+
+        // Probably need interface to make this properly work
+        context.Services.AddScoped<IncidentService>();
     }
 }
