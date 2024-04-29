@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
+using SimTECH.Data.Services.Interfaces;
 using SimTECH.UnitTests.Data.Services;
 
 namespace SimTECH.UnitTests.Extensions;
@@ -15,6 +16,6 @@ public static class TestContextExtensions
         });
 
         // Probably need interface to make this properly work
-        context.Services.AddScoped<IncidentService>();
+        context.Services.AddScoped<IIncidentService, IncidentService>();
     }
 }

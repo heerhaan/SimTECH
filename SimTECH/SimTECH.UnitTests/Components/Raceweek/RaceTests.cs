@@ -12,22 +12,48 @@ namespace SimTECH.UnitTests.Components.Raceweek;
 [TestFixture]
 public class RaceTests : BunitTest
 {
+    // [Setup]?
+
     [Test]
     public async Task InitShouldBuildAndPrepare()
     {
         // Arrange
 
         // Not definitive, is example of how to pass a cascading parameter. Part of setup normally? Or some on-init thing for tests
-        var placeholderModel = new RaweCeekModel();
+        var placeholderModel = new RaweCeekModel()
+        {
+            Climate = new(),
+            Race = new()
+            {
+                Track = new(),
+            },
+            RaweCeekDrivers = new()
+            {
+                new()
+                {
 
+                },
+                new()
+                {
+
+                },
+            },
+            Season = new(),
+        };
+        var placeholderScores = new List<LapScore>();
         var placeholderOccurences = new List<RaceOccurrence>();
+        var placeholderTyres = new List<Tyre>();
+        var placeholderConfig = new SimConfig();
 
         // just add return type like Action<object> if it has one
         Action placeholderOnFinish = () => { };
 
         var comp = Context.RenderComponent<RaceComponent>(parameters => parameters
             .Add(p => p.Model, placeholderModel)
+            .Add(p => p.LapScores, placeholderScores)
             .Add(p => p.Occurrences, placeholderOccurences)
+            .Add(p => p.Tyres, placeholderTyres)
+            .Add(p => p.Config, placeholderConfig)
             .Add(p => p.OnFinish, placeholderOnFinish));
 
         // Looks up the advanc ebutton in the respective component
