@@ -27,7 +27,8 @@ public abstract class BaseService<T>(IDbContextFactory<SimTechDbContext> factory
     }
 }
 
-public abstract class StateService<T>(IDbContextFactory<SimTechDbContext> factory) : BaseService<T>(factory) where T : ModelState
+public abstract class StateService<T>(IDbContextFactory<SimTechDbContext> factory)
+    : BaseService<T>(factory) where T : ModelState
 {
     public async Task ChangeState(T item, State targetState)
     {

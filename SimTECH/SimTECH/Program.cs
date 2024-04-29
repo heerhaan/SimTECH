@@ -5,6 +5,7 @@ using MudBlazor.Services;
 using MudExtensions.Services;
 using SimTECH.Data;
 using SimTECH.Data.Services;
+using SimTECH.Data.Services.Interfaces;
 using SimTECH.Providers;
 
 namespace SimTECH;
@@ -51,7 +52,7 @@ public static class Program
         builder.Services.AddScoped<ClimateService>();
         builder.Services.AddScoped<DriverService>();
         builder.Services.AddScoped<EngineService>();
-        builder.Services.AddScoped<IncidentService>();
+        builder.Services.AddScoped<IIncidentService, IncidentService>();
         builder.Services.AddScoped<LeagueService>();
         builder.Services.AddScoped<ManufacturerService>();
         builder.Services.AddScoped<RaceService>();
