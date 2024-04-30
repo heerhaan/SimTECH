@@ -120,6 +120,16 @@ public class RaceService(IDbContextFactory<SimTechDbContext> factory) : IRaceSer
     //    var race = await context.Race.SingleAsync(e => e.Id == raceId);
     //}
 
+    public async Task<List<Tyre>> GetValidTyresForRace(long leagueId)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.Tyre
+            .Where(e => e.State == State.Active
+                && e.LeagueTyres.Any(lt => lt.LeagueId == leagueId))
+            .ToListAsync();
+    }
+
     public async Task UpdateRace(Race race)
     {
         using var context = _dbFactory.CreateDbContext();
@@ -326,6 +336,35 @@ public class RaceService(IDbContextFactory<SimTechDbContext> factory) : IRaceSer
                     .SetProperty(p => p.ConsumedAtRaceId, raceId));
 
         await context.SaveChangesAsync();
+    }
+
+    public async Task CheckPenalties(List<Result> raceResults)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        var newPenalties = new List<GivenPenalty>();
+
+        foreach (var dnfResult in raceResults.Where(e => e.Incident?.Penalized == true))
+        {
+            var incidentFrequency = await context.Result
+                .Where(e => e.SeasonDriverId == dnfResult.SeasonDriverId && e.IncidentId == dnfResult.IncidentId)
+                .CountAsync();
+
+            if (incidentFrequency > dnfResult.Incident.Limit)
+            {
+                newPenalties.Add(new GivenPenalty
+                {
+                    SeasonDriverId = dnfResult.SeasonDriverId,
+                    IncidentId = dnfResult.IncidentId!.Value,
+                });
+            }
+        }
+
+        if (newPenalties.Count != 0)
+        {
+            context.AddRange(newPenalties);
+            await context.SaveChangesAsync();
+        }
     }
 
     public async Task PersistLapScores(List<LapScore> lapscores)

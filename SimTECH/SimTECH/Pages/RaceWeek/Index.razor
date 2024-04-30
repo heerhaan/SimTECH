@@ -74,15 +74,10 @@
                             </MudTabs>
                         }
                     </MudTabPanel>
-                    <MudTabPanel Text="Race" Disabled="@IsRaceDisabled" OnClick="OnOpenRace">
-                        @if (RaceLoaded)
-                        {
-                            <Race LapScores="@LapScores"
-                                  Occurrences="@RaceOccurrences"
-                                  Tyres="@Tyres"
-                                  Config="@config"
-                                  OnFinish="PersistRace" />
-                        }
+                    <MudTabPanel Text="Race" Disabled="@IsRaceDisabled">
+                        <Race RaceId="@RaceId"
+                              Config="@config"
+                              OnFinish="HandleRaceFinished" />
                     </MudTabPanel>
                     <MudTabPanel Text="Post race" Disabled="@IsPostRaceDisabled">
                         <PostRace />

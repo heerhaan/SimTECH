@@ -4,16 +4,14 @@ namespace SimTECH.PageModels.RaceWeek;
 
 public class RaweCeekModel
 {
-    public Race Race { get; set; }
-    public Climate Climate { get; set; }
-    public Season Season { get; set; }
-    public League League { get; set; }
+    public Race Race { get; set; }// this one is fine
+    public Climate Climate { get; set; }// also fine
+    public Season Season { get; set; }// also fine
+    public League League { get; set; }// also fine
 
-    public List<RaweCeekDriver> RaweCeekDrivers { get; set; }
+    public List<RaweCeekDriver> RaweCeekDrivers { get; set; }// consider? set this per session
 
-    public List<long> ConsumablePenalties { get; set; } = [];
-
-    public double GapMarge { get; set; }
+    public double GapMarge { get; set; }// might be fine? Consider setting all config variables in the model?
 }
 
 public static class ExtendRaweCeek

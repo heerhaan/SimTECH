@@ -27,8 +27,8 @@ public class RaceTests : BunitTest
             {
                 Track = new(),
             },
-            RaweCeekDrivers = new()
-            {
+            RaweCeekDrivers =
+            [
                 new()
                 {
 
@@ -37,12 +37,9 @@ public class RaceTests : BunitTest
                 {
 
                 },
-            },
+            ],
             Season = new(),
         };
-        var placeholderScores = new List<LapScore>();
-        var placeholderOccurences = new List<RaceOccurrence>();
-        var placeholderTyres = new List<Tyre>();
         var placeholderConfig = new SimConfig();
 
         // just add return type like Action<object> if it has one
@@ -50,9 +47,6 @@ public class RaceTests : BunitTest
 
         var comp = Context.RenderComponent<RaceComponent>(parameters => parameters
             .Add(p => p.Model, placeholderModel)
-            .Add(p => p.LapScores, placeholderScores)
-            .Add(p => p.Occurrences, placeholderOccurences)
-            .Add(p => p.Tyres, placeholderTyres)
             .Add(p => p.Config, placeholderConfig)
             .Add(p => p.OnFinish, placeholderOnFinish));
 
@@ -80,7 +74,6 @@ public class RaceTests : BunitTest
 
         var comp = Context.RenderComponent<RaceComponent>(parameters => parameters
             .Add(p => p.Model, placeholderModel)
-            .Add(p => p.Occurrences, placeholderOccurences)
             .Add(p => p.OnFinish, placeholderOnFinish));
 
         // Looks up the advanc ebutton in the respective component

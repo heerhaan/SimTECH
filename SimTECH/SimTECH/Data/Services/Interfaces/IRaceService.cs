@@ -26,6 +26,8 @@ public interface IRaceService
 
     public Task<List<PracticeScore>> GetPracticeScores(long raceId, int index);
 
+    public Task<List<Tyre>> GetValidTyresForRace(long leagueId);
+
     public Task UpdateRace(Race race);
 
     public Task InsertRaces(List<Race> races);
@@ -47,6 +49,8 @@ public interface IRaceService
     public Task<List<GivenPenalty>> GetRacePenalties(long raceId);
 
     public Task ConsumePenalties(List<long> consumables, long raceId);
+
+    public Task CheckPenalties(List<Result> raceResults);
 
     public Task PersistLapScores(List<LapScore> lapscores);
 

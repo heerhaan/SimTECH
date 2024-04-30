@@ -3,6 +3,7 @@ using MudBlazor;
 using SimTECH.Common.Enums;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
+using SimTECH.Data.Services;
 using SimTECH.Data.Services.Interfaces;
 using SimTECH.Extensions;
 using SimTECH.PageModels.RaceWeek;
@@ -12,42 +13,8 @@ namespace SimTECH.Pages.RaceWeek.Tabs;
 
 public partial class Race
 {
-    #region injected services
-    [Inject]
-    private IIncidentService _incidentService { get; set; }
+    private static readonly Entrant[] cycleableReliablities = [Entrant.Driver, Entrant.Team, Entrant.Engine];
 
-    [Inject]
-    private IDialogService _dialogService { get; set; }
-
-    [Inject]
-    private ISnackbar _snackbar { get; set; }
-    #endregion
-
-    [CascadingParameter]
-    public RaweCeekModel Model { get; set; }
-
-    [Parameter]
-    public List<RaweCeekDriver> Drivers { get; set; }
-
-    [Parameter]
-    public long RaceId { get; set; }
-
-    [Parameter]
-    public List<LapScore> LapScores { get; set; } = [];
-
-    [Parameter]
-    public List<RaceOccurrence> Occurrences { get; set; } = [];
-
-    [Parameter]
-    public IEnumerable<Tyre> Tyres { get; set; } = [];
-
-    [Parameter]
-    public SimConfig Config { get; set; } = new();
-
-    [Parameter]
-    public EventCallback OnFinish { get; set; } = new();
-
-    private static readonly Entrant[] cycleableReliablities = [ Entrant.Driver, Entrant.Team, Entrant.Engine ];
     private static readonly RacerEvent[] signalEvents =
         [
             RacerEvent.Pitstop,
@@ -60,10 +27,44 @@ public partial class Race
             //RacerEvent.FastestLap,
         ];
 
+    private readonly int safetyWearDivider = 3;
+
+    #region injected services
+    [Inject]
+    private IIncidentService _incidentService { get; set; }
+
+    [Inject]
+    private IRaceService _raceService { get; set; }
+
+    [Inject]
+    private IDialogService _dialogService { get; set; }
+
+    [Inject]
+    private ISnackbar _snackbar { get; set; }
+    #endregion
+
+    [CascadingParameter]
+    public RaweCeekModel Model { get; set; }
+
+    [Parameter]
+    public long RaceId { get; set; }
+
+    [Parameter]
+    public SimConfig Config { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnFinish { get; set; } = new();
+
+    private List<LapScore> LapScores { get; set; } = [];
+
+    private List<RaceOccurrence> Occurrences { get; set; } = [];
+
+    private List<Incident> Incidents { get; set; } = [];
+
+    private List<Tyre> Tyres { get; set; } = [];
+
     private Dictionary<int, SituationOccurrence> AdvanceOccurrences { get; set; } = [];
     private List<RaceDriver> RaceDrivers { get; set; } = [];
-    private List<Incident> Incidents { get; set; } = [];
-    private List<Tyre> AvailableTyres { get; set; } = [];
     private List<Tyre> ValidTyres { get; set; } = [];
 
     // Controls for the view
@@ -79,9 +80,7 @@ public partial class Race
 
     // Supportive caluclation fields
     private int fastestLap;
-    
     private int racerCount;
-
     private int calculated;
     private int calculationCount;
     private int calculationsPerAdvance = 5;
@@ -89,19 +88,17 @@ public partial class Race
 
     private int lastHighestScore = 0;
     private int lastLowestScore = 0;
-    private readonly int safetyWearDivider = 3;
 
-    private bool isFirstLap => calculated == 1;
+    private bool IsFirstLap => calculated == 1;
 
     protected override async Task OnInitializedAsync()
     {
-        //var race = await _rac
+        Loading = true;
 
+        LapScores = await _raceService.GetLapScores(RaceId);
+        Occurrences = await _raceService.GetRaceOccurrences(RaceId);
         Incidents = await _incidentService.GetIncidents(StateFilter.Active);
-
-        AvailableTyres.AddRange(
-            Tyres.Where(e => e.State == State.Active
-                && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false)));
+        Tyres = await _raceService.GetValidTyresForRace(Model.League.Id);
 
         calculationDistance = Config.CalculationDistance;
         calculationCount = Model.Race.RaceLength / calculationDistance;
@@ -124,7 +121,7 @@ public partial class Race
         // Run this one time so that we have valid tyres to show
         var distanceLeft = Model.Race.RaceLength - (calculated * calculationDistance);
 
-        ValidTyres = AvailableTyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
+        ValidTyres = Tyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
 
         Loading = false;
     }
@@ -256,7 +253,7 @@ public partial class Race
         var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
         // Determine if either driver, car or engine has failed
-        var safetyCarOccurrence = CheckReliability(driver, lapScore);
+        var isSafetyCarOut = CheckReliability(driver, lapScore);
 
         // Calculate the score for drivers which are still racing
         if (driver.Status == RaceStatus.Racing)
@@ -303,9 +300,9 @@ public partial class Race
             lapScore.Score = lapValue;
         }
         // If this get's triggered then the current driver caused a safety car, racing goes on as normal until the next advance
-        else if (safetyCarOccurrence)
+        else if (isSafetyCarOut)
         {
-            SafetyCarOut = safetyCarOccurrence;
+            SafetyCarOut = isSafetyCarOut;
             CurrentSituation = SituationOccurrence.Caution;
         }
 
@@ -334,7 +331,7 @@ public partial class Race
             driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
         }
         // Additional reliability check happens on the opening lap, as crashes are more frequent then
-        else if (isFirstLap && DidReliabilityFail(driver.DriverReliability))
+        else if (IsFirstLap && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
             driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
@@ -532,7 +529,7 @@ public partial class Race
 
         // Set the next amount of tyres valid for drivers to stop on to.
         var distanceLeft = Model.Race.RaceLength - (calculated * calculationDistance);
-        ValidTyres = AvailableTyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
+        ValidTyres = Tyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
     }
 
     // Recalculates the positions of the participating race drivers, includes atacking and defending
@@ -673,6 +670,7 @@ public partial class Race
         PreProcessFinish();
 
         // Update object references / Update the raweceek driver references based upon the race driver results
+        // Just puked in my mouth because of this bit of logic, please do away with this eventually
         foreach (var raceDriver in RaceDrivers)
         {
             var matchDriver = Model.RaweCeekDrivers.First(e => e.ResultId == raceDriver.ResultId);
@@ -690,14 +688,18 @@ public partial class Race
         }
 
         // Should be removed when it is done per advance
-        var allLapScores = RaceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();
+        var allLapScores = RaceDrivers
+            .SelectMany(e => e.LapScores)
+            .Where(e => e.Id == 0)
+            .ToList();
+
         LapScores.AddRange(allLapScores);
 
-        int initialHighestOccurr = 0;
+        int initialHighestOccurrence = 0;
         if (Occurrences.Count != 0)
-            initialHighestOccurr = Occurrences.Select(e => e.Order).Max();
+            initialHighestOccurrence = Occurrences.Select(e => e.Order).Max();
 
-        foreach (var occurr in AdvanceOccurrences.Where(e => e.Key > initialHighestOccurr))
+        foreach (var occurr in AdvanceOccurrences.Where(e => e.Key > initialHighestOccurrence))
         {
             Occurrences.Add(new RaceOccurrence
             {
@@ -707,7 +709,37 @@ public partial class Race
             });
         }
 
+        // Normally this was done by the code triggered by the onfinish invocation, now we do it here!
+        await PersistRaceData();
+
         await OnFinish.InvokeAsync();
+    }
+
+    private async Task PersistRaceData()
+    {
+        if (LapScores.Count == 0 || Occurrences.Count == 0)
+        {
+            _snackbar.Add("Good god, saving a race for which we have NO data. That's so wrong!", Severity.Error);
+            return;
+        }
+
+        var allotments = Model.Season.PointAllotments?
+            .ToDictionary(e => e.Position, e => e.Points) ?? [];
+        var finalResults = Model.RaweCeekDrivers
+            .Select(e => e.MapToResult(RaceId))
+            .ToList();
+        var scoredPoints = Model.RaweCeekDrivers
+            .Select(e => e.MapToScoredPoints(allotments, Model.Season.PointsPole, Model.Season.PointsFastestLap))
+            .ToList();
+
+        await _raceService.PersistLapScores(LapScores);
+        await _raceService.PersistOccurrences(Occurrences);
+        await _raceService.FinishRace(RaceId, finalResults, scoredPoints);
+
+        if (Model.League.Options.HasFlag(LeagueOptions.EnablePenalty))
+            await _raceService.CheckPenalties(finalResults);
+
+        Model.Race.State = State.Closed;
     }
 
     private void ChangeCalculationPerAdvance(MudChip? calcChip)

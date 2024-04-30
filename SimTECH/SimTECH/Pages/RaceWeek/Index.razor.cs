@@ -22,19 +22,17 @@ public partial class Index
 
     private List<PracticeSession> PracticeSessions { get; set; } = [];
     private List<QualifyingSession> QualySessions { get; set; } = [];
-    private List<LapScore> LapScores { get; set; } = [];
-    private List<RaceOccurrence> RaceOccurrences { get; set; } = [];
+
+    private List<long> ConsumablePenalties { get; set; } = [];
 
     private SimConfig config;
 
     private bool Loading { get; set; } = true;
     private bool PracticeLoaded { get; set; }
     private bool QualifyingLoaded { get; set; }
-    private bool RaceLoaded { get; set; }
 
-    private bool IsRaceDisabled => Model.Race.State != State.Advanced && Model.Race.State != State.Closed;
-    //bool raceDisabled => Model.Race.State is not State.Advanced and not State.Closed; // works too, which is prettier?
-    private bool IsPostRaceDisabled => Model.Race.State != State.Closed;
+    private bool IsRaceDisabled => Model.Race.State is not State.Advanced and not State.Closed;
+    private bool IsPostRaceDisabled => Model.Race.State is not State.Closed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -196,7 +194,7 @@ public partial class Index
                 // Reasons is an ugly solution, rather see this re-implemented
                 matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
 
-                Model.ConsumablePenalties.AddRange(penalty.Select(e => e.Id));
+                ConsumablePenalties.AddRange(penalty.Select(e => e.Id));
             }
         }
 
@@ -286,21 +284,11 @@ public partial class Index
         QualifyingLoaded = true;
     }
 
-    private async Task OnOpenRace()
-    {
-        if (RaceLoaded)
-            return;
-
-        LapScores = await _raceService.GetLapScores(RaceId);
-        RaceOccurrences = await _raceService.GetRaceOccurrences(RaceId);
-
-        RaceLoaded = true;
-    }
-
     private async Task PickRaceTyre(long resultId)
     {
         var availableTyres = Tyres
-            .Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false))
+            .Where(e => e.State == State.Active
+                && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false))
             .ToList();
 
         var parameters = new DialogParameters
@@ -384,8 +372,8 @@ public partial class Index
             await _raceService.FinishQualifying(
                 qualySession.SessionScores, finalQualyPosition, RaceId, Model.Season.MaximumDriversInRace);
 
-            if (Model.ConsumablePenalties.Count != 0)
-                await _raceService.ConsumePenalties(Model.ConsumablePenalties, RaceId);
+            if (ConsumablePenalties.Count != 0)
+                await _raceService.ConsumePenalties(ConsumablePenalties, RaceId);
 
             // Update the new grid, position and status
             foreach (var res in finalQualyPosition)
@@ -429,32 +417,8 @@ public partial class Index
         }
     }
 
-    private async Task PersistRace()
+    private void HandleRaceFinished()
     {
-        if (LapScores.Count == 0 || RaceOccurrences.Count == 0)
-        {
-            _snackbar.Add("Good god, saving a race for which we have NO data. That's so wrong!", Severity.Error);
-            return;
-        }
-
-        var allotments = Model.Season.PointAllotments?
-            .ToDictionary(e => e.Position, e => e.Points) ?? [];
-        var finalResults = Model.RaweCeekDrivers
-            .Select(e => e.MapToResult(RaceId))
-            .ToList();
-        var scoredPoints = Model.RaweCeekDrivers
-            .Select(e => e.MapToScoredPoints(allotments, Model.Season.PointsPole, Model.Season.PointsFastestLap))
-            .ToList();
-
-        await _raceService.PersistLapScores(LapScores);
-        await _raceService.PersistOccurrences(RaceOccurrences);
-        await _raceService.FinishRace(RaceId, finalResults, scoredPoints);
-
-        if (Model.League.Options.HasFlag(LeagueOptions.EnablePenalty))
-        {
-            await _seasonService.CheckPenalties(finalResults);
-        }
-
         Model.Race.State = State.Closed;
     }
 }
