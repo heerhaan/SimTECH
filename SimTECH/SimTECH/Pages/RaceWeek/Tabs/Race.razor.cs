@@ -3,6 +3,7 @@ using MudBlazor;
 using SimTECH.Common.Enums;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
+using SimTECH.Data.Services.Interfaces;
 using SimTECH.Extensions;
 using SimTECH.PageModels.RaceWeek;
 using SimTECH.Pages.RaceWeek.Dialogs;
@@ -11,6 +12,15 @@ namespace SimTECH.Pages.RaceWeek.Tabs;
 
 public partial class Race
 {
+    [Inject]
+    private IIncidentService _incidentService { get; set; }
+
+    [Inject]
+    private IDialogService _dialogService { get; set; }
+
+    [Inject]
+    private ISnackbar _snackbar { get; set; }
+
     [CascadingParameter]
     public RaweCeekModel Model { get; set; }
 
@@ -55,8 +65,10 @@ public partial class Race
     private List<Tyre> ValidTyres { get; set; } = [];
 
     // Controls for the view
-    private bool loading = true;
-    private bool safetyCarOut = false;
+    private bool Loading { get; set; } = true;
+    private bool SafetyCarOut { get; set; } = false;
+    private int RacedLaps { get; set; }
+    private int TotalLaps { get; set; }
 
     private SituationOccurrence CurrentSituation { get; set; } = SituationOccurrence.Raced;
 
@@ -65,8 +77,7 @@ public partial class Race
 
     // Supportive caluclation fields
     private int fastestLap;
-    private int racedLaps;
-    private int totalLaps;
+    
     private int racerCount;
 
     private int calculated;
@@ -103,8 +114,8 @@ public partial class Race
             AdvanceOccurrences.Add(index, situationMatch?.Occurrences ?? SituationOccurrence.Unknown);
         }
 
-        racedLaps = GetCurrentLapCount;
-        totalLaps = NumberHelper.LapCount(Model.Race.RaceLength, Model.Race.Track.Length);
+        RacedLaps = GetCurrentLapCount;
+        TotalLaps = NumberHelper.LapCount(Model.Race.RaceLength, Model.Race.Track.Length);
 
         BuildRaceDrivers();
 
@@ -113,7 +124,7 @@ public partial class Race
 
         ValidTyres = AvailableTyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
 
-        loading = false;
+        Loading = false;
     }
 
     private void BuildRaceDrivers()
@@ -183,13 +194,13 @@ public partial class Race
             AddCalculationSituation();
 
             // Logic for what happens during a SC goes here
-            if (safetyCarOut)
+            if (SafetyCarOut)
             {
                 var safetyCarGoesBackIn = HandleSafetyMoment(lapScoresToPersist);
                 if (safetyCarGoesBackIn)
                 {
                     // After handling a safety car round, it goes back in
-                    safetyCarOut = false;
+                    SafetyCarOut = false;
 
                     CurrentSituation = SituationOccurrence.Raced;
                 }
@@ -211,11 +222,11 @@ public partial class Race
             PostProcessAdvance();
 
             // Stop iterating through all advances since SC has gone out
-            if (safetyCarOut)
+            if (SafetyCarOut)
                 break;
         }
 
-        racedLaps = GetCurrentLapCount;
+        RacedLaps = GetCurrentLapCount;
 
         var lastScores = RaceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
 
@@ -292,7 +303,7 @@ public partial class Race
         // If this get's triggered then the current driver caused a safety car, racing goes on as normal until the next advance
         else if (safetyCarOccurrence)
         {
-            safetyCarOut = safetyCarOccurrence;
+            SafetyCarOut = safetyCarOccurrence;
             CurrentSituation = SituationOccurrence.Caution;
         }
 
@@ -503,7 +514,7 @@ public partial class Race
         var pitCost = NumberHelper.RandomInt(Model.Season.PitMinimum, Model.Season.PitMaximum);
 
         // Pitstop duration is reduced since this is a safety car moment
-        if (safetyCarOut && pitCost > Model.Season.PitCostSubtractCaution)
+        if (SafetyCarOut && pitCost > Model.Season.PitCostSubtractCaution)
             pitCost -= Model.Season.PitCostSubtractCaution;
 
         return pitCost;

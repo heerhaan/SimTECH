@@ -1,11 +1,7 @@
 ﻿@using SimTECH.Data.Services.Interfaces
 @using SimTECH.Pages.RaceWeek.Components
 
-@inject IIncidentService _incidentService
-@inject IDialogService _dialogService
-@inject ISnackbar _snackbar
-
-@if (!loading)
+@if (!Loading)
 {
     <MudPaper Elevation="25" MinHeight="60px" Width="100%">
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
@@ -31,7 +27,7 @@
                     <MudChip Value="10" Color="Color.Primary">
                         @(NumberHelper.LapCount(10 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
-                    <MudChip Value="@calculationCount" Color="Color.Primary">@totalLaps</MudChip>
+                    <MudChip Value="@calculationCount" Color="Color.Primary">@TotalLaps</MudChip>
                 </MudChipSet>
             </MudStack>
 
@@ -68,7 +64,7 @@
                              DisableRipple="true">
                         <MudText Typo="Typo.h5"
                                  Color="@CurrentSituation.GetIndicatorTextColour()">
-                            LAP @(racedLaps) / @(totalLaps)
+                            LAP @(RacedLaps) / @(TotalLaps)
                         </MudText>
                     </MudChip>
 
