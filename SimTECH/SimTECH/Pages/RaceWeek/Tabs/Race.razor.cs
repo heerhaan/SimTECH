@@ -12,6 +12,7 @@ namespace SimTECH.Pages.RaceWeek.Tabs;
 
 public partial class Race
 {
+    #region injected services
     [Inject]
     private IIncidentService _incidentService { get; set; }
 
@@ -20,6 +21,7 @@ public partial class Race
 
     [Inject]
     private ISnackbar _snackbar { get; set; }
+    #endregion
 
     [CascadingParameter]
     public RaweCeekModel Model { get; set; }

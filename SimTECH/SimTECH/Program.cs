@@ -55,7 +55,7 @@ public static class Program
         builder.Services.AddScoped<IIncidentService, IncidentService>();
         builder.Services.AddScoped<LeagueService>();
         builder.Services.AddScoped<ManufacturerService>();
-        builder.Services.AddScoped<RaceService>();
+        builder.Services.AddScoped<IRaceService, RaceService>();
         builder.Services.AddScoped<ResultService>();
         builder.Services.AddScoped<SeasonService>();
         builder.Services.AddScoped<SeasonDriverService>();

@@ -3,13 +3,14 @@ using SimTECH.Common.Enums;
 using SimTECH.Constants;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
+using SimTECH.Data.Services.Interfaces;
 using SimTECH.Extensions;
 using SimTECH.PageModels;
 using SimTECH.PageModels.RaceWeek;
 
 namespace SimTECH.Data.Services;
 
-public class RaceService(IDbContextFactory<SimTechDbContext> factory)
+public class RaceService(IDbContextFactory<SimTechDbContext> factory) : IRaceService
 {
     private readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;
 
@@ -112,12 +113,12 @@ public class RaceService(IDbContextFactory<SimTechDbContext> factory)
             .ToListAsync();
     }
 
-    public async Task<RaceModel> GetRaceModel(long raceId)
-    {
-        using var context = _dbFactory.CreateDbContext();
+    //public async Task<RaceModel> GetRaceModel(long raceId)
+    //{
+    //    using var context = _dbFactory.CreateDbContext();
 
-        var race = await context.Race.SingleAsync(e => e.Id == raceId);
-    }
+    //    var race = await context.Race.SingleAsync(e => e.Id == raceId);
+    //}
 
     public async Task UpdateRace(Race race)
     {
