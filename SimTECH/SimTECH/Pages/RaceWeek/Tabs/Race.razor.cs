@@ -15,6 +15,12 @@ public partial class Race
     public RaweCeekModel Model { get; set; }
 
     [Parameter]
+    public List<RaweCeekDriver> Drivers { get; set; }
+
+    [Parameter]
+    public long RaceId { get; set; }
+
+    [Parameter]
     public List<LapScore> LapScores { get; set; } = [];
 
     [Parameter]
@@ -76,6 +82,8 @@ public partial class Race
 
     protected override async Task OnInitializedAsync()
     {
+        //var race = await _rac
+
         Incidents = await _incidentService.GetIncidents(StateFilter.Active);
 
         AvailableTyres.AddRange(
@@ -651,8 +659,22 @@ public partial class Race
     {
         PreProcessFinish();
 
-        // Update object references
-        Model.SetRacerData(RaceDrivers);
+        // Update object references / Update the raweceek driver references based upon the race driver results
+        foreach (var raceDriver in RaceDrivers)
+        {
+            var matchDriver = Model.RaweCeekDrivers.First(e => e.ResultId == raceDriver.ResultId);
+
+            matchDriver.Position = raceDriver.Position;
+            matchDriver.AbsolutePosition = raceDriver.AbsolutePosition;
+            matchDriver.Score = raceDriver.LapSum;
+            matchDriver.Status = raceDriver.Status;
+            matchDriver.TyreLife = raceDriver.TyreLife;
+            matchDriver.Tyre = raceDriver.CurrentTyre;
+            matchDriver.FastestLap = raceDriver.HasFastestLap;
+            matchDriver.Overtaken = raceDriver.OvertakeCount;
+            matchDriver.Defended = raceDriver.DefensiveCount;
+            matchDriver.Incident = raceDriver.Incident;
+        }
 
         // Should be removed when it is done per advance
         var allLapScores = RaceDrivers.SelectMany(e => e.LapScores).Where(e => e.Id == 0).ToList();

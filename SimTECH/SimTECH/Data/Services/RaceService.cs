@@ -112,6 +112,13 @@ public class RaceService(IDbContextFactory<SimTechDbContext> factory)
             .ToListAsync();
     }
 
+    public async Task<RaceModel> GetRaceModel(long raceId)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        var race = await context.Race.SingleAsync(e => e.Id == raceId);
+    }
+
     public async Task UpdateRace(Race race)
     {
         using var context = _dbFactory.CreateDbContext();
