@@ -141,7 +141,7 @@ public partial class Practice
     // Following methods are in development but ultimately used to reduce some of the load of the index above
     private async Task OnInitializeSession(long raceId, int practiceIndex)
     {
-        var practiceScores = await _raceService.GetPracticeScores(raceId, practiceIndex);
+        var practiceScores = await _raceWeekService.GetPracticeScores(raceId, practiceIndex);
 
         if (practiceScores.Count > 0)
         {

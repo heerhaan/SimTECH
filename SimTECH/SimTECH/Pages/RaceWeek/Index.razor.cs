@@ -80,7 +80,7 @@ public partial class Index
         var seasonTeams = await _seasonTeamService.GetSeasonTeams(race.SeasonId);
         var seasonEngines = await _seasonEngineService.GetSeasonEngines(race.SeasonId);
         var manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
-        var raceResults = await _raceService.GetResultsOfRace(RaceId);
+        var raceResults = await _raceWeekService.GetResultsOfRace(RaceId);
         var allTraits = await _traitService.GetTraits();
         var incidents = await _incidentService.GetIncidents(StateFilter.All);
 
@@ -183,19 +183,14 @@ public partial class Index
             raweceekDrivers.Add(raweDriver);
         }
 
-        var penalties = await _raceService.GetRacePenalties(RaceId);
+        var penalties = await _raceWeekService.GetRacePenalties(RaceId);
 
         foreach (var penalty in penalties.GroupBy(e => e.SeasonDriverId))
         {
             var matchingDriver = raweceekDrivers.FirstOrDefault(e => e.SeasonDriverId == penalty.Key);
-            if (matchingDriver != null)
-            {
-                matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
-                // Reasons is an ugly solution, rather see this re-implemented
-                matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
 
-                ConsumablePenalties.AddRange(penalty.Select(e => e.Id));
-            }
+            if (matchingDriver != null)
+                matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
         }
 
         foreach (var driverGroup in raweceekDrivers.GroupBy(e => e.ClassId))
@@ -205,10 +200,8 @@ public partial class Index
                 driver.ExpectedPosition = ++indexer;
         }
 
-        var uniqueSupplierIds = raweceekDrivers.Select(d => d.ManufacturerId).Distinct().ToList();
-
         TyreSuppliers = manufacturers
-            .Where(e => uniqueSupplierIds.Contains(e.Id))
+            .Where(e => raweceekDrivers.Select(d => d.ManufacturerId).Contains(e.Id))
             .ToList();
 
         Model.RaweCeekDrivers = raweceekDrivers;
@@ -219,7 +212,7 @@ public partial class Index
         if (PracticeLoaded)
             return;
 
-        var practiceScores = await _raceService.GetPracticeScores(RaceId);
+        var practiceScores = await _raceWeekService.GetPracticeScores(RaceId);
 
         foreach (var groupedPracticeScores in practiceScores.GroupBy(e => e.Index))
         {
@@ -242,7 +235,7 @@ public partial class Index
         if (QualifyingLoaded)
             return;
 
-        var qualyScores = await _raceService.GetQualifyingScores(RaceId);
+        var qualyScores = await _raceWeekService.GetQualifyingScores(RaceId);
         var qSessionCount = Model.Season.QualifyingFormat.SessionCount();
         var previousSessionIsFinished = true;
 
@@ -302,7 +295,7 @@ public partial class Index
 
         if (!result.Canceled && result.Data != null && result.Data is Tyre pickedTyre)
         {
-            await _raceService.PickTyre(resultId, pickedTyre);
+            await _raceWeekService.PickTyre(resultId, pickedTyre);
 
             // Assign the picked tyre and ofc dont forget the life bonus
             var driver = Model.RaweCeekDrivers.First(e => e.ResultId == resultId);
@@ -325,7 +318,7 @@ public partial class Index
         var practiceSession = PracticeSessions.First(e => e.SessionIndex == practiceIndex);
         var gridResults = practiceSession.SessionScores.ToDictionary(e => e.ResultId, e => e.Position);
 
-        await _raceService.PersistPracticeScores(practiceSession.SessionScores);
+        await _raceWeekService.PersistPracticeScores(practiceSession.SessionScores);
 
         practiceSession.IsFinished = true;
 
@@ -369,11 +362,8 @@ public partial class Index
                     finalQualyPosition.Add(penaltyResult!.ResultId, (++positionIndexer, penaltyResult.AbsolutePosition));
             }
 
-            await _raceService.FinishQualifying(
+            await _raceWeekService.FinishQualifying(
                 qualySession.SessionScores, finalQualyPosition, RaceId, Model.Season.MaximumDriversInRace);
-
-            if (ConsumablePenalties.Count != 0)
-                await _raceService.ConsumePenalties(ConsumablePenalties, RaceId);
 
             // Update the new grid, position and status
             foreach (var res in finalQualyPosition)
@@ -392,7 +382,7 @@ public partial class Index
         }
         else
         {
-            await _raceService.PersistQualifyingScores(qualySession.SessionScores);
+            await _raceWeekService.PersistQualifyingScores(qualySession.SessionScores);
 
             // Update the new grid and position
             foreach (var res in qualySession.SessionScores)

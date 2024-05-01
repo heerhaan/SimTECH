@@ -43,7 +43,6 @@ public class RaweCeekDriver
     public int LifeBonus { get; set; }
 
     public int? Penalty { get; set; }
-    public string? Reasons { get; set; }
 
     public long ResultId { get; set; }
     public int Grid { get; set; }

@@ -34,7 +34,7 @@ public partial class Race
     private IIncidentService _incidentService { get; set; }
 
     [Inject]
-    private IRaceService _raceService { get; set; }
+    private IRaceWeekService _raceWeekService { get; set; }
 
     [Inject]
     private IDialogService _dialogService { get; set; }
@@ -95,10 +95,10 @@ public partial class Race
     {
         Loading = true;
 
-        LapScores = await _raceService.GetLapScores(RaceId);
-        Occurrences = await _raceService.GetRaceOccurrences(RaceId);
+        LapScores = await _raceWeekService.GetLapScores(RaceId);
+        Occurrences = await _raceWeekService.GetRaceOccurrences(RaceId);
         Incidents = await _incidentService.GetIncidents(StateFilter.Active);
-        Tyres = await _raceService.GetValidTyresForRace(Model.League.Id);
+        Tyres = await _raceWeekService.GetValidTyresForRace(Model.League.Id);
 
         calculationDistance = Config.CalculationDistance;
         calculationCount = Model.Race.RaceLength / calculationDistance;
@@ -732,12 +732,12 @@ public partial class Race
             .Select(e => e.MapToScoredPoints(allotments, Model.Season.PointsPole, Model.Season.PointsFastestLap))
             .ToList();
 
-        await _raceService.PersistLapScores(LapScores);
-        await _raceService.PersistOccurrences(Occurrences);
-        await _raceService.FinishRace(RaceId, finalResults, scoredPoints);
+        await _raceWeekService.PersistLapScores(LapScores);
+        await _raceWeekService.PersistOccurrences(Occurrences);
+        await _raceWeekService.FinishRace(RaceId, finalResults, scoredPoints);
 
         if (Model.League.Options.HasFlag(LeagueOptions.EnablePenalty))
-            await _raceService.CheckPenalties(finalResults);
+            await _raceWeekService.CheckPenalties(finalResults);
 
         Model.Race.State = State.Closed;
     }
