@@ -227,7 +227,10 @@ public partial class Race
 
         RacedLaps = GetCurrentLapCount;
 
-        var lastScores = RaceDrivers.Where(e => e.Status == RaceStatus.Racing).Select(e => e.LastScore).ToArray();
+        var lastScores = RaceDrivers
+            .Where(e => e.Status == RaceStatus.Racing)
+            .Select(e => e.LastScore)
+            .ToArray();
 
         if (lastScores.Length != 0)
         {

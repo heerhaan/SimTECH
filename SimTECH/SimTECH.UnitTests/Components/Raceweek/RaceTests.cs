@@ -31,11 +31,23 @@ public class RaceTests : BunitTest
             [
                 new()
                 {
-
+                    SeasonDriverId = 1,
                 },
                 new()
                 {
-
+                    SeasonDriverId = 2,
+                },
+                new()
+                {
+                    SeasonDriverId = 3,
+                },
+                new()
+                {
+                    SeasonDriverId = 4,
+                },
+                new()
+                {
+                    SeasonDriverId = 5,
                 },
             ],
             Season = new(),

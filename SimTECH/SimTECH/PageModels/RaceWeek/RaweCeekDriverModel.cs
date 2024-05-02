@@ -57,7 +57,7 @@ public class RaweCeekDriver
     public int Overtaken { get; set; }
     public int Defended { get; set; }
 
-    public List<string> TraitNames { get; set; } = new();
+    public List<string> TraitNames { get; set; } = [];
 
     public Engine Engine { get; set; }
     public Tyre Tyre { get; set; }
