@@ -4,17 +4,25 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using SimTECH.Data.Models;
 using SimTECH.PageModels.RaceWeek;
+using SimTECH.UnitTests.Infrastructure;
+using Xunit;
 using static Bunit.ComponentParameterFactory;
 using RaceComponent = SimTECH.Pages.RaceWeek.Tabs.Race;
 
 namespace SimTECH.UnitTests.Components.Raceweek;
 
-[TestFixture]
-public class RaceTests : BunitTest
+public class RaceTests : TestContext, IClassFixture<DataFixture>
 {
+    private readonly DataFixture _dataFixture;
+
+    public RaceTests(DataFixture dataFixture)
+    {
+        _dataFixture = dataFixture;
+    }
+
     // [Setup]?
 
-    [Test]
+    [Fact]
     public async Task InitShouldBuildAndPrepare()
     {
         // Arrange
@@ -57,7 +65,7 @@ public class RaceTests : BunitTest
         // just add return type like Action<object> if it has one
         Action placeholderOnFinish = () => { };
 
-        var comp = Context.RenderComponent<RaceComponent>(parameters => parameters
+        var comp = RenderComponent<RaceComponent>(parameters => parameters
             .Add(p => p.Model, placeholderModel)
             .Add(p => p.Config, placeholderConfig)
             .Add(p => p.OnFinish, placeholderOnFinish));
@@ -71,7 +79,7 @@ public class RaceTests : BunitTest
         // Assert
     }
 
-    [Test]
+    [Fact]
     public async Task AdvanceShouldProgressRace()
     {
         // Arrange
@@ -84,7 +92,7 @@ public class RaceTests : BunitTest
         // just add return type like Action<object> if it has one
         Action placeholderOnFinish = () => { };
 
-        var comp = Context.RenderComponent<RaceComponent>(parameters => parameters
+        var comp = RenderComponent<RaceComponent>(parameters => parameters
             .Add(p => p.Model, placeholderModel)
             .Add(p => p.OnFinish, placeholderOnFinish));
 

@@ -1,20 +1,31 @@
-﻿using FluentAssertions;
+﻿using Bunit;
+using FluentAssertions;
 using SimTECH.Constants;
 using SimTECH.Shared.Components;
+using SimTECH.UnitTests.Infrastructure;
+using Xunit;
 using static Bunit.ComponentParameterFactory;
 
 namespace SimTECH.UnitTests.Components;
 
-[TestFixture]
-public class GridChangeTests : BunitTest
+public class GridChangeTests : IClassFixture<DataFixture>
 {
+
+
+    public GridChangeTests(DataFixture fixture)
+    {
+
+    }
+
     /// <summary>
     /// Checks whether the component by default renders the position retained styling
     /// </summary>
-    [Test]
+    [Fact]
     public void ShouldRenderEqual()
     {
-        var component = Context.RenderComponent<GridChange>();
+        using var ctx = new TestContext();
+
+        var component = ctx.RenderComponent<GridChange>();
 
         component.Markup.Trim().Should().StartWith("<div")
             .And.Contain("color:black")
@@ -22,11 +33,13 @@ public class GridChangeTests : BunitTest
             .And.Contain(IconCollection.Equal);
     }
 
-    [Test]
+    [Fact]
     public void ShouldRenderSuccessGain()
     {
+        using var ctx = new TestContext();
+
         var change = Parameter(nameof(GridChange.Change), 3);
-        var component = Context.RenderComponent<GridChange>(change);
+        var component = ctx.RenderComponent<GridChange>(change);
 
         component.Markup.Trim().Should().StartWith("<div")
             .And.Contain("mud-success-text")

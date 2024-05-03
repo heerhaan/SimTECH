@@ -1,19 +1,19 @@
 ﻿using Bunit;
 using FluentAssertions;
-using NUnit.Framework;
 using SimTECH.Shared.Components;
+using SimTECH.UnitTests.Infrastructure;
+using Xunit;
 using static Bunit.ComponentParameterFactory;
 
 namespace SimTECH.UnitTests.Components;
 
-[TestFixture]
-public class IconTests : BunitTest
+public class IconTests : TestContext
 {
-    [Test]
+    [Fact]
     public void ShouldExampleTest()
     {
         var changeParam = Parameter(nameof(GridChange.Change), 10);
-        var component = Context.RenderComponent<GridChange>();
+        var component = RenderComponent<GridChange>();
 
         // component.Should().StartWith(bla bla mudstacki ets)
         //      .And.Contain(IconCollectionArrowUp)
