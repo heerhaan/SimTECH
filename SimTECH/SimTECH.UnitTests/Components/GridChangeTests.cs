@@ -1,6 +1,7 @@
 ﻿using Bunit;
 using FluentAssertions;
 using SimTECH.Constants;
+using SimTECH.Data;
 using SimTECH.Shared.Components;
 using SimTECH.UnitTests.Infrastructure;
 using Xunit;
@@ -10,11 +11,11 @@ namespace SimTECH.UnitTests.Components;
 
 public class GridChangeTests : IClassFixture<DataFixture>
 {
-
+    private SimTechDbContext _context;
 
     public GridChangeTests(DataFixture fixture)
     {
-
+        _context = fixture.GetDbContext();
     }
 
     /// <summary>
@@ -44,5 +45,13 @@ public class GridChangeTests : IClassFixture<DataFixture>
         component.Markup.Trim().Should().StartWith("<div")
             .And.Contain("mud-success-text")
             .And.Contain(IconCollection.ArrowUp);
+    }
+
+    [Fact]
+    public void TEMPShouldRetrieveData()
+    {
+        var maxie = _context.Driver.FirstOrDefault(e => e.FirstName.Contains("Max"));
+
+        maxie.Should().NotBeNull();
     }
 }

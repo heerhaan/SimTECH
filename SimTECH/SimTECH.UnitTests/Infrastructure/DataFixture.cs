@@ -49,12 +49,13 @@ public class DataFixture : WebApplicationFactory<ISimMarker>, IAsyncLifetime
 
         var testDriver = new Driver()
         {
-            Id = 1,
             FirstName = "Max",
             LastName = "Verstappen",
             Abbreviation = "VER",
             DateOfBirth = DateTime.Now,
             Country = Common.Enums.Country.NL,
+            Biography = "why do we need one",
+            Mark = true,
         };
 
         await context.Driver.AddAsync(testDriver);
