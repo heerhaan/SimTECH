@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SimTECH.Constants;
+using SimTECH.Data.Models;
 
 namespace SimTECH.UnitTests.Data.Factories;
-internal class TeamFactory
+
+public static class TeamFactory
 {
+    public static Team GenerateTestTeam => new()
+    {
+        Name = "Test",
+        Country = Globals.DefaultCountry,
+        Biography = "Yep, a team",
+    };
 }
