@@ -1,6 +1,7 @@
 ﻿using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
 using SimTECH.Data.Services.Interfaces;
+using SimTECH.UnitTests.Data.Factories;
 
 namespace SimTECH.UnitTests.Data.Services;
 
@@ -26,11 +27,13 @@ public class IncidentService : IIncidentService
         throw new NotImplementedException();
     }
 
-    public Task<List<Incident>> GetIncidents() => Task.FromResult(new List<Incident>());
+    public Task<List<Incident>> GetIncidents() => GetIncidents(StateFilter.Active);
 
     public Task<List<Incident>> GetIncidents(StateFilter filter)
     {
-        return Task.FromResult(new List<Incident>());
+        var incidents = IncidentFactory.GenerateTestIncidentList();
+
+        return Task.FromResult(incidents);
     }
 
     public Task UpdateIncident(Incident incident)

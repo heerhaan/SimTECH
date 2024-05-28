@@ -137,7 +137,7 @@ public partial class Race
         racerCount = RaceDrivers.Count;
 
         // Refactor this if persisting happens per advance
-        if (Model.Race.State == State.Closed)
+        if (Model.Race.State is State.Closed)
         {
             foreach (var driver in RaceDrivers)
             {

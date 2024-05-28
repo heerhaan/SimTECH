@@ -2,8 +2,11 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
+using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.PageModels.RaceWeek;
+using SimTECH.UnitTests.Data.Factories;
+using SimTECH.UnitTests.Extensions;
 using SimTECH.UnitTests.Infrastructure;
 using Xunit;
 using static Bunit.ComponentParameterFactory;
@@ -11,7 +14,7 @@ using RaceComponent = SimTECH.Pages.RaceWeek.Tabs.Race;
 
 namespace SimTECH.UnitTests.Components.Raceweek;
 
-public class RaceTests : TestContext, IClassFixture<DataFixture>
+public class RaceTests : IClassFixture<DataFixture>
 {
     private readonly DataFixture _dataFixture;
 
@@ -20,55 +23,92 @@ public class RaceTests : TestContext, IClassFixture<DataFixture>
         _dataFixture = dataFixture;
     }
 
-    // [Setup]?
-
     [Fact]
     public async Task InitShouldBuildAndPrepare()
     {
         // Arrange
+        using var ctx = new TestContext();
+
+        ctx.AddTestServices();
 
         // Not definitive, is example of how to pass a cascading parameter. Part of setup normally? Or some on-init thing for tests
-        var placeholderModel = new RaweCeekModel()
+        var tempModel = new RaweCeekModel()
         {
-            Climate = new(),
+            Climate = ClimateFactory.ClimateDry,
             Race = new()
             {
-                Track = new(),
+                RaceLength = 200,
+                Track = TrackFactory.GenerateTrack(),
             },
             RaweCeekDrivers =
             [
                 new()
                 {
                     SeasonDriverId = 1,
+                    FirstName = "aaa",
+                    LastName = "bbb",
+                    Nationality = Common.Enums.Country.NL,
+                    TeamName = "aaa",
+                    Colour = Globals.DefaultColour,
+                    Accent = Globals.DefaultAccent,
+                    Tyre = TyreFactory.GenerateSoftTyre(),
                 },
                 new()
                 {
                     SeasonDriverId = 2,
+                    FirstName = "aaa",
+                    LastName = "bbb",
+                    Nationality = Common.Enums.Country.NL,
+                    TeamName = "aaa",
+                    Colour = Globals.DefaultColour,
+                    Accent = Globals.DefaultAccent,
+                    Tyre = TyreFactory.GenerateSoftTyre(),
                 },
                 new()
                 {
                     SeasonDriverId = 3,
+                    FirstName = "aaa",
+                    LastName = "bbb",
+                    Nationality = Common.Enums.Country.NL,
+                    TeamName = "aaa",
+                    Colour = Globals.DefaultColour,
+                    Accent = Globals.DefaultAccent,
+                    Tyre = TyreFactory.GenerateSoftTyre(),
                 },
                 new()
                 {
                     SeasonDriverId = 4,
+                    FirstName = "aaa",
+                    LastName = "bbb",
+                    Nationality = Common.Enums.Country.NL,
+                    TeamName = "aaa",
+                    Colour = Globals.DefaultColour,
+                    Accent = Globals.DefaultAccent,
+                    Tyre = TyreFactory.GenerateSoftTyre(),
                 },
                 new()
                 {
                     SeasonDriverId = 5,
+                    FirstName = "aaa",
+                    LastName = "bbb",
+                    Nationality = Common.Enums.Country.NL,
+                    TeamName = "aaa",
+                    Colour = Globals.DefaultColour,
+                    Accent = Globals.DefaultAccent,
+                    Tyre = TyreFactory.GenerateSoftTyre(),
                 },
             ],
-            Season = new(),
+            Season = new()
+            {
+                GridBonus = 10,
+            },
+            League = new(),
+            GapMarge = 0.08,
         };
-        var placeholderConfig = new SimConfig();
 
-        // just add return type like Action<object> if it has one
-        Action placeholderOnFinish = () => { };
-
-        var comp = RenderComponent<RaceComponent>(parameters => parameters
-            .Add(p => p.Model, placeholderModel)
-            .Add(p => p.Config, placeholderConfig)
-            .Add(p => p.OnFinish, placeholderOnFinish));
+        var comp = ctx.RenderComponent<RaceComponent>(parameters => parameters
+            .Add(p => p.Model, tempModel)
+            .Add(p => p.Config, new SimConfig()));
 
         // Looks up the advanc ebutton in the respective component
         var advanceButton = comp.Find("button.advance-btn");
@@ -83,6 +123,9 @@ public class RaceTests : TestContext, IClassFixture<DataFixture>
     public async Task AdvanceShouldProgressRace()
     {
         // Arrange
+        using var ctx = new TestContext();
+
+        ctx.AddTestServices();
 
         // Not definitive, is example of how to pass a cascading parameter. Part of setup normally? Or some on-init thing for tests
         var placeholderModel = new RaweCeekModel();
@@ -92,7 +135,7 @@ public class RaceTests : TestContext, IClassFixture<DataFixture>
         // just add return type like Action<object> if it has one
         Action placeholderOnFinish = () => { };
 
-        var comp = RenderComponent<RaceComponent>(parameters => parameters
+        var comp = ctx.RenderComponent<RaceComponent>(parameters => parameters
             .Add(p => p.Model, placeholderModel)
             .Add(p => p.OnFinish, placeholderOnFinish));
 

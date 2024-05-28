@@ -184,7 +184,8 @@ public static class ExtendRaweCeekDriver
         };
     }
 
-    public static ScoredPoints MapToScoredPoints(this RaweCeekDriver driver, Dictionary<int, int> allotments, int polePoints, int fastLapPoints)
+    public static ScoredPoints MapToScoredPoints(this RaweCeekDriver driver,
+        Dictionary<int, int> allotments, int polePoints, int fastLapPoints)
     {
         var points = 0;
         var hiddenPoints = 0d;
