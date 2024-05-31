@@ -85,7 +85,7 @@ public class DataFixture : WebApplicationFactory<ISimMarker>, IAsyncLifetime
                     options.UseSqlServer(_dbContainer.GetConnectionString(),
                     o => o.MigrationsAssembly(typeof(SimTechDbContext).Assembly.FullName)));
 
-            services.AddSimTechServices();
+            //services.AddSimTechServices();
         });
     }
 
