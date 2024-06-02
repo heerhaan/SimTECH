@@ -6,6 +6,7 @@ using SimTECH.Data.Models;
 using SimTECH.Data.Services;
 using SimTECH.Data.Services.Interfaces;
 using SimTECH.Extensions;
+using SimTECH.Managers;
 using SimTECH.PageModels.RaceWeek;
 using SimTECH.Pages.RaceWeek.Dialogs;
 
@@ -89,6 +90,8 @@ public partial class Race
     private int lastHighestScore = 0;
     private int lastLowestScore = 0;
 
+    private RaceManager raceManager;
+
     private bool IsFirstLap => calculated == 1;
 
     protected override async Task OnInitializedAsync()
@@ -99,6 +102,8 @@ public partial class Race
         Occurrences = await _raceWeekService.GetRaceOccurrences(RaceId);
         Incidents = await _incidentService.GetIncidents(StateFilter.Active);
         Tyres = await _raceWeekService.GetValidTyresForRace(Model.League.Id);
+
+        raceManager = new(Model.Season, Model.League, Incidents, Config);
 
         calculationDistance = Config.CalculationDistance;
         calculationCount = Model.Race.RaceLength / calculationDistance;
@@ -153,28 +158,14 @@ public partial class Race
         }
         else if (calculated == 0)
         {
-            AddFormationLap();
+            //AddFormationLap();
+            raceManager.AddFormationLap(RaceDrivers);
         }
 
         SetPositions();
     }
 
-    private void AddFormationLap()
-    {
-        foreach (var driver in RaceDrivers)
-        {
-            var lapScore = new LapScore
-            {
-                ResultId = driver.ResultId,
-                Order = 0,
-                Score = driver.QualifyingBonus(racerCount, Model.Season.GridBonus),
-                TyreColour = driver.CurrentTyre.Colour,
-            };
-
-            driver.LapScores.Add(lapScore);
-            driver.LastScore = lapScore.Score;
-        }
-    }
+    
 
     private async Task Advance()
     {
@@ -216,7 +207,7 @@ public partial class Race
                 lapScoresToPersist.Add(lapScore);
             }
 
-            DeterminePositions();
+            raceManager.DeterminePositions(RaceDrivers);
 
             PostProcessAdvance();
 
@@ -492,7 +483,6 @@ public partial class Race
         //return 0;
     }
 
-    // Returns the score cost which the pitstop took
     private void ChangeTyres(RaceDriver driver, LapScore lapScore)
     {
         var currentTyres = ValidTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList();
@@ -534,97 +524,6 @@ public partial class Race
         // Set the next amount of tyres valid for drivers to stop on to.
         var distanceLeft = Model.Race.RaceLength - (calculated * calculationDistance);
         ValidTyres = Tyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
-    }
-
-    // Recalculates the positions of the participating race drivers, includes atacking and defending
-    private void DeterminePositions()
-    {
-        var allPositionsAligned = false;
-        // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe) / altough i dont think this matters
-        var actualPositions = GetCurrentActualPositions();
-
-        // This likely can be optimized further
-        while (!allPositionsAligned)
-        {
-            foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
-            {
-                var lastScore = driver.LapScores.Last();
-
-                int positionChange = driver.AbsolutePosition - actualPositions[driver.SeasonDriverId];
-
-                // Assign the new positions based on whether their overtakes have been succesful
-                if (positionChange > 0)
-                    HandlePositionGain(driver, lastScore, positionChange);
-
-                driver.LastScore = lastScore.Score;
-            }
-
-            allPositionsAligned = true;
-            actualPositions = GetCurrentActualPositions();
-
-            foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
-            {
-                if (driver.AbsolutePosition != actualPositions[driver.SeasonDriverId])
-                    allPositionsAligned = false;
-            }
-        }
-
-        SetPositions();
-    }
-
-    private void HandlePositionGain(RaceDriver driver, LapScore lastScore, int gainedPositions)
-    {
-        var battleRng = Model.League.BattleRng;
-
-        while (gainedPositions > 0)
-        {
-            var abovePosition = driver.AbsolutePosition - 1;
-            if (abovePosition == 0)
-                break;
-
-            var defendingDriver = RaceDrivers.First(e => e.AbsolutePosition == abovePosition);
-
-            // Driver above is teammate AND support driver AND attacker is main driver, swap time!
-            //if (defendingDriver.SeasonTeamId == driver.SeasonTeamId
-            //    && driver.Role == TeamRole.Main
-            //    && defendingDriver.Role == TeamRole.Support)
-            //{
-            //    lastScore.RacerEvents |= RacerEvent.Swap;
-            //    defendingDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
-            //}
-            //else
-
-            if (defendingDriver.InstantOvertaken == false && driver.ClassId == defendingDriver.ClassId)
-            {
-                // Subtract attack value from defense, what's left is how much the attacker is hindered
-                var attackingResult = driver.Attack + NumberHelper.RandomInt((battleRng * -1), battleRng);
-                var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt((battleRng * -1), battleRng);
-
-                // Defender frequently made a mistake, so we're punishing him for it :)
-                if (defendingDriver.RecentMistake)
-                    defendingResult /= 2;
-
-                var battleCost = defendingResult - attackingResult;
-
-                if (battleCost > 0)
-                    lastScore.Score -= battleCost;
-
-                // Attacking driver has failed to overtake, the defender still has a higher lap sum
-                if (defendingDriver.LapSum > driver.LapSum)
-                {
-                    defendingDriver.DefensiveCount++;
-                    break;
-                }
-
-                // It only counts as an overtake if it wasn't in an instant
-                driver.OvertakeCount++;
-            }
-
-            // Overtake succeeded, driver gains a position!
-            (driver.AbsolutePosition, defendingDriver.AbsolutePosition) = (defendingDriver.AbsolutePosition, driver.AbsolutePosition);
-
-            gainedPositions--;
-        }
     }
 
     private void PreProcessFinish()
@@ -758,16 +657,7 @@ public partial class Race
 
     private int GetCurrentLapCount => NumberHelper.LapCount(calculated * calculationDistance, Model.Race.Track.Length);
 
-    private Dictionary<long, int> GetCurrentActualPositions()
-    {
-        var actualPositions = new Dictionary<long, int>();
-        int absoluteIndex = 0;
-
-        foreach (var driver in RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
-            actualPositions.Add(driver.SeasonDriverId, ++absoluteIndex);
-
-        return actualPositions;
-    }
+    
 
     // Honestly, below is more of an example to the first one
     // private Dictionary<long, int> AggregateActualPositions()
@@ -800,4 +690,123 @@ public partial class Race
         "Position chart",
         new DialogParameters { ["Drivers"] = RaceDrivers },
         Globals.StatisticDialogDefaultOptionsXl);
+
+    #region yoinked code
+    //private void AddFormationLap()
+    //{
+    //    foreach (var driver in RaceDrivers)
+    //    {
+    //        var lapScore = new LapScore
+    //        {
+    //            ResultId = driver.ResultId,
+    //            Order = 0,
+    //            Score = driver.QualifyingBonus(racerCount, Model.Season.GridBonus),
+    //            TyreColour = driver.CurrentTyre.Colour,
+    //        };
+
+    //        driver.LapScores.Add(lapScore);
+    //        driver.LastScore = lapScore.Score;
+    //    }
+    //}
+    // Recalculates the positions of the participating race drivers, includes atacking and defending
+    //private void DeterminePositions()
+    //{
+    //    var allPositionsAligned = false;
+    //    // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe) / altough i dont think this matters
+    //    var actualPositions = GetCurrentActualPositions();
+
+    //    // This likely can be optimized further
+    //    while (!allPositionsAligned)
+    //    {
+    //        foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
+    //        {
+    //            var lastScore = driver.LapScores.Last();
+
+    //            int positionChange = driver.AbsolutePosition - actualPositions[driver.SeasonDriverId];
+
+    //            // Assign the new positions based on whether their overtakes have been succesful
+    //            if (positionChange > 0)
+    //                HandlePositionGain(driver, lastScore, positionChange);
+
+    //            driver.LastScore = lastScore.Score;
+    //        }
+
+    //        allPositionsAligned = true;
+    //        actualPositions = GetCurrentActualPositions();
+
+    //        foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
+    //        {
+    //            if (driver.AbsolutePosition != actualPositions[driver.SeasonDriverId])
+    //                allPositionsAligned = false;
+    //        }
+    //    }
+
+    //    SetPositions();
+    //}
+
+    //private void HandlePositionGain(RaceDriver driver, LapScore lastScore, int gainedPositions)
+    //{
+    //    var battleRng = Model.League.BattleRng;
+
+    //    while (gainedPositions > 0)
+    //    {
+    //        var abovePosition = driver.AbsolutePosition - 1;
+    //        if (abovePosition == 0)
+    //            break;
+
+    //        var defendingDriver = RaceDrivers.First(e => e.AbsolutePosition == abovePosition);
+
+    //        // Driver above is teammate AND support driver AND attacker is main driver, swap time!
+    //        //if (defendingDriver.SeasonTeamId == driver.SeasonTeamId
+    //        //    && driver.Role == TeamRole.Main
+    //        //    && defendingDriver.Role == TeamRole.Support)
+    //        //{
+    //        //    lastScore.RacerEvents |= RacerEvent.Swap;
+    //        //    defendingDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
+    //        //}
+    //        //else
+
+    //        if (defendingDriver.InstantOvertaken == false && driver.ClassId == defendingDriver.ClassId)
+    //        {
+    //            // Subtract attack value from defense, what's left is how much the attacker is hindered
+    //            var attackingResult = driver.Attack + NumberHelper.RandomInt((battleRng * -1), battleRng);
+    //            var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt((battleRng * -1), battleRng);
+
+    //            // Defender frequently made a mistake, so we're punishing him for it :)
+    //            if (defendingDriver.RecentMistake)
+    //                defendingResult /= 2;
+
+    //            var battleCost = defendingResult - attackingResult;
+
+    //            if (battleCost > 0)
+    //                lastScore.Score -= battleCost;
+
+    //            // Attacking driver has failed to overtake, the defender still has a higher lap sum
+    //            if (defendingDriver.LapSum > driver.LapSum)
+    //            {
+    //                defendingDriver.DefensiveCount++;
+    //                break;
+    //            }
+
+    //            // It only counts as an overtake if it wasn't in an instant
+    //            driver.OvertakeCount++;
+    //        }
+
+    //        // Overtake succeeded, driver gains a position!
+    //        (driver.AbsolutePosition, defendingDriver.AbsolutePosition) = (defendingDriver.AbsolutePosition, driver.AbsolutePosition);
+
+    //        gainedPositions--;
+    //    }
+    //}
+    //private Dictionary<long, int> GetCurrentActualPositions()
+    //{
+    //    var actualPositions = new Dictionary<long, int>();
+    //    int absoluteIndex = 0;
+
+    //    foreach (var driver in RaceDrivers.OrderBy(e => (int)e.Status).ThenByDescending(e => e.LapSum))
+    //        actualPositions.Add(driver.SeasonDriverId, ++absoluteIndex);
+
+    //    return actualPositions;
+    //}
+    #endregion
 }
