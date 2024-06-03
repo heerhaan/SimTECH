@@ -75,7 +75,7 @@ public class FixedRaweCeekDriver
 
     public SeasonTeam SeasonTeam { get; set; }
 
-    public Engine Engine { get; set; }
+    public SeasonEngine SeasonEngine { get; set; }
 
     public Manufacturer Manufacturer { get; set; }
 

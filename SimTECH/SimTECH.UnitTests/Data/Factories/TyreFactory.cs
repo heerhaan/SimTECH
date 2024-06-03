@@ -5,26 +5,21 @@ namespace SimTECH.UnitTests.Data.Factories;
 
 public static class TyreFactory
 {
-    public static Tyre GenerateSoftTyre()
+    public static Tyre GenerateSoftTyre => new()
     {
-        return new()
-        {
-            Name = "Soft",
-            Colour = "#fa0536ff",
-            Pace = 200,
-            MinimumLife = -25,
-            PitWhenBelow = 20,
-            WearMin = 15,
-            WearMax = 25,
-            DistanceMin = 50,
-            DistanceMax = 125,
-            State = State.Active,
-        };
-    }
+        Name = "Soft",
+        Colour = "#fa0536ff",
+        Pace = 200,
+        MinimumLife = -25,
+        PitWhenBelow = 20,
+        WearMin = 15,
+        WearMax = 25,
+        DistanceMin = 50,
+        DistanceMax = 125,
+        State = State.Active,
+    };
 
-    public static List<Tyre> GenerateDefaultListTyres()
-    {
-        return
+    public static List<Tyre> GenerateDefaultListTyres =>
         [
             new()
             {
@@ -65,5 +60,4 @@ public static class TyreFactory
                 State = State.Active,
             }
         ];
-    }
 }

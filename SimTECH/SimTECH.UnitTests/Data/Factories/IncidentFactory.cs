@@ -5,9 +5,7 @@ namespace SimTECH.UnitTests.Data.Factories;
 
 public static class IncidentFactory
 {
-    public static List<Incident> GenerateTestIncidentList()
-    {
-        return
+    public static List<Incident> GenerateTestIncidentList =>
         [
             new() { Name = "Damage", Category = IncidentCategory.Driver, Limit = 0, Punishment = 0, Odds = 2, Penalized = false, State = State.Active, },
             new() { Name = "Collision", Category = IncidentCategory.Driver, Limit = 2, Punishment = 3, Odds = 1, Penalized = true, State = State.Active, },
@@ -26,5 +24,4 @@ public static class IncidentFactory
             new() { Name = "Hospital", Category = IncidentCategory.Lethal, Limit = 0, Punishment = 0, Odds = 5, Penalized = false, State = State.Active, },
             new() { Name = "Death", Category = IncidentCategory.Lethal, Limit = 0, Punishment = 0, Odds = 1, Penalized = false, State = State.Active, }
         ];
-    }
 }

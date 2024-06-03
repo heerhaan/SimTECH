@@ -308,4 +308,35 @@ public class RaceWeekService(IDbContextFactory<SimTechDbContext> factory) : IRac
 
         await context.SaveChangesAsync();
     }
+
+    public async Task<RaweCeekModel> GetRaceWeekModel(long raceId)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        var raceWeekModel = new RaweCeekModel();
+
+        var race = await context.Race.SingleAsync(e => e.Id == raceId);
+        var season = await context.Season.SingleAsync(e => e.Id == race.SeasonId);
+        var league = await context.League.SingleAsync(e => e.Id == season.LeagueId);
+        var climate = await context.Climate.SingleAsync(e => e.Id == race.ClimateId);
+        var track = await context.Track.SingleAsync(e => e.Id == race.TrackId);
+
+        raceWeekModel.Race = race;
+        raceWeekModel.Season = season;
+        raceWeekModel.League = league;
+        raceWeekModel.Climate = climate;
+
+        raceWeekModel.RaweCeekDrivers = await GetRaceWeekDrivers(context);
+
+        return raceWeekModel;
+    }
+
+    private async Task<List<RaweCeekDriver>> GetRaceWeekDrivers(SimTechDbContext context)
+    {
+        var raceweekDrivers = new List<RaweCeekDriver>();
+
+
+
+        return raceweekDrivers;
+    }
 }

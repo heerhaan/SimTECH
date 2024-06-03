@@ -31,7 +31,7 @@ public class IncidentService : IIncidentService
 
     public Task<List<Incident>> GetIncidents(StateFilter filter)
     {
-        var incidents = IncidentFactory.GenerateTestIncidentList();
+        var incidents = IncidentFactory.GenerateTestIncidentList;
 
         return Task.FromResult(incidents);
     }

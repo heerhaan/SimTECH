@@ -81,7 +81,6 @@ public partial class Race
 
     // Supportive caluclation fields
     private int fastestLap;
-    private int racerCount;
     private int calculated;
     private int calculationCount;
     private int calculationsPerAdvance = 5;
@@ -139,8 +138,6 @@ public partial class Race
             .Select(e => e.MapToRaceDriver())
             .ToList();
 
-        racerCount = RaceDrivers.Count;
-
         // Refactor this if persisting happens per advance
         if (Model.Race.State is State.Closed)
         {
@@ -158,14 +155,11 @@ public partial class Race
         }
         else if (calculated == 0)
         {
-            //AddFormationLap();
             raceManager.AddFormationLap(RaceDrivers);
         }
 
         SetPositions();
     }
-
-    
 
     private async Task Advance()
     {
@@ -248,7 +242,8 @@ public partial class Race
         var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
         // Determine if either driver, car or engine has failed
-        var isSafetyCarOut = CheckReliability(driver, lapScore);
+        var isSafetyCarOut = raceManager.CheckReliability(driver, lapScore,
+            ActiveReliabilityCheck, CurrentSituation, IsFirstLap);
 
         // Calculate the score for drivers which are still racing
         if (driver.Status == RaceStatus.Racing)
@@ -304,60 +299,6 @@ public partial class Race
         lapScore.TyreColour = driver.CurrentTyre.Colour;
 
         return lapScore;
-    }
-
-    private bool CheckReliability(RaceDriver driver, LapScore lapScore)
-    {
-        var safetyCar = false;
-
-        if (ActiveReliabilityCheck == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
-        {
-            lapScore.RacerEvents |= RacerEvent.DriverDnf;
-            driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
-        }
-        else if (ActiveReliabilityCheck == Entrant.Team && DidReliabilityFail(driver.CarReliability))
-        {
-            lapScore.RacerEvents |= RacerEvent.CarDnf;
-            driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Car).ToList().TakeRandomIncident();
-        }
-        else if (ActiveReliabilityCheck == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
-        {
-            lapScore.RacerEvents |= RacerEvent.EngineDnf;
-            driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
-        }
-        // Additional reliability check happens on the opening lap, as crashes are more frequent then
-        else if (IsFirstLap && DidReliabilityFail(driver.DriverReliability))
-        {
-            lapScore.RacerEvents |= RacerEvent.DriverDnf;
-            driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
-        }
-        else
-        {
-            return safetyCar;
-        }
-
-        // Relability failure = instant overtake by attacking drivers
-        driver.InstantOvertaken = true;
-
-        // If enabled, then we're also going to check if anyone experienced a fatal crash
-        if (Model.League.Options.HasFlag(LeagueOptions.EnableFatality) && NumberHelper.RandomInt(Model.League.FatalityOdds) == 0)
-        {
-            safetyCar = true;
-
-            driver.Status = RaceStatus.Fatal;
-            driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Lethal).ToList().TakeRandomIncident();
-            lapScore.RacerEvents = RacerEvent.Death;
-
-            CurrentSituation = SituationOccurrence.Halted;
-
-            return safetyCar;
-        }
-
-        // Randomly determines the odds a safety car occured due to the DNF'ing driver
-        safetyCar = NumberHelper.RandomInt(Model.League.SafetyCarOdds) == 0;
-        driver.Status = RaceStatus.Dnf;
-
-        return safetyCar;
     }
 
     // Returns a number which will be added to the users lap score
@@ -657,8 +598,6 @@ public partial class Race
 
     private int GetCurrentLapCount => NumberHelper.LapCount(calculated * calculationDistance, Model.Race.Track.Length);
 
-    
-
     // Honestly, below is more of an example to the first one
     // private Dictionary<long, int> AggregateActualPositions()
     // {
@@ -807,6 +746,60 @@ public partial class Race
     //        actualPositions.Add(driver.SeasonDriverId, ++absoluteIndex);
 
     //    return actualPositions;
+    //}
+
+    //private bool CheckReliability(RaceDriver driver, LapScore lapScore)
+    //{
+    //    var safetyCar = false;
+
+    //    if (ActiveReliabilityCheck == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
+    //    {
+    //        lapScore.RacerEvents |= RacerEvent.DriverDnf;
+    //        driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
+    //    }
+    //    else if (ActiveReliabilityCheck == Entrant.Team && DidReliabilityFail(driver.CarReliability))
+    //    {
+    //        lapScore.RacerEvents |= RacerEvent.CarDnf;
+    //        driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Car).ToList().TakeRandomIncident();
+    //    }
+    //    else if (ActiveReliabilityCheck == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
+    //    {
+    //        lapScore.RacerEvents |= RacerEvent.EngineDnf;
+    //        driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
+    //    }
+    //    // Additional reliability check happens on the opening lap, as crashes are more frequent then
+    //    else if (IsFirstLap && DidReliabilityFail(driver.DriverReliability))
+    //    {
+    //        lapScore.RacerEvents |= RacerEvent.DriverDnf;
+    //        driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
+    //    }
+    //    else
+    //    {
+    //        return safetyCar;
+    //    }
+
+    //    // Relability failure = instant overtake by attacking drivers
+    //    driver.InstantOvertaken = true;
+
+    //    // If enabled, then we're also going to check if anyone experienced a fatal crash
+    //    if (Model.League.Options.HasFlag(LeagueOptions.EnableFatality) && NumberHelper.RandomInt(Model.League.FatalityOdds) == 0)
+    //    {
+    //        safetyCar = true;
+
+    //        driver.Status = RaceStatus.Fatal;
+    //        driver.Incident = Incidents.Where(e => e.Category == IncidentCategory.Lethal).ToList().TakeRandomIncident();
+    //        lapScore.RacerEvents = RacerEvent.Death;
+
+    //        CurrentSituation = SituationOccurrence.Halted;
+
+    //        return safetyCar;
+    //    }
+
+    //    // Randomly determines the odds a safety car occured due to the DNF'ing driver
+    //    safetyCar = NumberHelper.RandomInt(Model.League.SafetyCarOdds) == 0;
+    //    driver.Status = RaceStatus.Dnf;
+
+    //    return safetyCar;
     //}
     #endregion
 }

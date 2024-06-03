@@ -13,13 +13,3 @@ public class RaweCeekModel
 
     public double GapMarge { get; set; }// might be fine? Consider setting all config variables in the model?
 }
-
-public static class ExtendRaweCeek
-{
-    public static Dictionary<long, long[]> ResultsGroupedByRaceClass(this RaweCeekModel raweCeek)
-    {
-        return raweCeek.RaweCeekDrivers
-            .GroupBy(e => e.ClassId)
-            .ToDictionary(e => e.Key, e => e.Select(rd => rd.ResultId).ToArray());
-    }
-}

@@ -5,22 +5,9 @@ using SimTECH.PageModels.RaceWeek;
 
 namespace SimTECH.Managers;
 
-public class RaceManager
+public class RaceManager(Season season, League league, List<Incident> incidents, SimConfig config)
 {
     private const int reliabilityMaxValue = 1000;
-
-    private readonly Season _season;
-    private readonly League _league;
-    private readonly List<Incident> _incidents;
-    private readonly SimConfig _config;
-
-    public RaceManager(Season season, League league, List<Incident> incidents, SimConfig config)
-    {
-        _season = season;
-        _league = league;
-        _incidents = incidents;
-        _config = config;
-    }
 
     /// <summary>
     /// (Changing) data used in the view/component/race (necessary to be updated per advance?):
@@ -68,7 +55,7 @@ public class RaceManager
             {
                 ResultId = driver.ResultId,
                 Order = 0,
-                Score = driver.QualifyingBonus(racerCount, _season.GridBonus),
+                Score = driver.QualifyingBonus(racerCount, season.GridBonus),
                 TyreColour = driver.CurrentTyre.Colour,
             };
 
@@ -85,23 +72,23 @@ public class RaceManager
         if (activeCheck == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
-            driver.Incident = _incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
+            driver.Incident = incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
         }
         else if (activeCheck == Entrant.Team && DidReliabilityFail(driver.CarReliability))
         {
             lapScore.RacerEvents |= RacerEvent.CarDnf;
-            driver.Incident = _incidents.Where(e => e.Category == IncidentCategory.Car).ToList().TakeRandomIncident();
+            driver.Incident = incidents.Where(e => e.Category == IncidentCategory.Car).ToList().TakeRandomIncident();
         }
         else if (activeCheck == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
         {
             lapScore.RacerEvents |= RacerEvent.EngineDnf;
-            driver.Incident = _incidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
+            driver.Incident = incidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
         }
-        // Additional reliability check happens on the opening lap, as crashes are more frequent then
+        // Additional driver reliability check happens on the opening lap
         else if (isFirstLap && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
-            driver.Incident = _incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
+            driver.Incident = incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
         }
         else
         {
@@ -112,12 +99,12 @@ public class RaceManager
         driver.InstantOvertaken = true;
 
         // If enabled, then we're also going to check if anyone experienced a fatal crash
-        if (_league.Options.HasFlag(LeagueOptions.EnableFatality) && NumberHelper.RandomInt(_league.FatalityOdds) == 0)
+        if (league.Options.HasFlag(LeagueOptions.EnableFatality) && NumberHelper.RandomInt(league.FatalityOdds) == 0)
         {
             safetyCar = true;
 
             driver.Status = RaceStatus.Fatal;
-            driver.Incident = _incidents.Where(e => e.Category == IncidentCategory.Lethal).ToList().TakeRandomIncident();
+            driver.Incident = incidents.Where(e => e.Category == IncidentCategory.Lethal).ToList().TakeRandomIncident();
             lapScore.RacerEvents = RacerEvent.Death;
 
             currentSituation = SituationOccurrence.Halted;
@@ -126,7 +113,7 @@ public class RaceManager
         }
 
         // Randomly determines the odds a safety car occured due to the DNF'ing driver
-        safetyCar = NumberHelper.RandomInt(_league.SafetyCarOdds) == 0;
+        safetyCar = NumberHelper.RandomInt(league.SafetyCarOdds) == 0;
         driver.Status = RaceStatus.Dnf;
 
         return safetyCar;
@@ -194,7 +181,7 @@ public class RaceManager
 
             driver.GapAbove = driver.AbsolutePosition == 1
                 ? "LEADER"
-                : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * _config.GapMarge, 2)).ToString("F2");
+                : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * config.GapMarge, 2)).ToString("F2");
 
             scoreAboveDriver = driver.LapSum;
         }
@@ -202,7 +189,7 @@ public class RaceManager
 
     private void HandlePositionGain(List<RaceDriver> raceDrivers, RaceDriver driver, LapScore lastScore, int gainedPositions)
     {
-        var battleRng = _league.BattleRng;
+        var battleRng = league.BattleRng;
 
         while (gainedPositions > 0)
         {

@@ -51,7 +51,7 @@ public class RaceTests : IClassFixture<DataFixture>
                     TeamName = "aaa",
                     Colour = Globals.DefaultColour,
                     Accent = Globals.DefaultAccent,
-                    Tyre = TyreFactory.GenerateSoftTyre(),
+                    Tyre = TyreFactory.GenerateSoftTyre,
                 },
                 new()
                 {
@@ -62,7 +62,7 @@ public class RaceTests : IClassFixture<DataFixture>
                     TeamName = "aaa",
                     Colour = Globals.DefaultColour,
                     Accent = Globals.DefaultAccent,
-                    Tyre = TyreFactory.GenerateSoftTyre(),
+                    Tyre = TyreFactory.GenerateSoftTyre,
                 },
                 new()
                 {
@@ -73,7 +73,7 @@ public class RaceTests : IClassFixture<DataFixture>
                     TeamName = "aaa",
                     Colour = Globals.DefaultColour,
                     Accent = Globals.DefaultAccent,
-                    Tyre = TyreFactory.GenerateSoftTyre(),
+                    Tyre = TyreFactory.GenerateSoftTyre,
                 },
                 new()
                 {
@@ -84,7 +84,7 @@ public class RaceTests : IClassFixture<DataFixture>
                     TeamName = "aaa",
                     Colour = Globals.DefaultColour,
                     Accent = Globals.DefaultAccent,
-                    Tyre = TyreFactory.GenerateSoftTyre(),
+                    Tyre = TyreFactory.GenerateSoftTyre,
                 },
                 new()
                 {
@@ -95,7 +95,7 @@ public class RaceTests : IClassFixture<DataFixture>
                     TeamName = "aaa",
                     Colour = Globals.DefaultColour,
                     Accent = Globals.DefaultAccent,
-                    Tyre = TyreFactory.GenerateSoftTyre(),
+                    Tyre = TyreFactory.GenerateSoftTyre,
                 },
             ],
             Season = new()

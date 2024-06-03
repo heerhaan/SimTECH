@@ -68,7 +68,7 @@ public class RaceWeekService : IRaceWeekService
 
     public Task<List<Tyre>> GetValidTyresForRace(long leagueId)
     {
-        var tyres = TyreFactory.GenerateDefaultListTyres();
+        var tyres = TyreFactory.GenerateDefaultListTyres;
 
         return Task.FromResult(tyres);
     }

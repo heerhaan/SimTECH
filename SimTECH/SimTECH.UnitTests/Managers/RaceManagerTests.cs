@@ -5,7 +5,7 @@ using SimTECH.PageModels.RaceWeek;
 using SimTECH.UnitTests.Data.Factories;
 using Xunit;
 
-namespace SimTECH.UnitTests.ManagerTests;
+namespace SimTECH.UnitTests.Managers;
 
 public class RaceManagerTests
 {
@@ -17,7 +17,7 @@ public class RaceManagerTests
             GridBonus = 3,
         };
         var league = LeagueFactory.GenerateTestLeague;
-        var incidents = IncidentFactory.GenerateTestIncidentList();
+        var incidents = IncidentFactory.GenerateTestIncidentList;
         var config = new SimConfig();
 
         var manager = new RaceManager(season, league, incidents, config);
@@ -33,7 +33,7 @@ public class RaceManagerTests
                 TeamName = "aaa",
                 Colour = Globals.DefaultColour,
                 Accent = Globals.DefaultAccent,
-                CurrentTyre = TyreFactory.GenerateSoftTyre(),
+                CurrentTyre = TyreFactory.GenerateSoftTyre,
             },
             new()
             {
@@ -44,7 +44,7 @@ public class RaceManagerTests
                 TeamName = "aaa",
                 Colour = Globals.DefaultColour,
                 Accent = Globals.DefaultAccent,
-                CurrentTyre = TyreFactory.GenerateSoftTyre(),
+                CurrentTyre = TyreFactory.GenerateSoftTyre,
             },
             new()
             {
@@ -55,7 +55,7 @@ public class RaceManagerTests
                 TeamName = "aaa",
                 Colour = Globals.DefaultColour,
                 Accent = Globals.DefaultAccent,
-                CurrentTyre = TyreFactory.GenerateSoftTyre(),
+                CurrentTyre = TyreFactory.GenerateSoftTyre,
             },
             new()
             {
@@ -66,7 +66,7 @@ public class RaceManagerTests
                 TeamName = "aaa",
                 Colour = Globals.DefaultColour,
                 Accent = Globals.DefaultAccent,
-                CurrentTyre = TyreFactory.GenerateSoftTyre(),
+                CurrentTyre = TyreFactory.GenerateSoftTyre,
             },
             new()
             {
@@ -77,7 +77,7 @@ public class RaceManagerTests
                 TeamName = "aaa",
                 Colour = Globals.DefaultColour,
                 Accent = Globals.DefaultAccent,
-                CurrentTyre = TyreFactory.GenerateSoftTyre(),
+                CurrentTyre = TyreFactory.GenerateSoftTyre,
             },
         };
 

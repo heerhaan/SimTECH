@@ -348,7 +348,13 @@ public partial class Index
             var finalQualyPosition = new Dictionary<long, (int, int)>();
             var qualySessionScores = QualySessions.SelectMany(e => e.SessionScores).ToList();
 
-            foreach (var seasonGroup in Model.ResultsGroupedByRaceClass())
+            var resultsByRaceClass = Model.RaweCeekDrivers
+                .GroupBy(e => e.ClassId)
+                .ToDictionary(
+                    e => e.Key,
+                    e => e.Select(rd => rd.ResultId).ToArray());
+
+            foreach (var seasonGroup in resultsByRaceClass)
             {
                 int positionIndexer = 0;
                 var gridResults = QualySessions
