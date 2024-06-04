@@ -3,7 +3,7 @@ using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels.RaceWeek;
 
-namespace SimTECH.Managers;
+namespace SimTECH.Pages.RaceWeek;
 
 public class RaceManager(Season season, League league, List<Incident> incidents, SimConfig config)
 {
@@ -181,7 +181,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
             driver.GapAbove = driver.AbsolutePosition == 1
                 ? "LEADER"
-                : "+" + (Math.Round((scoreAboveDriver - driver.LapSum) * config.GapMarge, 2)).ToString("F2");
+                : "+" + Math.Round((scoreAboveDriver - driver.LapSum) * config.GapMarge, 2).ToString("F2");
 
             scoreAboveDriver = driver.LapSum;
         }
@@ -212,8 +212,8 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
             if (defendingDriver.InstantOvertaken == false && driver.ClassId == defendingDriver.ClassId)
             {
                 // Subtract attack value from defense, what's left is how much the attacker is hindered
-                var attackingResult = driver.Attack + NumberHelper.RandomInt((battleRng * -1), battleRng);
-                var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt((battleRng * -1), battleRng);
+                var attackingResult = driver.Attack + NumberHelper.RandomInt(battleRng * -1, battleRng);
+                var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt(battleRng * -1, battleRng);
 
                 // Defender frequently made a mistake, so we're punishing him for it :)
                 if (defendingDriver.RecentMistake)

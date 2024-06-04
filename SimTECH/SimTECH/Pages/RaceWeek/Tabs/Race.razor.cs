@@ -6,7 +6,6 @@ using SimTECH.Data.Models;
 using SimTECH.Data.Services;
 using SimTECH.Data.Services.Interfaces;
 using SimTECH.Extensions;
-using SimTECH.Managers;
 using SimTECH.PageModels.RaceWeek;
 using SimTECH.Pages.RaceWeek.Dialogs;
 
