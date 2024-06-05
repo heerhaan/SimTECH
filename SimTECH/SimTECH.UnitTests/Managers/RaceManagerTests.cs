@@ -275,7 +275,7 @@ public class RaceManagerTests
     }
 
     [Fact]
-    public void HighDefensiveNumberShouldPreventOvertakes()
+    public void ShouldHigherDefensePreventOvertake()
     {
         // Arrange
         var season = new Season();
@@ -293,93 +293,6 @@ public class RaceManagerTests
             {
                 SeasonDriverId = 1,
                 Status = Common.Enums.RaceStatus.Racing,
-                AbsolutePosition = 5,
-                Position = 5,
-                Attack = 0,
-                Defense = 15,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
-                {
-                    new()
-                    {
-                        Order = 1,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 2,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 3,
-                        Score = 50,
-                    },
-                },
-            },
-            new()
-            {
-                SeasonDriverId = 2,
-                Status = Common.Enums.RaceStatus.Racing,
-                AbsolutePosition = 4,
-                Position = 4,
-                Attack = 0,
-                Defense = 15,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
-                {
-                    new()
-                    {
-                        Order = 1,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 2,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 3,
-                        Score = 40,
-                    },
-                },
-            },
-            new()
-            {
-                SeasonDriverId = 3,
-                Status = Common.Enums.RaceStatus.Racing,
-                AbsolutePosition = 3,
-                Position = 3,
-                Attack = 0,
-                Defense = 15,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
-                {
-                    new()
-                    {
-                        Order = 1,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 2,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 3,
-                        Score = 30,
-                    },
-                },
-            },
-            new()
-            {
-                SeasonDriverId = 4,
-                Status = Common.Enums.RaceStatus.Racing,
                 AbsolutePosition = 2,
                 Position = 2,
                 Attack = 0,
@@ -396,18 +309,13 @@ public class RaceManagerTests
                     new()
                     {
                         Order = 2,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 3,
                         Score = 20,
                     },
                 },
             },
             new()
             {
-                SeasonDriverId = 5,
+                SeasonDriverId = 2,
                 Status = Common.Enums.RaceStatus.Racing,
                 AbsolutePosition = 1,
                 Position = 1,
@@ -427,10 +335,146 @@ public class RaceManagerTests
                         Order = 2,
                         Score = 10,
                     },
+                },
+            },
+        };
+
+        // Act
+        manager.DeterminePositions(raceDrivers);
+
+        // Assert
+
+        // Ordering by the lap sums also ensures that we can check the lapscores
+        int expectedPosition = 0;
+        foreach (var driver in raceDrivers.OrderByDescending(e => e.LapSum))
+        {
+            ++expectedPosition;
+
+            // No other classes exist, thus both positions should follow the same pattern
+            driver.AbsolutePosition.Should().Be(expectedPosition);
+            driver.Position.Should().Be(expectedPosition);
+        }
+
+        var leadDriver = raceDrivers.First(e => e.Position == 1);
+
+        // Lead driver had the worst lapsum initially, check whether it's defense count has gone up
+        leadDriver.DefensiveCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void DefendingSupportDriverShouldLetMainOvertake()
+    {
+        // Arrange
+        var season = new Season();
+        var league = LeagueFactory.GenerateTestLeague;
+        var incidents = IncidentFactory.GenerateTestIncidentList;
+        var config = new SimConfig();
+
+        league.BattleRng = 2;
+
+        var manager = new RaceManager(season, league, incidents, config);
+
+        var raceDrivers = new List<RaceDriver>()
+        {
+            new()
+            {
+                SeasonDriverId = 1,
+                SeasonTeamId = 1,
+                Status = Common.Enums.RaceStatus.Racing,
+                Role = Common.Enums.TeamRole.Support,
+                AbsolutePosition = 1,
+                Position = 1,
+                Attack = 0,
+                Defense = 10,
+                InstantOvertaken = false,
+                RecentMistake = false,
+                LapScores = new()
+                {
                     new()
                     {
-                        Order = 3,
+                        Order = 1,
                         Score = 10,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 15,
+                    },
+                },
+            },
+            new()
+            {
+                SeasonDriverId = 2,
+                SeasonTeamId = 1,
+                Status = Common.Enums.RaceStatus.Racing,
+                Role = Common.Enums.TeamRole.Main,
+                AbsolutePosition = 2,
+                Position = 2,
+                Attack = 0,
+                Defense = 0,
+                InstantOvertaken = false,
+                RecentMistake = false,
+                LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 10,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 20,
+                    },
+                },
+            },
+            new()
+            {
+                SeasonDriverId = 3,
+                SeasonTeamId = 2,
+                Status = Common.Enums.RaceStatus.Racing,
+                AbsolutePosition = 3,
+                Position = 3,
+                Attack = 0,
+                Defense = 0,
+                InstantOvertaken = false,
+                RecentMistake = false,
+                LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 10,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 10,
+                    },
+                },
+            },
+            new()
+            {
+                SeasonDriverId = 4,
+                SeasonTeamId = 2,
+                Status = Common.Enums.RaceStatus.Racing,
+                AbsolutePosition = 4,
+                Position = 4,
+                Attack = 0,
+                Defense = 0,
+                InstantOvertaken = false,
+                RecentMistake = false,
+                LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 10,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 12,
                     },
                 },
             },
@@ -441,20 +485,132 @@ public class RaceManagerTests
 
         // Assert
 
-        // Check also whether the prevented overtakes also decreased the lapscores
-        int previousPosition = 0;
-        foreach (var driver in raceDrivers.OrderByDescending(e => e.LapSum))
+        // TODO: Implement the part where it checks whether this implementation works correctly
+    }
+
+    [Fact]
+    public void AttackingSupportDriverShouldMaintainPositionBehindMainDriver()
+    {
+        // Arrange
+        var season = new Season();
+        var league = LeagueFactory.GenerateTestLeague;
+        var incidents = IncidentFactory.GenerateTestIncidentList;
+        var config = new SimConfig();
+
+        league.BattleRng = 2;
+
+        var manager = new RaceManager(season, league, incidents, config);
+
+        var raceDrivers = new List<RaceDriver>()
         {
-            ++previousPosition;
+            new()
+            {
+                SeasonDriverId = 1,
+                SeasonTeamId = 1,
+                Status = Common.Enums.RaceStatus.Racing,
+                AbsolutePosition = 1,
+                Position = 1,
+                Attack = 0,
+                Defense = 0,
+                InstantOvertaken = false,
+                RecentMistake = false,
+                LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 10,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 10,
+                    },
+                },
+            },
+            new()
+            {
+                SeasonDriverId = 2,
+                SeasonTeamId = 1,
+                Status = Common.Enums.RaceStatus.Racing,
+                AbsolutePosition = 2,
+                Position = 2,
+                Attack = 0,
+                Defense = 0,
+                InstantOvertaken = false,
+                RecentMistake = false,
+                LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 10,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 10,
+                    },
+                },
+            },
+            new()
+            {
+                SeasonDriverId = 3,
+                SeasonTeamId = 2,
+                Status = Common.Enums.RaceStatus.Racing,
+                AbsolutePosition = 3,
+                Position = 3,
+                Attack = 0,
+                Defense = 0,
+                InstantOvertaken = false,
+                RecentMistake = false,
+                LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 10,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 10,
+                    },
+                },
+            },
+            new()
+            {
+                SeasonDriverId = 4,
+                SeasonTeamId = 2,
+                Status = Common.Enums.RaceStatus.Racing,
+                AbsolutePosition = 4,
+                Position = 4,
+                Attack = 0,
+                Defense = 0,
+                InstantOvertaken = false,
+                RecentMistake = false,
+                LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 10,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 10,
+                    },
+                },
+            },
+        };
 
-            // No other classes exist, thus both positions should follow the same pattern
-            driver.AbsolutePosition.Should().Be(previousPosition);
-            driver.Position.Should().Be(previousPosition);
-        }
+        // Act
+        manager.DeterminePositions(raceDrivers);
 
-        var leadDriver = raceDrivers.First(e => e.Position == 1);
+        //Assert
 
-        // Lead driver had the worst lapsum initially, check whether it's defense count has gone up
-        leadDriver.DefensiveCount.Should().BeGreaterThan(0);
+        // TODO: Implement the part where it checks whether this implementation works correctly
+        // Also consider other cases here, like raceclasses and such
     }
 }

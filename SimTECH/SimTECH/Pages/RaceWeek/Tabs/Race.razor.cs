@@ -24,6 +24,7 @@ public partial class Race
             RacerEvent.Mistake,
             RacerEvent.Death,
             RacerEvent.Swap,
+            RacerEvent.MaintainPosition
             //RacerEvent.FastestLap,
         ];
 
@@ -255,7 +256,7 @@ public partial class Race
             // Check if driver made a mistake, if so then it's going to cost him
             for (int j = 0; j < Model.Season.MistakeRolls; j++)
             {
-                if (DidReliabilityFail(driver.DriverReliability))
+                if (raceManager.DidReliabilityFail(driver.DriverReliability))
                 {
                     lapValue -= NumberHelper.RandomInt(Model.Season.MistakeMinimum, Model.Season.MistakeMaximum);
                     lapScore.RacerEvents |= RacerEvent.Mistake;
@@ -592,8 +593,6 @@ public partial class Race
     }
 
     private void AddCalculationSituation() => AdvanceOccurrences[calculated] = CurrentSituation;
-
-    private static bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(1000) > reliability;
 
     private int GetCurrentLapCount => NumberHelper.LapCount(calculated * calculationDistance, Model.Race.Track.Length);
 

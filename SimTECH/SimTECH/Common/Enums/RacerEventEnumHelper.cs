@@ -16,6 +16,7 @@ public enum RacerEvent
     Swap = 64,
     Death = 128,
     FastestLap = 256,
+    MaintainPosition = 512,
 }
 
 // Add Formation Lap?
@@ -32,6 +33,7 @@ public static class RacerEventEnumHelper
         RacerEvent.Mistake,
         RacerEvent.Pitstop,
         RacerEvent.Swap,
+        RacerEvent.MaintainPosition,
         RacerEvent.Death,
         RacerEvent.FastestLap,
     ];
@@ -46,6 +48,7 @@ public static class RacerEventEnumHelper
             RacerEvent.Mistake => "Mistake",
             RacerEvent.Pitstop => "Pitstop",
             RacerEvent.Swap => "Swap",
+            RacerEvent.MaintainPosition => "Stay",
             RacerEvent.Death => "Injury",
             RacerEvent.FastestLap => "Fastest",
             _ => "Huh?"
@@ -62,6 +65,7 @@ public static class RacerEventEnumHelper
             RacerEvent.Mistake => Icons.Material.Filled.ErrorOutline,
             RacerEvent.Pitstop => Icons.Material.Filled.LocalGasStation,
             RacerEvent.Swap => Icons.Material.Filled.SwapVert,
+            RacerEvent.MaintainPosition => Icons.Material.Filled.SwapVert,
             RacerEvent.Death => IconCollection.Skull,
             RacerEvent.FastestLap => Icons.Material.Filled.Timer,
             _ => Icons.Material.Filled.QuestionMark
@@ -76,6 +80,7 @@ public static class RacerEventEnumHelper
             RacerEvent.Mistake => Color.Warning,
             RacerEvent.Pitstop => Color.Success,
             RacerEvent.Swap => Color.Info,
+            RacerEvent.MaintainPosition => Color.Warning,
             RacerEvent.Death => Color.Inherit,
             RacerEvent.FastestLap => Color.Primary,
             _ => Color.Default,

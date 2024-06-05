@@ -119,7 +119,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         return safetyCar;
     }
 
-    private static bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(reliabilityMaxValue) > reliability;
+    public bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(reliabilityMaxValue) > reliability;
 
     public void DeterminePositions(List<RaceDriver> raceDrivers)
     {
@@ -209,7 +209,22 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
             //}
             //else
 
-            if (defendingDriver.InstantOvertaken == false && driver.ClassId == defendingDriver.ClassId)
+            if (UseTeamOrders(driver, defendingDriver, gainedPositions))
+            {
+                if (defendingDriver.Role == TeamRole.Main)
+                {
+                    var scoreGapAttacker = driver.LapSum - defendingDriver.LapSum;
+                    lastScore.Score -= (scoreGapAttacker + battleRng);
+                    lastScore.RacerEvents |= RacerEvent.MaintainPosition;
+
+                    break;
+                }
+                else
+                {
+                    defendingDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
+                }
+            }
+            else if (defendingDriver.InstantOvertaken == false && driver.ClassId == defendingDriver.ClassId)
             {
                 // Subtract attack value from defense, what's left is how much the attacker is hindered
                 var attackingResult = driver.Attack + NumberHelper.RandomInt(battleRng * -1, battleRng);
@@ -240,5 +255,27 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
             gainedPositions--;
         }
+    }
+
+    private static bool UseTeamOrders(RaceDriver attackingDriver, RaceDriver defendingDriver, int positionsGained)
+    {
+        if (attackingDriver.SeasonTeamId != defendingDriver.SeasonTeamId)
+            return false;
+
+        if (attackingDriver.Role == TeamRole.Main
+            && defendingDriver.Role == TeamRole.Support)
+        {
+            return true;
+        }
+
+        // Only stop overtaking if the attacker wouldn't be overtaking any other drivers anyway
+        if (attackingDriver.Role == TeamRole.Support
+            && defendingDriver.Role == TeamRole.Main
+            && positionsGained == 1)
+        {
+            return true;
+        }
+
+        return false;
     }
 }
