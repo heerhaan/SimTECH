@@ -374,26 +374,21 @@ public class RaceManagerTests
 
         var manager = new RaceManager(season, league, incidents, config);
 
-        var raceDrivers = new List<RaceDriver>()
+        var supportDriver = new RaceDriver()
         {
-            new()
-            {
-                SeasonDriverId = 1,
-                SeasonTeamId = 1,
-                Status = Common.Enums.RaceStatus.Racing,
-                Role = Common.Enums.TeamRole.Support,
-                AbsolutePosition = 1,
-                Position = 1,
-                Attack = 0,
-                Defense = 10,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
+            SeasonDriverId = 1,
+            SeasonTeamId = 1,
+            Status = Common.Enums.RaceStatus.Racing,
+            Role = Common.Enums.TeamRole.Support,
+            AbsolutePosition = 1,
+            Position = 1,
+            Defense = 20,
+            LapScores = new()
                 {
                     new()
                     {
                         Order = 1,
-                        Score = 10,
+                        Score = 15,
                     },
                     new()
                     {
@@ -401,20 +396,17 @@ public class RaceManagerTests
                         Score = 15,
                     },
                 },
-            },
-            new()
-            {
-                SeasonDriverId = 2,
-                SeasonTeamId = 1,
-                Status = Common.Enums.RaceStatus.Racing,
-                Role = Common.Enums.TeamRole.Main,
-                AbsolutePosition = 2,
-                Position = 2,
-                Attack = 0,
-                Defense = 0,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
+        };
+
+        var mainDriver = new RaceDriver()
+        {
+            SeasonDriverId = 2,
+            SeasonTeamId = 1,
+            Status = Common.Enums.RaceStatus.Racing,
+            Role = Common.Enums.TeamRole.Main,
+            AbsolutePosition = 2,
+            Position = 2,
+            LapScores = new()
                 {
                     new()
                     {
@@ -424,22 +416,19 @@ public class RaceManagerTests
                     new()
                     {
                         Order = 2,
-                        Score = 20,
+                        Score = 25,
                     },
-                },
-            },
-            new()
-            {
-                SeasonDriverId = 3,
-                SeasonTeamId = 2,
-                Status = Common.Enums.RaceStatus.Racing,
-                AbsolutePosition = 3,
-                Position = 3,
-                Attack = 0,
-                Defense = 0,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
+                }
+        };
+
+        var otherDriver = new RaceDriver()
+        {
+            SeasonDriverId = 3,
+            SeasonTeamId = 2,
+            Status = Common.Enums.RaceStatus.Racing,
+            AbsolutePosition = 3,
+            Position = 3,
+            LapScores = new()
                 {
                     new()
                     {
@@ -449,43 +438,36 @@ public class RaceManagerTests
                     new()
                     {
                         Order = 2,
-                        Score = 10,
+                        Score = 30,
                     },
-                },
-            },
-            new()
-            {
-                SeasonDriverId = 4,
-                SeasonTeamId = 2,
-                Status = Common.Enums.RaceStatus.Racing,
-                AbsolutePosition = 4,
-                Position = 4,
-                Attack = 0,
-                Defense = 0,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
-                {
-                    new()
-                    {
-                        Order = 1,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 2,
-                        Score = 12,
-                    },
-                },
-            },
+                }
+        };
+
+        var raceDrivers = new List<RaceDriver>()
+        {
+            supportDriver,
+            mainDriver,
+            otherDriver,
         };
 
         // Act
         manager.DeterminePositions(raceDrivers);
 
         // Assert
+        var supportMadeSwap = supportDriver.LapScores.Any(e => e.RacerEvents.HasFlag(Common.Enums.RacerEvent.Swap));
 
-        // TODO: Implement the part where it checks whether this implementation works correctly
+        // Check if support driver had a succesful occurrence of making a swap
+        supportMadeSwap.Should().BeTrue();
+        // Main would normally not be able to overtake lead driver due to it's defense but it can thanks to lead being support
+        mainDriver.AbsolutePosition.Should().Be(1);
+        // Being let past does not count as an overtake
+        mainDriver.OvertakeCount.Should().Be(0);
+        // Leading currently but is support, if main is slightly faster then they should be let through
+        supportDriver.AbsolutePosition.Should().Be(2);
+        // Support driver did defend his position against the third, other driver; should be 1
+        supportDriver.DefensiveCount.Should().Be(1);
+        // Other driver is the fastest of the bunch but will stay 3rd due to lead having a high defense
+        otherDriver.AbsolutePosition.Should().Be(3);
     }
 
     [Fact]
@@ -501,114 +483,121 @@ public class RaceManagerTests
 
         var manager = new RaceManager(season, league, incidents, config);
 
+        var mainDriverTeamOne = new RaceDriver()
+        {
+            SeasonDriverId = 1,
+            SeasonTeamId = 1,
+            Status = Common.Enums.RaceStatus.Racing,
+            Role = Common.Enums.TeamRole.Main,
+            AbsolutePosition = 1,
+            Position = 1,
+            Defense = 10,
+            LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 15,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 20,
+                    },
+                },
+        };
+
+        var supportDriverTeamOne = new RaceDriver()
+        {
+            SeasonDriverId = 2,
+            SeasonTeamId = 1,
+            Status = Common.Enums.RaceStatus.Racing,
+            Role = Common.Enums.TeamRole.Support,
+            AbsolutePosition = 2,
+            Position = 2,
+            Attack = 5,
+            Defense = 5,
+            LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 10,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 50,
+                    },
+                }
+        };
+
+        var mainDriverTeamTwo = new RaceDriver()
+        {
+            SeasonDriverId = 3,
+            SeasonTeamId = 2,
+            Status = Common.Enums.RaceStatus.Racing,
+            Role = Common.Enums.TeamRole.Main,
+            AbsolutePosition = 4,
+            Position = 4,
+            Attack = 15,
+            LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 5,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 75,
+                    },
+                },
+        };
+
+        var supportDriverTeamTwo = new RaceDriver()
+        {
+            SeasonDriverId = 4,
+            SeasonTeamId = 2,
+            Status = Common.Enums.RaceStatus.Racing,
+            Role = Common.Enums.TeamRole.Support,
+            AbsolutePosition = 3,
+            Position = 3,
+            Defense = 50,
+            LapScores = new()
+                {
+                    new()
+                    {
+                        Order = 1,
+                        Score = 10,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 40,
+                    },
+                }
+        };
+
         var raceDrivers = new List<RaceDriver>()
         {
-            new()
-            {
-                SeasonDriverId = 1,
-                SeasonTeamId = 1,
-                Status = Common.Enums.RaceStatus.Racing,
-                AbsolutePosition = 1,
-                Position = 1,
-                Attack = 0,
-                Defense = 0,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
-                {
-                    new()
-                    {
-                        Order = 1,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 2,
-                        Score = 10,
-                    },
-                },
-            },
-            new()
-            {
-                SeasonDriverId = 2,
-                SeasonTeamId = 1,
-                Status = Common.Enums.RaceStatus.Racing,
-                AbsolutePosition = 2,
-                Position = 2,
-                Attack = 0,
-                Defense = 0,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
-                {
-                    new()
-                    {
-                        Order = 1,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 2,
-                        Score = 10,
-                    },
-                },
-            },
-            new()
-            {
-                SeasonDriverId = 3,
-                SeasonTeamId = 2,
-                Status = Common.Enums.RaceStatus.Racing,
-                AbsolutePosition = 3,
-                Position = 3,
-                Attack = 0,
-                Defense = 0,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
-                {
-                    new()
-                    {
-                        Order = 1,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 2,
-                        Score = 10,
-                    },
-                },
-            },
-            new()
-            {
-                SeasonDriverId = 4,
-                SeasonTeamId = 2,
-                Status = Common.Enums.RaceStatus.Racing,
-                AbsolutePosition = 4,
-                Position = 4,
-                Attack = 0,
-                Defense = 0,
-                InstantOvertaken = false,
-                RecentMistake = false,
-                LapScores = new()
-                {
-                    new()
-                    {
-                        Order = 1,
-                        Score = 10,
-                    },
-                    new()
-                    {
-                        Order = 2,
-                        Score = 10,
-                    },
-                },
-            },
+            mainDriverTeamOne, supportDriverTeamOne, mainDriverTeamTwo, supportDriverTeamTwo
         };
 
         // Act
         manager.DeterminePositions(raceDrivers);
 
-        //Assert
+        // Assert
+
+        // 1 -> 2 | Teammate stayed behind, other main overtook, other support driver got blocked by teammate support
+        mainDriverTeamOne.Position.Should().Be(2);
+        // 2 -> 4 | Would've end up p2 if it didn't maintain position behind teammate but it did
+        supportDriverTeamOne.Position.Should().Be(4);
+        // 4 -> 1 | Was fastest, support let him past, had enough speed to overtake both other drivers
+        mainDriverTeamTwo.Position.Should().Be(1);
+        // 3 -> 3 | Let main past, due to other support driver maintaining position it could overtake him too
+        supportDriverTeamTwo.Position.Should().Be(3);
 
         // TODO: Implement the part where it checks whether this implementation works correctly
         // Also consider other cases here, like raceclasses and such

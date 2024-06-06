@@ -199,21 +199,15 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
             var defendingDriver = raceDrivers.First(e => e.AbsolutePosition == abovePosition);
 
-            // Driver above is teammate AND support driver AND attacker is main driver, swap time!
-            //if (defendingDriver.SeasonTeamId == driver.SeasonTeamId
-            //    && driver.Role == TeamRole.Main
-            //    && defendingDriver.Role == TeamRole.Support)
-            //{
-            //    lastScore.RacerEvents |= RacerEvent.Swap;
-            //    defendingDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
-            //}
-            //else
-
+            // Team orders may be applied for the current position change, rules are:
+            // Attacker is support driver and only has 1 position left to gain, thus it maintains position
+            // Defender is support driver and won't make an attempt to defend against overtaker
             if (UseTeamOrders(driver, defendingDriver, gainedPositions))
             {
                 if (defendingDriver.Role == TeamRole.Main)
                 {
                     var scoreGapAttacker = driver.LapSum - defendingDriver.LapSum;
+                    // BattleRng is used here to represent a gap between the two drivers
                     lastScore.Score -= (scoreGapAttacker + battleRng);
                     lastScore.RacerEvents |= RacerEvent.MaintainPosition;
 
@@ -230,7 +224,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
                 var attackingResult = driver.Attack + NumberHelper.RandomInt(battleRng * -1, battleRng);
                 var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt(battleRng * -1, battleRng);
 
-                // Defender frequently made a mistake, so we're punishing him for it :)
+                // Defender recently made a mistake, so we're punishing him for it :)
                 if (defendingDriver.RecentMistake)
                     defendingResult /= 2;
 
@@ -239,7 +233,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
                 if (battleCost > 0)
                     lastScore.Score -= battleCost;
 
-                // Attacking driver has failed to overtake, the defender still has a higher lap sum
+                // Attacker has failed to overtake because the defender still has a higher lap sum
                 if (defendingDriver.LapSum > driver.LapSum)
                 {
                     defendingDriver.DefensiveCount++;
