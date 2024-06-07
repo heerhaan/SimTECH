@@ -1,4 +1,5 @@
-﻿using SimTECH.Common.Enums;
+﻿using Microsoft.AspNetCore.Identity;
+using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels.RaceWeek;
@@ -8,42 +9,6 @@ namespace SimTECH.Pages.RaceWeek;
 public class RaceManager(Season season, League league, List<Incident> incidents, SimConfig config)
 {
     private const int reliabilityMaxValue = 1000;
-
-    /// <summary>
-    /// (Changing) data used in the view/component/race (necessary to be updated per advance?):
-    /// RaceState
-    /// Current RaceOccurrence
-    /// RacedLaps
-    /// (When dynamic is implemented) Climate
-    /// RaceDrivers
-    /// All RaceOccurrences
-    /// ValidTyres
-    /// RelCheck
-    /// 
-    /// Static values used (could simply be determined onInit):
-    /// calcDistance
-    /// calcCount
-    /// RaceTrackLength
-    /// TotalLaps
-    /// RaceTrackCountry
-    /// RaceName
-    /// RaceRound
-    /// (If not dynamic yet) Climate
-    /// SeasonHasRaceClasses
-    /// lastLowest - lastHighest
-    /// signalEvents
-    /// </summary>
-    /// <returns></returns>
-
-    // Eventueel kan ik ook enkel de supportieve methods hierin zetten zoals CheckRel en HandlePosGain
-
-    // Wrong way to think? Rather pass static shizzle in constructor and pass individual racedrivers
-    //public List<RaceDriver> GetOrderedRaceDrivers()
-    //{
-    //    return raceDrivers
-    //        .OrderBy(e => (int)e.Status).ThenBy(e => e.AbsolutePosition)
-    //        .ToList();
-    //}
 
     public void AddFormationLap(List<RaceDriver> raceDrivers)
     {
@@ -65,34 +30,34 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
     }
 
     public bool CheckReliability(RaceDriver driver, LapScore lapScore,
-        Entrant activeCheck, SituationOccurrence currentSituation, bool isFirstLap)
+        Entrant activeCheck, bool isFirstLap)
     {
-        var safetyCar = false;
+        var isSafetyCarComingOut = false;
 
         if (activeCheck == Entrant.Driver && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
-            driver.Incident = incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
+            driver.Incident = incidents.TakeRandomIncident(IncidentCategory.Driver);
         }
         else if (activeCheck == Entrant.Team && DidReliabilityFail(driver.CarReliability))
         {
             lapScore.RacerEvents |= RacerEvent.CarDnf;
-            driver.Incident = incidents.Where(e => e.Category == IncidentCategory.Car).ToList().TakeRandomIncident();
+            driver.Incident = incidents.TakeRandomIncident(IncidentCategory.Car);
         }
         else if (activeCheck == Entrant.Engine && DidReliabilityFail(driver.EngineReliability))
         {
             lapScore.RacerEvents |= RacerEvent.EngineDnf;
-            driver.Incident = incidents.Where(e => e.Category == IncidentCategory.Engine).ToList().TakeRandomIncident();
+            driver.Incident = incidents.TakeRandomIncident(IncidentCategory.Engine);
         }
         // Additional driver reliability check happens on the opening lap
         else if (isFirstLap && DidReliabilityFail(driver.DriverReliability))
         {
             lapScore.RacerEvents |= RacerEvent.DriverDnf;
-            driver.Incident = incidents.Where(e => e.Category == IncidentCategory.Driver).ToList().TakeRandomIncident();
+            driver.Incident = incidents.TakeRandomIncident(IncidentCategory.Driver);
         }
         else
         {
-            return safetyCar;
+            return isSafetyCarComingOut;
         }
 
         // Relability failure = instant overtake by attacking drivers
@@ -101,25 +66,85 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         // If enabled, then we're also going to check if anyone experienced a fatal crash
         if (league.Options.HasFlag(LeagueOptions.EnableFatality) && NumberHelper.RandomInt(league.FatalityOdds) == 0)
         {
-            safetyCar = true;
+            isSafetyCarComingOut = true;
 
             driver.Status = RaceStatus.Fatal;
-            driver.Incident = incidents.Where(e => e.Category == IncidentCategory.Lethal).ToList().TakeRandomIncident();
+            driver.Incident = incidents.TakeRandomIncident(IncidentCategory.Lethal);
             lapScore.RacerEvents = RacerEvent.Death;
 
-            currentSituation = SituationOccurrence.Halted;
-
-            return safetyCar;
+            return isSafetyCarComingOut;
         }
 
         // Randomly determines the odds a safety car occured due to the DNF'ing driver
-        safetyCar = NumberHelper.RandomInt(league.SafetyCarOdds) == 0;
+        isSafetyCarComingOut = NumberHelper.RandomInt(league.SafetyCarOdds) == 0;
         driver.Status = RaceStatus.Dnf;
 
-        return safetyCar;
+        return isSafetyCarComingOut;
+    }
+
+    // Check if driver made a mistake, if so then it's going to cost him
+    public void CheckIfDriverMadeMistake(RaceDriver driver, LapScore lapScore)
+    {
+        for (int j = 0; j < season.MistakeRolls; j++)
+        {
+            if (DidReliabilityFail(driver.DriverReliability))
+            {
+                lapScore.Score -= NumberHelper.RandomInt(season.MistakeMinimum, season.MistakeMaximum);
+                lapScore.RacerEvents |= RacerEvent.Mistake;
+                driver.RecentMistake = true;
+                break;
+            }
+        }
     }
 
     public bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(reliabilityMaxValue) > reliability;
+
+    public void HandleDriverStrategy(RaceDriver driver, LapScore lapScore, List<Tyre> validTyres)
+    {
+        // Triggers a pitstop if condition is met
+        if (validTyres.Count != 0 && driver.CurrentTyre.PitWhenBelow > driver.TyreLife)
+        {
+            TriggerPitStop(driver, lapScore, validTyres);
+        }
+
+        lapScore.Score += driver.TyreLife;
+
+        // Following code applies tyre wear, so rule: first apply life then apply wear
+        var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
+        var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
+
+        // Ensures the minimum wear is always less than the maximum wear
+        if (tyreMinWear > tyreMaxWear)
+        {
+            tyreMaxWear = tyreMinWear + 1;
+        }
+
+        // Adds wear to the tyre
+        driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
+
+        if (driver.TyreLife < driver.CurrentTyre.MinimumLife)
+            driver.TyreLife = driver.CurrentTyre.MinimumLife;
+    }
+
+    private static void TriggerPitStop(RaceDriver driver, LapScore lapScore, List<Tyre> validTyres)
+    {
+        // Tyres different from currently fitted
+        var currentTyres = validTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList();
+
+        Tyre nextTyre;
+        if (currentTyres.Count > 1)
+            nextTyre = currentTyres.TakeRandomItem();
+        else if (currentTyres.Count == 1)
+            nextTyre = currentTyres.First();
+        else
+            nextTyre = validTyres.First();
+
+        driver.CurrentTyre = nextTyre;
+        driver.TyreLife = nextTyre.Pace + driver.LifeBonus;
+        driver.InstantOvertaken = true;
+
+        lapScore.RacerEvents |= RacerEvent.Pitstop;
+    }
 
     public void DeterminePositions(List<RaceDriver> raceDrivers)
     {
@@ -127,7 +152,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe) / altough i dont think this matters
         var actualPositions = GetCurrentPositions(raceDrivers);
 
-        // TODO: This likely can be optimized further
+        // NOTE: Wasn't fully convinced yet on this implementation, but it does work soooo...?
         while (!allPositionsAligned)
         {
             foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
@@ -167,7 +192,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         return actualPositions;
     }
 
-    private void SetPositions(List<RaceDriver> raceDrivers)
+    public void SetPositions(List<RaceDriver> raceDrivers)
     {
         int absoluteIndex = 0;
         int scoreAboveDriver = 0;
