@@ -378,7 +378,7 @@ public class RaceManagerTests
             Role = Common.Enums.TeamRole.Support,
             AbsolutePosition = 1,
             Position = 1,
-            Defense = 20,
+            Defense = 30,
             LapScores = new()
                 {
                     new()
@@ -450,19 +450,21 @@ public class RaceManagerTests
         manager.DeterminePositions(raceDrivers);
 
         // Assert
+        // NOTE: Currently the order is: Other overtakes Main, blocked by Support.
+        // Main overtakes Other after he is blocked, then is let past by Support-driver.
         var supportMadeSwap = supportDriver.LapScores.Any(e => e.RacerEvents.HasFlag(Common.Enums.RacerEvent.Swap));
 
         // Check if support driver had a succesful occurrence of making a swap
         supportMadeSwap.Should().BeTrue();
 
-        // NOTE: Following is commented out because every position gain is determined simultanously, so main overtakes currently after
-        // other driver is stopped by the support driver
+        // If defending driver would not be a support driver, then main would not manage to overtake
+        mainDriver.AbsolutePosition.Should().Be(1);
 
-        // Main would normally not be able to overtake lead driver due to it's defense but it can thanks to lead being support
-        //mainDriver.AbsolutePosition.Should().Be(1);
-
+        // Other driver overtook main until he got blocked by the support driver
+        otherDriver.OvertakeCount.Should().Be(1);
         // Being let past does not count as an overtake
-        mainDriver.OvertakeCount.Should().Be(0);
+        mainDriver.OvertakeCount.Should().Be(1);
+        
         // Leading currently but is support, if main is slightly faster then they should be let through
         supportDriver.AbsolutePosition.Should().Be(2);
         // Support driver did defend his position against the third, other driver; should be 1

@@ -168,8 +168,8 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
                 driver.LastScore = lastScore.Score;
             }
 
-            allPositionsAligned = true;
             actualPositions = GetCurrentPositions(raceDrivers);
+            allPositionsAligned = true;
 
             foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
             {
