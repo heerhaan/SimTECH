@@ -177,39 +177,27 @@ public partial class Race
 
             ++calculated;
 
-            AddCalculationSituation();
+            AdvanceOccurrences[calculated] = CurrentSituation;
 
-            // Logic for what happens during a SC goes here
+            var isSafetyCarOutBeforeAdvance = SafetyCarOut;
+
+            // TODO: Test if this new way of doing advances works!
             if (SafetyCarOut)
             {
-                var safetyCarGoesBackIn = HandleSafetyAdvance(lapScoresToPersist);
-                if (safetyCarGoesBackIn)
-                {
-                    // After handling a safety car round, it goes back in
-                    SafetyCarOut = false;
-
-                    CurrentSituation = SituationOccurrence.Raced;
-                }
+                TruRegularAdvance(lapScoresToPersist);
             }
-            // No safety car is active = this is a regular advance
             else
             {
-                foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
-                {
-                    var lapScore = HandleDriverAdvancement(driver);
-
-                    driver.LapScores.Add(lapScore);
-                    lapScoresToPersist.Add(lapScore);
-                }
-
-                raceManager.DeterminePositions(RaceDrivers);
-
-                PostProcessAdvance();
-
-                // Stop iterating through all advances since SC has gone out
-                if (SafetyCarOut)
-                    break;
+                TruSafetyAdvance(lapScoresToPersist);
             }
+
+            raceManager.DeterminePositions(RaceDrivers);
+
+            PostProcessAdvance();
+
+            // Status of the safety car has changed, stop progression so the user KNOWS
+            if (SafetyCarOut != isSafetyCarOutBeforeAdvance)
+                break;
         }
 
         RacedLaps = GetCurrentLapCount;
@@ -234,7 +222,246 @@ public partial class Race
         //PersistLapScores(lapScoresToPersist);
     }
 
-    private void AddCalculationSituation() => AdvanceOccurrences[calculated] = CurrentSituation;
+    private void TruRegularAdvance(List<LapScore> lapScoresToPersist)
+    {
+        foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
+        {
+            driver.SingleOccurrence = null;
+            driver.InstantOvertaken = false;
+            driver.RecentMistake = false;
+
+            var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
+
+            // Determine if either driver, car or engine has failed
+            var willSafetyCarComeOut = raceManager.CheckReliability(driver, lapScore,
+                ActiveReliabilityCheck, IsFirstLap);
+
+            // Calculate the score for drivers which are still racing
+            if (driver.Status == RaceStatus.Racing)
+            {
+                var minRng = Model.Season.RngMinimum + driver.RngMinMod;
+                var maxRng = Model.Season.RngMaximum + driver.RngMaxMod;
+
+                lapScore.Score = NumberHelper.RandomInt(minRng, maxRng);
+
+                raceManager.CheckIfDriverMadeMistake(driver, lapScore);
+
+                raceManager.HandleDriverStrategy(driver, lapScore, ValidTyres);
+
+                // Adds the overall power of the driver
+                lapScore.Score += driver.Power;
+
+                if (lapScore.Score > fastestLap)
+                {
+                    fastestLap = lapScore.Score;
+
+                    foreach (var raceDriver in RaceDrivers)
+                        raceDriver.HasFastestLap = false;
+
+                    driver.HasFastestLap = true;
+                    lapScore.RacerEvents |= RacerEvent.FastestLap;
+                }
+
+                // Add time cost of the pitstop
+                if (lapScore.RacerEvents.HasFlag(RacerEvent.Pitstop))
+                    lapScore.Score -= GetPitstopCost();
+            }
+            // If this get's triggered then the current driver caused a safety car, racing goes on as normal until the next advance
+            else if (willSafetyCarComeOut)
+            {
+                SafetyCarOut = willSafetyCarComeOut;
+
+                if (driver.Status is RaceStatus.Fatal)
+                    CurrentSituation = SituationOccurrence.Halted;
+                else
+                    CurrentSituation = SituationOccurrence.Caution;
+            }
+
+            lapScore.TyreColour = driver.CurrentTyre.Colour;
+
+            driver.LapScores.Add(lapScore);
+            lapScoresToPersist.Add(lapScore);
+        }
+    }
+
+    private void TruSafetyAdvance(List<LapScore> lapScoresToPersist)
+    {
+        foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
+        {
+            driver.SingleOccurrence = null;
+            driver.InstantOvertaken = false;
+
+            var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
+
+            // If the tyre life is less than half of the tyres overall pace, then check for a pitstop
+            if (ValidTyres.Count > 0 && driver.TyreLife < (driver.CurrentTyre.Pace / 2))
+            {
+                ChangeTyres(driver, lapScore);
+
+                var pitCost = GetPitstopCost();
+
+                lapScore.Score -= pitCost;
+            }
+            else
+            {
+                var scoreAboveDriver = GetScoreOneAboveDriver(driver.LapSum);
+
+                // closes the gap to the driver above
+                var scoreGap = scoreAboveDriver - driver.LapSum;
+
+                // Current score gap is greater than the expected SC-gap
+                if (scoreGap > Model.League.SafetyCarGap)
+                {
+                    int gapSubtractedBy = Model.League.SafetyCarGapCloser;
+
+                    if (scoreGap < Model.League.SafetyCarGapCloser)
+                        gapSubtractedBy = scoreGap - Model.League.SafetyCarGap;
+
+                    lapScore.Score += gapSubtractedBy;
+                }
+            }
+
+            var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
+            var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
+
+            if (tyreMinWear > 0)
+                tyreMinWear /= safetyWearDivider;
+            if (tyreMaxWear > 0)
+                tyreMaxWear /= safetyWearDivider;
+
+            driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
+
+            if (driver.TyreLife < driver.CurrentTyre.MinimumLife)
+                driver.TyreLife = driver.CurrentTyre.MinimumLife;
+
+            lapScore.TyreColour = driver.CurrentTyre.Colour;
+
+            driver.LapScores.Add(lapScore);
+            lapScoresToPersist.Add(lapScore);
+        }
+
+        var safetyCarGoesBackIn = NumberHelper.RandomInt(Model.League.SafetyCarReturnOdds) == 0;
+
+        if (safetyCarGoesBackIn)
+        {
+            // After handling a safety car round, it goes back in
+            SafetyCarOut = false;
+
+            CurrentSituation = SituationOccurrence.Raced;
+        }
+    }
+
+    private LapScore RegularAdvance(RaceDriver driver)
+    {
+        driver.SingleOccurrence = null;
+        driver.InstantOvertaken = false;
+        driver.RecentMistake = false;
+
+        var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
+
+        // Determine if either driver, car or engine has failed
+        var isSafetyCarOut = raceManager.CheckReliability(driver, lapScore,
+            ActiveReliabilityCheck, IsFirstLap);
+
+        // Calculate the score for drivers which are still racing
+        if (driver.Status == RaceStatus.Racing)
+        {
+            var minRng = Model.Season.RngMinimum + driver.RngMinMod;
+            var maxRng = Model.Season.RngMaximum + driver.RngMaxMod;
+
+            lapScore.Score = NumberHelper.RandomInt(minRng, maxRng);
+
+            raceManager.CheckIfDriverMadeMistake(driver, lapScore);
+
+            raceManager.HandleDriverStrategy(driver, lapScore, ValidTyres);
+
+            // Adds the overall power of the driver
+            lapScore.Score += driver.Power;
+
+            if (lapScore.Score > fastestLap)
+            {
+                fastestLap = lapScore.Score;
+
+                foreach (var raceDriver in RaceDrivers)
+                    raceDriver.HasFastestLap = false;
+
+                driver.HasFastestLap = true;
+                lapScore.RacerEvents |= RacerEvent.FastestLap;
+            }
+
+            // Add time cost of the pitstop
+            if (lapScore.RacerEvents.HasFlag(RacerEvent.Pitstop))
+                lapScore.Score -= GetPitstopCost();
+        }
+        // If this get's triggered then the current driver caused a safety car, racing goes on as normal until the next advance
+        else if (isSafetyCarOut)
+        {
+            SafetyCarOut = isSafetyCarOut;
+
+            if (driver.Status is RaceStatus.Fatal)
+                CurrentSituation = SituationOccurrence.Halted;
+            else
+                CurrentSituation = SituationOccurrence.Caution;
+        }
+
+        lapScore.TyreColour = driver.CurrentTyre.Colour;
+
+        return lapScore;
+    }
+
+    private LapScore SafetyAdvance(RaceDriver driver)
+    {
+        driver.SingleOccurrence = null;
+        driver.InstantOvertaken = false;
+        driver.RecentMistake = false;
+
+        var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
+
+        // If the tyre life is less than half of the tyres overall pace, then check for a pitstop
+        if (ValidTyres.Count > 0 && driver.TyreLife < (driver.CurrentTyre.Pace / 2))
+        {
+            ChangeTyres(driver, lapScore);
+
+            var pitCost = GetPitstopCost();
+
+            lapScore.Score -= pitCost;
+        }
+        else
+        {
+            var scoreAboveDriver = GetScoreOneAboveDriver(driver.LapSum);
+
+            // closes the gap to the driver above
+            var scoreGap = scoreAboveDriver - driver.LapSum;
+
+            // Current score gap is greater than the expected SC-gap
+            if (scoreGap > Model.League.SafetyCarGap)
+            {
+                int gapSubtractedBy = Model.League.SafetyCarGapCloser;
+
+                if (scoreGap < Model.League.SafetyCarGapCloser)
+                    gapSubtractedBy = scoreGap - Model.League.SafetyCarGap;
+
+                lapScore.Score += gapSubtractedBy;
+            }
+        }
+
+        var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
+        var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
+
+        if (tyreMinWear > 0)
+            tyreMinWear /= safetyWearDivider;
+        if (tyreMaxWear > 0)
+            tyreMaxWear /= safetyWearDivider;
+
+        driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
+
+        if (driver.TyreLife < driver.CurrentTyre.MinimumLife)
+            driver.TyreLife = driver.CurrentTyre.MinimumLife;
+
+        lapScore.TyreColour = driver.CurrentTyre.Colour;
+
+        return lapScore;
+    }
 
     private LapScore HandleDriverAdvancement(RaceDriver driver)
     {
@@ -297,8 +524,6 @@ public partial class Race
     // returns boolean which indicates whether a safety car is returning after the current advance
     private bool HandleSafetyAdvance(List<LapScore> lapScoresToPersist)
     {
-        int oldScoreAboveDriver = 0;
-
         foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
         {
             driver.SingleOccurrence = null;
@@ -318,12 +543,6 @@ public partial class Race
             else
             {
                 var scoreAboveDriver = GetScoreOneAboveDriver(driver.LapSum);
-
-                if (scoreAboveDriver != oldScoreAboveDriver)
-                {
-                    // This should probably rarely if ever get hit, if it does then AAAAAAAAAAAAAAAA
-                    _snackbar.Add("ScoreAboveDriver differed from the legacy implementation, this MAY mean that solution is borked or you dumdum", Severity.Error);
-                }
 
                 // closes the gap to the driver above
                 var scoreGap = scoreAboveDriver - driver.LapSum;
@@ -357,10 +576,6 @@ public partial class Race
 
             driver.LapScores.Add(lapScore);
             lapScoresToPersist.Add(lapScore);
-
-            // Only update the score of the above driver if the driver did NOT take this opportunity for a pitstop
-            if (!lapScore.RacerEvents.HasFlag(RacerEvent.Pitstop))
-                oldScoreAboveDriver = driver.LapSum;
         }
 
         raceManager.SetPositions(RaceDrivers);
