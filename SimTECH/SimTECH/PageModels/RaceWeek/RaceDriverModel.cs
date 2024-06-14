@@ -26,7 +26,9 @@ public class RaceDriver : DriverBase
     public int LifeBonus { get; set; }
 
     public bool HasFastestLap { get; set; }
-    public bool InstantOvertaken { get; set; }
+    // TODO: Would like to remove the property underneath, rather check the racerflags of lastscore
+    public bool InstantOvertaken { get; set; }// set to true when pitstop OR dnf
+    // TODO: Would like to remove the property underneath, rather check the racerflags of lastscore
     public bool RecentMistake { get; set; }
 
     public List<LapScore> LapScores { get; set; } = new();
