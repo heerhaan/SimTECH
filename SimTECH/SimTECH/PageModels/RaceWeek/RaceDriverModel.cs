@@ -31,7 +31,7 @@ public class RaceDriver : DriverBase
     // TODO: Would like to remove the property underneath, rather check the racerflags of lastscore
     public bool RecentMistake { get; set; }
 
-    public List<LapScore> LapScores { get; set; } = new();
+    public List<LapScore> LapScores { get; set; } = [];
 
     public int LapSum => LapScores.Sum(e => e.Score);
     public int GridChange => AbsoluteGrid - AbsolutePosition;

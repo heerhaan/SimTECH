@@ -2,9 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 using SimTECH.Data.Services.Interfaces;
-using SimTECH.UnitTests.Data.Services;
+using SimTECH.Tests.Data.Services;
 
-namespace SimTECH.UnitTests.Extensions;
+namespace SimTECH.Tests.Extensions;
 
 public static class TestContextExtensions
 {

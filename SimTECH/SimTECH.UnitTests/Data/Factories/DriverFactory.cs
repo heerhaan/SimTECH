@@ -1,7 +1,7 @@
 ﻿using SimTECH.Constants;
 using SimTECH.Data.Models;
 
-namespace SimTECH.UnitTests.Data.Factories;
+namespace SimTECH.Tests.Data.Factories;
 
 public static class DriverFactory
 {

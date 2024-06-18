@@ -1,11 +1,11 @@
 ﻿using Bunit;
 using FluentAssertions;
 using SimTECH.Shared.Components;
-using SimTECH.UnitTests.Infrastructure;
+using SimTECH.Tests.Infrastructure;
 using Xunit;
 using static Bunit.ComponentParameterFactory;
 
-namespace SimTECH.UnitTests.Components;
+namespace SimTECH.Tests.Components;
 
 public class IconTests : TestContext
 {

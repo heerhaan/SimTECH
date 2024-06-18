@@ -2,7 +2,7 @@
 using SimTECH.Extensions;
 using Xunit;
 
-namespace SimTECH.UnitTests.Extensions;
+namespace SimTECH.Tests.UnitTests;
 
 public class NumberHelperTests
 {

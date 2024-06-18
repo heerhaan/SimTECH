@@ -99,34 +99,50 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
     public bool DidReliabilityFail(int reliability) => NumberHelper.RandomInt(reliabilityMaxValue) > reliability;
 
-    public void HandleDriverStrategy(RaceDriver driver, LapScore lapScore, List<Tyre> validTyres)
+    public void HandleDriverStrategy(RaceDriver driver, LapScore lapScore, List<Tyre> validTyres, bool isCaution)
     {
+        var lifeLimitForPitstop = isCaution ? (driver.CurrentTyre.Pace / 2) : driver.CurrentTyre.PitWhenBelow;
+
         // Triggers a pitstop if condition is met
-        if (validTyres.Count != 0 && driver.CurrentTyre.PitWhenBelow > driver.TyreLife)
+        if (validTyres.Count != 0 && lifeLimitForPitstop > driver.TyreLife)
         {
-            TriggerPitStop(driver, lapScore, validTyres);
+            ChangeTyres(driver, validTyres);
+
+            lapScore.RacerEvents |= RacerEvent.Pitstop;
+            lapScore.Score -= GetPitstopCost(isCaution);
         }
 
-        lapScore.Score += driver.TyreLife;
+        lapScore.TyreColour = driver.CurrentTyre.Colour;
 
         // Following code applies tyre wear, so rule: first apply life then apply wear
         var tyreMinWear = driver.CurrentTyre.WearMin + driver.WearMinMod;
         var tyreMaxWear = driver.CurrentTyre.WearMax + driver.WearMaxMod;
 
+        if (isCaution)
+        {
+            // TODO: Do a few calculations on this to make sure it works
+            if (tyreMinWear > 0)
+                tyreMinWear /= config.CautionTyreWearDivider;
+            if (tyreMaxWear > 0)
+                tyreMaxWear /= config.CautionTyreWearDivider;
+        }
+
         // Ensures the minimum wear is always less than the maximum wear
         if (tyreMinWear > tyreMaxWear)
-        {
             tyreMaxWear = tyreMinWear + 1;
-        }
 
         // Adds wear to the tyre
         driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
         if (driver.TyreLife < driver.CurrentTyre.MinimumLife)
             driver.TyreLife = driver.CurrentTyre.MinimumLife;
+
+        // Only add the effects of tyre wear to the score outside of SCs
+        if (!isCaution)
+            lapScore.Score += driver.TyreLife;
     }
 
-    private static void TriggerPitStop(RaceDriver driver, LapScore lapScore, List<Tyre> validTyres)
+    private static void ChangeTyres(RaceDriver driver, List<Tyre> validTyres)
     {
         // Tyres different from currently fitted
         var currentTyres = validTyres.Where(e => e.Id != driver.CurrentTyre.Id).ToList();
@@ -142,11 +158,22 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         driver.CurrentTyre = nextTyre;
         driver.TyreLife = nextTyre.Pace + driver.LifeBonus;
         driver.InstantOvertaken = true;
-
-        lapScore.RacerEvents |= RacerEvent.Pitstop;
     }
 
-    public void DeterminePositions(List<RaceDriver> raceDrivers)
+    private int GetPitstopCost(bool isCaution)
+    {
+        var pitCost = NumberHelper.RandomInt(season.PitMinimum, season.PitMaximum);
+
+        // Pitstop duration is reduced since a safety car is currently out
+        if (isCaution && pitCost > season.PitCostSubtractCaution)
+        {
+            pitCost -= season.PitCostSubtractCaution;
+        }
+
+        return pitCost;
+    }
+
+    public void DeterminePositions(List<RaceDriver> raceDrivers, SituationOccurrence situation)
     {
         var allPositionsAligned = false;
         // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe) / altough i dont think this matters
@@ -163,7 +190,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
                 // Assign the new positions based on whether their overtakes have been succesful
                 if (positionChange > 0)
-                    HandlePositionGain(raceDrivers, driver, lastScore, positionChange);
+                    HandlePositionGain(raceDrivers, driver, lastScore, positionChange, situation);
 
                 driver.LastScore = lastScore.Score;
             }
@@ -212,7 +239,8 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         }
     }
 
-    private void HandlePositionGain(List<RaceDriver> raceDrivers, RaceDriver driver, LapScore lastScore, int gainedPositions)
+    private void HandlePositionGain(List<RaceDriver> raceDrivers, RaceDriver driver, LapScore lastScore,
+        int gainedPositions, SituationOccurrence situation)
     {
         var battleRng = league.BattleRng;
 
@@ -224,49 +252,59 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
             var defendingDriver = raceDrivers.First(e => e.AbsolutePosition == abovePosition);
 
-            // Team orders may be applied for the current position change, rules are:
-            // Attacker is support driver and only has 1 position left to gain, thus it maintains position
-            // Defender is support driver and won't make an attempt to defend against overtaker
-            if (UseTeamOrders(driver, defendingDriver, gainedPositions))
+            // Only perform a check if the defender is not instantly overtake, as this points that the defender has DNFed or pitted
+            if (defendingDriver.InstantOvertaken == false)
             {
-                if (defendingDriver.Role == TeamRole.Main)
+                if (situation != SituationOccurrence.Raced)
                 {
-                    var scoreGapAttacker = driver.LapSum - defendingDriver.LapSum;
-                    // BattleRng is used here to represent a gap between the two drivers
-                    lastScore.Score -= (scoreGapAttacker + battleRng);
-                    lastScore.RacerEvents |= RacerEvent.MaintainPosition;
-
-                    break;
-                }
-                else
-                {
-                    defendingDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
-                }
-            }
-            else if (defendingDriver.InstantOvertaken == false && driver.ClassId == defendingDriver.ClassId)
-            {
-                // Subtract attack value from defense, what's left is how much the attacker is hindered
-                var attackingResult = driver.Attack + NumberHelper.RandomInt(battleRng * -1, battleRng);
-                var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt(battleRng * -1, battleRng);
-
-                // Defender recently made a mistake, so we're punishing him for it :)
-                if (defendingDriver.RecentMistake)
-                    defendingResult /= 2;
-
-                var battleCost = defendingResult - attackingResult;
-
-                if (battleCost > 0)
-                    lastScore.Score -= battleCost;
-
-                // Attacker has failed to overtake because the defender still has a higher lap sum
-                if (defendingDriver.LapSum > driver.LapSum)
-                {
-                    defendingDriver.DefensiveCount++;
-                    break;
+                    throw new InvalidOperationException("An attacker makes an attempt to overtake during SC, should not happen!");
                 }
 
-                // It only counts as an overtake if it wasn't in an instant
-                driver.OvertakeCount++;
+                // Team orders may be applied for the current position change, rules are:
+                // Attacker is support driver and only has 1 position left to gain, thus it maintains position
+                // Defender is support driver and won't make an attempt to defend against overtaker
+                if (UseTeamOrders(driver, defendingDriver, gainedPositions))
+                {
+                    if (defendingDriver.Role == TeamRole.Main)
+                    {
+                        var scoreGapAttacker = driver.LapSum - defendingDriver.LapSum;
+                        // BattleRng is used here to represent a gap between the two drivers
+                        lastScore.Score -= (scoreGapAttacker + battleRng);
+                        lastScore.RacerEvents |= RacerEvent.MaintainPosition;
+
+                        break;
+                    }
+                    else
+                    {
+                        defendingDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
+                    }
+                }
+                // Only perform battles within the same race class
+                else if (driver.ClassId == defendingDriver.ClassId)
+                {
+                    // Subtract attack value from defense, what's left is how much the attacker is hindered
+                    var attackingResult = driver.Attack + NumberHelper.RandomInt(battleRng * -1, battleRng);
+                    var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt(battleRng * -1, battleRng);
+
+                    // Defender recently made a mistake, so we're punishing him for it :)
+                    if (defendingDriver.RecentMistake)
+                        defendingResult /= 2;
+
+                    var battleCost = defendingResult - attackingResult;
+
+                    if (battleCost > 0)
+                        lastScore.Score -= battleCost;
+
+                    // Attacker has failed to overtake because the defender still has a higher lap sum
+                    if (defendingDriver.LapSum > driver.LapSum)
+                    {
+                        defendingDriver.DefensiveCount++;
+                        break;
+                    }
+
+                    // It only counts as an overtake if it wasn't in an instant
+                    driver.OvertakeCount++;
+                }
             }
 
             // Overtake succeeded, driver gains a position!

@@ -6,16 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SimTECH.Data;
 using SimTECH.Data.Models;
-using SimTECH.UnitTests.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SimTECH.Tests.Extensions;
 using Testcontainers.MsSql;
 using Xunit;
 
-namespace SimTECH.UnitTests.Infrastructure;
+namespace SimTECH.Tests.Infrastructure;
 
 // Check the following sources
 // https://testcontainers.com/guides/getting-started-with-testcontainers-for-dotnet/

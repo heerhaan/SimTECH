@@ -1,12 +1,13 @@
 ﻿using FluentAssertions;
+using SimTECH.Common.Enums;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.PageModels.RaceWeek;
 using SimTECH.Pages.RaceWeek;
-using SimTECH.UnitTests.Data.Factories;
+using SimTECH.Tests.Data.Factories;
 using Xunit;
 
-namespace SimTECH.UnitTests.Managers;
+namespace SimTECH.Tests.UnitTests;
 
 public class RaceManagerTests
 {
@@ -248,8 +249,10 @@ public class RaceManagerTests
             },
         };
 
+        var situation = SituationOccurrence.Raced;
+
         // Act
-        manager.DeterminePositions(raceDrivers);
+        manager.DeterminePositions(raceDrivers, situation);
 
         // Assert
         var distinctPositionCount = raceDrivers.Select(e => e.AbsolutePosition).Distinct().Count();
@@ -337,8 +340,10 @@ public class RaceManagerTests
 
         var raceDrivers = new List<RaceDriver>() { leadDriver, followingDriver };
 
+        var situation = SituationOccurrence.Raced;
+
         // Act
-        manager.DeterminePositions(raceDrivers);
+        manager.DeterminePositions(raceDrivers, situation);
 
         // Assert
 
@@ -446,8 +451,10 @@ public class RaceManagerTests
             otherDriver,
         };
 
+        var situation = SituationOccurrence.Raced;
+
         // Act
-        manager.DeterminePositions(raceDrivers);
+        manager.DeterminePositions(raceDrivers, situation);
 
         // Assert
         // NOTE: Currently the order is: Other overtakes Main, blocked by Support.
@@ -464,7 +471,7 @@ public class RaceManagerTests
         otherDriver.OvertakeCount.Should().Be(1);
         // Being let past does not count as an overtake
         mainDriver.OvertakeCount.Should().Be(1);
-        
+
         // Leading currently but is support, if main is slightly faster then they should be let through
         supportDriver.AbsolutePosition.Should().Be(2);
         // Support driver did defend his position against the third, other driver; should be 1
@@ -494,9 +501,9 @@ public class RaceManagerTests
             Role = Common.Enums.TeamRole.Main,
             AbsolutePosition = 1,
             Position = 1,
-            Defense = 10,
-            LapScores = new()
-                {
+            Defense = 15,
+            LapScores =
+                [
                     new()
                     {
                         Order = 1,
@@ -507,7 +514,7 @@ public class RaceManagerTests
                         Order = 2,
                         Score = 20,
                     },
-                },
+                ],
         };
 
         var supportDriverTeamOne = new RaceDriver()
@@ -520,8 +527,8 @@ public class RaceManagerTests
             Position = 2,
             Attack = 5,
             Defense = 5,
-            LapScores = new()
-                {
+            LapScores =
+                [
                     new()
                     {
                         Order = 1,
@@ -532,7 +539,7 @@ public class RaceManagerTests
                         Order = 2,
                         Score = 50,
                     },
-                }
+                ]
         };
 
         var mainDriverTeamTwo = new RaceDriver()
@@ -544,8 +551,8 @@ public class RaceManagerTests
             AbsolutePosition = 4,
             Position = 4,
             Attack = 15,
-            LapScores = new()
-                {
+            LapScores =
+                [
                     new()
                     {
                         Order = 1,
@@ -556,7 +563,7 @@ public class RaceManagerTests
                         Order = 2,
                         Score = 75,
                     },
-                },
+                ],
         };
 
         var supportDriverTeamTwo = new RaceDriver()
@@ -568,8 +575,8 @@ public class RaceManagerTests
             AbsolutePosition = 3,
             Position = 3,
             Defense = 50,
-            LapScores = new()
-                {
+            LapScores =
+                [
                     new()
                     {
                         Order = 1,
@@ -580,7 +587,7 @@ public class RaceManagerTests
                         Order = 2,
                         Score = 40,
                     },
-                }
+                ]
         };
 
         var raceDrivers = new List<RaceDriver>()
@@ -588,8 +595,10 @@ public class RaceManagerTests
             mainDriverTeamOne, supportDriverTeamOne, mainDriverTeamTwo, supportDriverTeamTwo
         };
 
+        var situation = SituationOccurrence.Raced;
+
         // Act
-        manager.DeterminePositions(raceDrivers);
+        manager.DeterminePositions(raceDrivers, situation);
 
         // Assert
 

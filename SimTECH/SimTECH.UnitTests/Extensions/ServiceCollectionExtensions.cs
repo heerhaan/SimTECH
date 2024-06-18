@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace SimTECH.UnitTests;
+namespace SimTECH.Tests.Extensions;
 
 public static class ServiceCollectionExtensions
 {

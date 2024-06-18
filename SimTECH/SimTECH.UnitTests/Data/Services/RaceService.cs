@@ -2,7 +2,7 @@
 using SimTECH.Data.Services.Interfaces;
 using SimTECH.PageModels;
 
-namespace SimTECH.UnitTests.Data.Services;
+namespace SimTECH.Tests.Data.Services;
 
 public class RaceService : IRaceService
 {

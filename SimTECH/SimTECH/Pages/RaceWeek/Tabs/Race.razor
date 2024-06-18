@@ -136,6 +136,14 @@
                         }
                         <MudSpacer />
                         <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
+                        @if (context.Role == TeamRole.Main)
+                        {
+                            <sup>m</sup>
+                        }
+                        else if (context.Role == TeamRole.Support)
+                        {
+                            <sup>s</sup>
+                        }
                     </MudStack>
                 </MudTd>
                 <MudTd>

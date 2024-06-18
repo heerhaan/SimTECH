@@ -43,7 +43,7 @@ public static class RacerEventEnumHelper
         return racerEvent switch
         {
             RacerEvent.DriverDnf => "Crash",
-            RacerEvent.CarDnf => "Issues",
+            RacerEvent.CarDnf => "Mechanical",
             RacerEvent.EngineDnf => "Engine",
             RacerEvent.Mistake => "Mistake",
             RacerEvent.Pitstop => "Pitstop",

@@ -1,9 +1,9 @@
 ﻿using SimTECH.Data.Models;
 using SimTECH.Data.Services.Interfaces;
 using SimTECH.PageModels.RaceWeek;
-using SimTECH.UnitTests.Data.Factories;
+using SimTECH.Tests.Data.Factories;
 
-namespace SimTECH.UnitTests.Data.Services;
+namespace SimTECH.Tests.Data.Services;
 
 public class RaceWeekService : IRaceWeekService
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimTECH.UnitTests.Providers;
+namespace SimTECH.Tests.Providers;
 internal class HumanBeingTests
 {
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimTECH.UnitTests.Data.Factories;
+namespace SimTECH.Tests.Data.Factories;
 
 public static class TrackFactory
 {
