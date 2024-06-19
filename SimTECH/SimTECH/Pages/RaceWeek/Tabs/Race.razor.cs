@@ -63,10 +63,11 @@ public partial class Race
     private List<Tyre> Tyres { get; set; } = [];
 
     private Dictionary<int, SituationOccurrence> AdvanceOccurrences { get; set; } = [];
+
     private List<RaceDriver> RaceDrivers { get; set; } = [];
+
     private List<Tyre> ValidTyres { get; set; } = [];
 
-    // Controls for the view
     private bool Loading { get; set; } = true;
     private int RacedLaps { get; set; }
     private int TotalLaps { get; set; }
@@ -76,14 +77,11 @@ public partial class Race
     private Entrant ActiveReliabilityCheck { get; set; } = Entrant.Driver;
     private int reliablityCycler = 0;
 
-    // Supportive caluclation fields
     private int fastestLap;
     private int calculated;
     private int calculationCount;
     private int calculationsPerAdvance = 5;
     private int calculationDistance = 10;
-    private int cautionPace = 50;
-    private int cautionTyreWearDivider = 3;
 
     private int lastHighestScore = 0;
     private int lastLowestScore = 0;
@@ -103,7 +101,6 @@ public partial class Race
 
         raceManager = new(Model.Season, Model.League, Incidents, Config);
 
-        cautionTyreWearDivider = Config.CautionTyreWearDivider;
         calculationDistance = Config.CalculationDistance;
         calculationCount = Model.Race.RaceLength / calculationDistance;
 
@@ -194,7 +191,7 @@ public partial class Race
                     throw new ArgumentOutOfRangeException($"Unrecognized situation: {CurrentSituation}");
             }
 
-            raceManager.DeterminePositions(RaceDrivers, situationBeforeAdvance);
+            raceManager.DeterminePositions(RaceDrivers);
 
             PostProcessAdvance();
 
@@ -280,6 +277,8 @@ public partial class Race
                     raceDriver.HasFastestLap = fastestLapScore.ResultId == raceDriver.ResultId;
 
                 fastestLapScore.RacerEvents |= RacerEvent.FastestLap;
+
+                fastestLap = fastestLapScore.Score;
             }
         }
     }
@@ -382,7 +381,7 @@ public partial class Race
             matchDriver.Incident = raceDriver.Incident;
         }
 
-        // Should be removed when it is done per advance
+        // Should be removed when (if?) saving is done per advance
         var allLapScores = RaceDrivers
             .SelectMany(e => e.LapScores)
             .Where(e => e.Id == 0)
@@ -390,9 +389,9 @@ public partial class Race
 
         LapScores.AddRange(allLapScores);
 
-        int initialHighestOccurrence = 0;
-        if (Occurrences.Count != 0)
-            initialHighestOccurrence = Occurrences.Select(e => e.Order).Max();
+        var initialHighestOccurrence = Occurrences.Count != 0
+            ? Occurrences.Select(e => e.Order).Max()
+            : 0;
 
         foreach (var occurr in AdvanceOccurrences.Where(e => e.Key > initialHighestOccurrence))
         {

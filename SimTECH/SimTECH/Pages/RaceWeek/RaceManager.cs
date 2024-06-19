@@ -173,7 +173,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         return pitCost;
     }
 
-    public void DeterminePositions(List<RaceDriver> raceDrivers, SituationOccurrence situation)
+    public void DeterminePositions(List<RaceDriver> raceDrivers)
     {
         var allPositionsAligned = false;
         // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe) / altough i dont think this matters
@@ -190,7 +190,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
                 // Assign the new positions based on whether their overtakes have been succesful
                 if (positionChange > 0)
-                    HandlePositionGain(raceDrivers, driver, lastScore, positionChange, situation);
+                    HandlePositionGain(raceDrivers, driver, lastScore, positionChange);
 
                 driver.LastScore = lastScore.Score;
             }
@@ -240,7 +240,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
     }
 
     private void HandlePositionGain(List<RaceDriver> raceDrivers, RaceDriver driver, LapScore lastScore,
-        int gainedPositions, SituationOccurrence situation)
+        int gainedPositions)
     {
         var battleRng = league.BattleRng;
 
@@ -255,11 +255,6 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
             // Only perform a check if the defender is not instantly overtake, as this points that the defender has DNFed or pitted
             if (defendingDriver.InstantOvertaken == false)
             {
-                if (situation != SituationOccurrence.Raced)
-                {
-                    throw new InvalidOperationException("An attacker makes an attempt to overtake during SC, should not happen!");
-                }
-
                 // Team orders may be applied for the current position change, rules are:
                 // Attacker is support driver and only has 1 position left to gain, thus it maintains position
                 // Defender is support driver and won't make an attempt to defend against overtaker

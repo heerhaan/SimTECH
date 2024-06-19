@@ -249,10 +249,8 @@ public class RaceManagerTests
             },
         };
 
-        var situation = SituationOccurrence.Raced;
-
         // Act
-        manager.DeterminePositions(raceDrivers, situation);
+        manager.DeterminePositions(raceDrivers);
 
         // Assert
         var distinctPositionCount = raceDrivers.Select(e => e.AbsolutePosition).Distinct().Count();
@@ -340,10 +338,8 @@ public class RaceManagerTests
 
         var raceDrivers = new List<RaceDriver>() { leadDriver, followingDriver };
 
-        var situation = SituationOccurrence.Raced;
-
         // Act
-        manager.DeterminePositions(raceDrivers, situation);
+        manager.DeterminePositions(raceDrivers);
 
         // Assert
 
@@ -451,10 +447,8 @@ public class RaceManagerTests
             otherDriver,
         };
 
-        var situation = SituationOccurrence.Raced;
-
         // Act
-        manager.DeterminePositions(raceDrivers, situation);
+        manager.DeterminePositions(raceDrivers);
 
         // Assert
         // NOTE: Currently the order is: Other overtakes Main, blocked by Support.
@@ -595,10 +589,8 @@ public class RaceManagerTests
             mainDriverTeamOne, supportDriverTeamOne, mainDriverTeamTwo, supportDriverTeamTwo
         };
 
-        var situation = SituationOccurrence.Raced;
-
         // Act
-        manager.DeterminePositions(raceDrivers, situation);
+        manager.DeterminePositions(raceDrivers);
 
         // Assert
 
@@ -613,5 +605,11 @@ public class RaceManagerTests
 
         // TODO: Implement the part where it checks whether this implementation works correctly
         // Also consider other cases here, like raceclasses and such
+    }
+
+    [Fact]
+    public void DifferentRaceClassOvertakesInstantly()
+    {
+
     }
 }
