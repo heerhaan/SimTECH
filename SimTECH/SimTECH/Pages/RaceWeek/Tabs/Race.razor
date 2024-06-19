@@ -130,12 +130,6 @@
                     <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0" Style="max-width: 275px">
                         <MudText>@context.FirstName</MudText>
                         <MudText Typo="Typo.button" Class="fontsize-button-text overflow-hider">@context.LastName</MudText>
-                        @if (context.HasFastestLap)
-                        {
-                            <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
-                        }
-                        <MudSpacer />
-                        <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
                         @if (context.Role == TeamRole.Main)
                         {
                             <sup>m</sup>
@@ -144,6 +138,12 @@
                         {
                             <sup>s</sup>
                         }
+                        @if (context.HasFastestLap)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
+                        }
+                        <MudSpacer />
+                        <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
                     </MudStack>
                 </MudTd>
                 <MudTd>

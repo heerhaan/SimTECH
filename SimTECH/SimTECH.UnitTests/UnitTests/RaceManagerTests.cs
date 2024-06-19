@@ -379,13 +379,13 @@ public class RaceManagerTests
         {
             SeasonDriverId = 1,
             SeasonTeamId = 1,
-            Status = Common.Enums.RaceStatus.Racing,
-            Role = Common.Enums.TeamRole.Support,
+            Status = RaceStatus.Racing,
+            Role = TeamRole.Support,
             AbsolutePosition = 1,
             Position = 1,
             Defense = 30,
-            LapScores = new()
-                {
+            LapScores =
+                [
                     new()
                     {
                         Order = 1,
@@ -396,19 +396,19 @@ public class RaceManagerTests
                         Order = 2,
                         Score = 15,
                     },
-                },
+                ],
         };
 
         var mainDriver = new RaceDriver()
         {
             SeasonDriverId = 2,
             SeasonTeamId = 1,
-            Status = Common.Enums.RaceStatus.Racing,
-            Role = Common.Enums.TeamRole.Main,
+            Status = RaceStatus.Racing,
+            Role = TeamRole.Main,
             AbsolutePosition = 2,
             Position = 2,
-            LapScores = new()
-                {
+            LapScores =
+                [
                     new()
                     {
                         Order = 1,
@@ -419,18 +419,18 @@ public class RaceManagerTests
                         Order = 2,
                         Score = 30,
                     },
-                }
+                ]
         };
 
         var otherDriver = new RaceDriver()
         {
             SeasonDriverId = 3,
             SeasonTeamId = 2,
-            Status = Common.Enums.RaceStatus.Racing,
+            Status = RaceStatus.Racing,
             AbsolutePosition = 3,
             Position = 3,
-            LapScores = new()
-                {
+            LapScores =
+                [
                     new()
                     {
                         Order = 1,
@@ -441,7 +441,7 @@ public class RaceManagerTests
                         Order = 2,
                         Score = 40,
                     },
-                }
+                ]
         };
 
         var raceDrivers = new List<RaceDriver>()
@@ -497,8 +497,8 @@ public class RaceManagerTests
         {
             SeasonDriverId = 1,
             SeasonTeamId = 1,
-            Status = Common.Enums.RaceStatus.Racing,
-            Role = Common.Enums.TeamRole.Main,
+            Status = RaceStatus.Racing,
+            Role = TeamRole.Main,
             AbsolutePosition = 1,
             Position = 1,
             Defense = 15,
@@ -570,8 +570,8 @@ public class RaceManagerTests
         {
             SeasonDriverId = 4,
             SeasonTeamId = 2,
-            Status = Common.Enums.RaceStatus.Racing,
-            Role = Common.Enums.TeamRole.Support,
+            Status = RaceStatus.Racing,
+            Role = TeamRole.Support,
             AbsolutePosition = 3,
             Position = 3,
             Defense = 50,

@@ -103,7 +103,6 @@ public partial class Race
 
         raceManager = new(Model.Season, Model.League, Incidents, Config);
 
-        cautionPace = Config.CautionPace;
         cautionTyreWearDivider = Config.CautionTyreWearDivider;
         calculationDistance = Config.CalculationDistance;
         calculationCount = Model.Race.RaceLength / calculationDistance;
@@ -294,10 +293,6 @@ public partial class Race
             driver.InstantOvertaken = false;
 
             var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
-
-            // Default pace of the cars during a caution situation
-            // This uhhh breaks the safety car so how about not adding this
-            //lapScore.Score += cautionPace;
 
             raceManager.HandleDriverStrategy(driver, lapScore, ValidTyres, true);
 

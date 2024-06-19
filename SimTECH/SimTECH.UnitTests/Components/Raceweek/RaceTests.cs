@@ -145,8 +145,6 @@ public class RaceTests : IClassFixture<DataFixture>
                     LastName = "bbb",
                     Nationality = Common.Enums.Country.NL,
                     TeamName = "aaa",
-                    Colour = Globals.DefaultColour,
-                    Accent = Globals.DefaultAccent,
                     Tyre = TyreFactory.GenerateSoftTyre,
                 },
                 new()
@@ -156,8 +154,6 @@ public class RaceTests : IClassFixture<DataFixture>
                     LastName = "bbb",
                     Nationality = Common.Enums.Country.NL,
                     TeamName = "aaa",
-                    Colour = Globals.DefaultColour,
-                    Accent = Globals.DefaultAccent,
                     Tyre = TyreFactory.GenerateSoftTyre,
                 },
                 new()
@@ -167,8 +163,6 @@ public class RaceTests : IClassFixture<DataFixture>
                     LastName = "bbb",
                     Nationality = Common.Enums.Country.NL,
                     TeamName = "aaa",
-                    Colour = Globals.DefaultColour,
-                    Accent = Globals.DefaultAccent,
                     Tyre = TyreFactory.GenerateSoftTyre,
                 },
                 new()
@@ -178,8 +172,6 @@ public class RaceTests : IClassFixture<DataFixture>
                     LastName = "bbb",
                     Nationality = Common.Enums.Country.NL,
                     TeamName = "aaa",
-                    Colour = Globals.DefaultColour,
-                    Accent = Globals.DefaultAccent,
                     Tyre = TyreFactory.GenerateSoftTyre,
                 },
                 new()
@@ -189,8 +181,6 @@ public class RaceTests : IClassFixture<DataFixture>
                     LastName = "bbb",
                     Nationality = Common.Enums.Country.NL,
                     TeamName = "aaa",
-                    Colour = Globals.DefaultColour,
-                    Accent = Globals.DefaultAccent,
                     Tyre = TyreFactory.GenerateSoftTyre,
                 },
             ],
