@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using SimTECH.Common.Enums;
+﻿using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels.RaceWeek;
@@ -12,15 +11,13 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
     public void AddFormationLap(List<RaceDriver> raceDrivers)
     {
-        var racerCount = raceDrivers.Count;
-
         foreach (var driver in raceDrivers)
         {
             var lapScore = new LapScore
             {
                 ResultId = driver.ResultId,
                 Order = 0,
-                Score = driver.QualifyingBonus(racerCount, season.GridBonus),
+                Score = GetQualifyingBonus(driver, raceDrivers.Count, season.GridBonus),
                 TyreColour = driver.CurrentTyre.Colour,
             };
 
@@ -28,6 +25,9 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
             driver.LastScore = lapScore.Score;
         }
     }
+
+    private static int GetQualifyingBonus(RaceDriver driver, int racerCount, int bonus)
+        => (racerCount * bonus) - ((driver.AbsoluteGrid - 1) * bonus);
 
     public bool CheckReliability(RaceDriver driver, LapScore lapScore,
         Entrant activeCheck, bool isFirstLap)
@@ -134,7 +134,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         // Adds wear to the tyre
         driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
-        if (driver.TyreLife < driver.CurrentTyre.MinimumLife)
+        if (driver.CurrentTyre.MinimumLife > driver.TyreLife)
             driver.TyreLife = driver.CurrentTyre.MinimumLife;
 
         // Only add the effects of tyre wear to the score outside of SCs
@@ -184,7 +184,8 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         {
             foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
             {
-                var lastScore = driver.LapScores.Last();
+                var lastScore = driver.LapScores.MaxBy(e => e.Order)
+                    ?? throw new Exception("There's no singular highest order score found");
 
                 int positionChange = driver.AbsolutePosition - actualPositions[driver.SeasonDriverId];
 

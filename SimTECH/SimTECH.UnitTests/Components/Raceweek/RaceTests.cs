@@ -14,14 +14,9 @@ using RaceComponent = SimTECH.Pages.RaceWeek.Tabs.Race;
 
 namespace SimTECH.Tests.Components.Raceweek;
 
-public class RaceTests : IClassFixture<DataFixture>
+public class RaceTests(DataFixture dataFixture) : IClassFixture<DataFixture>
 {
-    private readonly DataFixture _dataFixture;
-
-    public RaceTests(DataFixture dataFixture)
-    {
-        _dataFixture = dataFixture;
-    }
+    private readonly DataFixture _dataFixture = dataFixture;
 
     [Fact]
     public async Task InitShouldBuildAndPrepare()

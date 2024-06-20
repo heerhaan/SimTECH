@@ -9,14 +9,9 @@ using static Bunit.ComponentParameterFactory;
 
 namespace SimTECH.Tests.Components;
 
-public class GridChangeTests : IClassFixture<DataFixture>
+public class GridChangeTests(DataFixture fixture) : IClassFixture<DataFixture>
 {
-    private SimTechDbContext _context;
-
-    public GridChangeTests(DataFixture fixture)
-    {
-        _context = fixture.GetDbContext();
-    }
+    private readonly SimTechDbContext _context = fixture.GetDbContext();
 
     /// <summary>
     /// Checks whether the component by default renders the position retained styling

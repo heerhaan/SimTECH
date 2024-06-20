@@ -318,7 +318,7 @@ public partial class Race
 
             // Only update the score of the above driver if the driver did NOT take this opportunity for a pitstop
             if (!lapScore.RacerEvents.HasFlag(RacerEvent.Pitstop))
-                scoreAboveDriver = driver.LapSum;
+                scoreAboveDriver = driver.LapSum + lapScore.Score;
         }
 
         if (NumberHelper.RandomInt(Model.League.SafetyCarReturnOdds) == 0)

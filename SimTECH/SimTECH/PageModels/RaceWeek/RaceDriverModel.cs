@@ -40,9 +40,3 @@ public class RaceDriver : DriverBase
     public int DefensiveCount { get; set; }
     public string? SingleOccurrence { get; set; }
 }
-
-public static class ExtendRaceDriver
-{
-    public static int QualifyingBonus(this RaceDriver driver, int racerCount, int gridBonus) =>
-        (racerCount * gridBonus) - ((driver.AbsoluteGrid - 1) * gridBonus);
-}

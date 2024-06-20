@@ -249,10 +249,10 @@ public class RaceManagerTests
             },
         };
 
-        // Act
+        // ACT
         manager.DeterminePositions(raceDrivers);
 
-        // Assert
+        // ASSERT
         var distinctPositionCount = raceDrivers.Select(e => e.AbsolutePosition).Distinct().Count();
 
         // Distinct amount of given positions should be the same as the amount of entered drivers
@@ -278,7 +278,7 @@ public class RaceManagerTests
     [Fact]
     public void ShouldHigherDefensePreventOvertake()
     {
-        // Arrange
+        // ARRANGE
         var season = new Season();
         var league = LeagueFactory.GenerateTestLeague;
         var incidents = IncidentFactory.GenerateTestIncidentList;
@@ -338,10 +338,10 @@ public class RaceManagerTests
 
         var raceDrivers = new List<RaceDriver>() { leadDriver, followingDriver };
 
-        // Act
+        // ACT
         manager.DeterminePositions(raceDrivers);
 
-        // Assert
+        // ASSERT
 
         // Ordering by the lap sums also ensures that we can check the lapscores
         int expectedPosition = 0;
@@ -361,7 +361,7 @@ public class RaceManagerTests
     [Fact]
     public void DefendingSupportDriverShouldLetMainOvertake()
     {
-        // Arrange
+        // ARRANGE
         var season = new Season();
         var league = LeagueFactory.GenerateTestLeague;
         var incidents = IncidentFactory.GenerateTestIncidentList;
@@ -447,10 +447,10 @@ public class RaceManagerTests
             otherDriver,
         };
 
-        // Act
+        // ACT
         manager.DeterminePositions(raceDrivers);
 
-        // Assert
+        // ASSERT
         // NOTE: Currently the order is: Other overtakes Main, blocked by Support.
         // Main overtakes Other after he is blocked, then is let past by Support-driver.
         var supportMadeSwap = supportDriver.LapScores.Any(e => e.RacerEvents.HasFlag(Common.Enums.RacerEvent.Swap));
@@ -477,7 +477,7 @@ public class RaceManagerTests
     [Fact]
     public void AttackingSupportDriverShouldMaintainPositionBehindMainDriver()
     {
-        // Arrange
+        // ARRANGE
         var season = new Season();
         var league = LeagueFactory.GenerateTestLeague;
         var incidents = IncidentFactory.GenerateTestIncidentList;
@@ -589,10 +589,10 @@ public class RaceManagerTests
             mainDriverTeamOne, supportDriverTeamOne, mainDriverTeamTwo, supportDriverTeamTwo
         };
 
-        // Act
+        // ACT
         manager.DeterminePositions(raceDrivers);
 
-        // Assert
+        // ASSERT
 
         // 1 -> 2 | Teammate stayed behind, other main overtook, other support driver got blocked by teammate support
         mainDriverTeamOne.Position.Should().Be(2);
@@ -602,14 +602,136 @@ public class RaceManagerTests
         mainDriverTeamTwo.Position.Should().Be(1);
         // 3 -> 3 | Let main past, due to other support driver maintaining position it could overtake him too
         supportDriverTeamTwo.Position.Should().Be(3);
-
-        // TODO: Implement the part where it checks whether this implementation works correctly
-        // Also consider other cases here, like raceclasses and such
     }
 
     [Fact]
     public void DifferentRaceClassOvertakesInstantly()
     {
-        // TODO: this
+        // ARRANGE
+        var season = new Season();
+        var league = LeagueFactory.GenerateTestLeague;
+        var incidents = IncidentFactory.GenerateTestIncidentList;
+        var config = new SimConfig();
+
+        league.BattleRng = 2;
+
+        var manager = new RaceManager(season, league, incidents, config);
+
+        var classOneDriverOne = new RaceDriver()
+        {
+            SeasonDriverId = 1,
+            SeasonTeamId = 1,
+            ClassId = 1,
+            Status = RaceStatus.Racing,
+            AbsolutePosition = 1,
+            Position = 1,
+            Defense = 20,
+            LapScores =
+                [
+                    new()
+                    {
+                        Order = 1,
+                        Score = 50,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 20,
+                    },
+                ],
+        };
+
+        var classOneDriverTwo = new RaceDriver()
+        {
+            SeasonDriverId = 2,
+            SeasonTeamId = 1,
+            ClassId = 1,
+            Status = RaceStatus.Racing,
+            AbsolutePosition = 2,
+            Position = 2,
+            Defense = 30,
+            LapScores =
+                [
+                    new()
+                    {
+                        Order = 1,
+                        Score = 40,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 35,
+                    },
+                ]
+        };
+
+        var classTwoDriverThree = new RaceDriver()
+        {
+            SeasonDriverId = 3,
+            SeasonTeamId = 2,
+            ClassId = 2,
+            Status = RaceStatus.Racing,
+            AbsolutePosition = 3,
+            Position = 1,
+            LapScores =
+                [
+                    new()
+                    {
+                        Order = 1,
+                        Score = 30,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 50,
+                    },
+                ],
+        };
+
+        var classTwoDriverFour = new RaceDriver()
+        {
+            SeasonDriverId = 4,
+            SeasonTeamId = 2,
+            ClassId = 2,
+            Status = RaceStatus.Racing,
+            AbsolutePosition = 4,
+            Position = 2,
+            LapScores =
+                [
+                    new()
+                    {
+                        Order = 1,
+                        Score = 20,
+                    },
+                    new()
+                    {
+                        Order = 2,
+                        Score = 75,
+                    },
+                ]
+        };
+
+        var raceDrivers = new List<RaceDriver>()
+        {
+            classOneDriverOne, classOneDriverTwo, classTwoDriverThree, classTwoDriverFour
+        };
+
+        // ACT
+        manager.DeterminePositions(raceDrivers);
+
+        // ASSERT
+        // Used to be in the lead, got overtaken by the other class drivers
+        classOneDriverOne.Position.Should().Be(1);
+        classOneDriverOne.AbsolutePosition.Should().Be(3);
+        classOneDriverOne.DefensiveCount.Should().Be(1);
+
+        // Overtook both slower class drivers | got overtaken by fellow class driver
+        classTwoDriverThree.Position.Should().Be(2);
+        classTwoDriverThree.AbsolutePosition.Should().Be(2);
+
+        // Overtook fellow class driver | overtook both other class drivers
+        classTwoDriverFour.Position.Should().Be(1);
+        classTwoDriverFour.AbsolutePosition.Should().Be(1);
+        classTwoDriverFour.OvertakeCount.Should().Be(1);
     }
 }
