@@ -285,8 +285,8 @@ public partial class Race
 
     private void CautionAdvance(List<LapScore> lapScoresToPersist)
     {
-        int scoreAboveDriver = 0;
-        foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
+        // First check for the pitstops
+        foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
         {
             driver.SingleOccurrence = null;
             driver.InstantOvertaken = false;
@@ -295,30 +295,33 @@ public partial class Race
 
             raceManager.HandleDriverStrategy(driver, lapScore, ValidTyres, true);
 
-            // Driver did NOT make a pitstop during the SC, gap to driver in front closes
-            if (!lapScore.RacerEvents.HasFlag(RacerEvent.Pitstop))
-            {
-                // closes the gap to the driver above
-                var scoreGap = scoreAboveDriver - driver.LapSum;
-
-                // Current score gap is greater than the expected SC-gap
-                if (scoreGap > Model.League.SafetyCarGap)
-                {
-                    int gapSubtractedBy = Model.League.SafetyCarGapCloser;
-
-                    if (Model.League.SafetyCarGapCloser > scoreGap)
-                        gapSubtractedBy = scoreGap - Model.League.SafetyCarGap;
-
-                    lapScore.Score += gapSubtractedBy;
-                }
-            }
-
             driver.LapScores.Add(lapScore);
             lapScoresToPersist.Add(lapScore);
+        }
 
-            // Only update the score of the above driver if the driver did NOT take this opportunity for a pitstop
-            if (!lapScore.RacerEvents.HasFlag(RacerEvent.Pitstop))
-                scoreAboveDriver = driver.LapSum + lapScore.Score;
+        // Set the updated positions in the case a driver made a pitstop
+        raceManager.DeterminePositions(RaceDrivers);
+
+        // Only start closing the gap between drivers after having determined the pitstops
+        int scoreAbove = 0;
+        foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
+        {
+            // closes the gap to the driver above
+            var scoreGap = scoreAbove - driver.LapSum;
+
+            // Current score gap is greater than the expected SC-gap
+            if (scoreGap > Model.League.SafetyCarGap)
+            {
+                int gapSubtractedBy = Model.League.SafetyCarGapCloser;
+
+                if (Model.League.SafetyCarGapCloser > scoreGap)
+                    gapSubtractedBy = scoreGap - Model.League.SafetyCarGap;
+
+                var lapScore = driver.LapScores.Single(e => e.Order == calculated);
+                lapScore.Score += gapSubtractedBy;
+            }
+
+            scoreAbove = driver.LapSum;
         }
 
         if (NumberHelper.RandomInt(Model.League.SafetyCarReturnOdds) == 0)
