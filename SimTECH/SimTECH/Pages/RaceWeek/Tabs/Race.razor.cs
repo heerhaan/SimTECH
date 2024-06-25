@@ -24,8 +24,8 @@ public partial class Race
             RacerEvent.Mistake,
             RacerEvent.Death,
             RacerEvent.Swap,
-            RacerEvent.MaintainPosition
-            //RacerEvent.FastestLap,
+            RacerEvent.MaintainPosition,
+            RacerEvent.FastestLap,
         ];
 
     #region injected services

@@ -262,18 +262,23 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
                 // Checks whether team orders are applied to the attacking and defending driver
                 if (UseTeamOrders(driver, defendingDriver, gainedPositions))
                 {
+                    var defenderLastScore = defendingDriver.LapScores.OrderByDescending(e => e.Order).First();
+
                     if (defendingDriver.Role == TeamRole.Main)
                     {
                         var scoreGapAttacker = driver.LapSum - defendingDriver.LapSum;
                         // BattleRng is used here to represent a gap between the two drivers
                         lastScore.Score -= scoreGapAttacker + battleRng;
+
+                        defenderLastScore.RacerEvents |= RacerEvent.Swap;
                         lastScore.RacerEvents |= RacerEvent.MaintainPosition;
 
                         break;
                     }
                     else
                     {
-                        defendingDriver.LapScores.Last().RacerEvents |= RacerEvent.Swap;
+                        lastScore.RacerEvents |= RacerEvent.Swap;
+                        defenderLastScore.RacerEvents |= RacerEvent.MaintainPosition;
                     }
                 }
                 // Only perform battles within the same race class
