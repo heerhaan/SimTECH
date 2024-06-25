@@ -105,7 +105,7 @@ public partial class Race
         calculationCount = Model.Race.RaceLength / calculationDistance;
 
         if (LapScores.Count != 0)
-            calculated = LapScores.Select(e => e.Order).Max();
+            calculated = LapScores.Max(e => e.Order);
 
         for (int index = 1; index <= calculationCount; index++)
         {
@@ -119,15 +119,14 @@ public partial class Race
 
         BuildRaceDrivers();
 
-        // Run this one time so that we have valid tyres to show
-        var distanceLeft = Model.Race.RaceLength - (calculated * calculationDistance);
-
-        ValidTyres = Tyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
+        ValidTyres = Tyres.FindValidTyres(GetDistanceLeft, Model.Climate.IsWet).ToList();
 
         Loading = false;
     }
 
     private int GetCurrentLapCount => NumberHelper.LapCount(calculated * calculationDistance, Model.Race.Track.Length);
+
+    private int GetDistanceLeft => Model.Race.RaceLength - (calculationDistance * calculated);
 
     private void BuildRaceDrivers()
     {
@@ -233,8 +232,7 @@ public partial class Race
             var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
             // Determine if either driver, car or engine has failed
-            var isCautionSituation = raceManager.CheckReliability(driver, lapScore,
-                ActiveReliabilityCheck, IsFirstLap);
+            var isCautionSituation = raceManager.CheckReliability(driver, lapScore, ActiveReliabilityCheck, IsFirstLap);
 
             // Calculate the score for drivers which are still racing
             if (driver.Status == RaceStatus.Racing)
@@ -338,28 +336,22 @@ public partial class Race
         reliablityCycler %= cycleableReliablities.Length;
         ActiveReliabilityCheck = cycleableReliablities[reliablityCycler];
 
-        // Set the next amount of tyres valid for drivers to stop on to.
-        var distanceLeft = Model.Race.RaceLength - (calculated * calculationDistance);
-        ValidTyres = Tyres.FindValidTyres(distanceLeft, Model.Climate.IsWet).ToList();
+        // Set the next amount of tyres valid for drivers to stop on to
+        ValidTyres = Tyres.FindValidTyres(GetDistanceLeft, Model.Climate.IsWet).ToList();
     }
 
     private void PreProcessFinish()
     {
-        bool anyoneDisqualified = false;
-
         foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
         {
             if (NumberHelper.RandomInt(Model.League.DisqualificationOdds) == 0)
             {
                 driver.Incident = Incidents.TakeRandomIncident(IncidentCategory.Disqualified);
                 driver.Status = RaceStatus.Dsq;
-
-                anyoneDisqualified = true;
             }
         }
 
-        if (anyoneDisqualified)
-            raceManager.SetPositions(RaceDrivers);
+        raceManager.SetPositions(RaceDrivers);
     }
 
     private async Task Finish()
@@ -392,10 +384,7 @@ public partial class Race
 
         LapScores.AddRange(allLapScores);
 
-        var initialHighestOccurrence = Occurrences.Count != 0
-            ? Occurrences.Select(e => e.Order).Max()
-            : 0;
-
+        var initialHighestOccurrence = Occurrences.Max(e => e.Order);
         foreach (var occurr in AdvanceOccurrences.Where(e => e.Key > initialHighestOccurrence))
         {
             Occurrences.Add(new RaceOccurrence

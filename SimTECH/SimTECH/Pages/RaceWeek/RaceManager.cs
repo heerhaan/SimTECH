@@ -8,6 +8,8 @@ namespace SimTECH.Pages.RaceWeek;
 public class RaceManager(Season season, League league, List<Incident> incidents, SimConfig config)
 {
     private const int reliabilityMaxValue = 1000;
+    private const int minimumPositionsGainedForSupport = 2;
+    private const int percentageDefenseWhenMistake = 50;
 
     public void AddFormationLap(List<RaceDriver> raceDrivers)
     {
@@ -220,6 +222,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         return actualPositions;
     }
 
+    // Sets the new positions of the drivers according to their current lap sums
     public void SetPositions(List<RaceDriver> raceDrivers)
     {
         int absoluteIndex = 0;
@@ -256,16 +259,14 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
             // Only perform a check if the defender is not instantly overtake, as this points that the defender has DNFed or pitted
             if (defendingDriver.InstantOvertaken == false)
             {
-                // Team orders may be applied for the current position change, rules are:
-                // Attacker is support driver and only has 1 position left to gain, thus it maintains position
-                // Defender is support driver and won't make an attempt to defend against overtaker
+                // Checks whether team orders are applied to the attacking and defending driver
                 if (UseTeamOrders(driver, defendingDriver, gainedPositions))
                 {
                     if (defendingDriver.Role == TeamRole.Main)
                     {
                         var scoreGapAttacker = driver.LapSum - defendingDriver.LapSum;
                         // BattleRng is used here to represent a gap between the two drivers
-                        lastScore.Score -= (scoreGapAttacker + battleRng);
+                        lastScore.Score -= scoreGapAttacker + battleRng;
                         lastScore.RacerEvents |= RacerEvent.MaintainPosition;
 
                         break;
@@ -284,7 +285,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
                     // Defender recently made a mistake, so we're punishing him for it :)
                     if (defendingDriver.RecentMistake)
-                        defendingResult /= 2;
+                        defendingResult = defendingResult.PercentageOfNumber(percentageDefenseWhenMistake);
 
                     var battleCost = defendingResult - attackingResult;
 
@@ -310,6 +311,9 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         }
     }
 
+    // Team orders may be applied for the current position change, rules are:
+    // Attacker is support driver and only has 1 position left to gain, thus it maintains position
+    // Defender is support driver and won't make an attempt to defend against overtaker
     private static bool UseTeamOrders(RaceDriver attackingDriver, RaceDriver defendingDriver, int positionsGained)
     {
         if (attackingDriver.SeasonTeamId != defendingDriver.SeasonTeamId)
@@ -324,7 +328,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         // Only stop overtaking if the attacker wouldn't be overtaking any other drivers anyway
         if (attackingDriver.Role == TeamRole.Support
             && defendingDriver.Role == TeamRole.Main
-            && positionsGained == 1)
+            && positionsGained >= minimumPositionsGainedForSupport)
         {
             return true;
         }

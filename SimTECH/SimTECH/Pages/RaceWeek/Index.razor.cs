@@ -107,10 +107,10 @@ public partial class Index
 
             var driverPower = driver.Skill + driver.RetrieveStatusBonus(Model.League.DriverStatusPaceModifier);
             var carPower = team.BaseValue + team.ModifierApplication(race.Track);
-            var enginePower = (engine.Power * climate.EngineMultiplier).RoundDouble();
+            var enginePower = (engine.Power * climate.EngineMultiplier).RoundToInt();
             var totalPower = driverPower + carPower + enginePower;
 
-            var actualDefense = ((driver.Defense + driverTraits.Sum(e => e.Defense)) * race.Track?.DefenseMod ?? 1.0).RoundDouble();
+            var actualDefense = ((driver.Defense + driverTraits.Sum(e => e.Defense)) * race.Track?.DefenseMod ?? 1.0).RoundToInt();
 
             var raweDriver = new RaweCeekDriver
             {

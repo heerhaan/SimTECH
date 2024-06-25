@@ -73,7 +73,7 @@ namespace SimTECH.Data.EditModels
             var wearAvg = (double)(WearMin + WearMax) / 2;
             var averageLength = LifeBonus / wearAvg * distance;
 
-            return averageLength.RoundDouble();
+            return averageLength.RoundToInt();
         }
     }
 }

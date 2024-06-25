@@ -29,7 +29,7 @@ namespace SimTECH.Data.Models
             var wearAvg = (double)(tyre.WearMin + tyre.WearMax) / 2;
             var averageLength = (tyre.Pace  / wearAvg) * distance;
 
-            return averageLength.RoundDouble();
+            return averageLength.RoundToInt();
         }
 
         public static IEnumerable<Tyre> FindValidTyres(this IEnumerable<Tyre> tyres, int distanceLeft, bool isWet)
