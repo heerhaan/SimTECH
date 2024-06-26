@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
 using MudBlazor;
 using SimTECH.Common.Enums;
 using SimTECH.Constants;
@@ -40,6 +41,8 @@ public partial class Race
 
     [Inject]
     private ISnackbar _snackbar { get; set; }
+
+    [Inject] private IOptions<SimConfig> Config { get; set; }
     #endregion
 
     [CascadingParameter]
@@ -47,9 +50,6 @@ public partial class Race
 
     [Parameter]
     public long RaceId { get; set; }
-
-    [Parameter]
-    public SimConfig Config { get; set; } = new();
 
     [Parameter]
     public EventCallback OnFinish { get; set; } = new();
@@ -99,9 +99,9 @@ public partial class Race
         Incidents = await _incidentService.GetIncidents(StateFilter.Active);
         Tyres = await _raceWeekService.GetValidTyresForRace(Model.League.Id);
 
-        raceManager = new(Model.Season, Model.League, Incidents, Config);
+        raceManager = new(Model.Season, Model.League, Incidents, Config.Value);
 
-        calculationDistance = Config.CalculationDistance;
+        calculationDistance = Config.Value.CalculationDistance;
         calculationCount = Model.Race.RaceLength / calculationDistance;
 
         if (LapScores.Count != 0)
@@ -117,9 +117,9 @@ public partial class Race
         RacedLaps = GetCurrentLapCount;
         TotalLaps = NumberHelper.LapCount(Model.Race.RaceLength, Model.Race.Track.Length);
 
-        BuildRaceDrivers();
-
         ValidTyres = Tyres.FindValidTyres(GetDistanceLeft, Model.Climate.IsWet).ToList();
+
+        BuildRaceDrivers();
 
         Loading = false;
     }
@@ -173,8 +173,6 @@ public partial class Race
 
             ++calculated;
 
-            AdvanceOccurrences[calculated] = CurrentSituation;
-
             var situationBeforeAdvance = CurrentSituation;
 
             switch (situationBeforeAdvance)
@@ -189,6 +187,8 @@ public partial class Race
                 default:
                     throw new ArgumentOutOfRangeException($"Unrecognized situation: {CurrentSituation}");
             }
+
+            AdvanceOccurrences[calculated] = CurrentSituation;
 
             raceManager.DeterminePositions(RaceDrivers);
 
@@ -225,7 +225,6 @@ public partial class Race
     {
         foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
         {
-            driver.SingleOccurrence = null;
             driver.InstantOvertaken = false;
             driver.RecentMistake = false;
 
@@ -286,7 +285,6 @@ public partial class Race
         // First check for the pitstops
         foreach (var driver in RaceDrivers.Where(e => e.Status == RaceStatus.Racing))
         {
-            driver.SingleOccurrence = null;
             driver.InstantOvertaken = false;
 
             var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };

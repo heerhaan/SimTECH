@@ -9,6 +9,8 @@ namespace SimTECH.Pages.RaceWeek.Tabs;
 
 public partial class Practice
 {
+    private const int gapTimingDivider = 2;
+
     [CascadingParameter]
     public RaweCeekModel Model { get; set; }
 
@@ -19,6 +21,7 @@ public partial class Practice
     public EventCallback<int> OnFinish { get; set; }
 
     // Following parameters are (probably) not yet in use but are meant to do the data retrieval simply here
+    // ok but what?
 
     private List<SessionDriver> PracticeDrivers { get; set; } = [];
 
@@ -34,13 +37,11 @@ public partial class Practice
     private bool hasRaceClasses;
     private double gapMarge;
 
-    // required id's: raceId - sessionIndex
-
     protected override void OnInitialized()
     {
         Loading = true;
 
-        gapMarge = Model.GapMarge / 2;
+        gapMarge = Model.GapMarge / gapTimingDivider;
 
         raceName = $"{Model.Race.Name} - PRACTICE {PracticeSession.SessionIndex}";
         raceCountry = Model.Race.Track.Country;
@@ -139,22 +140,22 @@ public partial class Practice
     }
 
     // Following methods are in development but ultimately used to reduce some of the load of the index above
-    private async Task OnInitializeSession(long raceId, int practiceIndex)
-    {
-        var practiceScores = await _raceWeekService.GetPracticeScores(raceId, practiceIndex);
+    //private async Task OnInitializeSession(long raceId, int practiceIndex)
+    //{
+    //    var practiceScores = await _raceWeekService.GetPracticeScores(raceId, practiceIndex);
 
-        if (practiceScores.Count > 0)
-        {
-            var practiceSession = new PracticeSession()
-            {
-                SessionIndex = practiceIndex,
-                IsFinished = true,
-                SessionScores = practiceScores,
-            };
-        }
-        else
-        {
-            // This is a new session!
-        }
-    }
+    //    if (practiceScores.Count > 0)
+    //    {
+    //        var practiceSession = new PracticeSession()
+    //        {
+    //            SessionIndex = practiceIndex,
+    //            IsFinished = true,
+    //            SessionScores = practiceScores,
+    //        };
+    //    }
+    //    else
+    //    {
+    //        // This is a new session!
+    //    }
+    //}
 }

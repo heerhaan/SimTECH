@@ -18,10 +18,10 @@
                        Class="btn-md">
                 Random
             </MudButton>
-            @if (randomClimate != null)
+            @if (RandomClimate != null)
             {
-                <CustomIcon Icon="@randomClimate.Icon" Colour="@randomClimate.Colour">
-                    <MudText>@randomClimate.Terminology</MudText>
+                <CustomIcon Icon="@RandomClimate.Icon" Colour="@RandomClimate.Colour">
+                    <MudText>@RandomClimate.Terminology</MudText>
                 </CustomIcon>
             }
             <MudSpacer />
@@ -55,11 +55,11 @@
             <TemplateColumn T="Climate" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context.Item, toggled))"
-                                            Default="@(context.Item.State == State.Active)" />
                         <MudIconButton Size="@Size.Small"
                                        Icon="@Icons.Material.Outlined.Edit"
-                                       OnClick="@(async () => await UpdateItem(context.Item))" />
+                                       OnClick="@(() => UpdateItem(context.Item))" />
+                        <StateTogglerButton CallbackToggled="@((bool toggled) => OnToggleChange(context.Item, toggled))"
+                                            Default="@(context.Item.State == State.Active)" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -72,7 +72,8 @@
 
 @code {
     private List<Climate> ClimateItems { get; set; } = new();
-    private Climate? randomClimate = null;
+
+    private Climate? RandomClimate { get; set; } = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,13 +86,10 @@
         ClimateItems = await _climateService.GetClimates(StateFilter.All);
     }
 
-    private void GetRandomClimate()
-    {
-        randomClimate = ClimateItems.TakeRandomClimate();
-    }
+    private void GetRandomClimate() => RandomClimate = ClimateItems.TakeRandomClimate();
 
-    async Task AddItem() => await UpdateItem(null);
-    async Task UpdateItem(Climate? climate)
+    private async Task AddItem() => await UpdateItem(null);
+    private async Task UpdateItem(Climate? climate)
     {
         var parameters = new DialogParameters
             {
@@ -108,8 +106,8 @@
         }
     }
 
-    async Task OnToggleChange(Climate climate, bool toggled) => await ToggleState(climate, (toggled ? State.Active : State.Closed));
-    async Task ToggleState(Climate climate, State targetState)
+    private async Task OnToggleChange(Climate climate, bool toggled) => await ToggleState(climate, (toggled ? State.Active : State.Closed));
+    private async Task ToggleState(Climate climate, State targetState)
     {
         await _climateService.ChangeState(climate, targetState);
         climate.State = targetState;

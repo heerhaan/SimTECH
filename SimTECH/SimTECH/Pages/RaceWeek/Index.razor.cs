@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
 using MudBlazor;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
@@ -11,6 +12,9 @@ namespace SimTECH.Pages.RaceWeek;
 
 public partial class Index
 {
+    [Inject]
+    private IOptions<SimConfig> Config { get; set; }
+
     [Parameter]
     public long RaceId { get; set; }
 
@@ -25,8 +29,6 @@ public partial class Index
 
     private List<long> ConsumablePenalties { get; set; } = [];
 
-    private SimConfig config;
-
     private bool Loading { get; set; } = true;
     private bool PracticeLoaded { get; set; }
     private bool QualifyingLoaded { get; set; }
@@ -37,8 +39,6 @@ public partial class Index
     protected override async Task OnInitializedAsync()
     {
         Tyres = await _tyreService.GetTyres(StateFilter.All);
-
-        config = _config.Value;
 
         var race = await _raceService.GetRaceById(RaceId);
         if (race.State == State.Concept)
@@ -55,7 +55,7 @@ public partial class Index
         Model.Season = await _seasonService.GetSeasonById(race.SeasonId);
         Model.League = await _leagueService.GetLeagueById(Model.Season.LeagueId);
         Model.Climate = await _climateService.GetClimateById(race.ClimateId);
-        Model.GapMarge = config.GapMarge;
+        Model.GapMarge = Config.Value.GapMarge;
 
         _bread.Reset();
         _bread.SetBreadcrumbs(

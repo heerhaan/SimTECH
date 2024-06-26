@@ -37,9 +37,11 @@
             <TemplateColumn T="Incident" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
+                        <MudIconButton Size="@Size.Small"
+                                       Icon="@Icons.Material.Outlined.Edit"
+                                       OnClick="@(() => UpdateItem(context.Item))" />
                         <StateTogglerButton CallbackToggled="@((bool toggled) => OnToggleChange(context.Item, toggled))"
                                             Default="@(context.Item.State == State.Active)" />
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => UpdateItem(context.Item))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>

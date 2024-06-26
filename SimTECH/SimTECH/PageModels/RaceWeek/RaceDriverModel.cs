@@ -33,10 +33,27 @@ public class RaceDriver : DriverBase
 
     public List<LapScore> LapScores { get; set; } = [];
 
-    public int LapSum => LapScores.Sum(e => e.Score);
-    public int GridChange => AbsoluteGrid - AbsolutePosition;
     public int LastScore { get; set; }
     public int OvertakeCount { get; set; }
     public int DefensiveCount { get; set; }
-    public string? SingleOccurrence { get; set; }
+
+    public int LapSum => LapScores.Sum(e => e.Score);
+    public int GridChange => AbsoluteGrid - AbsolutePosition;
+
+    /* Using this model = FINE, BUT implementation needs work.
+     * Consider methods to control state of race driver!
+     * For the cells in race table; properties here should be used. No logic in cell!
+     * Visitor pattern to control actions defined by enum?
+     * Aggregate to collectively advance drivers?
+     */
+}
+
+// I had an idea to use this class with some good ole class methods but uhhhh, hmmm, i dont know man
+class RaceTyre
+{
+    public long TyreId { get; set; }
+
+    public int TyreLife { get; set; }
+
+    public Tyre Tyre { get; set; }
 }

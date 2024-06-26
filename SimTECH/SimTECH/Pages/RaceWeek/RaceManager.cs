@@ -103,7 +103,9 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
     public void HandleDriverStrategy(RaceDriver driver, LapScore lapScore, List<Tyre> validTyres, bool isCaution)
     {
-        var lifeLimitForPitstop = isCaution ? (driver.CurrentTyre.Pace / 2) : driver.CurrentTyre.PitWhenBelow;
+        var lifeLimitForPitstop = isCaution
+            ? (driver.CurrentTyre.Pace / 2)
+            : driver.CurrentTyre.PitWhenBelow;
 
         // Triggers a pitstop if condition is met
         if (validTyres.Count != 0 && lifeLimitForPitstop > driver.TyreLife)
