@@ -17,4 +17,6 @@ public static class EntrantEnumHelper
             { Entrant.Team, "Team" },
             { Entrant.Track, "Track" },
         };
+
+    public static Entrant[] GetReliabilityEntrants => [Entrant.Driver, Entrant.Team, Entrant.Engine];
 }

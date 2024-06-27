@@ -38,6 +38,19 @@ public static class RacerEventEnumHelper
         RacerEvent.FastestLap,
     ];
 
+    public static readonly RacerEvent[] SignalEvents =
+    [
+        RacerEvent.Pitstop,
+        RacerEvent.DriverDnf,
+        RacerEvent.CarDnf,
+        RacerEvent.EngineDnf,
+        RacerEvent.Mistake,
+        RacerEvent.Death,
+        RacerEvent.Swap,
+        RacerEvent.MaintainPosition,
+        RacerEvent.FastestLap,
+    ];
+
     public static string GetShortText(this RacerEvent racerEvent)
     {
         return racerEvent switch

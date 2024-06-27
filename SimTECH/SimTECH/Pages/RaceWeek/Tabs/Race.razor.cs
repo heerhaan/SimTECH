@@ -14,33 +14,17 @@ namespace SimTECH.Pages.RaceWeek.Tabs;
 
 public partial class Race
 {
-    private static readonly Entrant[] cycleableReliablities = [Entrant.Driver, Entrant.Team, Entrant.Engine];
-
-    private static readonly RacerEvent[] signalEvents =
-        [
-            RacerEvent.Pitstop,
-            RacerEvent.DriverDnf,
-            RacerEvent.CarDnf,
-            RacerEvent.EngineDnf,
-            RacerEvent.Mistake,
-            RacerEvent.Death,
-            RacerEvent.Swap,
-            RacerEvent.MaintainPosition,
-            RacerEvent.FastestLap,
-        ];
+    private static Entrant[] cycleableReliablities => EntrantEnumHelper.GetReliabilityEntrants;
+    private static RacerEvent[] signalEvents => RacerEventEnumHelper.SignalEvents;
 
     #region injected services
-    [Inject]
-    private IIncidentService _incidentService { get; set; }
+    [Inject] private IIncidentService _incidentService { get; set; }
 
-    [Inject]
-    private IRaceWeekService _raceWeekService { get; set; }
+    [Inject] private IRaceWeekService _raceWeekService { get; set; }
 
-    [Inject]
-    private IDialogService _dialogService { get; set; }
+    [Inject] private IDialogService _dialogService { get; set; }
 
-    [Inject]
-    private ISnackbar _snackbar { get; set; }
+    [Inject] private ISnackbar _snackbar { get; set; }
 
     [Inject] private IOptions<SimConfig> Config { get; set; }
     #endregion
