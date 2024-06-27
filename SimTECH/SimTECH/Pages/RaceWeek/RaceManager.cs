@@ -153,7 +153,15 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
         Tyre nextTyre;
         if (currentTyres.Count > 1)
-            nextTyre = currentTyres.TakeRandomItem();
+        {
+            nextTyre = driver.StrategyPreference switch
+            {
+                StrategyPreference.None => currentTyres.TakeRandomItem(),
+                StrategyPreference.Softer => currentTyres.OrderBy(e => e.Pace).First(),
+                StrategyPreference.Harder => currentTyres.OrderByDescending(e => e.Pace).First(),
+                _ => throw new ArgumentOutOfRangeException(nameof(driver.StrategyPreference)),
+            };
+        }
         else if (currentTyres.Count == 1)
             nextTyre = currentTyres.First();
         else

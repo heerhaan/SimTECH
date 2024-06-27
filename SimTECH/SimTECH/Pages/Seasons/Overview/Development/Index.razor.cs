@@ -352,7 +352,7 @@ public partial class Index
 
     private async Task ShowDevelopmentProgressionChart()
     {
-        List<DataSet> developData;
+        List<ChartData> developData;
 
         switch (DevelopModel.ActiveEntrant)
         {

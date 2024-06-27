@@ -37,7 +37,7 @@
     [Parameter] public Season Season { get; set; }
 
     ApexCharts.ApexChartOptions<DataPoint> options;
-    List<DataSet> dataSets = new();
+    List<ChartData> dataSets = new();
 
     bool loading = true;
 
@@ -53,7 +53,7 @@
 
             foreach (var driver in Drivers)
             {
-                var dataSet = new DataSet { Label = driver.Name };
+                var dataSet = new ChartData { Label = driver.Name };
                 var points = 0;
 
                 foreach (var result in driver.ResultCells)

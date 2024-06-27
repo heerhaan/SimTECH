@@ -71,7 +71,7 @@
 
     private List<Driver> driverSelection = new();
     private IEnumerable<Driver> selectedDrivers = new HashSet<Driver>();
-    private Dictionary<Driver, DataSet> comparableDrivers = new();
+    private Dictionary<Driver, ChartData> comparableDrivers = new();
 
     ApexCharts.ApexChart<DataPoint>? chart;
     ApexCharts.ApexChartOptions<DataPoint> options = Globals.CreateDefaultChartOptions;
@@ -137,7 +137,7 @@
 
     private void AddDataSet(Driver driver)
     {
-        var dataSet = new DataSet() { Label = driver.FullName };
+        var dataSet = new ChartData() { Label = driver.FullName };
 
         var seasonDriverIds = SeasonDrivers.Where(e => e.DriverId == driver.Id).Select(e => e.Id).ToList();
         var driverResults = Results.Where(e => seasonDriverIds.Contains(e.SeasonDriverId)).ToList();

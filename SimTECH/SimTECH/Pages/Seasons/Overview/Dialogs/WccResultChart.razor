@@ -37,7 +37,7 @@
     [Parameter] public Season Season { get; set; }
 
     ApexCharts.ApexChartOptions<DataPoint> options;
-    List<DataSet> DataSets = new();
+    List<ChartData> DataSets = new();
 
     bool loading = true;
 
@@ -51,7 +51,7 @@
         {
             foreach (var team in Teams)
             {
-                var dataSet = new DataSet { Label = team.Name };
+                var dataSet = new ChartData { Label = team.Name };
                 var points = 0;
 
                 foreach (var result in team.ResultCells.GroupBy(e => e.Round))

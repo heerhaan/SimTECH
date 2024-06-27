@@ -88,11 +88,11 @@ public class SeasonEngineService(IDbContextFactory<SimTechDbContext> factory)
         await context.SaveChangesAsync();
     }
 
-    public async Task<List<DataSet>> GetSeasonDevelopmentProgressionData(long seasonId, Aspect aspect)
+    public async Task<List<ChartData>> GetSeasonDevelopmentProgressionData(long seasonId, Aspect aspect)
     {
         using var context = _dbFactory.CreateDbContext();
 
-        var dataSets = new List<DataSet>();
+        var dataSets = new List<ChartData>();
 
         var developLog = await context.DevelopmentLog
             .Where(e => e.SeasonId == seasonId
@@ -111,7 +111,7 @@ public class SeasonEngineService(IDbContextFactory<SimTechDbContext> factory)
 
         foreach (var engine in seasonEngines)
         {
-            var dataSet = new DataSet
+            var dataSet = new ChartData
             {
                 Label = engine.Name,
                 Stroke = new ApexCharts.SeriesStroke

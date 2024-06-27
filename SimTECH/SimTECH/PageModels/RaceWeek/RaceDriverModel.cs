@@ -6,6 +6,7 @@ namespace SimTECH.PageModels.RaceWeek;
 public class RaceDriver : DriverBase
 {
     public RaceStatus Status { get; set; }
+    public StrategyPreference StrategyPreference { get; set; }
     public Incident? Incident { get; set; }
 
     public int Position { get; set; }
