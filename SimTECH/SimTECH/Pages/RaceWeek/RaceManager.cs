@@ -157,9 +157,9 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
             nextTyre = driver.StrategyPreference switch
             {
                 StrategyPreference.None => currentTyres.TakeRandomItem(),
-                StrategyPreference.Softer => currentTyres.OrderBy(e => e.Pace).First(),
-                StrategyPreference.Harder => currentTyres.OrderByDescending(e => e.Pace).First(),
-                _ => throw new ArgumentOutOfRangeException(nameof(driver.StrategyPreference)),
+                StrategyPreference.Softer => currentTyres.OrderByDescending(e => e.Pace).First(),
+                StrategyPreference.Harder => currentTyres.OrderBy(e => e.Pace).First(),
+                _ => throw new ArgumentOutOfRangeException($"Unrecognized type: {driver.StrategyPreference}"),
             };
         }
         else if (currentTyres.Count == 1)
@@ -187,11 +187,10 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
     public void DeterminePositions(List<RaceDriver> raceDrivers)
     {
-        var allPositionsAligned = false;
-        // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe) / altough i dont think this matters
-        var actualPositions = GetCurrentPositions(raceDrivers);
+        var currentScoreOrderedPositions = GetCurrentPositions(raceDrivers);
 
         // NOTE: Wasn't fully convinced yet on this implementation, but it does work soooo...?
+        var allPositionsAligned = false;
         while (!allPositionsAligned)
         {
             foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
@@ -199,7 +198,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
                 var lastScore = driver.LapScores.MaxBy(e => e.Order)
                     ?? throw new Exception("There's no singular highest order score found");
 
-                int positionChange = driver.AbsolutePosition - actualPositions[driver.SeasonDriverId];
+                int positionChange = driver.AbsolutePosition - currentScoreOrderedPositions[driver.SeasonDriverId];
 
                 // Assign the new positions based on whether their overtakes have been succesful
                 if (positionChange > 0)
@@ -208,19 +207,23 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
                 driver.LastScore = lastScore.Score;
             }
 
-            actualPositions = GetCurrentPositions(raceDrivers);
-            allPositionsAligned = true;
+            // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe)
+            // ...altough i dont think this matters
+            currentScoreOrderedPositions = GetCurrentPositions(raceDrivers);
 
             foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
             {
-                if (driver.AbsolutePosition != actualPositions[driver.SeasonDriverId])
-                    allPositionsAligned = false;
+                if (driver.AbsolutePosition != currentScoreOrderedPositions[driver.SeasonDriverId])
+                    break;
+
+                allPositionsAligned = true;
             }
         }
 
         SetPositions(raceDrivers);
     }
 
+    // Returns the current position order based on the summed up laps of the drivers
     private static Dictionary<long, int> GetCurrentPositions(List<RaceDriver> raceDrivers)
     {
         var actualPositions = new Dictionary<long, int>();
@@ -256,8 +259,6 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
     private void HandlePositionGain(List<RaceDriver> raceDrivers, RaceDriver driver, LapScore lastScore,
         int gainedPositions)
     {
-        var battleRng = league.BattleRng;
-
         while (gainedPositions > 0)
         {
             var abovePosition = driver.AbsolutePosition - 1;
@@ -278,7 +279,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
                     {
                         var scoreGapAttacker = driver.LapSum - defendingDriver.LapSum;
                         // BattleRng is used here to represent a gap between the two drivers
-                        lastScore.Score -= scoreGapAttacker + battleRng;
+                        lastScore.Score -= scoreGapAttacker + league.BattleRng;
 
                         defenderLastScore.RacerEvents |= RacerEvent.Swap;
                         lastScore.RacerEvents |= RacerEvent.MaintainPosition;
@@ -295,8 +296,8 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
                 else if (driver.ClassId == defendingDriver.ClassId)
                 {
                     // Subtract attack value from defense, what's left is how much the attacker is hindered
-                    var attackingResult = driver.Attack + NumberHelper.RandomInt(battleRng * -1, battleRng);
-                    var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt(battleRng * -1, battleRng);
+                    var attackingResult = driver.Attack + NumberHelper.RandomInt(league.BattleRng * -1, league.BattleRng);
+                    var defendingResult = defendingDriver.Defense + NumberHelper.RandomInt(league.BattleRng * -1, league.BattleRng);
 
                     // Defender recently made a mistake, so we're punishing him for it :)
                     if (defendingDriver.RecentMistake)
@@ -334,16 +335,18 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         if (attackingDriver.SeasonTeamId != defendingDriver.SeasonTeamId)
             return false;
 
+        // Atacker is the main driver, defender should not hold up his teammate at all
         if (attackingDriver.Role == TeamRole.Main
             && defendingDriver.Role == TeamRole.Support)
         {
             return true;
         }
 
-        // Only stop overtaking if the attacker wouldn't be overtaking any other drivers anyway
+        // Call team orders on attacking driver only if the attacking support driver wouldn't be able to attack
+        // any other driver besides his own (main/lead) teammate
         if (attackingDriver.Role == TeamRole.Support
             && defendingDriver.Role == TeamRole.Main
-            && positionsGained >= minimumPositionsGainedForSupport)
+            && minimumPositionsGainedForSupport > positionsGained)
         {
             return true;
         }

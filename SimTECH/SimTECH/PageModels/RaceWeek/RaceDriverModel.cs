@@ -50,11 +50,11 @@ public class RaceDriver : DriverBase
 }
 
 // I had an idea to use this class with some good ole class methods but uhhhh, hmmm, i dont know man
-class RaceTyre
-{
-    public long TyreId { get; set; }
+//class RaceTyre
+//{
+//    public int TyreLife { get; set; }
 
-    public int TyreLife { get; set; }
+//    public long TyreId { get; set; }
 
-    public Tyre Tyre { get; set; }
-}
+//    public Tyre Tyre { get; set; }
+//}
