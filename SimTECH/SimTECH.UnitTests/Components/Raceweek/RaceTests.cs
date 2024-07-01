@@ -102,8 +102,7 @@ public class RaceTests(DataFixture dataFixture) : IClassFixture<DataFixture>
         };
 
         var comp = ctx.RenderComponent<RaceComponent>(parameters => parameters
-            .Add(p => p.Model, tempModel)
-            .Add(p => p.Config, new SimConfig()));
+            .Add(p => p.Model, tempModel));
 
         // Looks up the advanc ebutton in the respective component
         var advanceButton = comp.Find("button.advance-btn");
@@ -194,7 +193,6 @@ public class RaceTests(DataFixture dataFixture) : IClassFixture<DataFixture>
 
         var comp = ctx.RenderComponent<RaceComponent>(parameters => parameters
             .Add(p => p.Model, placeholderModel)
-            .Add(p => p.Config, new SimConfig())
             .Add(p => p.OnFinish, placeholderOnFinish));
 
         // Looks up the advanc ebutton in the respective component

@@ -18,15 +18,20 @@ public partial class Race
     private static RacerEvent[] signalEvents => RacerEventEnumHelper.SignalEvents;
 
     #region injected services
-    [Inject] private IIncidentService _incidentService { get; set; }
+    [Inject]
+    private IIncidentService _incidentService { get; set; }
 
-    [Inject] private IRaceWeekService _raceWeekService { get; set; }
+    [Inject]
+    private IRaceWeekService _raceWeekService { get; set; }
 
-    [Inject] private IDialogService _dialogService { get; set; }
+    [Inject]
+    private IDialogService _dialogService { get; set; }
 
-    [Inject] private ISnackbar _snackbar { get; set; }
+    [Inject]
+    private ISnackbar _snackbar { get; set; }
 
-    [Inject] private IOptions<SimConfig> Config { get; set; }
+    [Inject]
+    private IOptions<SimConfig> Config { get; set; }
     #endregion
 
     [CascadingParameter]
@@ -366,7 +371,7 @@ public partial class Race
 
         LapScores.AddRange(allLapScores);
 
-        var initialHighestOccurrence = Occurrences.Max(e => e.Order);
+        var initialHighestOccurrence = Occurrences.Count > 0 ? Occurrences.Max(e => e.Order) : 0;
         foreach (var occurr in AdvanceOccurrences.Where(e => e.Key > initialHighestOccurrence))
         {
             Occurrences.Add(new RaceOccurrence
