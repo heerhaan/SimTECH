@@ -120,6 +120,7 @@ public partial class Index
                 Nationality = driver.Driver.Country,
                 Number = driver.Number,
                 Role = driver.TeamRole,
+                StrategyPreference = driver.Driver.StrategyPreference,
 
                 SeasonTeamId = team.Id,
                 TeamName = team.Name,
@@ -316,18 +317,18 @@ public partial class Index
     private async Task PersistPractice(int practiceIndex)
     {
         var practiceSession = PracticeSessions.First(e => e.SessionIndex == practiceIndex);
-        var gridResults = practiceSession.SessionScores.ToDictionary(e => e.ResultId, e => e.Position);
 
         await _raceWeekService.PersistPracticeScores(practiceSession.SessionScores);
 
         practiceSession.IsFinished = true;
 
         // Update the new grid and position
-        foreach (var res in gridResults)
+        foreach (var res in practiceSession.SessionScores)
         {
-            var matchingDriver = Model.RaweCeekDrivers.First(e => e.ResultId == res.Key);
-            matchingDriver.Grid = res.Value;
-            matchingDriver.Position = res.Value;
+            var matchingDriver = Model.RaweCeekDrivers.First(e => e.ResultId == res.ResultId);
+            matchingDriver.Grid = res.Position;
+            matchingDriver.Position = res.Position;
+            matchingDriver.Setup = res.SetupGained;
         }
 
         AddNewPracticeSession();
@@ -404,7 +405,7 @@ public partial class Index
             nextSession.IsDisabled = false;
         }
 
-        if (qualyIndex == 1 && PracticeLoaded && PracticeSessions.Any())
+        if (qualyIndex == 1 && PracticeLoaded && PracticeSessions.Count != 0)
         {
             // Removes the last added practice session
             var latestPracticeSession = PracticeSessions.MaxBy(e => e.SessionIndex);

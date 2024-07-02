@@ -113,7 +113,7 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
                     .Where(e => e.DriverId == driver.Id)
                     .ToListAsync();
 
-            if (removeables.Any())
+            if (removeables.Count != 0)
                 context.RemoveRange(removeables);
 
             if (driver.DriverTraits?.Any() ?? false)

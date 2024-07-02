@@ -88,8 +88,11 @@ public partial class Practice
     {
         foreach (var driver in PracticeDrivers)
         {
-            var result = driver.Power + NumberHelper.RandomInt((practiceRng * -1), practiceRng);
+            var result = driver.Power + driver.Setup + NumberHelper.RandomInt(practiceRng * -1, practiceRng);
             driver.Scores[advancedRuns] = result;
+
+            if (Model.League.SetupRng > 0)
+                driver.Setup += NumberHelper.RandomInt(Model.League.SetupRng);
 
             if (result > highestScore)
                 highestScore = result;
@@ -130,7 +133,8 @@ public partial class Practice
                 Position = e.Position,
                 AbsolutePosition = e.AbsolutePosition,
                 RaceId = Model.Race.Id,
-                ResultId = e.ResultId
+                ResultId = e.ResultId,
+                SetupGained = e.Setup,
             })
             .ToList();
 

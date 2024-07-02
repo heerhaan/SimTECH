@@ -13,6 +13,7 @@ public class RaweCeekDriver
     public Country Nationality { get; set; }
     public int Number { get; set; }
     public TeamRole Role { get; set; }
+    public StrategyPreference StrategyPreference { get; set; }
 
     public long SeasonTeamId { get; set; }
     public string TeamName { get; set; }
@@ -123,6 +124,7 @@ public static class ExtendRaweCeekDriver
             Nationality = driver.Nationality,
             Number = driver.Number,
             Role = driver.Role,
+            StrategyPreference = driver.StrategyPreference,
 
             TeamName = driver.TeamName,
             Colour = driver.Colour,
@@ -131,7 +133,7 @@ public static class ExtendRaweCeekDriver
             ClassId = driver.ClassId,
             Class = driver.Class,
 
-            Power = driver.RacePower,
+            Power = driver.RacePower + driver.Setup,
             Attack = driver.Attack,
             Defense = driver.Defense,
 

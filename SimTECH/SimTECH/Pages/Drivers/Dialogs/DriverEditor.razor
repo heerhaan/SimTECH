@@ -1,6 +1,6 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h5" Color="Color.Secondary">Driver moment</MudText>
+        <MudText Typo="Typo.h5" Color="Color.Secondary">Driver editor</MudText>
     </TitleContent>
     <DialogContent>
         <MudPaper MinWidth="700px">
@@ -33,9 +33,9 @@
                                                FixDay="1" FixMonth="1" OpenTo="OpenTo.Year"
                                                PickerVariant="PickerVariant.Dialog"
                                                Editable="true"
+                                               Required="true"
                                                Label="Born in"
-                                               Class="field-sm"
-                                               Required="true" />
+                                               Class="field-sm" />
 
                                 <CountrySelect @bind-Value="Model.Country"
                                                Class="field-md" />
@@ -44,7 +44,7 @@
                                               T="string"
                                               Label="Biography"
                                               Lines="5"
-                                              Validation="@(new Func<string, string?>(TestValidation))" />
+                                              Validation="@BioValidator" />
 
                                 <MudText Typo="Typo.subtitle1">Options</MudText>
                                 <MudDivider />
@@ -61,11 +61,25 @@
                         <MudPaper Elevation="15" Class="pa-2 mud-height-full">
                             <MudText Typo="Typo.subtitle1">Traits</MudText>
                             <MudDivider />
-                            <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
-                                @foreach (var trait in selectableTraits)
+                            <MudChipSet @bind-SelectedValues="SelectedTraits" MultiSelection="true" Filter="true">
+                                @foreach (var trait in AvailableTraits)
                                 {
                                     <MudChip Text="@trait.Name" Value="@trait.Id" Color="Color.Primary"></MudChip>
                                 }
+                            </MudChipSet>
+
+                            <MudText Typo="Typo.subtitle1">Strategy preference</MudText>
+                            <MudDivider />
+                            <MudChipSet @bind-SelectedChip="@SelectedStrategyChip" Mandatory="true">
+                                <MudChip Color="Color.Primary"
+                                         Value="StrategyPreference.None"
+                                         Default="@(Model.StrategyPreference == StrategyPreference.None)">None</MudChip>
+                                <MudChip Color="Color.Primary"
+                                         Value="StrategyPreference.Softer"
+                                         Default="@(Model.StrategyPreference == StrategyPreference.Softer)">Softer</MudChip>
+                                <MudChip Color="Color.Primary"
+                                         Value="StrategyPreference.Harder"
+                                         Default="@(Model.StrategyPreference == StrategyPreference.Harder)">Harder</MudChip>
                             </MudChipSet>
 
                             @if (errors.Any())
@@ -94,11 +108,13 @@
     [Parameter] public Driver? Driver { get; set; }
     [Parameter] public List<Trait> Traits { get; set; } = new();
 
-    EditDriverModel Model;
-    List<Trait> selectableTraits;
-    ICollection<object>? selectedTraits { get; set; }
+    private EditDriverModel Model { get; set; }
+    private List<Trait> AvailableTraits { get; set; }
+    private ICollection<object>? SelectedTraits { get; set; }
 
-    string[] errors = { };
+    private MudChip SelectedStrategyChip { get; set; }
+
+    private string[] errors = { };
 
     protected override void OnInitialized()
     {
@@ -106,33 +122,36 @@
 
         var driverTraitIds = Model.DriverTraits.Select(e => e.TraitId).ToList();
 
-        selectableTraits = Traits.Where(e => e.State == State.Active || driverTraitIds.Contains(e.Id)).ToList();
-        selectedTraits = driverTraitIds.Cast<object>().ToList();
+        AvailableTraits = Traits.Where(e => e.State == State.Active || driverTraitIds.Contains(e.Id)).ToList();
+        SelectedTraits = driverTraitIds.Cast<object>().ToList();
     }
 
-    void AutoUpdateAbbreviation()
-    {
-        if (Model.LastName?.Length > 2 == true)
-            Model.Abbreviation = Model.LastName.Substring(0, 3).ToUpperInvariant();
-    }
-
-    private string? TestValidation(string? text)
+    private Func<string?, string?> BioValidator => text =>
     {
         if (text?.Contains("cringe") ?? false)
             return "Sorry, this is too cringe";
 
         return null;
+    };
+
+    private void AutoUpdateAbbreviation()
+    {
+        if (Model.LastName?.Length > 2 == true)
+            Model.Abbreviation = Model.LastName.Substring(0, 3).ToUpperInvariant();
     }
 
     private void Submit()
     {
-        if (selectedTraits != null)
+        if (SelectedTraits != null)
         {
-            Model.DriverTraits = selectedTraits
+            Model.DriverTraits = SelectedTraits
                 .Cast<long>()
-                .Select(e => new EditDriverTraitModel { DriverId = Model.Id, TraitId = e })
+                .Select(id => new EditDriverTraitModel { DriverId = Model.Id, TraitId = id })
                 .ToList();
         }
+
+        if (SelectedStrategyChip.Value is StrategyPreference preference)
+            Model.StrategyPreference = preference;
 
         if (Model.IsDirty)
             DriverDialog?.Close(DialogResult.Ok(Model.Record));

@@ -11,6 +11,7 @@ public class Driver : ModelState
     public Country Country { get; set; }
     public string? Biography { get; set; }
     public bool Mark { get; set; }
+    public StrategyPreference StrategyPreference { get; set; }
 
     public IList<SeasonDriver> SeasonDrivers { get; set; }
     public IList<DriverTrait> DriverTraits { get; set; }

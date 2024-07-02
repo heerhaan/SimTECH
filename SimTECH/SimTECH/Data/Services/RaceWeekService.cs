@@ -106,6 +106,7 @@ public class RaceWeekService(IDbContextFactory<SimTechDbContext> factory) : IRac
             result.Position = sessionScore.Position;
             result.AbsoluteGrid = sessionScore.AbsolutePosition;
             result.AbsolutePosition = sessionScore.AbsolutePosition;
+            result.Setup = sessionScore.SetupGained;
         }
 
         context.UpdateRange(driverResults);

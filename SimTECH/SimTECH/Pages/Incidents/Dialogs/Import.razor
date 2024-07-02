@@ -6,7 +6,7 @@
     </TitleContent>
     <DialogContent>
         <MudContainer MaxWidth="MaxWidth.False">
-            @if (firstStep)
+            @if (IsFirstStep)
             {
                 @if (RealStatii?.Any() == true)
                 {
@@ -90,7 +90,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        @if (firstStep)
+        @if (IsFirstStep)
         {
             <MudButton Color="Color.Primary" OnClick="Next">Next</MudButton>
         }
@@ -110,13 +110,13 @@
 
     private List<EditIncident> ImportIncidents { get; set; }
 
-    private bool firstStep = true;
+    private bool IsFirstStep { get; set; } = true;
 
     protected override async Task OnInitializedAsync()
     {
         RealStatii = await _realityProvider.GetExistingStatii();
 
-        if (firstStep == true)
+        if (IsFirstStep == true)
             return;
     }
 
@@ -132,7 +132,7 @@
             .Select(e => e.BuildEditModel())
             .ToList();
 
-        firstStep = false;
+        IsFirstStep = false;
     }
 
     private void Submit()

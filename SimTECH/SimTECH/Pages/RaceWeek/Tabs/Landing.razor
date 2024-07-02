@@ -243,7 +243,7 @@
                 <thead>
                     <tr>
                         <th>ABB</th>
-                        <th>What</th>
+                        <th>What's this?</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -313,6 +313,17 @@
                     </tr>
                 </tbody>
             </MudSimpleTable>
+
+            @if (Model.League.SetupRng > 0)
+            {
+                <MudText Typo="Typo.subtitle1" Class="mt-2">Best setups (5)</MudText>
+                @foreach(var best in Model.RaweCeekDrivers.OrderByDescending(e => e.Setup).Take(5))
+                {
+                    <MudText Typo="Typo.body2">
+                        @($"{best.FullName} - [{best.Setup}]")
+                    </MudText>
+                }
+            }
         </MudPaper>
     </MudItem>
 </MudGrid>
