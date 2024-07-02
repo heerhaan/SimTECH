@@ -5,10 +5,11 @@
 @using SimTECH.Pages.RaceWeek.Tabs
 
 @inject ClimateService _climateService
-@inject IncidentService _incidentService
+@inject IIncidentService _incidentService
 @inject LeagueService _leagueService
 @inject ManufacturerService _manufacturerService
-@inject RaceService _raceService
+@inject IRaceService _raceService
+@inject IRaceWeekService _raceWeekService
 @inject SeasonService _seasonService
 @inject SeasonDriverService _seasonDriverService
 @inject SeasonEngineService _seasonEngineService
@@ -18,7 +19,6 @@
 @inject BreadcrumbProvider _bread
 @inject IDialogService _dialogService
 @inject ISnackbar _snackbar
-@inject IOptions<SimConfig> _config
 
 <PageTitle>Raweceek</PageTitle>
 
@@ -74,15 +74,9 @@
                             </MudTabs>
                         }
                     </MudTabPanel>
-                    <MudTabPanel Text="Race" Disabled="@IsRaceDisabled" OnClick="OnOpenRace">
-                        @if (RaceLoaded)
-                        {
-                            <Race LapScores="@LapScores"
-                                  Occurrences="@RaceOccurrences"
-                                  Tyres="@Tyres"
-                                  Config="@config"
-                                  OnFinish="PersistRace" />
-                        }
+                    <MudTabPanel Text="Race" Disabled="@IsRaceDisabled">
+                        <Race RaceId="@RaceId"
+                              OnFinish="HandleRaceFinished" />
                     </MudTabPanel>
                     <MudTabPanel Text="Post race" Disabled="@IsPostRaceDisabled">
                         <PostRace />

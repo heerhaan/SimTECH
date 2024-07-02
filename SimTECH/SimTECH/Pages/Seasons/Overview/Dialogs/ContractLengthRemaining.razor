@@ -36,7 +36,7 @@
     [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
     [Parameter] public IEnumerable<Contract> Contracts { get; set; } = Enumerable.Empty<Contract>();
 
-    private List<DataSet> driverContractDurations = new();
+    private List<ChartData> driverContractDurations = new();
 
     ApexCharts.ApexChartOptions<DataPoint> options = new()
         {
@@ -77,7 +77,7 @@
                 continue;
 
             var seasonTeam = SeasonTeams.First(e => e.Id == driver.SeasonTeamId);
-            var dataSet = new DataSet()
+            var dataSet = new ChartData()
                 {
                     Label = driver.Driver.FullName,
                     Stroke = new ApexCharts.SeriesStroke() { Color = seasonTeam.Colour },

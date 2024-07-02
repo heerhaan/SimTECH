@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
 using MudBlazor;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
@@ -11,6 +12,9 @@ namespace SimTECH.Pages.RaceWeek;
 
 public partial class Index
 {
+    [Inject]
+    private IOptions<SimConfig> Config { get; set; }
+
     [Parameter]
     public long RaceId { get; set; }
 
@@ -22,25 +26,19 @@ public partial class Index
 
     private List<PracticeSession> PracticeSessions { get; set; } = [];
     private List<QualifyingSession> QualySessions { get; set; } = [];
-    private List<LapScore> LapScores { get; set; } = [];
-    private List<RaceOccurrence> RaceOccurrences { get; set; } = [];
 
-    private SimConfig config;
+    private List<long> ConsumablePenalties { get; set; } = [];
 
     private bool Loading { get; set; } = true;
     private bool PracticeLoaded { get; set; }
     private bool QualifyingLoaded { get; set; }
-    private bool RaceLoaded { get; set; }
 
-    private bool IsRaceDisabled => Model.Race.State != State.Advanced && Model.Race.State != State.Closed;
-    //bool raceDisabled => Model.Race.State is not State.Advanced and not State.Closed; // works too, which is prettier?
-    private bool IsPostRaceDisabled => Model.Race.State != State.Closed;
+    private bool IsRaceDisabled => Model.Race.State is not State.Advanced and not State.Closed;
+    private bool IsPostRaceDisabled => Model.Race.State is not State.Closed;
 
     protected override async Task OnInitializedAsync()
     {
         Tyres = await _tyreService.GetTyres(StateFilter.All);
-
-        config = _config.Value;
 
         var race = await _raceService.GetRaceById(RaceId);
         if (race.State == State.Concept)
@@ -57,7 +55,7 @@ public partial class Index
         Model.Season = await _seasonService.GetSeasonById(race.SeasonId);
         Model.League = await _leagueService.GetLeagueById(Model.Season.LeagueId);
         Model.Climate = await _climateService.GetClimateById(race.ClimateId);
-        Model.GapMarge = config.GapMarge;
+        Model.GapMarge = Config.Value.GapMarge;
 
         _bread.Reset();
         _bread.SetBreadcrumbs(
@@ -82,7 +80,7 @@ public partial class Index
         var seasonTeams = await _seasonTeamService.GetSeasonTeams(race.SeasonId);
         var seasonEngines = await _seasonEngineService.GetSeasonEngines(race.SeasonId);
         var manufacturers = await _manufacturerService.GetManufacturers(StateFilter.All);
-        var raceResults = await _raceService.GetResultsOfRace(RaceId);
+        var raceResults = await _raceWeekService.GetResultsOfRace(RaceId);
         var allTraits = await _traitService.GetTraits();
         var incidents = await _incidentService.GetIncidents(StateFilter.All);
 
@@ -109,10 +107,10 @@ public partial class Index
 
             var driverPower = driver.Skill + driver.RetrieveStatusBonus(Model.League.DriverStatusPaceModifier);
             var carPower = team.BaseValue + team.ModifierApplication(race.Track);
-            var enginePower = (engine.Power * climate.EngineMultiplier).RoundDouble();
+            var enginePower = (engine.Power * climate.EngineMultiplier).RoundToInt();
             var totalPower = driverPower + carPower + enginePower;
 
-            var actualDefense = ((driver.Defense + driverTraits.Sum(e => e.Defense)) * race.Track?.DefenseMod ?? 1.0).RoundDouble();
+            var actualDefense = ((driver.Defense + driverTraits.Sum(e => e.Defense)) * race.Track?.DefenseMod ?? 1.0).RoundToInt();
 
             var raweDriver = new RaweCeekDriver
             {
@@ -185,19 +183,14 @@ public partial class Index
             raweceekDrivers.Add(raweDriver);
         }
 
-        var penalties = await _raceService.GetRacePenalties(RaceId);
+        var penalties = await _raceWeekService.GetRacePenalties(RaceId);
 
         foreach (var penalty in penalties.GroupBy(e => e.SeasonDriverId))
         {
             var matchingDriver = raweceekDrivers.FirstOrDefault(e => e.SeasonDriverId == penalty.Key);
-            if (matchingDriver != null)
-            {
-                matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
-                // Reasons is an ugly solution, rather see this re-implemented
-                matchingDriver.Reasons = string.Join(", ", penalty.Select(e => e.Incident.Name));
 
-                Model.ConsumablePenalties.AddRange(penalty.Select(e => e.Id));
-            }
+            if (matchingDriver != null)
+                matchingDriver.Penalty = penalty.Sum(e => e.Incident.Punishment);
         }
 
         foreach (var driverGroup in raweceekDrivers.GroupBy(e => e.ClassId))
@@ -207,10 +200,8 @@ public partial class Index
                 driver.ExpectedPosition = ++indexer;
         }
 
-        var uniqueSupplierIds = raweceekDrivers.Select(d => d.ManufacturerId).Distinct().ToList();
-
         TyreSuppliers = manufacturers
-            .Where(e => uniqueSupplierIds.Contains(e.Id))
+            .Where(e => raweceekDrivers.Select(d => d.ManufacturerId).Contains(e.Id))
             .ToList();
 
         Model.RaweCeekDrivers = raweceekDrivers;
@@ -221,7 +212,7 @@ public partial class Index
         if (PracticeLoaded)
             return;
 
-        var practiceScores = await _raceService.GetPracticeScores(RaceId);
+        var practiceScores = await _raceWeekService.GetPracticeScores(RaceId);
 
         foreach (var groupedPracticeScores in practiceScores.GroupBy(e => e.Index))
         {
@@ -244,7 +235,7 @@ public partial class Index
         if (QualifyingLoaded)
             return;
 
-        var qualyScores = await _raceService.GetQualifyingScores(RaceId);
+        var qualyScores = await _raceWeekService.GetQualifyingScores(RaceId);
         var qSessionCount = Model.Season.QualifyingFormat.SessionCount();
         var previousSessionIsFinished = true;
 
@@ -286,21 +277,11 @@ public partial class Index
         QualifyingLoaded = true;
     }
 
-    private async Task OnOpenRace()
-    {
-        if (RaceLoaded)
-            return;
-
-        LapScores = await _raceService.GetLapScores(RaceId);
-        RaceOccurrences = await _raceService.GetRaceOccurrences(RaceId);
-
-        RaceLoaded = true;
-    }
-
     private async Task PickRaceTyre(long resultId)
     {
         var availableTyres = Tyres
-            .Where(e => e.State == State.Active && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false))
+            .Where(e => e.State == State.Active
+                && (e.LeagueTyres?.Any(e => e.LeagueId == Model.Season.LeagueId) ?? false))
             .ToList();
 
         var parameters = new DialogParameters
@@ -314,7 +295,7 @@ public partial class Index
 
         if (!result.Canceled && result.Data != null && result.Data is Tyre pickedTyre)
         {
-            await _raceService.PickTyre(resultId, pickedTyre);
+            await _raceWeekService.PickTyre(resultId, pickedTyre);
 
             // Assign the picked tyre and ofc dont forget the life bonus
             var driver = Model.RaweCeekDrivers.First(e => e.ResultId == resultId);
@@ -337,7 +318,7 @@ public partial class Index
         var practiceSession = PracticeSessions.First(e => e.SessionIndex == practiceIndex);
         var gridResults = practiceSession.SessionScores.ToDictionary(e => e.ResultId, e => e.Position);
 
-        await _raceService.PersistPracticeScores(practiceSession.SessionScores);
+        await _raceWeekService.PersistPracticeScores(practiceSession.SessionScores);
 
         practiceSession.IsFinished = true;
 
@@ -367,7 +348,13 @@ public partial class Index
             var finalQualyPosition = new Dictionary<long, (int, int)>();
             var qualySessionScores = QualySessions.SelectMany(e => e.SessionScores).ToList();
 
-            foreach (var seasonGroup in Model.ResultsGroupedByRaceClass())
+            var resultsByRaceClass = Model.RaweCeekDrivers
+                .GroupBy(e => e.ClassId)
+                .ToDictionary(
+                    e => e.Key,
+                    e => e.Select(rd => rd.ResultId).ToArray());
+
+            foreach (var seasonGroup in resultsByRaceClass)
             {
                 int positionIndexer = 0;
                 var gridResults = QualySessions
@@ -381,11 +368,8 @@ public partial class Index
                     finalQualyPosition.Add(penaltyResult!.ResultId, (++positionIndexer, penaltyResult.AbsolutePosition));
             }
 
-            await _raceService.FinishQualifying(
+            await _raceWeekService.FinishQualifying(
                 qualySession.SessionScores, finalQualyPosition, RaceId, Model.Season.MaximumDriversInRace);
-
-            if (Model.ConsumablePenalties.Count != 0)
-                await _raceService.ConsumePenalties(Model.ConsumablePenalties, RaceId);
 
             // Update the new grid, position and status
             foreach (var res in finalQualyPosition)
@@ -404,7 +388,7 @@ public partial class Index
         }
         else
         {
-            await _raceService.PersistQualifyingScores(qualySession.SessionScores);
+            await _raceWeekService.PersistQualifyingScores(qualySession.SessionScores);
 
             // Update the new grid and position
             foreach (var res in qualySession.SessionScores)
@@ -429,32 +413,8 @@ public partial class Index
         }
     }
 
-    private async Task PersistRace()
+    private void HandleRaceFinished()
     {
-        if (LapScores.Count == 0 || RaceOccurrences.Count == 0)
-        {
-            _snackbar.Add("Good god, saving a race for which we have NO data. That's so wrong!", Severity.Error);
-            return;
-        }
-
-        var allotments = Model.Season.PointAllotments?
-            .ToDictionary(e => e.Position, e => e.Points) ?? [];
-        var finalResults = Model.RaweCeekDrivers
-            .Select(e => e.MapToResult(RaceId))
-            .ToList();
-        var scoredPoints = Model.RaweCeekDrivers
-            .Select(e => e.MapToScoredPoints(allotments, Model.Season.PointsPole, Model.Season.PointsFastestLap))
-            .ToList();
-
-        await _raceService.PersistLapScores(LapScores);
-        await _raceService.PersistOccurrences(RaceOccurrences);
-        await _raceService.FinishRace(RaceId, finalResults, scoredPoints);
-
-        if (Model.League.Options.HasFlag(LeagueOptions.EnablePenalty))
-        {
-            await _seasonService.CheckPenalties(finalResults);
-        }
-
         Model.Race.State = State.Closed;
     }
 }

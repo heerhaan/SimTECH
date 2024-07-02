@@ -43,7 +43,6 @@ public class RaweCeekDriver
     public int LifeBonus { get; set; }
 
     public int? Penalty { get; set; }
-    public string? Reasons { get; set; }
 
     public long ResultId { get; set; }
     public int Grid { get; set; }
@@ -58,7 +57,7 @@ public class RaweCeekDriver
     public int Overtaken { get; set; }
     public int Defended { get; set; }
 
-    public List<string> TraitNames { get; set; } = new();
+    public List<string> TraitNames { get; set; } = [];
 
     public Engine Engine { get; set; }
     public Tyre Tyre { get; set; }
@@ -76,7 +75,7 @@ public class FixedRaweCeekDriver
 
     public SeasonTeam SeasonTeam { get; set; }
 
-    public Engine Engine { get; set; }
+    public SeasonEngine SeasonEngine { get; set; }
 
     public Manufacturer Manufacturer { get; set; }
 
@@ -185,7 +184,8 @@ public static class ExtendRaweCeekDriver
         };
     }
 
-    public static ScoredPoints MapToScoredPoints(this RaweCeekDriver driver, Dictionary<int, int> allotments, int polePoints, int fastLapPoints)
+    public static ScoredPoints MapToScoredPoints(this RaweCeekDriver driver,
+        Dictionary<int, int> allotments, int polePoints, int fastLapPoints)
     {
         var points = 0;
         var hiddenPoints = 0d;

@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
+using SimTECH.Data.Services.Interfaces;
 
 namespace SimTECH.Data.Services;
 
-public class IncidentService(IDbContextFactory<SimTechDbContext> factory) : StateService<Incident>(factory)
+public class IncidentService(IDbContextFactory<SimTechDbContext> factory)
+    : StateService<Incident>(factory), IIncidentService
 {
     public async Task<List<Incident>> GetIncidents() => await GetIncidents(StateFilter.Default);
 

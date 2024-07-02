@@ -6,5 +6,7 @@ public class SimConfig
 
     public int CalculationDistance { get; set; } = 10;
 
+    public int CautionTyreWearDivider { get; set; } = 3;
+
     public double GapMarge { get; set; } = 0.08;
 }

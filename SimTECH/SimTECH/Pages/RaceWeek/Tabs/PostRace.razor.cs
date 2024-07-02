@@ -49,7 +49,7 @@ public partial class PostRace
         var nextRaceId = await _raceService.GetRaceIdByRound(Model.Season.Id, (1 + Model.Race.Round));
         if (nextRaceId.HasValue)
         {
-            var nextRacePenalties = await _raceService.GetRacePenalties(nextRaceId.Value);
+            var nextRacePenalties = await _raceWeekService.GetRacePenalties(nextRaceId.Value);
             if (nextRacePenalties?.Any() ?? false)
                 UpcomingPenalties = nextRacePenalties;
         }

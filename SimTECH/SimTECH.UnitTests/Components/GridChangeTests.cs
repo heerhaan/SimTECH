@@ -1,20 +1,27 @@
-﻿using FluentAssertions;
+﻿using Bunit;
+using FluentAssertions;
 using SimTECH.Constants;
+using SimTECH.Data;
 using SimTECH.Shared.Components;
+using SimTECH.Tests.Infrastructure;
+using Xunit;
 using static Bunit.ComponentParameterFactory;
 
-namespace SimTECH.UnitTests.Components;
+namespace SimTECH.Tests.Components;
 
-[TestFixture]
-public class GridChangeTests : BunitTest
+public class GridChangeTests(DataFixture fixture) : IClassFixture<DataFixture>
 {
+    private readonly SimTechDbContext _context = fixture.GetDbContext();
+
     /// <summary>
     /// Checks whether the component by default renders the position retained styling
     /// </summary>
-    [Test]
+    [Fact]
     public void ShouldRenderEqual()
     {
-        var component = Context.RenderComponent<GridChange>();
+        using var ctx = new TestContext();
+
+        var component = ctx.RenderComponent<GridChange>();
 
         component.Markup.Trim().Should().StartWith("<div")
             .And.Contain("color:black")
@@ -22,14 +29,24 @@ public class GridChangeTests : BunitTest
             .And.Contain(IconCollection.Equal);
     }
 
-    [Test]
+    [Fact]
     public void ShouldRenderSuccessGain()
     {
+        using var ctx = new TestContext();
+
         var change = Parameter(nameof(GridChange.Change), 3);
-        var component = Context.RenderComponent<GridChange>(change);
+        var component = ctx.RenderComponent<GridChange>(change);
 
         component.Markup.Trim().Should().StartWith("<div")
             .And.Contain("mud-success-text")
             .And.Contain(IconCollection.ArrowUp);
+    }
+
+    [Fact]
+    public void TEMPShouldRetrieveData()
+    {
+        var maxie = _context.Driver.FirstOrDefault(e => e.FirstName.Contains("Max"));
+
+        maxie.Should().NotBeNull();
     }
 }

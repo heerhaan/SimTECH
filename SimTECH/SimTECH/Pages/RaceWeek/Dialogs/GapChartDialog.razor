@@ -37,7 +37,7 @@
     [Parameter, EditorRequired] public List<RaceDriver> Drivers { get; set; }
 
     ApexCharts.ApexChartOptions<DataPoint> options;
-    List<DataSet> dataSets = new();
+    List<ChartData> dataSets = new();
 
     bool loading = true;
 
@@ -54,7 +54,7 @@
 
         foreach (var driver in Drivers)
         {
-            var dataSet = new DataSet { Label = driver.FullName };
+            var dataSet = new ChartData { Label = driver.FullName };
 
             int gap = 0;
             foreach (var driverScore in driver.LapScores.OrderBy(e => e.Order))

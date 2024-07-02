@@ -48,11 +48,11 @@
             </MudTd>
             <MudTd>
                 <MudButtonGroup Size="Size.Small">
-                    <StateTogglerButton CallbackToggled="@(async (bool toggled) => await OnToggleChange(context, toggled))"
-                                        Default="@(context.State == State.Active)" />
                     <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Outlined.Edit"
-                                   OnClick="@(async () => await UpdateItem(context))" />
+                                   OnClick="@(() => UpdateItem(context))" />
+                    <StateTogglerButton CallbackToggled="@((bool toggled) => OnToggleChange(context, toggled))"
+                                        Default="@(context.State == State.Active)" />
                 </MudButtonGroup>
             </MudTd>
         </RowTemplate>

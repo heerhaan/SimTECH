@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using SimTECH.Extensions;
+using Xunit;
 
-namespace SimTECH.UnitTests.Extensions;
+namespace SimTECH.Tests.UnitTests;
 
-[TestFixture]
 public class NumberHelperTests
 {
-    [Test]
+    [Fact]
     public void RandomIntOutputWithinRange()
     {
         var minRange = 2;
@@ -23,7 +18,7 @@ public class NumberHelperTests
             .And.BeLessThanOrEqualTo(maxRange);
     }
 
-    [Test]
+    [Fact]
     public void AverageNumbersIsCorrect()
     {
         var numbers = new List<int>(4) { 1, 3, 5, 7 };

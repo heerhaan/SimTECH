@@ -54,6 +54,6 @@ public static class ExtendSeasonTeam
             + (team.Chassis * track.ChassisMod)
             + (team.Powertrain * track.PowerMod);
 
-        return modifiers.RoundDouble();
+        return modifiers.RoundToInt();
     }
 }

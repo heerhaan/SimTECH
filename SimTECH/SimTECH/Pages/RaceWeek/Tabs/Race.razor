@@ -1,11 +1,7 @@
-﻿@using SimTECH.Pages.RaceWeek.Components
+﻿@using SimTECH.Data.Services.Interfaces
+@using SimTECH.Pages.RaceWeek.Components
 
-@inject IncidentService _incidentService
-@inject TyreService _tyreService
-@inject IDialogService _dialogService
-@inject ISnackbar _snackbar
-
-@if (!loading)
+@if (!Loading)
 {
     <MudPaper Elevation="25" MinHeight="60px" Width="100%">
         <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2">
@@ -31,7 +27,7 @@
                     <MudChip Value="10" Color="Color.Primary">
                         @(NumberHelper.LapCount(10 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
-                    <MudChip Value="@calculationCount" Color="Color.Primary">@totalLaps</MudChip>
+                    <MudChip Value="@calculationCount" Color="Color.Primary">@TotalLaps</MudChip>
                 </MudChipSet>
             </MudStack>
 
@@ -68,7 +64,7 @@
                              DisableRipple="true">
                         <MudText Typo="Typo.h5"
                                  Color="@CurrentSituation.GetIndicatorTextColour()">
-                            LAP @(racedLaps) / @(totalLaps)
+                            LAP @(RacedLaps) / @(TotalLaps)
                         </MudText>
                     </MudChip>
 
@@ -134,6 +130,14 @@
                     <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Class="pa-0" Style="max-width: 275px">
                         <MudText>@context.FirstName</MudText>
                         <MudText Typo="Typo.button" Class="fontsize-button-text overflow-hider">@context.LastName</MudText>
+                        @if (context.Role == TeamRole.Main)
+                        {
+                            <sup>m</sup>
+                        }
+                        else if (context.Role == TeamRole.Support)
+                        {
+                            <sup>s</sup>
+                        }
                         @if (context.HasFastestLap)
                         {
                             <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Style="color:mediumpurple" />
@@ -178,7 +182,7 @@
                     </div>
                 </MudTd>
                 <MudTd>
-                    @if (context.Status == RaceStatus.Racing && context.SingleOccurrence == null)
+                    @if (context.Status == RaceStatus.Racing)
                     {
                         <GradientColour Min="@lastLowestScore" Max="@lastHighestScore" Value="@context.LastScore">
                             <MudText Typo="Typo.caption" Color="Color.Inherit">@context.LastScore</MudText>
@@ -186,7 +190,7 @@
                     }
                     else
                     {
-                        <MudText Typo="Typo.button" Color="Color.Warning">@context.SingleOccurrence</MudText>
+                        <MudText Typo="Typo.button" Color="Color.Warning">OUT</MudText>
                     }
                 </MudTd>
                 <MudTd>
