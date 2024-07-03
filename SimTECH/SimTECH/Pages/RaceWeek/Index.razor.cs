@@ -208,6 +208,15 @@ public partial class Index
         Model.RaweCeekDrivers = raweceekDrivers;
     }
 
+    private void AddNewPracticeSession()
+    {
+        var nextSession = PracticeSessions.Count + 1;
+        PracticeSessions.Add(new PracticeSession
+        {
+            SessionIndex = nextSession,
+        });
+    }
+
     private async Task OnOpenPractice()
     {
         if (PracticeLoaded)
@@ -225,7 +234,7 @@ public partial class Index
             });
         }
 
-        if (Model.Race.State != State.Advanced && Model.Race.State != State.Closed)
+        if (Model.Race.State is not State.Advanced and not State.Closed)
             AddNewPracticeSession();
 
         PracticeLoaded = true;
@@ -254,7 +263,6 @@ public partial class Index
 
             previousSessionIsFinished = qSession.IsFinished;
 
-            // TODO: Er is hier vast een betere oplossing voor
             if (Model.Season.QualifyingFormat == QualyFormat.TripleEliminate)
             {
                 if (qSession.SessionIndex == 1)
@@ -303,15 +311,6 @@ public partial class Index
             driver.Tyre = pickedTyre;
             driver.TyreLife = pickedTyre.Pace + driver.LifeBonus;
         }
-    }
-
-    private void AddNewPracticeSession()
-    {
-        var nextSession = PracticeSessions.Count + 1;
-        PracticeSessions.Add(new PracticeSession
-        {
-            SessionIndex = nextSession,
-        });
     }
 
     private async Task PersistPractice(int practiceIndex)

@@ -71,6 +71,7 @@ public partial class Practice
                 mappedDriver.Scores = driverScore.Scores;
                 mappedDriver.Position = driverScore.Position;
                 mappedDriver.AbsolutePosition = driverScore.AbsolutePosition;
+                mappedDriver.Setup = driverScore.SetupGained;
 
                 if (mappedDriver.Position == 1)
                     mappedDriver.GapAbove = "LEADER";
@@ -90,9 +91,6 @@ public partial class Practice
         {
             var result = driver.Power + driver.Setup + NumberHelper.RandomInt(practiceRng * -1, practiceRng);
             driver.Scores[advancedRuns] = result;
-
-            if (Model.League.SetupRng > 0)
-                driver.Setup += NumberHelper.RandomInt(Model.League.SetupRng);
 
             if (result > highestScore)
                 highestScore = result;
@@ -125,6 +123,13 @@ public partial class Practice
 
     private async Task Finish()
     {
+        // If setup is active and SET during the race, then add a gained setup-score
+        if (Model.League.SetupRng > 0)
+        {
+            foreach (var driver in PracticeDrivers)
+                driver.Setup += NumberHelper.RandomInt(Model.League.SetupRng);
+        }
+
         var newScores = PracticeDrivers
             .Select(e => new PracticeScore
             {
