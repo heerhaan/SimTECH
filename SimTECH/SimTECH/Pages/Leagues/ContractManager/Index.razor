@@ -19,9 +19,16 @@
             <MudText Typo="Typo.h3" Class="mx-auto">Manage contracts for @League.Name</MudText>
 
             <MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
-                <ManagerSettings @bind-OnlyActiveTeams="onlyTeams"
-                                 @bind-OnlyActiveDrivers="onlyDrivers"
-                                 LeagueName="@League.Name" />
+                <MudSwitchM3 @bind-Value="@onlyTeams"
+                             ThumbIcon="@Icons.Material.Filled.Done"
+                             ThumbOffIcon="@Icons.Material.Filled.Close"
+                             Label="@($"Teams w/ history in {League.Name}")"
+                             Color="Color.Secondary" />
+                <MudSwitchM3 @bind-Value="@onlyDrivers"
+                             ThumbIcon="@Icons.Material.Filled.Done"
+                             ThumbOffIcon="@Icons.Material.Filled.Close"
+                             Label="@($"Drivers w/ history in {League.Name}")"
+                             Color="Color.Secondary" />
                 <MudButton Variant="Variant.Outlined"
                            Size="Size.Small"
                            Color="Color.Info"

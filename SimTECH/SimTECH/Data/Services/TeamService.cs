@@ -22,25 +22,25 @@ public class TeamService(IDbContextFactory<SimTechDbContext> factory) : StateSer
     {
         using var context = _dbFactory.CreateDbContext();
 
-        var seasons = await context.Season
-                .Where(e => e.LeagueId == leagueId)
-                .Include(e => e.SeasonDrivers)
-                .ToListAsync();
+        //var seasons = await context.Season
+        //        .Where(e => e.LeagueId == leagueId)
+        //        .Include(e => e.SeasonDrivers)
+        //        .ToListAsync();
 
-        var mostRecent = seasons.Find(e => e.State == State.Active)
-            ?? seasons.OrderByDescending(e => e.Year).FirstOrDefault();
+        //var mostRecent = seasons.Find(e => e.State == State.Active)
+        //    ?? seasons.OrderByDescending(e => e.Year).FirstOrDefault();
 
-        if (mostRecent == null)
-        {
-            return await context.Team
-                .Where(e => filter.StatesForFilter().Contains(e.State))
-                .Include(e => e.TeamTraits)
-                .ToListAsync();
-        }
+        //if (mostRecent == null)
+        //{
+        //    return await context.Team
+        //        .Where(e => filter.StatesForFilter().Contains(e.State))
+        //        .Include(e => e.TeamTraits)
+        //        .ToListAsync();
+        //}
 
         return await context.Team
             .Where(e => filter.StatesForFilter().Contains(e.State)
-                && e.SeasonTeams.Any(e => e.SeasonId == mostRecent.Id))
+                && e.SeasonTeams.Any(e => e.Season.LeagueId == leagueId))
             .Include(e => e.TeamTraits)
             .ToListAsync();
     }
