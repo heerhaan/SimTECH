@@ -9,6 +9,15 @@ namespace SimTECH.Data.Services;
 
 public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) : StateService<Driver>(factory)
 {
+    public async Task<Driver> GetDriver(long id)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.Driver
+            .Include(e => e.DriverTraits)
+            .SingleAsync(e => e.Id == id);
+    }
+
     public async Task<List<Driver>> GetDrivers() => await GetDrivers(StateFilter.Default);
     public async Task<List<Driver>> GetDrivers(StateFilter filter)
     {
@@ -52,33 +61,41 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
     {
         using var context = _dbFactory.CreateDbContext();
 
-        var activeDrivers = await context.SeasonDriver
-            .Where(e => e.Season.State == State.Active)
+        var query = context.Driver
+            .Include(e => e.DriverTraits)
+            .AsQueryable();
+
+        if (archivedOnly)
+        {
+            query = query.Where(e => e.State == State.Archived);
+        }
+        else
+        {
+            query = query.Where(e => e.State != State.Archived);
+        }
+
+        var drivers = await query
+            .Select(e => e.MapToListItem())
             .ToListAsync();
 
-        return [];
+        var activeDrivers = await context.SeasonDriver
+            .Where(e => e.Season.State == State.Active)
+            .Select(e => new { e.DriverId, LeagueName = e.Season.League.Name })
+            .ToListAsync();
+
+        foreach (var driver in drivers)
+        {
+            driver.ActiveInLeague = activeDrivers
+                .FirstOrDefault(e => e.DriverId == driver.Id)?.LeagueName;
+        }
+
+        return drivers;
     }
 
     public async Task<List<Driver>> GetDriversFromLeague(long leagueId) => await GetDriversFromLeague(leagueId, StateFilter.Default);
     public async Task<List<Driver>> GetDriversFromLeague(long leagueId, StateFilter filter)
     {
         using var context = _dbFactory.CreateDbContext();
-
-        //var seasons = await context.Season
-        //    .Where(e => e.LeagueId == leagueId)
-        //    .Include(e => e.SeasonDrivers)
-        //    .ToListAsync();
-
-        //var mostRecent = seasons.Find(e => e.State == State.Active)
-        //    ?? seasons.OrderByDescending(e => e.Year).FirstOrDefault();
-
-        //if (mostRecent == null)
-        //{
-        //    return await context.Driver
-        //        .Where(e => filter.StatesForFilter().Contains(e.State))
-        //        .Include(e => e.DriverTraits)
-        //        .ToListAsync();
-        //}
 
         return await context.Driver
             .Where(e => filter.StatesForFilter().Contains(e.State)
@@ -134,9 +151,11 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
         await context.SaveChangesAsync();
     }
 
-    public async Task ArchiveDriver(Driver driver)
+    public async Task ArchiveDriver(long id)
     {
         using var context = _dbFactory.CreateDbContext();
+
+        var driver = await context.Driver.SingleAsync(e => e.Id == id);
 
         if (driver.State == State.Archived)
         {

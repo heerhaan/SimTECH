@@ -1,5 +1,6 @@
 ﻿@page "/drivers"
 
+@using SimTECH.PageModels.Entrants.Drivers
 @using SimTECH.Pages.Drivers.Dialogs
 
 @inject DriverService _driverService
@@ -17,7 +18,7 @@
             <MudText Typo="Typo.h3">Drivers</MudText>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="Driver" Items="@Drivers" RowsPerPage="15" Dense="true" QuickFilter="@_driverFilter">
+    <MudDataGrid T="DriverListItem" Items="@Drivers" RowsPerPage="15" Dense="true" QuickFilter="@_driverFilter">
         <ToolBarContent>
             <MudTextField @bind-Value="_searchString"
                           Placeholder="Search"
@@ -58,17 +59,13 @@
             <PropertyColumn Property="e => e.FullName" Title="Name" />
             <PropertyColumn Property="e => e.Abbreviation" Title="Tag" />
             <PropertyColumn Property="e => e.DateOfBirth" Title="Born in" Format="yyyy" />
-            <TemplateColumn T="Driver" Title="Nation" SortBy="e => e.Country">
+            <TemplateColumn T="DriverListItem" Title="Nation" SortBy="e => e.Country">
                 <CellTemplate>
                     <CountryNamedFlag Code="@context.Item.Country" Size="ElementSize.Small" Reverse="true" />
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="Driver" Title="League" Sortable="false">
-                <CellTemplate>
-                    <MudText>@ReadActiveLeague(context.Item.Id)</MudText>
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn T="Driver" Sortable="false">
+            <PropertyColumn Property="e => e.ActiveInLeague" Title="League" />
+            <TemplateColumn T="DriverListItem" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup Size="Size.Small" Class="ml-auto">
                         <MudIconButton Icon="@Icons.Material.Outlined.QueryStats"
@@ -89,8 +86,7 @@
 </MudContainer>
 
 @code {
-    private List<Driver> Drivers { get; set; } = new();
-    private List<CurrentDriver> CurrentDrivers { get; set; } = new();
+    private List<DriverListItem> Drivers { get; set; } = new();
 
     private bool showingArchived = false;
     private string _searchString;
@@ -103,11 +99,10 @@
             new BreadcrumbItem("Drivers", href: "drivers", disabled: true),
         });
 
-        CurrentDrivers = await _driverService.GetDriversInActiveSeason();
-        Drivers = await _driverService.GetDrivers();
+        Drivers = await _driverService.GetIndexListDrivers();
     }
 
-    private Func<Driver, bool> _driverFilter => driver =>
+    private Func<DriverListItem, bool> _driverFilter => driver =>
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
@@ -121,26 +116,29 @@
         return false;
     };
 
-    private string ReadActiveLeague(long driverId) => CurrentDrivers.Find(e => e.DriverId == driverId)?.LeagueName ?? "None";
-
-    private async Task ShowDetailData(Driver driver)
+    private async Task ShowDetailData(DriverListItem item)
     {
         var parameters = new DialogParameters
             {
-                ["Driver"] = driver
+                ["Driver"] = await _driverService.GetDriver(item.Id)
             };
 
         await _dialogService.ShowAsync<DriverDetailStat>("Driver details", parameters);
     }
 
     private async Task AddDriver() => await UpdateDriver(null);
-    private async Task UpdateDriver(Driver? item)
+    private async Task UpdateDriver(DriverListItem? item)
     {
         var driverTraits = await _traitService.GetTraitsOfType(Entrant.Driver);
 
+        Driver? driver = null;
+
+        if (item != null)
+            driver = await _driverService.GetDriver(item.Id);
+
         var parameters = new DialogParameters
         {
-            ["Driver"] = item,
+            ["Driver"] = driver,
             ["Traits"] = driverTraits
         };
         var dialog = await _dialogService.ShowAsync<DriverEditor>("Modify driver", parameters);
@@ -149,22 +147,22 @@
         if (!result.Canceled && result.Data != null && result.Data is Driver updatedItem)
         {
             await _driverService.UpdateDriver(updatedItem);
-            Drivers = await _driverService.GetDrivers();
+            Drivers = await _driverService.GetIndexListDrivers();
         }
     }
 
-    private async Task ArchiveDriver(Driver driver)
+    private async Task ArchiveDriver(DriverListItem driver)
     {
-        await _driverService.ArchiveDriver(driver);
+        await _driverService.ArchiveDriver(driver.Id);
         Drivers.Remove(driver);
     }
 
     private async Task ToggleDisplayArchived()
     {
         if (showingArchived)
-            Drivers = await _driverService.GetDrivers(StateFilter.Default);
+            Drivers = await _driverService.GetIndexListDrivers(false);
         else
-            Drivers = await _driverService.GetDrivers(StateFilter.Archived);
+            Drivers = await _driverService.GetIndexListDrivers(true);
 
         _searchString = string.Empty;
         showingArchived = !showingArchived;
@@ -178,7 +176,7 @@
         if (!result.Canceled && result.Data != null && result.Data is List<Driver> bulkDrivers)
         {
             await _driverService.BulkAddItems(bulkDrivers);
-            Drivers = await _driverService.GetDrivers();
+            Drivers = await _driverService.GetIndexListDrivers();
         }
     }
 
