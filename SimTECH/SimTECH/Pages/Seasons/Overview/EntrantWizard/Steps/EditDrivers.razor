@@ -1,6 +1,6 @@
 ﻿<MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
-        <MudText Typo="Typo.body2" Color="Color.Info">Don't worry about the order of the numbers, these fix themselves on save</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Info">Don't worry about the order of the numbers, these (may) fix themselves on save</MudText>
         <MudTable T="EditSeasonDriverModel"
                   Items="@Model.SeasonDrivers"
                   Hover="true"
@@ -34,7 +34,7 @@
                     @if (context.PastSetups?.Count > 0)
                     {
                         <MudSelectExtended T="PreviousEntrantSetup<SeasonDriver>"
-                                           ItemCollection="@context.PastSetups"
+                                           ItemCollection="@context.PastSetups.OrderByDescending(e => e.SeasonYear).ToList()"
                                            Label="Past configuration of driver"
                                            Variant="Variant.Outlined"
                                            ValueChanged="@((PreviousEntrantSetup<SeasonDriver> setup) => OnSelectedPastSetup(context, setup))"

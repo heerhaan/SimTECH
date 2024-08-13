@@ -68,7 +68,7 @@
                 @if (!isDropped)
                 {
                     <MudSelect T="long" @bind-Value="seasonTeamId" Label="Team">
-                        @foreach (var team in SeasonTeams)
+                        @foreach (var team in SeasonTeams.OrderBy(e => e.Name))
                         {
                             <MudSelectItem Value="@team.Id">@team.Name</MudSelectItem>
                         }
@@ -169,7 +169,9 @@
         Model.DriverId = driver.Id;
         Model.Driver = driver;
 
-        PastSetups = await _seasonDriverService.PreviousDriverSetups(driver.Id);
+        var previousSetups = await _seasonDriverService.PreviousDriverSetups(driver.Id);
+
+        PastSetups = previousSetups.OrderByDescending(e => e.SeasonYear).ToList();
     }
 
     private void OnSelectedPastSetup(PreviousEntrantSetup<SeasonDriver> setup)
