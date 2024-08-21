@@ -71,7 +71,7 @@ public partial class Index
         Loading = false;
     }
 
-    // TODO: Instead of this whole LoadDrivers-thing, something like the Builder-pattern can help here
+    // TODO: Instead of this whole LoadDrivers-thing, something like the Builder-pattern can help here -> see Notes
     private async Task LoadDrivers()
     {
         var race = Model.Race;

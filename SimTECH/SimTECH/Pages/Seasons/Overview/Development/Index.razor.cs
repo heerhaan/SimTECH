@@ -34,13 +34,13 @@ public partial class Index
 
     protected override async Task OnInitializedAsync()
     {
-        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
-        {
+        _bread.SetBreadcrumbs(
+        [
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Seasons", href: "seasons"),
             new BreadcrumbItem("Overview", href: $"overview/{SeasonId}"),
             new BreadcrumbItem("Development", href: $"developer/{SeasonId}", disabled: true),
-        });
+        ]);
 
         SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
         SeasonTeams = await _seasonTeamService.GetSeasonTeams(SeasonId);
