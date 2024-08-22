@@ -3,7 +3,8 @@ using SimTECH.PageModels.RaceWeek;
 
 namespace SimTECH.Pages.RaceWeek;
 
-// Exploratory and temp for now, need to think critically if this is what we need
+// TODO: Exploratory and temp for now, need to think critically if this is what we need
+// NOTE: Builders and such generally should not be built as a goal but as a tool, this underneath reads like a goal...
 public static class RaceBuilder
 {
 }
