@@ -6,7 +6,7 @@
         @if (Model.Id == 0)
         {
             <MudSelect T="long" @bind-Value="Model.TeamId" Label="Team" Class="field-md">
-                @foreach (var team in Teams)
+                @foreach (var team in Teams.OrderBy(e => e.Name))
                 {
                     <MudSelectItem Value="@team.Id">
                         <CountryFlag Code="@team.Country" Size="ElementSize.Tiny" />
@@ -32,14 +32,14 @@
         <MudNumericField @bind-Value="Model.Powertrain" Label="Powertrain" Class="field-sm" />
 
         <MudSelect T="long" @bind-Value="Model.ManufacturerId" Label="Tyre manufacturer" Required="true">
-            @foreach (var manufacturer in Manufacturers)
+            @foreach (var manufacturer in Manufacturers.OrderBy(e => e.Name))
             {
                 <MudSelectItem Value="@manufacturer.Id">@manufacturer.Name</MudSelectItem>
             }
         </MudSelect>
 
         <MudSelect T="long" @bind-Value="Model.SeasonEngineId" Label="Engine" Required="true">
-            @foreach (var engine in SeasonEngines)
+            @foreach (var engine in SeasonEngines.OrderBy(e => e.Name))
             {
                 <MudSelectItem Value="@engine.Id">@engine.Name</MudSelectItem>
             }
@@ -54,12 +54,23 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? TeamDialog { get; set; }
-    [Parameter] public long SeasonId { get; set; }
-    [Parameter] public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
-    [Parameter] public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
-    [Parameter] public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
-    [Parameter] public SeasonTeam? SeasonTeam { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? TeamDialog { get; set; }
+
+    [Parameter]
+    public long SeasonId { get; set; }
+
+    [Parameter]
+    public IEnumerable<Team> Teams { get; set; } = Enumerable.Empty<Team>();
+
+    [Parameter]
+    public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
+
+    [Parameter]
+    public IEnumerable<SeasonEngine> SeasonEngines { get; set; } = Enumerable.Empty<SeasonEngine>();
+
+    [Parameter]
+    public SeasonTeam? SeasonTeam { get; set; }
 
     private EditSeasonTeamModel Model { get; set; }
 
@@ -72,10 +83,7 @@
     private void Submit()
     {
         if (Model.IsDirty)
-        {
-            var modTeam = Model.Record;
-            TeamDialog?.Close(DialogResult.Ok(modTeam));
-        }
+            TeamDialog?.Close(DialogResult.Ok(Model.Record));
     }
 
     private void Cancel() => TeamDialog?.Cancel();

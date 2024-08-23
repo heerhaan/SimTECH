@@ -8,5 +8,5 @@ public class ExampleUtility
     // For example, MudColor is an Utility class inside MudFramework
 
     // For your reference, RaceUtility might make sense here
-    // some logic now done at ModelExtensions are perhaps more sensible as Utility
+    // some logic now done at ModelExtensions are perhaps more sensible as an Utility-class
 }

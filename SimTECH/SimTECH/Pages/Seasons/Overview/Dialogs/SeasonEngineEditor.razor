@@ -9,7 +9,7 @@
                 @if (Model.Id == 0)
                 {
                     <MudSelect T="long" @bind-Value="Model.EngineId" Label="Engine">
-                        @foreach (var engine in Engines)
+                        @foreach (var engine in Engines.OrderBy(e => e.Name))
                         {
                             <MudSelectItem Value="@engine.Id">@engine.Name</MudSelectItem>
                         }
@@ -28,11 +28,17 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? EngineDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? EngineDialog { get; set; }
 
-    [Parameter] public long SeasonId { get; set; }
-    [Parameter] public List<Engine>? Engines { get; set; }
-    [Parameter] public SeasonEngine? SeasonEngine { get; set; }
+    [Parameter]
+    public long SeasonId { get; set; }
+
+    [Parameter]
+    public List<Engine>? Engines { get; set; }
+
+    [Parameter]
+    public SeasonEngine? SeasonEngine { get; set; }
 
     private EditSeasonEngineModel Model;
 
@@ -45,10 +51,7 @@
     private void Submit()
     {
         if (Model.IsDirty)
-        {
-            var modEngine = Model.Record;
-            EngineDialog?.Close(DialogResult.Ok(modEngine));
-        }
+            EngineDialog?.Close(DialogResult.Ok(Model.Record));
     }
 
     private void Cancel() => EngineDialog?.Cancel();

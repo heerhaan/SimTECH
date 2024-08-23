@@ -10,14 +10,9 @@ namespace SimTECH.Data;
 // Fuck.
 // 24-01-2024: Tried again, no dice on empty database, it is in migrations file but it wont seed, it just wont. Stupid.
 // Consider moving all this seed to the configurations tho
-public class DataInitializer
+public class DataInitializer(ModelBuilder builder)
 {
-    private readonly ModelBuilder builder;
-
-    public DataInitializer(ModelBuilder builder)
-    {
-        this.builder = builder;
-    }
+    private readonly ModelBuilder builder = builder;
 
     public void Seed()
     {

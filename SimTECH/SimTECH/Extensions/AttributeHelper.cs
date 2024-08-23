@@ -9,9 +9,9 @@ public static class AttributeHelper
         if (source == null)
             return string.Empty;
 
-        var sourceString = source?.ToString() ?? string.Empty;
+        var sourceString = source.ToString() ?? string.Empty;
 
-        var field = source?.GetType().GetField(sourceString);
+        var field = source.GetType().GetField(sourceString);
 
         if (field == null)
             return string.Empty;
