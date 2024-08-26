@@ -17,11 +17,12 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Configure database context services
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
         builder.Services.AddDbContextFactory<SimTechDbContext>(options =>
         {
-            options.UseSqlServer(connectionString);
+            //options.UseSqlServer(connectionString);
+            options.UseSqlite("Data Source=SimTechDb.db");
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             options.ConfigureWarnings(e => e.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
         });

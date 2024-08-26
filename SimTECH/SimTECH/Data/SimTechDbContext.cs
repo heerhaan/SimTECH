@@ -6,6 +6,8 @@ namespace SimTECH.Data
 {
     public class SimTechDbContext : DbContext
     {
+        public static readonly string SimTechDb = nameof(SimTechDbContext).ToLower();
+
         public SimTechDbContext(DbContextOptions<SimTechDbContext> options) : base(options)
         {
         }
