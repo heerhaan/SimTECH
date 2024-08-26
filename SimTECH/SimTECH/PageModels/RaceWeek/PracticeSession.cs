@@ -1,9 +1,8 @@
 ﻿using SimTECH.Data.Models;
 
-namespace SimTECH.PageModels.RaceWeek
+namespace SimTECH.PageModels.RaceWeek;
+
+public class PracticeSession : SessionBase
 {
-    public class PracticeSession : SessionBase
-    {
-        public List<PracticeScore> SessionScores { get; set; } = new();
-    }
+    public List<PracticeScore> SessionScores { get; set; } = new();
 }

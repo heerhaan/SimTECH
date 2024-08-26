@@ -56,7 +56,10 @@ public partial class Index
 
         var races = await _raceService.GetRacesBySeason(SeasonId);
         if (races.Any(e => e.DateFinished != null))
-            lastCompletedRound = races.Where(e => e.DateFinished != null).OrderByDescending(e => e.Round).FirstOrDefault()?.Round ?? 0;
+            lastCompletedRound = races.Where(e => e.DateFinished != null)
+                .OrderByDescending(e => e.Round)
+                .FirstOrDefault()?.Round
+                ?? 0;
 
         LoadEntrants();
 
@@ -224,7 +227,7 @@ public partial class Index
         if (DevelopModel.ActiveEntrant != Entrant.Driver || DevelopModel.ActiveAspect != Aspect.Skill)
             additionalCompareRange = null;
 
-        if (!setCompareRange.Any() && !(additionalCompareRange?.Any() == true))
+        if (setCompareRange.Count == 0 && !(additionalCompareRange?.Any() == true))
         {
             // Fallback minimum and maximum with the defaults
             foreach (var entrant in DevelopedEntrants)
@@ -243,8 +246,7 @@ public partial class Index
 
             var matchRange = setCompareRange.FirstOrDefault(e => e.Comparer >= entrant.Old);
 
-            if (matchRange == null)
-                matchRange = setCompareRange[setCompareRange.Count - 1];
+            matchRange ??= setCompareRange[^1];
 
             min = matchRange.Minimum;
             max = matchRange.Maximum;

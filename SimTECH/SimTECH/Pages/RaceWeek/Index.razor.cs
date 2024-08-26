@@ -322,12 +322,13 @@ public partial class Index
         practiceSession.IsFinished = true;
 
         // Update the new grid and position
-        foreach (var res in practiceSession.SessionScores)
+        foreach (var session in practiceSession.SessionScores)
         {
-            var matchingDriver = Model.RaweCeekDrivers.First(e => e.ResultId == res.ResultId);
-            matchingDriver.Grid = res.Position;
-            matchingDriver.Position = res.Position;
-            matchingDriver.Setup = res.SetupGained;
+            var matchingDriver = Model.RaweCeekDrivers.First(e => e.ResultId == session.ResultId);
+            
+            matchingDriver.Grid = session.Position;
+            matchingDriver.Position = session.Position;
+            matchingDriver.Setup = session.SetupGained;
         }
 
         AddNewPracticeSession();
