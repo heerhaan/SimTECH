@@ -1,9 +1,10 @@
-﻿@using SimTECH.Pages.RaceWeek.Components
+﻿@using MudExtensions.Enums
+@using SimTECH.Pages.RaceWeek.Components
 
 @inject IRaceWeekService _raceWeekService
 
 <MudLoading Loading="@Loading"
-            LoaderType="MudExtensions.Enums.LoaderType.Circular"
+            LoaderType="LoaderType.Circular"
             Text="Gettin' some practice in getting this practice">
     <MudContainer MaxWidth="MaxWidth.Large">
         <div id="practice-table">
@@ -33,7 +34,7 @@
                                               IconSize="Size.Small"
                                               PostFixIcon="true"
                                               Class="btn-md" />
-                            @if (PracticeSession.IsFinished == false && advancedRuns != amountRuns)
+                            @if (!PracticeSession.IsFinished && advancedRuns != amountRuns)
                             {
                                 <MudButton EndIcon="@IconCollection.ChevronsRight"
                                            IconSize="Size.Small"

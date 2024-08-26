@@ -90,7 +90,7 @@ public partial class Qualifying
     {
         foreach (var driver in QualyDrivers)
         {
-            var result = driver.Power + NumberHelper.RandomInt(qualyRng);
+            var result = driver.Power + driver.Setup + NumberHelper.RandomInt(qualyRng);
             driver.Scores[advancedRuns] = result;
 
             if (result > highestScore)
@@ -120,17 +120,18 @@ public partial class Qualifying
 
     private async Task Finish()
     {
-        var newScores = QualyDrivers.Select(e => new QualifyingScore
-        {
-            Index = QualySession.SessionIndex,
-            Scores = e.Scores,
-            Position = e.Position,
-            AbsolutePosition = e.AbsolutePosition,
-            RaceId = Model.Race.Id,
-            ResultId = e.ResultId,
+        var newScores = QualyDrivers
+            .Select(e => new QualifyingScore
+            {
+                Index = QualySession.SessionIndex,
+                Scores = e.Scores,
+                Position = e.Position,
+                AbsolutePosition = e.AbsolutePosition,
+                RaceId = Model.Race.Id,
+                ResultId = e.ResultId,
 
-            PenaltyPunish = e.PenaltyPunish
-        })
+                PenaltyPunish = e.PenaltyPunish
+            })
             .ToList();
 
         QualySession.SessionScores.AddRange(newScores);

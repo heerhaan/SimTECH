@@ -10,7 +10,7 @@
                 @if (Model.Id == 0 && Drivers != null)
                 {
                     <MudSelectExtended T="Driver"
-                                       ItemCollection="@Drivers.ToList()"
+                                       ItemCollection="@Drivers.OrderBy(e => e.FullName).ToList()"
                                        Label="Driver"
                                        Variant="Variant.Outlined"
                                        SearchBox="true"
@@ -68,7 +68,7 @@
                 @if (!isDropped)
                 {
                     <MudSelect T="long" @bind-Value="seasonTeamId" Label="Team">
-                        @foreach (var team in SeasonTeams)
+                        @foreach (var team in SeasonTeams.OrderBy(e => e.Name))
                         {
                             <MudSelectItem Value="@team.Id">@team.Name</MudSelectItem>
                         }
@@ -120,7 +120,7 @@
     private Func<int, string?> _numberValidation => number =>
     {
         if (TakenNumbers.Contains(number))
-            return $"Number {number} is already in use, pick something else.";
+            return $"Number {number} is already in use, pick something else mate.";
 
         return null;
     };
@@ -128,7 +128,7 @@
     private Func<Driver, string> _driverToString => driver =>
     {
         if (driver == null)
-            return "Please select a driver";
+            return "Select a driver";
 
         return $"{driver.FullName} {driver.Country.CountryCodeToEmoji()}";
     };
@@ -136,7 +136,7 @@
     private Func<PreviousEntrantSetup<SeasonDriver>, string> _previousToString => setup =>
     {
         if (setup == null)
-            return "Select the league and year to take the configuration from";
+            return "Select the league and year to take a configuration from";
 
         return $"{setup.LeagueName} - {setup.SeasonYear}";
     };
@@ -169,7 +169,9 @@
         Model.DriverId = driver.Id;
         Model.Driver = driver;
 
-        PastSetups = await _seasonDriverService.PreviousDriverSetups(driver.Id);
+        var previousSetups = await _seasonDriverService.PreviousDriverSetups(driver.Id);
+
+        PastSetups = previousSetups.OrderByDescending(e => e.SeasonYear).ToList();
     }
 
     private void OnSelectedPastSetup(PreviousEntrantSetup<SeasonDriver> setup)

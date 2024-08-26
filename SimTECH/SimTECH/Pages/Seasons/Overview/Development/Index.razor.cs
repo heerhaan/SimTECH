@@ -34,13 +34,13 @@ public partial class Index
 
     protected override async Task OnInitializedAsync()
     {
-        _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
-        {
+        _bread.SetBreadcrumbs(
+        [
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Seasons", href: "seasons"),
             new BreadcrumbItem("Overview", href: $"overview/{SeasonId}"),
             new BreadcrumbItem("Development", href: $"developer/{SeasonId}", disabled: true),
-        });
+        ]);
 
         SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
         SeasonTeams = await _seasonTeamService.GetSeasonTeams(SeasonId);
@@ -159,6 +159,47 @@ public partial class Index
             LoadEntrants();
 
         ApplyCommon();
+    }
+
+    private void RaceClassChipChanged(MudChip? classChip)
+    {
+        if (classChip == null)
+            return;
+
+        DevelopModel.ActiveRaceClassId = (long)classChip.Value;
+
+        ChipChanged(true);
+    }
+
+    private void EntrantChipChanged(MudChip? entrantChip)
+    {
+        if (entrantChip == null)
+            return;
+
+        DevelopModel.ActiveAspect = Aspect.Reliability;
+        DevelopModel.ActiveEntrant = (Entrant)entrantChip.Value;
+
+        ChipChanged(true);
+    }
+
+    private void TargetChipChanged(MudChip? devChip)
+    {
+        if (devChip == null)
+            return;
+
+        DevelopModel.ActiveAspect = (Aspect)devChip.Value;
+
+        ChipChanged(true);
+    }
+
+    private void TypeChipChanged(MudChip? typeChip)
+    {
+        if (typeChip == null)
+            return;
+
+        DevelopModel.ActiveQuantifier = (Quantifier)typeChip.Value;
+
+        ChipChanged(false);
     }
 
     private void ApplyCommon()

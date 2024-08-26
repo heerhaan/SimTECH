@@ -2,13 +2,12 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SimTECH.Data.Models;
 
-namespace SimTECH.Data.Configurations
+namespace SimTECH.Data.Configurations;
+
+public class DevelopmentRangeConfiguration : IEntityTypeConfiguration<DevelopmentRange>
 {
-    public class DevelopmentRangeConfiguration : IEntityTypeConfiguration<DevelopmentRange>
+    public void Configure(EntityTypeBuilder<DevelopmentRange> builder)
     {
-        public void Configure(EntityTypeBuilder<DevelopmentRange> builder)
-        {
-            builder.HasKey(e => e.Id);
-        }
+        builder.HasKey(e => e.Id);
     }
 }

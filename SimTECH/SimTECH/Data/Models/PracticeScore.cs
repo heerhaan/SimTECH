@@ -2,4 +2,5 @@
 
 public sealed class PracticeScore : ScoreBase
 {
+    public int SetupGained { get; set; }
 }

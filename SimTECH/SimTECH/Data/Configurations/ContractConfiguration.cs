@@ -2,13 +2,12 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SimTECH.Data.Models;
 
-namespace SimTECH.Data.Configurations
+namespace SimTECH.Data.Configurations;
+
+public class ContractConfiguration : IEntityTypeConfiguration<Contract>
 {
-    public class ContractConfiguration : IEntityTypeConfiguration<Contract>
+    public void Configure(EntityTypeBuilder<Contract> builder)
     {
-        public void Configure(EntityTypeBuilder<Contract> builder)
-        {
-            builder.HasKey(e => e.Id);
-        }
+        builder.HasKey(e => e.Id);
     }
 }

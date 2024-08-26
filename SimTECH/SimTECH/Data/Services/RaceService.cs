@@ -122,12 +122,15 @@ public class RaceService(IDbContextFactory<SimTechDbContext> factory) : IRaceSer
             return;
 
         var seasonDrivers = await context.SeasonDriver
+            .Include(e => e.Driver)
             .Where(e => e.SeasonId == race.SeasonId && e.SeasonTeamId.HasValue)
             .ToListAsync();
 
         var validLeagueTyres = await context.LeagueTyre.Where(e => e.LeagueId == leagueId).Select(e => e.TyreId).ToListAsync();
         var availableTyres = await context.Tyre
-            .Where(e => e.State == State.Active && e.ForWet == race.Climate.IsWet && validLeagueTyres.Contains(e.Id))
+            .Where(e => e.State == State.Active
+                && e.ForWet == race.Climate.IsWet
+                && validLeagueTyres.Contains(e.Id))
             .ToListAsync();
 
         if (availableTyres?.Any() != true)
@@ -137,7 +140,13 @@ public class RaceService(IDbContextFactory<SimTechDbContext> factory) : IRaceSer
 
         foreach (var driver in seasonDrivers)
         {
-            var tyre = availableTyres.TakeRandomItem();
+            var tyre = driver.Driver.StrategyPreference switch
+            {
+                StrategyPreference.None => availableTyres.TakeRandomItem(),
+                StrategyPreference.Softer => availableTyres.OrderByDescending(e => e.Pace).First(),
+                StrategyPreference.Harder => availableTyres.OrderBy(e => e.Pace).First(),
+                _ => throw new ArgumentOutOfRangeException($"Unrecognized type: {driver.Driver.StrategyPreference}"),
+            };
 
             driverResults.Add(new Result
             {
