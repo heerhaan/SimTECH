@@ -1,5 +1,6 @@
 ﻿using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
+using SimTECH.PageModels.Traits;
 
 namespace SimTECH.PageModels;
 
@@ -54,7 +55,7 @@ public class EntrantAssignee
     public List<long> AssignedTraitIds { get; set; } = [];
     public List<long> RemovedTraitIds { get; set; } = [];
 
-    public Dictionary<long, string> ExistingTraits { get; set; } = [];
-    public Dictionary<long, string> AssignedTraits { get; set; } = [];
-    public Dictionary<long, string> RemovedTraits { get; set; } = [];
+    public List<AssignableTrait> ExistingTraits { get; set; } = [];
+    public List<AssignableTrait> AssignedTraits { get; set; } = [];
+    public List<AssignableTrait> RemovedTraits { get; set; } = [];
 }

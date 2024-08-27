@@ -4,7 +4,7 @@ using SimTECH.PageModels.Common;
 
 namespace SimTECH.PageModels.RaceWeek;
 
-// TODO: Refactor this model away, retrieve necessary objects per tab
+// TODO: Refactor this model away, retrieve necessary objects per tab (yu sure?)
 public class RaweCeekDriver
 {
     public long SeasonDriverId { get; set; }
@@ -89,6 +89,7 @@ public class FixedRaweCeekDriver
 
 public static class ExtendRaweCeekDriver
 {
+    // TODO: Can we do something better than using this hidden base score?
     private const double baseHiddenScoreValue = 10000000000000000000;
 
     public static SessionDriver MapToSessionDriver(this RaweCeekDriver driver, int amountRuns)

@@ -3,26 +3,25 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SimTECH.Data.Models;
 
-namespace SimTECH.Data.Configurations
+namespace SimTECH.Data.Configurations;
+
+public class QualifyingResultConfiguration : IEntityTypeConfiguration<QualifyingScore>
 {
-    public class QualifyingResultConfiguration : IEntityTypeConfiguration<QualifyingScore>
+    public void Configure(EntityTypeBuilder<QualifyingScore> builder)
     {
-        public void Configure(EntityTypeBuilder<QualifyingScore> builder)
-        {
-            builder.HasKey(t => t.Id);
+        builder.HasKey(t => t.Id);
 
-            var scoreValueComparer = new ValueComparer<int[]>(
-                (c1, c2) => c1!.SequenceEqual(c2 ?? Array.Empty<int>()),
-                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                c => c.ToArray());
+        var scoreValueComparer = new ValueComparer<int[]>(
+            (c1, c2) => c1!.SequenceEqual(c2 ?? Array.Empty<int>()),
+            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+            c => c.ToArray());
 
-            builder.Property(e => e.Scores)
-                .HasColumnType("varchar(max)")
-                .HasConversion(
-                    e => string.Join(';', e ?? Array.Empty<int>()),
-                    e => Array.ConvertAll(e.Split(';', StringSplitOptions.RemoveEmptyEntries), int.Parse))
-                .Metadata
-                .SetValueComparer(scoreValueComparer);
-        }
+        builder.Property(e => e.Scores)
+            .HasColumnType("varchar(max)")
+            .HasConversion(
+                e => string.Join(';', e ?? Array.Empty<int>()),
+                e => Array.ConvertAll(e.Split(';', StringSplitOptions.RemoveEmptyEntries), int.Parse))
+            .Metadata
+            .SetValueComparer(scoreValueComparer);
     }
 }

@@ -60,18 +60,18 @@ public class TraitService(IDbContextFactory<SimTechDbContext> factory) : StateSe
         {
             if (driver.AssignedTraits.Count != 0)
             {
-                var assignableTraits = driver.AssignedTraitIds
-                    .Select(e => new DriverTrait { DriverId = driver.Id, TraitId = e })
+                var assignableTraits = driver.AssignedTraits
+                    .Select(e => new DriverTrait { DriverId = driver.Id, TraitId = e.Id })
                     .ToList();
 
                 context.AddRange(assignableTraits);
             }
 
-            if (driver.RemovedTraitIds.Count != 0)
+            if (driver.RemovedTraits.Count != 0)
             {
                 var removeableTraits = await context.DriverTrait
                     .Where(e => e.DriverId == driver.Id
-                        && driver.RemovedTraitIds.Contains(e.TraitId))
+                        && driver.RemovedTraits.Select(e => e.Id).Contains(e.TraitId))
                     .ToListAsync();
 
                 context.RemoveRange(removeableTraits);
@@ -93,9 +93,9 @@ public class TraitService(IDbContextFactory<SimTechDbContext> factory) : StateSe
 
         foreach (var team in assignedTeams)
         {
-            foreach (var trait in team.AssignedTraitIds)
+            foreach (var trait in team.AssignedTraits)
             {
-                teamTraits.Add(new TeamTrait { TeamId = team.Id, TraitId = trait });
+                teamTraits.Add(new TeamTrait { TeamId = team.Id, TraitId = trait.Id });
             }
         }
 
@@ -116,9 +116,9 @@ public class TraitService(IDbContextFactory<SimTechDbContext> factory) : StateSe
 
         foreach (var track in assignedTracks)
         {
-            foreach (var trait in track.AssignedTraitIds)
+            foreach (var trait in track.AssignedTraits)
             {
-                trackTraits.Add(new TrackTrait { TrackId = track.Id, TraitId = trait });
+                trackTraits.Add(new TrackTrait { TrackId = track.Id, TraitId = trait.Id });
             }
         }
 

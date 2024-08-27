@@ -37,10 +37,14 @@
                         else
                         {
                             <MudChipSet Mandatory="true" SelectedChipChanged="QualyFormatChanged" Class="py-1">
-                                <MudChip Value="QualyFormat.TripleEliminate" Color="Color.Secondary" Default="@(Model.QualifyingFormat == QualyFormat.TripleEliminate)">
+                                <MudChip Value="QualyFormat.TripleEliminate"
+                                         Color="Color.Secondary"
+                                         Default="@(Model.QualifyingFormat == QualyFormat.TripleEliminate)">
                                     Three session elimination
                                 </MudChip>
-                                <MudChip Value="QualyFormat.OneSession" Color="Color.Secondary" Default="@(Model.QualifyingFormat == QualyFormat.OneSession)">
+                                <MudChip Value="QualyFormat.OneSession"
+                                         Color="Color.Secondary"
+                                         Default="@(Model.QualifyingFormat == QualyFormat.OneSession)">
                                     One session
                                 </MudChip>
                             </MudChipSet>
@@ -249,9 +253,14 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? SeasonDialog { get; set; }
-    [Parameter] public EditSeasonModel Model { get; set; }
-    [Parameter] public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
+    [CascadingParameter]
+    protected MudDialogInstance? SeasonDialog { get; set; }
+
+    [Parameter]
+    public EditSeasonModel Model { get; set; }
+
+    [Parameter]
+    public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
 
     private int lowestPosition;
     private bool hasMultipleClasses;
@@ -274,11 +283,7 @@
 
     private void AppendAllotment()
     {
-        Model.PointAllotments.Add(new EditPointAllotmentModel
-            {
-                Position = ++lowestPosition,
-                Points = 0
-            });
+        Model.PointAllotments.Add(new() { Position = ++lowestPosition });
     }
 
     private void RemoveAllotment(EditPointAllotmentModel allotment)
