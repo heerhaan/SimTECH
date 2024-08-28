@@ -129,8 +129,8 @@
         }
     }
 
-    private async Task OnToggleChange(Trait trait, bool toggled) =>
-        await ToggleState(trait, (toggled ? State.Active : State.Closed));
+    private async Task OnToggleChange(Trait trait, bool toggled)
+        => await ToggleState(trait, (toggled ? State.Active : State.Closed));
 
     private async Task ToggleState(Trait trait, State target)
     {
@@ -138,5 +138,5 @@
         Traits = await _traitService.GetTraits();
     }
 
-    private void GoToTraitAssign() => _nav.NavigateTo("traitassignlegacy");
+    private void GoToTraitAssign() => _nav.NavigateTo("traitassign");
 }

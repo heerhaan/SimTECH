@@ -45,16 +45,10 @@ public class TraitService(IDbContextFactory<SimTechDbContext> factory) : StateSe
     }
 
     #region assigner methods
-    // I suspect the following three methods are a good target for generics, if i implemented those
+    // TODO: Following three methods are quite likely a decent target for a more generic implementation
     public async Task AssignDriverTraits(List<EntrantAssignee> assignedDrivers)
     {
         using var context = _dbFactory.CreateDbContext();
-
-        // Assume now that we can't have already assigned traits
-
-        // Assume we aren't removing traits
-
-        var assignedDriverTraits = new List<DriverTrait>();
 
         foreach (var driver in assignedDrivers)
         {
@@ -65,6 +59,7 @@ public class TraitService(IDbContextFactory<SimTechDbContext> factory) : StateSe
                     .ToList();
 
                 context.AddRange(assignableTraits);
+                await context.SaveChangesAsync();
             }
 
             if (driver.RemovedTraits.Count != 0)
@@ -75,56 +70,67 @@ public class TraitService(IDbContextFactory<SimTechDbContext> factory) : StateSe
                     .ToListAsync();
 
                 context.RemoveRange(removeableTraits);
+                await context.SaveChangesAsync();
             }
         }
-
-        await context.SaveChangesAsync();
     }
 
     public async Task AssignTeamTraits(List<EntrantAssignee> assignedTeams)
     {
         using var context = _dbFactory.CreateDbContext();
 
-        // Assume now that we can't have already assigned traits
-
-        // Assume we aren't removing traits
-
-        var teamTraits = new List<TeamTrait>();
-
         foreach (var team in assignedTeams)
         {
-            foreach (var trait in team.AssignedTraits)
+            if (team.AssignedTraits.Count != 0)
             {
-                teamTraits.Add(new TeamTrait { TeamId = team.Id, TraitId = trait.Id });
+                var assignableTraits = team.AssignedTraits
+                    .Select(e => new TeamTrait { TeamId = team.Id, TraitId = e.Id })
+                    .ToList();
+
+                context.AddRange(assignableTraits);
+                await context.SaveChangesAsync();
+            }
+
+            if (team.RemovedTraits.Count != 0)
+            {
+                var removeableTraits = await context.DriverTrait
+                    .Where(e => e.DriverId == team.Id
+                        && team.RemovedTraits.Select(e => e.Id).Contains(e.TraitId))
+                    .ToListAsync();
+
+                context.RemoveRange(removeableTraits);
+                await context.SaveChangesAsync();
             }
         }
-
-        context.AddRange(teamTraits);
-
-        await context.SaveChangesAsync();
     }
 
     public async Task AssignTrackTraits(List<EntrantAssignee> assignedTracks)
     {
         using var context = _dbFactory.CreateDbContext();
 
-        // Assume now that we can't have already assigned traits
-
-        // Assume we aren't removing traits
-
-        var trackTraits = new List<TrackTrait>();
-
         foreach (var track in assignedTracks)
         {
-            foreach (var trait in track.AssignedTraits)
+            if (track.AssignedTraits.Count != 0)
             {
-                trackTraits.Add(new TrackTrait { TrackId = track.Id, TraitId = trait.Id });
+                var assignableTraits = track.AssignedTraits
+                    .Select(e => new TrackTrait { TrackId = track.Id, TraitId = e.Id })
+                    .ToList();
+
+                context.AddRange(assignableTraits);
+                await context.SaveChangesAsync();
+            }
+
+            if (track.RemovedTraits.Count != 0)
+            {
+                var removeableTraits = await context.DriverTrait
+                    .Where(e => e.DriverId == track.Id
+                        && track.RemovedTraits.Select(e => e.Id).Contains(e.TraitId))
+                    .ToListAsync();
+
+                context.RemoveRange(removeableTraits);
+                await context.SaveChangesAsync();
             }
         }
-
-        context.AddRange(trackTraits);
-
-        await context.SaveChangesAsync();
     }
     #endregion
 }

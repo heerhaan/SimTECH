@@ -1,24 +1,47 @@
 ﻿<MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h5">Trait assignment results</MudText>
+        <MudText Typo="Typo.h5">Assignment results</MudText>
     </TitleContent>
     <DialogContent>
-        <MudPaper>
-            Here is where I would show the assignment results, if I had them!
-        </MudPaper>
-        <MudText>
-            Save if you want to save this, cancel for cancel culture.
-        </MudText>
-        @if (Entrants?.Any() == true)
-        {
-            @foreach(var entrant in Entrants)
+        <MudPaper>Here is where I would show the assignment results, if I had them!</MudPaper>
+        <MudText>Save if you want to save this, cancel for cancel culture.</MudText>
+        <MudPaper Class="pa-2">
+            @if (Entrants.Count != 0)
             {
-                <div class="d-flex flex-row">
-                    @entrant.Name
-                    @string.Join(", ", entrant.AssignedTraitIds.ToArray())
-                </div>
+                <MudTable T="EntrantAssignee"
+                          Items="@Entrants"
+                          Dense="true">
+                    <HeaderContent>
+                        <MudTh>
+                            <MudTableSortLabel T="EntrantAssignee"
+                                               SortBy="@(e => e.Name)"
+                                               InitialDirection="SortDirection.Ascending">
+                                Name
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>New traits</MudTh>
+                        <MudTh>Removed traits</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText>@context.Name</MudText>
+                        </MudTd>
+                        <MudTd>
+                            @foreach (var trait in context.AssignedTraits)
+                            {
+                                <MudText Typo="Typo.body2">@trait.Name</MudText>
+                            }
+                        </MudTd>
+                        <MudTd>
+                            @foreach (var trait in context.RemovedTraits)
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Error">@trait.Name</MudText>
+                            }
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
             }
-        }
+        </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -27,7 +50,8 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? AssignmentDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? AssignmentDialog { get; set; }
 
     [Parameter]
     public List<EntrantAssignee> Entrants { get; set; } = new();

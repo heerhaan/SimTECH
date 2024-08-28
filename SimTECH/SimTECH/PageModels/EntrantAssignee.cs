@@ -16,7 +16,7 @@ public class EntrantAssignee
         if (driver.DriverTraits?.Any() == true)
         {
             foreach (var trait in driver.DriverTraits)
-                ExistingTraitIds.Add(trait.TraitId);
+                InitialTraitIds.Add(trait.TraitId);
         }
     }
     public EntrantAssignee(Team team)
@@ -29,7 +29,7 @@ public class EntrantAssignee
         if (team.TeamTraits?.Any() == true)
         {
             foreach (var trait in team.TeamTraits)
-                ExistingTraitIds.Add(trait.TraitId);
+                InitialTraitIds.Add(trait.TraitId);
         }
     }
     public EntrantAssignee(Track track)
@@ -42,7 +42,7 @@ public class EntrantAssignee
         if (track.TrackTraits?.Any() == true)
         {
             foreach (var trait in track.TrackTraits)
-                ExistingTraitIds.Add(trait.TraitId);
+                InitialTraitIds.Add(trait.TraitId);
         }
     }
 
@@ -51,11 +51,22 @@ public class EntrantAssignee
     public Country Country { get; set; }
     public Entrant Entrant { get; set; }
 
-    public List<long> ExistingTraitIds { get; set; } = [];
-    public List<long> AssignedTraitIds { get; set; } = [];
-    public List<long> RemovedTraitIds { get; set; } = [];
+    public List<long> InitialTraitIds { get; set; } = [];
 
-    public List<AssignableTrait> ExistingTraits { get; set; } = [];
+    public List<AssignableTrait> InitialTraits { get; set; } = [];
     public List<AssignableTrait> AssignedTraits { get; set; } = [];
     public List<AssignableTrait> RemovedTraits { get; set; } = [];
+
+    public string GetAssignedText
+    {
+        get
+        {
+            if (AssignedTraits.Count == 0)
+                return "-";
+
+            var assignedNames = AssignedTraits.Select(e => e.Name).ToArray();
+
+            return string.Join(", ", assignedNames);
+        }
+    }
 }

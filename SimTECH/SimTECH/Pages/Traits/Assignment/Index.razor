@@ -23,7 +23,7 @@
                 <MudPaper Class="pa-2">
                     <MudText Typo="Typo.h5">Assignment settings</MudText>
                     <MudStack Class="trait-assignment-menu-bar">
-                        <div class="d-flex justify-space-between">
+                        <div class="setting-double-field-wrapper">
                             <div>
                                 <MudText Typo="Typo.h5">For entrants</MudText>
                                 <MudChipSet SelectedChipChanged="RetrieveEntrants" Mandatory="true">
@@ -53,20 +53,19 @@
                                 }
                             </div>
                         </div>
-                        <div>
-                            <MudText>Odds (%) of gaining a trait</MudText>
+                        <div class="setting-double-field-wrapper">
                             <MudNumericField @bind-Value="@AdditionOdds"
                                              Min="0"
                                              Max="100"
+                                             Label="Odds (%) of gaining a trait"
+                                             Variant="Variant.Filled"
                                              Class="field-sm" />
-                        </div>
-                        <div>
-                            <MudText>Odds (%) of losing a trait</MudText>
                             <MudNumericField @bind-Value="@RemovalOdds"
                                              Min="0"
                                              Max="100"
-                                             Label="Yo angelo"
+                                             Label="Odds (%) of losing a trait"
                                              Variant="Variant.Filled"
+                                             AdornmentColor="Color.Secondary"
                                              Class="field-sm" />
                         </div>
                         <MudButtonGroup Variant="Variant.Outlined" Color="Color.Primary">
@@ -83,7 +82,7 @@
                 <MudPaper Class="pa-2">
                     <MudText Typo="Typo.h4">Available traits</MudText>
                     <MudText Typo="Typo.body2" Color="Color.Info">
-                        Select which traits to assign.
+                        Select which traits are allowed to be assigned
                     </MudText>
                     @if (AssignableTraits.Any())
                     {
@@ -116,7 +115,7 @@
             <MudPaper Class="pa-2">
                 <MudText Typo="Typo.subtitle1">Available entrants</MudText>
                 <MudText Typo="Typo.body2" Color="Color.Info">
-                    Select for whom we're assigning traits
+                    Select the entries to assign traits for
                 </MudText>
                 @if (Entrants.Any())
                 {
@@ -141,9 +140,9 @@
                                 <MudText>@context.Name</MudText>
                             </MudTd>
                             <MudTd>
-                                @foreach (var traitId in context.ExistingTraitIds)
+                                @foreach (var trait in context.InitialTraits)
                                 {
-                                    <MudText Typo="Typo.body2">@(GetReadableTrait(traitId))</MudText>
+                                    <MudText Typo="Typo.body2">@trait.Name</MudText>
                                 }
                             </MudTd>
                         </RowTemplate>
@@ -196,8 +195,6 @@
         return Leagues.Find(e => e.Id == leagueId)?.Name ?? "Unknown";
     };
 
-    private string GetReadableTrait(long id) => ActiveTraits.Find(e => e.Id == id)?.Name ?? "Unknown";
-
     private async Task RetrieveEntrants(MudChip? chip)
     {
         if (chip == null || chip.Value is not Entrant selectedEntrant)
@@ -215,7 +212,6 @@
         await ReloadEntrants();
     }
 
-    // TODO: Remnant of an older implementation, refactor this to something more readable later on
     private async Task ReloadEntrants()
     {
         switch (ActiveEntrant)
@@ -251,11 +247,11 @@
 
         foreach (var entrant in Entrants)
         {
-            if (entrant.ExistingTraits.Count == 0)
+            if (entrant.InitialTraitIds.Count == 0)
                 continue;
 
-            entrant.ExistingTraits = ActiveTraits
-                .Where(e => entrant.ExistingTraitIds.Contains(e.Id))
+            entrant.InitialTraits = ActiveTraits
+                .Where(e => entrant.InitialTraitIds.Contains(e.Id))
                 .Select(e => new AssignableTrait(e))
                 .ToList();
         }
@@ -276,7 +272,9 @@
 
         foreach (var entry in assignableEntrants)
         {
-            var availableTraits = assignableTraits.Where(e => !entry.ExistingTraits.Contains(e)).ToList();
+            var availableTraits = assignableTraits
+                .Where(at => !entry.InitialTraits.Select(it => it.Id).Contains(at.Id))
+                .ToList();
 
             if (availableTraits.Count > 0 && NumberHelper.RandomInt(100) < AdditionOdds)
             {
@@ -284,9 +282,9 @@
                 entry.AssignedTraits.Add(randomTrait);
             }
 
-            if (entry.ExistingTraitIds.Count > 0 && NumberHelper.RandomInt(100) < RemovalOdds)
+            if (entry.InitialTraits.Count > 0 && NumberHelper.RandomInt(100) < RemovalOdds)
             {
-                var randomRemoval = entry.ExistingTraits.TakeRandomItem();
+                var randomRemoval = entry.InitialTraits.TakeRandomItem();
                 entry.RemovedTraits.Add(randomRemoval);
             }
         }
@@ -302,39 +300,10 @@
 
         var result = await dialog.Result;
 
-        if (!result.Canceled)
-            await PersistAssignedTraits(assignedEntrants);
-        else
+        if (result.Canceled)
             await ReloadEntrants();
-    }
-
-    private void AssignRandomTrait() => AssignRandomTrait(Entrants.TakeRandomItem());
-    private void AssignRandomTrait(EntrantAssignee item)
-    {
-        var availableTraits = AssignableTraits.Where(e => !item.ExistingTraits.Contains(e)).ToList();
-        if (availableTraits.Count == 0)
-            return;
-
-        var randomTrait = availableTraits.TakeRandomItem();
-
-        item.AssignedTraits.Add(randomTrait);
-        item.ExistingTraits.Add(randomTrait);
-    }
-
-    private async Task RemoveAssignedTrait(TableRowClickEventArgs<EntrantAssignee> rowItem)
-    {
-        bool confirm = await _dialogService.ShowMessageBox("Warning",
-            $"Are you sure you want to remove these assigned traits for {rowItem.Item.Name}?",
-            yesText: "Yep", cancelText: "Nope")
-            ?? false;
-
-        if (confirm)
-        {
-            foreach (var trait in rowItem.Item.AssignedTraits)
-                rowItem.Item.ExistingTraits.Remove(trait);
-
-            rowItem.Item.AssignedTraits = new();
-        }
+        else
+            await PersistAssignedTraits(assignedEntrants);
     }
 
     private async Task PersistAssignedTraits(List<EntrantAssignee> assignedEntrants)
