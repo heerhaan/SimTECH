@@ -8,7 +8,7 @@
 
             <div>
                 <MudText Typo="Typo.subtitle2">Weather</MudText>
-                <MudChipSet @bind-SelectedChip="climateChip" Mandatory="true">
+                <MudChipSet T="long" @bind-SelectedChip="climateChip" SelectionMode="SelectionMode.SingleSelection">
                     @foreach (var climate in Climates)
                     {
                         <MudChip Value="@climate.Id" Icon="@climate.Icon" Default="@(model.ClimateId == climate.Id)">
@@ -18,7 +18,7 @@
                 </MudChipSet>
             </div>
 
-            <MudSwitch @bind-Checked="variableRaceLength" Label="Variable race length" />
+            <MudSwitch T="bool" @bind-Checked="variableRaceLength" Label="Variable race length" />
 
             @if (variableRaceLength)
             {
@@ -32,7 +32,7 @@
 
             @if (errorValidations.Any())
             {
-                <MudList>
+                <MudList T="string">
                     <MudListSubheader>Error messages</MudListSubheader>
                     @foreach (var error in errorValidations)
                     {
@@ -51,13 +51,19 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? RaceDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? RaceDialog { get; set; }
 
-    [Parameter] public Race? Race { get; set; }
-    [Parameter] public long SeasonId { get; set; }
-    [Parameter] public List<Climate> Climates { get; set; }
+    [Parameter]
+    public Race? Race { get; set; }
 
-    MudChip? climateChip;
+    [Parameter]
+    public long SeasonId { get; set; }
+
+    [Parameter]
+    public List<Climate> Climates { get; set; }
+
+    MudChip<long>? climateChip;
     bool variableRaceLength;
     int backupRaceLength;
     List<string> errorValidations = new();
@@ -82,7 +88,7 @@
     private void Submit()
     {
         if (climateChip != null)
-            model.ClimateId = (long)climateChip.Value;
+            model.ClimateId = climateChip.Value;
         else if (model.ClimateId == 0)
             model.ClimateId = Climates.TakeRandomClimate().Id;
 

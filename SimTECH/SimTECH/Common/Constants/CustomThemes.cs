@@ -80,7 +80,7 @@ public static class CustomThemes
 
     public static readonly MudTheme DefaultTheme = new()
     {
-        Palette = new PaletteLight()
+        PaletteLight = new PaletteLight()
         {
             Primary = CustomColours.BrightRed,
         },
@@ -91,7 +91,7 @@ public static class CustomThemes
             Tertiary = Colors.LightBlue.Lighten2,
 
             Background = CustomColours.DeepDarkBlack,
-            BackgroundGrey = Colors.Shades.Black,
+            BackgroundGray = Colors.Shades.Black,
             Surface = CustomColours.DarkBlack,
             DrawerBackground = CustomColours.DarkBlack,
             AppbarBackground = CustomColours.DarkBlack,
@@ -101,14 +101,14 @@ public static class CustomThemes
 
     public static readonly MudTheme GalacticTheme = new()
     {
-        Palette = new PaletteDark()
+        PaletteLight = new PaletteLight()
         {
             Primary = Colors.DeepPurple.Lighten1,
             Secondary = Colors.Pink.Lighten1,
             Tertiary = Colors.Amber.Darken3,
 
             Background = CustomColours.DarkFadedPurple,
-            BackgroundGrey = CustomColours.DeepDarkFadedPurple,
+            BackgroundGray = CustomColours.DeepDarkFadedPurple,
             Surface = CustomColours.DarkFadedPurple,
             DrawerBackground = CustomColours.DeepDarkFadedPurple,
             AppbarBackground = CustomColours.DeepDarkFadedPurple,
@@ -120,7 +120,7 @@ public static class CustomThemes
             Tertiary = Colors.Amber.Darken3,
 
             Background = CustomColours.UltraDeepDarkPurple,
-            BackgroundGrey = CustomColours.UltraDarkContrastPurple,
+            BackgroundGray = CustomColours.UltraDarkContrastPurple,
             Surface = CustomColours.DarkFadedPurple,
             DrawerBackground = CustomColours.DeepDarkFadedPurple,
             AppbarBackground = CustomColours.DeepDarkFadedPurple,
@@ -130,7 +130,7 @@ public static class CustomThemes
 
     public static readonly MudTheme GalacticAltTheme = new()
     {
-        Palette = new PaletteLight()
+        PaletteLight = new PaletteLight()
         {
             Primary = Colors.DeepPurple.Default,
             Secondary = Colors.Indigo.Default,
@@ -145,7 +145,7 @@ public static class CustomThemes
             Tertiary = Colors.Red.Lighten2,
 
             Background = CustomColours.DeepDarkFadedPurple,
-            BackgroundGrey = CustomColours.UltraDarkContrastPurple,
+            BackgroundGray = CustomColours.UltraDarkContrastPurple,
             Surface = CustomColours.DarkFadedPurple,
             DrawerBackground = CustomColours.UltraDeepDarkPurple,
             AppbarBackground = CustomColours.UltraDeepDarkPurple
@@ -155,7 +155,7 @@ public static class CustomThemes
 
     public static readonly MudTheme OceanicTheme = new()
     {
-        Palette = new PaletteLight()
+        PaletteLight = new PaletteLight()
         {
             Primary = Colors.Teal.Default,
             Secondary = Colors.Green.Default,
@@ -170,7 +170,7 @@ public static class CustomThemes
             Tertiary = Colors.LightBlue.Darken3,
 
             Background = CustomColours.DeepDarkFadedBlue,
-            BackgroundGrey = CustomColours.UltraDarkFadedBlue,
+            BackgroundGray = CustomColours.UltraDarkFadedBlue,
             Surface = CustomColours.DarkFadedBlue,
             DrawerBackground = CustomColours.UltraDarkFadedBlue,
             AppbarBackground = CustomColours.UltraDarkFadedBlue
@@ -180,7 +180,7 @@ public static class CustomThemes
 
     public static readonly MudTheme FieryTheme = new()
     {
-        Palette = new PaletteLight()
+        PaletteLight = new PaletteLight()
         {
             Primary = Colors.Red.Default,
             Secondary = Colors.DeepOrange.Default,
@@ -197,7 +197,7 @@ public static class CustomThemes
             TertiaryContrastText = Colors.Shades.Black,
 
             Background = CustomColours.DeepDarkFadedRed,
-            BackgroundGrey = CustomColours.UltraDarkFadedRed,
+            BackgroundGray = CustomColours.UltraDarkFadedRed,
             Surface = CustomColours.DarkFadedRed,
             DrawerBackground = CustomColours.UltraDarkFadedRed,
             AppbarBackground = CustomColours.UltraDarkFadedRed,
@@ -209,7 +209,7 @@ public static class CustomThemes
     // Thematically something that is a bright, violet and futuristic palette. Think of Hotline Miami | pink/cyan/???
     public static readonly MudTheme NeonTheme = new()
     {
-        Palette = new PaletteLight()
+        PaletteLight = new PaletteLight()
         {
             Primary = Colors.Cyan.Darken2,
             Secondary = Colors.Pink.Accent2,
@@ -224,7 +224,7 @@ public static class CustomThemes
             Tertiary = Colors.DeepPurple.Lighten2,
 
             Background = CustomColours.DeepDarkFadedPink,
-            BackgroundGrey = CustomColours.DeepDarkFadedPink,
+            BackgroundGray = CustomColours.DeepDarkFadedPink,
             Surface = CustomColours.DarkFadedPink,
             DrawerBackground = CustomColours.UltraDarkFadedPink,
             AppbarBackground = CustomColours.UltraDarkFadedPink,
@@ -234,7 +234,7 @@ public static class CustomThemes
 
     public static readonly MudTheme CyberTheme = new()
     {
-        Palette = new PaletteLight()
+        PaletteLight = new PaletteLight()
         {
             Primary = CustomColours.ActiveDarkRed,
             Secondary = CustomColours.MildCyan,
@@ -250,7 +250,7 @@ public static class CustomThemes
             Tertiary = CustomColours.StreetGreen,
 
             Background = CustomColours.UltraDeepDarkFadedRed,
-            BackgroundGrey = CustomColours.UltraDeepDarkFadedHarshBlue,
+            BackgroundGray = CustomColours.UltraDeepDarkFadedHarshBlue,
             Surface = CustomColours.DeepDarkFadedHarshBlue,
             DrawerBackground = CustomColours.UltraDeepDarkFadedHarshBlue,
             AppbarBackground = CustomColours.UltraDeepDarkFadedHarshBlue,
@@ -319,7 +319,7 @@ public static class CustomThemes
     // The idea is to have something very "green"-ish, emulating a kind of old casettepunk-like computer interface | black/green/???
     public static readonly MudTheme DigitalTheme = new()
     {
-        Palette = new PaletteLight()
+        PaletteLight = new PaletteLight()
         {
             Primary = CustomColours.DigitalGreen,
             Secondary = CustomColours.DigitalRed,
@@ -335,7 +335,7 @@ public static class CustomThemes
             Tertiary = CustomColours.AestheticWhite,
 
             Background = CustomColours.FadedBlack,
-            BackgroundGrey = CustomColours.VagueGreenishBlack,
+            BackgroundGray = CustomColours.VagueGreenishBlack,
             Surface = CustomColours.DigitalGreenishBlack,
             DrawerBackground = CustomColours.VagueGreenishBlack,
             AppbarBackground = CustomColours.VagueGreenishBlack,
@@ -347,7 +347,7 @@ public static class CustomThemes
     // kleurenpalette nakken van typische "neder"-sites, zoals de koninklijkecirkeltrek.nl | orange/tri-color/???
     public static readonly MudTheme NetherlandsTheme = new()
     {
-        Palette = new PaletteLight()
+        PaletteLight = new PaletteLight()
         {
             Primary = CustomColours.RedDutch,
             Secondary = CustomColours.WhiteAlmost,
@@ -360,7 +360,7 @@ public static class CustomThemes
             Tertiary = CustomColours.WhiteAlmost,
 
             Background = CustomColours.BlackBackground,
-            BackgroundGrey = CustomColours.FadedBlack,
+            BackgroundGray = CustomColours.FadedBlack,
             Surface = CustomColours.BlackSurface,
             DrawerBackground = CustomColours.BlackSurface,
             AppbarBackground = CustomColours.BlackSurface,

@@ -27,7 +27,7 @@
 
                         <div>
                             <MudText Typo="Typo.subtitle1">Gender</MudText>
-                            <MudChipSet SelectedChipChanged="GenderChange" Mandatory="true">
+                            <MudChipSet T="Gender" SelectedValueChanged="GenderChange" SelectionMode="SelectionMode.SingleSelection">
                                 <MudChip Value="Gender.All" Icon="@Gender.All.GenderIcon()" Default="true">All</MudChip>
                                 <MudChip Value="Gender.Male" Icon="@Gender.Male.GenderIcon()">Male</MudChip>
                                 <MudChip Value="Gender.Female" Icon="@Gender.Female.GenderIcon()">Female</MudChip>
@@ -76,8 +76,11 @@
                             {
                                 var j = index;
                                 <MudItem xs="3">
-                                    <MudList Clickable="true" Dense="true">
-                                        @foreach (var languageType in availableLanguages.GroupBy(e => e.LanguageType).Skip((langTypeAmount / 4) * j).Take(langTypeAmount / 4))
+                                    <MudList T="string" ReadOnly="false" Dense="true">
+                                        @foreach (var languageType in availableLanguages
+                                            .GroupBy(e => e.LanguageType)
+                                            .Skip((langTypeAmount / 4) * j)
+                                            .Take(langTypeAmount / 4))
                                         {
                                             <MudListItem Text="@languageType.Key">
                                                 <NestedList>
@@ -168,11 +171,7 @@
         availableLanguages = _humanProvider.GetLanguageHumanInfo();
     }
 
-    private void GenderChange(MudChip? genderChip)
-    {
-        if (genderChip != null)
-            genderFilter = (Gender)genderChip.Value;
-    }
+    private void GenderChange(Gender gender) => genderFilter = gender;
 
     private void GenerateHumans()
     {

@@ -3,7 +3,7 @@
         <MudDropContainer @ref="dropperDrivers"
                           T="EditSeasonDriverModel"
                           Items="@Model.SeasonDrivers"
-                          ItemIsDisabled="@((driver) => driver.Contracted == true)"
+                          ItemDisabled="@((driver) => driver.Contracted == true)"
                           ItemsSelector="@((item,dropzone) => item.BaseTeamId.ToString() == dropzone)"
                           ItemDropped="DriverTeamDropped"
                           ApplyDropClassesOnDragStarted="true"
@@ -40,7 +40,8 @@
                 </MudGrid>
             </ChildContent>
             <ItemRenderer>
-                <MudPaper Class="mud-width-full border-2 border-dashed mud-border-tertiary pa-1 my-2" Style="@IsDisabledStyles(context.Contracted)">
+                <MudPaper Class="mud-width-full border-2 border-dashed mud-border-tertiary pa-1 my-2"
+                          Style="@IsDisabledStyles(context.Contracted)">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0 mx-1">
                         <MudText Class="overflow-hider">@(context.Driver?.FullName)</MudText>
                         <MudSpacer />
@@ -53,7 +54,8 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public AddEntrantsModel Model { get; set; }
+    [CascadingParameter]
+    public AddEntrantsModel Model { get; set; }
 
     MudDropContainer<EditSeasonDriverModel> dropperDrivers;
 

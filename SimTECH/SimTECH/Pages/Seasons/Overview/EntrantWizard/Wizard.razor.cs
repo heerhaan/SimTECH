@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MudExtensions;
-using MudExtensions.Enums;
 using SimTECH.Common.Enums;
 using SimTECH.Data.EditModels;
 using SimTECH.Data.Models;
@@ -14,13 +13,13 @@ public partial class Wizard
     [Parameter]
     public long SeasonId { get; set; }
 
-    private MudStepper stepper;
+    private MudStepperExtended stepper;
 
     public AddEntrantsModel Model { get; set; } = new();
     public Season Season { get; set; }
     public Season? PreviousSeason { get; set; }
     public List<Contract> Contracts { get; set; } = [];
-    public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
+    public IEnumerable<Manufacturer> Manufacturers { get; set; } = [];
 
     private EntrantWizardStep ActiveStep { get; set; } = EntrantWizardStep.EnginesAdd;
 

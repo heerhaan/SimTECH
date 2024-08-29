@@ -1,9 +1,8 @@
 ﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudPaper Elevation="15" Class="mud-height-full pa-8">
-        <MudDropContainer @ref="dropperTeams"
-                          T="EditSeasonTeamModel"
+        <MudDropContainer T="EditSeasonTeamModel"
                           Items="@Model.SeasonTeams"
-                          ItemsSelector="@((item,dropzone) => item.BaseEngineId.ToString() == dropzone)"
+                          ItemsSelector="@((item, dropzone) => item.BaseEngineId.ToString() == dropzone)"
                           ItemDropped="TeamEngineDropped"
                           ApplyDropClassesOnDragStarted="true"
                           CanDropClass="mud-border-success">
@@ -44,9 +43,8 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public AddEntrantsModel Model { get; set; }
-
-    MudDropContainer<EditSeasonTeamModel> dropperTeams;
+    [CascadingParameter]
+    public AddEntrantsModel Model { get; set; }
 
     protected override void OnInitialized()
     {

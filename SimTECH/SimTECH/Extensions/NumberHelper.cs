@@ -3,8 +3,7 @@
 public static class NumberHelper
 {
     private static int rngSeed = Environment.TickCount;
-    private static readonly ThreadLocal<Random> _rng = new(()
-        => new Random(Interlocked.Increment(ref rngSeed)));
+    private static readonly ThreadLocal<Random> _rng = new(() => new Random(Interlocked.Increment(ref rngSeed)));
 
     public static int RandomInt(int max) => RandomInt(0, max);
     public static int RandomInt(int min, int max)
@@ -70,10 +69,12 @@ public static class NumberHelper
 
     public static int LapCount(int raceLength, double trackLength) => (int)Math.Round(raceLength / trackLength);
 
-    // distance in km, time in hr, speed in km/hr
+    // Determines the current speed(km/h) by dividing the traversed distance(km) with the time(hr) it took
     public static double CalculateSpeed(double distance, double time) => distance / time;
 
+    // Determines the traversed distance by multiplying the speed by time spent
     public static double CalculateDistance(double speed, double time) => speed * time;
 
+    // Determines the time it took by dividing the distance with the travel speed
     public static double CalculateTime(double distance, double speed) => distance / speed;
 }

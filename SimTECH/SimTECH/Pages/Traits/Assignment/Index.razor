@@ -26,7 +26,7 @@
                         <div class="setting-double-field-wrapper">
                             <div>
                                 <MudText Typo="Typo.h5">For entrants</MudText>
-                                <MudChipSet SelectedChipChanged="RetrieveEntrants" Mandatory="true">
+                                <MudChipSet T="Entrant" SelectedValueChanged="RetrieveEntrants" SelectionMode="SelectionMode.SingleSelection">
                                     <MudChip Color="Color.Primary" Value="Entrant.Driver">Driver</MudChip>
                                     <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
                                     <MudChip Color="Color.Primary" Value="Entrant.Track">Track</MudChip>
@@ -195,11 +195,8 @@
         return Leagues.Find(e => e.Id == leagueId)?.Name ?? "Unknown";
     };
 
-    private async Task RetrieveEntrants(MudChip? chip)
+    private async Task RetrieveEntrants(Entrant selectedEntrant)
     {
-        if (chip == null || chip.Value is not Entrant selectedEntrant)
-            return;
-
         ActiveEntrant = selectedEntrant;
 
         await ReloadEntrants();

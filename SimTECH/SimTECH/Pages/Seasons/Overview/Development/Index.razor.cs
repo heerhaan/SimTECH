@@ -164,43 +164,31 @@ public partial class Index
         ApplyCommon();
     }
 
-    private void RaceClassChipChanged(MudChip? classChip)
+    private void RaceClassChipChanged(long classId)
     {
-        if (classChip == null)
-            return;
-
-        DevelopModel.ActiveRaceClassId = (long)classChip.Value;
+        DevelopModel.ActiveRaceClassId = classId;
 
         ChipChanged(true);
     }
 
-    private void EntrantChipChanged(MudChip? entrantChip)
+    private void EntrantChipChanged(Entrant entrant)
     {
-        if (entrantChip == null)
-            return;
-
         DevelopModel.ActiveAspect = Aspect.Reliability;
-        DevelopModel.ActiveEntrant = (Entrant)entrantChip.Value;
+        DevelopModel.ActiveEntrant = entrant;
 
         ChipChanged(true);
     }
 
-    private void TargetChipChanged(MudChip? devChip)
+    private void TargetChipChanged(Aspect aspect)
     {
-        if (devChip == null)
-            return;
-
-        DevelopModel.ActiveAspect = (Aspect)devChip.Value;
+        DevelopModel.ActiveAspect = aspect;
 
         ChipChanged(true);
     }
 
-    private void TypeChipChanged(MudChip? typeChip)
+    private void TypeChipChanged(Quantifier devType)
     {
-        if (typeChip == null)
-            return;
-
-        DevelopModel.ActiveQuantifier = (Quantifier)typeChip.Value;
+        DevelopModel.ActiveQuantifier = devType;
 
         ChipChanged(false);
     }

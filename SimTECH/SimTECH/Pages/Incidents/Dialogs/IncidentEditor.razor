@@ -10,7 +10,8 @@
                 <MudText Typo="Typo.subtitle2">Category</MudText>
                 @if (Model.Id == default)
                 {
-                    <MudChipSet @bind-SelectedChip="categoryChip" Mandatory="true">
+                    <MudChipSet T="IncidentCategory" @bind-SelectedValue="Model.Category"
+                                SelectionMode="SelectionMode.SingleSelection">
                         @foreach (var cat in IncidentCategoryEnumHelper.GetIncidentCategories)
                         {
                             <MudChip Value="@cat.Key">@cat.Value</MudChip>
@@ -54,12 +55,13 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
-    [Parameter] public Incident? Incident { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? EditDialog { get; set; }
 
-    MudChip? categoryChip;
+    [Parameter]
+    public Incident? Incident { get; set; }
 
-    EditIncident Model;
+    private EditIncident Model { get; set; }
 
     protected override void OnInitialized()
     {
@@ -68,15 +70,6 @@
 
     private void Submit()
     {
-        if (Model.Id == 0)
-        {
-            // Perhaps own warning/validation message
-            if (categoryChip == null)
-                return;
-
-            Model.Category = (IncidentCategory)categoryChip.Value;
-        }
-
         if (!Model.Penalized)
         {
             Model.Limit = 0;
@@ -84,9 +77,7 @@
         }
 
         if (Model.IsDirty)
-        {
             EditDialog?.Close(DialogResult.Ok(Model.Record));
-        }
     }
 
     private void Cancel() => EditDialog?.Cancel();

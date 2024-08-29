@@ -414,10 +414,9 @@ public partial class Race
         Model.Race.State = State.Closed;
     }
 
-    private void ChangeCalculationPerAdvance(MudChip? calcChip)
+    private void ChangeCalculationPerAdvance(int advanceCount)
     {
-        if (calcChip != null)
-            calculationsPerAdvance = (int)calcChip.Value;
+        calculationsPerAdvance = advanceCount;
     }
 
     private async Task ShowGapperChart() => _ = await _dialogService.ShowAsync<GapChartDialog>(

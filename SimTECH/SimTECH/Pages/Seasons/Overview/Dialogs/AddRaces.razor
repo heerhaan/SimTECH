@@ -137,14 +137,14 @@
                                   ItemDropped="ReorderItems">
                     <ChildContent>
                         <MudPaper>
-                            <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                            <MudList T="EditRaceModel" ReadOnly="false" Class="d-flex flex-column mud-height-full">
                                 <MudListSubheader>Reorder races (try dragging)</MudListSubheader>
                                 <MudDropZone T="EditRaceModel" Identifier="@(SeasonId.ToString())" AllowReorder="true" Class="flex-grow-1" />
                             </MudList>
                         </MudPaper>
                     </ChildContent>
                     <ItemRenderer>
-                        <MudListItem Text="@($"{context.Name} [Round:{context.Round}]")" />
+                        <MudListItem T="EditRaceModel" Text="@($"{context.Name} [Round:{context.Round}]")" />
                     </ItemRenderer>
                 </MudDropContainer>
             </MudPaper>

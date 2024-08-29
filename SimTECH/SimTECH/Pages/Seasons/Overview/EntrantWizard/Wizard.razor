@@ -1,7 +1,7 @@
 ﻿@page "/entrantwizard/{SeasonId:long}"
 
 @using MudBlazor.Extensions
-@using MudExtensions.Enums;
+@using MudExtensions
 @using MudExtensions.Utilities
 @using SimTECH.Pages.Seasons.Overview.EntrantWizard.Steps
 
@@ -18,7 +18,7 @@
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudPaper Elevation="5">
         <CascadingValue Value="@Model">
-            <MudStepper @ref="stepper"
+            <MudStepperExtended @ref="stepper"
                         Loading="@loading"
                         Color="Color.Tertiary"
                         Variant="Variant.Outlined"
@@ -53,12 +53,12 @@
                     </MudStack>
                 </StaticContent>
                 <ChildContent>
-                    <MudStep Title="Add engines" Icon="@IconCollection.Engine">
+                    <MudStepExtended Title="Add engines" Icon="@IconCollection.Engine">
                         <ChildContent>
                             <AddEngines />
                         </ChildContent>
-                    </MudStep>
-                    <MudStep Title="Edit engines" Icon="@IconCollection.Engine">
+                    </MudStepExtended>
+                    <MudStepExtended Title="Edit engines" Icon="@IconCollection.Engine">
                         <ChildContent>
                             <!-- Yes, these if-conditions are here to prevent the step from rendering in advance -->
                             @if (stepper.GetActiveIndex() == 1)
@@ -66,73 +66,73 @@
                                 <EditEngines />
                             }
                         </ChildContent>
-                    </MudStep>
-                    <MudStep Title="Add teams" Icon="@IconCollection.Car">
+                    </MudStepExtended>
+                    <MudStepExtended Title="Add teams" Icon="@IconCollection.Car">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 2)
                             {
                                 <AddTeams Contracts="@Contracts" />
                             }
                         </ChildContent>
-                    </MudStep>
-                    <MudStep Title="Edit teams" Icon="@IconCollection.Car">
+                    </MudStepExtended>
+                    <MudStepExtended Title="Edit teams" Icon="@IconCollection.Car">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 3)
                             {
                                 <EditTeams Manufacturers="@Manufacturers" />
                             }
                         </ChildContent>
-                    </MudStep>
-                    <MudStep Title="Assign engines" Icon="@IconCollection.Car">
+                    </MudStepExtended>
+                    <MudStepExtended Title="Assign engines" Icon="@IconCollection.Car">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 4)
                             {
                                 <AssignTeamEngines />
                             }
                         </ChildContent>
-                    </MudStep>
-                    <MudStep Title="Assign classes" Icon="@IconCollection.Skull">
+                    </MudStepExtended>
+                    <MudStepExtended Title="Assign classes" Icon="@IconCollection.Skull">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 5)
                             {
                                 <AssignRaceClasses />
                             }
                         </ChildContent>
-                    </MudStep>
-                    <MudStep Title="Add drivers" Icon="@IconCollection.Helmet">
+                    </MudStepExtended>
+                    <MudStepExtended Title="Add drivers" Icon="@IconCollection.Helmet">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 6)
                             {
                                 <AddDrivers Year="@Season.Year" Contracts="@Contracts" />
                             }
                         </ChildContent>
-                    </MudStep>
-                    <MudStep Title="Edit drivers" Icon="@IconCollection.Helmet">
+                    </MudStepExtended>
+                    <MudStepExtended Title="Edit drivers" Icon="@IconCollection.Helmet">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 7)
                             {
                                 <EditDrivers />
                             }
                         </ChildContent>
-                    </MudStep>
-                    <MudStep Title="Assign drivers" Icon="@IconCollection.Helmet">
+                    </MudStepExtended>
+                    <MudStepExtended Title="Assign drivers" Icon="@IconCollection.Helmet">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 8)
                             {
                                 <AssignDriverTeams />
                             }
                         </ChildContent>
-                    </MudStep>
-                    <MudStep Title="Result" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
+                    </MudStepExtended>
+                    <MudStepExtended Title="Result" IsResultStep="true" Icon="@Icons.Material.Filled.Flag">
                         <ChildContent>
                             @if (stepper.GetActiveIndex() == 9)
                             {
                                 <FinalCheck SeasonId="@SeasonId" />
                             }
                         </ChildContent>
-                    </MudStep>
+                    </MudStepExtended>
                 </ChildContent>
-            </MudStepper>
+            </MudStepperExtended>
         </CascadingValue>
     </MudPaper>
 </MudContainer>

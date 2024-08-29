@@ -9,7 +9,7 @@ namespace SimTECH.Pages.RaceWeek.Tabs;
 
 public partial class Practice
 {
-    private const int gapTimingDivider = 2;
+    private const int GAP_TIMING_DIVIDER = 2;
 
     [CascadingParameter]
     public RaweCeekModel Model { get; set; }
@@ -19,9 +19,6 @@ public partial class Practice
 
     [Parameter]
     public EventCallback<int> OnFinish { get; set; }
-
-    // Following parameters are (probably) not yet in use but are meant to do the data retrieval simply here
-    // ok but what?
 
     private List<SessionDriver> PracticeDrivers { get; set; } = [];
 
@@ -41,7 +38,7 @@ public partial class Practice
     {
         Loading = true;
 
-        gapMarge = Model.GapMarge / gapTimingDivider;
+        gapMarge = Model.GapMarge / GAP_TIMING_DIVIDER;
 
         raceName = $"{Model.Race.Name} - PRACTICE {PracticeSession.SessionIndex}";
         raceCountry = Model.Race.Track.Country;

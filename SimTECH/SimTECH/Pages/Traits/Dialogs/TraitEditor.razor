@@ -14,7 +14,7 @@
                             <MudText Typo="Typo.subtitle2">Entrant type</MudText>
                             @if (Model.IsNew)
                             {
-                                <MudChipSet @bind-SelectedChip="entrantChip">
+                                <MudChipSet T="Entrant" @bind-SelectedChip="entrantChip">
                                     @foreach (var entrant in EntrantEnumHelper.GetEntrantSelection)
                                     {
                                         <MudChip Value="@entrant.Key" Color="Color.Primary">@entrant.Value</MudChip>
@@ -27,7 +27,8 @@
                             }
                         </div>
                         <div>
-                            <MudSwitchM3 @bind-Checked="Model.ForWetConditions"
+                            <MudSwitchM3 T="bool"
+                                         @bind-Checked="Model.ForWetConditions"
                                          ThumbIcon="@Icons.Material.Filled.Done"
                                          ThumbOffIcon="@Icons.Material.Filled.Close"
                                          Label="Only when conditions are wet"
@@ -113,13 +114,15 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? TraitDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? TraitDialog { get; set; }
 
-    [Parameter] public Trait? Trait { get; set; }
+    [Parameter]
+    public Trait? Trait { get; set; }
 
     private EditTraitModel Model { get; set; }
 
-    private MudChip? entrantChip;
+    private MudChip<Entrant>? entrantChip;
 
     protected override void OnInitialized()
     {
@@ -134,7 +137,7 @@
             if (entrantChip == null)
                 return;
 
-            Model.Type = (Entrant)entrantChip.Value;
+            Model.Type = entrantChip.Value;
         }
 
         if (Model.IsDirty)

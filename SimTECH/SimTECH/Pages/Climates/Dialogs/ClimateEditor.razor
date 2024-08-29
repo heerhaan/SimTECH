@@ -19,7 +19,8 @@
                 <MudTextField T="string" @bind-Text="@model.Terminology" Label="Terminology" />
             </MudStack>
 
-            <MudSwitchM3 @bind-Checked="@model.IsWet"
+            <MudSwitchM3 T="bool"
+                         @bind-Checked="@model.IsWet"
                          Label="Is wet"
                          Color="Color.Secondary"
                          ThumbIcon="@Icons.Material.Filled.Done"
@@ -48,8 +49,11 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
-    [Parameter] public Climate? Climate { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? EditDialog { get; set; }
+
+    [Parameter]
+    public Climate? Climate { get; set; }
 
     EditClimate model;
     string[] weatherIcons = Globals.AllWeatherIcons;

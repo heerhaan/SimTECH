@@ -28,11 +28,16 @@
 
                             <MudText Typo="Typo.subtitle1" Class="mt-4">Modifiers</MudText>
                             <MudDivider />
-                            <MudNumericField T="double" @bind-Value="Model.AeroMod" Step="0.1" Label="Aero mod" Format="N2" Class="field-sm" />
-                            <MudNumericField T="double" @bind-Value="Model.ChassisMod" Step="0.1" Label="Chassis mod" Format="N2" Class="field-sm" />
-                            <MudNumericField T="double" @bind-Value="Model.PowerMod" Step="0.1" Label="Power mod" Format="N2" Class="field-sm" />
-                            <MudNumericField T="double" @bind-Value="Model.QualifyingMod" Step="0.1" Label="Qualy mod" Format="N2" Class="field-sm" />
-                            <MudNumericField T="double" @bind-Value="Model.DefenseMod" Step="0.1" Label="Defense mod" Format="N2" Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="Model.AeroMod" Step="0.1" Label="Aero mod" Format="N2"
+                                Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="Model.ChassisMod" Step="0.1" Label="Chassis mod" Format="N2"
+                                Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="Model.PowerMod" Step="0.1" Label="Power mod" Format="N2"
+                                Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="Model.QualifyingMod" Step="0.1" Label="Qualy mod" Format="N2"
+                                Class="field-sm" />
+                            <MudNumericField T="double" @bind-Value="Model.DefenseMod" Step="0.1" Label="Defense mod" Format="N2"
+                                             Class="field-sm" />
                         </MudStack>
                     </MudPaper>
                 </MudItem>
@@ -40,7 +45,8 @@
                 <MudItem xs="4">
                     <MudPaper Elevation="10" Class="pa-4">
                         <MudText Typo="Typo.subtitle1">Traits</MudText>
-                        <MudChipSet @bind-SelectedValues="selectedTraits" MultiSelection="true" Filter="true">
+                        <MudChipSet T="long" @bind-SelectedValues="selectedTraits" SelectionMode="SelectionMode.MultiSelection"
+                                    CheckMark="true">
                             @foreach (var trait in selectableTraits)
                             {
                                 <MudChip Text="@trait.Name" Value="@trait.Id" Color="Color.Primary"></MudChip>
@@ -58,14 +64,18 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? TrackDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? TrackDialog { get; set; }
 
-    [Parameter] public Track? Track { get; set; }
-    [Parameter] public List<Trait> Traits { get; set; } = new();
+    [Parameter]
+    public Track? Track { get; set; }
+
+    [Parameter]
+    public List<Trait> Traits { get; set; } = new();
 
     private EditTrackModel Model;
     private List<Trait> selectableTraits;
-    private ICollection<object>? selectedTraits { get; set; }
+    private IReadOnlyCollection<long>? selectedTraits { get; set; }
 
     private int raceLength = 300;
     private string expectedLapCount = "Expected amount of laps: 0";
@@ -76,9 +86,8 @@
 
         HandleLengthLapCalc(Model.Length.ToString());
 
-        var trackTraitIds = Model.TrackTraits.Select(e => e.TraitId).ToList();
-        selectableTraits = Traits.Where(e => e.State == State.Active || trackTraitIds.Contains(e.Id)).ToList();
-        selectedTraits = trackTraitIds.Cast<object>().ToList();
+        selectedTraits = Model.TrackTraits.Select(e => e.TraitId).ToList();
+        selectableTraits = Traits.Where(e => e.State == State.Active || selectedTraits.Contains(e.Id)).ToList();
     }
 
     private void HandleLengthLapCalc(string strLength)
@@ -92,7 +101,6 @@
         if (selectedTraits != null)
         {
             Model.TrackTraits = selectedTraits
-                .Cast<long>()
                 .Select(e => new EditTrackTraitModel { TrackId = Model.Id, TraitId = e })
                 .ToList();
         }

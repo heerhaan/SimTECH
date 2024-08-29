@@ -35,7 +35,7 @@ public static class Globals
         MaxWidth = MaxWidth.Large,
         NoHeader = true,
         CloseOnEscapeKey = true,
-        DisableBackdropClick = false,
+        BackdropClick = true,
     };
 
     public static readonly DialogOptions StatisticDialogDefaultOptionsXl = new()
@@ -43,7 +43,7 @@ public static class Globals
         MaxWidth = MaxWidth.ExtraLarge,
         NoHeader = true,
         CloseOnEscapeKey = true,
-        DisableBackdropClick = false,
+        BackdropClick = true,
     };
 
     public static Graph.ApexChartOptions<DataPoint> CreateDefaultChartOptions => new()

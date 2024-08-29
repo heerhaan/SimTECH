@@ -36,7 +36,8 @@
                         }
                         else
                         {
-                            <MudChipSet Mandatory="true" SelectedChipChanged="QualyFormatChanged" Class="py-1">
+                            <MudChipSet T="QualyFormat" @bind-SelectedValue="Model.QualifyingFormat"
+                                        SelectionMode="SelectionMode.SingleSelection" Class="py-1">
                                 <MudChip Value="QualyFormat.TripleEliminate"
                                          Color="Color.Secondary"
                                          Default="@(Model.QualifyingFormat == QualyFormat.TripleEliminate)">
@@ -178,7 +179,8 @@
 
                     @if (Model.Id == 0)
                     {
-                        <MudSwitchM3 @bind-Checked="hasMultipleClasses"
+                        <MudSwitchM3 T="bool"
+                                     @bind-Checked="hasMultipleClasses"
                                      ThumbIcon="@Icons.Material.Filled.Done"
                                      ThumbOffIcon="@Icons.Material.Filled.Close"
                                      Label="Use race classes"
@@ -273,12 +275,9 @@
         hasMultipleClasses = Model.RaceClasses.Any();
     }
 
-    private void QualyFormatChanged(MudChip? qualyChip)
+    private void QualyFormatChanged(QualyFormat format)
     {
-        if (qualyChip == null)
-            return;
-
-        Model.QualifyingFormat = (QualyFormat)qualyChip.Value;
+        Model.QualifyingFormat = format;
     }
 
     private void AppendAllotment()

@@ -24,8 +24,8 @@
                     <MudIcon Icon="@IconCollection.ArrowNarrowRight" Color="Color.Info" Size="Size.Small" />
                     <MudText Typo="Typo.caption" Color="Color.Info">NEW</MudText>
                 </MudStack>
-                <MudChipSet SelectedChipChanged="SelectRound" Mandatory="true">
-                    <MudChip Default="true" Value="null">All</MudChip>
+                <MudChipSet T="int" SelectedValueChanged="SelectRound" SelectionMode="SelectionMode.SingleSelection">
+                    <MudChip Default="true" Value="0">All</MudChip>
                     @foreach (var round in Rounds)
                     {
                         <MudChip Value="@round" Color="Color.Secondary">@round</MudChip>
@@ -88,15 +88,11 @@
             Rounds.Add(round);
     }
 
-    private void SelectRound(MudChip? chip)
+    private void SelectRound(int roundNumber)
     {
-        if (chip == null)
-            return;
-
-        if (chip.Value is int number)
-            SelectedRound = number;
-        else
-            SelectedRound = null;
+        SelectedRound = roundNumber == 0
+            ? null
+            : roundNumber;
 
         BuildSummaries();
 

@@ -1,6 +1,6 @@
 ﻿@page "/test"
 
-@using MudExtensions.Enums
+@using MudExtensions
 @using SimTECH.Pages.Test.Components
 
 @inject BreadcrumbProvider _bread
@@ -9,6 +9,12 @@
 @inject IOptions<SimConfig> _config
 
 <PageTitle>Test</PageTitle>
+
+<style type="text/css">
+    .bordah {
+        border: 1px solid red;
+    }
+</style>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16 px-8 cubic-repeat-bg">
     <MudGrid>
@@ -27,7 +33,7 @@
                             λλλ-LAMBDA-λλλ
                         </MudText>
 
-                        <MudRangeSlider @bind-Value="@rangeLow" @bind-UpperValue="@rangeHigh" Size="Size.Medium"
+                        <MudRangeSlider T="int" @bind-Value="@rangeLow" @bind-UpperValue="@rangeHigh" Size="Size.Medium"
                                         Variant="Variant.Filled" Display="true" ValueLabel="true" Range="true" Min="1"
                                         Max="100" Step="1" Color="Color.Secondary" Class="mt-2">Range label</MudRangeSlider>
 
@@ -139,7 +145,7 @@
     private string newExampleString = "Stored and retrieved from the local storage";
     private SimConfig config;
 
-    private int? rangeLow, rangeHigh;
+    private int rangeLow, rangeHigh;
 
     private string initText = "unchanged init";
     private string setText = "unchanged set";

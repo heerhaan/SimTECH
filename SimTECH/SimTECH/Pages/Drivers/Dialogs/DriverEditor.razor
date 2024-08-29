@@ -28,7 +28,7 @@
                                               Required="true" />
 
                                 <MudDatePicker @bind-Date="Model.DateSetter"
-                                               DisableToolbar="true"
+                                               ShowToolbar="false"
                                                DateFormat="yyyy"
                                                FixDay="1" FixMonth="1" OpenTo="OpenTo.Year"
                                                PickerVariant="PickerVariant.Dialog"
@@ -61,7 +61,8 @@
                         <MudPaper Elevation="15" Class="pa-2 mud-height-full">
                             <MudText Typo="Typo.subtitle1">Traits</MudText>
                             <MudDivider />
-                            <MudChipSet @bind-SelectedValues="SelectedTraits" MultiSelection="true" Filter="true">
+                            <MudChipSet T="long" @bind-SelectedValues="SelectedTraits" SelectionMode="SelectionMode.MultiSelection"
+                                        CheckMark="true">
                                 @foreach (var trait in AvailableTraits)
                                 {
                                     <MudChip Text="@trait.Name" Value="@trait.Id" Color="Color.Primary"></MudChip>
@@ -70,7 +71,8 @@
 
                             <MudText Typo="Typo.subtitle1">Strategy preference</MudText>
                             <MudDivider />
-                            <MudChipSet @bind-SelectedChip="@SelectedStrategyChip" Mandatory="true">
+                            <MudChipSet T="StrategyPreference" @bind-SelectedValue="@Model.StrategyPreference"
+                                        SelectionMode="SelectionMode.SingleSelection">
                                 <MudChip Color="Color.Primary"
                                          Value="StrategyPreference.None"
                                          Default="@(Model.StrategyPreference == StrategyPreference.None)">None</MudChip>
@@ -103,16 +105,19 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
+    [CascadingParameter]
+    protected MudDialogInstance? DriverDialog { get; set; }
 
-    [Parameter] public Driver? Driver { get; set; }
-    [Parameter] public List<Trait> Traits { get; set; } = new();
+    [Parameter]
+    public Driver? Driver { get; set; }
+
+    [Parameter]
+    public List<Trait> Traits { get; set; } = new();
 
     private EditDriverModel Model { get; set; }
     private List<Trait> AvailableTraits { get; set; }
-    private ICollection<object>? SelectedTraits { get; set; }
-
-    private MudChip SelectedStrategyChip { get; set; }
+    private IReadOnlyCollection<long>? SelectedTraits { get; set; }
+    private StrategyPreference SelectedStrategyPreference { get; set; }
 
     private string[] errors = { };
 
@@ -120,10 +125,9 @@
     {
         Model = new EditDriverModel(Driver);
 
-        var driverTraitIds = Model.DriverTraits.Select(e => e.TraitId).ToList();
+        SelectedTraits = Model.DriverTraits.Select(e => e.TraitId).ToList();
 
-        AvailableTraits = Traits.Where(e => e.State == State.Active || driverTraitIds.Contains(e.Id)).ToList();
-        SelectedTraits = driverTraitIds.Cast<object>().ToList();
+        AvailableTraits = Traits.Where(e => e.State == State.Active || SelectedTraits.Contains(e.Id)).ToList();
     }
 
     private Func<string?, string?> BioValidator => text =>
@@ -145,13 +149,9 @@
         if (SelectedTraits != null)
         {
             Model.DriverTraits = SelectedTraits
-                .Cast<long>()
                 .Select(id => new EditDriverTraitModel { DriverId = Model.Id, TraitId = id })
                 .ToList();
         }
-
-        if (SelectedStrategyChip.Value is StrategyPreference preference)
-            Model.StrategyPreference = preference;
 
         if (Model.IsDirty)
             DriverDialog?.Close(DialogResult.Ok(Model.Record));

@@ -34,7 +34,7 @@
 
                     @if (errorValidations.Any())
                     {
-                        <MudList>
+                        <MudList T="string">
                             <MudListSubheader>Error messages</MudListSubheader>
                             @foreach (var error in errorValidations)
                             {
@@ -177,8 +177,9 @@
                         &nbsp;So for a skill of 31, it would take the first comparer which is equal or less than 31.
                     </MudText>
                     <MudStack Row="true" Class="pa-0">
-                        <MudChipSet @bind-SelectedChip="selectedChip"
-                                    Filter="true"
+                        <MudChipSet T="Aspect"
+                                    @bind-SelectedChip="selectedChip"
+                                    CheckMark="true"
                                     Class="d-flex flex-column flex-wrap mt-3"
                                     Style="height: 200px; width: 250px">
                             @foreach (var aspect in rangeables)
@@ -222,7 +223,7 @@
     private Dictionary<Aspect, List<EditRangeModel>> weightedAspects = new();
     private HashSet<Tyre> selectedTyres = new();
 
-    private MudChip? selectedChip;
+    private MudChip<Aspect>? selectedChip;
 
     private List<string> errorValidations = new();
 

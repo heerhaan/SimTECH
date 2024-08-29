@@ -17,7 +17,7 @@
 
             <MudStack Spacing="0" AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.subtitle2">Laps to advance</MudText>
-                <MudChipSet SelectedChipChanged="ChangeCalculationPerAdvance" Mandatory="true">
+                <MudChipSet T="int" SelectedValueChanged="ChangeCalculationPerAdvance" SelectionMode="SelectionMode.SingleSelection">
                     <MudChip Value="1" Color="Color.Primary">
                         @(NumberHelper.LapCount(1 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
@@ -59,9 +59,10 @@
                         <MudText Typo="Typo.h5" Class="overflow-hider">@Model.Race.Name - ROUND @Model.Race.Round</MudText>
                     </div>
 
-                    <MudChip Color="@CurrentSituation.GetIndicatorBackgroundColour()"
+                    <MudChip T="string"
+                             Color="@CurrentSituation.GetIndicatorBackgroundColour()"
                              Label="true"
-                             DisableRipple="true">
+                             Ripple="false">
                         <MudText Typo="Typo.h5"
                                  Color="@CurrentSituation.GetIndicatorTextColour()">
                             LAP @(RacedLaps) / @(TotalLaps)
@@ -220,12 +221,13 @@
                     <MudText Typo="Typo.button">Legend</MudText>
                     @foreach (var signal in signalEvents)
                     {
-                        <MudChip Text="@signal.GetShortText()"
+                        <MudChip T="string"
+                                 Text="@signal.GetShortText()"
                                  Icon="@signal.GetEventIcon()"
                                  IconColor="@signal.GetSignalColour()"
                                  Size="Size.Small"
                                  Variant="Variant.Text"
-                                 DisableRipple="true"
+                                 Ripple="false"
                                  Label="true" />
                     }
 
@@ -253,7 +255,7 @@
 
                     <MudSpacer />
 
-                    <MudChip Size="Size.Small" Variant="Variant.Text" DisableRipple="true" Label="true">
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Ripple="false" Label="true">
                         Next REL: @ActiveReliabilityCheck.ToString()
                     </MudChip>
                 </MudStack>
