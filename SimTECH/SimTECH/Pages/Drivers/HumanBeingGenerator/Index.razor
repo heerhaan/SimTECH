@@ -151,13 +151,13 @@
     private IEnumerable<Country> SelectedCountries { get; set; } = new HashSet<Country>();
     private IEnumerable<LanguageInfo> SelectedLanguages { get; set; } = new HashSet<LanguageInfo>();
 
-    LanguageInfo[]? availableLanguages;
-    List<HumanBeing>? humanBeans;
-    DateRange dateRange = new DateRange(DateTime.Now.AddYears(-10).Date, DateTime.Now.Date);
-    Gender genderFilter = Gender.All;
-    int generateAmount = 5;
+    private LanguageInfo[]? availableLanguages;
+    private List<HumanBeing>? humanBeans;
+    private DateRange dateRange = new DateRange(DateTime.Now.AddYears(-10).Date, DateTime.Now.Date);
+    private Gender genderFilter = Gender.All;
+    private int generateAmount = 5;
 
-    int langTypeAmount => availableLanguages == null ? 0 : availableLanguages.GroupBy(e => e.LanguageType).Count();
+    private int langTypeAmount => availableLanguages == null ? 0 : availableLanguages.GroupBy(e => e.LanguageType).Count();
 
     protected override void OnInitialized()
     {

@@ -197,6 +197,7 @@
         });
 
         config = _config.Value;
+
         ActiveLeagues = await _leagueService.GetLeagues(StateFilter.Active);
 
         ActiveSeasons = await _seasonService.GetSeasons(StateFilter.Active);
@@ -221,6 +222,8 @@
             }
         }
     }
+
+    private string DisplayLeagueName(long leagueId) => ActiveLeagues.Find(e => e.Id == leagueId)?.Name ?? "[Unknown]";
 
     private async Task RetrieveUpcomingRaces()
     {
@@ -250,16 +253,6 @@
         hideDataMessage = true;
     }
 
-    private async Task OpenFirstSetup()
-    {
-
-    }
-
-    private async Task PermanentlyHideFirstSetup()
-    {
-        
-    }
-
     private async Task InsertDefault()
     {
         bool? confirm = await _dialogService.ShowMessageBox(
@@ -270,8 +263,6 @@
         if (confirm == true)
             await _commonService.InsertDefaultData();
     }
-
-    private string DisplayLeagueName(long leagueId) => ActiveLeagues.Find(e => e.Id == leagueId)?.Name ?? "[Unknown]";
 
     private void GoToSeason(long seasonId) => _nav.NavigateTo($"/overview/{seasonId}");
     private void GoToPostRace(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");

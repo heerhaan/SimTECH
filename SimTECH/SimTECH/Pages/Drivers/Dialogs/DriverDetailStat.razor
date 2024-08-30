@@ -15,7 +15,7 @@
                         <MudRadio T="long"
                                   Value="default"
                                   Color="Color.Primary"
-                                  UnCheckedColor="Color.Default">
+                                  UncheckedColor="Color.Default">
                             All
                         </MudRadio>
                         @foreach (var league in Leagues)
@@ -23,7 +23,7 @@
                             <MudRadio T="long"
                                       Value="@league.Id"
                                       Color="Color.Secondary"
-                                      UnCheckedColor="Color.Default">
+                                      UncheckedColor="Color.Default">
                                 @league.Name
                             </MudRadio>
                         }
@@ -127,10 +127,9 @@
     {
         SelectedLeagueId = leagueId;
 
-        if (leagueId == default)
-            DriverResults = await _resultService.GetAllResultsOfDriver(Driver.Id);
-        else
-            DriverResults = await _resultService.GetAllDriverResultsForLeague(Driver.Id, leagueId);
+        DriverResults = leagueId == default
+            ? await _resultService.GetAllResultsOfDriver(Driver.Id)
+            : await _resultService.GetAllDriverResultsForLeague(Driver.Id, leagueId);
 
         CreatePositionChart();
 

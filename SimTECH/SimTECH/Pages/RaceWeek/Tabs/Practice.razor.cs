@@ -11,14 +11,12 @@ public partial class Practice
 {
     private const int GAP_TIMING_DIVIDER = 2;
 
-    [CascadingParameter]
-    public RaweCeekModel Model { get; set; }
+    //[Inject] private IRaceWeekService RaceWeekService { get; set; }
 
-    [Parameter]
-    public PracticeSession PracticeSession { get; set; } = new();
+    [CascadingParameter] public RaweCeekModel Model { get; set; }
 
-    [Parameter]
-    public EventCallback<int> OnFinish { get; set; }
+    [Parameter] public PracticeSession PracticeSession { get; set; } = new();
+    [Parameter] public EventCallback<int> OnFinish { get; set; }
 
     private List<SessionDriver> PracticeDrivers { get; set; } = [];
 

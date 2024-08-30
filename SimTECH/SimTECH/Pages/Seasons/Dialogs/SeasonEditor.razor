@@ -17,7 +17,7 @@
                                 <MudSelect T="long" @bind-Value="Model.LeagueId" Label="League">
                                     @foreach (var select in Leagues)
                                     {
-                                        <MudSelectItem Value="select.Id">@select.Name</MudSelectItem>
+                                        <MudSelectItem Value="@select.Id">@select.Name</MudSelectItem>
                                     }
                                 </MudSelect>
                             }
@@ -32,12 +32,16 @@
 
                         @if (hasMultipleClasses)
                         {
-                            <MudAlert Severity="Severity.Info" Class="py-1">Format is limited to one session due to multiple classes existing.</MudAlert>
+                            <MudAlert Severity="Severity.Info" Class="py-1">
+                                Format is limited to one session due to multiple classes existing.
+                            </MudAlert>
                         }
                         else
                         {
-                            <MudChipSet T="QualyFormat" @bind-SelectedValue="Model.QualifyingFormat"
-                                        SelectionMode="SelectionMode.SingleSelection" Class="py-1">
+                            <MudChipSet T="QualyFormat"
+                                        @bind-SelectedValue="Model.QualifyingFormat"
+                                        SelectionMode="SelectionMode.SingleSelection"
+                                        Class="py-1">
                                 <MudChip Value="QualyFormat.TripleEliminate"
                                          Color="Color.Secondary"
                                          Default="@(Model.QualifyingFormat == QualyFormat.TripleEliminate)">
@@ -255,14 +259,10 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? SeasonDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? SeasonDialog { get; set; }
 
-    [Parameter]
-    public EditSeasonModel Model { get; set; }
-
-    [Parameter]
-    public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
+    [Parameter] public EditSeasonModel Model { get; set; }
+    [Parameter] public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
 
     private int lowestPosition;
     private bool hasMultipleClasses;

@@ -53,7 +53,7 @@
 </MudContainer>
 
 @code {
-    List<Incident> Incidents { get; set; }
+    private List<Incident> Incidents { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,8 +66,8 @@
         Incidents = await _incidentService.GetIncidents(StateFilter.All);
     }
 
-    async Task AddItem() => await UpdateItem(null);
-    async Task UpdateItem(Incident? incident)
+    private async Task AddItem() => await UpdateItem(null);
+    private async Task UpdateItem(Incident? incident)
     {
         var parameters = new DialogParameters
             {
@@ -84,8 +84,10 @@
         }
     }
 
-    async Task OnToggleChange(Incident incident, bool toggled) => await ToggleState(incident, (toggled ? State.Active : State.Closed));
-    async Task ToggleState(Incident incident, State targetState)
+    private async Task OnToggleChange(Incident incident, bool toggled)
+        => await ToggleState(incident, (toggled ? State.Active : State.Closed));
+
+    private async Task ToggleState(Incident incident, State targetState)
     {
         await _incidentService.ChangeState(incident, targetState);
         incident.State = targetState;

@@ -7,10 +7,7 @@
 
 <MudThemeProvider @bind-IsDarkMode="IsDarkTheme" Theme="@Theme" />
 <MudPopoverProvider />
-<MudDialogProvider MaxWidth="MaxWidth.Large"
-                   CloseButton="true"
-                   BackdropClick="false"
-                   Position="DialogPosition.Center" />
+<MudDialogProvider MaxWidth="MaxWidth.Large" CloseButton="true" BackdropClick="false" Position="DialogPosition.Center" />
 <MudSnackbarProvider />
 
 <MudLayout @onclick="HandleLayoutClick">
@@ -24,9 +21,8 @@
 
         <MudSpacer />
 
-        <MudToggleIconButton @bind-Toggled="IsDarkTheme"
-            Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning" Title="Light"
-            ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" ToggledTitle="Dark" />
+        <MudToggleIconButton @bind-Toggled="IsDarkTheme" Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning"
+                             ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" />
         
         <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Secondary">
             @foreach (var themeItem in SimThemes.Keys)
@@ -43,8 +39,7 @@
                     Class="guide-popup-element">
             @if (HelpContent != null)
             {
-                <MudPaper Class="pa-2 dialog-shadow dynamic-guide-container"
-                          @onclick:stopPropagation="true">
+                <MudPaper Class="pa-2 dialog-shadow dynamic-guide-container" @onclick:stopPropagation="true">
                     <DynamicComponent Type="@HelpContent" />
                 </MudPaper>
             }
@@ -72,8 +67,7 @@
 </MudLayout>
 
 @code {
-    [CascadingParameter(Name = "PageType")]
-    public Type PageType { get; set; }
+    [CascadingParameter(Name = "PageType")] public Type PageType { get; set; }
 
     private MudTheme Theme { get; set; } = CustomThemes.GalacticTheme;
 

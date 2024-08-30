@@ -12,11 +12,9 @@ namespace SimTECH.Pages.RaceWeek;
 
 public partial class Index
 {
-    [Inject]
-    private IOptions<SimConfig> Config { get; set; }
+    [Inject] private IOptions<SimConfig> Config { get; set; }
 
-    [Parameter]
-    public long RaceId { get; set; }
+    [Parameter] public long RaceId { get; set; }
 
     public RaweCeekModel Model { get; set; } = new();
 
@@ -27,7 +25,7 @@ public partial class Index
     private List<PracticeSession> PracticeSessions { get; set; } = [];
     private List<QualifyingSession> QualySessions { get; set; } = [];
 
-    private List<long> ConsumablePenalties { get; set; } = [];
+    //private List<long> ConsumablePenalties { get; set; } = [];
 
     private bool Loading { get; set; } = true;
     private bool PracticeLoaded { get; set; }

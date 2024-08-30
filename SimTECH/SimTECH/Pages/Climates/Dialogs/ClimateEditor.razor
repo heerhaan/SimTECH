@@ -49,14 +49,12 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? EditDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? EditDialog { get; set; }
 
-    [Parameter]
-    public Climate? Climate { get; set; }
+    [Parameter] public Climate? Climate { get; set; }
 
-    EditClimate model;
-    string[] weatherIcons = Globals.AllWeatherIcons;
+    private EditClimate model { get; set; }
+    private string[] weatherIcons = Globals.AllWeatherIcons;
 
     protected override void OnInitialized()
     {

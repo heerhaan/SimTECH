@@ -97,8 +97,10 @@ internal class PersonDatabank
 {
     [JsonPropertyName("male")]
     public string[] Male { get; set; }
+
     [JsonPropertyName("female")]
     public string[] Female { get; set; }
+
     [JsonPropertyName("family")]
     public string[] Family { get; set; }
 }
@@ -106,7 +108,9 @@ internal class PersonDatabank
 public class LanguageInfo
 {
     public Country Country { get; set; }
+
     public string LanguageType { get; set; }
+
     public string Path { get; set; }
 }
 

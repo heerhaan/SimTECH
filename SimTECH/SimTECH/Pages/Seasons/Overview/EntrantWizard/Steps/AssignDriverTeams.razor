@@ -54,8 +54,7 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public AddEntrantsModel Model { get; set; }
+    [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
     MudDropContainer<EditSeasonDriverModel> dropperDrivers;
 
@@ -67,8 +66,10 @@
 
     private void DriverTeamDropped(MudItemDropInfo<EditSeasonDriverModel> dropItem)
     {
-        if (dropItem.Item != null)
-            dropItem.Item.BaseTeamId = long.Parse(dropItem.DropzoneIdentifier);
+        if (dropItem.Item == null)
+            return;
+
+        dropItem.Item.BaseTeamId = long.Parse(dropItem.DropzoneIdentifier);
     }
 
     private string IsDisabledStyles(bool contracted)
