@@ -22,8 +22,8 @@
         <ToolBarContent>
             <MudTextField @bind-Value="_searchString"
                           Placeholder="Search"
-                          Adornment="Adornment.Start"
                           Immediate="true"
+                          Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search"
                           IconSize="Size.Medium"
                           Class="mt-0 field-md" />
@@ -144,7 +144,7 @@
         var dialog = await _dialogService.ShowAsync<DriverEditor>("Modify driver", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Driver updatedItem)
+        if (result?.Data != null && !result.Canceled && result.Data is Driver updatedItem)
         {
             await _driverService.UpdateDriver(updatedItem);
             Drivers = await _driverService.GetIndexListDrivers();
@@ -173,7 +173,7 @@
         var dialog = await _dialogService.ShowAsync<Import>("Import drivers");
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is List<Driver> bulkDrivers)
+        if (result?.Data != null && !result.Canceled && result.Data is List<Driver> bulkDrivers)
         {
             await _driverService.BulkAddItems(bulkDrivers);
             Drivers = await _driverService.GetIndexListDrivers();

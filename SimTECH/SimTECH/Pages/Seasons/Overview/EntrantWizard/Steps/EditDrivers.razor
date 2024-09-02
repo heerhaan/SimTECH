@@ -37,6 +37,7 @@
                                            ItemCollection="@context.PastSetups.OrderByDescending(e => e.SeasonYear).ToList()"
                                            Label="Past configuration of driver"
                                            Variant="Variant.Outlined"
+                                           Value="@context.PastSetups.OrderByDescending(e => e.SeasonYear).First()"
                                            ValueChanged="@((PreviousEntrantSetup<SeasonDriver> setup) => OnSelectedPastSetup(context, setup))"
                                            ToStringFunc="@_previousToString">
                             <ItemTemplate Context="setup">
@@ -64,8 +65,7 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public AddEntrantsModel Model { get; set; }
+    [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
     private Func<int, string?> _numberValidation => number =>
     {

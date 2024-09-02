@@ -29,7 +29,7 @@
                                Class="field-sm dense-field">
                         @foreach (var manufacturer in Manufacturers)
                         {
-                            <MudSelectItem Value="manufacturer.Id">@manufacturer.Name</MudSelectItem>
+                            <MudSelectItem Value="@manufacturer.Id">@manufacturer.Name</MudSelectItem>
                         }
                     </MudSelect>
                 </MudTd>
@@ -45,11 +45,9 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public AddEntrantsModel Model { get; set; }
+    [CascadingParameter] public AddEntrantsModel Model { get; set; }
 
-    [Parameter]
-    public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
+    [Parameter] public IEnumerable<Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Manufacturer>();
 
     private string GetColourPreview(EditSeasonTeamModel item)
     {

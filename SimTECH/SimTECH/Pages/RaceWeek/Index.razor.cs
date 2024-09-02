@@ -14,6 +14,8 @@ public partial class Index
 {
     [Inject] private IOptions<SimConfig> Config { get; set; }
 
+    [CascadingParameter] protected EventCallback<bool> ToggleLoader { get; set; }
+
     [Parameter] public long RaceId { get; set; }
 
     public RaweCeekModel Model { get; set; } = new();
@@ -27,7 +29,7 @@ public partial class Index
 
     //private List<long> ConsumablePenalties { get; set; } = [];
 
-    private bool Loading { get; set; } = true;
+    private bool Loading { get; set; }
     private bool PracticeLoaded { get; set; }
     private bool QualifyingLoaded { get; set; }
 
@@ -36,6 +38,9 @@ public partial class Index
 
     protected override async Task OnInitializedAsync()
     {
+        Loading = true;
+        await ToggleLoader.InvokeAsync(Loading);
+
         Tyres = await _tyreService.GetTyres(StateFilter.All);
 
         var race = await _raceService.GetRaceById(RaceId);
@@ -67,12 +72,16 @@ public partial class Index
         await LoadDrivers();
 
         Loading = false;
+        await ToggleLoader.InvokeAsync(Loading);
     }
 
     private async Task LoadDrivers()
     {
         var race = Model.Race;
         var climate = Model.Climate;
+
+        if (race.Track == null)
+            throw new Exception("A race without a track, how queer!");
 
         var seasonDrivers = await _seasonDriverService.GetSeasonDrivers(race.SeasonId);
         var seasonTeams = await _seasonTeamService.GetSeasonTeams(race.SeasonId);
@@ -84,7 +93,7 @@ public partial class Index
 
         var traits = allTraits.Where(e => !e.ForWetConditions || e.ForWetConditions == climate.IsWet).ToList();
 
-        var trackTraitIds = race.Track.TrackTraits?.Select(e => e.TraitId).ToList() ?? [];
+        var trackTraitIds = race.Track.TrackTraits.Select(e => e.TraitId).ToList() ?? [];
         TrackTraits = traits.Where(e => trackTraitIds.Contains(e.Id)).ToList();
 
         var raweceekDrivers = new List<RaweCeekDriver>();
@@ -108,7 +117,7 @@ public partial class Index
             var enginePower = (engine.Power * climate.EngineMultiplier).RoundToInt();
             var totalPower = driverPower + carPower + enginePower;
 
-            var actualDefense = ((driver.Defense + driverTraits.Sum(e => e.Defense)) * race.Track?.DefenseMod ?? 1.0).RoundToInt();
+            var actualDefense = ((driver.Defense + driverTraits.Sum(e => e.Defense)) * race.Track.DefenseMod).RoundToInt();
 
             var raweDriver = new RaweCeekDriver
             {
@@ -300,7 +309,7 @@ public partial class Index
         var dialog = await _dialogService.ShowAsync<TyrePicker>("Set tyre", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Tyre pickedTyre)
+        if (result?.Data != null && !result.Canceled && result.Data is Tyre pickedTyre)
         {
             await _raceWeekService.PickTyre(resultId, pickedTyre);
 

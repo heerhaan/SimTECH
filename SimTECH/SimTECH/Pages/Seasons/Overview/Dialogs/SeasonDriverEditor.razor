@@ -19,11 +19,14 @@
                                        ValueChanged="LookupDriverData"
                                        ToStringFunc="@_driverToString">
                         <ItemTemplate>
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
-                                <MudText>@context.Value.FullName</MudText>
-                                <MudSpacer />
-                                <CountryFlag Code="@context.Value.Country" Size="ElementSize.Tiny" />
-                            </MudStack>
+                            @if (context.Value != null)
+                            {
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-0">
+                                    <MudText>@context.Value.FullName</MudText>
+                                    <MudSpacer />
+                                    <CountryFlag Code="@context.Value.Country" Size="ElementSize.Tiny" />
+                                </MudStack>
+                            }
                         </ItemTemplate>
                     </MudSelectExtended>
 
@@ -33,20 +36,24 @@
                                            ItemCollection="@PastSetups"
                                            Label="Previous driver season configurations"
                                            Variant="Variant.Outlined"
+                                           Value="PastSetups.First()"
                                            ValueChanged="OnSelectedPastSetup"
                                            ToStringFunc="@_previousToString">
                             <ItemTemplate>
                                 <div class="select-detail-block">
-                                    <MudText Typo="Typo.subtitle1">
-                                        @context.Value.LeagueName - @context.Value.SeasonYear
-                                    </MudText>
-                                    <div class="select-detail-configured">
-                                        <span>NO: @context.Value.Entrant.Number</span>
-                                        <span>SKL: @context.Value.Entrant.Skill</span>
-                                        <span>REL: @context.Value.Entrant.Reliability</span>
-                                        <span>ATT: @context.Value.Entrant.Attack</span>
-                                        <span>DEF: @context.Value.Entrant.Defense</span>
-                                    </div>
+                                    @if (context.Value != null)
+                                    {
+                                        <MudText Typo="Typo.subtitle1">
+                                            @context.Value.LeagueName - @context.Value.SeasonYear
+                                        </MudText>
+                                        <div class="select-detail-configured">
+                                            <span>NO: @context.Value.Entrant.Number</span>
+                                            <span>SKL: @context.Value.Entrant.Skill</span>
+                                            <span>REL: @context.Value.Entrant.Reliability</span>
+                                            <span>ATT: @context.Value.Entrant.Attack</span>
+                                            <span>DEF: @context.Value.Entrant.Defense</span>
+                                        </div>
+                                    }
                                 </div>
                             </ItemTemplate>
                         </MudSelectExtended>
@@ -91,23 +98,17 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? DriverDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? DriverDialog { get; set; }
 
-    [Parameter, EditorRequired]
-    public long SeasonId { get; set; }
+    [Parameter, EditorRequired] public long SeasonId { get; set; }
 
-    [Parameter, EditorRequired]
-    public List<SeasonTeam> SeasonTeams { get; set; }
+    [Parameter, EditorRequired] public List<SeasonTeam> SeasonTeams { get; set; }
 
-    [Parameter]
-    public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
+    [Parameter] public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
 
-    [Parameter]
-    public SeasonDriver? SeasonDriver { get; set; }
+    [Parameter] public SeasonDriver? SeasonDriver { get; set; }
 
-    [Parameter]
-    public int[] TakenNumbers { get; set; }
+    [Parameter] public int[] TakenNumbers { get; set; }
 
     private EditSeasonDriverModel Model { get; set; }
 

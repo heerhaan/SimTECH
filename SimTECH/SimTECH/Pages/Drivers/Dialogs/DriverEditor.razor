@@ -44,7 +44,7 @@
                                               T="string"
                                               Label="Biography"
                                               Lines="5"
-                                              Validation="@BioValidator" />
+                                              Validation="@_bioValidator" />
 
                                 <MudText Typo="Typo.subtitle1">Options</MudText>
                                 <MudDivider />
@@ -126,7 +126,7 @@
         AvailableTraits = Traits.Where(e => e.State == State.Active || SelectedTraits.Contains(e.Id)).ToList();
     }
 
-    private Func<string?, string?> BioValidator => text =>
+    private Func<string?, string?> _bioValidator => text =>
     {
         if (text?.Contains("cringe") ?? false)
             return "Sorry, this is too cringe";

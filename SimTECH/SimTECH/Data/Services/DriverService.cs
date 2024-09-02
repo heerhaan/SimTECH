@@ -28,18 +28,6 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
             .Include(e => e.DriverTraits)
             .ToListAsync();
     }
-    // First test whether this impacts the performance significantly before (possibly) replacing the above
-    //public async Task<List<Driver>> GetDrivers(Expression<Func<Driver, bool>>? selector = null, StateFilter filter = StateFilter.Default)
-    //{
-    //    selector ??= _ => true;
-
-    //    using var context = _dbFactory.CreateDbContext();
-
-    //    return await context.Driver
-    //        .Where(e => filter.StatesForFilter().Contains(e.State))
-    //        .Where(selector)
-    //        .ToListAsync();
-    //}
 
     public async Task<List<CurrentDriver>> GetDriversInActiveSeason()
     {
@@ -86,13 +74,15 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
         foreach (var driver in drivers)
         {
             driver.ActiveInLeague = activeDrivers
-                .FirstOrDefault(e => e.DriverId == driver.Id)?.LeagueName;
+                .FirstOrDefault(e => e.DriverId == driver.Id)?.LeagueName
+                ?? "None";
         }
 
         return drivers;
     }
 
-    public async Task<List<Driver>> GetDriversFromLeague(long leagueId) => await GetDriversFromLeague(leagueId, StateFilter.Default);
+    public async Task<List<Driver>> GetDriversFromLeague(long leagueId)
+        => await GetDriversFromLeague(leagueId, StateFilter.Default);
     public async Task<List<Driver>> GetDriversFromLeague(long leagueId, StateFilter filter)
     {
         using var context = _dbFactory.CreateDbContext();
@@ -127,8 +117,8 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
         else
         {
             var removeables = await context.DriverTrait
-                    .Where(e => e.DriverId == driver.Id)
-                    .ToListAsync();
+                .Where(e => e.DriverId == driver.Id)
+                .ToListAsync();
 
             if (removeables.Count != 0)
                 context.RemoveRange(removeables);

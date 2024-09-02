@@ -5,7 +5,7 @@
 
 @inherits LayoutComponentBase
 
-<MudThemeProvider @bind-IsDarkMode="IsDarkTheme" Theme="@Theme" />
+<MudThemeProvider @bind-IsDarkMode="@IsDarkTheme" Theme="@Theme" />
 <MudPopoverProvider />
 <MudDialogProvider MaxWidth="MaxWidth.Large" CloseButton="true" BackdropClick="false" Position="DialogPosition.Center" />
 <MudSnackbarProvider />
@@ -21,7 +21,7 @@
 
         <MudSpacer />
 
-        <MudToggleIconButton @bind-Toggled="IsDarkTheme" Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning"
+        <MudToggleIconButton @bind-Toggled="@IsDarkTheme" Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning"
                              ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" />
         
         <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Secondary">
@@ -62,12 +62,21 @@
         <NavMenu />
     </MudDrawer>
     <MudMainContent id="sim-page-content" Class="main-content">
-        @Body
+        <CascadingValue Value="ToggleLoader" IsFixed="true">
+            <MudLoading @bind-Loading="@IsLoading"
+                        LoaderType="LoaderType.Circular"
+                        Text="Take it easy mate, the page is loading just for you!">
+                @Body
+            </MudLoading>
+        </CascadingValue>
     </MudMainContent>
 </MudLayout>
 
 @code {
     [CascadingParameter(Name = "PageType")] public Type PageType { get; set; }
+
+    private EventCallback<bool> ToggleLoader => EventCallback.Factory.Create(this,
+        (bool isLoading) => HandlePageLoading(isLoading));
 
     private MudTheme Theme { get; set; } = CustomThemes.GalacticTheme;
 
@@ -77,7 +86,8 @@
 
     private bool DrawerOpen { get; set; } = true;
     private bool IsDarkTheme { get; set; } = true;
-    private bool IsHelpOpen { get; set; } = false;
+    private bool IsHelpOpen { get; set; }
+    private bool IsLoading { get; set; }
 
     protected override void OnParametersSet()
     {
@@ -131,4 +141,9 @@
     private void ToggleDrawer() => DrawerOpen = !DrawerOpen;
 
     private void ToggleHelpBlock() => IsHelpOpen = !IsHelpOpen;
+
+    private void HandlePageLoading(bool isLoading)
+    {
+        IsLoading = IsLoading;
+    }
 }

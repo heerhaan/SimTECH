@@ -6,7 +6,7 @@
     </TitleContent>
     <DialogContent>
         <div class="px-4 py-2">
-            @if (firstStep)
+            @if (FirstStep)
             {
                 @if (RealDrivers?.Any() == true)
                 {
@@ -38,8 +38,8 @@
                     <HeaderContent>
                         <MudTh>FirstName</MudTh>
                         <MudTh>LastName</MudTh>
-                        <MudTh>Abbreviation</MudTh>
-                        <MudTh>DoB</MudTh>
+                        <MudTh>ABB</MudTh>
+                        <MudTh>DOB</MudTh>
                         <MudTh>Country</MudTh>
                         <MudTh>Mark</MudTh>
                     </HeaderContent>
@@ -55,7 +55,7 @@
                         </MudTd>
                         <MudTd>
                             <MudDatePicker @bind-Date="context.DateSetter"
-                                           DisableToolbar="true"
+                                           ShowToolbar="false"
                                            DateFormat="yyyy"
                                            FixDay="1" FixMonth="1" OpenTo="OpenTo.Year"
                                            PickerVariant="PickerVariant.Dialog"
@@ -79,7 +79,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        @if (firstStep)
+        @if (FirstStep)
         {
             <MudButton Color="Color.Primary" OnClick="Next">Next</MudButton>
         }
@@ -99,14 +99,11 @@
 
     private List<EditDriverModel> ImportDrivers { get; set; } = new();
 
-    private bool firstStep = true;
+    private bool FirstStep { get; set; } = true;
 
     protected override async Task OnInitializedAsync()
     {
         RealDrivers = await _realityProvider.GetExistingDrivers();
-
-        if (firstStep == true)
-            return;
     }
 
     private void Next()
@@ -121,7 +118,7 @@
             .Select(e => e.BuildEditModel())
             .ToList();
 
-        firstStep = false;
+        FirstStep = false;
     }
 
     private void Submit()

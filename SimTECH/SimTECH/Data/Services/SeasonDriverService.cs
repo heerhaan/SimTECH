@@ -14,8 +14,7 @@ public class SeasonDriverService(IDbContextFactory<SimTechDbContext> factory)
     {
         using var context = _dbFactory.CreateDbContext();
 
-        return await context.SeasonDriver
-            .ToListAsync();
+        return await context.SeasonDriver.ToListAsync();
     }
 
     public async Task<List<SeasonDriver>> GetSeasonDrivers(long seasonId)

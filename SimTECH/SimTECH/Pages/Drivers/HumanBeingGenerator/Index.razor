@@ -49,21 +49,25 @@
                                                Label="Select nationalities"
                                                Variant="Variant.Outlined"
                                                SearchBox="true"
-                                               SearchFunc="SearchLanguages"
-                                               >
+                                               SearchFunc="SearchLanguages">
                                 <ItemTemplate>
                                     <MudCheckBox Value="@context.IsSelected" Color="Color.Secondary" />
-                                    <CountryNamedFlag Code="@context.Value.Country" Justify="Justify.FlexStart" Size="ElementSize.Normal" />
+                                    <CountryNamedFlag Code="@context.Value.Country"
+                                                      Justify="Justify.FlexStart"
+                                                      Size="ElementSize.Normal" />
                                 </ItemTemplate>
                                 <ItemSelectedTemplate>
                                     <MudCheckBox Value="@context.IsSelected" Color="Color.Secondary" />
-                                    <CountryNamedFlag Code="@context.Value.Country" Justify="Justify.FlexStart" Size="ElementSize.Normal" />
+                                    <CountryNamedFlag Code="@context.Value.Country"
+                                                      Justify="Justify.FlexStart"
+                                                      Size="ElementSize.Normal" />
                                 </ItemSelectedTemplate>
                             </MudSelectExtended>
                         }
                     </MudStack>
                     <MudDivider Class="my-1" />
-                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info" OnClick="GenerateHumans">Generate</MudButton>
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Recycling" Color="Color.Info"
+                               OnClick="GenerateHumans">Generate</MudButton>
                 </MudPaper>
                 <MudPaper Elevation="15" Class="pa-4">
                     @if (availableLanguages != null)
@@ -113,7 +117,9 @@
                         <ToolBarContent>
                             <MudText>Human beings</MudText>
                             <MudSpacer />
-                            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="SaveHumanBeings" Class="btn-md">Persist</MudButton>
+                            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="SaveHumanBeings" Class="btn-md">
+                                Persist
+                            </MudButton>
                         </ToolBarContent>
                         <HeaderContent>
                             <MudTh>Name</MudTh>
@@ -133,8 +139,12 @@
                             </MudTd>
                             <MudTd>
                                 <MudButtonGroup OverrideStyles="false" Class="pa-0">
-                                    <MudButton FullWidth="true" OnClick="@(async () => await SaveSingleHuman(context))">Persist</MudButton>
-                                    <MudButton FullWidth="true" Color="Color.Error" OnClick="@(() => RemoveHumanBeing(context))">Remove</MudButton>
+                                    <MudButton FullWidth="true" OnClick="@(async () => await SaveSingleHuman(context))">
+                                        Persist
+                                    </MudButton>
+                                    <MudButton FullWidth="true" Color="Color.Error" OnClick="@(() => RemoveHumanBeing(context))">
+                                        Remove
+                                    </MudButton>
                                 </MudButtonGroup>
                             </MudTd>
                         </RowTemplate>
