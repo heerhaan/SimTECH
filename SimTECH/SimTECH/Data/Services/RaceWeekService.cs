@@ -179,7 +179,7 @@ public class RaceWeekService(IDbContextFactory<SimTechDbContext> factory) : IRac
                 && involvedDriverIds.Contains(e.SeasonDriverId))
             .ExecuteUpdateAsync(e =>
                 e.SetProperty(p => p.Consumed, true)
-                .SetProperty(p => p.ConsumedAtRaceId, raceId));
+                 .SetProperty(p => p.ConsumedAtRaceId, raceId));
 
         await context.SaveChangesAsync();
     }

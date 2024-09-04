@@ -1,6 +1,5 @@
 ﻿@page "/"
 
-@inject CommonService _commonService
 @inject IRaceService _raceService
 @inject SeasonService _seasonService
 @inject LeagueService _leagueService
@@ -251,17 +250,6 @@
     {
         await _localStorage.SetAsync("hidedatamsg", true);
         hideDataMessage = true;
-    }
-
-    private async Task InsertDefault()
-    {
-        bool? confirm = await _dialogService.ShowMessageBox(
-            "Warning",
-            "Are you sure you want to add the default data, best to do this when you haven't added anything yourself.",
-            yesText: "Ya", cancelText: "Nah");
-
-        if (confirm == true)
-            await _commonService.InsertDefaultData();
     }
 
     private void GoToSeason(long seasonId) => _nav.NavigateTo($"/overview/{seasonId}");

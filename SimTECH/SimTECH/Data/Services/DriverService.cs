@@ -24,8 +24,8 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
         using var context = _dbFactory.CreateDbContext();
 
         return await context.Driver
-            .Where(e => filter.StatesForFilter().Contains(e.State))
             .Include(e => e.DriverTraits)
+            .Where(e => filter.StatesForFilter().Contains(e.State))
             .ToListAsync();
     }
 
@@ -81,16 +81,15 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
         return drivers;
     }
 
-    public async Task<List<Driver>> GetDriversFromLeague(long leagueId)
-        => await GetDriversFromLeague(leagueId, StateFilter.Default);
+    public async Task<List<Driver>> GetDriversFromLeague(long leagueId) => await GetDriversFromLeague(leagueId, StateFilter.Default);
     public async Task<List<Driver>> GetDriversFromLeague(long leagueId, StateFilter filter)
     {
         using var context = _dbFactory.CreateDbContext();
 
         return await context.Driver
+            .Include(e => e.DriverTraits)
             .Where(e => filter.StatesForFilter().Contains(e.State)
                 && e.SeasonDrivers.Any(e => e.Season.LeagueId == leagueId))
-            .Include(e => e.DriverTraits)
             .ToListAsync();
     }
 
@@ -99,9 +98,9 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
         using var context = _dbFactory.CreateDbContext();
 
         return await context.Driver
+            .Include(e => e.DriverTraits)
             .Where(e => filter.StatesForFilter().Contains(e.State)
                 && !e.SeasonDrivers.Any(sd => sd.SeasonId == seasonId))
-            .Include(e => e.DriverTraits)
             .ToListAsync();
     }
 

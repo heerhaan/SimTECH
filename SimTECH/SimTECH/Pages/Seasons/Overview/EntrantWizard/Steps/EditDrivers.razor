@@ -1,6 +1,8 @@
 ﻿<MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
-        <MudText Typo="Typo.body2" Color="Color.Info">Don't worry about the order of the numbers, these (may) fix themselves on save</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Info">
+            Don't worry about the order of the numbers, these (may) fix themselves on save
+        </MudText>
         <MudTable T="EditSeasonDriverModel"
                   Items="@Model.SeasonDrivers"
                   Hover="true"
@@ -41,16 +43,19 @@
                                            ValueChanged="@((PreviousEntrantSetup<SeasonDriver> setup) => OnSelectedPastSetup(context, setup))"
                                            ToStringFunc="@_previousToString">
                             <ItemTemplate Context="setup">
-                                <div class="select-detail-block">
-                                    <MudText Typo="Typo.subtitle1">@setup.Value.LeagueName - @setup.Value.SeasonYear</MudText>
-                                    <div class="select-detail-configured">
-                                        <span>NO: @setup.Value.Entrant.Number</span>
-                                        <span>SKL: @setup.Value.Entrant.Skill</span>
-                                        <span>REL: @setup.Value.Entrant.Reliability</span>
-                                        <span>ATT: @setup.Value.Entrant.Attack</span>
-                                        <span>DEF: @setup.Value.Entrant.Defense</span>
+                                @if (setup.Value != null)
+                                {
+                                    <div class="select-detail-block">
+                                        <MudText Typo="Typo.subtitle1">@setup.Value.LeagueName - @setup.Value.SeasonYear</MudText>
+                                        <div class="select-detail-configured">
+                                            <span>NO: @setup.Value.Entrant.Number</span>
+                                            <span>SKL: @setup.Value.Entrant.Skill</span>
+                                            <span>REL: @setup.Value.Entrant.Reliability</span>
+                                            <span>ATT: @setup.Value.Entrant.Attack</span>
+                                            <span>DEF: @setup.Value.Entrant.Defense</span>
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             </ItemTemplate>
                         </MudSelectExtended>
                     }

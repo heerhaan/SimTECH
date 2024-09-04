@@ -31,8 +31,6 @@ public class EngineService(IDbContextFactory<SimTechDbContext> factory)
 
     public async Task UpdateEngine(Engine engine)
     {
-        ValidateEngine(engine);
-
         using var context = _dbFactory.CreateDbContext();
 
         if (engine.Id == 0)
@@ -74,15 +72,5 @@ public class EngineService(IDbContextFactory<SimTechDbContext> factory)
 
         await context.SaveChangesAsync();
     }
-
-    #region validation
-
-    private static void ValidateEngine(Engine engine)
-    {
-        if (engine == null)
-            throw new NullReferenceException("Engine is very null here, yes");
-    }
-
-    #endregion
 }
 

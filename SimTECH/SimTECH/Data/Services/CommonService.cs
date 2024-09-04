@@ -2,7 +2,7 @@
 
 namespace SimTECH.Data.Services;
 
-// Yes this service is unique in that it doesnt belong to a single "Model", it breaks a design rule but lmao who cares
+// NOTE: Kind of breaks a project structure rule; then again this code doesn't fit elsewhere
 public class CommonService(IDbContextFactory<SimTechDbContext> factory)
 {
     private readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;

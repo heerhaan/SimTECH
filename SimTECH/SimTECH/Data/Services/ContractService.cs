@@ -8,18 +8,6 @@ public class ContractService(IDbContextFactory<SimTechDbContext> factory)
 {
     private readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;
 
-    public async Task<List<Contract>> GetExtendedLeagueContracts(long leagueId)
-    {
-        using var context = _dbFactory.CreateDbContext();
-
-        return await context.Contract
-            .Where(e => e.LeagueId == leagueId)
-            .Include(e => e.Driver)
-            .Include(e => e.Team)
-            .Include(e => e.League)
-            .ToListAsync();
-    }
-
     public async Task<List<Contract>> GetLeagueContracts(long leagueId)
     {
         using var context = _dbFactory.CreateDbContext();
@@ -44,8 +32,6 @@ public class ContractService(IDbContextFactory<SimTechDbContext> factory)
     public async Task AddContracts(List<Contract> contracts)
     {
         using var context = _dbFactory.CreateDbContext();
-
-        // Validations to check if there are no running contracts?
 
         foreach (var contract in contracts)
         {

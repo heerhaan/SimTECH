@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
-using SimTECH.Extensions;
 
 namespace SimTECH.Data.Services;
 
@@ -10,7 +9,6 @@ public class LeagueService(IDbContextFactory<SimTechDbContext> factory)
     private readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;
 
     public async Task<List<League>> GetLeagues() => await GetLeagues(StateFilter.Default);
-
     public async Task<List<League>> GetLeagues(StateFilter filter)
     {
         using var context = _dbFactory.CreateDbContext();
@@ -73,7 +71,7 @@ public class LeagueService(IDbContextFactory<SimTechDbContext> factory)
         using var context = _dbFactory.CreateDbContext();
 
         if (context.Season.Any(e => e.LeagueId == league.Id))
-            throw new InvalidOperationException("Can not delete leagues containing seasons");
+            throw new InvalidOperationException("It's not possible to delete a league which has any seasons");
         else
             context.Remove(league);
 

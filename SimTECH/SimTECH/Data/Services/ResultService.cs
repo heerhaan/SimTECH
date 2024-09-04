@@ -9,8 +9,7 @@ public class ResultService(IDbContextFactory<SimTechDbContext> factory) : BaseSe
     {
         using var context = _dbFactory.CreateDbContext();
 
-        return await context.Result
-            .ToListAsync();
+        return await context.Result.ToListAsync();
     }
 
     public async Task<List<Result>> GetResultsOfLeague(long leagueId)
