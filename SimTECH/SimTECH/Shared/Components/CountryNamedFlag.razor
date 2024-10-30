@@ -1,5 +1,5 @@
 ﻿<MudStack Row="true" Justify="@Justify" AlignItems="AlignItems.Center" Reverse="@Reverse" Class="pa-0">
-    <CountryFlag Code="@Code" Size="@Size" Class="@_countryClasses" />
+    <CountryFlag Code="@Code" Size="@Size" />
     <span class="mx-2"></span>
     <MudText Typo="@Typo">@flagNationName</MudText>
 </MudStack>
@@ -10,21 +10,12 @@
     [Parameter] public Justify Justify { get; set; } = Justify.SpaceBetween;
     [Parameter] public Typo Typo { get; set; } = Typo.body1;
     [Parameter] public bool Reverse { get; set; }
-    [Parameter] public string Class { get; set; } = string.Empty;
 
     private string flagNationName
     {
         get
         {
             return Code.GetDescription();
-        }
-    }
-
-    private string _countryClasses
-    {
-        get
-        {
-            return Class;
         }
     }
 }
