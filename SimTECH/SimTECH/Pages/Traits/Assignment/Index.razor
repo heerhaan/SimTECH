@@ -15,17 +15,18 @@
     <MudGrid>
         <MudItem xs="12">
             <MudPaper Elevation="15" MaxHeight="150px" Class="d-flex flex-column justify-center align-center pa-4">
-                <MudText Typo="Typo.h3">Assign traits</MudText>
+                <MudText Typo="Typo.h3">Random trait assignment</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="6">
             <div class="setting-column-wrapper">
                 <MudPaper Class="pa-2">
                     <MudText Typo="Typo.h5">Assignment settings</MudText>
+                    <MudDivider Class="my-1" />
                     <MudStack Class="trait-assignment-menu-bar">
                         <div class="setting-double-field-wrapper">
                             <div>
-                                <MudText Typo="Typo.h5">For entrants</MudText>
+                                <MudText Typo="Typo.subtitle2">For entrants</MudText>
                                 <MudChipSet T="Entrant" SelectedValueChanged="RetrieveEntrants" SelectionMode="SelectionMode.SingleSelection">
                                     <MudChip Color="Color.Primary" Value="Entrant.Driver">Driver</MudChip>
                                     <MudChip Color="Color.Primary" Value="Entrant.Team">Team</MudChip>
@@ -33,15 +34,26 @@
                                 </MudChipSet>
                             </div>
                             <div>
+                                <MudText Typo="Typo.subtitle2">Odds (%) for gaining/losing a trait</MudText>
+                                <MudNumericField @bind-Value="@AdditionOdds"
+                                                 Min="0"
+                                                 Max="100"
+                                                 Label="Odds of gaining"
+                                                 Variant="Variant.Filled"
+                                                 Class="field-sm" />
+                            </div>
+                        </div>
+                        <div class="setting-double-field-wrapper">
+                            <div>
                                 @if (ActiveEntrant is Entrant.Driver or Entrant.Team)
                                 {
-                                    <MudText Typo="Typo.h5">Filter by active league</MudText>
                                     <MudSelect T="long"
                                                Value="@LeagueFilter"
                                                ValueChanged="FilterEntrantsByLeague"
                                                ToStringFunc="@LeagueNameOrAll"
-                                               Variant="Variant.Outlined"
+                                               Variant="Variant.Filled"
                                                Placeholder="All leagues"
+                                               Label="Filter by active league"
                                                Class="field-sm">
                                         @foreach (var league in Leagues)
                                         {
@@ -52,21 +64,15 @@
                                     </MudSelect>
                                 }
                             </div>
-                        </div>
-                        <div class="setting-double-field-wrapper">
-                            <MudNumericField @bind-Value="@AdditionOdds"
-                                             Min="0"
-                                             Max="100"
-                                             Label="Odds (%) of gaining a trait"
-                                             Variant="Variant.Filled"
-                                             Class="field-sm" />
-                            <MudNumericField @bind-Value="@RemovalOdds"
-                                             Min="0"
-                                             Max="100"
-                                             Label="Odds (%) of losing a trait"
-                                             Variant="Variant.Filled"
-                                             AdornmentColor="Color.Secondary"
-                                             Class="field-sm" />
+                            <div>
+                                <MudNumericField @bind-Value="@RemovalOdds"
+                                                 Min="0"
+                                                 Max="100"
+                                                 Label="Odds of losing"
+                                                 Variant="Variant.Filled"
+                                                 AdornmentColor="Color.Secondary"
+                                                 Class="field-sm" />
+                            </div>
                         </div>
                         <MudButtonGroup Variant="Variant.Outlined" Color="Color.Primary">
                             <MudButton Disabled="true">
@@ -80,7 +86,8 @@
                     </MudStack>
                 </MudPaper>
                 <MudPaper Class="pa-2">
-                    <MudText Typo="Typo.h4">Available traits</MudText>
+                    <MudText Typo="Typo.h5">Available traits</MudText>
+                    <MudDivider Class="my-1" />
                     <MudText Typo="Typo.body2" Color="Color.Info">
                         Select which traits are allowed to be assigned
                     </MudText>
@@ -89,6 +96,7 @@
                         <MudTable T="AssignableTrait"
                                   Items="@AssignableTraits"
                                   @bind-SelectedItems="@selectedTraits"
+                                  RowsPerPage="15"
                                   MultiSelection="true"
                                   Dense="true"
                                   FixedHeader="true">
@@ -106,6 +114,9 @@
                                     <MudText>@context.Name</MudText>
                                 </MudTd>
                             </RowTemplate>
+                            <PagerContent>
+                                <MudTablePager />
+                            </PagerContent>
                         </MudTable>
                     }
                 </MudPaper>
@@ -113,15 +124,26 @@
         </MudItem>
         <MudItem xs="6">
             <MudPaper Class="pa-2">
-                <MudText Typo="Typo.subtitle1">Available entrants</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Info">
-                    Select the entries to assign traits for
-                </MudText>
+                <MudText Typo="Typo.h5">Available entrants</MudText>
+                <MudDivider Class="my-1" />
+                <div class="flex-block-row justify-space-between">
+                    <MudText Typo="Typo.body2" Color="Color.Info">
+                        Select the entries to assign traits for
+                    </MudText>
+                    @if (selectedEntrants != null && selectedEntrants.Count != 0)
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Tertiary">
+                            Amount selected: @(selectedEntrants.Count)
+                        </MudText>
+                    }
+                </div>
+                
                 @if (Entrants.Any())
                 {
                     <MudTable T="EntrantAssignee"
                               Items="@Entrants"
                               @bind-SelectedItems="@selectedEntrants"
+                              RowsPerPage="15"
                               MultiSelection="true"
                               Dense="true"
                               FixedHeader="true">
@@ -146,6 +168,9 @@
                                 }
                             </MudTd>
                         </RowTemplate>
+                        <PagerContent>
+                            <MudTablePager />
+                        </PagerContent>
                     </MudTable>
                 }
             </MudPaper>
@@ -172,6 +197,14 @@
 
     private bool CanAssignTraits => selectedEntrants?.Any() == true && (selectedTraits?.Any() == true);
 
+    private Func<long, string> LeagueNameOrAll => (leagueId) =>
+    {
+        if (leagueId == 0)
+            return "Any league";
+
+        return Leagues.Find(e => e.Id == leagueId)?.Name ?? "Unknown";
+    };
+
     protected override async Task OnInitializedAsync()
     {
         _breadcrumb.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -186,14 +219,6 @@
 
         traitBook = ActiveTraits.ToDictionary(e => e.Id, e => e.Name);
     }
-
-    private Func<long, string> LeagueNameOrAll => (leagueId) =>
-    {
-        if (leagueId == 0)
-            return "Any league";
-
-        return Leagues.Find(e => e.Id == leagueId)?.Name ?? "Unknown";
-    };
 
     private async Task RetrieveEntrants(Entrant selectedEntrant)
     {
@@ -297,7 +322,7 @@
 
         var result = await dialog.Result;
 
-        if (result.Canceled)
+        if (result?.Canceled ?? true)
             await ReloadEntrants();
         else
             await PersistAssignedTraits(assignedEntrants);

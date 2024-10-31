@@ -7,7 +7,7 @@ public static class HelpBlockProvider
     private static readonly Dictionary<Type, Type> pageGuideDictionary = new()
     {
         { typeof(Pages.Index), typeof(WorkInProgressHelp) },
-        { typeof(Pages.Climates.Index), typeof(ClimateHelp) },
+        { typeof(Pages.Climates.Index), typeof(ClimateIndexHelp) },
         { typeof(Pages.Leagues.ContractManager.Index), typeof(ContractHelp) },
         { typeof(Pages.Seasons.Overview.Development.Index), typeof(DevelopHelp) },
         { typeof(Pages.Drivers.Index), typeof(DriverHelp) },

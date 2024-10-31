@@ -49,7 +49,6 @@
                        Color="Color.Secondary"
                        Disabled="@(HelpContent == null)"
                        OnClick="ToggleHelpBlock" />
-        
     </MudAppBar>
 
     <MudDrawer @bind-Open="DrawerOpen"
@@ -85,8 +84,11 @@
     private Type? HelpContent { get; set; }
 
     private bool DrawerOpen { get; set; } = true;
+
     private bool IsDarkTheme { get; set; } = true;
+
     private bool IsHelpOpen { get; set; }
+
     private bool IsLoading { get; set; }
 
     protected override void OnParametersSet()
@@ -142,8 +144,5 @@
 
     private void ToggleHelpBlock() => IsHelpOpen = !IsHelpOpen;
 
-    private void HandlePageLoading(bool isLoading)
-    {
-        IsLoading = IsLoading;
-    }
+    private void HandlePageLoading(bool isLoading) => IsLoading = IsLoading;
 }

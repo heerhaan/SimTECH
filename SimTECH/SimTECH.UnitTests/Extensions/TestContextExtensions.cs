@@ -24,17 +24,18 @@ public static class TestContextExtensions
         context.Services.AddScoped<IRaceWeekService, RaceWeekService>();
     }
 
-    public static void AddSimTechServices(this IServiceCollection services)
-    {
-        services.AddMudServices(options =>
-        {
-            options.SnackbarConfiguration.ShowTransitionDuration = 0;
-            options.SnackbarConfiguration.HideTransitionDuration = 0;
-        });
+    // NOTE: following is unused, I assume that this is an "other" way to inject services
+    //public static void AddSimTechServices(this IServiceCollection services)
+    //{
+    //    services.AddMudServices(options =>
+    //    {
+    //        options.SnackbarConfiguration.ShowTransitionDuration = 0;
+    //        options.SnackbarConfiguration.HideTransitionDuration = 0;
+    //    });
 
-        // NOTE: Doesn't seem like these services can be found this way?
-        services.AddScoped<IIncidentService, IncidentService>();
-        services.AddScoped<IRaceService, RaceService>();
-        services.AddScoped<IRaceWeekService, RaceWeekService>();
-    }
+    //    // NOTE: Doesn't seem like these services can be found this way?
+    //    services.AddScoped<IIncidentService, IncidentService>();
+    //    services.AddScoped<IRaceService, RaceService>();
+    //    services.AddScoped<IRaceWeekService, RaceWeekService>();
+    //}
 }

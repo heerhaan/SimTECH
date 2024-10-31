@@ -3,10 +3,10 @@
 <MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper Elevation="15">
         <MudText Color="Color.Tertiary">Amount teams: @(Model.BaseTeams.Count)</MudText>
-        <MudTable T="Team"
+        <MudTable @ref="@_table"
+                  T="Team"
                   Items="@Teams"
                   @bind-SelectedItems="@Model.BaseTeams"
-                  @ref="@_table"
                   MultiSelection="true"
                   Dense="true"
                   Hover="true">

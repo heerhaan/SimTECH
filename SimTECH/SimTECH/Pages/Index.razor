@@ -1,13 +1,13 @@
 ﻿@page "/"
 
-@inject IRaceService _raceService
-@inject SeasonService _seasonService
-@inject LeagueService _leagueService
 @inject BreadcrumbProvider _bread
 @inject ProtectedLocalStorage _localStorage
-@inject NavigationManager _nav
+@inject NavigationManager _navigation
 @inject IDialogService _dialogService
 @inject IOptions<SimConfig> _config
+@inject LeagueService _leagueService
+@inject IRaceService _raceService
+@inject SeasonService _seasonService
 
 <PageTitle>Home</PageTitle>
 
@@ -31,10 +31,10 @@
                     <MudListExtended T="string" Dense="true">
                         <MudListItemExtended T="string"
                                              Text="@($"Advance distance: {config.CalculationDistance}km")"
-                                             SecondaryText="Represents total kilometers driven per advance" />
+                                             SecondaryText="Represents total KM driven per advance" />
                         <MudListItemExtended T="string"
                                              Text="@($"Gap marge: {config.GapMarge}s")"
-                                             SecondaryText="Represents time gap per score value" />
+                                             SecondaryText="Represents gap in seconds per score value" />
                     </MudListExtended>
 
                     @if (!hideDataMessage)
@@ -252,7 +252,7 @@
         hideDataMessage = true;
     }
 
-    private void GoToSeason(long seasonId) => _nav.NavigateTo($"/overview/{seasonId}");
-    private void GoToPostRace(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");
-    private void GoToRaceWeek(long raceId) => _nav.NavigateTo($"/raceweek/{raceId}");
+    private void GoToSeason(long seasonId) => _navigation.NavigateTo($"/overview/{seasonId}");
+    private void GoToPostRace(long raceId) => _navigation.NavigateTo($"/raceweek/{raceId}");
+    private void GoToRaceWeek(long raceId) => _navigation.NavigateTo($"/raceweek/{raceId}");
 }
