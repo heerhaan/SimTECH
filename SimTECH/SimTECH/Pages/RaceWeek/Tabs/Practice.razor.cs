@@ -11,8 +11,6 @@ public partial class Practice
 {
     private const int GAP_TIMING_DIVIDER = 2;
 
-    //[Inject] private IRaceWeekService RaceWeekService { get; set; }
-
     [CascadingParameter] public RaweCeekModel Model { get; set; }
 
     [Parameter] public PracticeSession PracticeSession { get; set; } = new();

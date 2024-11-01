@@ -1,7 +1,5 @@
 ﻿using Bunit;
-using FluentAssertions;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.DependencyInjection;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.PageModels.RaceWeek;
@@ -9,7 +7,6 @@ using SimTECH.Tests.Data.Factories;
 using SimTECH.Tests.Extensions;
 using SimTECH.Tests.Infrastructure;
 using Xunit;
-using static Bunit.ComponentParameterFactory;
 using RaceComponent = SimTECH.Pages.RaceWeek.Tabs.Race;
 
 namespace SimTECH.Tests.Components.Raceweek;

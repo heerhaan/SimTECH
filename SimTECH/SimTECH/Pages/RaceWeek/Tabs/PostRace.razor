@@ -1,6 +1,6 @@
 ﻿@inject IRaceService _raceService
 @inject IRaceWeekService _raceWeekService
-@inject NavigationManager _nav
+@inject NavigationManager _navigation
 
 @if (!Loading)
 {
@@ -32,7 +32,7 @@
         <MudItem xs="8">
             <MudPaper Class="mud-height-full pa-4">
                 <MudText Typo="Typo.h5">Final standings</MudText>
-                <MudDivider />
+                <MudDivider Class="my-2" />
                 <MudTable T="RaweCeekDriver"
                           Items="@Model.RaweCeekDrivers.OrderBy(e => e.AbsolutePosition)"
                           Dense="true"
@@ -124,7 +124,7 @@
             <MudStack Class="mud-height-full">
                 <MudPaper Class="pa-4 mud-height-full">
                     <MudText Typo="Typo.h5">Race incidents</MudText>
-                    <MudDivider />
+                    <MudDivider Class="my-2" />
                     <MudSimpleTable Dense="true" Class="extra-dense">
                         <thead>
                             <tr>
@@ -138,7 +138,9 @@
                             @foreach (var result in Model.RaweCeekDrivers.Where(e => e.Incident != null))
                             {
                                 <tr>
-                                    <td>@result.FullName</td>
+                                    <td>
+                                        <MudText>@result.FullName</MudText>
+                                    </td>
                                     <td class="number-col">
                                         <NumberDisplay Colour="@result.Colour" Accent="@result.Accent">
                                             @result.Number
@@ -147,7 +149,9 @@
                                     <td>@result.Incident?.Name</td>
                                     <td class="number-col-lg">
                                         <div class="result-cell" style="@result.Status.StatusStyles()">
-                                            <MudText Typo="Typo.caption" Color="Color.Inherit">@result.Status.ReadableStatus()</MudText>
+                                            <MudText Typo="Typo.caption" Color="Color.Inherit">
+                                                @result.Status.ReadableStatus()
+                                            </MudText>
                                         </div>
                                     </td>
                                 </tr>
@@ -157,7 +161,7 @@
                 </MudPaper>
                 <MudPaper Class="pa-4 mud-height-full">
                     <MudText Typo="Typo.h5">Upcoming penalties</MudText>
-                    <MudDivider />
+                    <MudDivider Class="my-2" />
                     <MudTable T="DriverPenalty" Items="@DriverPenalties" Dense="true" Class="extra-dense">
                         <HeaderContent>
                             <MudTh>Name</MudTh>
@@ -176,6 +180,14 @@
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
+                </MudPaper>
+                <MudPaper Class="pa-4">
+                    <MudText Typo="Typo.h5">Actions</MudText>
+                    <MudDivider Class="my-2" />
+                    <MudText>
+                        Here's where you'll eventually find various actions to trigger after a race.<br />
+                        For example: periodically updating traits and maybe even more?
+                    </MudText>
                 </MudPaper>
             </MudStack>
         </MudItem>

@@ -8,12 +8,11 @@ namespace SimTECH.Pages.RaceWeek.Tabs;
 
 public partial class PostRace
 {
-    [CascadingParameter]
-    public RaweCeekModel Model { get; set; }
+    [CascadingParameter] public RaweCeekModel Model { get; set; }
 
     private List<DriverPenalty> DriverPenalties { get; set; } = [];
 
-    private Dictionary<int, int> Allotments { get; set; }
+    private Dictionary<int, int> Allotments { get; set; } = [];
 
     private List<RaceClass> RaceClasses { get; set; } = [];
 
@@ -25,11 +24,12 @@ public partial class PostRace
 
     protected override void OnInitialized()
     {
-        Allotments = Model.Season.PointAllotments?
-            .ToDictionary(e => e.Position, e => e.Points) ?? [];
+        if (Model.Season.PointAllotments != null)
+            Allotments = Model.Season.PointAllotments.ToDictionary(e => e.Position, e => e.Points);
 
         if (Model.Season.HasRaceClasses)
         {
+            // Only assigned here since the definition is used to group, if no race class then it needs to be null
             raceClassDefinition = new()
             {
                 GroupName = "Class",
@@ -46,7 +46,9 @@ public partial class PostRace
 
     protected override async Task OnInitializedAsync()
     {
-        var nextRaceId = await _raceService.GetRaceIdByRound(Model.Season.Id, (1 + Model.Race.Round));
+        var nextRound = 1 + Model.Race.Round;
+        var nextRaceId = await _raceService.GetRaceIdByRound(Model.Season.Id, nextRound);
+
         if (nextRaceId.HasValue)
         {
             var nextRacePenalties = await _raceWeekService.GetRacePenalties(nextRaceId.Value);
@@ -91,7 +93,7 @@ public partial class PostRace
         return RaceClasses.FirstOrDefault(e => e.Id == classId)?.Name ?? string.Empty;
     }
 
-    // NOTE: Not a definitive solution probably as it could be done much better
+    // NOTE: Not a favourable solution, could use a better implementation
     private void BuildDriverPenalties()
     {
         foreach (var penalty in UpcomingPenalties)
@@ -110,5 +112,6 @@ public partial class PostRace
         }
     }
 
-    private void GoToOverview() => _nav.NavigateTo($"overview/{Model.Season.Id}/2");
+    // The number "2" refers to the tab-index at overview here, which in this case is the "Standings"
+    private void GoToOverview() => _navigation.NavigateTo($"overview/{Model.Season.Id}/2");
 }

@@ -9,37 +9,31 @@ namespace SimTECH.Pages.RaceWeek.Tabs;
 
 public partial class Qualifying
 {
-    [CascadingParameter]
-    public RaweCeekModel Model { get; set; }
+    [CascadingParameter] public RaweCeekModel Model { get; set; }
 
-    [Parameter]
-    public QualifyingSession QualySession { get; set; } = new();
+    [Parameter] public QualifyingSession QualySession { get; set; } = new();
 
-    [Parameter]
-    public int MaximumAllowed { get; set; } = int.MaxValue;
-
-    [Parameter]
-    public EventCallback<int> OnFinish { get; set; }
+    [Parameter] public EventCallback<int> OnFinish { get; set; }
 
     private List<SessionDriver> QualyDrivers { get; set; } = [];
 
-    bool loading = true;
-    string raceName = string.Empty;
-    Country raceCountry = Globals.DefaultCountry;
-    int amountRuns;
-    int advancedRuns;
-    int qualyRng;
-    int entryCutoff;
-    int progressCutoff;
-    int highestScore;
-    int lowestScore = int.MaxValue;
-    bool hasRaceClasses;
+    private bool Loading { get; set; } = true;
 
-    double gapMarge;
+    private string raceName = string.Empty;
+    private Country raceCountry = Globals.DefaultCountry;
+    private int amountRuns;
+    private int advancedRuns;
+    private int qualyRng;
+    private int entryCutoff;
+    private int progressCutoff;
+    private int highestScore;
+    private int lowestScore = int.MaxValue;
+    private bool hasRaceClasses;
+    private double gapMarge;
 
     protected override void OnInitialized()
     {
-        loading = true;
+        Loading = true;
 
         raceName = $"{Model.Race.Name} - QUALIFYING {QualySession.SessionIndex}";
         raceCountry = Model.Race.Track.Country;
@@ -52,7 +46,7 @@ public partial class Qualifying
         if (QualySession.IsFinished)
         {
             var scoreNumbers = QualySession.SessionScores
-                .SelectMany(e => e.Scores ?? Array.Empty<int>())
+                .SelectMany(e => e.Scores ?? [])
                 .Where(e => e != 0)
                 .ToArray();
             highestScore = scoreNumbers.Max();
@@ -68,7 +62,7 @@ public partial class Qualifying
 
             var driverScore = QualySession.SessionScores.FirstOrDefault(e => e.ResultId == driver.ResultId);
 
-            if (driverScore?.Scores?.Any() ?? false)
+            if (driverScore?.Scores?.Length > 0)
             {
                 mappedDriver.Scores = driverScore.Scores;
                 mappedDriver.Position = driverScore.Position;
@@ -83,10 +77,10 @@ public partial class Qualifying
             QualyDrivers.Add(mappedDriver);
         }
 
-        loading = false;
+        Loading = false;
     }
 
-    private async void Advance()
+    private async Task Advance()
     {
         foreach (var driver in QualyDrivers)
         {
@@ -129,7 +123,6 @@ public partial class Qualifying
                 AbsolutePosition = e.AbsolutePosition,
                 RaceId = Model.Race.Id,
                 ResultId = e.ResultId,
-
                 PenaltyPunish = e.PenaltyPunish
             })
             .ToList();

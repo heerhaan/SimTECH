@@ -13,7 +13,7 @@
 <PageTitle>Statistics</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    @if (!loading)
+    @if (!Loading)
     {
         <MudGrid Spacing="1">
             <MudItem xs=12>
@@ -32,12 +32,16 @@
                     </MudCardHeader>
                     <MudCardContent>
                         <MudText Typo="Typo.body2">
-                            Filter the given data for the statistics shown here to a specific league,
-                            otherwise use data from all leagues.
+                            Filter the given data for the statistics shown here to a specific league, otherwise use data from all leagues.
                         </MudText>
                     </MudCardContent>
                     <MudCardActions>
-                        <MudSelect T="long" @bind-Value="@leagueFilter" Variant="Variant.Outlined" Label="League" Placeholder="All leagues">
+                        <MudSelect T="long"
+                                   @bind-Value="@leagueFilter"
+                                   Variant="Variant.Filled"
+                                   Label="League"
+                                   Placeholder="All leagues"
+                                   ToStringFunc="@leagueNameOrAll">
                             @foreach (var league in Leagues)
                             {
                                 <MudSelectItem Value="@league.Id">
@@ -76,16 +80,22 @@
 </MudContainer>
 
 @code {
-    private List<StatTopic> Topics { get; set; } = new();
-    private List<League> Leagues;
+    private List<StatTopic> Topics { get; set; } = StatisticTopicsBuilder.GetStatisticTopics;
+    private List<League> Leagues { get; set; } = [];
 
-    private bool loading = true;
+    private bool Loading { get; set; } = true;
     private long leagueFilter;
+
+    private Func<long, string> leagueNameOrAll => (leagueId) =>
+    {
+        if (leagueId == 0)
+            return "Any league";
+
+        return Leagues.Find(e => e.Id == leagueId)?.Name ?? "Unknown";
+    };
 
     protected override async Task OnInitializedAsync()
     {
-        Leagues = await _leagueService.GetLeagues();
-
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
@@ -93,27 +103,18 @@
             new BreadcrumbItem("Stats", href: "stats", disabled: true),
         });
 
+        Leagues = await _leagueService.GetLeagues();
+
         LoadTopics();
 
-        loading = false;
+        Loading = false;
     }
 
     private void LoadTopics()
     {
-        // Use an enum instead of a method as parameter here? Removes the need to load it like this
-        Topics = new()
-        {
-            new StatTopic(
-                "Compare drivers",
-                "Compare statistics between multiple drivers",
-                typeof(DriverCompareStat),
-                GetDriverParameters),
-            new StatTopic(
-                "Records drivers",
-                "Leaderboards of drivers with the most of something",
-                typeof(DriverRecord),
-                GetDriverParameters)
-        };
+        // NOTE: Use an enum instead of a method as parameter here? Removes the need to load it like this
+        foreach (var topic in Topics)
+            topic.ParameterQuery = GetDriverParameters;
     }
 
     private async Task<DialogParameters> GetDriverParameters()

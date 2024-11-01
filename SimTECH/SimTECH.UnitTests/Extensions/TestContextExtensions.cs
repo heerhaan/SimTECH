@@ -14,6 +14,7 @@ public static class TestContextExtensions
 
         context.Services.AddMudServices(options =>
         {
+            options.PopoverOptions.CheckForPopoverProvider = false;
             options.SnackbarConfiguration.ShowTransitionDuration = 0;
             options.SnackbarConfiguration.HideTransitionDuration = 0;
         });

@@ -26,7 +26,6 @@
                                               Label="Abbreviation"
                                               Class="field-sm"
                                               Required="true" />
-
                                 <MudDatePicker @bind-Date="Model.DateSetter"
                                                ShowToolbar="false"
                                                DateFormat="yyyy"
@@ -36,10 +35,8 @@
                                                Required="true"
                                                Label="Born in"
                                                Class="field-sm" />
-
                                 <CountrySelect @bind-Value="Model.Country"
                                                Class="field-md" />
-
                                 <MudTextField @bind-Value="Model.Biography"
                                               T="string"
                                               Label="Biography"
@@ -47,7 +44,7 @@
                                               Validation="@_bioValidator" />
 
                                 <MudText Typo="Typo.subtitle1">Options</MudText>
-                                <MudDivider />
+                                <MudDivider Class="my-1" />
                                 <MudSwitchM3 @bind-Value="Model.Mark"
                                              Label="Mark"
                                              Color="Color.Secondary"
@@ -60,7 +57,7 @@
                     <MudItem xs="4">
                         <MudPaper Elevation="15" Class="pa-2 mud-height-full">
                             <MudText Typo="Typo.subtitle1">Traits</MudText>
-                            <MudDivider />
+                            <MudDivider Class="my-1" />
                             <MudChipSet T="long" @bind-SelectedValues="SelectedTraits" SelectionMode="SelectionMode.MultiSelection"
                                         CheckMark="true">
                                 @foreach (var trait in AvailableTraits)
@@ -70,7 +67,7 @@
                             </MudChipSet>
 
                             <MudText Typo="Typo.subtitle1">Strategy preference</MudText>
-                            <MudDivider />
+                            <MudDivider Class="my-1" />
                             <MudChipSet T="StrategyPreference" @bind-SelectedValue="@Model.StrategyPreference"
                                         SelectionMode="SelectionMode.SingleSelection">
                                 <MudChip Color="Color.Primary"

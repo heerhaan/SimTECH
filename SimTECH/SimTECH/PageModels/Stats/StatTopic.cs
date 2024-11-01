@@ -4,6 +4,12 @@ namespace SimTECH.PageModels.Stats;
 
 public class StatTopic
 {
+    public StatTopic(string title, string description, Type statType)
+    {
+        Title = title;
+        Description = description;
+        StatisticType = statType;
+    }
     public StatTopic(string title, string description, Type statType, Func<Task<DialogParameters>> query)
     {
         Title = title;

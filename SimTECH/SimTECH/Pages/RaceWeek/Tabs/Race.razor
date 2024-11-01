@@ -54,7 +54,7 @@
                   Class="extra-dense overflow-x-hide">
             <ToolBarContent>
                 <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-2 mud-width-full">
-                    <div class="d-flex flex-row gap-3 align-center pa-0" style="width:30%">
+                    <div class="flex-block-row gap-3 pa-0" style="width:30%">
                         <CountryFlag Code="@Model.Race.Track.Country" />
                         <MudText Typo="Typo.h5" Class="overflow-hider">@Model.Race.Name - ROUND @Model.Race.Round</MudText>
                     </div>
@@ -234,14 +234,12 @@
                     <MudSpacer />
 
                     <MudText Typo="Typo.button">
-                        Available
-                        <br />
-                        Tyres
+                        Available tyres
                     </MudText>
 
                     @if (ValidTyres?.Any() == true)
                     {
-                        <div class="d-flex flex-row gap-1 align-center justify-center">
+                        <div class="flex-block-row gap-1 justify-center">
                             @foreach (var tyre in ValidTyres)
                             {
                                 <TyreElement Colour="@tyre.Colour">@tyre.Name.ElementAt(0)</TyreElement>

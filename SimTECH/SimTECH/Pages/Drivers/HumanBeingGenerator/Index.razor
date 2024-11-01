@@ -6,19 +6,19 @@
 @inject DriverService _driverService
 @inject BreadcrumbProvider _bread
 @inject HumanBeingProvider _humanProvider
-@inject NavigationManager _nav
+@inject NavigationManager _navigation
 @inject ISnackbar _snack
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudGrid Spacing="1">
         <MudItem xs="12">
-            <MudPaper Elevation="15" Height="75px" Class="d-flex flex-row justify-center pa-4">
+            <MudPaper Elevation="15" Height="75px" Class="flex-block-row justify-center pa-4">
                 <MudText Typo="Typo.h3">Human Being Generator</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="6">
             <MudStack>
-                <MudPaper Elevation="15" Class="d-flex flex-column justify-space-between pa-4">
+                <MudPaper Elevation="15" Class="flex-block-column justify-space-between pa-4">
                     <MudStack>
                         <div>
                             <MudText Typo="Typo.h6">Generation settings</MudText>
@@ -35,11 +35,11 @@
                             </MudChipSet>
                         </div>
 
-                        <MudNumericField @bind-Value="@generateAmount" Label="Amount generated" Class="field-md" />
+                        <MudNumericField @bind-Value="@GenerateAmount" Label="Amount generated" Class="field-md" />
                         <MudDateRangePicker Label="Date of Birth range" @bind-DateRange="dateRange" Editable="true" />
 
                         <!-- One option to add is to generate either on nationality or language type -->
-                        @if (availableLanguages != null && genderFilter != Gender.Other)
+                        @if (availableLanguages != null && GenderFilter != Gender.Other)
                         {
                             <MudSelectExtended ItemCollection="@(availableLanguages.OrderBy(e => e.Country.GetDescription()).ToList())"
                                                @bind-SelectedValues="@SelectedLanguages"
@@ -52,15 +52,21 @@
                                                SearchFunc="SearchLanguages">
                                 <ItemTemplate>
                                     <MudCheckBox Value="@context.IsSelected" Color="Color.Secondary" />
-                                    <CountryNamedFlag Code="@context.Value.Country"
-                                                      Justify="Justify.FlexStart"
-                                                      Size="ElementSize.Normal" />
+                                    @if (context.Value != null)
+                                    {
+                                        <CountryNamedFlag Code="@context.Value.Country"
+                                                           Justify="Justify.FlexStart"
+                                                           Size="ElementSize.Normal" />
+                                    }
                                 </ItemTemplate>
                                 <ItemSelectedTemplate>
                                     <MudCheckBox Value="@context.IsSelected" Color="Color.Secondary" />
-                                    <CountryNamedFlag Code="@context.Value.Country"
-                                                      Justify="Justify.FlexStart"
-                                                      Size="ElementSize.Normal" />
+                                    @if (context.Value != null)
+                                    {
+                                        <CountryNamedFlag Code="@context.Value.Country"
+                                                          Justify="Justify.FlexStart"
+                                                          Size="ElementSize.Normal" />
+                                    }
                                 </ItemSelectedTemplate>
                             </MudSelectExtended>
                         }
@@ -164,8 +170,10 @@
     private LanguageInfo[]? availableLanguages;
     private List<HumanBeing>? humanBeans;
     private DateRange dateRange = new DateRange(DateTime.Now.AddYears(-10).Date, DateTime.Now.Date);
-    private Gender genderFilter = Gender.All;
-    private int generateAmount = 5;
+
+    private Gender GenderFilter { get; set; } = Gender.All;
+
+    private int GenerateAmount { get; set; } = 5;
 
     private int langTypeAmount => availableLanguages == null ? 0 : availableLanguages.GroupBy(e => e.LanguageType).Count();
 
@@ -181,7 +189,7 @@
         availableLanguages = _humanProvider.GetLanguageHumanInfo();
     }
 
-    private void GenderChange(Gender gender) => genderFilter = gender;
+    private void GenderChange(Gender gender) => GenderFilter = gender;
 
     private void GenerateHumans()
     {
@@ -191,20 +199,20 @@
             return;
         }
 
-        LanguageInfo[]? langsToGenerate;
+        LanguageInfo[] langsToGenerate;
 
-        if (genderFilter.HasFlag(Gender.Other))
+        if (GenderFilter.HasFlag(Gender.Other))
             langsToGenerate = availableLanguages.Where(e => e.LanguageType == "fr").ToArray();
         else
             langsToGenerate = SelectedLanguages.ToArray();
 
-        if (langsToGenerate == null || langsToGenerate.Length == 0)
+        if (langsToGenerate.Length == 0)
         {
             _snack.Add("No languages have been selected, you moron", Severity.Error);
             return;
         }
 
-        humanBeans = _humanProvider.GetHumanBeings(generateAmount, langsToGenerate, genderFilter, dateRange);
+        humanBeans = _humanProvider.GetHumanBeings(GenerateAmount, langsToGenerate, GenderFilter, dateRange);
     }
 
     private async Task SaveHumanBeings()
@@ -219,13 +227,13 @@
 
         await _driverService.BulkAddItems(drivers);
 
-        _nav.NavigateTo("/drivers");
+        _navigation.NavigateTo("/drivers");
     }
 
     private async Task SaveSingleHuman(HumanBeing realHero)
     {
-        await _driverService.BulkAddItems(new(){ realHero.ToDriver });
-        _nav.NavigateTo("/drivers");
+        await _driverService.BulkAddItems(new() { realHero.ToDriver });
+        _navigation.NavigateTo("/drivers");
     }
 
     private void RemoveHumanBeing(HumanBeing realLoser)

@@ -22,7 +22,7 @@
             <div class="setting-column-wrapper">
                 <MudPaper Class="pa-2">
                     <MudText Typo="Typo.h5">Assignment settings</MudText>
-                    <MudDivider Class="my-1" />
+                    <MudDivider Class="my-2" />
                     <MudStack Class="trait-assignment-menu-bar">
                         <div class="setting-double-field-wrapper">
                             <div>
@@ -50,7 +50,7 @@
                                     <MudSelect T="long"
                                                Value="@LeagueFilter"
                                                ValueChanged="FilterEntrantsByLeague"
-                                               ToStringFunc="@LeagueNameOrAll"
+                                               ToStringFunc="@leagueNameOrAll"
                                                Variant="Variant.Filled"
                                                Placeholder="All leagues"
                                                Label="Filter by active league"
@@ -74,11 +74,11 @@
                                                  Class="field-sm" />
                             </div>
                         </div>
-                        <MudButtonGroup Variant="Variant.Outlined" Color="Color.Primary">
-                            <MudButton Disabled="true">
+                        <MudButtonGroup Variant="Variant.Outlined" Color="Color.Primary" Class="mt-2">
+                            <MudButton Disabled="@IsResetDisabled">
                                 Reset
                             </MudButton>
-                            <MudButton Disabled="@(!CanAssignTraits)"
+                            <MudButton Disabled="@(!canAssignTraits)"
                                        OnClick="StartAssigningTraits">
                                 Assign
                             </MudButton>
@@ -86,16 +86,18 @@
                     </MudStack>
                 </MudPaper>
                 <MudPaper Class="pa-2">
-                    <MudText Typo="Typo.h5">Available traits</MudText>
-                    <MudDivider Class="my-1" />
-                    <MudText Typo="Typo.body2" Color="Color.Info">
-                        Select which traits are allowed to be assigned
-                    </MudText>
+                    <div class="flex-block-row justify-space-between">
+                        <MudText Typo="Typo.h5">Available traits</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Info">
+                            Select which traits are allowed to be assigned
+                        </MudText>
+                    </div>
+                    <MudDivider Class="my-2" />
                     @if (AssignableTraits.Any())
                     {
                         <MudTable T="AssignableTrait"
                                   Items="@AssignableTraits"
-                                  @bind-SelectedItems="@selectedTraits"
+                                  @bind-SelectedItems="@SelectedTraits"
                                   RowsPerPage="15"
                                   MultiSelection="true"
                                   Dense="true"
@@ -124,25 +126,26 @@
         </MudItem>
         <MudItem xs="6">
             <MudPaper Class="pa-2">
-                <MudText Typo="Typo.h5">Available entrants</MudText>
-                <MudDivider Class="my-1" />
-                <div class="flex-block-row justify-space-between">
+                <div class="flex-block-row justify-content-between">
+                    <MudText Typo="Typo.h5">Available entrants</MudText>
                     <MudText Typo="Typo.body2" Color="Color.Info">
                         Select the entries to assign traits for
                     </MudText>
-                    @if (selectedEntrants != null && selectedEntrants.Count != 0)
+                </div>
+                <MudDivider Class="my-2" />
+                <div class="flex-block-row justify-space-between">
+                    @if (SelectedEntrants != null && SelectedEntrants.Count != 0)
                     {
                         <MudText Typo="Typo.body2" Color="Color.Tertiary">
-                            Amount selected: @(selectedEntrants.Count)
+                            Amount selected: @(SelectedEntrants.Count)
                         </MudText>
                     }
                 </div>
-                
                 @if (Entrants.Any())
                 {
                     <MudTable T="EntrantAssignee"
                               Items="@Entrants"
-                              @bind-SelectedItems="@selectedEntrants"
+                              @bind-SelectedItems="@SelectedEntrants"
                               RowsPerPage="15"
                               MultiSelection="true"
                               Dense="true"
@@ -184,10 +187,8 @@
     private List<EntrantAssignee> Entrants { get; set; } = [];
     private List<League> Leagues { get; set; } = [];
 
-    private Dictionary<long, string> traitBook;
-
-    private HashSet<AssignableTrait>? selectedTraits;
-    private HashSet<EntrantAssignee>? selectedEntrants;
+    private HashSet<AssignableTrait>? SelectedTraits { get; set; }
+    private HashSet<EntrantAssignee>? SelectedEntrants { get; set; }
 
     private Entrant ActiveEntrant { get; set; } = Entrant.None;
 
@@ -195,9 +196,11 @@
     private int AdditionOdds { get; set; } = 100;
     private int RemovalOdds { get; set; } = 0;
 
-    private bool CanAssignTraits => selectedEntrants?.Any() == true && (selectedTraits?.Any() == true);
+    private bool IsResetDisabled { get; set; } = true;
 
-    private Func<long, string> LeagueNameOrAll => (leagueId) =>
+    private bool canAssignTraits => SelectedEntrants?.Any() == true && (SelectedTraits?.Any() == true);
+
+    private Func<long, string> leagueNameOrAll => (leagueId) =>
     {
         if (leagueId == 0)
             return "Any league";
@@ -216,8 +219,6 @@
 
         ActiveTraits = await _traitService.GetTraits(StateFilter.Active);
         Leagues = await _leagueService.GetLeagues();
-
-        traitBook = ActiveTraits.ToDictionary(e => e.Id, e => e.Name);
     }
 
     private async Task RetrieveEntrants(Entrant selectedEntrant)
@@ -286,8 +287,8 @@
 
     private async Task StartAssigningTraits()
     {
-        var assignableTraits = selectedTraits?.ToList() ?? new();
-        var assignableEntrants = selectedEntrants?.ToList() ?? new();
+        var assignableTraits = SelectedTraits?.ToList() ?? new();
+        var assignableEntrants = SelectedEntrants?.ToList() ?? new();
 
         if (assignableEntrants.Count == 0 || assignableTraits.Count == 0)
             return;

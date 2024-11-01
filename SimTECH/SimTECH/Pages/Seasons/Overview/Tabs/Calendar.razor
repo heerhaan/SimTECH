@@ -39,7 +39,7 @@
                 <MudText Typo="Typo.h5">@context.Round</MudText>
             </MudTd>
             <MudTd>
-                <CountryNamedFlag Code="@context.Country" Size="ElementSize.Small" Reverse="true" Class="overflow-hider" />
+                <CountryNamedFlag Code="@context.Country" Size="ElementSize.Small" Reverse="true" />
             </MudTd>
             <MudTd Style="max-width:300px">
                 <MudText Class="overflow-hider">@context.Name</MudText>
@@ -98,16 +98,21 @@
                 <MudButtonGroup Size="@Size.Small">
                     @if (OverviewModel.Season.State == State.Active && (context.Round == nextRound))
                     {
-                        <MudIconButton Icon="@Icons.Material.Outlined.Logout" OnClick="@(() => GoToRace(context.Round))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Logout"
+                                       OnClick="@(() => GoToRace(context.Round))" />
                     }
                     else if (context.State == State.Closed)
                     {
-                        <MudIconButton Icon="@Icons.Material.Filled.Flag" OnClick="@(() => GoToRace(context.Round))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Flag"
+                                       OnClick="@(() => GoToRace(context.Round))" />
                     }
                     else if (OverviewModel.Season.State != State.Closed)
                     {
-                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateRace(context.Race))" />
-                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="@(async () => await DeleteRace(context.RaceId))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                                       OnClick="@(async () => await UpdateRace(context.Race))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                       Color="Color.Error"
+                                       OnClick="@(async () => await DeleteRace(context.RaceId))" />
                     }
                 </MudButtonGroup>
             </MudTd>

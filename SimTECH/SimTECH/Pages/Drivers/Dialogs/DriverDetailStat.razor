@@ -7,7 +7,7 @@
     </TitleContent>
     <DialogContent>
         <MudPaper MinWidth="900px" MinHeight="400px" Class="pa-2">
-            @if (!loading)
+            @if (!Loading)
             {
                 <MudPaper>
                     <MudText Typo="Typo.subtitle1">Grab data from a league:</MudText>
@@ -73,7 +73,7 @@
 
     private long SelectedLeagueId { get; set; }
 
-    private bool loading = true;
+    private bool Loading { get; set; } = true;
 
     private Func<DataPoint, string> _colourSetter => dataPoint =>
     {
@@ -97,14 +97,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        loading = true;
+        Loading = true;
 
         DriverResults = await _resultService.GetAllResultsOfDriver(Driver.Id);
         Leagues = await _leagueService.GetLeagues();
 
         CreatePositionChart();
 
-        loading = false;
+        Loading = false;
     }
 
     private void CreatePositionChart()

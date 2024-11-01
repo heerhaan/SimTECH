@@ -9,8 +9,8 @@
 <MudPaper Elevation="25">
     <MudTable Items="@Drivers.OrderBy(e => e.AbsolutePosition)"
               Dense="true"
-              Class="extra-dense collapse"
               RowStyleFunc="@_sessionRowStyles"
+              Class="extra-dense collapse"
               id="session-table">
         <HeaderContent>
             <MudTh></MudTh>
@@ -35,7 +35,7 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd Class="number-col">
-                <div class="d-flex flex-row align-items-center gap-1">
+                <div class="flex-block-row gap-1">
                     <DriverPosition Number="@context.Position" />
                     @if (HasRaceClasses)
                     {

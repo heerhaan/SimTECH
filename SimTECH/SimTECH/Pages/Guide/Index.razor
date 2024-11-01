@@ -11,7 +11,7 @@
     <MudGrid Spacing="1">
         <MudItem xs=12>
             <MudPaper Elevation="15" Height="75px" Class="d-flex flex-column justify-center align-center">
-                <MudText Typo="Typo.h3">FAG</MudText>
+                <MudText Typo="Typo.h3">FAQ</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="3">
@@ -43,56 +43,9 @@
 </MudContainer>
 
 @code {
-    public Type ActiveTopic { get; set; } = typeof(Intro);
+    private List<GuideGroupItem> GuideItems { get; set; } = GuideItemBuilder.GetGroupedGuideItems;
 
-    private static readonly List<GuideGroupItem> GuideItems = new()
-    {
-        new GuideGroupItem
-        {
-            Title = "FAQ",
-            Icon = Icons.Custom.FileFormats.FileExcel,
-            ExpandedIcon = Icons.Custom.FileFormats.FileExcel,
-            Type = typeof(Intro),
-            Order = 0,
-        },
-        new GuideGroupItem
-        {
-            Title = "Quick start",
-            Icon = Icons.Custom.FileFormats.FileExcel,
-            ExpandedIcon = Icons.Custom.FileFormats.FileExcel,
-            Type = typeof(QuickStartTopic),
-            Order = 5,
-        },
-        new GuideGroupItem
-        {
-            Title = "Glossary",
-            Icon = Icons.Material.Filled.MenuBook,
-            ExpandedIcon = Icons.Material.Filled.MenuBook,
-            Type = typeof(Glossary),
-            Order = 99,
-        },
-        new GuideGroupItem
-        {
-            Title = "Racing information",
-            Icon = Icons.Custom.Uncategorized.Folder,
-            ExpandedIcon = Icons.Custom.Uncategorized.FolderOpen,
-            Type = typeof(UnknownTopic),
-            Order = 10,
-            Children = new()
-            {
-                new GuideItem("Practice", IconCollection.Polygon, typeof(PracticeTopic)),
-                new GuideItem("Qualifying", IconCollection.Polygon, typeof(QualifyingTopic)),
-                new GuideItem("Race", IconCollection.Polygon, typeof(RaceTopic)),
-                new GuideItem("Distance", IconCollection.Polygon, typeof(Topics.RaceCategory.Distance)),
-                new GuideItem("Advance", IconCollection.Polygon, typeof(Advance)),
-                new GuideItem("Reliability", IconCollection.Polygon, typeof(Reliability)),
-                new GuideItem("Strategy", IconCollection.Polygon, typeof(Strategy)),
-                new GuideItem("Overtaking", IconCollection.Polygon, typeof(Overtaking)),
-                new GuideItem("Safety car", IconCollection.AlertTriangle, typeof(SafetyMoment)),
-                new GuideItem("Modifiers", IconCollection.Polygon, typeof(Modifiers)),
-            }
-        },
-    };
+    private Type ActiveTopic { get; set; } = typeof(Intro);
 
     protected override void OnInitialized()
     {

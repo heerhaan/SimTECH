@@ -21,13 +21,11 @@
         <MudItem xs="12" md="3">
             <MudPaper Elevation="5" Class="pa-4 mud-height-full">
                 <MudText Typo="Typo.h5">Welcome</MudText>
-                <MudDivider />
-
+                <MudDivider Class="my-2" />
                 <MudStack Class="pa-0 mt-2">
                     <MudText Typo="Typo.body2">
                         Great to see you again, you love to see it.
                     </MudText>
-
                     <MudListExtended T="string" Dense="true">
                         <MudListItemExtended T="string"
                                              Text="@($"Advance distance: {config.CalculationDistance}km")"
@@ -36,7 +34,6 @@
                                              Text="@($"Gap marge: {config.GapMarge}s")"
                                              SecondaryText="Represents gap in seconds per score value" />
                     </MudListExtended>
-
                     @if (!hideDataMessage)
                     {
                         <MudAlert Severity="Severity.Info"
@@ -53,8 +50,7 @@
         <MudItem xs="12" md="9">
             <MudPaper Elevation="5" Class="pa-4 mud-height-full">
                 <MudText Typo="Typo.h5">Last races</MudText>
-                <MudDivider />
-
+                <MudDivider Class="my-2" />
                 <MudTable id="recent-race-table" Items="@RecentRaces" Dense="true" Class="overflow-hider">
                     <HeaderContent>
                         <MudTh>
@@ -108,8 +104,7 @@
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
                 <MudText Typo="Typo.h5">Active seasons</MudText>
-                <MudDivider />
-
+                <MudDivider Class="my-2" />
                 <MudTable Items="@ActiveSeasons" Dense="true">
                     <HeaderContent>
                         <MudTh>League</MudTh>
@@ -139,8 +134,7 @@
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="5" MinHeight="100px" Class="pa-4 mud-height-full">
                 <MudText Typo="Typo.h5">Upcoming races</MudText>
-                <MudDivider />
-
+                <MudDivider Class="my-2" />
                 <MudTable T="FinishedRaceModel" Items="@UpcomingRaces" Dense="true" Class="overflow-hider">
                     <HeaderContent>
                         <MudTh>
@@ -167,7 +161,9 @@
                             </MudStack>
                         </MudTd>
                         <MudTd>
-                            <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="@(() => GoToRaceWeek(context.RaceId))">Go</MudButton>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Secondary"
+                                       OnClick="@(() => GoToRaceWeek(context.RaceId))">Go</MudButton>
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
