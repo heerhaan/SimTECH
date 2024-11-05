@@ -3,7 +3,7 @@
 @if (IsIconButton)
 {
     <MudTooltip Text="Take a screenshot" Placement="Placement.Top" Color="@Colour">
-        <MudIconButton Variant="Variant.Text"
+        <MudIconButton Variant="@Variant"
                        Icon="@Icons.Material.Filled.Image"
                        Color="@Colour"
                        Disabled="@IsDisabled"
@@ -14,7 +14,7 @@
 }
 else
 {
-    <MudButton Variant="Variant.Outlined"
+    <MudButton Variant="@Variant"
                Color="@Colour"
                StartIcon="@(PostFixIcon ? null : Icons.Material.Filled.Image)"
                EndIcon="@(PostFixIcon ? Icons.Material.Filled.Image : null)"
@@ -34,6 +34,9 @@ else
 
     [Parameter]
     public Color Colour { get; set; } = Color.Inherit;
+
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Text;
 
     [Parameter]
     public Size IconSize { get; set; } = Size.Medium;

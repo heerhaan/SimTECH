@@ -10,8 +10,12 @@
                 <MudText Typo="Typo.h5">World Drivers Championship @OverviewModel.Season.Year</MudText>
                 <MudSpacer />
                 <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Text">
-                    <MudIconButton Icon="@Icons.Material.Outlined.InsertChart" OnClick="ShowWdcResultGraph" />
-                    <ScreenshotButton TargetId="wdc-season-results" Colour="Color.Tertiary" IsIconButton="true" />
+                    <MudButton StartIcon="@Icons.Material.Outlined.InsertChart"
+                               IconSize="Size.Small"
+                               OnClick="ShowWdcResultGraph">
+                        Chart
+                    </MudButton>
+                    <ScreenshotButton TargetId="wdc-season-results" Colour="Color.Tertiary" />
                 </MudButtonGroup>
             </MudStack>
         </ToolBarContent>
@@ -38,7 +42,9 @@
             </MudTd>
             <MudTd Class="overflow-hider">
                 <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                    <MudText Class="overflow-hider" Style="@(context.Mark ? "text-decoration: underline" : "")">@context.Name</MudText>
+                    <MudText Class="overflow-hider" Style="@(context.Mark ? "text-decoration: underline" : "")">
+                        @context.Name
+                    </MudText>
                     <MudSpacer />
                     <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
                 </MudStack>
@@ -88,6 +94,7 @@
     {
         var parameters = new DialogParameters { ["Drivers"] = StandingDrivers, ["Season"] = OverviewModel.Season };
 
-        _ = await _dialogService.ShowAsync<WdcResultChart>("WDC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
+        _ = await _dialogService.ShowAsync<WdcResultChart>(
+            "WDC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
     }
 }
