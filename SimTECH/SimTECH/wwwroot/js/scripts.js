@@ -9,6 +9,10 @@ window.takeScreenshot = (target) => {
 				new ClipboardItem({
 					[blob.type]: blob
 				})
-			]).then(() => { console.log("Copied html canvas!"); });
+				])
+				.then(() => { console.log("Copied html blob!"); });
+		})
+		.catch(function (err) {
+			console.error('zoinks, did not manage to copy the created blob to the clipboard', err);
 		});
 }
