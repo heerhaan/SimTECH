@@ -29,22 +29,6 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
             .ToListAsync();
     }
 
-    public async Task<List<CurrentDriver>> GetDriversInActiveSeason()
-    {
-        using var context = _dbFactory.CreateDbContext();
-
-        return await context.SeasonDriver
-            .Where(sd => sd.Season.State == State.Active)
-            .Select(sd => new CurrentDriver
-            {
-                SeasonDriverId = sd.Id,
-                DriverId = sd.DriverId,
-                LeagueName = sd.Season.League.Name,
-                Colour = sd.SeasonTeam == null ? Globals.DefaultColour : sd.SeasonTeam.Colour
-            })
-            .ToListAsync();
-    }
-
     public async Task<List<DriverListItem>> GetIndexListDrivers(bool archivedOnly = false)
     {
         using var context = _dbFactory.CreateDbContext();
@@ -54,13 +38,9 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
             .AsQueryable();
 
         if (archivedOnly)
-        {
             query = query.Where(e => e.State == State.Archived);
-        }
         else
-        {
             query = query.Where(e => e.State != State.Archived);
-        }
 
         var drivers = await query
             .Select(e => e.MapToListItem())
@@ -81,15 +61,30 @@ public sealed class DriverService(IDbContextFactory<SimTechDbContext> factory) :
         return drivers;
     }
 
-    public async Task<List<Driver>> GetDriversFromLeague(long leagueId) => await GetDriversFromLeague(leagueId, StateFilter.Default);
-    public async Task<List<Driver>> GetDriversFromLeague(long leagueId, StateFilter filter)
+    public async Task<List<CurrentDriver>> GetDriversInActiveSeason()
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.SeasonDriver
+            .Where(sd => sd.Season.State == State.Active)
+            .Select(sd => new CurrentDriver
+            {
+                SeasonDriverId = sd.Id,
+                DriverId = sd.DriverId,
+                LeagueName = sd.Season.League.Name,
+                Colour = sd.SeasonTeam == null ? Globals.DefaultColour : sd.SeasonTeam.Colour
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<Driver>> GetDriversInActiveLeague(long leagueId)
     {
         using var context = _dbFactory.CreateDbContext();
 
         return await context.Driver
             .Include(e => e.DriverTraits)
-            .Where(e => filter.StatesForFilter().Contains(e.State)
-                && e.SeasonDrivers.Any(e => e.Season.LeagueId == leagueId))
+            .Where(e => e.State == State.Active
+                && e.SeasonDrivers.Any(e => e.Season.LeagueId == leagueId && e.Season.State == State.Active))
             .ToListAsync();
     }
 

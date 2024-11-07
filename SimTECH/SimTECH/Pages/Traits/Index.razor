@@ -100,18 +100,18 @@
 </MudContainer>
 
 @code {
-    private List<Trait> Traits { get; set; }
+    private List<Trait> Traits { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
     {
-        Traits = await _traitService.GetTraits();
-
         _bread.Reset();
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Traits", href: "traits", disabled: true),
         });
+
+        Traits = await _traitService.GetTraits();
     }
 
     private async Task AddItem() => await UpdateItem(null);
@@ -122,7 +122,10 @@
         var dialog = await _dialogService.ShowAsync<TraitEditor>("Modify trait", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null && result.Data is Trait updatedItem)
+        if (result == null || result.Canceled)
+            return;
+
+        if (result.Data != null && result.Data is Trait updatedItem)
         {
             await _traitService.UpdateTrait(updatedItem);
             Traits = await _traitService.GetTraits();
@@ -138,5 +141,5 @@
         Traits = await _traitService.GetTraits();
     }
 
-    private void GoToTraitAssign() => _nav.NavigateTo("traitassign");
+    private void GoToTraitAssign() => _nav.NavigateTo("traitassignment");
 }

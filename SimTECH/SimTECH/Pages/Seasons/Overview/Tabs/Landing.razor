@@ -2,7 +2,7 @@
 
 @inject ContractService _contractService
 @inject IIncidentService _incidentService
-@inject NavigationManager _nav
+@inject NavigationManager _navigation
 @inject IDialogService _dialogService
 @inject ISnackbar _snackbar
 
@@ -11,7 +11,7 @@
         <MudPaper Class="pa-4">
             <MudStack>
                 <MudText Typo="Typo.h3">Season @OverviewModel.Season.Year</MudText>
-                <MudDivider />
+                <MudDivider Class="my-2" />
                 <MudSpacer />
                 <MudStack Row="true" Class="pa-0">
                     <MudText Typo="Typo.body2">
@@ -29,7 +29,7 @@
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
                 <MudText Typo="Typo.h5">Upcoming race</MudText>
-                <MudDivider />
+                <MudDivider Class="my-2" />
                 @if (OverviewModel.Season.State is State.Active)
                 {
                     @if (NextRace is null)
@@ -57,7 +57,7 @@
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
                 <MudText Typo="Typo.h5">Controls</MudText>
-                <MudDivider />
+                <MudDivider Class="my-2" />
                 <MudText Typo="Typo.body2">
                     Control the world, bring ruin to those who would oppose you.
                 </MudText>
@@ -86,7 +86,7 @@
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
                 <MudText Typo="Typo.h5">Statistics</MudText>
-                <MudDivider />
+                <MudDivider Class="my-2" />
                 <MudText Typo="Typo.body2">
                     Links to different statistics specific to this season (wow really?)
                 </MudText>
@@ -111,7 +111,7 @@
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
                 <MudText Typo="Typo.h5">Classes</MudText>
-                <MudDivider />
+                <MudDivider Class="my-2" />
 
                 @if (OverviewModel.Season.HasRaceClasses)
                 {
@@ -204,12 +204,12 @@
             return;
         }
 
-        _nav.NavigateTo($"/raceweek/{NextRace.Id}");
+        _navigation.NavigateTo($"/raceweek/{NextRace.Id}");
     }
 
-    private void GoToAddEntrants() => _nav.NavigateTo($"/entrantwizard/{OverviewModel.Season.Id}");
+    private void GoToAddEntrants() => _navigation.NavigateTo($"/entrantwizard/{OverviewModel.Season.Id}");
 
-    private void GoToDeveloper() => _nav.NavigateTo($"/developer/{OverviewModel.Season.Id}");
+    private void GoToDeveloper() => _navigation.NavigateTo($"/developer/{OverviewModel.Season.Id}");
 
-    private void GoToClassDeveloper() => _nav.NavigateTo($"/developer/{OverviewModel.Season.Id}/{OverviewModel.ActiveClassId}");
+    private void GoToClassDeveloper() => _navigation.NavigateTo($"/developer/{OverviewModel.Season.Id}/{OverviewModel.ActiveClassId}");
 }

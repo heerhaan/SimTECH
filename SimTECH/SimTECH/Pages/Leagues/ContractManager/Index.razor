@@ -94,13 +94,13 @@
 
         List<Team> teams;
         if (onlyTeams)
-            teams = await _teamService.GetTeamsFromLeague(League.Id);
+            teams = await _teamService.GetTeamsInActiveLeague(League.Id);
         else
             teams = await _teamService.GetTeams();
 
         List<Driver> drivers;
         if (onlyDrivers)
-            drivers = await _driverService.GetDriversFromLeague(League.Id);
+            drivers = await _driverService.GetDriversInActiveLeague(League.Id);
         else
             drivers = await _driverService.GetDrivers();
 

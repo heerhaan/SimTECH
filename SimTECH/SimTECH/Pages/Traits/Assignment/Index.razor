@@ -1,4 +1,4 @@
-﻿@page "/traitassign"
+﻿@page "/traitassignment"
 
 @using SimTECH.PageModels.Traits
 @using SimTECH.Pages.Traits.Assignment.Dialogs
@@ -203,7 +203,7 @@
     private Func<long, string> leagueNameOrAll => (leagueId) =>
     {
         if (leagueId == 0)
-            return "Any league";
+            return "All entrants";
 
         return Leagues.Find(e => e.Id == leagueId)?.Name ?? "Unknown";
     };
@@ -214,7 +214,7 @@
         {
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Traits", href: "traits"),
-            new BreadcrumbItem("Assign traits", href: "traitassign", disabled: true),
+            new BreadcrumbItem("Assign traits", href: "traitassignment", disabled: true),
         });
 
         ActiveTraits = await _traitService.GetTraits(StateFilter.Active);
@@ -243,7 +243,7 @@
                 {
                     var drivers = LeagueFilter == default
                         ? await _driverService.GetDrivers()
-                        : await _driverService.GetDriversFromLeague(LeagueFilter);
+                        : await _driverService.GetDriversInActiveLeague(LeagueFilter);
 
                     Entrants = drivers.Select(e => new EntrantAssignee(e)).ToList();
                 }
@@ -252,7 +252,7 @@
                 {
                     var teams = LeagueFilter == default
                         ? await _teamService.GetTeams()
-                        : await _teamService.GetTeamsFromLeague(LeagueFilter);
+                        : await _teamService.GetTeamsInActiveLeague(LeagueFilter);
 
                     Entrants = teams.Select(e => new EntrantAssignee(e)).ToList();
                 }
@@ -312,7 +312,9 @@
             }
         }
 
-        var assignedEntrants = assignableEntrants.Where(e => e.AssignedTraits.Count != 0 || e.RemovedTraits.Count != 0).ToList();
+        var assignedEntrants = assignableEntrants
+            .Where(e => e.AssignedTraits.Count != 0 || e.RemovedTraits.Count != 0)
+            .ToList();
 
         var parameters = new DialogParameters
             {

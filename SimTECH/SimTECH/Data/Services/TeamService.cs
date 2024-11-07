@@ -17,30 +17,13 @@ public class TeamService(IDbContextFactory<SimTechDbContext> factory) : StateSer
             .ToListAsync();
     }
 
-    public async Task<List<Team>> GetTeamsFromLeague(long leagueId) => await GetTeamsFromLeague(leagueId, StateFilter.Default);
-    public async Task<List<Team>> GetTeamsFromLeague(long leagueId, StateFilter filter)
+    public async Task<List<Team>> GetTeamsInActiveLeague(long leagueId)
     {
         using var context = _dbFactory.CreateDbContext();
 
-        //var seasons = await context.Season
-        //        .Where(e => e.LeagueId == leagueId)
-        //        .Include(e => e.SeasonDrivers)
-        //        .ToListAsync();
-
-        //var mostRecent = seasons.Find(e => e.State == State.Active)
-        //    ?? seasons.OrderByDescending(e => e.Year).FirstOrDefault();
-
-        //if (mostRecent == null)
-        //{
-        //    return await context.Team
-        //        .Where(e => filter.StatesForFilter().Contains(e.State))
-        //        .Include(e => e.TeamTraits)
-        //        .ToListAsync();
-        //}
-
         return await context.Team
-            .Where(e => filter.StatesForFilter().Contains(e.State)
-                && e.SeasonTeams.Any(e => e.Season.LeagueId == leagueId))
+            .Where(e => e.State == State.Active
+                && e.SeasonTeams.Any(e => e.Season.LeagueId == leagueId && e.Season.State == State.Active))
             .Include(e => e.TeamTraits)
             .ToListAsync();
     }
