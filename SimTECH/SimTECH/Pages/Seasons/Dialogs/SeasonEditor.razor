@@ -3,16 +3,16 @@
         <MudText Typo="Typo.h5">Modify season</MudText>
     </TitleContent>
     <DialogContent>
-        <MudPaper Elevation="50" MinWidth="800px" Class="d-flex flex-row flex-nowrap">
+        <div class="d-flex flex-block-row flex-nowrap" style="min-width: 800px">
             <MudPaper Elevation="25" Class="pa-4 mud-height-full">
                 <MudStack Spacing="6">
                     <div>
                         <MudText Typo="Typo.subtitle1">Information</MudText>
-                        <MudDivider />
+                        <MudDivider Class="my-2" />
                         <div class="d-flex flex-row align-items-center justify-space-between">
                             <MudNumericField T="int" @bind-Value="Model.Year" Label="Year" Class="field-sm" />
 
-                            @if (Model.Id == 0)
+                            @if (isNew)
                             {
                                 <MudSelect T="long" @bind-Value="Model.LeagueId" Label="League">
                                     @foreach (var select in Leagues)
@@ -22,11 +22,11 @@
                                 </MudSelect>
                             }
                         </div>
-                        
+
                     </div>
                     <div>
                         <MudText Typo="Typo.subtitle1">Session setup</MudText>
-                        <MudDivider />
+                        <MudDivider Class="my-2" />
 
                         <MudText Typo="Typo.body2">Qualifying format</MudText>
 
@@ -68,10 +68,10 @@
                     </div>
                     <div>
                         <MudText Typo="Typo.subtitle1">Race setup</MudText>
-                        <MudDivider />
+                        <MudDivider Class="my-2" />
 
                         <MudNumericField @bind-Value="Model.MaximumDriversInRace" Label="MAX drivers in race" />
-                        <MudNumericField @bind-Value="Model.GridBonus" Label="Bonus per grid POS" />
+                        <MudNumericField @bind-Value="Model.GridBonus" Label="Grid bonus" />
                         <MudNumericField @bind-Value="Model.PitCostSubtractCaution" Min="0" Label="Subtracted from pit cost during SC" />
                         <MudNumericField @bind-Value="Model.MistakeRolls" Min="0" Label="Mistake rolls" />
 
@@ -131,12 +131,12 @@
                 <MudDivider />
                 <div style="width: 300px">
                     <MudText Typo="Typo.subtitle2">Per position</MudText>
-                    <MudDivider />
+                    <MudDivider Class="my-2" />
 
                     <MudTable Items="@Model.PointAllotments.OrderBy(e => e.Position)"
-                                Dense="true"
-                                ReadOnly="false"
-                                Class="extra-dense">
+                              Dense="true"
+                              ReadOnly="false"
+                              Class="extra-dense">
                         <ToolBarContent>
                             <MudButton StartIcon="@Icons.Material.Filled.Add"
                                        Variant="Variant.Outlined"
@@ -154,103 +154,106 @@
                         <RowTemplate>
                             <MudTd DataLabel="Position">
                                 <MudNumericField @bind-Value="context.Position" Min="1" Class="field-xs dense-field" Required />
-                             </MudTd>
-                             <MudTd DataLabel="Points">
-                                 <MudNumericField @bind-Value="context.Points" Min="1" Class="field-xs dense-field" Required />
-                             </MudTd>
-                             <MudTd>
-                                 <MudIconButton Size="Size.Small"
-                                                Icon="@Icons.Material.Outlined.Delete"
-                                                Color="Color.Error"
-                                                Class="pa-0"
-                                                OnClick="@(() => RemoveAllotment(context))" />
-                             </MudTd>
-                         </RowTemplate>
-                     </MudTable>
-                 </div>
+                            </MudTd>
+                            <MudTd DataLabel="Points">
+                                <MudNumericField @bind-Value="context.Points" Min="1" Class="field-xs dense-field" Required />
+                            </MudTd>
+                            <MudTd>
+                                <MudIconButton Size="Size.Small"
+                                               Icon="@Icons.Material.Outlined.Delete"
+                                               Color="Color.Error"
+                                               Class="pa-0"
+                                               OnClick="@(() => RemoveAllotment(context))" />
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </div>
 
-                 <div>
-                     <MudText Typo="Typo.subtitle2">Bonus points</MudText>
-                     <MudDivider />
+                <div>
+                    <MudText Typo="Typo.subtitle2">Bonus points</MudText>
+                    <MudDivider Class="my-2" />
 
-                     <MudNumericField @bind-Value="Model.PointsPole" Label="Pole position" />
-                     <MudNumericField @bind-Value="Model.PointsFastestLap" Label="Fastest lap" />
-                 </div>
+                    <MudNumericField @bind-Value="Model.PointsPole" Label="Pole position" />
+                    <MudNumericField @bind-Value="Model.PointsFastestLap" Label="Fastest lap" />
+                </div>
 
-                <MudPaper Class="mt-2">
-                    <MudText Typo="Typo.subtitle1">Race classes</MudText>
-                    <MudDivider />
+                @if (isNew || hasMultipleClasses)
+                {
+                    <MudPaper Class="mt-2">
+                        <MudText Typo="Typo.subtitle1">Race classes</MudText>
+                        <MudDivider Class="my-2" />
 
-                    @if (Model.Id == 0)
-                    {
-                        <MudSwitchM3 T="bool"
-                                     @bind-Checked="hasMultipleClasses"
-                                     ThumbIcon="@Icons.Material.Filled.Done"
-                                     ThumbOffIcon="@Icons.Material.Filled.Close"
-                                     Label="Use race classes"
-                                     Color="Color.Secondary"
-                                     Class="my-2" />
-                    }
+                        @if (isNew)
+                        {
+                            <MudSwitchM3 T="bool"
+                                         @bind-Checked="hasMultipleClasses"
+                                         ThumbIcon="@Icons.Material.Filled.Done"
+                                         ThumbOffIcon="@Icons.Material.Filled.Close"
+                                         Label="Use race classes"
+                                         Color="Color.Secondary"
+                                         Class="my-2" />
+                        }
 
-                    @if (hasMultipleClasses)
-                    {
-                        <MudAlert Dense="true" Severity="Severity.Warning" Class="my-1">
-                            Be wary with changing the tag of a class, this is used to auto-assign teams from previous seasons.
-                        </MudAlert>
+                        @if (hasMultipleClasses)
+                        {
+                            <MudAlert Dense="true" Severity="Severity.Warning" Class="my-1">
+                                Be wary with changing the tag of a class, this is used to auto-assign teams from previous seasons.
+                            </MudAlert>
 
-                        <MudTable Items="@Model.RaceClasses" Dense="true" Class="extra-dense">
-                            <ToolBarContent>
-                                <MudStack Row="true" Class="pa-0 mud-width-full">
-                                    @if (Model.Id == 0)
+                            <MudTable Items="@Model.RaceClasses" Dense="true" Class="extra-dense">
+                                <ToolBarContent>
+                                    @if (isNew)
                                     {
-                                        <MudSpacer />
-                                        <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined"
-                                                   Color="Color.Tertiary" OnClick="AddClass" Size="Size.Small">
-                                            Add race class
-                                        </MudButton>
+                                        <MudStack Row="true" Class="pa-0 mud-width-full">
+                                            <MudSpacer />
+                                            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined"
+                                                       Color="Color.Tertiary" Size="Size.Small" OnClick="AddClass">
+                                                Add race class
+                                            </MudButton>
+                                        </MudStack>
                                     }
-                                </MudStack>
-                            </ToolBarContent>
-                            <HeaderContent>
-                                <MudTh>Name</MudTh>
-                                <MudTh>Colour</MudTh>
-                                <MudTh>Tag</MudTh>
-                                <MudTh></MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd>
-                                    <MudTextField @bind-Value="@context.Name" Class="field-sm dense-field" />
-                                </MudTd>
-                                <MudTd>
-                                    <MudColorPicker @bind-Text="context.Colour" Placeholder="Colour" Class="field-xs dense-field" />
-                                </MudTd>
-                                <MudTd>
-                                    <MudTextField @bind-Value="context.Tag" Class="field-sm dense-field" />
-                                </MudTd>
-                                <MudTd>
-                                    @if (Model.Id == 0)
-                                    {
-                                        <MudIconButton Icon="@Icons.Material.Outlined.Delete"
-                                                       Color="Color.Error"
-                                                       Size="Size.Small"
-                                                       OnClick="@(() => RemoveClass(context))" />
-                                    }
-                                </MudTd>
-                            </RowTemplate>
-                        </MudTable>
+                                </ToolBarContent>
+                                <HeaderContent>
+                                    <MudTh>Name</MudTh>
+                                    <MudTh>Colour</MudTh>
+                                    <MudTh>Tag</MudTh>
+                                    <MudTh></MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd>
+                                        <MudTextField @bind-Value="@context.Name" Class="field-sm dense-field" />
+                                    </MudTd>
+                                    <MudTd>
+                                        <MudColorPicker @bind-Text="context.Colour" Placeholder="Colour" Class="field-xs dense-field" />
+                                    </MudTd>
+                                    <MudTd>
+                                        <MudTextField @bind-Value="context.Tag" Class="field-sm dense-field" />
+                                    </MudTd>
+                                    <MudTd>
+                                        @if (isNew)
+                                        {
+                                            <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                                           Color="Color.Error"
+                                                           Size="Size.Small"
+                                                           OnClick="@(() => RemoveClass(context))" />
+                                        }
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
 
-                        <MudStack>
-                            @foreach (var raceClass in Model.RaceClasses)
-                            {
-                                <SupplierDisplay Colour="@raceClass.Colour">
-                                    <MudText>@raceClass.Tag</MudText>
-                                </SupplierDisplay>
-                            }
-                        </MudStack>
-                    }
-                </MudPaper>
+                            <MudStack>
+                                @foreach (var raceClass in Model.RaceClasses)
+                                {
+                                    <SupplierDisplay Colour="@raceClass.Colour">
+                                        <MudText>@raceClass.Tag</MudText>
+                                    </SupplierDisplay>
+                                }
+                            </MudStack>
+                        }
+                    </MudPaper>
+                }
             </MudPaper>
-        </MudPaper>
+        </div>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -262,10 +265,12 @@
     [CascadingParameter] protected MudDialogInstance? SeasonDialog { get; set; }
 
     [Parameter] public EditSeasonModel Model { get; set; }
-    [Parameter] public IEnumerable<League> Leagues { get; set; } = Enumerable.Empty<League>();
+    [Parameter] public List<League> Leagues { get; set; } = [];
 
     private int lowestPosition;
     private bool hasMultipleClasses;
+
+    private bool isNew => Model.Id == 0;
 
     protected override void OnInitialized()
     {

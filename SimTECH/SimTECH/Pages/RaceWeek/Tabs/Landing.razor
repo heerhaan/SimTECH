@@ -15,7 +15,7 @@
     <MudItem xs="2">
         <MudPaper Class="pa-4 mud-height-full">
             <MudText Typo="Typo.h5">Track information</MudText>
-            <MudDivider />
+            <MudDivider Class="my-2" />
             <MudListExtended T="string" Dense="true">
                 <MudListItemExtended T="string" SecondaryText="Country">
                     <CountryNamedFlag Code="@Model.Race.Track.Country" Size="ElementSize.Normal" Reverse="true" />
@@ -44,7 +44,7 @@
             </MudListExtended>
 
             <MudText Typo="Typo.subtitle1">Circuit traits</MudText>
-            <MudDivider />
+            <MudDivider Class="my-2" />
             @if (TrackTraits.Any() == true)
             {
                 <MudListExtended T="string" Dense="true">
@@ -63,7 +63,7 @@
     <MudItem xs="7">
         <MudPaper Class="pa-4 mud-height-full">
             <MudText Typo="Typo.h5">Starting grid</MudText>
-            <MudDivider />
+            <MudDivider Class="my-2" />
             <MudTable Items="@Model.RaweCeekDrivers.OrderBy(e => e.AbsoluteGrid)" Dense="true" Class="extra-dense">
                 <HeaderContent>
                     <MudTh Class="number-col-lg">Grid</MudTh>
@@ -208,11 +208,6 @@
                 </tbody>
             </MudSimpleTable>
 
-            <MudText Typo="Typo.subtitle1">Haan notifications</MudText>
-            <MudText Class="my-2" Typo="Typo.body2" Color="Color.Warning">
-                Yes, I'm aware traits look ugly. Utilizing brain power still on knowing how to display this nicely.
-            </MudText>
-
             <MudText Typo="Typo.subtitle1">Tyre suppliers</MudText>
             <MudTable Items="@TyreSuppliers" Bordered="true" Dense="true">
                 <HeaderContent>
@@ -238,7 +233,9 @@
             </MudTable>
 
             <MudText Typo="Typo.subtitle1">Abbreviations</MudText>
-            <MudText Typo="Typo.body2" Color="Color.Info">This table only stays here until i'm sure all you smoothbrains have memorized this</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Info">
+                This table only stays here until i'm sure all you smoothbrains have memorized this
+            </MudText>
             <MudSimpleTable Bordered="true" Dense="true" Class="extra-dense">
                 <thead>
                     <tr>
@@ -324,6 +321,11 @@
                     </MudText>
                 }
             }
+
+            <MudText Typo="Typo.subtitle1">Haan notifications</MudText>
+            <MudText Class="my-2" Typo="Typo.body2" Color="Color.Warning">
+                Yes, I'm aware traits look ugly. Utilizing brain power still on knowing how to display this nicely.
+            </MudText>
         </MudPaper>
     </MudItem>
 </MudGrid>

@@ -91,7 +91,9 @@ public partial class Index
         var allTraits = await _traitService.GetTraits();
         var incidents = await _incidentService.GetIncidents(StateFilter.All);
 
-        var traits = allTraits.Where(e => !e.ForWetConditions || e.ForWetConditions == climate.IsWet).ToList();
+        var traits = allTraits
+            .Where(e => !e.ForWetConditions || e.ForWetConditions == climate.IsWet)
+            .ToList();
 
         var trackTraitIds = race.Track.TrackTraits.Select(e => e.TraitId).ToList() ?? [];
         TrackTraits = traits.Where(e => trackTraitIds.Contains(e.Id)).ToList();
@@ -130,7 +132,7 @@ public partial class Index
                 StrategyPreference = driver.Driver.StrategyPreference,
 
                 SeasonTeamId = team.Id,
-                TeamName = team.Name,
+                TeamName = team.Team.Name,
                 Colour = team.Colour,
                 Accent = team.Accent,
                 Parts = new CarParts(team.Aero, team.Chassis, team.Powertrain),
