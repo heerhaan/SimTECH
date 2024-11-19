@@ -33,7 +33,9 @@
             <PropertyColumn Property="e => e.Pace" Title="Life" CellClass="font-caption" />
             <PropertyColumn Property="e => e.MinimumLife" Title="MIN life" CellClass="font-caption" />
             <PropertyColumn Property="e => e.PitWhenBelow" Title="&lt; PIT" CellClass="font-caption" />
-            <TemplateColumn T="Tyre" Title="Length" SortBy="e => e.ExpectedLength(advanceDistance)">
+            <TemplateColumn T="Tyre"
+                            Title="Length"
+                            SortBy="e => e.ExpectedLength(advanceDistance)">
                 <CellTemplate>
                     <MudText Typo="Typo.caption">@(context.Item.ExpectedLength(advanceDistance))km</MudText>
                 </CellTemplate>
@@ -80,7 +82,9 @@
 @code {
     private List<Tyre> Tyres { get; set; } = new();
 
-    int advanceDistance;
+    private int advanceDistance;
+
+    private Func<Tyre, string> _applyTyreColouring => e => $"border-color: {e.Colour}";
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,8 +98,6 @@
 
         advanceDistance = _config.Value.CalculationDistance;
     }
-
-    private Func<Tyre, string> _applyTyreColouring => e => $"border-color: {e.Colour}";
 
     private async Task AddItem() => await UpdateTyre(null);
     private async Task UpdateTyre(Tyre? item)

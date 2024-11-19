@@ -2,7 +2,7 @@
 
 <MudGrid id="raceweek-landing" Spacing="1">
     <MudItem xs="12">
-        <MudPaper MinHeight="60px" Class="pa-2 d-flex flex-row align-center justify-space-between">
+        <MudPaper MinHeight="60px" Class="pa-2 flex-block-row justify-space-between">
             <div class="btn-md"></div>
             <MudText Typo="Typo.h3">@Model.Race.Name</MudText>
             <ScreenshotButton TargetId="raceweek-landing"
@@ -43,6 +43,16 @@
                                      SecondaryText="Defense mod" />
             </MudListExtended>
 
+            <MudText Typo="Typo.h5">Track information alt</MudText>
+            <MudDivider Class="my-2" />
+            <dl>
+                <dt>Length</dt>
+                <dd>@($"{Model.Race.Track.Length}km")</dd>
+
+                <dt>Etc</dt>
+                <dd>Other stuff & thangs</dd>
+            </dl>
+
             <MudText Typo="Typo.subtitle1">Circuit traits</MudText>
             <MudDivider Class="my-2" />
             @if (TrackTraits.Any() == true)
@@ -78,8 +88,8 @@
                         <MudTh Class="number-col">CLA</MudTh>
                     }
                     <MudTh Class="number-col">SUP</MudTh>
-                    <MudTh>Traits</MudTh>
-                    <MudTh>Tyre</MudTh>
+                    @* <MudTh>Traits</MudTh> *@
+                    <MudTh Style="text-align: center">Tyre</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd Class="number-col-lg">
@@ -145,14 +155,14 @@
                             @context.ManufacturerName.ElementAt(0)
                         </SupplierDisplay>
                     </MudTd>
-                    <MudTd>
+                    @* <MudTd>
                         <div class="d-flex flex-column">
                             @foreach (var trait in context.TraitNames)
                             {
                                 <p class="tiny-text-list-item">@trait</p>
                             }
                         </div>
-                    </MudTd>
+                    </MudTd> *@
                     <MudTd>
                         <div class="d-flex flex-row justify-center">
                             <MudLink OnClick="@(async () => await HandleTyrePicker(context.ResultId))">
@@ -169,10 +179,10 @@
     <MudItem xs="3">
         <MudPaper Class="pa-4 mud-height-full">
             <MudText Typo="Typo.h5">Weekend</MudText>
-            <MudDivider />
+            <MudDivider Class="my-2" />
 
-            <MudText Typo="Typo.subtitle1" Class="mt-2">Bob</MudText>
-            <MudText Class="my-2">
+            <MudText Typo="Typo.subtitle1">Bob :(</MudText>
+            <MudText Class="my-1">
                 Carefulness equalizes smartfulness
                 <br />
                 Mindfulness equalizes brain smoothening
@@ -207,6 +217,31 @@
                     </tr>
                 </tbody>
             </MudSimpleTable>
+
+            <MudText Typo="Typo.subtitle1">Weather alt</MudText>
+            <div class="flex-block-row justify-space-between">
+                <div>
+                    <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour">
+                        <MudText Typo="Typo.h5" Color="Color.Default">@Model.Climate.Terminology</MudText>
+                    </CustomIcon>
+                </div>
+                <div>
+                    <dl>
+                        <dt>ENG (→ * power):</dt>
+                        <dd>
+                            <MudText Typo="Typo.caption">@Model.Climate.EngineMultiplier</MudText>
+                        </dd>
+                        <dt>REL (→ + DRI.REL.):</dt>
+                        <dd>
+                            <MudText Typo="Typo.caption">@Model.Climate.ReliablityModifier</MudText>
+                        </dd>
+                        <dt>RNG (→ + MAX RNG):</dt>
+                        <dd>
+                            <MudText Typo="Typo.caption">@Model.Climate.RngModifier</MudText>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
 
             <MudText Typo="Typo.subtitle1">Tyre suppliers</MudText>
             <MudTable Items="@TyreSuppliers" Bordered="true" Dense="true">

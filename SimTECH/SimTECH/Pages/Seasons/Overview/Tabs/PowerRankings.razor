@@ -10,7 +10,7 @@
     <MudDataGrid T="PowerRankingItem" Items="@PowahList" Dense="true" Loading="@Loading">
         <Columns>
             <HierarchyColumn T="PowerRankingItem" />
-            <TemplateColumn T="PowerRankingItem" SortBy="e => e.DriverName" Title="Driver">
+            <TemplateColumn T="PowerRankingItem" SortBy="e => e.DriverName" Title="Driver" CellClass="font-body1">
                 <CellTemplate>
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="pa-0">
                         <MudText Typo="Typo.body2" Class="overflow-hider">@context.Item.DriverName</MudText>
@@ -27,9 +27,9 @@
                     <NumberDisplay Colour="@context.Item.Colour" Accent="@context.Item.Accent">@context.Item.DriverNumber</NumberDisplay>
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.TeamName" Title="Team" CellClass="overflow-hider" CellStyleFunc="@SimpleCellStyle" />
-            <PropertyColumn Property="e => e.Engine" Title="Engine" HeaderClass="hide-sort-icons" />
-            <PropertyColumn Property="e => e.Manufacturer" Title="Supplier" HeaderClass="hide-sort-icons" />
+            <PropertyColumn Property="e => e.TeamName" Title="Team" CellClass="overflow-hider font-body1" CellStyleFunc="@_borderCellStyle" />
+            <PropertyColumn Property="e => e.Engine" Title="Engine" CellClass="font-body1" />
+            <PropertyColumn Property="e => e.Manufacturer" Title="Supplier" HeaderClass="hide-sort-icons" CellClass="font-body1" />
             <PropertyColumn Property="e => e.QualyPower" Title="Q.PWR" HeaderClass="hide-sort-icons" CellClass="font-caption" />
             <PropertyColumn Property="e => e.RacePower" Title="R.PWR" HeaderClass="hide-sort-icons" CellClass="font-caption" />
             <TemplateColumn T="PowerRankingItem" Title="A/C/P" SortBy="e => e.CarPartAvg" HeaderClass="hide-sort-icons">
@@ -40,8 +40,11 @@
             <PropertyColumn Property="e => e.RelAvg" Title="REL.AVG" HeaderClass="hide-sort-icons" CellClass="font-caption" />
         </Columns>
         <ChildRowContent>
-            <MudText Color="Color.Warning">Should still be designed properly</MudText>
-            <MudText Color="Color.Warning">Would a complete overview of all the supporting numbers be useufl?</MudText>
+            <MudText Color="Color.Warning">
+                Should still be designed properly
+                <br/>
+                Would a complete overview of all the supporting numbers be useufl?
+            </MudText>
             <MudStack Row="true" Spacing="1">
                 <MudPaper Class="px-4 py-2">
                     <MudStack AlignItems="AlignItems.Center">
@@ -91,17 +94,17 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter] private OverviewModel OverviewModel { get; set; }
 
-    [Parameter]
-    public int TeamRoleCarModifier { get; set; }
+    [Parameter] public int TeamRoleCarModifier { get; set; }
 
     private List<PowerRankingItem> PowahList { get; set; } = new();
 
     private List<Trait> Traits { get; set; } = new();
 
     private bool Loading { get; set; }
+
+    private Func<PowerRankingItem, string> _borderCellStyle => power => ViewHelper.SetBorderRightStyle(power.Colour);
 
     protected override async Task OnInitializedAsync()
     {
@@ -116,6 +119,7 @@
 
     private void RestorePowerRanking()
     {
+        // TODO: Would prefer a way to create power ranking list in a service
         foreach (var driver in OverviewModel.ClassDrivers)
         {
             var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
@@ -167,6 +171,4 @@
             PowahList.Add(listing);
         }
     }
-
-    private Func<PowerRankingItem, string> SimpleCellStyle => power => ViewHelper.SetBorderRightStyle(power.Colour);
 }

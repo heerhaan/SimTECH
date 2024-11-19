@@ -20,13 +20,13 @@
                     <SmolAccent Colour="@context.Item?.Colour" />
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.Name" />
+            <PropertyColumn Property="e => e.Name" CellClass="font-body1" />
             <TemplateColumn T="SeasonTeamList" SortBy="e => e.Country" Title="Country">
                 <CellTemplate>
                     <CountryNamedFlag Code="@context.Item.Country" Size="ElementSize.Small" Reverse="true" Typo="Typo.body2" />
                 </CellTemplate>
             </TemplateColumn>
-            <PropertyColumn Property="e => e.Principal" />
+            <PropertyColumn Property="e => e.Principal" CellClass="font-body1" />
             <PropertyColumn Property="e => e.BaseValue" Title="Base" CellClass="font-caption" />
             <TemplateColumn T="SeasonTeamList" Title="A/C/P" Sortable="false">
                 <CellTemplate>
@@ -45,7 +45,9 @@
             <TemplateColumn T="SeasonTeamList" Sortable="false">
                 <CellTemplate>
                     <MudButtonGroup>
-                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item.SeasonTeam))" />
+                        <MudIconButton Size="Size.Small"
+                                       Icon="@Icons.Material.Outlined.Edit"
+                                       OnClick="@(() => UpdateItem(context.Item.SeasonTeam))" />
                     </MudButtonGroup>
                 </CellTemplate>
             </TemplateColumn>
@@ -54,11 +56,9 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter]
-    public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter] private OverviewModel OverviewModel { get; set; }
 
-    [Parameter]
-    public EventCallback<SeasonTeam?> OnEditorOpen { get; set; }
+    [Parameter] public EventCallback<SeasonTeam?> OnEditorOpen { get; set; }
 
     private List<SeasonTeamList> TeamItems = new();
 

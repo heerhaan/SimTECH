@@ -20,7 +20,7 @@
                     <SmolAccent Colour="@context.Item.Colour" />
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn T="SeasonDriverList" Title="Name" SortBy="e => e.Name">
+            <TemplateColumn T="SeasonDriverList" Title="Name" SortBy="e => e.Name" CellClass="font-body1">
                 <CellTemplate>
                     <MudStack Row="true" AlignItems="AlignItems.Center">
                         <MudText Class="overflow-hider">@context.Item.Name</MudText>
@@ -40,7 +40,7 @@
             <PropertyColumn Property="e => e.Attack" Title="ATT" CellClass="font-caption" />
             <PropertyColumn Property="e => e.Defense" Title="DEF" CellClass="font-caption" />
             <PropertyColumn Property="e => e.Role" Title="Role" />
-            <PropertyColumn Property="e => e.Team" />
+            <PropertyColumn Property="e => e.Team" CellClass="font-body1" />
             <TemplateColumn T="SeasonDriverList" Sortable="false">
                 <CellTemplate>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item.SeasonDriver))" />
