@@ -8,13 +8,17 @@ public static class StatsDataBuilder
     public static List<StatTopic> GetStatisticTopics =>
     [
         new StatTopic(
+            "Records drivers",
+            "Leaderboards of drivers with the most of something",
+            typeof(DriverRecord)),
+        new StatTopic(
             "Compare drivers",
             "Compare statistics between multiple drivers",
             typeof(DriverCompareStat)),
         new StatTopic(
-            "Records drivers",
-            "Leaderboards of drivers with the most of something",
-            typeof(DriverRecord))
+            "Compare drivers (all items)",
+            "Comparison w/ all topics at once",
+            typeof(ObsoleteDriverComparison))
     ];
 
     // Prefer an enum over string list
