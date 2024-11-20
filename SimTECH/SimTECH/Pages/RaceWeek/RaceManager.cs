@@ -10,6 +10,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
     private const int reliabilityMaxValue = 1000;
     private const int minimumPositionsGainedForSupport = 2;
     private const int percentageDefenseWhenMistake = 50;
+    //private const int distanceMultiplier = 10;
 
     public void AddFormationLap(List<RaceDriver> raceDrivers)
     {
@@ -138,8 +139,8 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         // Adds wear to the tyre
         driver.TyreLife -= NumberHelper.RandomInt(tyreMinWear, tyreMaxWear);
 
-        if (driver.CurrentTyre.MinimumLife > driver.TyreLife)
-            driver.TyreLife = driver.CurrentTyre.MinimumLife;
+        if (driver.CurrentTyre.MinimumLife > driver.TyreLife)// * distanceMultiplier
+            driver.TyreLife = driver.CurrentTyre.MinimumLife;// * distanceMultiplier
 
         // Only add the effects of tyre wear to the score outside of SCs
         if (!isCaution)
@@ -168,13 +169,13 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
             nextTyre = validTyres.First();
 
         driver.CurrentTyre = nextTyre;
-        driver.TyreLife = nextTyre.Pace + driver.LifeBonus;
+        driver.TyreLife = nextTyre.Pace + driver.LifeBonus;// * distanceMultiplier
         driver.InstantOvertaken = true;
     }
 
     private int GetPitstopCost(bool isCaution)
     {
-        var pitCost = NumberHelper.RandomInt(season.PitMinimum, season.PitMaximum);
+        var pitCost = NumberHelper.RandomInt(season.PitMinimum, season.PitMaximum);// * distanceMultiplier
 
         // Pitstop duration is reduced since a safety car is currently out
         if (isCaution && pitCost > season.PitCostSubtractCaution)

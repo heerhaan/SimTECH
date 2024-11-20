@@ -16,58 +16,48 @@
         <MudPaper Class="pa-4 mud-height-full">
             <MudText Typo="Typo.h5">Track information</MudText>
             <MudDivider Class="my-2" />
-            <MudListExtended T="string" Dense="true">
-                <MudListItemExtended T="string" SecondaryText="Country">
+            <dl class="property-list">
+                <dt>
                     <CountryNamedFlag Code="@Model.Race.Track.Country" Size="ElementSize.Normal" Reverse="true" />
-                </MudListItemExtended>
-                <MudListItemExtended T="string"
-                                     Text="@($"{Model.Race.Track.Length}km")"
-                                     SecondaryText="Length" />
-                <MudListItemExtended T="string"
-                                     Text="@($"{NumberHelper.LapCount(Model.Race.RaceLength, Model.Race.Track.Length)}")"
-                                     SecondaryText="Laps" />
-                <MudListItemExtended T="double"
-                                     Text="@Model.Race.Track.AeroMod.ToString("F2")"
-                                     SecondaryText="Aero mod" />
-                <MudListItemExtended T="double"
-                                     Text="@Model.Race.Track.ChassisMod.ToString("F2")"
-                                     SecondaryText="Chassis mod" />
-                <MudListItemExtended T="double"
-                                     Text="@Model.Race.Track.PowerMod.ToString("F2")"
-                                     SecondaryText="Powertrain mod" />
-                <MudListItemExtended T="double"
-                                     Text="@Model.Race.Track.QualifyingMod.ToString("F2")"
-                                     SecondaryText="Qualifying mod" />
-                <MudListItemExtended T="double"
-                                     Text="@Model.Race.Track.DefenseMod.ToString("F2")"
-                                     SecondaryText="Defense mod" />
-            </MudListExtended>
+                </dt>
+                <dd>Country</dd>
 
-            <MudText Typo="Typo.h5">Track information alt</MudText>
-            <MudDivider Class="my-2" />
-            <dl>
-                <dt>Length</dt>
-                <dd>@($"{Model.Race.Track.Length}km")</dd>
+                <dt>@(Model.Race.Track.Length)km</dt>
+                <dd>Length</dd>
 
-                <dt>Etc</dt>
-                <dd>Other stuff & thangs</dd>
+                <dt>@NumberHelper.LapCount(Model.Race.RaceLength, Model.Race.Track.Length)</dt>
+                <dd>Laps</dd>
+
+                <dt>@Model.Race.Track.ShortTextMods()</dt>
+                <dd>A/C/P</dd>
+
+                <dt>@Model.Race.Track.QualifyingMod.ToString("F2")</dt>
+                <dd>Qualifying mod</dd>
+
+                <dt>@Model.Race.Track.DefenseMod.ToString("F2")</dt>
+                <dd>Defense mod</dd>
             </dl>
 
             <MudText Typo="Typo.subtitle1">Circuit traits</MudText>
             <MudDivider Class="my-2" />
             @if (TrackTraits.Any() == true)
             {
-                <MudListExtended T="string" Dense="true">
+                <dl class="property-list">
                     @foreach (var trait in TrackTraits)
                     {
-                        <MudListItemExtended T="string" Text="@trait.Name" SecondaryText="@trait.Description" />
+                        <dt>@trait.Name</dt>
+                        <dd>@trait.Description</dd>
                     }
-                </MudListExtended>
+                </dl>
             }
             else
             {
-                <MudText Typo="Typo.subtitle2">No traits for this track.</MudText>
+                <MudText Typo="Typo.subtitle2">Track doesn't have any traits</MudText>
             }
+
+            <MudListExtended T="string" Dense="true">
+                <MudListItemExtended T="string" Text="Example" SecondaryText="LabelLike" />
+            </MudListExtended>
         </MudPaper>
     </MudItem>
     <MudItem xs="7">
@@ -181,13 +171,6 @@
             <MudText Typo="Typo.h5">Weekend</MudText>
             <MudDivider Class="my-2" />
 
-            <MudText Typo="Typo.subtitle1">Bob :(</MudText>
-            <MudText Class="my-1">
-                Carefulness equalizes smartfulness
-                <br />
-                Mindfulness equalizes brain smoothening
-            </MudText>
-
             <MudText Typo="Typo.subtitle1">Weather</MudText>
             <MudSimpleTable Bordered="true" Dense="true" Class="extra-dense">
                 <thead>
@@ -289,6 +272,14 @@
                     </tr>
                     <tr>
                         <td>
+                            <MudText Typo="Typo.caption">A/C/P</MudText>
+                        </td>
+                        <td>
+                            <MudText Typo="Typo.body2">Aero / Chassis / Powertrain</MudText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <MudText Typo="Typo.caption">ENG</MudText>
                         </td>
                         <td>
@@ -359,7 +350,17 @@
 
             <MudText Typo="Typo.subtitle1">Haan notifications</MudText>
             <MudText Class="my-2" Typo="Typo.body2" Color="Color.Warning">
-                Yes, I'm aware traits look ugly. Utilizing brain power still on knowing how to display this nicely.
+                I should hire a web designer.
+            </MudText>
+            <MudText Typo="Typo.subtitle2">Bob :(</MudText>
+            <MudText Class="my-1">
+                Carefulness equalizes smartfulness
+                <br />
+                Mindfulness equalizes brain smoothening
+                <br />
+                Pain equals gain
+                <br />
+                idk anymore man
             </MudText>
         </MudPaper>
     </MudItem>

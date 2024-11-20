@@ -1,4 +1,6 @@
-﻿<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
+﻿@inject TraitService _traitService
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Drivers</MudText>
@@ -41,6 +43,16 @@
             <PropertyColumn Property="e => e.Defense" Title="DEF" CellClass="font-caption" />
             <PropertyColumn Property="e => e.Role" Title="Role" />
             <PropertyColumn Property="e => e.Team" CellClass="font-body1" />
+            <TemplateColumn T="SeasonDriverList" Title="Traits">
+                <CellTemplate>
+                    <div class="d-flex flex-column">
+                        @foreach (var trait in context.Item.TraitNames)
+                        {
+                            <p class="tiny-text-list-item">@trait</p>
+                        }
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
             <TemplateColumn T="SeasonDriverList" Sortable="false">
                 <CellTemplate>
                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => await UpdateItem(context.Item.SeasonDriver))" />
@@ -51,7 +63,7 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter] private OverviewModel OverviewModel { get; set; }
 
     [Parameter] public EventCallback<SeasonDriver?> OnEditorOpen { get; set; }
 
@@ -60,16 +72,16 @@
     private bool loading = true;
 
     // Warning: this is also triggered when just pressing the button to start editing (duhh, OnEditorOpen is a parameter)
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         loading = true;
 
-        RestoreSeasonDrivers();
+        await RestoreSeasonDrivers();
 
         loading = false;
     }
 
-    private void RestoreSeasonDrivers()
+    private async Task RestoreSeasonDrivers()
     {
         DriverItems.Clear();
 
@@ -94,6 +106,11 @@
 
                     SeasonDriver = driver
                 };
+
+            // Making such calls repeately is ultimately cleaner than pre-gathering stuff
+            var entrantTraits = await _traitService.GetEntrantTraits(driver.DriverId, team?.TeamId ?? 0);
+
+            listing.TraitNames = entrantTraits.Select(e => e.Name).ToList();
 
             DriverItems.Add(listing);
         }

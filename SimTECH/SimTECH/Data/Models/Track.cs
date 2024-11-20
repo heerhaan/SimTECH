@@ -27,3 +27,19 @@ public sealed class Track : ModelState
 
     public IList<TrackTrait> TrackTraits { get; set; }
 }
+
+public static class ExtendTrack
+{
+    public static string ShortTextMods(this Track track)
+    {
+        var retString = "";
+
+        retString += track.AeroMod.ToString("F2");
+        retString += "/";
+        retString += track.ChassisMod.ToString("F2");
+        retString += "/";
+        retString += track.PowerMod.ToString("F2");
+
+        return retString;
+    }
+}

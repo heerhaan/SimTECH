@@ -61,8 +61,8 @@ public partial class Race
     private int TotalLaps { get; set; }
 
     private SituationOccurrence CurrentSituation { get; set; } = SituationOccurrence.Raced;
-
     private Entrant ActiveReliabilityCheck { get; set; } = Entrant.Driver;
+
     private int reliablityCycler = 0;
 
     private int fastestLap;

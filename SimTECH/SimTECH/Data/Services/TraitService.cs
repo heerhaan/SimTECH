@@ -27,6 +27,16 @@ public class TraitService(IDbContextFactory<SimTechDbContext> factory) : StateSe
             .ToListAsync();
     }
 
+    public async Task<List<Trait>> GetEntrantTraits(long driverId, long teamId)
+    {
+        using var context = _dbFactory.CreateDbContext();
+
+        return await context.Trait
+            .Where(e => e.DriverTraits.Any(dt => dt.DriverId == driverId)
+                || e.TeamTraits.Any(tt => tt.TeamId == teamId))
+            .ToListAsync();
+    }
+
     public async Task UpdateTrait(Trait trait)
     {
         using var context = _dbFactory.CreateDbContext();

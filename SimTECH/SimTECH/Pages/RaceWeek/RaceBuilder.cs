@@ -11,7 +11,7 @@ public static class RaceBuilder
 
 public class RaceDriverBuilder
 {
-    private RaweCeekDriver _driver = new RaweCeekDriver();
+    private RaweCeekDriver _driver = new();
 
     public RaceDriverBuilder()
     {

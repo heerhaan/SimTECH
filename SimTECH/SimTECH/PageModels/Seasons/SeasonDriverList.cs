@@ -18,5 +18,7 @@ public class SeasonDriverList
     public string Colour { get; set; } = string.Empty;
     public string Accent { get; set; } = string.Empty;
 
+    public List<string> TraitNames { get; set; } = [];
+
     public SeasonDriver SeasonDriver { get; set; }
 }
