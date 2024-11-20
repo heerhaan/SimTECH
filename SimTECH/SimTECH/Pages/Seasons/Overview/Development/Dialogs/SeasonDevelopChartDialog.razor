@@ -1,4 +1,6 @@
-﻿<MudDialog>
+﻿@using SimTECH.PageModels.Stats
+
+<MudDialog>
     <DialogContent>
         <MudPaper MinHeight="800px" MinWidth="1000px">
             <MudStack Row="true" AlignItems="AlignItems.Center">
@@ -36,14 +38,10 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? ChartDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? ChartDialog { get; set; }
 
-    [Parameter]
-    public List<ChartData> DataSets { get; set; } = new();
-
-    [Parameter]
-    public Aspect Aspect { get; set; }
+    [Parameter] public List<ChartData> DataSets { get; set; } = new();
+    [Parameter] public Aspect Aspect { get; set; }
 
     private ApexCharts.ApexChartOptions<DataPoint> options;
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimTECH.Common.Enums;
 using SimTECH.Data.Models;
-using SimTECH.PageModels;
+using SimTECH.PageModels.Stats;
 
 namespace SimTECH.Data.Services;
 

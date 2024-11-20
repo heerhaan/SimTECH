@@ -1,6 +1,6 @@
 ﻿using MudBlazor;
 using SimTECH.Common.Enums;
-using SimTECH.PageModels;
+using SimTECH.PageModels.Stats;
 using Graph = ApexCharts;
 
 namespace SimTECH.Constants;

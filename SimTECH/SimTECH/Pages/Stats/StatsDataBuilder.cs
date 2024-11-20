@@ -3,7 +3,7 @@ using SimTECH.Pages.Stats.Dialogs;
 
 namespace SimTECH.Pages.Stats;
 
-public static class StatisticTopicsBuilder
+public static class StatsDataBuilder
 {
     public static List<StatTopic> GetStatisticTopics =>
     [
@@ -16,4 +16,15 @@ public static class StatisticTopicsBuilder
             "Leaderboards of drivers with the most of something",
             typeof(DriverRecord))
     ];
+
+    // Prefer an enum over string list
+    public static List<string> GetResultComparisonItems =>
+        [
+            "Entries",
+            "Starts",
+            "Wins",
+            "Poles",
+            "Fastest laps",
+            "Retirements",
+        ];
 }

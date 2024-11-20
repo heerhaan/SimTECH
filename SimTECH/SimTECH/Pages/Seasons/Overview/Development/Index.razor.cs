@@ -4,8 +4,8 @@ using SimTECH.Common.Enums;
 using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
-using SimTECH.PageModels;
 using SimTECH.PageModels.Seasons.Development;
+using SimTECH.PageModels.Stats;
 using SimTECH.Pages.Seasons.Overview.Development.Dialogs;
 
 namespace SimTECH.Pages.Seasons.Overview.Development;
