@@ -144,7 +144,7 @@ public static class ExtendRaweCeekDriver
             AbsolutePosition = driver.AbsolutePosition,
             AbsoluteGrid = driver.AbsoluteGrid,
             Setup = driver.Setup,
-            TyreLife = 10 * driver.TyreLife,
+            TyreLife = driver.TyreLife,
             CurrentTyre = driver.Tyre,
             DriverReliability = driver.DriverReliability,
             CarReliability = driver.CarReliability,
@@ -153,7 +153,7 @@ public static class ExtendRaweCeekDriver
             WearMaxMod = driver.WearMaxMod,
             RngMinMod = driver.RngMinMod,
             RngMaxMod = driver.RngMaxMod,
-            LifeBonus = 10 * driver.LifeBonus,
+            LifeBonus = driver.LifeBonus,
 
             HasFastestLap = driver.FastestLap,
             OvertakeCount = driver.Overtaken,
