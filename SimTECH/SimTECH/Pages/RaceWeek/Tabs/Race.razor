@@ -18,14 +18,14 @@
             <MudStack Spacing="0" AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.subtitle2">Laps to advance</MudText>
                 <MudChipSet T="int" SelectedValueChanged="ChangeCalculationPerAdvance" SelectionMode="SelectionMode.SingleSelection">
-                    <MudChip Value="5" Color="Color.Primary">
+                    <MudChip Value="1" Color="Color.Primary">
+                        @(NumberHelper.LapCount(1 * calculationDistance, Model.Race.Track.Length))
+                    </MudChip>
+                    <MudChip Value="5" Default="true" Color="Color.Primary">
                         @(NumberHelper.LapCount(5 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
-                    <MudChip Value="20" Default="true" Color="Color.Primary">
-                        @(NumberHelper.LapCount(20 * calculationDistance, Model.Race.Track.Length))
-                    </MudChip>
-                    <MudChip Value="50" Color="Color.Primary">
-                        @(NumberHelper.LapCount(50 * calculationDistance, Model.Race.Track.Length))
+                    <MudChip Value="10" Color="Color.Primary">
+                        @(NumberHelper.LapCount(10 * calculationDistance, Model.Race.Track.Length))
                     </MudChip>
                     <MudChip Value="@calculationCount" Color="Color.Primary">@TotalLaps</MudChip>
                 </MudChipSet>
