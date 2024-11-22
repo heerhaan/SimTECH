@@ -1,4 +1,10 @@
-﻿<MudContainer MaxWidth="MaxWidth.Medium">
+﻿@using SimTECH.Pages.Seasons.Overview.Dialogs
+
+@inject EngineService _engineService
+@inject SeasonEngineService _seasonEngineService
+@inject IDialogService _dialogService
+
+<MudContainer MaxWidth="MaxWidth.Medium">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Engines</MudText>
@@ -13,7 +19,7 @@
             </MudButton>
         </MudStack>
     </MudPaper>
-    <MudDataGrid T="SeasonEngine" Items="@OverviewModel.SeasonEngines" Dense="true">
+    <MudDataGrid T="SeasonEngine" Items="@SeasonEnginesList" Dense="true">
         <Columns>
             <PropertyColumn Property="e => e.Name" CellClass="font-body1" />
             <PropertyColumn Property="e => e.Power" CellClass="font-caption" />
@@ -33,13 +39,40 @@
 </MudContainer>
 
 @code {
-    [CascadingParameter] public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter] private OverviewModel OverviewModel { get; set; }
 
     [Parameter] public EventCallback<SeasonEngine?> OnEditorOpen { get; set; }
+
+    private List<SeasonEngine> SeasonEnginesList { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        SeasonEnginesList = await _seasonEngineService.GetSeasonEngines(OverviewModel.Season.Id);
+    }
 
     private async Task AddItem() => await UpdateItem(null);
     private async Task UpdateItem(SeasonEngine? item)
     {
-        await OnEditorOpen.InvokeAsync(item);
+        var seasonId = OverviewModel.Season.Id;
+        var engines = await _engineService.GetAvailableEngines(seasonId);
+
+        var parameters = new DialogParameters
+            {
+                ["SeasonId"] = seasonId,
+                ["Engines"] = engines,
+                ["SeasonEngine"] = item,
+            };
+
+        var dialog = await _dialogService.ShowAsync<SeasonEngineEditor>("Modify in-season engine", parameters);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        if (result.Data != null && result.Data is SeasonEngine updatedEngine)
+        {
+            await _seasonEngineService.UpdateSeasonEngine(updatedEngine);
+            SeasonEnginesList = await _seasonEngineService.GetSeasonEngines(seasonId);
+        }
     }
 }

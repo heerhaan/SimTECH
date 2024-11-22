@@ -197,7 +197,14 @@
                 <MudTd>
                     @if (context.Incident == null)
                     {
-                        <MudText Typo="Typo.caption">@context.GapAbove</MudText>
+                        @if (context.AbsolutePosition == 1)
+                        {
+                            <MudText Typo="Typo.caption">LEADER</MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.caption">@context.GapAbove</MudText>
+                        }
                     }
                     else
                     {

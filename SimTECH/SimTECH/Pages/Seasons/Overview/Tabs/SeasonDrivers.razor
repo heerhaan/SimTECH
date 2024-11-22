@@ -71,18 +71,15 @@
 
     private bool loading = true;
 
-    // Warning: this is also triggered when just pressing the button to start editing (duhh, OnEditorOpen is a parameter)
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
-        loading = true;
-
         await RestoreSeasonDrivers();
-
-        loading = false;
     }
 
     private async Task RestoreSeasonDrivers()
     {
+        loading = true;
+
         DriverItems.Clear();
 
         foreach (var driver in OverviewModel.ClassDrivers)
@@ -114,11 +111,15 @@
 
             DriverItems.Add(listing);
         }
+
+        loading = false;
     }
 
     private async Task AddItem() => await UpdateItem(null);
     private async Task UpdateItem(SeasonDriver? item)
     {
         await OnEditorOpen.InvokeAsync(item);
+
+        await RestoreSeasonDrivers();
     }
 }

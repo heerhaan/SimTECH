@@ -1,4 +1,5 @@
-﻿@inject TraitService _traitService
+﻿@inject SeasonEngineService _seasonEngineService
+@inject TraitService _traitService
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0" id="power-rankings-overview">
     <MudPaper MinHeight="60px">
@@ -112,13 +113,15 @@
 
         Traits = await _traitService.GetTraits(StateFilter.All);
 
-        RestorePowerRanking();
+        await RestorePowerRanking();
 
         Loading = false;
     }
 
-    private void RestorePowerRanking()
+    private async Task RestorePowerRanking()
     {
+        var seasonEngines = await _seasonEngineService.GetSeasonEngines(OverviewModel.Season.Id);
+
         // TODO: Would prefer a way to create power ranking list in a service
         foreach (var driver in OverviewModel.ClassDrivers)
         {
@@ -127,7 +130,7 @@
             if (team == null)
                 continue;
 
-            var engine = OverviewModel.SeasonEngines.First(e => e.Id == team.SeasonEngineId);
+            var engine = seasonEngines.First(e => e.Id == team.SeasonEngineId);
             var manufacturer = OverviewModel.Manufacturers.First(e => e.Id == team.ManufacturerId);
 
             var driverTraitIds = driver.Driver.DriverTraits?.Select(e => e.TraitId).ToList() ?? new();

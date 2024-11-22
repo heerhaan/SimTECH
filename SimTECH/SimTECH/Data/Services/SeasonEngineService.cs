@@ -8,6 +8,8 @@ namespace SimTECH.Data.Services;
 
 public class SeasonEngineService(IDbContextFactory<SimTechDbContext> factory)
 {
+    private const int amountPreviousLeagues = 5;
+
     private readonly IDbContextFactory<SimTechDbContext> _dbFactory = factory;
 
     public async Task<List<SeasonEngine>> GetSeasonEngines(long seasonId)
@@ -26,7 +28,7 @@ public class SeasonEngineService(IDbContextFactory<SimTechDbContext> factory)
                 .ThenInclude(e => e.League)
             .Where(e => e.EngineId == engineId && e.Season.State == State.Closed)
             .GroupBy(e => e.Season.LeagueId)
-            .Take(5)
+            .Take(amountPreviousLeagues)
             .SelectMany(e => e)
             .ToListAsync();
 
@@ -52,19 +54,21 @@ public class SeasonEngineService(IDbContextFactory<SimTechDbContext> factory)
         using var context = _dbFactory.CreateDbContext();
 
         return await context.SeasonEngine
-            .Where(e => e.EngineId == engineId && e.Season.LeagueId == leagueId && e.Season.State == State.Closed)
+            .Where(e => e.EngineId == engineId
+                && e.Season.LeagueId == leagueId
+                && e.Season.State == State.Closed)
             .OrderByDescending(e => e.SeasonId)
             .FirstOrDefaultAsync();
     }
 
-    public async Task UpdateSeasonEngine(SeasonEngine engne)
+    public async Task UpdateSeasonEngine(SeasonEngine engine)
     {
         using var context = _dbFactory.CreateDbContext();
 
-        if (engne.Id == 0)
-            context.Add(engne);
+        if (engine.Id == 0)
+            context.Add(engine);
         else
-            context.Update(engne);
+            context.Update(engine);
 
         await context.SaveChangesAsync();
     }

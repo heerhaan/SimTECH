@@ -2,7 +2,7 @@
     @foreach (var (bar, index) in Bars.WithIndex())
     {
         <span style="@(BarStyle(bar.Item1, bar.Item2))">
-            @if (AddIndicator && (index % indicatorAdvanceSize == 0))
+            @if (AddIndicator && (index % advancesPerIndicator == 0))
             {
                 <MudText Typo="Typo.h5" Style="font-size: 0.75rem">
                     @(IndicatorText(1 + index))
@@ -13,9 +13,9 @@
 </div>
 
 @code {
-    private const int indicatorAdvanceSize = 2; // change dependant on current AdvDis (re:10)
+    private const int advancesPerIndicator = 2; // change dependant on current AdvDis (re:10)
 
-    [Parameter, EditorRequired] public List<(double, string)> Bars { get; set; }
+    [Parameter, EditorRequired] public List<(double Width, string)> Bars { get; set; }
     [Parameter] public bool AddIndicator { get; set; }
     [Parameter] public int CalculationDistance { get; set; }
     [Parameter] public double TrackLength { get; set; }

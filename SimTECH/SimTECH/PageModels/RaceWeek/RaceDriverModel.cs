@@ -13,7 +13,7 @@ public class RaceDriver : DriverBase
     public int Grid { get; set; }
     public int AbsolutePosition { get; set; }
     public int AbsoluteGrid { get; set; }
-    public int Setup { get; set; }
+    public int Setup { get; set; }//Should be part of the POWER
     public int TyreLife { get; set; }
     public Tyre CurrentTyre { get; set; }
 

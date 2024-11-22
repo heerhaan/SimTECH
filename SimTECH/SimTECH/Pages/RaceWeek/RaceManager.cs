@@ -208,7 +208,7 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
                 driver.LastScore = lastScore.Score;
             }
 
-            // Need to re-retrieve this for every driver since their positions may change due to over overtakes (maybe)
+            // Need to re-retrieve this for every driver since their positions may change due to other overtakes (maybe)
             // ...altough i dont think this matters
             currentScoreOrderedPositions = GetCurrentPositions(raceDrivers);
 

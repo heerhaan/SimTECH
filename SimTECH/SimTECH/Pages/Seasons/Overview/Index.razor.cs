@@ -18,6 +18,7 @@ public partial class Index
     public int TabIndex { get; set; }
 
     // TIP: You should only make changes at a cascading model at the provider level, aka here for OverviewModel
+    // Even better is to not use ONE model for the entire overview, jesus christ
     public OverviewModel OverviewModel { get; set; } = new();
 
     private Race? NextRace { get; set; }
@@ -42,7 +43,7 @@ public partial class Index
 
         OverviewModel.Season = await _seasonService.GetSeasonById(SeasonId);
         OverviewModel.Races = await _raceService.GetRacesBySeason(SeasonId);
-        OverviewModel.SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
+        //OverviewModel.SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
         OverviewModel.SeasonTeams = await _seasonTeamService.GetSeasonTeams(SeasonId);
         OverviewModel.SeasonDrivers = await _seasonDriverService.GetSeasonDrivers(SeasonId);
         OverviewModel.Results = await _resultService.GetResultsOfSeason(SeasonId);
@@ -97,6 +98,9 @@ public partial class Index
         var dialog = await _dialogService.ShowAsync<SeasonEditor>("Modify season", parameters);
         var result = await dialog.Result;
 
+        if (result == null || result.Canceled)
+            return;
+
         if (!result.Canceled && result.Data != null && result.Data is Season updatedItem)
         {
             await _seasonService.UpdateSeason(updatedItem);
@@ -148,6 +152,9 @@ public partial class Index
         var dialog = await _dialogService.ShowAsync<AddRaces>("Insert races", parameters);
         var result = await dialog.Result;
 
+        if (result == null || result.Canceled)
+            return;
+
         if (!result.Canceled && result.Data != null && result.Data is List<Race> addedRaces)
         {
             await _raceService.InsertRaces(addedRaces);
@@ -168,6 +175,9 @@ public partial class Index
 
         var dialog = await _dialogService.ShowAsync<RaceEditor>("Modify Race", parameters);
         var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
 
         if (!result.Canceled && result.Data != null && result.Data is Race updatedRace)
         {
@@ -200,6 +210,9 @@ public partial class Index
         var dialog = await _dialogService.ShowAsync<SeasonDriverEditor>("Modify in-season driver", parameters);
         var result = await dialog.Result;
 
+        if (result == null || result.Canceled)
+            return;
+
         if (!result.Canceled && result.Data != null && result.Data is SeasonDriver updatedDriver)
         {
             await _seasonDriverService.UpdateSeasonDriver(updatedDriver);
@@ -210,6 +223,7 @@ public partial class Index
     private async Task UpdateTeam(SeasonTeam? item)
     {
         var teams = await _teamService.GetAvailableTeams(SeasonId);
+        var seasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
 
         var activeManufacturers = OverviewModel.Manufacturers.Where(e => e.State == State.Active).ToList();
 
@@ -218,12 +232,15 @@ public partial class Index
             ["SeasonId"] = SeasonId,
             ["Teams"] = teams,
             ["Manufacturers"] = activeManufacturers,
-            ["SeasonEngines"] = OverviewModel.SeasonEngines,
+            ["SeasonEngines"] = seasonEngines,
             ["SeasonTeam"] = item,
         };
 
         var dialog = await _dialogService.ShowAsync<SeasonTeamEditor>("Modify in-season team", parameters);
         var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
 
         if (!result.Canceled && result.Data != null && result.Data is SeasonTeam updatedTeam)
         {
@@ -246,10 +263,13 @@ public partial class Index
         var dialog = await _dialogService.ShowAsync<SeasonEngineEditor>("Modify in-season engine", parameters);
         var result = await dialog.Result;
 
+        if (result == null || result.Canceled)
+            return;
+
         if (!result.Canceled && result.Data != null && result.Data is SeasonEngine updatedEngine)
         {
             await _seasonEngineService.UpdateSeasonEngine(updatedEngine);
-            OverviewModel.SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
+            //OverviewModel.SeasonEngines = await _seasonEngineService.GetSeasonEngines(SeasonId);
         }
     }
 }
