@@ -17,7 +17,6 @@ public class PracticeResultConfiguration : IEntityTypeConfiguration<PracticeScor
             c => c.ToArray());
 
         builder.Property(e => e.Scores)
-            .HasColumnType("varchar(max)")
             .HasConversion(
                 e => string.Join(';', e ?? Array.Empty<int>()),
                 e => Array.ConvertAll(e.Split(';', StringSplitOptions.RemoveEmptyEntries), int.Parse))

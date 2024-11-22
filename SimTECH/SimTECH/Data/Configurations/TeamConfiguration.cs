@@ -19,7 +19,6 @@ public class TeamConfiguration : IEntityTypeConfiguration<Team>
             .IsRequired()
             .HasMaxLength(2);
 
-        builder.Property(e => e.Biography)
-            .HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Biography);
     }
 }

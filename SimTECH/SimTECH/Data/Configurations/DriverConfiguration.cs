@@ -31,8 +31,6 @@ public class DriverConfiguration : IEntityTypeConfiguration<Driver>
             .IsRequired()
             .HasMaxLength(2);
 
-        builder.Property(e => e.Biography)
-            .HasColumnType("nvarchar(max)")
-            .IsRequired();
+        builder.Property(e => e.Biography);
     }
 }

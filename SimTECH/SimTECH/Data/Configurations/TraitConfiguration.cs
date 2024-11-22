@@ -14,7 +14,6 @@ public class TraitConfiguration : IEntityTypeConfiguration<Trait>
             .HasColumnType("nvarchar(150)")
             .IsRequired();
 
-        builder.Property(e => e.Description)
-            .HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Description);
     }
 }
