@@ -58,6 +58,63 @@
             <MudListExtended T="string" Dense="true">
                 <MudListItemExtended T="string" Text="Example" SecondaryText="LabelLike" />
             </MudListExtended>
+
+            <MudDivider Class="my-2" />
+
+            <MudText Typo="Typo.subtitle1">Weather</MudText>
+            <MudSimpleTable Bordered="true" Dense="true" Class="extra-dense">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>ENG</th>
+                        <th>REL</th>
+                        <th>RNG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour">
+                                <MudText Typo="Typo.h5" Color="Color.Default">@Model.Climate.Terminology</MudText>
+                            </CustomIcon>
+                        </td>
+                        <td>
+                            <MudText Typo="Typo.caption">@Model.Climate.EngineMultiplier</MudText>
+                        </td>
+                        <td>
+                            <MudText Typo="Typo.caption">@Model.Climate.ReliablityModifier</MudText>
+                        </td>
+                        <td>
+                            <MudText Typo="Typo.caption">@Model.Climate.RngModifier</MudText>
+                        </td>
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+
+            <MudText Typo="Typo.subtitle1">Weather alt</MudText>
+            <div class="flex-block-row justify-space-between">
+                <div>
+                    <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour">
+                        <MudText Typo="Typo.h5" Color="Color.Default">@Model.Climate.Terminology</MudText>
+                    </CustomIcon>
+                </div>
+                <div>
+                    <dl>
+                        <dt>ENG (→ * power):</dt>
+                        <dd>
+                            <MudText Typo="Typo.caption">@Model.Climate.EngineMultiplier</MudText>
+                        </dd>
+                        <dt>REL (→ + DRI.REL.):</dt>
+                        <dd>
+                            <MudText Typo="Typo.caption">@Model.Climate.ReliablityModifier</MudText>
+                        </dd>
+                        <dt>RNG (→ + MAX RNG):</dt>
+                        <dd>
+                            <MudText Typo="Typo.caption">@Model.Climate.RngModifier</MudText>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
         </MudPaper>
     </MudItem>
     <MudItem xs="7">
@@ -168,63 +225,8 @@
     </MudItem>
     <MudItem xs="3">
         <MudPaper Class="pa-4 mud-height-full">
-            <MudText Typo="Typo.h5">Weekend</MudText>
+            <MudText Typo="Typo.h5">Stuff</MudText>
             <MudDivider Class="my-2" />
-
-            <MudText Typo="Typo.subtitle1">Weather</MudText>
-            <MudSimpleTable Bordered="true" Dense="true" Class="extra-dense">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>ENG</th>
-                        <th>REL</th>
-                        <th>RNG</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour">
-                                <MudText Typo="Typo.h5" Color="Color.Default">@Model.Climate.Terminology</MudText>
-                            </CustomIcon>
-                        </td>
-                        <td>
-                            <MudText Typo="Typo.caption">@Model.Climate.EngineMultiplier</MudText>
-                        </td>
-                        <td>
-                            <MudText Typo="Typo.caption">@Model.Climate.ReliablityModifier</MudText>
-                        </td>
-                        <td>
-                            <MudText Typo="Typo.caption">@Model.Climate.RngModifier</MudText>
-                        </td>
-                    </tr>
-                </tbody>
-            </MudSimpleTable>
-
-            <MudText Typo="Typo.subtitle1">Weather alt</MudText>
-            <div class="flex-block-row justify-space-between">
-                <div>
-                    <CustomIcon Icon="@Model.Climate.Icon" Colour="@Model.Climate.Colour">
-                        <MudText Typo="Typo.h5" Color="Color.Default">@Model.Climate.Terminology</MudText>
-                    </CustomIcon>
-                </div>
-                <div>
-                    <dl>
-                        <dt>ENG (→ * power):</dt>
-                        <dd>
-                            <MudText Typo="Typo.caption">@Model.Climate.EngineMultiplier</MudText>
-                        </dd>
-                        <dt>REL (→ + DRI.REL.):</dt>
-                        <dd>
-                            <MudText Typo="Typo.caption">@Model.Climate.ReliablityModifier</MudText>
-                        </dd>
-                        <dt>RNG (→ + MAX RNG):</dt>
-                        <dd>
-                            <MudText Typo="Typo.caption">@Model.Climate.RngModifier</MudText>
-                        </dd>
-                    </dl>
-                </div>
-            </div>
 
             <MudText Typo="Typo.subtitle1">Tyre suppliers</MudText>
             <MudTable Items="@TyreSuppliers" Bordered="true" Dense="true">
