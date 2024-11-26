@@ -1,46 +1,36 @@
-﻿<MudDialog>
+﻿@inject ClimateService _climateService
+@inject ISnackbar _snackbar
+
+<MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h5" Color="Color.Secondary">Modify race</MudText>
     </TitleContent>
     <DialogContent>
         <MudPaper MinHeight="300px" Class="pa-4">
-            <MudTextField @bind-Value="model.Name" Label="Name" Class="field-lg" />
+            <MudTextField @bind-Value="Model.Name" Label="Name" Class="field-lg" />
 
             <div>
                 <MudText Typo="Typo.subtitle2">Weather</MudText>
-                <MudChipSet T="long" @bind-SelectedChip="climateChip" SelectionMode="SelectionMode.SingleSelection">
+                <MudChipSet T="long" @bind-SelectedChip="ClimateChip" SelectionMode="SelectionMode.SingleSelection">
                     @foreach (var climate in Climates)
                     {
-                        <MudChip Value="@climate.Id" Icon="@climate.Icon" Default="@(model.ClimateId == climate.Id)">
+                        <MudChip Value="@climate.Id" Icon="@climate.Icon" Default="@(Model.ClimateId == climate.Id)">
                             @climate.Terminology
                         </MudChip>
                     }
                 </MudChipSet>
             </div>
 
-            <MudSwitch T="bool" @bind-Value="variableRaceLength" Label="Variable race length" />
+            <MudSwitch T="bool" @bind-Value="HasOwnRaceLength" Label="Variable race length" />
 
-            @if (variableRaceLength)
+            @if (HasOwnRaceLength)
             {
                 <MudNumericField T="int"
-                                 @bind-Value="model.RaceLength"
+                                 @bind-Value="Model.RaceLength"
                                  Step="10"
                                  Label="RaceLength"
                                  HelperText="Should round to nearest ten"
                                  Class="field-md" />
-            }
-
-            @if (errorValidations.Any())
-            {
-                <MudList T="string">
-                    <MudListSubheader>Error messages</MudListSubheader>
-                    @foreach (var error in errorValidations)
-                    {
-                        <MudListItem>
-                            <MudText Color="Color.Error">@error</MudText>
-                        </MudListItem>
-                    }
-                </MudList>
             }
         </MudPaper>
     </DialogContent>
@@ -51,57 +41,54 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter]
-    protected MudDialogInstance? RaceDialog { get; set; }
+    [CascadingParameter] protected MudDialogInstance? RaceDialog { get; set; }
 
-    [Parameter]
-    public Race? Race { get; set; }
+    [Parameter] public Race? Race { get; set; }
 
-    [Parameter]
-    public long SeasonId { get; set; }
+    [Parameter] public long SeasonId { get; set; }
 
-    [Parameter]
-    public List<Climate> Climates { get; set; }
+    private List<Climate> Climates { get; set; } = [];
 
-    MudChip<long>? climateChip;
-    bool variableRaceLength;
-    int backupRaceLength;
-    List<string> errorValidations = new();
+    private MudChip<long>? ClimateChip { get; set; }
 
-    EditRaceModel model;
+    private EditRaceModel Model { get; set; }
 
-    protected override void OnInitialized()
+    private bool HasOwnRaceLength { get; set; }
+
+    private int backupRaceLength;
+
+    protected override async Task OnInitializedAsync()
     {
-        model = new EditRaceModel(Race) { SeasonId = SeasonId };
+        if (Race == null || Race.Id == 0)
+            throw new InvalidOperationException("Only updating races is supported for this dialog");
 
-        if (model.Id == 0)
-        {
-            throw new InvalidOperationException("Can only edit races, not create");
-        }
+        Model = new EditRaceModel(Race) { SeasonId = SeasonId };
 
-        backupRaceLength = model.RaceLength;
+        backupRaceLength = Model.RaceLength;
 
-        if (model.ClimateId == 0)
-            model.ClimateId = Climates.TakeRandomClimate().Id;
+        Climates = await _climateService.GetClimates(StateFilter.Active);
     }
 
     private void Submit()
     {
-        if (climateChip != null)
-            model.ClimateId = climateChip.Value;
-        else if (model.ClimateId == 0)
-            model.ClimateId = Climates.TakeRandomClimate().Id;
+        if (ClimateChip != null)
+            Model.ClimateId = ClimateChip.Value;
+        else if (Model.ClimateId == 0)
+            Model.ClimateId = Climates.TakeRandomClimate().Id;
 
-        if (!variableRaceLength)
-            model.RaceLength = backupRaceLength;
+        if (!HasOwnRaceLength)
+            Model.RaceLength = backupRaceLength;
 
-        var validations = model.RunValidations();
+        var validations = Model.RunValidations();
         if (validations.Any())
-            errorValidations.AddRange(validations);
-
-        if (model.IsDirty)
         {
-            var modRace = model.Record;
+            _snackbar.Add(validations.First(), Severity.Error);
+            return;
+        }
+
+        if (Model.IsDirty)
+        {
+            var modRace = Model.Record;
             RaceDialog?.Close(DialogResult.Ok(modRace));
         }
     }

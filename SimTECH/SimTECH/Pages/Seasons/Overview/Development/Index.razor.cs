@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using SimTECH.Common.Enums;
-using SimTECH.Constants;
+using SimTECH.Common.Constants;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels.Seasons.Development;
@@ -363,7 +363,7 @@ public partial class Index
             ["AspectRanges"] = aspectRanges
         };
 
-        await _dialogService.ShowAsync<WeightedDevelopRanges>("Weighted development ranges", parameters, Globals.StatisticDialogDefaultOptionsXl);
+        await _dialogService.ShowAsync<WeightedDevelopRanges>("Weighted development ranges", parameters, Globals.StatDialogOptionsLarge);
     }
 
     private async Task ShowDevelopmentSummary()
@@ -378,7 +378,7 @@ public partial class Index
             ["SeasonEngines"] = SeasonEngines
         };
 
-        await _dialogService.ShowAsync<SummaryDevelopment>("Summary development", parameters, Globals.StatisticDialogDefaultOptionsXl);
+        await _dialogService.ShowAsync<SummaryDevelopment>("Summary development", parameters, Globals.StatDialogOptionsLarge);
     }
 
     private async Task ShowDevelopmentProgressionChart()
@@ -406,6 +406,6 @@ public partial class Index
             ["Aspect"] = DevelopModel.ActiveAspect,
         };
 
-        await _dialogService.ShowAsync<SeasonDevelopChartDialog>("Season aspect development", parameters, Globals.StatisticDialogDefaultOptionsXl);
+        await _dialogService.ShowAsync<SeasonDevelopChartDialog>("Season aspect development", parameters, Globals.StatDialogOptionsLarge);
     }
 }

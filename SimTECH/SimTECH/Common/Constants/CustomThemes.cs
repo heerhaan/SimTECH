@@ -1,7 +1,7 @@
 ﻿using MudBlazor;
 using Newtonsoft.Json;
 
-namespace SimTECH.Constants;
+namespace SimTECH.Common.Constants;
 
 // TODO: A lot, if not all, light themes
 public static class CustomThemes

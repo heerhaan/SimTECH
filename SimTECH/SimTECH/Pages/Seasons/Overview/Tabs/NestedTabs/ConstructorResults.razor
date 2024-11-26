@@ -77,14 +77,11 @@
 </MudTable>
 
 @code {
-    [CascadingParameter]
-    public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter] protected OverviewModel OverviewModel { get; set; }
 
-    [Parameter]
-    public Dictionary<int, Country> CountryRounds { get; set; }
+    [Parameter] public Dictionary<int, Country> CountryRounds { get; set; }
 
-    [Parameter]
-    public List<StandingTeamModel> StandingConstructors { get; set; }
+    [Parameter] public List<StandingTeamModel> StandingConstructors { get; set; }
 
     private int lowestScoringPosition
     {
@@ -103,6 +100,6 @@
     {
         var parameters = new DialogParameters { ["Teams"] = StandingConstructors, ["Season"] = OverviewModel.Season };
 
-        _ = await _dialogService.ShowAsync<WccResultChart>("WCC results chart", parameters, Globals.StatisticDialogDefaultOptionsXl);
+        _ = await _dialogService.ShowAsync<WccResultChart>("WCC results chart", parameters, Globals.StatDialogOptionsLarge);
     }
 }

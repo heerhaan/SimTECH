@@ -1,4 +1,4 @@
-﻿using SimTECH.Constants;
+﻿using SimTECH.Common.Constants;
 
 namespace SimTECH.PageModels.Common;
 

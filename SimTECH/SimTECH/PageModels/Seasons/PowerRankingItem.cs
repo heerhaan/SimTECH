@@ -1,5 +1,5 @@
 ﻿using SimTECH.Common.Enums;
-using SimTECH.Constants;
+using SimTECH.Common.Constants;
 
 namespace SimTECH.PageModels.Seasons;
 

@@ -139,7 +139,7 @@ public class SeasonDriverService(IDbContextFactory<SimTechDbContext> factory)
                 Label = driver.Driver.FullName,
                 Stroke = new ApexCharts.SeriesStroke
                 {
-                    Color = driver.SeasonTeam?.Colour ?? Constants.Globals.DefaultColour,
+                    Color = driver.SeasonTeam?.Colour ?? Common.Constants.Globals.DefaultColour,
                     Width = 3,
                 }
             };

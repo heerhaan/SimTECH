@@ -5,9 +5,9 @@
 
 @inherits LayoutComponentBase
 
+<MudDialogProvider MaxWidth="MaxWidth.Large" CloseButton="true" BackdropClick="false" Position="DialogPosition.Center" />
 <MudThemeProvider @bind-IsDarkMode="@IsDarkTheme" Theme="@Theme" />
 <MudPopoverProvider />
-<MudDialogProvider MaxWidth="MaxWidth.Large" CloseButton="true" BackdropClick="false" Position="DialogPosition.Center" />
 <MudSnackbarProvider />
 
 <MudLayout @onclick="HandleLayoutClick">
@@ -21,7 +21,8 @@
 
         <MudSpacer />
 
-        <MudToggleIconButton @bind-Toggled="@IsDarkTheme" Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning"
+        <MudToggleIconButton @bind-Toggled="@IsDarkTheme"
+                             Icon="@Icons.Material.Filled.LightMode" Color="Color.Warning"
                              ToggledIcon="@Icons.Material.Filled.DarkMode" ToggledColor="Color.Warning" />
         
         <MudMenu Icon="@Icons.Material.Filled.Palette" Color="Color.Secondary">
@@ -39,7 +40,7 @@
                     Class="guide-popup-element">
             @if (HelpContent != null)
             {
-                <MudPaper Class="pa-2 dialog-shadow dynamic-guide-container" @onclick:stopPropagation="true">
+                <MudPaper Class="dynamic-guide-container dialog-shadow" @onclick:stopPropagation="true">
                     <DynamicComponent Type="@HelpContent" />
                 </MudPaper>
             }
@@ -64,7 +65,7 @@
         <CascadingValue Value="ToggleLoader" IsFixed="true">
             <MudLoading @bind-Loading="@IsLoading"
                         LoaderType="LoaderType.Circular"
-                        Text="Take it easy mate, the page is loading just for you!">
+                        Text="Perhaps this page is loading">
                 @Body
             </MudLoading>
         </CascadingValue>
@@ -72,7 +73,7 @@
 </MudLayout>
 
 @code {
-    [CascadingParameter(Name = "PageType")] public Type PageType { get; set; }
+    [CascadingParameter(Name = "PageType")] protected Type PageType { get; set; }
 
     private EventCallback<bool> ToggleLoader => EventCallback.Factory.Create(this,
         (bool isLoading) => HandlePageLoading(isLoading));
@@ -144,5 +145,5 @@
 
     private void ToggleHelpBlock() => IsHelpOpen = !IsHelpOpen;
 
-    private void HandlePageLoading(bool isLoading) => IsLoading = IsLoading;
+    private void HandlePageLoading(bool loading) => IsLoading = loading;
 }

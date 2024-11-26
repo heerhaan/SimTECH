@@ -3,7 +3,7 @@ using SimTECH.Common.Enums;
 using SimTECH.PageModels.Stats;
 using Graph = ApexCharts;
 
-namespace SimTECH.Constants;
+namespace SimTECH.Common.Constants;
 
 public static class Globals
 {
@@ -30,7 +30,7 @@ public static class Globals
             Icons.Material.Filled.NightsStay,
         ];
 
-    public static readonly DialogOptions StatisticDialogDefaultOptions = new()
+    public static DialogOptions StatDialogOptions => new()
     {
         MaxWidth = MaxWidth.Large,
         NoHeader = true,
@@ -38,7 +38,7 @@ public static class Globals
         BackdropClick = true,
     };
 
-    public static readonly DialogOptions StatisticDialogDefaultOptionsXl = new()
+    public static DialogOptions StatDialogOptionsLarge => new()
     {
         MaxWidth = MaxWidth.ExtraLarge,
         NoHeader = true,

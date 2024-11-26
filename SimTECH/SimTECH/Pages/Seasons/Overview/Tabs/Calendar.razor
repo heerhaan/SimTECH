@@ -1,27 +1,28 @@
-﻿@inject NavigationManager _nav
+﻿@inject NavigationManager _navigation
 @inject ISnackbar _snackbar
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0" id="current-season-calendar-races-overview">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="px-0" id="season-calendar-overview">
     <MudPaper MinHeight="60px">
         <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-4">
             <MudText Typo="Typo.h3">Races</MudText>
             <MudSpacer />
-            @if (OverviewModel.Season.State == State.Concept)
-            {
-                <MudButton StartIcon="@Icons.Material.Outlined.CarRepair"
-                           IconColor="Color.Primary"
-                           Variant="Variant.Outlined"
-                           Color="Color.Primary"
-                           Size="Size.Small"
-                           OnClick="AddRaces"
-                           Class="btn-md">
-                    Add races
-                </MudButton>
-            }
-            <ScreenshotButton TargetId="current-season-calendar-races-overview" Colour="Color.Tertiary" />
+            <MudButtonGroup Color="Color.Tertiary" Variant="Variant.Text">
+                @if (OverviewModel.Season.State == State.Concept)
+                {
+                    <MudButton Size="Size.Small"
+                               StartIcon="@Icons.Material.Outlined.CarRepair"
+                               IconSize="Size.Small"
+                               IconColor="Color.Tertiary"
+                               OnClick="AddRaces"
+                               Class="btn-md">
+                        Add races
+                    </MudButton>
+                }
+                <ScreenshotButton TargetId="season-calendar-overview" Colour="Color.Tertiary" />
+            </MudButtonGroup>
         </MudStack>
     </MudPaper>
-    <MudTable T="CalendarList" Items="@SeasonCalendar.OrderBy(e => e.Round)" Dense="true" Loading="@loading">
+    <MudTable T="CalendarList" Items="@SeasonCalendar.OrderBy(e => e.Round)" Dense="true" Loading="@Loading">
         <HeaderContent>
             <MudTh Class="number-col">Round</MudTh>
             <MudTh>Country</MudTh>
@@ -95,7 +96,7 @@
                 }
             </MudTd>
             <MudTd>
-                <MudButtonGroup Size="@Size.Small">
+                <MudButtonGroup Size="Size.Small">
                     @if (OverviewModel.Season.State == State.Active && (context.Round == nextRound))
                     {
                         <MudIconButton Icon="@Icons.Material.Outlined.Logout"
@@ -124,22 +125,25 @@
     [CascadingParameter] public OverviewModel OverviewModel { get; set; }
 
     [Parameter] public IEnumerable<Climate> Climates { get; set; } = Enumerable.Empty<Climate>();
+
     [Parameter] public EventCallback OnAddRaces { get; set; }
+
     [Parameter] public EventCallback<Race?> OnEditorOpen { get; set; }
+
     [Parameter] public EventCallback<long> OnDelete { get; set; }
 
-    private List<CalendarList> SeasonCalendar { get; set; } = new();
+    private List<CalendarList> SeasonCalendar { get; set; } = [];
 
-    private bool loading = true;
+    private bool Loading { get; set; } = true;
     private int nextRound;
 
     protected override void OnParametersSet()
     {
-        loading = true;
+        Loading = true;
 
         RestoreCalendar();
 
-        loading = false;
+        Loading = false;
     }
 
     private void RestoreCalendar()
@@ -240,7 +244,7 @@
             return;
         }
 
-        _nav.NavigateTo($"/raceweek/{race.Id}");
+        _navigation.NavigateTo($"/raceweek/{race.Id}");
     }
 
     private async Task UpdateRace(Race? item) => await OnEditorOpen.InvokeAsync(item);

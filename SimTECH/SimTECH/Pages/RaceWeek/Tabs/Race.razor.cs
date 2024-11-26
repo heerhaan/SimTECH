@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using MudBlazor;
+using SimTECH.Common.Constants;
 using SimTECH.Common.Enums;
-using SimTECH.Constants;
 using SimTECH.Data.Models;
 using SimTECH.Data.Services.Interfaces;
 using SimTECH.Extensions;
@@ -422,10 +422,10 @@ public partial class Race
     private async Task ShowGapperChart() => _ = await _dialogService.ShowAsync<GapChartDialog>(
         "Gapper chart",
         new DialogParameters { ["Drivers"] = RaceDrivers },
-        Globals.StatisticDialogDefaultOptionsXl);
+        Globals.StatDialogOptionsLarge);
 
     private async Task ShowPositionChart() => _ = await _dialogService.ShowAsync<PositionChangeChart>(
         "Position chart",
         new DialogParameters { ["Drivers"] = RaceDrivers },
-        Globals.StatisticDialogDefaultOptionsXl);
+        Globals.StatDialogOptionsLarge);
 }

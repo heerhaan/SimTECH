@@ -1,6 +1,6 @@
 ﻿using Bunit;
 using FluentAssertions;
-using SimTECH.Constants;
+using SimTECH.Common.Constants;
 using SimTECH.Data;
 using SimTECH.Shared.Components;
 using SimTECH.Tests.Infrastructure;

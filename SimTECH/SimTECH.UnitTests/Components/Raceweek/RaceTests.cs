@@ -1,6 +1,6 @@
 ﻿using Bunit;
 using Microsoft.AspNetCore.Components.Web;
-using SimTECH.Constants;
+using SimTECH.Common.Constants;
 using SimTECH.Data.Models;
 using SimTECH.PageModels.RaceWeek;
 using SimTECH.Tests.Data.Factories;

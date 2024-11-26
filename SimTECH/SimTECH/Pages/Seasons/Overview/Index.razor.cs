@@ -162,7 +162,7 @@ public partial class Index
         }
     }
 
-    private async Task UpdateRace(Race? item)
+    private async Task UpdateRace(Race item)
     {
         var league = Leagues.First(e => e.Id == OverviewModel.Season.LeagueId);
 
@@ -170,7 +170,6 @@ public partial class Index
         {
             ["Race"] = item,
             ["SeasonId"] = SeasonId,
-            ["Climates"] = Climates.Where(e => e.State == State.Active).ToList(),
         };
 
         var dialog = await _dialogService.ShowAsync<RaceEditor>("Modify Race", parameters);

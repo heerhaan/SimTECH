@@ -5,16 +5,8 @@
 
 @inject BreadcrumbProvider _bread
 @inject ProtectedLocalStorage _storage
-@inject NavigationManager _nav
-@inject IOptions<SimConfig> _config
 
 <PageTitle>Test</PageTitle>
-
-<style type="text/css">
-    .bordah {
-        border: 1px solid red;
-    }
-</style>
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-16 px-8 cubic-repeat-bg">
     <MudGrid>
@@ -96,19 +88,10 @@
             </MudGrid>
         </MudItem>
         <MudItem xs="3">
-            <MudPaper Elevation="2" MinHeight="300px" Class="pa-4">
-                <MudText Typo="Typo.h5">Config settings</MudText>
-                <MudDivider />
-
-                <MudListExtended T="string" Dense="true">
-                    <MudListItemExtended T="string" Text="@config.CalculationDistance.ToString()" SecondaryText="Calculation distance" />
-                    <MudListItemExtended T="string" Text="@config.GapMarge.ToString()" SecondaryText="Time score equivalent" />
-                </MudListExtended>
-            </MudPaper>
             <MudPaper>
                 <MudStack Row="true" Justify="Justify.SpaceBetween" Spacing="2">
                     <MudPaper Class="px-2 py-4">
-                        <MudButton Color="Color.Primary" OnClick="TriggerMainLoader">Show loader</MudButton>
+                        <MudButton Color="Color.Primary" OnClick="TriggerMainLoader">Show page loader</MudButton>
 
                         <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px" />
                         <MudText>Main loader is found 'ere</MudText>
@@ -118,7 +101,7 @@
                         </MudOverlay>
                     </MudPaper>
                     <MudPaper Class="px-2 py-4">
-                        <MudButton Color="Color.Secondary" OnClick="TriggerSecondaryLoader">Show loader</MudButton>
+                        <MudButton Color="Color.Secondary" OnClick="TriggerSecondaryLoader">Show block loader</MudButton>
 
                         <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px" />
                         <MudText>Secondary loader is found here</MudText>
@@ -127,9 +110,12 @@
                                     LoaderType="LoaderType.Circular"
                                     Text="Section be loadin, ya"
                                     Class="loader"
-                                    ClassLoader="loader">
-                            <MudText>This is only shown when the loader is active!</MudText>
+                                    LoaderClass="loader">
+                            <MudText>This is NOT shown when the loader is active!</MudText>
                         </MudLoading>
+                    </MudPaper>
+                    <MudPaper Class="px-2 py-4">
+                        <MudButton Color="Color.Tertiary" OnClick="TriggerTeritaryLoader">Show body loader</MudButton>
                     </MudPaper>
                 </MudStack>
             </MudPaper>
@@ -138,12 +124,13 @@
 </MudContainer>
 
 @code {
+    [CascadingParameter] protected EventCallback<bool> ToggleLoader { get; set; }
+
     private string ActiveCustomIcon { get; set; } = IconCollection.BrandToyota;
     private string[] customIcons = IconCollection.ArrayOfIcons;
     private int iconCycler = 0;
     private string? exampleStore;
     private string newExampleString = "Stored and retrieved from the local storage";
-    private SimConfig config;
 
     private int rangeLow, rangeHigh;
 
@@ -159,8 +146,6 @@
         {
             new BreadcrumbItem("Home", href: "/"),
         });
-
-        config = _config.Value;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -185,6 +170,13 @@
         IsLoaderSecondaryActive = true;
         await Task.Delay(3000);
         IsLoaderSecondaryActive = false;
+    }
+
+    private async Task TriggerTeritaryLoader()
+    {
+        await ToggleLoader.InvokeAsync(true);
+        await Task.Delay(3000);
+        await ToggleLoader.InvokeAsync(false);
     }
 
     private void UpdateStateText()

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using SimTECH.Common.Enums;
-using SimTECH.Constants;
+using SimTECH.Common.Constants;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels.RaceWeek;
@@ -11,7 +11,7 @@ public partial class Practice
 {
     private const int GAP_TIMING_DIVIDER = 2;
 
-    [CascadingParameter] public RaweCeekModel Model { get; set; }
+    [CascadingParameter] protected RaweCeekModel Model { get; set; }
 
     [Parameter] public PracticeSession PracticeSession { get; set; } = new();
     [Parameter] public EventCallback<int> OnFinish { get; set; }

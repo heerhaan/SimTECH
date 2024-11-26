@@ -1,5 +1,5 @@
 ﻿using MudBlazor;
-using SimTECH.Constants;
+using SimTECH.Common.Constants;
 using SimTECH.PageModels;
 
 namespace SimTECH.Pages.Guide;

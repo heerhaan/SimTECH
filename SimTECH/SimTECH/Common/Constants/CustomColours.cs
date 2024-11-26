@@ -1,6 +1,6 @@
 ﻿using MudBlazor.Utilities;
 
-namespace SimTECH.Constants;
+namespace SimTECH.Common.Constants;
 
 public static class CustomColours
 {

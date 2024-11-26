@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using SimTECH.Common.Enums;
-using SimTECH.Constants;
+using SimTECH.Common.Constants;
 using SimTECH.Data.Models;
 using SimTECH.Extensions;
 using SimTECH.PageModels.RaceWeek;
@@ -9,7 +9,7 @@ namespace SimTECH.Pages.RaceWeek.Tabs;
 
 public partial class Qualifying
 {
-    [CascadingParameter] public RaweCeekModel Model { get; set; }
+    [CascadingParameter] protected RaweCeekModel Model { get; set; }
 
     [Parameter] public QualifyingSession QualySession { get; set; } = new();
 

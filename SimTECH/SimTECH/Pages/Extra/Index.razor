@@ -5,6 +5,7 @@
 @inject CommonService _commonService
 @inject BreadcrumbProvider _bread
 @inject IDialogService _dialogService
+@inject IOptions<SimConfig> _config
 
 <PageTitle>Extra</PageTitle>
 
@@ -55,13 +56,17 @@
                     </div>
                 </MudPaper>
                 <MudPaper Class="pa-4 mud-height-full">
-                    <MudText Typo="Typo.h5">Celestials</MudText>
+                    <MudText Typo="Typo.h5">Config settings</MudText>
                     <MudDivider />
-                    <MudList T="string">
-                        <MudListSubheader>
-                            Beware the forsaken ones
-                        </MudListSubheader>
-                    </MudList>
+
+                    <MudListExtended T="string" Dense="true">
+                        <MudListItemExtended T="string"
+                                             Text="@Config.CalculationDistance.ToString()"
+                                             SecondaryText="Calculation distance" />
+                        <MudListItemExtended T="string"
+                                             Text="@Config.GapMarge.ToString()"
+                                             SecondaryText="Time score equivalent" />
+                    </MudListExtended>
                 </MudPaper>
             </MudStack>
         </MudItem>
@@ -122,6 +127,8 @@
 </MudContainer>
 
 @code {
+    private SimConfig Config { get; set; } = new();
+
     protected override void OnInitialized()
     {
         _bread.SetBreadcrumbs(new List<BreadcrumbItem>()
@@ -129,6 +136,8 @@
             new BreadcrumbItem("Home", href: ""),
             new BreadcrumbItem("Extra", href: "extra", disabled: true),
         });
+
+        Config = _config.Value;
     }
 
     private async Task InsertDefault()
