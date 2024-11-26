@@ -1,4 +1,4 @@
-﻿<MudGrid>
+﻿<MudGrid Spacing="1">
     <MudItem xs="12">
         <MudPaper Elevation="15" Class="pa-4">
             <MudStack Row="true">
@@ -71,18 +71,18 @@
             }
             else
             {
-                <MudAlert Variant="Variant.Outlined" Severity="Severity.Error">Where are the friggin point allotments then?</MudAlert>
+                <MudAlert Variant="Variant.Outlined" Severity="Severity.Error">
+                    Where are the friggin point allotments then?
+                </MudAlert>
             }
         </MudPaper>
     </MudItem>
 </MudGrid>
 
 @code {
-    [CascadingParameter]
-    public OverviewModel OverviewModel { get; set; }
+    [CascadingParameter] private OverviewModel OverviewModel { get; set; }
 
-    [Parameter]
-    public EventCallback OnEditorOpen { get; set; }
+    [Parameter] public EventCallback OnEditorOpen { get; set; }
 
     private string qualyFormat = string.Empty;
 

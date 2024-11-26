@@ -1,5 +1,4 @@
 ﻿using SimTECH.Common.Enums;
-using SimTECH.PageModels.Seasons.Standings;
 
 namespace SimTECH.Data.Models;
 
@@ -31,19 +30,4 @@ public sealed class Result : ModelBase
     public IList<LapScore> LapScores { get; set; } = new List<LapScore>();
     public IList<QualifyingScore> QualifyingScores { get; set; } = new List<QualifyingScore>();
     public IList<PracticeScore> PracticeScores { get; set; } = new List<PracticeScore>();
-}
-
-public static class ExtendResult
-{
-    public static StandingResultCell MapToResultCell(this Result result, int round)
-    {
-        return new StandingResultCell
-        {
-            Position = result.Position,
-            Status = result.Status,
-            Round = round,
-            Pole = result.Grid == 1,
-            FL = result.FastestLap,
-        };
-    }
 }

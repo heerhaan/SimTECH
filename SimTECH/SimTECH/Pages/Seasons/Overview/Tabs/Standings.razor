@@ -1,9 +1,11 @@
-﻿@using SimTECH.Pages.Seasons.Overview.Components
+﻿@using SimTECH.Common.Mappers
+@using SimTECH.Pages.Seasons.Overview.Components
 @using SimTECH.Pages.Seasons.Overview.Dialogs
+@using SimTECH.Pages.Seasons.Overview.Tabs.NestedTabs
 
 <MudTabs Outlined="true" Centered="true">
     <MudTabPanel Text="Standings">
-        <MudGrid Spacing="2" id="standings-numerical-overview">
+        <MudGrid Spacing="1" id="standings-numerical-overview">
             <MudItem xs="12">
                 <MudPaper Height="75px" Class="pa-2">
                     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
@@ -30,13 +32,13 @@
 
 @code {
     [CascadingParameter]
-    public OverviewModel OverviewModel { get; set; }
+    private OverviewModel OverviewModel { get; set; }
 
-    public List<StandingDriverModel> DriverResults { get; set; } = new();
+    public List<StandingDriverModel> DriverResults { get; set; } = [];
 
-    public List<StandingTeamModel> TeamResults { get; set; } = new();
+    public List<StandingTeamModel> TeamResults { get; set; } = [];
 
-    public Dictionary<int, Country> CountryRounds { get; set; } = new();
+    public Dictionary<int, Country> CountryRounds { get; set; } = [];
 
     protected override void OnInitialized()
     {
@@ -45,6 +47,8 @@
 
     private void RestoreStandingResults()
     {
+        DriverResults.Clear();
+        TeamResults.Clear();
         CountryRounds.Clear();
 
         var classResults = OverviewModel.ClassResults;
@@ -54,67 +58,32 @@
 
         int indexer = 0;
 
-        // TODO: Can we generalize these calls somehow?
-        DriverResults = OverviewModel.ClassDrivers
-            .OrderByDescending(e => e.Points)
-                .ThenByDescending(e => e.HiddenPoints)
-            .Select(e =>
-                ToDriverResultModel(e, classResults.Where(r => r.SeasonDriverId == e.Id).ToList(), ++indexer))
-            .ToList();
+        foreach (var driver in OverviewModel.ClassDrivers.OrderByDescending(e => e.Points).ThenByDescending(e => e.HiddenPoints))
+        {
+            var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
+
+            var standingDriver = driver.MapToStandingDriver(team, ++indexer);
+
+            standingDriver.ResultCells = OverviewModel.ClassResults
+                .Where(e => e.SeasonDriverId == driver.Id)
+                .Select(e => e.MapToStandingResult(OverviewModel.Races.Single(r => r.Id == e.RaceId).Round))
+                .ToList();
+
+            DriverResults.Add(standingDriver);
+        }
 
         indexer = 0;
 
-        TeamResults = OverviewModel.ClassTeams
-            .OrderByDescending(e => e.Points)
-                .ThenByDescending(e => e.HiddenPoints)
-            .Select(e =>
-                ToTeamResultModel(e, classResults.Where(r => r.SeasonTeamId == e.Id).ToList(), ++indexer))
-            .ToList();
-    }
-
-    private StandingDriverModel ToDriverResultModel(SeasonDriver driver, List<Result> results, int position)
-    {
-        var team = OverviewModel.SeasonTeams.FirstOrDefault(e => e.Id == driver.SeasonTeamId);
-
-        return new StandingDriverModel
+        foreach (var team in OverviewModel.ClassTeams.OrderByDescending(e => e.Points).ThenByDescending(e => e.HiddenPoints))
         {
-            Id = driver.Id,
-            Position = position,
-            Name = driver.Driver.FullName,
-            Number = driver.Number,
-            Nationality = driver.Driver.Country,
-            Colour = team?.Colour ?? "var(--mud-palette-primary)",
-            Accent = team?.Accent ?? "var(--mud-palette-primary-text)",
-            Points = driver.Points,
-            HiddenPoints = driver.HiddenPoints,
-            Mark = driver.Driver.Mark,
-            SeasonTeamId = driver.SeasonTeamId,
-            Team = team?.Team?.Name ?? "None",
+            var standingTeam = team.MapToStandingTeam(++indexer);
 
-            ResultCells = results
-                .Select(res => res.MapToResultCell(OverviewModel.Races.Single(e => e.Id == res.RaceId).Round))
-                .ToList(),
-        };
-    }
+            standingTeam.ResultCells = OverviewModel.ClassResults
+                .Where(e => e.SeasonTeamId == team.Id)
+                .Select(e => e.MapToStandingResult(OverviewModel.Races.Single(r => r.Id == e.RaceId).Round))
+                .ToList();
 
-    private StandingTeamModel ToTeamResultModel(SeasonTeam team, List<Result> results, int position)
-    {
-        return new StandingTeamModel
-        {
-            Id = team.Id,
-            Position = position,
-            Name = team.Name,
-            Principal = team.Principal,
-            Nationality = team.Team.Country,
-            Colour = team.Colour,
-            Accent = team.Accent,
-            Points = team.Points,
-            HiddenPoints = team.HiddenPoints,
-            Mark = team.Team.Mark,
-
-            ResultCells = results
-                .Select(res => res.MapToResultCell(OverviewModel.Races.Single(e => e.Id == res.RaceId).Round))
-                .ToList(),
-        };
+            TeamResults.Add(standingTeam);
+        }
     }
 }

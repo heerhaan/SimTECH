@@ -6,7 +6,7 @@
 @inject IDialogService _dialogService
 @inject ISnackbar _snackbar
 
-<MudGrid Spacing="2">
+<MudGrid Spacing="1">
     <MudItem xs="12">
         <MudPaper Class="pa-4">
             <MudStack>
@@ -84,10 +84,10 @@
     <MudItem xs="6">
         <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
             <MudStack Class="mud-height-full">
-                <MudText Typo="Typo.h5">Statistics</MudText>
+                <MudText Typo="Typo.h5">Data</MudText>
                 <MudDivider Class="my-1" />
                 <MudText Typo="Typo.body2">
-                    Links to different statistics specific to this season (wow really?)
+                    You can find information here about the different statistics related to this season.
                 </MudText>
 
                 <MudSpacer />
@@ -106,14 +106,14 @@
             </MudStack>
         </MudPaper>
     </MudItem>
-    <MudItem xs="6">
-        <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
-            <MudStack Class="mud-height-full">
-                <MudText Typo="Typo.h5">Classes</MudText>
-                <MudDivider Class="my-1" />
+    @if (OverviewModel.Season.HasRaceClasses)
+    {
+        <MudItem xs="6">
+            <MudPaper MinHeight="200px" Elevation="15" Class="pa-4 mud-height-full">
+                <MudStack Class="mud-height-full">
+                    <MudText Typo="Typo.h5">Classes</MudText>
+                    <MudDivider Class="my-1" />
 
-                @if (OverviewModel.Season.HasRaceClasses)
-                {
                     <MudText Color="Color.Warning">This specific block should be improved in terms of designing</MudText>
 
                     <MudRadioGroup Value="@OverviewModel.ActiveClassId"
@@ -122,14 +122,14 @@
                         {
                             <MudRadio Value="@raceClass.Id"
                                       Color="Color.Primary">
-                                      @raceClass.Name
+                                @raceClass.Name
                             </MudRadio>
                         }
                     </MudRadioGroup>
-                }
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+    }
 </MudGrid>
 
 @code {
@@ -152,6 +152,7 @@
     public EventCallback<long> OnClassSelected { get; set; }
 
     private async Task TriggerStart() => await OnStartSeason.InvokeAsync();
+
     private async Task TriggerFinish() => await OnFinishSeason.InvokeAsync();
 
     private async Task ShowQualyBattles()
