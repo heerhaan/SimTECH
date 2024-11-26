@@ -14,7 +14,8 @@ public partial class Index
 {
     [Inject] private IOptions<SimConfig> Config { get; set; }
 
-    [CascadingParameter] protected EventCallback<bool> ToggleLoader { get; set; }
+    // NOTE: Toggling the loader deactivates the tab, which causes OnInit to re-trigger onload causing a loop
+    //[CascadingParameter] protected EventCallback<bool> ToggleLoader { get; set; }
 
     [Parameter] public long RaceId { get; set; }
 
@@ -29,7 +30,7 @@ public partial class Index
 
     //private List<long> ConsumablePenalties { get; set; } = [];
 
-    private bool Loading { get; set; }
+    private bool Loading { get; set; } = true;
     private bool PracticeLoaded { get; set; }
     private bool QualifyingLoaded { get; set; }
 
@@ -38,8 +39,8 @@ public partial class Index
 
     protected override async Task OnInitializedAsync()
     {
+        //await ToggleLoader.InvokeAsync(true);
         Loading = true;
-        await ToggleLoader.InvokeAsync(Loading);
 
         Tyres = await _tyreService.GetTyres(StateFilter.All);
 
@@ -71,8 +72,8 @@ public partial class Index
 
         await LoadDrivers();
 
+        //await ToggleLoader.InvokeAsync(false);
         Loading = false;
-        await ToggleLoader.InvokeAsync(Loading);
     }
 
     private async Task LoadDrivers()

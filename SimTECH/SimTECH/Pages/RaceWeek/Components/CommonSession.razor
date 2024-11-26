@@ -9,7 +9,7 @@
 <MudPaper Elevation="25">
     <MudTable Items="@Drivers.OrderBy(e => e.AbsolutePosition)"
               Dense="true"
-              RowStyleFunc="@_sessionRowStyles"
+              RowStyleFunc="@sessionRowStyles"
               Class="extra-dense collapse"
               id="session-table">
         <HeaderContent>
@@ -47,12 +47,12 @@
                 <SmolAccent Colour="@context.Colour" />
             </MudTd>
             <MudTd Class="overflow-hider">
-                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                <div class="flex-block-row gap-1">
                     <MudText Typo="Typo.body1">@context.FirstName</MudText>
                     <MudText Typo="Typo.button" Class="fontsize-button-text">@context.LastName</MudText>
                     <MudSpacer />
                     <CountryFlag Code="@context.Nationality" Size="ElementSize.Small" />
-                </MudStack>
+                </div>
             </MudTd>
             <MudTd Class="number-col">
                 <NumberDisplay Colour="@context.Colour" Accent="@context.Accent">@context.Number</NumberDisplay>
@@ -87,7 +87,14 @@
                 <MudText Typo="Typo.caption" Color="Color.Inherit">@context.MaxScore()</MudText>
             </MudTd>
             <MudTd>
-                <MudText Typo="Typo.button">@context.GapAbove</MudText>
+                @if (context.Position == 1)
+                {
+                    <MudText Typo="Typo.button">LEADER</MudText>
+                }
+                else
+                {
+                    <MudText Typo="Typo.button">@context.GapAbove</MudText>
+                }
             </MudTd>
             <MudTd>
                 @if (TryLocateCutoff(context.AbsolutePosition, out var tuple))
@@ -116,7 +123,7 @@
     [Parameter] public int LowestScore { get; set; }
     [Parameter] public bool HasRaceClasses { get; set; }
 
-    private Func<SessionDriver, int, string> _sessionRowStyles => (driver, index) =>
+    private Func<SessionDriver, int, string> sessionRowStyles => (driver, index) =>
     {
         if (driver.AbsolutePosition != Drivers.Count() && driver.AbsolutePosition != 0)
         {

@@ -25,4 +25,19 @@ public static class RecordStatEnumHelper
             RecordStat.Overtakes,
             RecordStat.Defended,
         ];
+
+    public static string GetReadableText(this RecordStat item)
+    {
+        return item switch
+        {
+            RecordStat.Entry => "Entries",
+            RecordStat.Start => "Starts",
+            RecordStat.Win => "Wins",
+            RecordStat.Pole => "Pole positions",
+            RecordStat.Retired => "Retirements",
+            RecordStat.Overtakes => "Average overtakes per race",
+            RecordStat.Defended => "Average overtakes prevented per race",
+            _ => throw new ArgumentOutOfRangeException("Unrecognized RecordStat-enum"),
+        };
+    }
 }

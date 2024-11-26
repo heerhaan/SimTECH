@@ -1,0 +1,30 @@
+﻿@page "/raceweek/landing/{RaceId:long}"
+
+@using SimTECH.Pages.RaceWeek.Components
+@using SimTECH.Pages.RaceWeek.Sessions.Landing.Components
+
+<NavigationWrapper ActiveSession="@ActiveSession">
+    <MudTabs>
+        <MudTabPanel Text="Raweceek">
+            <Raceweek />
+        </MudTabPanel>
+        <MudTabPanel Text="Entrants">
+            <Entrants />
+        </MudTabPanel>
+    </MudTabs>
+</NavigationWrapper>
+
+@code {
+    [CascadingParameter] protected EventCallback<bool> ToggleLoader { get; set; }
+
+    [Parameter] public long RaceId { get; set; }
+
+    private RaceSession ActiveSession { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ToggleLoader.InvokeAsync(true);
+
+        await ToggleLoader.InvokeAsync(false);
+    }
+}

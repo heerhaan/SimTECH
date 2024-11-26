@@ -23,7 +23,7 @@ public class SeasonDriverService(IDbContextFactory<SimTechDbContext> factory)
 
         return await context.SeasonDriver
             .Include(e => e.Driver)
-                .ThenInclude(e => e.DriverTraits)
+            .ThenInclude(e => e.DriverTraits)
             .Where(e => e.SeasonId == seasonId)
             .ToListAsync();
     }

@@ -27,40 +27,37 @@
                     </MudStack>
 
                     <MudPaper MinHeight="500px" MinWidth="600px" id="driver-records-stat">
-                        @if (!loading)
-                        {
-                            <MudText Typo="Typo.h5">@selectedRecord</MudText>
-                            <MudDivider />
-                            <MudSimpleTable Dense="true" Class="extra-dense">
-                                <thead>
+                        <MudText Typo="Typo.h5">@SelectedRecord</MudText>
+                        <MudDivider />
+                        <MudSimpleTable Dense="true" Class="extra-dense">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Name</th>
+                                    <th>VAL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var (driverData, index) in DriverRecords.WithIndex())
+                                {
                                     <tr>
-                                        <th></th>
-                                        <th>Name</th>
-                                        <th>VAL</th>
+                                        <td>
+                                            @(1 + index)
+                                        </td>
+                                        <td style="width: 300px">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center">
+                                                <MudText Class="overflow-hider">@driverData.Key.FullName</MudText>
+                                                <MudSpacer />
+                                                <CountryFlag Code="@driverData.Key.Country" Size="ElementSize.Small" />
+                                            </MudStack>
+                                        </td>
+                                        <td>
+                                            @driverData.Value
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var (driverData, index) in driverRecords.WithIndex())
-                                    {
-                                        <tr>
-                                            <td>
-                                                @(1 + index)
-                                            </td>
-                                            <td style="width: 300px">
-                                                <MudStack Row="true" AlignItems="AlignItems.Center">
-                                                    <MudText Class="overflow-hider">@driverData.Key.FullName</MudText>
-                                                    <MudSpacer />
-                                                    <CountryFlag Code="@driverData.Key.Country" Size="ElementSize.Small" />
-                                                </MudStack>
-                                            </td>
-                                            <td>
-                                                @driverData.Value
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </MudSimpleTable>
-                        }
+                                }
+                            </tbody>
+                        </MudSimpleTable>
                     </MudPaper>
                 </MudStack>
             </MudPaper>
@@ -69,20 +66,21 @@
 </MudDialog>
 
 @code {
+    private const int TOP_RECORDS_AMOUNT = 10;
+    
     [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
+
     [Parameter] public IEnumerable<Driver> Drivers { get; set; } = Enumerable.Empty<Driver>();
     [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
     [Parameter] public IEnumerable<Result> Results { get; set; } = Enumerable.Empty<Result>();
 
-    private Dictionary<Driver, List<Result>> groupedResults = new();
+    private Dictionary<Driver, List<Result>> GroupedResults { get; set; } = new();
 
-    private Dictionary<Driver, string> driverRecords = new(amount);
+    private Dictionary<Driver, string> DriverRecords = new(TOP_RECORDS_AMOUNT);
 
     private RecordStat[] recordStats = RecordStatEnumHelper.DriverRecordStats;
 
-    private bool loading = true;
-    private RecordStat selectedRecord = RecordStat.None;
-    private const int amount = 10;
+    private RecordStat SelectedRecord { get; set; } = RecordStat.None;
 
     protected override void OnInitialized()
     {
@@ -96,50 +94,46 @@
             var allSeasonDriverIds = groupDriver.Select(e => e.Id).ToList();
             var driverResults = Results.Where(e => allSeasonDriverIds.Contains(e.SeasonDriverId)).ToList();
 
-            groupedResults.Add(driver, driverResults);
+            GroupedResults.Add(driver, driverResults);
         }
     }
 
     private void DetermineRecords(RecordStat selected)
     {
-        loading = true;
-
         if (selected == RecordStat.Overtakes)
         {
-            driverRecords = groupedResults
+            DriverRecords = GroupedResults
                 .Select(e => new
                 { 
                     driver = e.Key,
                     value = NumberHelper.Average(e.Value.Sum(s => s.Overtaken), e.Value.Count(CountFilter(RecordStat.Start)))
                 })
                 .OrderByDescending(e => e.value)
-                .Take(amount)
+                .Take(TOP_RECORDS_AMOUNT)
                 .ToDictionary(e => e.driver, e => e.value.ToString());
         }
         else if (selected == RecordStat.Defended)
         {
-            driverRecords = groupedResults
+            DriverRecords = GroupedResults
                 .Select(e => new
                 {
                     driver = e.Key,
                     value = NumberHelper.Average(e.Value.Sum(s => s.Defended), e.Value.Count(CountFilter(RecordStat.Start)))
                 })
                 .OrderByDescending(e => e.value)
-                .Take(amount)
+                .Take(TOP_RECORDS_AMOUNT)
                 .ToDictionary(e => e.driver, e => e.value.ToString());
         }
         else
         {
-            driverRecords = groupedResults
+            DriverRecords = GroupedResults
                 .Select(e => new { driver = e.Key, value = e.Value.Count(CountFilter(selected)) })
                 .OrderByDescending(e => e.value)
-                .Take(amount)
+                .Take(TOP_RECORDS_AMOUNT)
                 .ToDictionary(e => e.driver, e => e.value.ToString());
         }
 
-        selectedRecord = selected;
-
-        loading = false;
+        SelectedRecord = selected;
     }
 
     private Func<Result, bool> CountFilter(RecordStat selected) => selected switch

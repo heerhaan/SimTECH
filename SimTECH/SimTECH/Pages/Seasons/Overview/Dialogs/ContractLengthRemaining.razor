@@ -1,5 +1,7 @@
 ﻿@using SimTECH.PageModels.Stats
 
+@inject ContractService _contractService
+
 <MudDialog>
     <DialogContent>
         <MudContainer>
@@ -15,7 +17,7 @@
                 @if (!loading)
                 {
                     <ApexCharts.ApexChart TItem="DataPoint" Options="@options" Width="1000" Height="700">
-                        @foreach (var data in driverContractDurations)
+                        @foreach (var data in DriverContractDurations)
                         {
                             <ApexCharts.ApexPointSeries TItem="DataPoint"
                                                         Items="@data.DataPoints"
@@ -34,11 +36,13 @@
 @code {
     [CascadingParameter] protected MudDialogInstance? StatDialog { get; set; }
 
+    [Parameter] public long LeagueId { get; set; }
     [Parameter] public IEnumerable<SeasonDriver> SeasonDrivers { get; set; } = Enumerable.Empty<SeasonDriver>();
     [Parameter] public IEnumerable<SeasonTeam> SeasonTeams { get; set; } = Enumerable.Empty<SeasonTeam>();
-    [Parameter] public IEnumerable<Contract> Contracts { get; set; } = Enumerable.Empty<Contract>();
 
-    private List<ChartData> driverContractDurations = new();
+    private List<Contract> Contracts { get; set; } = [];
+
+    private List<ChartData> DriverContractDurations { get; set; } = [];
 
     ApexCharts.ApexChartOptions<DataPoint> options = new()
         {
@@ -63,16 +67,18 @@
 
     bool loading = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        Contracts = await _contractService.GetLeagueContracts(LeagueId);
+
         LoadContractData();
 
         loading = false;
     }
 
+    // TODO: Data collection here is not properly working, or at least the rendering to the chart
     private void LoadContractData()
     {
-        // TODO: This data calculation is still borked
         foreach (var driver in SeasonDrivers)
         {
             if (driver.SeasonTeamId == null)
@@ -85,11 +91,13 @@
                     Stroke = new ApexCharts.SeriesStroke() { Color = seasonTeam.Colour },
                 };
 
-            var contractDurationLeft = Contracts.FirstOrDefault(e => e.DriverId == driver.DriverId && e.TeamId == seasonTeam.TeamId)?.Duration ?? 0;
+            var contractDurationLeft = Contracts
+                .FirstOrDefault(e => e.DriverId == driver.DriverId && e.TeamId == seasonTeam.TeamId)?
+                .Duration ?? 0;
 
             dataSet.DataPoints.Add(new DataPoint(seasonTeam.Name, contractDurationLeft));
 
-            driverContractDurations.Add(dataSet);
+            DriverContractDurations.Add(dataSet);
         }
     }
 }

@@ -36,15 +36,13 @@
                         </MudText>
                     </MudCardContent>
                     <MudCardActions>
-                        <MudSelect T="long"
-                                   @bind-Value="@leagueFilter"
+                        <MudSelect @bind-Value="@LeagueFilter"
                                    Variant="Variant.Filled"
                                    Label="League"
-                                   Placeholder="All leagues"
-                                   ToStringFunc="@leagueNameOrAll">
+                                   Placeholder="All leagues">
                             @foreach (var league in Leagues)
                             {
-                                <MudSelectItem Value="@league.Id">
+                                <MudSelectItem Value="@league">
                                     <MudText>@league.Name</MudText>
                                 </MudSelectItem>
                             }
@@ -83,17 +81,10 @@
     private List<StatTopic> Topics { get; } = StatsDataBuilder.GetStatisticTopics;
     private List<League> Leagues { get; set; } = [];
 
+    private League? LeagueFilter { get; set; }
+
     private bool Loading { get; set; } = true;
-    private long leagueFilter;
-
-    private Func<long, string> leagueNameOrAll => (leagueId) =>
-    {
-        if (leagueId == 0)
-            return "Any league";
-
-        return Leagues.Find(e => e.Id == leagueId)?.Name ?? "Unknown";
-    };
-
+    
     protected override async Task OnInitializedAsync()
     {
         _bread.Reset();
@@ -124,8 +115,8 @@
         var seasonDrivers = await _seasonDriverService.GetAllSeasonDrivers();
 
         List<Result> results;
-        if (leagueFilter != 0)
-            results = await _resultService.GetResultsOfLeague(leagueFilter);
+        if (LeagueFilter != null)
+            results = await _resultService.GetResultsOfLeague(LeagueFilter.Id);
         else
             results = await _resultService.GetAllResults();
 

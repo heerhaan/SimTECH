@@ -1,0 +1,30 @@
+﻿<MudPaper Elevation="100">
+    <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+        <div class="flex-block-row">
+            <MudLink Href="landing">
+                Raceweek
+            </MudLink>
+            <MudLink Href="practice" Disabled="@(RaceSessionEnumHelper.IsAccessible(ActiveSession, RaceSession.Practice))">
+                Practice
+            </MudLink>
+            <MudLink Href="qualifying" Disabled="@(RaceSessionEnumHelper.IsAccessible(ActiveSession, RaceSession.Qualifying))">
+                Qualifying
+            </MudLink>
+            <MudLink Href="race" Disabled="@(RaceSessionEnumHelper.IsAccessible(ActiveSession, RaceSession.Race))">
+                Race
+            </MudLink>
+            <MudLink Href="postrace" Disabled="@(RaceSessionEnumHelper.IsAccessible(ActiveSession, RaceSession.Finished))">
+                Post race
+            </MudLink>
+        </div>
+        <div>
+            @ChildContent
+        </div>
+    </MudContainer>
+</MudPaper>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    [Parameter] public RaceSession ActiveSession { get; set; }
+}

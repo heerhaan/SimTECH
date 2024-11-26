@@ -1,6 +1,5 @@
 ﻿@using SimTECH.Pages.Seasons.Overview.Dialogs
 
-@inject ContractService _contractService
 @inject IIncidentService _incidentService
 @inject NavigationManager _navigation
 @inject IDialogService _dialogService
@@ -184,13 +183,11 @@
 
     private async Task ShowRemainingContractDurations()
     {
-        var activeContracts = await _contractService.GetLeagueContracts(OverviewModel.Season.LeagueId);
-
         var parameters = new DialogParameters
             {
+                ["LeagueId"] = OverviewModel.Season.LeagueId,
                 ["SeasonDrivers"] = OverviewModel.ClassDrivers,
-                ["SeasonTeams"] = OverviewModel.ClassTeams,
-                ["Contracts"] = activeContracts
+                ["SeasonTeams"] = OverviewModel.ClassTeams
             };
 
         _ = await _dialogService.ShowAsync<ContractLengthRemaining>("Remaining durations", parameters, Globals.StatDialogOptions);
