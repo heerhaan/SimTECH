@@ -58,13 +58,22 @@ public class SeasonService(IDbContextFactory<SimTechDbContext> factory)
     {
         using var context = _dbFactory.CreateDbContext();
 
-        var season = await context.Season.Include(e => e.PointAllotments).SingleAsync(e => e.Id == seasonId) ?? throw new InvalidOperationException("No season related to ID found");
+        var season = await context.Season
+            .Include(e => e.PointAllotments)
+            .SingleAsync(e => e.Id == seasonId) 
+            ?? throw new InvalidOperationException("No season related to ID found");
         if (season.State != State.Concept)
             throw new InvalidOperationException("Can only delete seasons which are in a concept state");
 
-        var seasonDrivers = await context.SeasonDriver.Where(e => e.SeasonId == season.Id).ToListAsync();
-        var seasonTeams = await context.SeasonTeam.Where(e => e.SeasonId == season.Id).ToListAsync();
-        var seasonEngines = await context.SeasonEngine.Where(e => e.SeasonId == season.Id).ToListAsync();
+        var seasonDrivers = await context.SeasonDriver
+            .Where(e => e.SeasonId == season.Id)
+            .ToListAsync();
+        var seasonTeams = await context.SeasonTeam
+            .Where(e => e.SeasonId == season.Id)
+            .ToListAsync();
+        var seasonEngines = await context.SeasonEngine
+            .Where(e => e.SeasonId == season.Id)
+            .ToListAsync();
         var racesInSeason = await context.Race
             .Where(e => e.SeasonId == season.Id)
             .ToListAsync();
@@ -147,7 +156,7 @@ public class SeasonService(IDbContextFactory<SimTechDbContext> factory)
             }
         }
 
-        if (newPenalties.Any())
+        if (newPenalties.Count != 0)
         {
             context.AddRange(newPenalties);
             await context.SaveChangesAsync();
@@ -195,7 +204,7 @@ public class SeasonService(IDbContextFactory<SimTechDbContext> factory)
             .Include(e => e.Driver)
             .Include(e => e.SeasonTeam)
             .GroupBy(e => e.SeasonId)
-            .Select(e => e.OrderByDescending(o => o.Points).FirstOrDefault())
+            .Select(e => e.OrderByDescending(o => o.Points).First())
             .ToListAsync();
 
         var winningTeams = await context.SeasonTeam
@@ -208,7 +217,7 @@ public class SeasonService(IDbContextFactory<SimTechDbContext> factory)
 
         foreach (var season in seasons)
         {
-            var seasonDriver = winningDrivers.Find(e => e!.SeasonId == season.Id);
+            var seasonDriver = winningDrivers.Find(e => e.SeasonId == season.Id);
             var seasonTeam = winningTeams.Find(e => e!.SeasonId == season.Id);
 
             seasonListItems.Add(new SeasonListModel
@@ -232,6 +241,57 @@ public class SeasonService(IDbContextFactory<SimTechDbContext> factory)
 
         return seasonListItems;
     }
+
+    //public async Task<List<PowerRankingItem>> GetPowerRankingList(long seasonId, long raceClassId, long leagueId)
+    //{
+    //    using var context = _dbFactory.CreateDbContext();
+
+    //    var league = await context.League.SingleAsync(e => e.Id == leagueId);
+
+    //    var seasonDrivers = await context.SeasonDriver
+    //        .Include(e => e.Driver)
+    //            .ThenInclude(e => e.DriverTraits)
+    //        .Where(e => e.SeasonId == seasonId
+    //            && e.SeasonTeamId != null
+    //            && (raceClassId == default || e.SeasonTeam!.ClassId == raceClassId))
+    //        .ToListAsync();
+
+    //    var seasonTeams = await context.SeasonTeam
+    //        .Include(e => e.Team)
+    //            .ThenInclude(e => e.TeamTraits)
+    //        .Include(e => e.SeasonEngine)
+    //        .Include(e => e.Manufacturer)
+    //        .Where(e => seasonDrivers.Select(sd => sd.SeasonTeamId).Contains(e.Id))
+    //        .ToListAsync();
+
+    //    var allTraits = await context.Trait.ToListAsync();
+
+    //    var resultList = new List<PowerRankingItem>(seasonDrivers.Count);
+
+    //    foreach (var seasonDriver in seasonDrivers)
+    //    {
+    //        var team = seasonTeams.FirstOrDefault(e => e.Id == seasonDriver.SeasonTeamId);
+    //        if (team == null) continue;
+
+    //        var item = new PowerRankingItem
+    //        {
+    //            DriverName = seasonDriver.Driver.FullName,
+    //            DriverNumber = seasonDriver.Number,
+    //            Nationality = seasonDriver.Driver.Country,
+    //            TeamName = team.Team.Name,
+    //            Colour = team.Colour,
+    //            Accent = team.Accent,
+    //            Manufacturer = team.Manufacturer.Name,
+    //            QualyPower = 0,
+    //            RacePower = 0,
+    //            Aero = team.g
+    //        };
+
+    //        resultList.Add(item);
+    //    }
+
+    //    return resultList;
+    //}
     #endregion
 }
 
