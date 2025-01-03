@@ -304,6 +304,9 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
                     if (defendingDriver.RecentMistake)
                         defendingResult = defendingResult.PercentageOfNumber(percentageDefenseWhenMistake);
 
+                    // TODO: Im pretty damn sure this is a bit messed up in the context of it being a terrific hindrance to attackers
+                    // when the defense-value is HUGE, while it probably rather should just adapt the attacker's score slight below defender
+                    // Do check though if the above assumption has any side-effects with it!!!
                     var battleCost = defendingResult - attackingResult;
 
                     if (battleCost > 0)
