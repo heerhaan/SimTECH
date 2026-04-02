@@ -74,7 +74,7 @@ public partial class Race
     private int lastHighestScore = 0;
     private int lastLowestScore = 0;
 
-    private RaceManager raceManager;
+    private RaceSimulationEngine raceSimEngine;
 
     private bool IsFirstLap => calculated == 1;
 
@@ -87,7 +87,7 @@ public partial class Race
         Incidents = await _incidentService.GetIncidents(StateFilter.Active);
         Tyres = await _raceWeekService.GetValidTyresForRace(Model.League.Id);
 
-        raceManager = new(Model.Season, Model.League, Incidents, Config.Value);
+        raceSimEngine = new(Model.Season, Model.League, Incidents, Config.Value);
 
         calculationDistance = Config.Value.CalculationDistance;
         calculationCount = Model.Race.RaceLength / calculationDistance;
@@ -132,19 +132,21 @@ public partial class Race
                 driver.LapScores = LapScores.Where(e => e.ResultId == driver.ResultId).ToList();
 
                 driver.LastScore = driver.LapScores.MaxBy(e => e.Order)?.Score ?? 0;
+            }
 
-                if (driver.LastScore > lastHighestScore)
-                    lastHighestScore = driver.LastScore;
-                else if (driver.LastScore < lastLowestScore)
-                    lastLowestScore = driver.LastScore;
+            var lastScores = RaceDrivers.Select(e => e.LastScore).ToList();
+            if (lastScores.Count > 0)
+            {
+                lastHighestScore = lastScores.Max();
+                lastLowestScore = lastScores.Min();
             }
         }
         else if (calculated == 0)
         {
-            raceManager.AddFormationLap(RaceDrivers);
+            raceSimEngine.AddFormationLap(RaceDrivers);
         }
 
-        raceManager.SetPositions(RaceDrivers);
+        raceSimEngine.SetPositions(RaceDrivers);
     }
 
     private async Task Advance()
@@ -178,7 +180,7 @@ public partial class Race
 
             AdvanceOccurrences[calculated] = CurrentSituation;
 
-            raceManager.DeterminePositions(RaceDrivers);
+            raceSimEngine.DeterminePositions(RaceDrivers);
 
             PostProcessAdvance();
 
@@ -219,7 +221,7 @@ public partial class Race
             var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
             // Determine if either driver, car or engine has failed
-            var isCautionSituation = raceManager.CheckReliability(driver, lapScore, ActiveReliabilityCheck, IsFirstLap);
+            var isCautionSituation = raceSimEngine.CheckReliability(driver, lapScore, ActiveReliabilityCheck, IsFirstLap);
 
             // Calculate the score for drivers which are still racing
             if (driver.Status == RaceStatus.Racing)
@@ -229,9 +231,9 @@ public partial class Race
 
                 lapScore.Score = NumberHelper.RandomInt(minRng, maxRng);
 
-                raceManager.CheckIfDriverMadeMistake(driver, lapScore);
+                raceSimEngine.CheckIfDriverMadeMistake(driver, lapScore);
 
-                raceManager.HandleDriverStrategy(driver, lapScore, ValidTyres, false);
+                raceSimEngine.HandleDriverStrategy(driver, lapScore, ValidTyres, false);
 
                 // Adds the overall power of the driver
                 lapScore.Score += driver.Power;
@@ -252,18 +254,18 @@ public partial class Race
         // Checks whether someone set a new fastest lap
         if (IsFirstLap == false)
         {
-            var fastestLapScore = lapScoresToPersist
+            var fastestSegmentScore = lapScoresToPersist
                 .OrderByDescending(e => e.Score)
                 .FirstOrDefault(e => e.Score > fastestLap);
 
-            if (fastestLapScore != null)
+            if (fastestSegmentScore != null)
             {
                 foreach (var raceDriver in RaceDrivers)
-                    raceDriver.HasFastestLap = fastestLapScore.ResultId == raceDriver.ResultId;
+                    raceDriver.HasFastestLap = fastestSegmentScore.ResultId == raceDriver.ResultId;
 
-                fastestLapScore.RacerEvents |= RacerEvent.FastestLap;
+                fastestSegmentScore.RacerEvents |= RacerEvent.FastestLap;
 
-                fastestLap = fastestLapScore.Score;
+                fastestLap = fastestSegmentScore.Score;
             }
         }
     }
@@ -277,14 +279,14 @@ public partial class Race
 
             var lapScore = new LapScore { ResultId = driver.ResultId, Order = calculated };
 
-            raceManager.HandleDriverStrategy(driver, lapScore, ValidTyres, true);
+            raceSimEngine.HandleDriverStrategy(driver, lapScore, ValidTyres, true);
 
             driver.LapScores.Add(lapScore);
             lapScoresToPersist.Add(lapScore);
         }
 
         // Set the updated positions in the case a driver made a pitstop
-        raceManager.DeterminePositions(RaceDrivers);
+        raceSimEngine.DeterminePositions(RaceDrivers);
 
         // Only start closing the gap between drivers after having determined the pitstops
         int scoreAbove = 0;
@@ -337,7 +339,7 @@ public partial class Race
             }
         }
 
-        raceManager.SetPositions(RaceDrivers);
+        raceSimEngine.SetPositions(RaceDrivers);
     }
 
     private async Task Finish()

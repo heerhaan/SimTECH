@@ -22,7 +22,7 @@ public class RaceManagerTests
         var incidents = IncidentFactory.GenerateTestIncidentList;
         var config = new SimConfig();
 
-        var manager = new RaceManager(season, league, incidents, config);
+        var manager = new RaceSimulationEngine(season, league, incidents, config);
 
         var raceDrivers = new List<RaceDriver>()
         {
@@ -98,7 +98,7 @@ public class RaceManagerTests
 
         league.BattleRng = 5;
 
-        var manager = new RaceManager(season, league, incidents, config);
+        var manager = new RaceSimulationEngine(season, league, incidents, config);
 
         var raceDrivers = new List<RaceDriver>()
         {
@@ -286,7 +286,7 @@ public class RaceManagerTests
 
         league.BattleRng = 2;
 
-        var manager = new RaceManager(season, league, incidents, config);
+        var manager = new RaceSimulationEngine(season, league, incidents, config);
 
         var leadDriver = new RaceDriver()
         {
@@ -369,7 +369,7 @@ public class RaceManagerTests
 
         league.BattleRng = 2;
 
-        var manager = new RaceManager(season, league, incidents, config);
+        var manager = new RaceSimulationEngine(season, league, incidents, config);
 
         var supportDriver = new RaceDriver()
         {
@@ -485,7 +485,7 @@ public class RaceManagerTests
 
         league.BattleRng = 2;
 
-        var manager = new RaceManager(season, league, incidents, config);
+        var manager = new RaceSimulationEngine(season, league, incidents, config);
 
         var mainDriverTeamOne = new RaceDriver()
         {
@@ -615,7 +615,7 @@ public class RaceManagerTests
 
         league.BattleRng = 2;
 
-        var manager = new RaceManager(season, league, incidents, config);
+        var manager = new RaceSimulationEngine(season, league, incidents, config);
 
         var classOneDriverOne = new RaceDriver()
         {

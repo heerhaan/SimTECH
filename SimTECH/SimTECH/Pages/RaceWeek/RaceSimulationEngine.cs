@@ -5,7 +5,14 @@ using SimTECH.PageModels.RaceWeek;
 
 namespace SimTECH.Pages.RaceWeek;
 
-public class RaceManager(Season season, League league, List<Incident> incidents, SimConfig config)
+public enum TeamOrderDecision
+{
+    None,
+    DefenderYields,
+    AttackerHolds
+}
+
+public class RaceSimulationEngine(Season season, League league, List<Incident> incidents, SimConfig config)
 {
     private const int reliabilityMaxValue = 1000;
     private const int minimumPositionsGainedForSupport = 2;
@@ -188,37 +195,37 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
 
     public void DeterminePositions(List<RaceDriver> raceDrivers)
     {
-        var currentScoreOrderedPositions = GetCurrentPositions(raceDrivers);
-
-        // NOTE: Wasn't fully convinced yet on this implementation, but it does work soooo...?
-        var allPositionsAligned = false;
-        while (!allPositionsAligned)
+        var racingDrivers = raceDrivers.Where(e => e.Status == RaceStatus.Racing).ToList();
+        if (racingDrivers.Count == 0)
         {
-            foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
+            SetPositions(raceDrivers);
+            return;
+        }
+
+        while (true)
+        {
+            var currentScoreOrderedPositions = GetCurrentPositions(raceDrivers);
+
+            foreach (var driver in racingDrivers.OrderBy(e => e.AbsolutePosition))
             {
                 var lastScore = driver.LapScores.MaxBy(e => e.Order)
-                    ?? throw new Exception("There's no singular highest order score found");
+                    ?? throw new InvalidOperationException("No lap score found for racing driver.");
 
                 int positionChange = driver.AbsolutePosition - currentScoreOrderedPositions[driver.SeasonDriverId];
 
-                // Assign the new positions based on whether their overtakes have been succesful
                 if (positionChange > 0)
                     HandlePositionGain(raceDrivers, driver, lastScore, positionChange);
 
                 driver.LastScore = lastScore.Score;
             }
 
-            // Need to re-retrieve this for every driver since their positions may change due to other overtakes (maybe)
-            // ...altough i dont think this matters
             currentScoreOrderedPositions = GetCurrentPositions(raceDrivers);
 
-            foreach (var driver in raceDrivers.Where(e => e.Status == RaceStatus.Racing).OrderBy(e => e.AbsolutePosition))
-            {
-                if (driver.AbsolutePosition != currentScoreOrderedPositions[driver.SeasonDriverId])
-                    break;
+            bool allAligned = racingDrivers.All(driver =>
+                driver.AbsolutePosition == currentScoreOrderedPositions[driver.SeasonDriverId]);
 
-                allPositionsAligned = true;
-            }
+            if (allAligned)
+                break;
         }
 
         SetPositions(raceDrivers);
@@ -356,5 +363,26 @@ public class RaceManager(Season season, League league, List<Incident> incidents,
         }
 
         return false;
+    }
+
+    private static TeamOrderDecision UseTeamOrdersBetter(RaceDriver attackingDriver, RaceDriver defendingDriver, int positionsGained)
+    {
+        if (attackingDriver.SeasonTeamId != defendingDriver.SeasonTeamId)
+            return TeamOrderDecision.None;
+
+        // Atacker is the main driver, defender should not hold up his teammate at all
+        if (attackingDriver.Role == TeamRole.Main && defendingDriver.Role == TeamRole.Support)
+            return TeamOrderDecision.DefenderYields;//check of dit klopt ivm robot advies
+
+        // Call team orders on attacking driver only if the attacking support driver wouldn't be able to attack
+        // any other driver besides his own (main/lead) teammate
+        if (attackingDriver.Role == TeamRole.Support
+            && defendingDriver.Role == TeamRole.Main
+            && minimumPositionsGainedForSupport > positionsGained)
+        {
+            return TeamOrderDecision.DefenderYields;//check of dit klopt ivm robot advies
+        }
+
+        return TeamOrderDecision.None;//check of dit klopt ivm robot advies
     }
 }
